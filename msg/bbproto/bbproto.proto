@@ -1,0 +1,1685 @@
+package bbproto;
+//=====================================================
+
+enum EUnitType{
+	UALL	= 0; // all type
+	UFIRE 	= 1;
+	UWATER	= 2;
+	UWIND	= 3;
+	ULIGHT	= 4;
+	UDARK	= 5;
+	UNONE	= 6;
+    UHeart  = 7;
+}
+
+enum EUnitRace{
+    ALL             = 0; //all race
+    HUMAN           = 1;
+    UNDEAD          = 2;
+    MYTHIC          = 3;
+    BEAST           = 4;
+    MONSTER         = 5;
+    LEGEND          = 6;
+	DRAGON			= 7;
+    SCREAMCHEESE    = 8; //Leveup Material
+	EVOLVEPARTS		= 9; //Evolve Material
+}
+
+//general response protocol
+message ProtoHeader {
+	required string apiVer		= 1;
+	optional string sessionId	= 2;
+	optional uint32 userId		= 3;
+	optional int32	packetId	= 4;
+	optional int32	code		= 5; // result code
+	optional string error		= 6; // result error description
+	optional int32	extraTag	= 7; // addtional logic for future use
+}
+
+//=====================================================
+
+enum EFriendState{
+	ISFRIEND		= 1; // is already friend
+	FRIENDOUT		= 2; // I request add one as friend
+	FRIENDIN		= 3; // others request add me as friend
+	FRIENDHELPER	= 4; // friends allocated by system  
+}
+
+message FriendData {
+	optional uint32			userId				= 1;
+	optional EFriendState	friendState			= 2; 
+	optional uint32			friendStateUpdate 	= 3; // friend state updated time
+}
+
+message FriendInfo {
+	optional uint32			userId				= 1;
+	optional string 		nickName			= 2;
+	optional int32			rank				= 3;
+	optional uint32			lastPlayTime		= 4;
+	optional EFriendState	friendState			= 5; // 
+	optional uint32			friendStateUpdate 	= 6; // friend state updated time
+	optional int32			friendPoint			= 7;
+	optional UserUnit		unit				= 8;
+	optional uint32			usedTime		 	= 9;
+}
+
+message FriendList {
+	repeated FriendInfo		friend				= 1;
+	repeated FriendInfo		helper				= 2;
+	repeated FriendInfo		friendIn			= 3;
+	repeated FriendInfo		friendOut			= 4;
+}
+
+//-------------------------------------------------
+message ReqGetFriend {
+	optional ProtoHeader	header				= 1;
+	optional bool			getFriend			= 2;
+	optional bool			getHelper			= 3;
+}
+
+message RspGetFriend {
+	optional ProtoHeader	header				= 1;
+	optional FriendList		friends				= 2;
+}
+
+//-------------------------------------------------
+message ReqFindFriend {
+	optional ProtoHeader	header				= 1;
+	optional uint32			friendUid			= 2;
+}
+
+message RspFindFriend {
+	optional ProtoHeader	header				= 1;
+	optional FriendInfo		friend				= 2;
+}
+
+//-------------------------------------------------
+message ReqAddFriend {
+	optional ProtoHeader	header				= 1;
+	optional uint32			friendUid			= 2;
+}
+
+message RspAddFriend {
+	optional ProtoHeader	header				= 1;
+	optional FriendList		friends				= 2;	
+}
+
+//-------------------------------------------------
+message ReqDelFriend {
+	optional ProtoHeader	header				= 1;
+	repeated uint32			friendUid			= 2;
+}
+
+message RspDelFriend {
+	optional ProtoHeader	header				= 1;
+	optional FriendList		friends				= 2;
+}
+
+//-------------------------------------------------
+message ReqAcceptFriend {
+	optional ProtoHeader	header				= 1;
+	optional uint32			friendUid			= 2;
+}
+
+message RspAcceptFriend {
+	optional ProtoHeader	header				= 1;
+	optional FriendList		friends				= 2;	
+}
+//-------------------------------------------------
+//used for premium helper
+message ReqGetPremiumHelper {
+	optional ProtoHeader	header				= 1;
+	optional EUnitRace		race				= 2;
+	optional EUnitType		type				= 3;
+	optional int32			level				= 4;
+    optional int32			premiumKind			= 5; //1: LevelUp 2: evolve 3:battle
+}
+
+message RspGetPremiumHelper {
+	optional ProtoHeader	header				= 1;
+	repeated FriendInfo		helpers				= 2;
+}
+//-------------------------------------------------
+
+//=====================================================
+
+message GeneralProtoRsp {
+    optional RspAuthUser            rspAuthUser            = 1;  // authUser
+    optional RspChangeParty         rspChangeParty         = 2;  // changeParty
+    optional RspRenameNick          rspRenameNick          = 3;  // renameNick
+    optional RspRestoreStamina      rspRestoreStamina      = 4;  // restoreStamina
+    optional RspUnitMaxExpand       rspUnitMaxExpand       = 5;  // unitMaxExpand
+    optional RspFriendMaxExpand     rspFriendMaxExpand     = 6;  // friendMaxExpand
+    optional RspFinishUserGuide     rspFinishUserGuide     = 7;  // finishUserGuide
+    optional RspGetFriend           rspGetFriend           = 8;  // getFriend
+    optional RspAddFriend           rspAddFriend           = 9;  // addFriend
+    optional RspDelFriend           rspDelFriend           = 10; // delFriend
+    optional RspFindFriend          rspFindFriend          = 11; // findFriend
+    optional RspAcceptFriend        rspAcceptFriend        = 12; // acceptFriend
+    optional RspGetPremiumHelper    rspGetPremiumHelper    = 13; // getPremiumHelper
+    optional RspStartQuest          rspStartQuest          = 14; // startQuest
+    optional RspClearQuest          rspClearQuest          = 15; // clearQuest
+    optional RspRetireQuest         rspRetireQuest         = 16; // retireQuest
+    optional RspRedoQuest           rspRedoQuest           = 17; // redoQuest
+    optional RspResumeQuest         rspResumeQuest         = 18; // resumeQuest
+    optional RspGetQuestColors      rspGetQuestColors      = 19; // getQuestColors
+    optional RspLevelUp             rspLevelUp             = 20; // levelUp
+    optional RspEvolveStart         rspEvolveStart         = 21; // evolveStart
+    optional RspEvolveDone          rspEvolveDone          = 22; // evolveDone
+    optional RspGacha               rspGacha               = 23; // gacha
+    optional RspSellUnit            rspSellUnit            = 24; // sellUnit
+    optional RspUnitFavorite        rspUnitFavorite        = 25; // unitFavorite
+    optional RspUserGuideEvolveUnit rspUserGuideEvolveUnit = 26; // userGuideEvolveUnit
+    optional RspGetServerTime       rspGetServerTime       = 27; // getServerTime
+    optional RspUploadStat          rspUploadStat          = 28; // uploadStat
+    optional RspAcceptBonus         rspAcceptBonus         = 29; // acceptBonus
+    optional RspBonusList           rspBonusList           = 30; // bonusList
+    optional RspShopBuy             rspShopBuy             = 31; // shopBuy
+    optional RspBuyMoney            rspBuyMoney            = 32; // buyMoney
+    optional RspTaskList            rspTaskList            = 33; // taskList
+    optional RspAcceptTaskBonus     rspAcceptTaskBonus     = 34; // acceptTaskBonus
+    optional RspQuestStarList       rspQuestStarList       = 35; // questStarList
+    optional RspAcceptStarBonus     rspAcceptStarBonus     = 36; // acceptStarBonus
+    optional RspEvolve              rspEvolve              = 37; // evolve
+    optional RspUserGuideStep       rspUserGuideStep       = 38; // userGuideStep
+    optional RspFragsFusion         rspFragsFusion         = 39; // fragsFusion
+    optional RspRefreshUser         rspRefreshUser         = 40; // refreshUser
+    optional RspClientLog           rspClientLog           = 41; // clientLog
+}
+
+//=====================================================
+
+//-------------------------------------------------
+message EventDataParam {
+	optional string			key					= 1;
+	optional int32			iValue				= 2;
+	optional float			fValue				= 3;
+	optional string			sValue				= 4;
+}
+
+message EventData {
+	optional string			eventId				= 1;
+	optional int32			iValue				= 2;
+	optional float			fValue				= 3;
+	optional string			sValue				= 4;
+    optional uint32			timestamp			= 5;
+	repeated EventDataParam	values				= 6;
+}
+
+message ReqUploadStat {
+    optional ProtoHeader	header				= 1;
+	repeated EventData		events				= 2; // list of EventData
+}
+
+message RspUploadStat {
+	optional ProtoHeader	header				= 1;
+    optional uint32         serverTime			= 2;
+}
+
+
+//-------------------------------------------------
+message ReqGetServerTime {
+    optional ProtoHeader	header				= 1;
+}
+
+message RspGetServerTime {
+	optional ProtoHeader	header				= 1;
+    optional uint32         serverTime			= 2;
+}
+
+message ReqAcceptStarBonus {
+    optional ProtoHeader    header              = 1;
+    optional uint32         stageId             = 2;
+    optional ECopyType      copyType            = 3;
+}
+
+message RspAcceptStarBonus {
+    optional ProtoHeader    header              = 1;
+    optional int32          addStone            = 2;
+    optional int32          currentStone        = 3;
+}
+
+// -------------------------------------------------
+// 任务编号
+enum IntervalSettingType {
+    QuestPass               = 0;
+    QuestStar               = 1;
+    UserMoney               = 2;
+    UserStone               = 3;
+    UserRank                = 4;
+    UserUnitAdd             = 5;
+    UserFriend              = 6;
+    UserStamina             = 7;
+}
+
+// quest通关参数
+message ParamQuestPass {
+    optional uint32         questId    = 1;
+    optional ECopyType      copyType   = 2;
+}
+
+// quest通关返回
+message RspQuestPass {
+    optional uint32         questId    = 1;
+}
+
+// quest星级参数
+message ParamQuestStar {
+    optional uint32         sQuestId   = 1;
+    optional uint32         eQuestId   = 2;
+    optional int32          star       = 3;
+    optional ECopyType      copyType   = 4;
+}
+
+// quest星级返回
+message RspQuestStar {
+    optional bool           flag       = 1;
+}
+
+// 设置用户money
+message ParamUserMoney {
+    optional int32          addMoney   = 1;
+}
+
+// money返回
+message RspUserMoney {
+    optional int32          totalMoney = 1;
+}
+
+// 设置用户stone
+message ParamUserStone {
+    optional int32          addStone = 1;
+}
+
+// stone 返回
+message RspUserStone {
+    optional int32          totalStone = 1;
+}
+
+// 设置用户rank
+message ParamUserRank {
+    optional int32          addRank = 1;
+}
+
+// rank 返回
+message RspUserRank {
+    optional int32          curRank = 1;
+}
+
+// 设置用户unit
+message ParamUserUnit {
+    repeated uint32         unitList = 1;
+    optional int32          unitCnt  = 2;
+    optional MaterialType   mType    = 3;
+}
+
+// unit 返回
+message RspUserUnit {
+    optional bool           flag     = 1;
+}
+
+// 设置用户friend
+message ParamUserFriend {
+    optional int32          friendOut = 1;
+    optional int32          friendIn  = 2;
+    optional int32          isFriend  = 3;
+}
+
+// friend 返回
+message RspUserFriend {
+    optional int32          friendOut = 1;
+    optional int32          friendIn  = 2;
+    optional int32          isFriend  = 3;
+}
+
+// 系统内部设置请求
+message ReqStatSettingTool {
+    optional ProtoHeader           header         = 1;
+    optional IntervalSettingType   settingType    = 2;
+    optional ParamQuestPass        paramQuestPass = 3;
+    optional ParamQuestStar        paramQuestStar = 4;
+    optional ParamUserMoney        paramUserMoney = 5;
+    optional ParamUserStone        paramUserStone = 6;
+    optional ParamUserRank         paramUserRank  = 7;
+    optional ParamUserUnit         paramUserUnit  = 8;
+    optional ParamUserFriend       paramUserFriend = 9;
+}
+
+// 系统内部设置返回
+message RspStatSettingTool {
+    optional ProtoHeader    header              = 1;
+    optional RspQuestPass   rspQuestPass        = 2;
+    optional RspQuestStar   rspQuestStar        = 3;
+    optional RspUserMoney   rspUserMoney        = 4;
+    optional RspUserStone   rspUserStone        = 5;
+    optional RspUserRank    rspUserRank         = 6;
+    optional RspUserUnit    rspUserUnit         = 7;
+    optional RspUserFriend  rspUserFriend       = 8;
+}
+
+// 客户端错误日志
+message ReqClientLog {
+    optional ProtoHeader    header              = 1;
+    optional string         msg                 = 2;
+    optional string         stack               = 3;
+}
+
+message RspClientLog {
+    optional ProtoHeader    header              = 1;
+}
+
+
+//=====================================================
+
+enum RecoveBattleStep {
+	RB_None			= 0;
+	RB_BossDead		= 1;
+	RB_BattleFail 	= 2;
+	RB_NoRecoveHP	= 3;
+	RB_TrapDead		= 4;
+}
+
+enum EQuestState {
+	QS_NEW		= 0;
+	QS_QUESTING	= 1;
+	QS_CLEARED	= 2;
+}
+
+enum ETrapType {
+	Move			= 0;
+	StateException	= 1;
+	ChangeEnvir		= 2;
+	Injured			= 3;
+    All             = 4; // all trap
+}
+
+enum EQuestGridType {
+	Q_NONE			= 0;
+	Q_TREATURE		= 1;
+	Q_ENEMY			= 2;
+	Q_TRAP			= 3;
+	Q_KEY			= 4;
+	Q_QUESTION		= 5;
+	Q_EXCLAMATION	= 6;
+}
+
+enum EGridStar {
+	GS_EMPTY			= 0;
+	GS_STAR_1			= 1;
+	GS_STAR_2			= 2;
+	GS_STAR_3			= 3;
+	GS_STAR_4			= 4;
+	GS_STAR_5			= 5;
+	GS_STAR_6			= 6;
+	GS_KEY				= 7;
+	GS_QUESTION			= 8;
+	GS_EXCLAMATION		= 9;
+}
+
+enum ECopyType {
+    CT_NORMAL           = 0;
+    CT_ELITE            = 1;
+}
+
+message QuestStatus {
+	optional uint32			questId			= 1;
+	repeated uint32			playTime		= 2;
+}
+
+message QuestLog {
+	optional uint32				stageId			= 1;
+	optional uint32				questId			= 2;
+	optional uint32				startTime		= 3;
+	optional uint32				endTime			= 4;
+	optional QuestDungeonData	dungeonData		= 5;
+	optional uint32				helperUserId	= 6; 
+	optional UserUnit			helperUnit		= 7;
+	optional int32				currentParty	= 8;
+	repeated DropUnit			dropUnits		= 9;
+	repeated UserUnit			getUnit			= 10;
+	optional int32				getExp			= 11;
+	optional int32				getMoney		= 12;
+	optional int32				getFriendPoint	= 13;
+	optional int32				continueTimes	= 14; // continue quest after network error etc.
+	optional int32				resumeTimes		= 15; // use stone to resume when user's dead
+	optional EQuestState		state			= 16;
+	optional int32				playTotal		= 17;
+	optional int32				playToday		= 18;
+}
+
+//----------------------Quest config data-----------------------------
+message NumRange {
+	optional int32		min				= 1; 
+	optional int32		max				= 2;
+}
+
+message ColorPercent {
+	optional EUnitType	color			= 1; 
+	optional float		percent			= 2;	
+}
+
+message StarConfig {
+	optional int32			repeat		= 1;
+	optional EGridStar		star		= 2; // 1 - 6: star, 0: key, 7: ? 8:!
+	optional NumRange		coin		= 3; // tresureBox
+	repeated uint32			enemyPool	= 4; // enemyId list
+	optional NumRange		enemyNum	= 5;
+	repeated uint32			trap		= 6; // trapId
+}
+
+message QuestFloorConfig {
+	optional int32		version			= 1;
+	optional int32		treasureNum		= 2;
+	optional int32		trapNum			= 3;
+	optional int32		enemyNum		= 4;
+	optional int32		keyNum			= 5;
+	repeated StarConfig stars			= 6; // 1 - 6, !, ?
+}
+
+message QuestConfig {
+	optional uint32				questId		= 1;
+	repeated EnemyInfoConf		boss		= 2;
+	repeated EnemyInfoConf		enemys		= 3;
+	repeated ColorPercent		colors		= 4;
+	optional int32				repeatFloor	= 5;
+	repeated QuestFloorConfig 	floors		= 6;
+}
+
+//-------------------------QuestData------------------------------
+message EnemyInfo {
+	optional uint32		enemyId			= 1;
+	optional uint32		unitId			= 2;
+	optional EUnitType	type			= 3;
+	optional int32		hp				= 4;
+	optional int32		attack			= 5;
+	optional int32		defense			= 6;
+	optional int32		nextAttack		= 7; // next 1, 2, 3. 
+	optional int32		currentHp		= 8; // store runtime hp.
+	optional int32		currentNext		= 9; // store runtime next.
+}
+
+message EnemyInfoConf {
+	optional EnemyInfo	enemy			= 1;
+	optional uint32		dropUnitId		= 2;
+	optional int32		dropUnitLevel	= 3;
+	optional float		dropRate		= 4;
+	optional float		addRate			= 5; // "+" rate
+    optional MaterialType mType         = 6; // 掉落的材料类型
+    optional NumRange   dropCnt         = 7; // 掉落的数量
+}
+
+message DropUnit{
+	optional uint32		dropId			= 1;
+	optional uint32		unitId			= 2;
+	optional int32		level			= 3;
+	optional int32		addHp			= 4;
+	optional int32		addAttack		= 5;
+	optional int32		addDefence		= 6;
+	optional int32		dropPos			= 7; //only used for boss drop
+    optional MaterialType      mType    = 8; //掉落的类型
+    optional int32      dropCnt         = 9; //掉落的数量
+}
+
+message QuestGrid {
+	optional int32			position	= 1; // grid position
+	optional EGridStar		star		= 2; // 1 - 6 star, !, ?
+	optional int32			color		= 3; // star color
+	optional EQuestGridType	type		= 4; // enemy, coin, enemy, empty
+	repeated uint32			enemyId		= 5; // enemy uniqueId list
+	optional uint32			dropId		= 6; // pos in QuestDungeonData.DropUnit
+	optional int32			dropPos		= 7; // pos in grid.enemylist
+	optional int32			coins		= 8; 
+	optional uint32			trapId		= 9; 
+	optional int32			dangerLevel	= 10;
+}
+
+message QuestFloor {
+	repeated QuestGrid	gridInfo		= 1; // 24 grids		
+}
+
+message QuestDungeonData {
+	optional uint32			questId		= 1; 
+	repeated EnemyInfo		boss		= 2; // boss unit
+	repeated EnemyInfo		enemys		= 3; // enemy list
+	optional bytes			colors		= 4; 
+	repeated DropUnit		drop		= 5;
+	repeated QuestFloor		floors		= 6; // 1, 2, 3... floors
+}
+
+//============== QuestMapData -  client data also used=======================//
+message Position {
+	optional int32			x = 1;
+	optional int32			y = 2;	
+}
+
+enum QuestBoostType {
+	QB_BOOST_NONE		= 0;
+	QB_BOOST_MONEY		= 1;
+	QB_BOOST_EXP		= 2;
+	QB_BOOST_DROPRATE	= 3;
+	QB_BOOST_DROPPLUS	= 4;
+}
+
+enum QuestType {
+	E_QUEST_STORY		= 0;
+	E_QUEST_EVENT		= 1;
+	E_QUEST_EVOLVE		= 2;
+}
+
+message QuestBoost {
+	optional QuestBoostType	type	= 1; //money , exp , dropRate, drop+
+	optional int32			value	= 2; //2, 3...
+}
+
+message QuestInfo {
+	required uint32			id			= 1; 
+	optional EQuestState	state		= 2; // CLEAR or NEW
+	optional int32			no			= 3; // number: 1, 2, 3...
+	optional string			name		= 4; // quest name
+	optional string			story		= 5; // story description
+	optional int32			stamina		= 6; // cost stamina
+	optional int32			floor		= 7;		
+	optional int32			rewardExp	= 8;
+	optional int32			rewardMoney	= 9;
+	repeated uint32			bossId		= 10; // boss unitid
+	repeated uint32			enemyId		= 11; // enemy unitid
+	optional Position		pos			= 12; // quest position of the stage	
+}
+
+message Period {
+    optional uint32			startTime	= 1;
+    optional uint32			endTime		= 2;
+}
+
+message StageInfo {
+	optional int32			version		= 1;
+	optional uint32			cityId		= 2;
+	optional uint32			id			= 3;	
+	optional EQuestState	state		= 4; // CLEAR or NEW
+	optional QuestType		type		= 5; // 0=story  1=event 2=evolve
+	optional string			stageName	= 6; //
+	optional string			description	= 7; //	 
+	optional uint32			startTime	= 8;	
+	optional uint32			endTime		= 9;
+	optional QuestBoost		boost		= 10;
+	optional Position		pos			= 11; // stage position of the city	
+	repeated QuestInfo		quests		= 12;
+    repeated Period         validTime   = 13; // for multi valid periods
+}
+
+message CityInfo {
+	optional int32		version			= 1;
+	optional uint32		id				= 2;	
+	optional int32		state			= 3;
+	optional string		cityName		= 4; //
+	optional string		description		= 5; //
+	optional Position	pos				= 6; // city position of the worldmap
+	repeated StageInfo	stages			= 7;
+}
+
+message WorldMapInfo {
+	optional int32		version			= 1;
+	optional uint32		id				= 2; // world id, not used right now
+	repeated CityInfo	citylist		= 3; // CityInfo without stages(only CityInfo.id & CityInfo.cityName)
+}
+
+message QuestStarObj {
+    optional uint32     questId         = 1;
+    optional int32      star            = 2;
+}
+
+message CopyPassInfo {
+    repeated QuestStarObj    questStarList  = 1;
+    repeated uint32          stageIdList    = 2;
+    repeated uint32          acceptBonusStageList = 3;
+}
+
+//-------------------------------------------------------------
+
+message ReqStartQuest {
+	optional ProtoHeader	header			= 1;
+	optional uint32			stageId			= 2; 
+	optional uint32			questId			= 3; 
+	optional uint32			helperUserId	= 4;
+	optional UserUnit		helperUnit		= 5;
+	optional int32			currentParty	= 6;
+	optional int32			restartNew		= 7;
+    optional int32			isUserGuide	    = 8;
+    optional ECopyType      copyType        = 9;
+}
+
+message RspStartQuest {
+	optional ProtoHeader		header			= 1;
+	optional int32				staminaNow		= 2; // current stamina
+	optional uint32				staminaRecover	= 3; // stamina recover time
+	optional QuestDungeonData	dungeonData		= 4;
+}
+
+message ReqClearQuest {
+	optional ProtoHeader	header 			= 1; 
+	optional uint32			questId			= 2; 
+	optional uint32			securityKey		= 3; 
+	optional int32			getMoney		= 4;
+	repeated uint32			getUnit			= 5; //without uniqueId	
+	repeated uint32			hitGrid			= 6;
+    optional int32          totalHp         = 7;
+    optional int32          leftHp          = 8;
+    optional ECopyType      copyType        = 9;
+}
+
+message RspClearQuest {
+	optional ProtoHeader	header			= 1;
+	optional int32			rank			= 2;
+	optional int32			rankAdd			= 3;	
+	optional int32			exp				= 4;
+	optional int32			money			= 5;
+	optional int32			friendPoint		= 6;
+	optional int32			staminaNow		= 7;
+	optional int32			staminaMax		= 8;
+	optional uint32			staminaRecover	= 9; //recover time
+	optional int32			gotMoney		= 10;
+	optional int32			gotExp			= 11;
+	optional int32			gotStone		= 12;
+	optional int32			gotFriendPoint	= 13;
+	repeated UserUnit		gotUnit			= 14; //with uniqueId 
+	optional int32			costMaxAdd		= 15;
+	optional int32			unitMaxAdd		= 16;
+	optional int32			friendMaxAdd	= 17;
+	optional int32			staminaMaxAdd	= 18;
+    optional int32          curStar         = 19;
+}
+
+message ReqRetireQuest {
+	optional ProtoHeader	header 			= 1;
+	optional uint32			questId			= 2; // 
+	optional int32			isGameOver		= 3; 
+}
+
+message RspRetireQuest {
+	optional ProtoHeader 	header 			= 1;
+	optional int32			staminaNow		= 2;
+	optional uint32			staminaRecover	= 3;
+}
+
+message ReqResumeQuest {
+	optional ProtoHeader	header 			= 1;
+	optional uint32			questId			= 2; // 
+}
+
+message RspResumeQuest {
+	optional ProtoHeader 	header 			= 1;
+	optional int32			stone 			= 2;
+    optional int32          usedVipCnt      = 3;
+}
+
+message ReqRedoQuest {
+	optional ProtoHeader		header 			= 1;
+	optional uint32				questId			= 2;
+	optional int32				floor			= 3;
+	optional int32				getColors		= 4;
+}
+
+message RspRedoQuest {
+	optional ProtoHeader	 	header 			= 1;
+	optional int32				stone 			= 2;
+	optional QuestDungeonData	dungeonData		= 3;	
+}
+
+message ReqGetQuestColors {
+	optional ProtoHeader	header 			= 1;
+	optional uint32			questId			= 2;
+	optional int32			count			= 3;
+}
+
+message RspGetQuestColors {
+	optional ProtoHeader 	header 			= 1;
+	optional uint32			questId			= 2;
+	optional bytes			colors			= 3;
+}
+
+message ReqGetQuestInfo {
+	optional ProtoHeader	header 			= 1;
+}
+
+message RspGetQuestInfo {
+	optional ProtoHeader 	header 			= 1;
+	optional uint32			questId			= 2; // 
+	optional uint32			currentStatus	= 3; // current quest status
+}
+
+//=========== Trap ====================================================================//
+message TrapInjuredValue {
+	optional int32			trapIndex		= 1;
+	optional int32			trapLevel		= 2;
+	optional float			trapValue		= 3;
+}
+
+message TrapInfo {
+	required uint32				trapID		= 1;
+	optional ETrapType			trapType	= 2;
+	optional int32				valueIndex	= 3;
+	repeated TrapInjuredValue	injuredInfo	= 4;
+	optional int32				effectType	= 5;
+	optional int32				round		= 6; //current elapsed round
+}
+
+//===========store disk data============================================================
+message StoreBattleData {
+	required int32				colorIndex			= 1;
+	optional int32				hp					= 2;
+	optional int32				sp					= 3;
+	optional int32				isBattle			= 4;
+	optional int32				xCoordinate			= 5;
+	optional int32				yCoordinate			= 6;
+	repeated ClearQuestParam	questData			= 7;
+	repeated EnemyInfo			enemyInfo			= 8;
+	optional bool				hitKey				= 9;
+	optional int32				attackRound			= 10;
+	repeated int32				activeSkillCooling	= 11;
+	optional RecoveBattleStep	recoveBattleStep	= 12;
+}
+
+message ClearQuestParam {
+	required uint32				questID		= 1;
+	optional int32				getMoney	= 2;
+	repeated uint32				getUnit		= 3;
+	repeated uint32				hitGrid		= 4;
+    optional ECopyType			copyType	= 5;
+}
+
+message AttackInfoProto {
+	required int32				attackID				= 1;
+	optional string				userUnitID				= 2;
+	optional int32				userPos					= 3;
+	optional int32				needCardNumber			= 4;
+	optional int32				skillID					= 5;
+	optional int32				attackType				= 6;
+	optional int32				attackRace				= 7;
+	optional int32				attackRange				= 8;// 0 == single attack; 1 == all attack; 2 == recover hp.
+	optional float				attackValue				= 9;
+	optional int32				continueAttackMultip	= 10;
+	optional uint32				enemyID					= 11;
+	optional int32				injuryValue				= 12;
+	optional bool				ignoreDefense			= 13;
+	optional int32				attackRound 			= 14;
+	optional float				attackRate				= 15;
+	optional bool				fixRecoverHP			= 16;
+	optional int32				isLink					= 17;	
+}
+
+message ActiveSkillData {
+	optional int32				skillId		= 1;
+	optional int32				round		= 2; //current elapsed round
+}
+
+
+
+
+//=====================================================
+
+
+message ReqShopBuy {
+    optional ProtoHeader	header				= 1;
+	optional string			productId			= 2;
+}
+
+message RspShopBuy {
+    optional ProtoHeader	header				= 1;
+    optional int32	        stonePay			= 2;
+    optional int32	        stoneFree			= 3;
+    optional int32	        stone				= 4;
+    optional BonusInfo      monthBonus          = 5;
+    optional BonusInfo      weekBonus           = 6;
+    optional string			productId			= 7;
+    optional int32			payTotal			= 8;
+    optional float          productPrice        = 9;
+    optional int32          gotStone            = 10;
+    optional int32          vipLevel            = 11;
+}
+
+message ReqBuyMoney {
+    optional ProtoHeader    header              = 1;
+}
+
+message RspBuyMoney {
+    optional ProtoHeader    header              = 1;
+    optional int32          stone               = 2;
+    optional int32          gotMoney            = 3;
+    optional int32          money               = 4;
+    optional int32          usedBuyMoneyCnt     = 5;
+}
+
+//=====================================================
+
+// 任务类型
+enum ETaskType {
+    ACHIEVEMENT    = 1;  // 成就
+    DAILYTASK      = 2;  // 每日任务
+}
+
+// 成就类型
+enum EAchieveType {
+    STAGE_PASS          = 1;  // 通关stage
+    FRIEND_GOT          = 2;  // 拥有好友
+    SUMMON_FP           = 3;  // 友情召唤
+    SUMMON_RARE         = 4;  // 稀有召唤
+    SUMMON_FP_9         = 5;  // 友情召唤9连抽
+    SUMMON_RARE_9       = 6;  // 稀有召唤9连抽
+    POWERUP             = 7;  // 强化
+    POWERUP_MAX         = 8;  // 强化满级
+    EVOLVE              = 9;  // 进化
+    GALLERY             = 10; // 解锁图鉴
+    UNIT_3              = 11; // 获得3★卡牌
+    UNIT_4              = 12; // 获得4★卡牌
+    UNIT_5              = 13; // 获得5★卡牌
+    MONEY_QUEST         = 14; // 从关卡获得金币
+    FP_QUEST            = 15; // 从关卡获得友情点数
+    EVENT_PLAY          = 16; // 活动关卡次数
+    CITY_PASS           = 17; // 通关city
+    EVOLVE_MAX          = 18; // 进化满级
+    ANY_QUEST_DAILY     = 19; // 每日完成任意关卡
+    FRIENDPOINT_DAILY   = 20; // 每日友情点数
+    FRIEND_DAILY        = 21; // 每日获得好友
+    POWERUP_DAILY       = 22; // 每日强化
+    EVOLVE_DAILY        = 23; // 每日进化
+    SUMMON_FP_DAILY     = 24; // 每日友情抽卡
+    SUMMON_RARE_DAILY   = 25; // 每日稀有抽卡
+    QUEST_EVENT_DAILY   = 26; // 每日活动关卡
+}
+
+// 任务系统配置
+message TaskConf {
+    required  int32          taskID       = 1;  // 任务ID
+    required  ETaskType      taskType     = 2;  // 任务类型
+    optional  string         taskDesc     = 3;  // 任务描述
+    required  string         taskGoal     = 4;  // 任务目标
+    required  int32          goalCnt      = 5;  // 完成数量
+    repeated  GiftItem       giftItem     = 6;  // 奖励
+    required  string         goToSence    = 7;  // 前往场景
+    optional  EAchieveType   achieveType  = 8;  // 成就类型
+}
+
+// 任务基本结构
+message TaskObj {
+    required int32           taskId                 = 1; // 任务ID
+    optional ETaskType       taskType               = 2; // 任务类型
+    optional int32           bonusId                = 3; // 奖励ID，已领奖励，置0
+}
+
+message ReqTaskList {
+    optional ProtoHeader     header                 = 1;  // header
+    optional ETaskType       taskType               = 2;  // 任务类型
+}
+
+message AchievedTaskRspObj {
+    optional int32           taskId                 = 1; // 任务ID
+    optional int32           bonusId                = 2; // 奖励ID，已领奖，置0
+}
+
+message UnAchievedTaskRspObj {
+    optional int32           taskId                 = 1; // 任务ID
+    optional int32           currentCnt             = 2; // 当前已经完成的数量
+}
+
+message TaskTypeRsp {
+    repeated AchievedTaskRspObj   achieved          = 1; // 已完成
+    repeated UnAchievedTaskRspObj unAchieved        = 2; // 未完成
+}
+
+message RspTaskList {
+    optional ProtoHeader     header                 = 1;  // header
+    optional TaskTypeRsp     achieve                = 2;  // 成就
+    optional TaskTypeRsp     dailyTask              = 3;  // 每日任务
+}
+
+message ReqAcceptTaskBonus {
+    optional ProtoHeader     header                 = 1;  // header
+    repeated int32           bonusId                = 2;  // 奖励ID
+}
+
+message RspAcceptTaskBonus {
+    optional ProtoHeader     header                 = 1;  // header
+//    optional int32           money                  = 2;  // money
+//    optional int32           stone                  = 3;  // stone
+//    optional int32           friendPoint            = 4;  // friendPoint
+//    optional int32           staminaNow             = 5;  // stamina
+//    optional int32           expNow                 = 6;  // exp
+//    optional int32           rank                   = 7;  // rank
+//    repeated UserUnit        newUnitList            = 8;  // unitList
+    repeated UserUnit        newUnitList            = 2;  // unitList
+}
+
+//=====================================================
+
+message UnitResource { 
+	required uint32			id			= 1;
+	optional string			path		= 2; // resource download path
+	optional int32			size		= 3; // resource size in bytes
+    repeated string         fileName    = 4; // file name list
+    optional int32          version     = 5; // file version
+}
+
+enum MaterialType {
+    MT_UNIT     = 1;
+    MT_FRAGMENT = 2;
+}
+
+message UserUnit {  //unit instance
+	required uint32 uniqueId			= 1;
+	optional uint32 unitId				= 2;
+	optional int32 exp					= 3;
+	optional int32 level				= 4;
+	optional int32 activeSkillLevel		= 5; 
+	optional int32 addAttack			= 6;
+	optional int32 addDefence			= 7;
+	optional int32 addHp				= 8;
+	optional int32 limitbreakLv			= 9;
+	optional uint32 getTime				= 10;
+	optional int32	isFavorite			= 11;
+    optional MaterialType mtType        = 12;
+    optional int32  fragCnt             = 13;
+}
+
+message UnitInfo { 	
+	required uint32			id				= 1;
+	optional string			name			= 2;
+	optional EUnitRace		race			= 3;	
+	optional EUnitType		type			= 4;//wind flame water, etc.
+	optional int32			rare			= 5;	
+	optional int32			skill1			= 6;
+	optional int32			skill2			= 7;
+	optional int32			leaderSkill		= 8;
+	optional int32			activeSkill		= 9;
+	optional int32			passiveSkill	= 10;
+	optional int32			maxLevel		= 11;
+	optional string			profile			= 12;
+	optional PowerType		powerType		= 13; //include: hpType,atkType,expType
+	optional EvolveInfo		evolveInfo		= 14;
+	optional int32			cost			= 15;
+	optional int32			saleValue		= 16;
+	optional int32			devourValue		= 17;
+    repeated UnitGetWay		getWay			= 18;
+	optional int32			maxActiveSkillLv= 19;
+	optional int32			maxStar			= 20; //max star to be evolved
+    optional UVPosition		showPos			= 21; //offset for show position
+    optional int32          fragmentsSize   = 22; // 标识多少碎片可以合成一张卡牌
+}
+
+message UVPosition {
+    optional float			x = 1;
+    optional float			y = 2;
+    optional float			w = 3;
+    optional float			h = 4;
+}
+
+message UnitGetWay {
+	optional EUnitGetType	getType	= 1; //questId, gachaId...
+    optional uint32			getPath	= 2;
+}
+
+enum EUnitGetType {
+	E_NONE				= 0;
+	E_NORMAL_QUEST		= 1;
+    E_EVENT_QUEST		= 2;
+	E_GACHA_NORMAL		= 3;
+	E_GACHA_EVENT		= 4;
+	E_BUY				= 5;
+    E_BONUS				= 6;
+    E_STAGE             = 7;
+}
+
+/////////unsed///////////////////////////////////////////////////////////////////
+message PowerValue {
+	optional int32 level 		= 1; // unit level
+	optional int32 value		= 2;
+}
+
+message PowerTable {
+	repeated PowerValue	 power	= 1; //has one item for each level
+}
+/////////unsed/////////////////////////////////////////////////////////////////
+
+message PowerInfo {
+	optional int32 min			= 1;
+	optional int32 max			= 2;
+	optional float growCurve	= 3;
+}
+
+message PowerType {
+	optional PowerInfo	attackType	= 1;
+	optional PowerInfo	hpType		= 2;
+	optional PowerInfo	expType		= 3;
+}
+
+message HelperRequire {
+    optional int32		level		= 1;
+	optional EUnitRace	race		= 2;
+	optional EUnitType	type		= 3;
+}
+
+message EvolveInfo {
+    required uint32      		evolveUnitId    = 1;
+    repeated uint32		      	materialUnitId  = 2;
+	optional HelperRequire		helperRequire	= 3;
+	optional uint32				evolveQuestId	= 4;
+}
+
+enum EGachaType {
+	E_FRIEND_GACHA		= 1;
+	E_BUY_GACHA			= 2;
+	E_BUY_GACHA_EVENT	= 3;
+}
+
+message GachaConfig {
+	optional int32			gachaId		= 1;
+	optional EGachaType		gachaType	= 2; //by friendPoint, by chip， by chip(event)
+	optional uint32			beginTime	= 3; 
+	optional uint32			endTime		= 4; 
+	optional int32			eventId		= 5;
+    repeated GachaStarInfo  starList    = 6;
+}
+
+message GachaUnitList {
+    optional int32          minMatch    = 1;
+    optional int32          maxMatch    = 2;
+    repeated uint32         unitId      = 3;
+    optional MaterialType   mtype       = 4;
+    optional int32          unitCnt     = 5;
+}
+
+message GachaStarInfo {
+    optional int32          starVal     = 1;
+    optional int32          minMatch    = 2;
+    optional int32          maxMatch    = 3;
+    repeated GachaUnitList  unitList    = 4;
+}
+
+//=================================================================================================//
+
+message ReqGetUnitResource {
+	optional ProtoHeader	header	= 1;
+	repeated uint32			unitId	= 2;
+}
+
+message RspGetUnitResource {
+	optional ProtoHeader	header	= 1;
+	optional string			server	= 2; // server address
+	repeated UnitResource	unitres	= 3; // unit download path list
+}
+
+message ReqGetUserUnit {	// get unit instance info
+	optional ProtoHeader	header	= 1;
+	repeated uint32			unitId	= 2;
+}
+
+message RspGetUserUnit {
+	optional ProtoHeader	header	= 1;
+	repeated UserUnit		unit	= 2;
+}
+
+message ReqLevelUp {	
+	optional ProtoHeader	header			= 1;
+	optional uint32			baseUniqueId	= 2;
+	repeated uint32			partUniqueId	= 3;
+	optional uint32			helperUserId	= 4; 
+	optional UserUnit		helperUnit		= 5;
+	optional int32			helperPremium	= 6;
+}
+
+message RspLevelUp {
+	optional ProtoHeader	header			= 1;
+	repeated UserUnit		unitList		= 2; // not used
+	optional UserUnit		baseUnit		= 3;
+	optional int32			money			= 4;
+	optional uint32			blendUniqueId	= 5;
+	optional int32			blendExp		= 6;
+	repeated uint32			partUniqueId	= 7;
+    optional int32			friendPoint	    = 8; // total points
+    optional int32			gotFriendPoint	= 9; // got points
+}
+
+
+message ReqEvolveStart {	
+	optional ProtoHeader	header			= 1;
+	optional uint32			baseUniqueId	= 2;
+	repeated uint32			partUniqueId	= 3;
+	optional uint32			helperUserId	= 4;
+	optional UserUnit		helperUnit		= 5;
+	optional int32			helperPremium	= 6;
+	optional uint32			evolveQuestId	= 7;
+	optional int32			restartNew		= 8;
+}
+
+message RspEvolveStart {
+	optional ProtoHeader		header			= 1;
+	optional int32				staminaNow		= 2; // current stamina
+	optional uint32				staminaRecover	= 3; // stamina recover time
+	optional QuestDungeonData	dungeonData		= 4;
+}
+
+message ReqEvolveDone {	
+	optional ProtoHeader	header			= 1;
+	optional uint32			questId			= 2; 
+	optional uint32			securityKey		= 3; 
+	optional int32			getMoney		= 4;
+	repeated uint32			getUnit			= 5;
+	repeated uint32			hitGrid			= 6;
+}
+
+message RspEvolveDone {	
+	optional ProtoHeader	header			= 1;
+	optional int32			rank			= 2;
+	optional int32			rankAdd			= 3;
+	optional int32			exp				= 4;
+	optional int32			money			= 5;
+	optional int32			friendPoint		= 6;
+	optional int32			staminaNow		= 7;
+	optional int32			staminaMax		= 8;
+	optional uint32			staminaRecover	= 9;
+	optional int32			gotMoney		= 10;
+	optional int32			gotExp			= 11;
+	optional int32			gotStone		= 12;
+	optional int32			gotFriendPoint	= 13;
+	repeated UserUnit		gotUnit			= 14;
+	optional UserUnit		evolvedUnit		= 15;
+	optional int32			costMaxAdd		= 16;
+	optional int32			unitMaxAdd		= 17;
+	optional int32			friendMaxAdd	= 18;
+	optional int32			staminaMaxAdd	= 19;	
+}
+
+message ReqEvolve {
+    optional ProtoHeader    header          = 1;
+    optional uint32			baseUniqueId	= 2;
+    repeated uint32			partUniqueId	= 3;
+}
+
+message RspEvolve {
+    optional ProtoHeader    header          = 1;
+    optional int32          usedMoney       = 2;
+    optional int32          totalMoney      = 3;
+    optional UserUnit       evolvedUnit     = 4;
+}
+
+message ReqGacha {	
+	optional ProtoHeader	header			= 1;
+	optional int32			gachaId			= 2;
+	optional int32			gachaCount		= 3;
+}
+
+message RspGacha {	
+	optional ProtoHeader	header			= 1;
+	repeated UserUnit		unitList		= 2; // only the gacha got units
+	repeated uint32			unitUniqueId	= 3;
+	repeated uint32			blankUnitId		= 4;
+	optional int32			stone			= 5;
+	optional int32			friendPoint		= 6;
+    optional DataCount      countInfo       = 7;
+}
+
+message ReqSellUnit {	
+	optional ProtoHeader	header			= 1;
+	repeated uint32			unitUniqueId	= 2;
+}	
+
+message RspSellUnit {	
+	optional ProtoHeader	header			= 1;
+	optional int32			money			= 2;
+	optional int32			gotMoney		= 3;
+	repeated UserUnit		unitList		= 4;	
+}
+
+enum EFavoriteAction {
+	ADD_FAVORITE	= 1;
+	DEL_FAVORITE	= 2;
+}
+
+message ReqUnitFavorite {
+	optional ProtoHeader		header			= 1;
+	optional uint32				unitUniqueId	= 2;
+	optional EFavoriteAction	action			= 3;
+}	
+
+message RspUnitFavorite {
+	optional ProtoHeader		header			= 1;
+	optional uint32				unitUniqueId	= 2;
+}
+
+message ReqUserGuideEvolveUnit {
+    optional ProtoHeader        header          = 1;
+    optional uint32             unitId          = 2;
+}
+
+message RspUserGuideEvolveUnit {
+    optional ProtoHeader        header          = 1;
+    repeated UserUnit           addUnit         = 2;
+}
+
+message ReqFragsFusion {
+    optional ProtoHeader        header          = 1;
+    optional uint32             fragsUniqueId   = 2;
+}
+
+message RspFragsFusion {
+    optional ProtoHeader        header          = 1;
+    optional int32              usedMoeny       = 2;
+    optional int32              totalMoeny      = 3;
+    optional UserUnit           fusionedUnit    = 4;
+    optional UserUnit           fragsUnit       = 5;
+}
+
+
+//=====================================================
+
+message UserInfo {
+	optional string		uuid				= 1;
+	optional uint32		userId				= 2;
+	optional string		userName			= 3;
+	optional string		password			= 4;
+	optional string		nickName			= 5;
+	optional int32		rank				= 6 [default = -1];
+	optional int32		exp					= 7 [default = -1];
+	optional int32		staminaNow			= 8 [default = -1];
+	optional int32		staminaMax			= 9; 
+	optional uint32		staminaRecover		= 10;//recover time
+	optional int32		friendMax			= 11;
+	optional int32		unitMax				= 12;
+	optional int32		costMax				= 13;	
+	optional UserUnit	unit				= 14; //leader unit
+    optional uint32		regTime     		= 15; //user register time
+    optional int32      vipLevel            = 16 [default = -1]; //vip system
+}
+
+message UserInfoDetail {
+	optional UserInfo		user				= 1;
+	optional AccountInfo	account				= 2;
+	optional QuestLog		quest				= 3;
+	repeated UserUnit		unitList			= 4;
+	optional PartyInfo		party				= 5;
+	optional LoginInfo		login				= 6;
+	optional QuestClearInfo	questClear          = 7;
+	optional bytes			unitFavoriteFlag	= 8;
+	optional bytes			haveUnitFlag		= 9;	//got unit
+	optional bytes			meetUnitFlag		= 10;	//meet unit
+    optional bytes			userGuideFlag		= 11;
+    optional int32          flag                = 12;   //1: system generated user
+    optional DailyUserOptCnt dailyOptCnt        = 13;   // 每日操作计数
+    optional UserTaskInfo   userTaskInfo        = 14;   // 任务系统信息
+    optional TotalUserOptCnt totalOptCnt        = 15;   // 总操作计数
+    optional UserCopyInfo   copyInfo            = 16;   // 副本信息
+}
+
+message MonthCard {
+    optional bool           buyFlag             = 1;  // buy or not
+    optional uint32         buyTime             = 2;  // xxxx-xx-xx 00:00:00 's utc timestamp
+    optional uint32         nextReceiveTime     = 3;  // 下次领取时间（上次领取时间），领取后一日零时
+    optional int32          remainCount         = 4;  // 剩余的领取天数
+    optional int32          cardType            = 5;  // 卡的类型
+}
+
+message AccountInfo {
+	optional int32	review						= 1;
+	optional int32	payTotal					= 2 [default = -1];
+	optional int32	payMonth					= 3 [default = -1];
+	optional int32	money						= 4 [default = -1];
+	optional int32	stonePay					= 5 [default = -1];
+	optional int32	stoneFree					= 6 [default = -1];
+	optional int32	stone						= 7 [default = -1];
+	optional int32	friendPoint					= 8 [default = -1];
+	optional int32	firstSelectNum				= 9 [default = -1];
+    optional MonthCard  monthCard               = 10; // 月卡，多次购买累计日期
+    optional MonthCard  weekCard                = 11; // 周卡，多次购买累计日期
+}
+
+message StageClearItem {
+	optional uint32	stageId						= 1;
+	optional uint32	questId						= 2;
+}
+
+message QuestClearInfo {
+	optional StageClearItem		storyClear		= 1;
+	repeated StageClearItem		eventClear		= 2;
+    optional StageClearItem     eliteClear      = 3;
+}
+
+message PartyItem {
+	optional int32 unitPos						= 1;
+	optional uint32 unitUniqueId				= 2;
+}
+
+message UnitParty {
+    optional int32      id						= 1;
+	repeated PartyItem  items					= 2;
+}
+
+message PartyInfo {
+	repeated UnitParty		partyList			= 1;
+	optional int32			currentParty		= 2;
+}
+
+message TerminalInfo {
+	optional string	channel						= 1; // app market channel
+	optional string	deviceName					= 2; // 
+	optional string	uuid						= 3; 
+	optional string	os		 					= 4; // android / ios
+}
+
+//enum EBonusType{
+//    TOTAL_LOGIN = 1;
+//    CHAIN_LOGIN = 2;
+//    RANK_REACH  = 3;
+//    OTHER_EVENT  = 4;
+//    WEEK_CARD   = 5;
+//    MONTH_CARD  = 6;
+//    DAILY_TASK  = 7;
+//    ACHIEVE_TASK = 8;
+//    STAR = 9;
+//}
+
+// 奖励类型
+enum EGiftContent {
+    COIN            = 1; // 金币
+    FRIEND_POINT    = 2; // 友情点数
+    UNIT            = 3; // 卡牌
+    CHIP            = 4; // 魔法石
+    STAMINA         = 5; // 体力
+    RANK_EXP        = 6; // 升级经验
+}
+
+message GiftItem {
+    optional int32      	content				= 1; //coin, friendPoint, unit, chip
+    optional int32		    value				= 2; //unitId
+    optional int32		    count				= 3; //
+    optional MaterialType          mtype               = 4; // 1:卡牌 2:碎片
+}
+
+message BonusInfo {
+    optional int32          id                  = 1;
+    optional int32          type    			= 2; //chainLogin, totalLogin, RankReach
+	optional int32		    matchValue			= 3; //
+    optional uint32         validTime           = 4;
+    optional string         message				= 5; //optional
+    repeated GiftItem       giftItem            = 6;
+    optional int32		    enabled 			= 7; // 1:enable 0 disable
+    optional int32		    tag					= 8; //
+}
+
+message LoginInfo {
+	optional int32		loginTotal				= 1; // login times in total
+	optional int32		loginChain				= 2;
+    optional int32		loginDayTotal			= 3; //login days in total
+	optional uint32		lastLoginTime			= 4;
+    optional uint32		lastPlayTime            = 5;
+    repeated BonusInfo  bonus					= 6;
+    optional int32		maxBonusId              = 7;
+    repeated int32      onceBonusId	    		= 8; //accepted bonus id for once bonus
+}
+
+message PresentInfo {
+	optional uint32		id      				= 1;
+	optional uint32		sendTime				= 2;
+	optional uint32		type					= 3;
+	optional uint32		value1					= 4;
+	optional uint32		value2					= 5;
+	optional string		message					= 6;
+}
+
+message SessionInfo {
+	optional string		sessionId				= 1;
+	optional string		uuid					= 2;
+	optional uint32		userId					= 3;
+	optional uint32		questId					= 4;
+}
+//-------------------------------------------------
+
+message ReqGetUserInfo {
+	optional ProtoHeader	header				= 1;
+	optional uint32			userId				= 2;
+}
+
+message RspGetUserInfo {
+	optional ProtoHeader	header				= 1;
+	optional UserInfo		user				= 2;
+}
+
+//-------------------------------------------------
+message NoticeItem {
+    optional string			title				= 1;
+    optional string			message				= 2;
+}
+
+message NoticeInfo {
+    repeated NoticeItem		items				= 1;
+    optional string         gachaNotice         = 2;
+}
+
+message DataCount {
+    optional int32         gachaWillGet5Star    = 1 [default = -1];
+}
+
+message ReqAuthUser {
+	optional ProtoHeader	header				= 1;
+	optional TerminalInfo	terminal			= 2;
+	optional uint32			selectRole			= 3;
+	optional int32			appVersion			= 4;
+}
+
+message RspAuthUser {
+	optional ProtoHeader	header				= 1;
+	optional UserInfo		user				= 2;
+	optional AccountInfo	account				= 3;
+	optional QuestLog		quest				= 4;
+	repeated UserUnit		unitList			= 5;
+	optional PartyInfo		party				= 6;
+	optional uint32			serverTime			= 7;
+	optional LoginInfo		login				= 8;
+	repeated FriendInfo		friends				= 9;
+	repeated PresentInfo	present				= 10;
+	optional EUnitType		evolveType			= 11;
+	optional QuestClearInfo	questClear			= 12;
+	optional int32			isNewUser			= 13;
+	optional bytes			haveUnitFlag		= 14;
+	optional bytes			meetUnitFlag		= 15;
+	optional int32			newAppVersion		= 16;
+	optional string			appUrl				= 17;
+    optional int32			userGuideStep		= 18;
+	optional NoticeInfo		notice				= 19;
+    repeated StageInfo      eventList           = 20;
+    optional StatHelperCount helpCountInfo      = 21;
+    repeated VipConf        vipConfList         = 22;
+    optional DataCount      countInfo           = 23;
+}
+
+//-------------------------------------------------
+message ReqLoginPack {
+	optional ProtoHeader	header				= 1;
+	optional bool			getLogin			= 2;
+	optional bool			getFriend			= 3;
+	optional bool			getHelper			= 4;
+	optional bool			getPresent			= 5;
+}
+
+message RspLoginPack {
+	optional ProtoHeader	header				= 1;
+	optional LoginInfo		login				= 2;
+	repeated FriendInfo		friends				= 9;
+	repeated PresentInfo	present				= 4;
+}
+
+//-------------------------------------------------
+
+message ReqRenameNick {
+	optional ProtoHeader	header				= 1;
+	optional string			newNickName			= 2;
+}
+
+message RspRenameNick {
+	optional ProtoHeader	header				= 1;
+	optional string			newNickName			= 2;
+}
+
+//-------------------------------------------------
+
+message ReqRestoreStamina {
+	optional ProtoHeader	header				= 1;
+}
+
+message RspRestoreStamina {
+	optional ProtoHeader	header				= 1;
+	optional int32			staminaNow			= 2; // current stamina
+	optional int32			staminaMax			= 3; 	
+	optional uint32			staminaRecover		= 4; // stamina recover time
+	optional int32			stone				= 5;
+    optional int32          usedVipCnt          = 6;
+}
+
+//-------------------------------------------------
+message ReqChangeParty {
+	optional ProtoHeader	header				= 1;
+	optional PartyInfo		party				= 2;
+}
+
+message RspChangeParty {
+	optional ProtoHeader	header				= 1;
+}
+
+//-------------------------------------------------
+message ReqUnitMaxExpand {
+	optional ProtoHeader	header				= 1;
+}
+
+message RspUnitMaxExpand {
+	optional ProtoHeader	header				= 1;
+	optional int32			unitMax				= 2;
+	optional int32			stone				= 3;
+}
+
+//-------------------------------------------------
+message ReqFriendMaxExpand {
+	optional ProtoHeader	header				= 1;
+}
+
+message RspFriendMaxExpand {
+	optional ProtoHeader	header				= 1;
+	optional int32			friendMax			= 2;	
+	optional int32			stone				= 3;
+}
+
+//-------------------------------------------------
+message ReqFinishUserGuide {
+    optional ProtoHeader	header				= 1;
+    optional int32			step				= 2;
+}
+
+message RspFinishUserGuide {
+	optional ProtoHeader	header				= 1;
+    optional int32          nowStep             = 2;
+}
+
+message ReqAcceptBonus {
+    optional ProtoHeader	header				= 1;
+    repeated int32			bonusId				= 2;
+}
+
+message RspAcceptBonus {
+    optional ProtoHeader	header				= 1;
+    optional int32          stone               = 2;
+    optional int32          money               = 3;
+    optional int32          friendPoint         = 4;
+    repeated UserUnit       newUnitList         = 5;
+}
+
+message ReqBonusList {
+    optional ProtoHeader    header              = 1;
+}
+
+message RspBonusList {
+    optional ProtoHeader    header              = 1;
+    repeated BonusInfo      bonus               = 2;
+}
+
+// 用户关卡星级状态
+message RspQuestStarList {
+    optional ProtoHeader    header              = 1;
+    optional UserCopyInfo   copyInfo            = 2;
+}
+
+message StatHelperCount {
+    optional int32		friendPointGet			= 1; // friend Pt got everyday
+    optional int32		helpFriendCount			= 2; // times of help friend
+    optional int32		helpHelperCount			= 3; // times of help helper
+}
+
+// VIP 配置
+message VipConf {
+    optional string     vipName                 = 1; // vip Title
+    optional int32      vipLevel                = 2; // vip Level
+    optional float      payTotal                = 3; // vip payed money
+    optional int32      staminaAdd              = 4; // stamina
+    optional int32      partyCostAdd            = 5; // cost
+    optional int32      dailyReliveCnt          = 6; // relive cnt for 50% free
+    optional int32      dailyBuyStaminaCnt      = 7; // player buy stamina count every day
+    optional int32      dailyBuyMoneyCnt        = 8; // player buy money count every day
+    optional int32      dailyFriendPoint        = 9; // player can get friendPoint every login day
+}
+
+// task system
+message UserTaskInfo {
+    repeated TaskObj     achievedTaskList       = 1; // 已经完成的任务ID列表
+    required int32       maxBonusId             = 2; // 最大的奖励ID
+    repeated BonusInfo   bonusList				= 3; // 奖励列表
+}
+
+// 精英副本与关卡评★
+message UserCopyInfo {
+    optional CopyPassInfo   normalCopyInfo      = 1; // 普通副本
+    optional CopyPassInfo   eliteCopyInfo       = 2; // 精英副本
+}
+
+// 每日用户操作计数, 每日第一次登录时清0
+message DailyUserOptCnt {
+    optional int32       resumeQuestCnt         = 1;  // 重打quest计数
+    optional int32       buyStaminaCnt          = 2;  // 购买体力计数
+    optional int32       buyMoneyCnt            = 3;  // 购买金币计数
+    optional int32       clearQuestCnt          = 4;  // 打任意小关卡次数
+    optional int32       friendPointGot         = 5;  // 得到友情点数
+    optional int32       friendCnt              = 6;  // 得到好友
+    optional int32       powerUpCnt             = 7;  // 强化
+    optional int32       evolveCnt              = 8;  // 进化
+    optional int32       summonCnt_FP           = 9;  // 友情召唤
+    optional int32       summonCnt_Rare         = 10; // 稀有召唤
+    optional int32       eventQuestCnt          = 11; // 活动关卡
+}
+
+// 用户总的操作计数
+message TotalUserOptCnt {
+    optional int32       friendCnt              = 1;  // 好友数量(IsFriend)
+    optional int32       summonCnt_FP           = 2;  // 友情抽卡次数
+    optional int32       summonCnt_FP9          = 3;  // 友情抽卡9连抽次数
+    optional int32       summonCnt_Rare         = 4;  // 稀有抽卡次数
+    optional int32       summonCnt_Rare9        = 5;  // 稀有抽卡9连抽次数
+    optional int32       powerUpCnt             = 6;  // 强化次数
+    optional int32       powerUpCnt_Max         = 7;  // 强化到满级次数
+    optional int32       evolveCnt              = 8;  // 进化次数
+    optional int32       evolveCnt_Max          = 9;  // 进化到满级次数
+    optional int32       unitCnt_3              = 10; // 3★卡牌数量
+    optional int32       unitCnt_4              = 11; // 4★卡牌数量
+    optional int32       unitCnt_5              = 12; // 5★卡牌数量
+    optional int32       moneyCnt_Quest         = 13; // 从关卡获得金币数量
+    optional int32       friendPointCnt         = 14; // 获得friendPoint数量
+    optional int32       eventQuestCnt          = 15; // 活动关卡数量
+    optional int32       cityPass               = 16; // 当前已通关的city
+    optional int32       stagePass              = 17; // 当前已通关的stage
+}
+
+// 玩家指引api response
+message RspUserGuideStep {
+    optional ProtoHeader    header              = 1;
+    optional int32          step                = 2;
+}
+
+message RspRefreshUser {
+    optional ProtoHeader    header              = 1;
+    optional UserInfo		user				= 2;
+    optional AccountInfo	account				= 3;
+}

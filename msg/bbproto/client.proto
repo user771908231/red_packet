@@ -1,0 +1,18 @@
+import public "skill.proto";
+import public "bbproto.proto";
+package bbproto;
+
+//=======================Unit - only used at client================================================//
+
+// event occure probability
+message Probability {
+	optional int32		id		= 1;
+	optional float		rate	= 2;
+}
+
+message QuestMapInfo {
+	optional int32			floors		= 1;
+	repeated Probability	panelRate	= 2;
+}
+//=======================================================================//
+
