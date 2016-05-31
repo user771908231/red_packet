@@ -1,0 +1,1 @@
+# 变异proto文件的命令,在 bbproto 目录下执行protoc --go_out=. *.proto

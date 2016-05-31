@@ -13,6 +13,9 @@ var PortoProcessor = protobuf.NewProcessor()
 func init() {
 	// 这里我们注册了一个 JSON 消息 Hello
 	Processor.Register(&Hello{})
+
+	//次处注册proto 的消息
+	PortoProcessor.Register(&bbproto.TestP1{})
 	PortoProcessor.Register(&bbproto.N{})
 }
 

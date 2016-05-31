@@ -11,6 +11,7 @@ It is generated from these files:
 	config.proto
 	n.proto
 	skill.proto
+	testp1.proto
 
 It has these top-level messages:
 	ProtoHeader
@@ -223,6 +224,7 @@ It has these top-level messages:
 	SkillExtraAttack
 	SkillMultipleAttack
 	AllSkillConfig
+	TestP1
 */
 package bbproto
 

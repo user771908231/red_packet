@@ -56,7 +56,7 @@ func (p *Processor) Register(msg proto.Message) {
 	i := new(MsgInfo)
 	i.msgType = msgType
 	p.msgInfo = append(p.msgInfo, i)
-	p.msgID[msgType] = uint16(len(p.msgInfo) - 1)
+	p.msgID[msgType] = uint16(len(p.msgInfo) - 1 )
 	log.Debug("注册: p.msgID[msgType]    %v ",p.msgID[msgType])
 }
 
