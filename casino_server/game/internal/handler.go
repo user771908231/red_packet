@@ -4,7 +4,6 @@ import (
 	"github.com/name5566/leaf/log"
 	"github.com/name5566/leaf/gate"
 	"reflect"
-	"time"
 	"casino_server/msg/bbproto"
 	"casino_server/msg"
 )
@@ -37,8 +36,7 @@ func handleHello(args []interface{}) {
 }
 
 func handleProtHello(args []interface{}){
-
-	log.Debug("进入处理函数")
+	log.Debug("进入handleProtHello()")
 	// 收到的 Hello 消息
 	m := args[0].(*bbproto.N)
 	// 消息的发送者
@@ -46,10 +44,10 @@ func handleProtHello(args []interface{}){
 
 	// 输出收到的消息的内容
 	log.Debug("接收到的name %v", *m.Name)
-
 	 //给发送者回应一个 Hello 消息
 	var data bbproto.N
-	var n string = "go------!"+ time.Now().String()
+	//var n string = "a"+ time.Now().String()
+	var n string = "hi leaf"
 	data.Name = &n
 	a.WriteMsg(&data)
 }

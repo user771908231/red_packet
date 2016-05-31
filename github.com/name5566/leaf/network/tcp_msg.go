@@ -72,10 +72,9 @@ func (p *MsgParser) Read(conn *TCPConn) ([]byte, error) {
 		return nil, err
 	}
 
-	log.Debug("1,2 连个字节,表示内容的长度(注意不是全文的长度)bufMsgLen: %v",bufMsgLen)
+	log.Debug("\n\n\n\n读取两个字节,表示内容的长度: %v",bufMsgLen)
 	// parse len
 	var msgLen uint32
-	log.Debug("p.lenMsgLen: %v",p.lenMsgLen)
 	switch p.lenMsgLen {
 	case 1:
 		msgLen = uint32(bufMsgLen[0])
@@ -93,7 +92,7 @@ func (p *MsgParser) Read(conn *TCPConn) ([]byte, error) {
 		}
 	}
 
-	log.Debug("得到的内容的长度msgLen: %v",msgLen)
+	log.Debug("解析之后,得到的内容的长度msgLen: %v",msgLen)
 	// check len
 	if msgLen > p.maxMsgLen {
 		return nil, errors.New("message too long")
@@ -108,7 +107,7 @@ func (p *MsgParser) Read(conn *TCPConn) ([]byte, error) {
 		log.Debug("err: %v",err.Error())
 		return nil, err
 	}
-	log.Debug("msgData: %v",msgData)
+	log.Debug("读取到的内容为msgData: %v",msgData)
 	return msgData, nil
 }
 

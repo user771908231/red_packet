@@ -103,7 +103,6 @@ func (p *Processor) Route(msg interface{}, userData interface{}) error {
 // goroutine safe
 func (p *Processor) Unmarshal(data []byte) (interface{}, error) {
 
-	log.Debug("data [] byte: %v",data)
 	if len(data) < 2 {
 		return nil, errors.New("protobuf data too short")
 	}
@@ -116,19 +115,14 @@ func (p *Processor) Unmarshal(data []byte) (interface{}, error) {
 	} else {
 		id = binary.BigEndian.Uint16(data)
 	}
-
-
-	log.Debug("id: %v",id)
-	log.Debug("len(p.msgInfo): %v",len(p.msgInfo))
-	log.Debug("uint16(len(p.msgInfo): %v",uint16(len(p.msgInfo)))
-
+	log.Debug("protobuf 格式的id: %v",id)
 	// msg
 	if id >= uint16(len(p.msgInfo)) {
 		return nil, fmt.Errorf("message id %v not registered", id)
 	}
 	msg := reflect.New(p.msgInfo[id].msgType.Elem()).Interface()
 
-	log.Debug("data[2:]: %v",data[2:])
+	log.Debug("protobuf 的内容 data[2:]: %v",data[2:])
 
 	return msg, proto.UnmarshalMerge(data[2:], msg.(proto.Message))
 }
