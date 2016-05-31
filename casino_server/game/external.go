@@ -1,8 +1,8 @@
 package game
 
 import (
-	"server/game/internal"
 )
+import "casino_server/game/internal"
 
 var (
 	Module  = new(internal.Module)

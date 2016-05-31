@@ -4,11 +4,11 @@ import (
 )
 import (
 	"net"
-	"server/msg/bbproto"
 	"github.com/golang/protobuf/proto"
 	"encoding/binary"
 	"fmt"
-	"server/msg"
+	"casino_server/msg/bbproto"
+	"casino_server/msg"
 )
 
 func main() {

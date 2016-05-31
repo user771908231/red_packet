@@ -1,8 +1,8 @@
 package login
 
 import (
-	"server/login/internal"
 )
+import "casino_server/login/internal"
 
 var (
 	Module  = new(internal.Module)
