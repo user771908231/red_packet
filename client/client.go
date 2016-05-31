@@ -12,6 +12,9 @@ import (
 )
 
 func main() {
+
+
+
 	conn, err := net.Dial("tcp", "192.168.199.120:3563")
 	if err != nil {
 		panic(err)
