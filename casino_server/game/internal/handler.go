@@ -4,9 +4,9 @@ import (
 	"github.com/name5566/leaf/log"
 	"github.com/name5566/leaf/gate"
 	"reflect"
-	"server/msg"
-	"server/msg/bbproto"
 	"time"
+	"casino_server/msg/bbproto"
+	"casino_server/msg"
 )
 
 func init() {

@@ -1,9 +1,11 @@
 package gate
 
 import (
-	"server/game"
-	"server/msg"
-	"server/msg/bbproto"
+)
+import (
+	"casino_server/msg"
+	"casino_server/msg/bbproto"
+	"casino_server/game"
 )
 
 func init() {

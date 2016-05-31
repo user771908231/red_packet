@@ -2,8 +2,8 @@ package msg
 
 import (
 	"github.com/name5566/leaf/network/protobuf"
-	"server/msg/bbproto"
 	"github.com/name5566/leaf/network/json"
+	"casino_server/msg/bbproto"
 )
 
 // 使用默认的 JSON 消息处理器（默认还提供了 protobuf 消息处理器）

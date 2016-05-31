@@ -1,8 +1,8 @@
 package gate
 
 import (
-	"server/gate/internal"
 )
+import "casino_server/gate/internal"
 
 var (
 	Module = new(internal.Module)
