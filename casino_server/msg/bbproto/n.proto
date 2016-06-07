@@ -1,6 +1,0 @@
-package bbproto;
-message N {
-	  required string  name = 2;  // name 
-}
-
- 

@@ -12,20 +12,24 @@ import (
 	"github.com/name5566/leaf/log"
 )
 
+const url  = "192.168.199.120:3563"
+const TCP = "tcp"
+
 func main() {
-	testN()
+	//testN()
+	testReqAuthUser()
 }
 
 
 func testN(){
-	conn, err := net.Dial("tcp", "192.168.199.120:3563")
+	conn, err := net.Dial(TCP, url)
 	if err != nil {
 		panic(err)
 	}
 
 	var id  = []byte{0,1}
-	var data bbproto.N
-	var n string = "a"
+	var data bbproto.Reg
+	var n string = "aaappp"
 	data.Name = &n
 	data3 ,err :=  proto.Marshal(&data)
 	m2 := make([]byte, 4+len(data3))
@@ -48,22 +52,23 @@ func testN(){
 	if err != nil {
 	}
 
-	m5 :=  msg2.(*bbproto.N)
+	m5 :=  msg2.(*bbproto.Reg)
 	fmt.Println("m5:",*m5.Name)
-
 }
 
 
-func testP2(){
-	conn, err := net.Dial("tcp", "192.168.199.120:3563")
+func testReqAuthUser(){
+	conn, err := net.Dial(TCP, url)
 	if err != nil {
 		panic(err)
 	}
 
-	var id  = []byte{0,0}
-	var data bbproto.N
-	var n string = "a"
-	data.Name = &n
+	var id  = []byte{0,2}
+	var data bbproto.ReqAuthUser
+	var v int32
+	v = 119
+	data.AppVersion = &v
+
 	data3 ,err :=  proto.Marshal(&data)
 	m2 := make([]byte, 4+len(data3))
 
@@ -74,20 +79,17 @@ func testP2(){
 	fmt.Println("发送的m2:",m2)
 	conn.Write(m2)
 
+
 	var res [250]byte
 	count,err := conn.Read(res[0:])
 	if err != nil {
 		fmt.Println("err != nil")
 	}
-
 	log.Debug("读取到的 res %v",res)
 	msg2, err := msg.PortoProcessor.Unmarshal(res[2:count])
 	if err != nil {
 	}
-
-	m5 :=  msg2.(*bbproto.N)
-
-
-	fmt.Println("m5:",*m5.Name)
+	m5 :=  msg2.(*bbproto.ReqAuthUser)
+	fmt.Println("m5:",*m5.Header.Error)
 
 }

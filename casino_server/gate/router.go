@@ -6,6 +6,7 @@ import (
 	"casino_server/msg"
 	"casino_server/msg/bbproto"
 	"casino_server/game"
+	"casino_server/login"
 )
 
 func init() {
@@ -15,5 +16,6 @@ func init() {
 
 	//指定protobuf格式的路由
 	msg.PortoProcessor.SetRouter(&bbproto.TestP1{},game.ChanRPC)
-	msg.PortoProcessor.SetRouter(&bbproto.N{},game.ChanRPC)
+	msg.PortoProcessor.SetRouter(&bbproto.Reg{},login.ChanRPC)
+	msg.PortoProcessor.SetRouter(&bbproto.ReqAuthUser{},login.ChanRPC)
 }

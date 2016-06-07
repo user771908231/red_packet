@@ -13,7 +13,7 @@ func init() {
 	handler(&msg.Hello{}, handleHello)
 
 	handler(&bbproto.TestP1{},handleTestP1)
-	handler(&bbproto.N{},handleProtHello)
+	handler(&bbproto.Reg{},handleProtHello)
 }
 
 func handler(m interface{}, h interface{}) {
@@ -40,14 +40,14 @@ func handleHello(args []interface{}) {
 func handleProtHello(args []interface{}){
 	log.Debug("进入handleProtHello()")
 	// 收到的 Hello 消息
-	m := args[0].(*bbproto.N)
+	m := args[0].(*bbproto.Reg)
 	// 消息的发送者
 	a := args[1].(gate.Agent)
 
 	// 输出收到的消息的内容
 	log.Debug("接收到的name %v", *m.Name)
 	 //给发送者回应一个 Hello 消息
-	var data bbproto.N
+	var data bbproto.Reg
 	//var n string = "a"+ time.Now().String()
 	var n string = "hi leaf"
 	data.Name = &n

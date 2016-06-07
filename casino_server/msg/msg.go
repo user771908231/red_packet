@@ -15,8 +15,10 @@ func init() {
 	Processor.Register(&Hello{})
 
 	//次处注册proto 的消息
-	PortoProcessor.Register(&bbproto.TestP1{})
-	PortoProcessor.Register(&bbproto.N{})
+	PortoProcessor.Register(&bbproto.TestP1{})	//0
+	PortoProcessor.Register(&bbproto.Reg{})		//1
+	PortoProcessor.Register(&bbproto.ReqAuthUser{})	//2
+
 }
 
 // 一个结构体定义了一个 JSON 消息的格式
