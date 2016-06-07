@@ -1,0 +1,4 @@
+package bbproto;
+message TestP1 {
+	  required string  name2 = 2;  // name 
+}

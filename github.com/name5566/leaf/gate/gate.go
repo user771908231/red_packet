@@ -87,8 +87,6 @@ type agent struct {
 func (a *agent) Run() {
 	for {
 		data, err := a.conn.ReadMsg()
-		log.Debug("agent.conn.ReadMsg data.len(): %v",len(data))
-		log.Debug("agent.conn.ReadMsg: %v",data)
 		if err != nil {
 			log.Debug("read message: %v", err)
 			break

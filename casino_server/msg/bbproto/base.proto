@@ -1,0 +1,43 @@
+package bbproto;
+
+enum EUnitType{
+	UALL	= 0; // all type
+	UFIRE 	= 1;
+	UWATER	= 2;
+	UWIND	= 3;
+	ULIGHT	= 4;
+	UDARK	= 5;
+	UNONE	= 6;
+    UHeart  = 7;
+}
+
+enum EUnitRace{
+    ALL             = 0; //all race
+    HUMAN           = 1;
+    UNDEAD          = 2;
+    MYTHIC          = 3;
+    BEAST           = 4;
+    MONSTER         = 5;
+    LEGEND          = 6;
+	DRAGON			= 7;
+    SCREAMCHEESE    = 8; //Leveup Material
+	EVOLVEPARTS		= 9; //Evolve Material
+}
+
+//general response protocol
+message ProtoHeader {
+	optional string apiVer		= 1;
+	optional string sessionId	= 2;
+	optional uint32 userId		= 3;
+	optional int32	packetId	= 4;
+	optional int32	code		= 5; // result code
+	optional string error		= 6; // result error description
+	optional int32	extraTag	= 7; // addtional logic for future use
+}
+
+message TerminalInfo {
+	optional string	channel						= 1; // app market channel
+	optional string	deviceName					= 2; //
+	optional string	uuid						= 3;
+	optional string	os		 					= 4; // android / ios
+}

@@ -1,0 +1,1 @@
+1,安装mongodb2,启动命令    mongod3,进入数据库    mongo    

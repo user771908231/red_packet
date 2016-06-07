@@ -1,0 +1,1 @@
+package modetype User struct {	id int32	name string	password string	mobile string}
