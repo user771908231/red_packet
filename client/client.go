@@ -86,6 +86,8 @@ func testP2(){
 	}
 
 	m5 :=  msg2.(*bbproto.N)
+
+
 	fmt.Println("m5:",*m5.Name)
 
 }
