@@ -1,1 +1,16 @@
-package modetype User struct {	id int32	name string	password string	mobile string}
+
+package t_user
+
+import (
+)
+
+type User struct {
+	Id uint32
+	Name string
+	password string
+	Mobile string
+
+}
+
+
+

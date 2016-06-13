@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"github.com/name5566/leaf/db/mongodb"
 	"gopkg.in/mgo.v2"
-	"casino_server/msg/bbproto"
 )
 
 func Example() {
@@ -32,6 +31,7 @@ func Example() {
 		return
 	}
 	//增长自增字段
+	fmt.Println("开始测试自增字段")
 	for i := 0; i < 3; i++ {
 		id, err := c.NextSeq("test", "counters", "test")
 		if err != nil {
@@ -44,10 +44,10 @@ func Example() {
 	// index
 	c.EnsureUniqueIndex("test", "counters", []string{"key1"})
 
-	nnn := "ceshi Name"
-	s.DB("test").C("counters").Insert(&bbproto.N{
-		Name:&nnn,
-	})
+	//nnn := "ceshi Name"
+	//s.DB("test").C("counters").Insert(&bbproto.N{
+	//	Name:&nnn,
+	//})
 
 	// Output:
 	// 1

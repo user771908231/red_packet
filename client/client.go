@@ -17,6 +17,8 @@ const TCP = "tcp"
 
 func main() {
 	//testN()
+
+	//测试注册会员
 	testReqAuthUser()
 }
 
@@ -65,10 +67,19 @@ func testReqAuthUser(){
 
 	var id  = []byte{0,2}
 	var data bbproto.ReqAuthUser
+	var header bbproto.ProtoHeader
 	var v int32
 	v = 119
+	uid := "sufiuowiurw9er0wuo"
+
+	var userId uint32
+	userId = 989
+
 	data.AppVersion = &v
 
+	header.UserId = &userId
+	data.Header = &header
+	data.Uuid = &uid
 	data3 ,err :=  proto.Marshal(&data)
 	m2 := make([]byte, 4+len(data3))
 
@@ -90,6 +101,8 @@ func testReqAuthUser(){
 	if err != nil {
 	}
 	m5 :=  msg2.(*bbproto.ReqAuthUser)
-	fmt.Println("m5:",*m5.Header.Error)
+	fmt.Println("m5.error:",*m5.Header.Error)
+	fmt.Println("m5.UserId:",*m5.Header.UserId)
+
 
 }
