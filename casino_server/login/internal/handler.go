@@ -6,6 +6,8 @@ import (
 	"github.com/name5566/leaf/log"
 
 	"github.com/name5566/leaf/gate"
+	"casino_server/service"
+	"casino_server/conf/casinoConf"
 )
 
 func handleMsg(m interface{}, h interface{}) {
@@ -42,26 +44,36 @@ func handleProtHello(args []interface{}){
 }
 
 
+
+/*
+
+登陆注册的流程:
+1,获取到请求信息
+2,如果快速登录,则随机分配一个userId,并且自动注册
+3,如果用户已经注册了,则走登录流程
+ */
 func handleReqAuthUser(args []interface{}){
 	log.Debug("进入login.handler.handleReqAuthUser()")
+
 	// 收到的 Hello 消息
 	m := args[0].(*bbproto.ReqAuthUser)
 	// 消息的发送者
 	a := args[1].(gate.Agent)
-
 	// 输出收到的消息的内容
 	log.Debug("接收到的AppVersion %v", *m.AppVersion)
-	//给发送者回应一个 Hello 消息
+	log.Debug("接收到的*m.Header.UserId %v", *m.Header.UserId)
+	//判断是快速登陆还是
+	loginWay := userService.CheckUserId(m.Header.UserId)
+	switch loginWay {
+	case casinoConf.LOGIN_WAY_QUICK:
+		log.Debug("快速登录模式")
+		userService.QuickLogin(m,a)
+	case casinoConf.LOGIN_WAY_LOGIN:
+		log.Debug("普通登录模式")
+		userService.Login(m)
+	default:
+		log.Debug("没有找到合适的登录方式")
+	}
 
-	var e string
-	e = "收到了消息"
-	var c int32
-	c = 1
-	var header bbproto.ProtoHeader
-	header.Error = &e
-	header.Code = &c;
-	var data bbproto.ReqAuthUser
-	data.Header = &header
 
-	a.WriteMsg(&data)
 }

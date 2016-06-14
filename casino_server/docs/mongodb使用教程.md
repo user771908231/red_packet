@@ -1,1 +1,1 @@
-1,安装mongodb2,启动命令    mongod3,进入数据库    mongo    
+1,安装mongodb2,启动命令    mongod3,进入数据库    mongo ####常见的注意问题不要被FindOne({_id:xxx}).Items[3].ItemType这优雅的代码欺骗，这是非常慢的，他几乎谋杀你所有的流量。 无论后面是什么 FindOne({_id:xxx})总是返回给你完整的Value我们应该使用的查询函数是FindOne({_id:xxx},filter),filter里面就是设置返回的过滤条件,这会在发送给你以前就过滤掉比如FindOne({_id:xxx},{Items:{"$slice":[3,1]}})，这和上面那条优雅的代码是完成同样功能，但是他消耗很少的流量除了创建节点时的Insert或者Save之外，所有的Update都应该使用修改器精细修改.比如Update({_id:xxx},{$set:{"Items.3.Item.Health":38}});//修改第三把武器的健康值至于一次修改和批量修改，MongoDB默认100ms flush一次(2.x),只要两次修改比较贴近,被一起保存的可能性很高。
