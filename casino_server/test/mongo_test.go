@@ -13,7 +13,8 @@ import (
 func TestM(t *testing.T){
 	//_TestSave(t)
 	//saveWithSub(t)
-	update(t)
+	//update(t)
+	_select(t)
 }
 
 
@@ -74,6 +75,7 @@ func _select(t *testing.T){
 
 	result := mode.User{}
 	s.DB(casinoConf.DB_NAME).C(casinoConf.DBT_T_USER).Find(bson.M{"id": 19}).One(&result)
+	t.Log("Mid ",result.Mid)
 	t.Log("Id ",result.Id)
 	t.Log("Mobile ",result.Mobile)
 	t.Log("Name ",result.Name)
