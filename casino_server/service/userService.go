@@ -5,9 +5,9 @@ import (
 	"casino_server/msg/bbproto"
 	"github.com/gpmgo/gopm/modules/log"
 	"github.com/name5566/leaf/gate"
-	"casino_server/mode"
 	"fmt"
 	"github.com/name5566/leaf/db/mongodb"
+	"casino_server/mode"
 )
 
 /**
@@ -71,9 +71,9 @@ func Login(user *bbproto.ReqAuthUser){
 /**
  动态生成一个 User
  */
-func newUser() t_user.User{
+func newUser() mode.User{
 	//1,创建user
-	nuser := t_user.User{}
+	nuser := mode.User{}
 	nuser.Name = "testName1"
 	nuser.Mobile = "18081922618"
 
