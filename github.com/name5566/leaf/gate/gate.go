@@ -6,6 +6,7 @@ import (
 	"github.com/name5566/leaf/network"
 	"reflect"
 	"time"
+	"casino_server/utils/security"
 )
 
 type Gate struct {
@@ -93,7 +94,14 @@ func (a *agent) Run() {
 		}
 
 		if a.gate.Processor != nil {
-			msg, err := a.gate.Processor.Unmarshal(data)
+			//增加一层校验md5的方法
+			data2,checkErr := security.CheckTcpData(data)
+			if checkErr != nil {
+				log.Debug("data check md5 fail: %v", checkErr)
+				break
+			}
+
+			msg, err := a.gate.Processor.Unmarshal(data2)
 			if err != nil {
 				log.Debug("unmarshal message error: %v", err)
 				break

@@ -131,7 +131,7 @@ func testReqAuthUserWithmd5(){
 	data3 ,err :=  proto.Marshal(&data)
 
 	//根据data3 计算md5
-	md5string := security.Md5(data3)
+	md5byte := security.Md5IdAndData(id,data3)
 
 	len :=  len(data3)
 	fmt.Println("msg.len:",len)
@@ -140,8 +140,8 @@ func testReqAuthUserWithmd5(){
 	//// 默认使用大端序
 	binary.BigEndian.PutUint16(m2, uint16(2+len+4))
 	copy(m2[2:4], id)
-	copy(m2[4:len], data3)
-	copy(m2[len+4:],md5string)
+	copy(m2[4:len+4], data3)
+	copy(m2[len+4:], md5byte)
 
 	fmt.Println("发送的m2:",m2)
 	conn.Write(m2)
