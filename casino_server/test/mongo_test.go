@@ -14,8 +14,11 @@ func TestM(t *testing.T){
 	//_TestSave(t)
 	//saveWithSub(t)
 	//update(t)
-	_select(t)
+	//_select(t)
+	//saveSub2(t)
+	selectSub2(t)
 }
+
 
 
 func _TestSave(t *testing.T){
@@ -118,7 +121,55 @@ func saveWithSub(t *testing.T){
 	t.Log("\n开始测试保存携带子节点数据--end\n")
 }
 
+
+func saveSub2(t *testing.T){
+	sub2 := &mode.T_test_sub2{
+		Id:111,
+		Sname:"sub2",
+	}
+
+	//连接数据库
+	c,err := mongodb.Dial(casinoConf.DB_IP,casinoConf.DB_PORT)
+	if err != nil{
+		t.Error(err)
+	}
+	defer  c.Close()
+
+	//获取session
+	s := c.Ref()
+	defer s.Close()
+	s.DB(casinoConf.DB_NAME).C(casinoConf.DBT_T_SUB2).Insert(sub2)
+
+}
 //func get
+
+func  selectSub2(t *testing.T){
+	//连接数据库
+	c,err := mongodb.Dial(casinoConf.DB_IP,casinoConf.DB_PORT)
+	if err != nil{
+		t.Error(err)
+	}
+	defer  c.Close()
+
+	//获取session
+	s := c.Ref()
+	defer s.Close()
+
+	var result mode.T_test_sub2
+	s.DB(casinoConf.DB_NAME).C(casinoConf.DBT_T_SUB2).Find(bson.M{"id": 111}).One(&result)
+	t.Log("ObjId",result.ObjId)
+	t.Log("id",result.Id)
+
+	//
+	var testResult mode.T_test
+	s.DB(casinoConf.DB_NAME).C(casinoConf.DBT_T_TEST).Find(bson.M{"name","test1"}).One(&testResult)
+	t.Log("testResult.id",testResult.Id)
+
+
+	//s.DB(casinoConf.DB_NAME).C(casinoConf.DBT_T_TEST).Update(bson.M{"_id",testResult.Id}, bson.M{"$push": bson.M{ "Sub2": result.ObjId}})
+
+
+}
 
 
 

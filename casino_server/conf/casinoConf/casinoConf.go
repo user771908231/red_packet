@@ -15,6 +15,8 @@ const (
 
 	DBT_T_USER 		= "t_user"		//user表名字
 	DBT_T_TEST 		= "t_test"		//user表名字
+	DBT_T_SUB2 		= "t_test_sub2"		//user表名字
+
 
 
 )

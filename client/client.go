@@ -140,6 +140,11 @@ func testReqAuthUserWithmd5(){
 	//// 默认使用大端序
 	binary.BigEndian.PutUint16(m2, uint16(2+len+4))
 	copy(m2[2:4], id)
+
+
+
+
+
 	copy(m2[4:len+4], data3)
 	copy(m2[len+4:], md5byte)
 
@@ -147,16 +152,16 @@ func testReqAuthUserWithmd5(){
 	conn.Write(m2)
 
 
-	//var res [250]byte
-	//count,err := conn.Read(res[0:])
-	//if err != nil {
-	//	fmt.Println("err != nil")
-	//}
-	//log.Debug("读取到的 res %v",res)
-	//msg2, err := msg.PortoProcessor.Unmarshal(res[2:count])
-	//if err != nil {
-	//}
-	//m5 :=  msg2.(*bbproto.ReqAuthUser)
-	//fmt.Println("m5.error:",*m5.Header.Error)
-	//fmt.Println("m5.UserId:",*m5.Header.UserId)
+	var res [250]byte
+	count,err := conn.Read(res[0:])
+	if err != nil {
+		fmt.Println("err != nil")
+	}
+	log.Debug("读取到的 res %v",res)
+	msg2, err := msg.PortoProcessor.Unmarshal(res[2:count])
+	if err != nil {
+	}
+	m5 :=  msg2.(*bbproto.ReqAuthUser)
+	fmt.Println("m5.error:",*m5.Header.Error)
+	fmt.Println("m5.UserId:",*m5.Header.UserId)
 }
