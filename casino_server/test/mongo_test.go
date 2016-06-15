@@ -156,14 +156,19 @@ func  selectSub2(t *testing.T){
 	defer s.Close()
 
 	var result mode.T_test_sub2
-	s.DB(casinoConf.DB_NAME).C(casinoConf.DBT_T_SUB2).Find(bson.M{"id": 111}).One(&result)
+	s.DB(casinoConf.DB_NAME).C(casinoConf.DBT_T_SUB2).Find(bson.M{"sname" : "sub2"}).One(&result)
 	t.Log("ObjId",result.ObjId)
 	t.Log("id",result.Id)
 
 	//
+
+
 	var testResult mode.T_test
-	s.DB(casinoConf.DB_NAME).C(casinoConf.DBT_T_TEST).Find(bson.M{"name","test1"}).One(&testResult)
-	t.Log("testResult.id",testResult.Id)
+	testResult.Name = "测试"
+	s.DB(casinoConf.DB_NAME).C(casinoConf.DBT_T_TEST).Insert(testResult)
+
+	s.DB(casinoConf.DB_NAME).C(casinoConf.DBT_T_TEST).Find(bson.M{}).One(testResult)
+	t.Log("testResult.id",testResult.ObjId)
 
 
 	//s.DB(casinoConf.DB_NAME).C(casinoConf.DBT_T_TEST).Update(bson.M{"_id",testResult.Id}, bson.M{"$push": bson.M{ "Sub2": result.ObjId}})
