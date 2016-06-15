@@ -3,7 +3,7 @@ package mode
 import "gopkg.in/mgo.v2/bson"
 
 type T_test struct {
-	ObjId bson.ObjectId `json:"objId" bson:"_id`
+	Mid		bson.ObjectId		`json:"mid" bson:"_id"`
 	id uint32
 	number  uint32
 	Name string
@@ -21,7 +21,7 @@ type T_test_sub struct{
 
 
 type T_test_sub2 struct{
-	ObjId bson.ObjectId `json:"ObjId" bson:"_id"`
+	ObjId bson.ObjectId 	`json:"ObjId" bson:"_id"`
 	Id uint32
 	Sname string
 

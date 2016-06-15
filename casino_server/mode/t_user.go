@@ -1,8 +1,10 @@
 
 package mode
 
+import "gopkg.in/mgo.v2/bson"
+
 type User struct {
-	Mid		string		`json:"mid" bson:"_id"`
+	Mid		bson.ObjectId		`json:"mid" bson:"_id"`
 	Id 		uint32		//id
 	Name 		string
 	NickName 	string		//昵称
