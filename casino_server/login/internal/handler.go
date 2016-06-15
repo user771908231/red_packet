@@ -60,10 +60,13 @@ func handleReqAuthUser(args []interface{}){
 	// 消息的发送者
 	a := args[1].(gate.Agent)
 	// 输出收到的消息的内容
-	log.Debug("接收到的AppVersion %v", *m.AppVersion)
-	log.Debug("接收到的*m.Header.UserId %v", *m.Header.UserId)
+	log.Debug("介绍到的reqAuthUser %v", *m)
+	log.Debug("接收到的AppVersion %v", m.GetAppVersion())
+	log.Debug("接收到的Header %v", m.GetHeader())
+	log.Debug("接收到的*m.Header.UserId %v",m.GetHeader().GetUserId())
+
 	//判断是快速登陆还是
-	loginWay := userService.CheckUserId(m.Header.UserId)
+	loginWay := userService.CheckUserId(m.GetHeader().GetUserId())
 	switch loginWay {
 	case casinoConf.LOGIN_WAY_QUICK:
 		log.Debug("快速登录模式")

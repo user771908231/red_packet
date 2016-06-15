@@ -28,6 +28,8 @@ func Md5(data []byte) []byte{
 	h := md5.New()
 	h.Write(md5data)
 	resultByte := h.Sum(nil)
+	log.Debug("校验计算出来的md5:",resultByte)
+
 	var resultByte4 []byte
 	resultByte4 = append(resultByte4,resultByte[4],resultByte[6],resultByte[8],resultByte[10])
 	log.Debug("校验的结果sign:",resultByte4)

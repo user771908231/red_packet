@@ -14,8 +14,8 @@ import (
 
 判断id是否正确
  */
-func CheckUserId(userId *uint32) int8{
-	if *userId > casinoConf.MAX_USER_ID || *userId < casinoConf.MIN_USER_ID {
+func CheckUserId(userId uint32) int8{
+	if userId > casinoConf.MAX_USER_ID || userId < casinoConf.MIN_USER_ID {
 		return casinoConf.LOGIN_WAY_QUICK
 	}else{
 		return casinoConf.LOGIN_WAY_LOGIN
