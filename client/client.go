@@ -13,7 +13,7 @@ import (
 	"casino_server/utils/security"
 )
 
-const url  = "192.168.199.120:3563"
+const url  = "192.168.199.111:3563"
 const TCP = "tcp"
 
 func main() {
@@ -69,6 +69,9 @@ func testReqAuthUserWithmd5(){
 	if err != nil {
 	}
 	m5 :=  msg2.(*bbproto.ReqAuthUser)
-	fmt.Println("m5.error:",*m5.Header.Error)
-	fmt.Println("m5.UserId:",*m5.Header.UserId)
+	fmt.Println("m5.UserId:",m5)
+
+	for ; ;  {
+
+	}
 }

@@ -44,7 +44,6 @@ func handleProtHello(args []interface{}){
 }
 
 
-
 /*
 
 登陆注册的流程:
@@ -61,9 +60,6 @@ func handleReqAuthUser(args []interface{}){
 	a := args[1].(gate.Agent)
 	// 输出收到的消息的内容
 	log.Debug("介绍到的reqAuthUser %v", *m)
-	log.Debug("接收到的AppVersion %v", m.GetAppVersion())
-	log.Debug("接收到的Header %v", m.GetHeader())
-	log.Debug("接收到的*m.Header.UserId %v",m.GetHeader().GetUserId())
 
 	//判断是快速登陆还是
 	loginWay := userService.CheckUserId(m.GetHeader().GetUserId())

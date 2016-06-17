@@ -39,10 +39,8 @@ func QuickLogin(user *bbproto.ReqAuthUser,a gate.Agent){
 	nuser := newUser()
 	//3,返回数据给用户
 	//给发送者回应一个 Hello 消息
-	var e string
-	e = "收到了消息"
-	var c int32
-	c = 1
+	e := string("收到了消息")
+	c := int32(1)
 	var header bbproto.ProtoHeader
 	header.UserId = &(nuser.Id)
 	header.Error = &e
