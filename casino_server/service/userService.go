@@ -1,4 +1,4 @@
-package userService
+package service
 
 import (
 	"casino_server/conf/casinoConf"
@@ -92,6 +92,7 @@ func newUser() mode.User{
 	id, err := c.NextSeq(casinoConf.DB_NAME, casinoConf.DBT_T_USER, casinoConf.DB_ENSURECOUNTER_KEY)
 
 	nuser.Id = uint32(id)
+
 	s.DB(casinoConf.DB_NAME).C(casinoConf.DBT_T_USER).Insert(nuser)
 	return  nuser
 

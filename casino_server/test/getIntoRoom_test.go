@@ -24,10 +24,8 @@ func fun1(t *testing.T) {
 
 	var id uint16 = 4
 	var data bbproto.GetIntoRoom
-	var header bbproto.ProtoHeader
-	var userId uint32 = 989
-	header.UserId = &userId
-
+	var userId uint32 = 10013
+	data.UserId = &userId
 	m := utils.AssembleData(id,&data)
 	conn.Write(m)
 
@@ -45,6 +43,16 @@ func fun1(t *testing.T) {
 	fmt.Println("m5.UserId:", m5)
 
 	for ; ; {
-
+		var res [250]byte
+		count,err := conn.Read(res[0:])
+		if err != nil {
+			fmt.Println("err != nil")
+		}
+		t.Log("读取到的 res %v",res)
+		msg2, err := msg.PortoProcessor.Unmarshal(res[2:count])
+		if err != nil {
+		}
+		m5 :=  msg2.(*bbproto.GetIntoRoom)
+		fmt.Println("m5.UserId:",m5.GetRoomId())
 	}
 }

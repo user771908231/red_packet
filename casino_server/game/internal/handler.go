@@ -5,6 +5,7 @@ import (
 	"reflect"
 	"casino_server/msg/bbproto"
 	"casino_server/common/log"
+	"casino_server/gamedata"
 )
 
 func init() {
@@ -56,7 +57,7 @@ func handleTestP1(args[]interface{}){
 /**
 	请求进入游戏房间
 	1,分配房间(根据游戏类型)
-	
+
  */
 func handlerGetIntoRoom(args []interface{}){
 	log.T("进入到 game.handlerGetIntoRoom()\n")
@@ -64,9 +65,7 @@ func handlerGetIntoRoom(args []interface{}){
 	a := args[1].(gate.Agent)		//连接
 	log.T("请求进入房间的user %v \n",m.GetUserId())
 
-	ret := bbproto.GetIntoRoom{}
-	userId := uint32(777)
-	ret.UserId = &userId
-	a.WriteMsg(&ret)
-
+	//包连接存放在room中
+	gamedata.CashOutRoom.AddAgent(m.GetUserId(),a)
+	gamedata.CashOutRoom.BroadcastMsg()
 }
