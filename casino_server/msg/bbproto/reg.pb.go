@@ -32,7 +32,7 @@ type Reg struct {
 func (m *Reg) Reset()                    { *m = Reg{} }
 func (m *Reg) String() string            { return proto.CompactTextString(m) }
 func (*Reg) ProtoMessage()               {}
-func (*Reg) Descriptor() ([]byte, []int) { return fileDescriptor3, []int{0} }
+func (*Reg) Descriptor() ([]byte, []int) { return fileDescriptor4, []int{0} }
 
 func (m *Reg) GetHeader() *ProtoHeader {
 	if m != nil {
@@ -66,7 +66,7 @@ func init() {
 	proto.RegisterType((*Reg)(nil), "bbproto.Reg")
 }
 
-var fileDescriptor3 = []byte{
+var fileDescriptor4 = []byte{
 	// 127 bytes of a gzipped FileDescriptorProto
 	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x09, 0x6e, 0x88, 0x02, 0xff, 0xe2, 0xe2, 0x2c, 0x4a, 0x4d, 0xd7,
 	0x2b, 0x28, 0xca, 0x2f, 0xc9, 0x17, 0x62, 0x4f, 0x4a, 0x02, 0x33, 0xa4, 0xb8, 0x92, 0x12, 0x8b,

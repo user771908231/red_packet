@@ -27,18 +27,11 @@ func testReqAuthUserWithmd5(){
 		panic(err)
 	}
 
-	var id  = []byte{0,2}
-	var data bbproto.ReqAuthUser
+	var id  = []byte{0,4}
+	var data bbproto.GetIntoRoom
 	var header bbproto.ProtoHeader
-	var v int32
-	v = 119
-	uid := "a"
-
 	var userId uint32 = 989
 	header.UserId = &userId
-	data.AppVersion = &v
-	data.Header = &header
-	data.Uuid = &uid
 
 	data3 ,err :=  proto.Marshal(&data)
 	fmt.Println("data3:",data3)
@@ -68,7 +61,7 @@ func testReqAuthUserWithmd5(){
 	msg2, err := msg.PortoProcessor.Unmarshal(res[2:count])
 	if err != nil {
 	}
-	m5 :=  msg2.(*bbproto.ReqAuthUser)
+	m5 :=  msg2.(*bbproto.GetIntoRoom)
 	fmt.Println("m5.UserId:",m5)
 
 	for ; ;  {

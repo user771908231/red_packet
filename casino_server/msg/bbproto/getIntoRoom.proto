@@ -1,0 +1,7 @@
+package bbproto;
+
+message GetIntoRoom {
+    optional uint32 userId						= 1; // app market channel
+    optional int32	roomId  					= 2; //
+    optional int32	roomType					= 3;
+}

@@ -74,5 +74,4 @@ func handleReqAuthUser(args []interface{}){
 		log.Debug("没有找到合适的登录方式")
 	}
 
-
 }

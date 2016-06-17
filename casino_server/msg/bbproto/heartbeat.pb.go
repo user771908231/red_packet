@@ -20,13 +20,13 @@ type HeatBeat struct {
 func (m *HeatBeat) Reset()                    { *m = HeatBeat{} }
 func (m *HeatBeat) String() string            { return proto.CompactTextString(m) }
 func (*HeatBeat) ProtoMessage()               {}
-func (*HeatBeat) Descriptor() ([]byte, []int) { return fileDescriptor2, []int{0} }
+func (*HeatBeat) Descriptor() ([]byte, []int) { return fileDescriptor3, []int{0} }
 
 func init() {
 	proto.RegisterType((*HeatBeat)(nil), "bbproto.HeatBeat")
 }
 
-var fileDescriptor2 = []byte{
+var fileDescriptor3 = []byte{
 	// 56 bytes of a gzipped FileDescriptorProto
 	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x09, 0x6e, 0x88, 0x02, 0xff, 0xe2, 0xe2, 0xcf, 0x48, 0x4d, 0x2c,
 	0x2a, 0x49, 0x4a, 0x4d, 0x2c, 0xd1, 0x2b, 0x28, 0xca, 0x2f, 0xc9, 0x17, 0x62, 0x4f, 0x4a, 0x02,
