@@ -13,7 +13,7 @@ import (
 	"casino_server/utils/security"
 )
 
-const url  = "192.168.199.111:3563"
+const url  = "192.168.199.120:3563"
 const TCP = "tcp"
 
 func main() {

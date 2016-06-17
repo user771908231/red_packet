@@ -1,5 +1,10 @@
 package config
 
+import (
+	"time"
+	"math/rand"
+)
+
 var NickNames = []string{
 	"Sophia", "Emma", "Olivia", "Isabella", "Ava", "Mia", "Emily", "Abigail", "Madison", "Elizabeth", "Charlotte", "Avery", "Sofia",
 	"Chloe", "Ella", "Harper", "Amelia", "Aubrey", "Addison", "Evelyn", "Natalie", "Grace", "Hannah", "Zoey", "Victoria", "Lillian", "Lily", "Brooklyn", "Samantha", "Layla", "Zoe", "Audrey", "Leah", "Allison", "Anna", "Aaliyah", "Savannah",
@@ -35,3 +40,11 @@ var NickNames = []string{
 	"Neriah", "Rihanna", "Tamia", "Rivka", "Annabell", "Araceli", "Ayana", "Emmaline", "Giovanna", "Kylah", "Kailani", "Karissa", "Nahla", "Zainab", "Devyn", "Karma", "Marleigh", "Meadow", "India", "Kaiya", "Sarahi", "Audrianna", "Natalya", "Bayleigh", "Estelle", "Kaidence", "Kaylyn", "Magnolia", "Princess", "Avalyn", "Ireland", "Jayde", "Roxanne",
 	"Alaysia", "Amia", "Astrid", "Karly", "Dalilah", "Makena", "Penny", "Ryann", "Charity", "Judith", "Kenna", "Tess", "Tinley", "Collins",
 } //1000 names
+
+
+func RandNikeName() string{
+	r := rand.New(rand.NewSource(time.Now().UnixNano()))
+	id := r.Intn(len(NickNames))
+	return NickNames[id]
+}
+

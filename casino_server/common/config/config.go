@@ -10,6 +10,8 @@ import (
 	"os"
 	"strconv"
 	"casino_server/utils/redis"
+	"github.com/name5566/leaf/db/mongodb"
+	"casino_server/conf/casinoConf"
 )
 
 var (
@@ -71,15 +73,21 @@ func InitConfig(reloadFlg bool) (e Error.Error) {
 	//初始化系统语言
 	InitLanguage()
 
-	fmt.Println("InitRedis...")
+
 
 	//初始化redis连接配置
+	fmt.Println("InitRedis...")
 	InitRedis()
-	fmt.Println("InitVip...")
 
+
+	//初始化mongoDb
+	fmt.Println("InitMongoDb...")
+	errInitMongoDb := InitMongoDb()
+	if errInitMongoDb != nil {
+		panic(errInitMongoDb)
+	}
 
 	fmt.Println("InitVersion...")
-
 	//强化时需要花费的金币
 	for i := int32(0); i < 99; i++ {
 		TableDevourCostCoin[i] = 100 * (i + 1)
@@ -102,6 +110,32 @@ func InitLanguage() {
 	}
 
 	log.T("当前系统语言: %v", G_GAME_LANGUAGE)
+}
+
+/**
+初始化数据库
+1,建立自增主键
+2,建立索引
+
+
+ */
+func InitMongoDb() error{
+	//return errors.New("初始化数据库失败")
+
+	//0,活的数据库连接
+	c, err := mongodb.Dial(casinoConf.DB_IP, casinoConf.DB_PORT)
+	if err != nil {
+		fmt.Println(err)
+		panic(err)
+	}
+	defer c.Close()
+
+	//1,建立自增主键
+	err = c.EnsureCounter(casinoConf.DB_NAME, casinoConf.DBT_T_USER, casinoConf.DB_ENSURECOUNTER_KEY)
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 func InitRedis() {

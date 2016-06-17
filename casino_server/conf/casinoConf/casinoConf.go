@@ -8,10 +8,15 @@ const (
 	LOGIN_WAY_LOGIN = 2		//普通登录模式
 
 
-	//数据库相关
+
+
+
+
+	//------------------------------数据库相关--------------------------
 	DB_IP 			= "localhost"		//数据库ip
 	DB_PORT			= 51668			//数据库端口
 	DB_NAME 		= "test"		//数据库名字
+	DB_ENSURECOUNTER_KEY	= "id"			//自增键
 
 	DBT_T_USER 		= "t_user"		//user表名字
 	DBT_T_TEST 		= "t_test"		//user表名字

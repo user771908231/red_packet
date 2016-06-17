@@ -18,4 +18,5 @@ func init() {
 	msg.PortoProcessor.SetRouter(&bbproto.TestP1{},game.ChanRPC)
 	msg.PortoProcessor.SetRouter(&bbproto.Reg{},login.ChanRPC)
 	msg.PortoProcessor.SetRouter(&bbproto.ReqAuthUser{},login.ChanRPC)
+	msg.PortoProcessor.SetRouter(&bbproto.HeatBeat{},)
 }
