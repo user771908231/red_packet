@@ -13,6 +13,7 @@ func init() {
 	handler(&bbproto.TestP1{},handleTestP1)
 	handler(&bbproto.Reg{},handleProtHello)
 	handler(&bbproto.GetIntoRoom{},handlerGetIntoRoom)
+	handler(&bbproto.RoomMsg{},handlerRoomMsg)
 }
 
 func handler(m interface{}, h interface{}) {
@@ -57,15 +58,28 @@ func handleTestP1(args[]interface{}){
 /**
 	请求进入游戏房间
 	1,分配房间(根据游戏类型)
+	2,proto中的标志 如果in=1表示进入房间,其他则表示退出房间
 
  */
 func handlerGetIntoRoom(args []interface{}){
-	log.T("进入到 game.handlerGetIntoRoom()\n")
+	log.T("\n\n进入到 game.handlerGetIntoRoom()")
 	m := args[0].(*bbproto.GetIntoRoom)		//请求体
 	a := args[1].(gate.Agent)		//连接
 	log.T("请求进入房间的user %v \n",m.GetUserId())
+	if m.GetIn() == 1 {
+		gamedata.CashOutRoom.AddAgent(m.GetUserId(),a)
+	}else{
+		gamedata.CashOutRoom.RemoveAgent(m.GetUserId())
+	}
+}
 
-	//包连接存放在room中
-	gamedata.CashOutRoom.AddAgent(m.GetUserId(),a)
-	gamedata.CashOutRoom.BroadcastMsg()
+/**
+
+处理roomMsg
+
+ */
+func handlerRoomMsg(args []interface{}){
+	log.T("进入到 game.handlerRoomMsg()\n")
+	m := args[0].(*bbproto.RoomMsg)		//请求体
+	gamedata.CashOutRoom.BroadcastMsg(m.GetRoomId(),m.GetMsg())
 }

@@ -11,6 +11,7 @@ It is generated from these files:
 	getIntoRoom.proto
 	heartbeat.proto
 	reg.proto
+	roomMsg.proto
 	testp1.proto
 	user.proto
 
@@ -21,6 +22,7 @@ It has these top-level messages:
 	GetIntoRoom
 	HeatBeat
 	Reg
+	RoomMsg
 	TestP1
 	User
 */

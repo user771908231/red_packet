@@ -21,6 +21,7 @@ func fun1(t *testing.T) {
 	if err != nil {
 		panic(err)
 	}
+	defer conn.Close()
 
 	var id uint16 = 4
 	var data bbproto.GetIntoRoom
@@ -28,19 +29,6 @@ func fun1(t *testing.T) {
 	data.UserId = &userId
 	m := utils.AssembleData(id,&data)
 	conn.Write(m)
-
-	var res [250]byte
-	count, err := conn.Read(res[0:])
-	if err != nil {
-		fmt.Println("err != nil")
-	}
-
-	t.Log("读取到的 res %v", res)
-	msg2, err := msg.PortoProcessor.Unmarshal(res[2:count])
-	if err != nil {
-	}
-	m5 := msg2.(*bbproto.GetIntoRoom)
-	fmt.Println("m5.UserId:", m5)
 
 	for ; ; {
 		var res [250]byte
@@ -52,7 +40,9 @@ func fun1(t *testing.T) {
 		msg2, err := msg.PortoProcessor.Unmarshal(res[2:count])
 		if err != nil {
 		}
-		m5 :=  msg2.(*bbproto.GetIntoRoom)
-		fmt.Println("m5.UserId:",m5.GetRoomId())
+		m5 :=  msg2.(*bbproto.RoomMsg)
+		t.Log("m5.getroomId %v",m5.GetRoomId())
+		t.Log("m5.getMsg %v",m5.GetMsg())
+
 	}
 }

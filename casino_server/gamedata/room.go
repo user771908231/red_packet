@@ -3,7 +3,6 @@ package gamedata
 import (
 	"github.com/name5566/leaf/gate"
 	"casino_server/common/log"
-	"fmt"
 	"casino_server/msg/bbproto"
 )
 
@@ -13,6 +12,7 @@ func init() {
 }
 
 var CashOutRoom room
+
 /**
 游戏房间
  */
@@ -34,14 +34,14 @@ func (r *room) RemoveAgent(userId uint32){
 	发送信息
  */
 
-func (r *room) BroadcastMsg(){
+func (r *room) BroadcastMsg(roomId int32,msg string){
+	log.Normal("给房间号%v发送信息%v",roomId,msg)
 	/* 使用 key 输出 map 值 */
 	for key := range r.AgentMap {
-		fmt.Println("广播测试 of",key)
+		log.Normal("开始给%v发送消息",key)
 		a :=r.AgentMap[key]
-		result := bbproto.GetIntoRoom{}
-		key2 := int32(key+1)
-		result.RoomId = &key2
+		result := bbproto.RoomMsg{}
+		result.RoomId = &roomId
 		a.WriteMsg(&result)
 	}
 }
