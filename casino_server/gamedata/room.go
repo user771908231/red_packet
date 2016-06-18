@@ -24,6 +24,11 @@ type room struct {
 func (r *room) AddAgent(userId uint32,a gate.Agent){
 	log.T("userId%v的agent放在CachOutRoom中管理\n",userId)
 	r.AgentMap[userId] = a
+
+	//打印出 增加连接之后,但当前房间里的连接
+	for key := range r.AgentMap {
+		log.Normal("当前存在的连接%v",key)
+	}
 }
 
 func (r *room) RemoveAgent(userId uint32){
@@ -40,8 +45,10 @@ func (r *room) BroadcastMsg(roomId int32,msg string){
 	for key := range r.AgentMap {
 		log.Normal("开始给%v发送消息",key)
 		a :=r.AgentMap[key]
-		result := bbproto.RoomMsg{}
-		result.RoomId = &roomId
-		a.WriteMsg(&result)
+		m := "服务器的消息"
+		data := bbproto.RoomMsg{}
+		data.RoomId = &roomId
+		data.Msg    = &m
+		a.WriteMsg(&data)
 	}
 }

@@ -62,10 +62,10 @@ func handleTestP1(args[]interface{}){
 
  */
 func handlerGetIntoRoom(args []interface{}){
-	log.T("\n\n进入到 game.handlerGetIntoRoom()")
+	log.T("进入到 game.handlerGetIntoRoom()")
 	m := args[0].(*bbproto.GetIntoRoom)		//请求体
 	a := args[1].(gate.Agent)		//连接
-	log.T("请求进入房间的user %v \n",m.GetUserId())
+	log.T("请求进入房间的user %v ,in:%v\n",m.GetUserId(),m.GetIn())
 	if m.GetIn() == 1 {
 		gamedata.CashOutRoom.AddAgent(m.GetUserId(),a)
 	}else{
@@ -79,7 +79,7 @@ func handlerGetIntoRoom(args []interface{}){
 
  */
 func handlerRoomMsg(args []interface{}){
-	log.T("进入到 game.handlerRoomMsg()\n")
+	log.T("进入到 game.handlerRoomMsg()")
 	m := args[0].(*bbproto.RoomMsg)		//请求体
 	gamedata.CashOutRoom.BroadcastMsg(m.GetRoomId(),m.GetMsg())
 }

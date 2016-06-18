@@ -26,23 +26,29 @@ func fun1(t *testing.T) {
 	var id uint16 = 4
 	var data bbproto.GetIntoRoom
 	var userId uint32 = 10013
+	var inValue int32 = 1
+
+	data.In = &inValue
 	data.UserId = &userId
 	m := utils.AssembleData(id,&data)
 	conn.Write(m)
 
+
 	for ; ; {
+		fmt.Println("开始读取广播消息")
 		var res [250]byte
 		count,err := conn.Read(res[0:])
 		if err != nil {
 			fmt.Println("err != nil")
 		}
-		t.Log("读取到的 res %v",res)
+		fmt.Println("读取到广播消息",res)
+
 		msg2, err := msg.PortoProcessor.Unmarshal(res[2:count])
 		if err != nil {
 		}
 		m5 :=  msg2.(*bbproto.RoomMsg)
-		t.Log("m5.getroomId %v",m5.GetRoomId())
-		t.Log("m5.getMsg %v",m5.GetMsg())
-
+		fmt.Println("读取广播消息结束roomid",m5.GetRoomId())
+		fmt.Println("读取广播消息结束roomsg",m5.GetMsg())
+		fmt.Println("读取广播消息结束")
 	}
 }
