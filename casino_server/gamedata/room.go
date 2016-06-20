@@ -44,11 +44,16 @@ func (r *room) BroadcastMsg(roomId int32,msg string){
 	/* 使用 key 输出 map 值 */
 	for key := range r.AgentMap {
 		log.Normal("开始给%v发送消息",key)
+
+
+		//首先判断连接是否有断开
 		a :=r.AgentMap[key]
+
 		m := "服务器的消息"
 		data := bbproto.RoomMsg{}
 		data.RoomId = &roomId
 		data.Msg    = &m
 		a.WriteMsg(&data)
+		log.Normal("给%v发送消息,发送完毕",key)
 	}
 }

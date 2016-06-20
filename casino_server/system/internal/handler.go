@@ -23,13 +23,10 @@ func handleHeatBeat(args []interface{}){
 	log.Debug("进入login.handler.handleHeatBeat()")
 
 	// 收到的 Hello 消息
-	m := args[0].(*bbproto.HeatBeat)
+	//m := args[0].(*bbproto.HeatBeat)
 	// 消息的发送者
 	a := args[1].(gate.Agent)
 	// 输出收到的消息的内容
-	log.Debug("介绍到的reqAuthUser %v", *m,a)
-
-
-
+	log.T("agent:",a)
 
 }

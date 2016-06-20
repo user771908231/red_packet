@@ -3,10 +3,10 @@ package internal
 import (
 	"reflect"
 	"casino_server/msg/bbproto"
-	"github.com/name5566/leaf/log"
 	"github.com/name5566/leaf/gate"
 	"casino_server/conf/casinoConf"
 	"casino_server/service"
+	"casino_server/common/log"
 )
 
 func handleMsg(m interface{}, h interface{}) {
@@ -58,6 +58,7 @@ func handleReqAuthUser(args []interface{}){
 	// 消息的发送者
 	a := args[1].(gate.Agent)
 	// 输出收到的消息的内容
+	log.T("agent:",a)
 	log.Debug("介绍到的reqAuthUser %v", *m)
 
 	//判断是快速登陆还是
