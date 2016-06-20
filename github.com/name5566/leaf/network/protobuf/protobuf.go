@@ -109,20 +109,20 @@ func (p *Processor) Unmarshal(data []byte) (interface{}, error) {
 
 	// id
 	var id uint16
-	log.Debug("p.littleEndian: %v",p.littleEndian)
+	//log.Debug("p.littleEndian: %v",p.littleEndian)
 	if p.littleEndian {
 		id = binary.LittleEndian.Uint16(data)
 	} else {
 		id = binary.BigEndian.Uint16(data)
 	}
-	log.Debug("protobuf 格式的id: %v",id)
+	//log.Debug("protobuf 格式的id: %v",id)
 	// msg
 	if id >= uint16(len(p.msgInfo)) {
 		return nil, fmt.Errorf("message id %v not registered", id)
 	}
 	msg := reflect.New(p.msgInfo[id].msgType.Elem()).Interface()
 
-	log.Debug("protobuf 的内容 data[2:]: %v",data[2:])
+	//log.Debug("protobuf 的内容 data[2:]: %v",data[2:])
 
 	return msg, proto.UnmarshalMerge(data[2:], msg.(proto.Message))
 }

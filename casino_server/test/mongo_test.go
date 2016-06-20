@@ -16,7 +16,8 @@ func TestM(t *testing.T){
 	//update(t)
 	//_select(t)
 	//saveSub2(t)
-	selectSub2(t)
+	//selectSub2(t)
+	selectSub3(t)
 }
 
 
@@ -39,8 +40,16 @@ func _TestSave(t *testing.T){
 	user := mode.User{}
 	id,_ :=  c.NextSeq("test", "t_user", "id")
 	user.Id = uint32(id)
+	user.Mid = bson.NewObjectId();
+	e := s.DB("test").C("t_user").Insert(user)
+	if e != nil {
+		t.Error(e)
+	}
 
-	s.DB("test").C("t_user").Insert(user)
+	var testResult mode.T_test
+	testResult.Name = "测试2"
+	testResult.Mid = bson.NewObjectId()
+	s.DB(casinoConf.DB_NAME).C(casinoConf.DBT_T_TEST).Insert(testResult)
 
 	t.Log("开始测试保存到数据库--end\n")
 
@@ -160,20 +169,45 @@ func  selectSub2(t *testing.T){
 	t.Log("ObjId",result.ObjId)
 	t.Log("id",result.Id)
 
-	//
+	var testResult mode.T_test
+	s.DB(casinoConf.DB_NAME).C(casinoConf.DBT_T_TEST).Find(bson.M{"_id":bson.ObjectIdHex("576148b21ba69d3aa3ec410d")}).One(&testResult)
+	t.Log("testResult.id",testResult.Mid)
 
+	 e := s.DB(casinoConf.DB_NAME).C(casinoConf.DBT_T_TEST).Update(bson.M{"_id":testResult.Mid}, bson.M{"$push": bson.M{ "sub2" : result.ObjId}})
+	if e != nil {
+		t.Error(e)
+	}
+
+}
+
+
+func selectSub3(t *testing.T){
+	//连接数据库
+	c,err := mongodb.Dial(casinoConf.DB_IP,casinoConf.DB_PORT)
+	if err != nil{
+		t.Error(err)
+	}
+	defer  c.Close()
+
+	//获取session
+	s := c.Ref()
+	defer s.Close()
 
 	var testResult mode.T_test
-	testResult.Name = "测试"
-	s.DB(casinoConf.DB_NAME).C(casinoConf.DBT_T_TEST).Insert(testResult)
-
-	s.DB(casinoConf.DB_NAME).C(casinoConf.DBT_T_TEST).Find(bson.M{}).One(testResult)
-	t.Log("testResult.id",testResult.ObjId)
+	s.DB(casinoConf.DB_NAME).C(casinoConf.DBT_T_TEST).Find(bson.M{"_id":bson.ObjectIdHex("576148b21ba69d3aa3ec410d")}).One(&testResult)
+	t.Log("testResult.id",testResult.Mid)
+	t.Log("testResult.Sub2[0]",testResult.Sub2[0])
 
 
-	//s.DB(casinoConf.DB_NAME).C(casinoConf.DBT_T_TEST).Update(bson.M{"_id",testResult.Id}, bson.M{"$push": bson.M{ "Sub2": result.ObjId}})
+	sub2 := &mode.T_test_sub2{}
+	e := s.DB(casinoConf.DB_NAME).C(casinoConf.DBT_T_SUB2).FindId(testResult.Sub2[0]).One(&sub2)
+	if e != nil {
+		t.Error("出错了")
+		t.Error(e)
+	}
 
-
+	t.Log("sub2.Sname")
+	t.Log("sub2.Sname",sub2.Sname)
 }
 
 

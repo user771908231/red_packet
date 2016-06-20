@@ -20,6 +20,7 @@ type Skeleton struct {
 }
 
 func (s *Skeleton) Init() {
+	log.Debug("package module SkeLeton.Init()")
 	if s.GoLen <= 0 {
 		s.GoLen = 0
 	}

@@ -2,6 +2,7 @@ package internal
 
 import (
 	"github.com/name5566/leaf/gate"
+	"casino_server/common/log"
 )
 
 func init() {
@@ -17,4 +18,5 @@ func rpcNewAgent(args []interface{}) {
 func rpcCloseAgent(args []interface{}) {
 	a := args[0].(gate.Agent)
 	_ = a
+	log.Normal("调用了.....rpcCloseAgent")
 }

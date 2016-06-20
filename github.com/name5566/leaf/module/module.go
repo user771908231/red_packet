@@ -54,6 +54,11 @@ func run(m *module) {
 	m.wg.Done()
 }
 
+
+/**
+r:=recover 捕获异常
+
+ */
 func destroy(m *module) {
 	defer func() {
 		if r := recover(); r != nil {

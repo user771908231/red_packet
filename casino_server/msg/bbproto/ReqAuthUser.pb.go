@@ -8,7 +8,10 @@ Package bbproto is a generated protocol buffer package.
 It is generated from these files:
 	ReqAuthUser.proto
 	base.proto
+	getIntoRoom.proto
+	heartbeat.proto
 	reg.proto
+	roomMsg.proto
 	testp1.proto
 	user.proto
 
@@ -16,7 +19,10 @@ It has these top-level messages:
 	ReqAuthUser
 	ProtoHeader
 	TerminalInfo
+	GetIntoRoom
+	HeatBeat
 	Reg
+	RoomMsg
 	TestP1
 	User
 */

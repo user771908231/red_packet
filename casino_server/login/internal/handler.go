@@ -3,11 +3,10 @@ package internal
 import (
 	"reflect"
 	"casino_server/msg/bbproto"
-	"github.com/name5566/leaf/log"
-
 	"github.com/name5566/leaf/gate"
-	"casino_server/service"
 	"casino_server/conf/casinoConf"
+	"casino_server/service"
+	"casino_server/common/log"
 )
 
 func handleMsg(m interface{}, h interface{}) {
@@ -44,7 +43,6 @@ func handleProtHello(args []interface{}){
 }
 
 
-
 /*
 
 登陆注册的流程:
@@ -60,23 +58,20 @@ func handleReqAuthUser(args []interface{}){
 	// 消息的发送者
 	a := args[1].(gate.Agent)
 	// 输出收到的消息的内容
+	log.T("agent:",a)
 	log.Debug("介绍到的reqAuthUser %v", *m)
-	log.Debug("接收到的AppVersion %v", m.GetAppVersion())
-	log.Debug("接收到的Header %v", m.GetHeader())
-	log.Debug("接收到的*m.Header.UserId %v",m.GetHeader().GetUserId())
 
 	//判断是快速登陆还是
-	loginWay := userService.CheckUserId(m.GetHeader().GetUserId())
+	loginWay := service.CheckUserId(m.GetHeader().GetUserId())
 	switch loginWay {
 	case casinoConf.LOGIN_WAY_QUICK:
 		log.Debug("快速登录模式")
-		userService.QuickLogin(m,a)
+		service.QuickLogin(m,a)
 	case casinoConf.LOGIN_WAY_LOGIN:
 		log.Debug("普通登录模式")
-		userService.Login(m)
+		service.Login(m)
 	default:
 		log.Debug("没有找到合适的登录方式")
 	}
-
 
 }

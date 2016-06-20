@@ -1,4 +1,4 @@
-package userService
+package service
 
 import (
 	"casino_server/conf/casinoConf"
@@ -8,6 +8,8 @@ import (
 	"fmt"
 	"github.com/name5566/leaf/db/mongodb"
 	"casino_server/mode"
+	"casino_server/common/config"
+	"gopkg.in/mgo.v2/bson"
 )
 
 /**
@@ -39,10 +41,8 @@ func QuickLogin(user *bbproto.ReqAuthUser,a gate.Agent){
 	nuser := newUser()
 	//3,返回数据给用户
 	//给发送者回应一个 Hello 消息
-	var e string
-	e = "收到了消息"
-	var c int32
-	c = 1
+	e := string("收到了消息")
+	c := int32(1)
 	var header bbproto.ProtoHeader
 	header.UserId = &(nuser.Id)
 	header.Error = &e
@@ -74,32 +74,26 @@ func Login(user *bbproto.ReqAuthUser){
 func newUser() mode.User{
 	//1,创建user
 	nuser := mode.User{}
-	nuser.Name = "testName1"
-	nuser.Mobile = "18081922618"
+	nuser.NickName = config.RandNikeName()
+	nuser.Mid = bson.NewObjectId()
 
-	//2,保存在数据库
-
-	c, err := mongodb.Dial("localhost", 51668)
+	//2,获取数据库连接和回话
+	c, err := mongodb.Dial(casinoConf.DB_IP, casinoConf.DB_PORT)
 	if err != nil {
 		fmt.Println(err)
 		panic(err)
 	}
 	defer c.Close()
 
-	////创建自增字段
-	err = c.EnsureCounter("test", "t_user", "id")
-	if err != nil {
-		fmt.Println(err)
-		panic(err)
-	}
-
-
-	id, err := c.NextSeq("test", "t_user", "id")
-	nuser.Id = uint32(id)
-
 	s:=c.Ref()
 	defer c.UnRef(s)
-	s.DB("test").C("t_user").Insert(nuser)
+
+	//活的自增主键
+	id, err := c.NextSeq(casinoConf.DB_NAME, casinoConf.DBT_T_USER, casinoConf.DB_ENSURECOUNTER_KEY)
+
+	nuser.Id = uint32(id)
+
+	s.DB(casinoConf.DB_NAME).C(casinoConf.DBT_T_USER).Insert(nuser)
 	return  nuser
 
 }
