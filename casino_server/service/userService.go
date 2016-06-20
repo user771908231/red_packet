@@ -3,13 +3,13 @@ package service
 import (
 	"casino_server/conf/casinoConf"
 	"casino_server/msg/bbproto"
-	"github.com/gpmgo/gopm/modules/log"
 	"github.com/name5566/leaf/gate"
 	"fmt"
 	"github.com/name5566/leaf/db/mongodb"
 	"casino_server/mode"
 	"casino_server/common/config"
 	"gopkg.in/mgo.v2/bson"
+	"casino_server/common/log"
 )
 
 /**
