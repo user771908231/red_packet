@@ -6,6 +6,7 @@ import (
 	"casino_server/msg/bbproto"
 	"casino_server/common/log"
 	"casino_server/gamedata"
+	"casino_server/service/rewardService"
 )
 
 func init() {
@@ -14,6 +15,7 @@ func init() {
 	handler(&bbproto.Reg{},handleProtHello)
 	handler(&bbproto.GetIntoRoom{},handlerGetIntoRoom)
 	handler(&bbproto.RoomMsg{},handlerRoomMsg)
+	handler(&bbproto.GetRewards{},handlerRewards)
 }
 
 func handler(m interface{}, h interface{}) {
@@ -85,4 +87,16 @@ func handlerRoomMsg(args []interface{}){
 	a := args[1].(gate.Agent)
 	log.T("agent:",&a)
 	gamedata.CashOutRoom.BroadcastMsg(m.GetRoomId(),m.GetMsg())
+}
+
+func handlerRewards(args []interface{}){
+	log.T("进入到 game.handlerRewards()")
+	//检测参数是否正确
+	m := args[0].(*bbproto.GetRewards)		//请求体
+	a := args[1].(gate.Agent)
+	err := rewardService.HandlerRewards(m,a)		//调用处理函数来处理
+	if err != nil {
+		log.E(err.Error())
+	}
+
 }

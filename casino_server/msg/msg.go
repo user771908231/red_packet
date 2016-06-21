@@ -18,5 +18,6 @@ func init() {
 	PortoProcessor.Register(&bbproto.HeatBeat{})	//3	心跳协议,检测网络是否联通
 	PortoProcessor.Register(&bbproto.GetIntoRoom{})	//4	进入房间时候的请求
 	PortoProcessor.Register(&bbproto.RoomMsg{})	//5	给指定房间发送信息
+	PortoProcessor.Register(&bbproto.GetRewards{})	//6	各种奖励
 
 }

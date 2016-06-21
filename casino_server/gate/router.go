@@ -18,4 +18,6 @@ func init() {
 	msg.PortoProcessor.SetRouter(&bbproto.HeatBeat{},system.ChanRPC)
 	msg.PortoProcessor.SetRouter(&bbproto.GetIntoRoom{},game.ChanRPC)
 	msg.PortoProcessor.SetRouter(&bbproto.RoomMsg{},game.ChanRPC)		//给指定房间发送信息
+	msg.PortoProcessor.SetRouter(&bbproto.GetRewards{},game.ChanRPC)		//给指定房间发送信息
+
 }
