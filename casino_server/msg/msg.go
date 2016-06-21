@@ -20,4 +20,7 @@ func init() {
 	PortoProcessor.Register(&bbproto.RoomMsg{})	//5	给指定房间发送信息
 	PortoProcessor.Register(&bbproto.GetRewards{})	//6	各种奖励
 
+	PortoProcessor.Register(&bbproto.Shuiguoji{})	//7	水果机
+
+
 }

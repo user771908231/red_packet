@@ -1,0 +1,26 @@
+import public "base.proto";
+package bbproto;
+
+message Shuiguoji {
+    optional ProtoHeader ProtoHeader	 		      = 1;
+
+    optional int32       type                         = 2;
+
+    //押注
+    optional int32      scoresBet                     = 3;
+    optional int32      scoresWin                     = 4;
+
+    //押注的分数
+    optional int32      scoresApple                   = 5;
+    optional int32      scoresOrange                  = 6;
+    optional int32      scoresMango                   = 7;
+    optional int32      scoresBell                    = 8;
+    optional int32      scoresWatermelon              = 9;
+    optional int32      scoresStar                    = 10;
+    optional int32      scores77                      = 11;
+    optional int32      scoresBar                     = 12;
+
+    //大小
+    optional int32      scoresHilomp                  = 13;
+
+}

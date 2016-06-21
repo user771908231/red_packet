@@ -7,23 +7,24 @@ import (
 	"casino_server/common/log"
 	"casino_server/gamedata"
 	"casino_server/service/rewardService"
+	"casino_server/service/fruitService"
 )
 
 func init() {
 	// 向当前模块（game 模块）注册 Hello 消息的消息处理函数 handleHello
-	handler(&bbproto.TestP1{},handleTestP1)
-	handler(&bbproto.Reg{},handleProtHello)
-	handler(&bbproto.GetIntoRoom{},handlerGetIntoRoom)
-	handler(&bbproto.RoomMsg{},handlerRoomMsg)
-	handler(&bbproto.GetRewards{},handlerRewards)
+	handler(&bbproto.TestP1{}, handleTestP1)
+	handler(&bbproto.Reg{}, handleProtHello)
+	handler(&bbproto.GetIntoRoom{}, handlerGetIntoRoom)
+	handler(&bbproto.RoomMsg{}, handlerRoomMsg)
+	handler(&bbproto.GetRewards{}, handlerRewards)
+	handler(&bbproto.Shuiguoji{}, handlerShuiguoji)
 }
 
 func handler(m interface{}, h interface{}) {
 	skeleton.RegisterChanRPC(reflect.TypeOf(m), h)
 }
 
-
-func handleProtHello(args []interface{}){
+func handleProtHello(args []interface{}) {
 	log.T("进入handleProtHello()")
 	// 收到的 Hello 消息
 	m := args[0].(*bbproto.Reg)
@@ -32,7 +33,7 @@ func handleProtHello(args []interface{}){
 
 	// 输出收到的消息的内容
 	log.Debug("接收到的name %v", *m.Name)
-	 //给发送者回应一个 Hello 消息
+	//给发送者回应一个 Hello 消息
 	var data bbproto.Reg
 	//var n string = "a"+ time.Now().String()
 	var n string = "hi leaf"
@@ -40,7 +41,7 @@ func handleProtHello(args []interface{}){
 	a.WriteMsg(&data)
 }
 
-func handleTestP1(args[]interface{}){
+func handleTestP1(args[]interface{}) {
 	log.Debug("进入handleTestP1()")
 	// 收到的 Hello 消息
 	m := args[0].(*bbproto.TestP1)
@@ -63,15 +64,15 @@ func handleTestP1(args[]interface{}){
 	2,proto中的标志 如果in=1表示进入房间,其他则表示退出房间
 
  */
-func handlerGetIntoRoom(args []interface{}){
+func handlerGetIntoRoom(args []interface{}) {
 	log.T("进入到 game.handlerGetIntoRoom()")
-	m := args[0].(*bbproto.GetIntoRoom)		//请求体
-	a := args[1].(gate.Agent)		//连接
-	log.T("agent:",&a)
-	log.T("请求进入房间的user %v ,in:%v\n",m.GetUserId(),m.GetIn())
+	m := args[0].(*bbproto.GetIntoRoom)                //请求体
+	a := args[1].(gate.Agent)                //连接
+	log.T("agent:", &a)
+	log.T("请求进入房间的user %v ,in:%v\n", m.GetUserId(), m.GetIn())
 	if m.GetIn() == 1 {
-		gamedata.CashOutRoom.AddAgent(m.GetUserId(),a)
-	}else{
+		gamedata.CashOutRoom.AddAgent(m.GetUserId(), a)
+	} else {
 		gamedata.CashOutRoom.RemoveAgent(m.GetUserId())
 	}
 }
@@ -81,22 +82,41 @@ func handlerGetIntoRoom(args []interface{}){
 处理roomMsg
 
  */
-func handlerRoomMsg(args []interface{}){
+func handlerRoomMsg(args []interface{}) {
 	log.T("进入到 game.handlerRoomMsg()")
-	m := args[0].(*bbproto.RoomMsg)		//请求体
+	m := args[0].(*bbproto.RoomMsg)                //请求体
 	a := args[1].(gate.Agent)
-	log.T("agent:",&a)
-	gamedata.CashOutRoom.BroadcastMsg(m.GetRoomId(),m.GetMsg())
+	log.T("agent:", &a)
+	gamedata.CashOutRoom.BroadcastMsg(m.GetRoomId(), m.GetMsg())
 }
 
-func handlerRewards(args []interface{}){
+
+/**
+领取奖励的入口都在这里
+ */
+func handlerRewards(args []interface{}) {
 	log.T("进入到 game.handlerRewards()")
 	//检测参数是否正确
-	m := args[0].(*bbproto.GetRewards)		//请求体
+	m := args[0].(*bbproto.GetRewards)                //请求体
 	a := args[1].(gate.Agent)
-	err := rewardService.HandlerRewards(m,a)		//调用处理函数来处理
+	err := rewardService.HandlerRewards(m, a)                //调用处理函数来处理
 	if err != nil {
 		log.E(err.Error())
 	}
+}
 
+/**
+
+处理水果机的业务
+ */
+func handlerShuiguoji(args []interface{}) {
+	log.T("进入到 game.handlerShuiguoji()")
+	//检测参数是否正确
+	m := args[0].(*bbproto.Shuiguoji)                //请求体
+	a := args[1].(gate.Agent)
+	result, err := fruitService.HandlerShuiguoji(m, a)
+	if err != nil {
+		log.E(err.Error())
+	}
+	log.N("%v",result)
 }

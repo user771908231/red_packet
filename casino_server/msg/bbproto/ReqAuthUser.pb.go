@@ -13,6 +13,7 @@ It is generated from these files:
 	heartbeat.proto
 	reg.proto
 	roomMsg.proto
+	shuiguoji.proto
 	testp1.proto
 	user.proto
 
@@ -25,6 +26,7 @@ It has these top-level messages:
 	HeatBeat
 	Reg
 	RoomMsg
+	Shuiguoji
 	TestP1
 	User
 */
