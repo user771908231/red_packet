@@ -8,6 +8,8 @@ import (
 	"casino_server/common/log"
 	"casino_server/service/userService"
 	"casino_server/mode"
+	"casino_server/conf/StrCons"
+	"casino_server/conf/intCons"
 )
 
 func handleMsg(m interface{}, h interface{}) {
@@ -19,7 +21,6 @@ func init() {
 	handleMsg(&bbproto.ReqAuthUser{},handleReqAuthUser)
 
 }
-
 
 
 /**
@@ -77,15 +78,21 @@ func handleReqAuthUser(args []interface{}){
 	}
 
 	//判断返回的信息,并且返回信息
+	resReqUser := &bbproto.ReqAuthUser{}
+	resHeader  := &bbproto.ProtoHeader{}
 	if e != nil {
 		log.E(e.Error())
+		resHeader.Error = &StrCons.STR_POINT_ERR_LOGIN_FAIL
+		resHeader.Code	= &intCons.CODE_FAIL
+
 	}else{
-		//把数据返回给客户端
-		resReqUser := &bbproto.ReqAuthUser{}
-		resHeader  := &bbproto.ProtoHeader{}
 		resHeader.UserId = &(resUser.Id)
+		resHeader.Code	 = &intCons.CODE_SUCC
+		resHeader.Error	 = &StrCons.STR_POINT_ERR_LOGIN_SUCC
 		resReqUser.Header = resHeader
-		a.WriteMsg(resReqUser)
 	}
+
+	//把数据返回给客户端
+	a.WriteMsg(resReqUser)
 
 }
