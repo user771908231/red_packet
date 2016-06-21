@@ -4,7 +4,6 @@ import (
 	"reflect"
 	"casino_server/msg/bbproto"
 	"github.com/name5566/leaf/gate"
-	"casino_server/conf/casinoConf"
 	"casino_server/common/log"
 	"casino_server/service/userService"
 	"casino_server/mode"
@@ -67,10 +66,10 @@ func handleReqAuthUser(args []interface{}){
 	var e   error
 	loginWay := userService.CheckUserId(m.GetHeader().GetUserId())
 	switch loginWay {
-	case casinoConf.LOGIN_WAY_QUICK:
+	case intCons.LOGIN_WAY_QUICK:
 		log.T("快速登录模式")
 		resUser,e = userService.QuickLogin(m)
-	case casinoConf.LOGIN_WAY_LOGIN:
+	case intCons.LOGIN_WAY_LOGIN:
 		log.T("普通登录模式")
 		resUser,e = userService.Login(m)
 	default:

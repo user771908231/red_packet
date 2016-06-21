@@ -11,6 +11,7 @@ import (
 	"casino_server/common/log"
 	"errors"
 	"casino_server/conf/StrCons"
+	"casino_server/conf/intCons"
 )
 
 /**
@@ -19,9 +20,9 @@ import (
  */
 func CheckUserId(userId uint32) int8{
 	if userId > casinoConf.MAX_USER_ID || userId < casinoConf.MIN_USER_ID {
-		return casinoConf.LOGIN_WAY_QUICK
+		return intCons.LOGIN_WAY_QUICK
 	}else{
-		return casinoConf.LOGIN_WAY_LOGIN
+		return intCons.LOGIN_WAY_LOGIN
 	}
 }
 

@@ -1,9 +1,9 @@
 package rewardService
 
 import (
-	"casino_server/conf/casinoConf"
 	"casino_server/msg/bbproto"
 	"github.com/name5566/leaf/gate"
+	"casino_server/conf/intCons"
 )
 /**
 处理奖励的路由函数
@@ -12,15 +12,15 @@ import (
 func HandlerRewards(m *bbproto.GetRewards,a gate.Agent) error{
 	rewardsType := m.GetRewardsType()
 	switch rewardsType {
-	case casinoConf.REWARDS_TYPE_ONLINE:
+	case intCons.REWARDS_TYPE_ONLINE:
 		handlerRewardsOnline(m,a)
-	case casinoConf.REWARDS_TYPE_RELIEF:
+	case intCons.REWARDS_TYPE_RELIEF:
 		handlerRewardsRelief(m,a)
-	case casinoConf.REWARDS_TYPE_SIGNIN:
+	case intCons.REWARDS_TYPE_SIGNIN:
 		handlerRewardsSignin(m,a)
-	case casinoConf.REWARDS_TYPE_TIMING:
+	case intCons.REWARDS_TYPE_TIMING:
 		handlerRewardsTiming(m,a)
-	case casinoConf.REWARDS_TYPE_TURNTABLE:
+	case intCons.REWARDS_TYPE_TURNTABLE:
 		handlerRewardsTurntable(m,a)
 	}
 
