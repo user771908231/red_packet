@@ -4,9 +4,11 @@ import (
 	"reflect"
 	"casino_server/msg/bbproto"
 	"github.com/name5566/leaf/gate"
-	"casino_server/conf/casinoConf"
-	"casino_server/service"
 	"casino_server/common/log"
+	"casino_server/service/userService"
+	"casino_server/mode"
+	"casino_server/conf/StrCons"
+	"casino_server/conf/intCons"
 )
 
 func handleMsg(m interface{}, h interface{}) {
@@ -18,7 +20,6 @@ func init() {
 	handleMsg(&bbproto.ReqAuthUser{},handleReqAuthUser)
 
 }
-
 
 
 /**
@@ -58,20 +59,39 @@ func handleReqAuthUser(args []interface{}){
 	// 消息的发送者
 	a := args[1].(gate.Agent)
 	// 输出收到的消息的内容
-	log.T("agent:",a)
 	log.Debug("介绍到的reqAuthUser %v", *m)
 
-	//判断是快速登陆还是
-	loginWay := service.CheckUserId(m.GetHeader().GetUserId())
+	//判断是快速登录还是普通登录
+	var resUser *mode.User
+	var e   error
+	loginWay := userService.CheckUserId(m.GetHeader().GetUserId())
 	switch loginWay {
-	case casinoConf.LOGIN_WAY_QUICK:
-		log.Debug("快速登录模式")
-		service.QuickLogin(m,a)
-	case casinoConf.LOGIN_WAY_LOGIN:
-		log.Debug("普通登录模式")
-		service.Login(m)
+	case intCons.LOGIN_WAY_QUICK:
+		log.T("快速登录模式")
+		resUser,e = userService.QuickLogin(m)
+	case intCons.LOGIN_WAY_LOGIN:
+		log.T("普通登录模式")
+		resUser,e = userService.Login(m)
 	default:
-		log.Debug("没有找到合适的登录方式")
+		log.T("没有找到合适的登录方式")
 	}
+
+	//判断返回的信息,并且返回信息
+	resReqUser := &bbproto.ReqAuthUser{}
+	resHeader  := &bbproto.ProtoHeader{}
+	if e != nil {
+		log.E(e.Error())
+		resHeader.Error = &StrCons.STR_POINT_ERR_LOGIN_FAIL
+		resHeader.Code	= &intCons.CODE_FAIL
+
+	}else{
+		resHeader.UserId = &(resUser.Id)
+		resHeader.Code	 = &intCons.CODE_SUCC
+		resHeader.Error	 = &StrCons.STR_POINT_ERR_LOGIN_SUCC
+		resReqUser.Header = resHeader
+	}
+
+	//把数据返回给客户端
+	a.WriteMsg(resReqUser)
 
 }

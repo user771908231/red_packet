@@ -9,9 +9,13 @@ It is generated from these files:
 	ReqAuthUser.proto
 	base.proto
 	getIntoRoom.proto
+	getRewards.proto
 	heartbeat.proto
 	reg.proto
 	roomMsg.proto
+	shuiguoji.proto
+	shuiguojiHilomp.proto
+	shuiguojiRes.proto
 	testp1.proto
 	user.proto
 
@@ -20,9 +24,13 @@ It has these top-level messages:
 	ProtoHeader
 	TerminalInfo
 	GetIntoRoom
+	GetRewards
 	HeatBeat
 	Reg
 	RoomMsg
+	Shuiguoji
+	ShuiguojiHilomp
+	ShuiguojiRes
 	TestP1
 	User
 */
