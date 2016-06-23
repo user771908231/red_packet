@@ -4,6 +4,7 @@ import (
 	"casino_server/msg/bbproto"
 	"github.com/name5566/leaf/gate"
 	"casino_server/utils"
+	"casino_server/common/log"
 )
 
 
@@ -54,7 +55,7 @@ var SGJV SGJValue = SGJValue{
 }
 
 var SGJP ShuiGuoPro = ShuiGuoPro{
-	Apple                        :        5,
+	Apple                        :        500,
 	AppleLittle                :        15,
 	Orange                        :        20,
 	OrangeLittle                :        25,
@@ -192,8 +193,38 @@ func HandlerShuiguojiHilomp(m *bbproto.Shuiguoji, a gate.Agent) (*bbproto.Shuigu
 /**
 获取跑到的结果
  */
-func BetResult(m *bbproto.Shuiguoji,res *bbproto.ShuiguojiRes) (*bbproto.ShuiguojiRes, error) {
-	result := &bbproto.ShuiguojiRes{}
+func BetResult(m *bbproto.Shuiguoji, res *bbproto.ShuiguojiRes) (*bbproto.ShuiguojiRes, error) {
+	//1,判断返回参数
+	result, err := BetResultWin(m, res)
+	if err != nil {
+		log.E(err.Error())
+		log.E("获取水果机结果的时候出错")
+	}
+	log.N("得到的水果机结果%v", result)
+	log.N("苹果%v", m.GetScoresApple() * result.GetWinApple() * SGJV.Apple + m.GetScoresApple() * result.GetWinAppleLittle() * SGJV.AppleLittle)
+	log.N("橘子%v", m.GetScoresOrange() * result.GetWinOrange() * SGJV.Orange + m.GetScoresOrange() * result.GetWinOrangeLittle() * SGJV.OrangeLittle)
+	log.N("芒果%v", m.GetScoresMango() * result.GetWinMango() * SGJV.Mango + m.GetScoresMango() * result.GetWinMangoLittle() * SGJV.MangoLittle)
+	log.N("铃铛%v", m.GetScoresBell() * result.GetWinBell() * SGJV.Bell + m.GetScoresBell() * result.GetWinBellLittle() * SGJV.BellLittle)
+	log.N("西瓜%v", m.GetScoresWatermelon() * result.GetWinWatermelon() * SGJV.Watermelon + m.GetScoresWatermelon() * result.GetWinWatermelonLittle() * SGJV.WatermelonLittle)
+	log.N("星星%v", m.GetScoresStar() * result.GetWinStar() * SGJV.Star + m.GetScoresStar() * result.GetWinStarLittle() * SGJV.StarLittle)
+	log.N("77%v", m.GetScores77() * result.GetWin77() * SGJV.S77 + m.GetScores77() * result.GetWin77Little() * SGJV.S77Little)
+	log.N("bar%v", m.GetScoresBar() * result.GetWinBar() * SGJV.Bar + m.GetScoresBar() * result.GetWinBarLittle() * SGJV.BarLittle)
+
+	//计算得分结果
+	var scoresTotal int32 = (
+	m.GetScoresApple() * result.GetWinApple() * SGJV.Apple + m.GetScoresApple() * result.GetWinAppleLittle() * SGJV.AppleLittle +
+	m.GetScoresOrange() * result.GetWinOrange() * SGJV.Orange + m.GetScoresOrange() * result.GetWinOrangeLittle() * SGJV.OrangeLittle +
+	m.GetScoresMango() * result.GetWinMango() * SGJV.Mango + m.GetScoresMango() * result.GetWinMangoLittle() * SGJV.MangoLittle +
+	m.GetScoresBell() * result.GetWinBell() * SGJV.Bell + m.GetScoresBell() * result.GetWinBellLittle() * SGJV.BellLittle +
+	m.GetScoresWatermelon() * result.GetWinWatermelon() * SGJV.Watermelon + m.GetScoresWatermelon() * result.GetWinWatermelonLittle() * SGJV.WatermelonLittle +
+	m.GetScoresStar() * result.GetWinStar() * SGJV.Star + m.GetScoresStar() * result.GetWinStarLittle() * SGJV.StarLittle +
+	m.GetScores77() * result.GetWin77() * SGJV.S77 + m.GetScores77() * result.GetWin77Little() * SGJV.S77Little +
+	m.GetScoresBar() * result.GetWinBar() * SGJV.Bar + m.GetScoresBar() * result.GetWinBarLittle() * SGJV.BarLittle)
+
+	log.N("计算得到的总分是%v,地址%v", scoresTotal, &scoresTotal)
+	result.ScoresWin = &scoresTotal
+	log.N("计算得到的总分是%v", result.ScoresWin)
+
 	return result, nil
 }
 
@@ -201,9 +232,12 @@ func BetResult(m *bbproto.Shuiguoji,res *bbproto.ShuiguojiRes) (*bbproto.Shuiguo
 /**
 得到跑到的结果
  */
-func BetResultWin(m *bbproto.Shuiguoji,res *bbproto.ShuiguojiRes) (*bbproto.ShuiguojiRes ,error){
+func BetResultWin(m *bbproto.Shuiguoji, res *bbproto.ShuiguojiRes) (*bbproto.ShuiguojiRes, error) {
 	result := &bbproto.ShuiguojiRes{}
 	r := utils.Randn(SGJP.MAX)
+
+	log.T("水果机 随机数 %v", r)
+
 	if r < SGJP.Apple {
 		//大苹果
 		result.WinApple = &NUMBER_INT_1
@@ -255,7 +289,19 @@ func BetResultWin(m *bbproto.Shuiguoji,res *bbproto.ShuiguojiRes) (*bbproto.Shui
 	} else if r < SGJP.Lucky0 {
 		//luck
 		result.WinType = &SGJ_WIN_TYPE_LUCK0
-		result,_ = BetResultWin(m, result)
+		result, _ = BetResultWin(m, result)
+	} else if r < SGJP.Lucky1 {
+		//luck
+		result.WinType = &SGJ_WIN_TYPE_LUCK1
+		result, _ = BetResultWin(m, result)
+	} else if r < SGJP.Lucky2 {
+		//luck
+		result.WinType = &SGJ_WIN_TYPE_LUCK2
+		result, _ = BetResultWin(m, result)
+	} else if r < SGJP.Lucky3 {
+		//luck
+		result.WinType = &SGJ_WIN_TYPE_LUCK3
+		result, _ = BetResultWin(m, result)
 	} else if r < SGJP.DaSiXi {
 		//大四喜
 		result.WinType = &NUMBER_INT_1
@@ -270,6 +316,7 @@ func BetResultWin(m *bbproto.Shuiguoji,res *bbproto.ShuiguojiRes) (*bbproto.Shui
 	} else if r < SGJP.rand4 {
 	} else if r < SGJP.ZongHengSiHai {
 	}
+
 	return result, nil
 
 }
