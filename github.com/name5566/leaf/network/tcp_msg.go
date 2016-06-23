@@ -150,6 +150,7 @@ func (p *MsgParser) Write(conn *TCPConn, args ...[]byte) error {
 		copy(msg[l:], args[i])
 		l += len(args[i])
 	}
+	log.Debug("msg.write data[%v]: %v", msgLen, msg)
 
 	conn.Write(msg)
 

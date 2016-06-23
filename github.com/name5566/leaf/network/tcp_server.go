@@ -5,6 +5,7 @@ import (
 	"net"
 	"sync"
 	"time"
+	"runtime/debug"
 )
 
 type TCPServer struct {
@@ -65,7 +66,9 @@ func (server *TCPServer) run() {
 
 	var tempDelay time.Duration
 	for {
+		log.Debug("try Accept...")
 		conn, err := server.ln.Accept()
+		log.Debug("Accepted...      "+string(debug.Stack()))
 		if err != nil {
 			if ne, ok := err.(net.Error); ok && ne.Temporary() {
 				if tempDelay == 0 {
@@ -100,8 +103,10 @@ func (server *TCPServer) run() {
 		tcpConn := newTCPConn(conn, server.PendingWriteNum, server.msgParser)
 		agent := server.NewAgent(tcpConn)
 		go func() {
+			log.Debug("=========== begin agent.Run ========")
 			agent.Run()
 
+			log.Debug("=========== after agent.Run ========")
 			// cleanup
 			tcpConn.Close()
 			server.mutexConns.Lock()

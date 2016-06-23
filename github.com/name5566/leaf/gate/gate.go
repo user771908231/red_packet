@@ -87,7 +87,11 @@ type agent struct {
 
 func (a *agent) Run() {
 	for {
+		log.Debug("try readmsg...")
 		data, err := a.conn.ReadMsg()
+		log.Debug("readmsg..ret:%v", data)
+		//log.Debug(string(debug.Stack()))
+
 		if err != nil {
 			log.Debug("read message: %v", err)
 			break
@@ -107,6 +111,7 @@ func (a *agent) Run() {
 				break
 			}
 			err = a.gate.Processor.Route(msg, a)
+			log.Debug("a.gate.Processor.Route end.")
 			if err != nil {
 				log.Debug("route message error: %v", err)
 				break
