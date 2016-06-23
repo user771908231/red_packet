@@ -54,7 +54,7 @@ var SGJV SGJValue = SGJValue{
 }
 
 var SGJP ShuiGuoPro = ShuiGuoPro{
-	Apple                        :        500,
+	Apple                        :        5,
 	AppleLittle                :        15,
 	Orange                        :        20,
 	OrangeLittle                :        25,
