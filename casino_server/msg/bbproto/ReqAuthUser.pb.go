@@ -14,6 +14,8 @@ It is generated from these files:
 	reg.proto
 	roomMsg.proto
 	shuiguoji.proto
+	shuiguojiHilomp.proto
+	shuiguojiRes.proto
 	testp1.proto
 	user.proto
 
@@ -27,6 +29,8 @@ It has these top-level messages:
 	Reg
 	RoomMsg
 	Shuiguoji
+	ShuiguojiHilomp
+	ShuiguojiRes
 	TestP1
 	User
 */

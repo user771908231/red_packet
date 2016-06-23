@@ -103,3 +103,8 @@ func newUserAndSaveToDB() (*mode.User,error){
 	return  nuser,nil
 
 }
+
+func AddGold(userId uint32,){
+
+
+}

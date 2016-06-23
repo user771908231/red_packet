@@ -19,8 +19,8 @@ func init() {
 	PortoProcessor.Register(&bbproto.GetIntoRoom{})	//4	进入房间时候的请求
 	PortoProcessor.Register(&bbproto.RoomMsg{})	//5	给指定房间发送信息
 	PortoProcessor.Register(&bbproto.GetRewards{})	//6	各种奖励
-
 	PortoProcessor.Register(&bbproto.Shuiguoji{})	//7	水果机
+	PortoProcessor.Register(&bbproto.ShuiguojiHilomp{})	//8	水果机比大小
 
 
 }

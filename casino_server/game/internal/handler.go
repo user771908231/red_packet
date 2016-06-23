@@ -18,6 +18,7 @@ func init() {
 	handler(&bbproto.RoomMsg{}, handlerRoomMsg)
 	handler(&bbproto.GetRewards{}, handlerRewards)
 	handler(&bbproto.Shuiguoji{}, handlerShuiguoji)
+	handler(&bbproto.ShuiguojiHilomp{},handlerShuiguojiHilomp)
 }
 
 func handler(m interface{}, h interface{}) {
@@ -106,7 +107,6 @@ func handlerRewards(args []interface{}) {
 }
 
 /**
-
 处理水果机的业务
  */
 func handlerShuiguoji(args []interface{}) {
@@ -119,4 +119,21 @@ func handlerShuiguoji(args []interface{}) {
 		log.E(err.Error())
 	}
 	log.N("%v",result)
+}
+
+
+/**
+处理水果机比大小的业务
+ */
+func handlerShuiguojiHilomp(args []interface{}){
+	log.T("进入到 game.handlerShuiguojiHilomp()")
+	//检测参数是否正确
+	m := args[0].(*bbproto.Shuiguoji)                //请求体
+	a := args[1].(gate.Agent)
+	result, err := fruitService.HandlerShuiguojiHilomp(m, a)
+	if err != nil {
+		log.E(err.Error())
+	}
+	log.N("%v",result)
+
 }
