@@ -114,11 +114,14 @@ func handlerShuiguoji(args []interface{}) {
 	//检测参数是否正确
 	m := args[0].(*bbproto.Shuiguoji)                //请求体
 	a := args[1].(gate.Agent)
-	result, err := fruitService.HandlerShuiguoji(m, a)
+	result, err := fruitService.HandlerShuiguoji(m)
 	if err != nil {
 		log.E(err.Error())
 	}
-	log.N("%v",result)
+
+	//给客户端返回数据
+	log.N("给客户端返回的数据%v",result)
+	a.WriteMsg(result)
 }
 
 
@@ -130,10 +133,11 @@ func handlerShuiguojiHilomp(args []interface{}){
 	//检测参数是否正确
 	m := args[0].(*bbproto.Shuiguoji)                //请求体
 	a := args[1].(gate.Agent)
-	result, err := fruitService.HandlerShuiguojiHilomp(m, a)
+	result, err := fruitService.HandlerShuiguojiHilomp(m)
 	if err != nil {
 		log.E(err.Error())
 	}
+	a.WriteMsg(result)
 	log.N("%v",result)
 
 }

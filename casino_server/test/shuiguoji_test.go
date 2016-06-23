@@ -5,6 +5,7 @@ import (
 	"net"
 	"casino_server/msg/bbproto"
 	"casino_server/utils/test"
+	"fmt"
 )
 
 func TestShuiGuoJi(t *testing.T){
@@ -22,4 +23,9 @@ func TestShuiGuoJi(t *testing.T){
 
 	m := utils.AssembleData(id,&data)
 	conn.Write(m)
+
+	result := utils.Read(conn,&bbproto.ShuiguojiRes{})
+	fmt.Println("读取的结果:",result)
+
+
 }

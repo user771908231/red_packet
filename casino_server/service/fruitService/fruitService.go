@@ -2,7 +2,6 @@ package fruitService
 
 import (
 	"casino_server/msg/bbproto"
-	"github.com/name5566/leaf/gate"
 	"casino_server/utils"
 	"casino_server/common/log"
 )
@@ -160,42 +159,14 @@ type ShuiGuoPro struct {
 	得到一次的结果
 	水果机器的结果有可能有很多种,这里需要什么策略来返回结果?
  */
-
-
-func HandlerShuiguoji(m *bbproto.Shuiguoji, a gate.Agent) (*bbproto.ShuiguojiRes, error) {
-	result := &bbproto.ShuiguojiRes{}        //返回值
-	var err error
+func HandlerShuiguoji(m *bbproto.Shuiguoji) (*bbproto.ShuiguojiRes, error) {
 	//1,检测参数并且根据押注的内容选择处理方式
 	if m == nil {
-		return result, nil
+		return nil,nil
 	}
 
 	//2,活的返回值
-	result, err = BetResult(m, nil)
-
-	//返回值
-	return result, err
-
-}
-
-
-/**
-
-水果机比大小的业务
-
- */
-func HandlerShuiguojiHilomp(m *bbproto.Shuiguoji, a gate.Agent) (*bbproto.ShuiguojiHilomp, error) {
-	return HilompResult(m.GetProtoHeader().GetUserId())
-}
-
-
-
-/**
-获取跑到的结果
- */
-func BetResult(m *bbproto.Shuiguoji, res *bbproto.ShuiguojiRes) (*bbproto.ShuiguojiRes, error) {
-	//1,判断返回参数
-	result, err := BetResultWin(m, res)
+	result, err := BetResultWin(m, nil)
 	if err != nil {
 		log.E(err.Error())
 		log.E("获取水果机结果的时候出错")
@@ -225,8 +196,21 @@ func BetResult(m *bbproto.Shuiguoji, res *bbproto.ShuiguojiRes) (*bbproto.Shuigu
 	result.ScoresWin = &scoresTotal
 	log.N("计算得到的总分是%v", result.ScoresWin)
 
-	return result, nil
+	//返回值
+	return result, err
+
 }
+
+
+/**
+
+水果机比大小的业务
+
+ */
+func HandlerShuiguojiHilomp(m *bbproto.Shuiguoji) (*bbproto.ShuiguojiHilomp, error) {
+	return HilompResult(m.GetProtoHeader().GetUserId())
+}
+
 
 
 /**
