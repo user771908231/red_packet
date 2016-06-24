@@ -22,6 +22,4 @@ func init() {
 	PortoProcessor.Register(&bbproto.Shuiguoji{})	//7	水果机
 	PortoProcessor.Register(&bbproto.ShuiguojiHilomp{})	//8	水果机比大小
 	PortoProcessor.Register(&bbproto.ShuiguojiRes{})	//9	水果机的回应包
-
-
 }

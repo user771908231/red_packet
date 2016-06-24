@@ -40,5 +40,6 @@ message ShuiguojiRes {
 
     optional int32 winType  = 28;           //中奖类型,大四喜,大三元....
 
+    repeated int32 result   =   29;
 
 }

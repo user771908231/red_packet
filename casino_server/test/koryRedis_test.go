@@ -4,7 +4,6 @@ import (
 	"testing"
 	"casino_server/utils/redis"
 	"fmt"
-	"casino_server/mode"
 )
 
 func TestReids(t *testing.T){
@@ -15,10 +14,10 @@ func TestReids(t *testing.T){
 	str,_ :=conn.Get("t1")
 	fmt.Println(str)
 
-	user := mode.User{
-		Name:"哈哈哈哈",
-	}
-	conn.Set()
+	//user := mode.User{
+	//	Name:"哈哈哈哈",
+	//}
+	//conn.Set()
 
 
 }
