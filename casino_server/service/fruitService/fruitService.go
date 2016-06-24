@@ -502,6 +502,8 @@ func BetResultWin(m *bbproto.Shuiguoji, res *bbproto.ShuiguojiRes,p *ShuiGuoPro)
 	} else if r < p.LUCK_1 {
 		res.Result[INDEX_LUCK_1] = 1
 		p.LUCK_1 = 0
+		//todo  这里需要处理luck  时候的中奖信息(两个luck都是一样的处理方法)
+
 	} else if r < p.APPLE_2 {
 		res.Result[INDEX_APPLE_2] = 1
 		p.APPLE_2 = 0
