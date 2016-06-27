@@ -15,7 +15,4 @@ const (
 	//数据库的常用设置
 	MIN_USER_ID = 10000		//USER_ID 起始
 	MAX_USER_ID = 100000000		//USER_ID 限制
-
 )
-
-
