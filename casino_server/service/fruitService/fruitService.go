@@ -178,7 +178,7 @@ var SGJLuckP ShuiGuoPro = ShuiGuoPro{
 	MANGO_2	         	:        68,
 	STAR	             	:        70,
 	STAR_LITTLE             :        71,
-	LUCK_2	             	:        72,
+	LUCK_2	             	:        0,
 	APPLE_4	             	:        73,
 	BELL_LITTLE	 	:	 73,
 
@@ -465,8 +465,9 @@ func BetResultWin(m *bbproto.Shuiguoji, res *bbproto.ShuiguojiRes,p *ShuiGuoPro,
 		setResult(m,res,p,INDEX_WATERMELON_LITTLE,seq)
 	} else if r < p.LUCK_1 {
 		//todo  这里需要处理luck  时候的中奖信息(两个luck都是一样的处理方法)
-		setResult(m,res,p,INDEX_LUCK_1,seq)
-		BetResultWin(m,res,p,seq)
+		pluck := SGJLuckP
+		setResult(m,res,&pluck,INDEX_LUCK_1,seq)
+		BetResultWin(m,res,&pluck,seq)
 
 	} else if r < p.APPLE_2 {
 		setResult(m,res,p,INDEX_APPLE_2,seq)
@@ -491,8 +492,9 @@ func BetResultWin(m *bbproto.Shuiguoji, res *bbproto.ShuiguojiRes,p *ShuiGuoPro,
 	} else if r < p.STAR_LITTLE {
 		setResult(m,res,p,INDEX_STAR_LITTLE,seq)
 	} else if r < p.LUCK_2 {
-		setResult(m,res,p,INDEX_LUCK_2,seq)
-		BetResultWin(m,res,p,seq)
+		pluck := SGJLuckP
+		setResult(m,res,&pluck,INDEX_LUCK_2,seq)
+		BetResultWin(m,res,&pluck,seq)
 	} else if r < p.APPLE_4 {
 		setResult(m,res,p,INDEX_APPLE_4,seq)
 	} else if r < p.BELL_LITTLE {
