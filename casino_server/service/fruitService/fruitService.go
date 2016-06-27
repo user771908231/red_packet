@@ -52,17 +52,17 @@ var SGJ_TYPE_Hilomp int32 = 2
 //
 
 //奖励的类型
-var SGJ_WIN_TYPE_LUCK0 int32 = 1
-var SGJ_WIN_TYPE_LUCK1 int32 = 2
-var SGJ_WIN_TYPE_LUCK2 int32 = 3
-var SGJ_WIN_TYPE_LUCK3 int32 = 4
-var SGJ_WIN_TYPE_DASIXI int32 = 5
-var SGJ_WIN_TYPE_DASANYUAN int32 = 6
-var SGJ_WIN_TYPE_XIAOSANYUAN int32 = 7
-var SGJ_WIN_TYPE_RAND2 int32 = 8
-var SGJ_WIN_TYPE_RAND3 int32 = 9
-var SGJ_WIN_TYPE_ZONGHENGSIHAI int32 = 10
-var SGJ_WIN_TYPE_WU	 int32 = 10
+var SGJ_WIN_TYPE_LUCK0 		int32 = 1
+var SGJ_WIN_TYPE_LUCK1 		int32 = 2
+var SGJ_WIN_TYPE_LUCK2 		int32 = 3
+var SGJ_WIN_TYPE_LUCK3 		int32 = 4
+var SGJ_WIN_TYPE_DASIXI 	int32 = 5
+var SGJ_WIN_TYPE_DASANYUAN 	int32 = 6
+var SGJ_WIN_TYPE_XIAOSANYUAN 	int32 = 7
+var SGJ_WIN_TYPE_RAND2 		int32 = 8
+var SGJ_WIN_TYPE_RAND3 		int32 = 9
+var SGJ_WIN_TYPE_ZONGHENGSIHAI 	int32 = 10
+var SGJ_WIN_TYPE_WU	 	int32 = 10
 
 
 //奖励的个数
@@ -569,6 +569,7 @@ func setWinType(res *bbproto.ShuiguojiRes,value *int32){
 
 /**
 	比大小的结果
+	一般情况下
  */
 func HilompResult(id uint32) (*bbproto.ShuiguojiHilomp, error) {
 	result := &bbproto.ShuiguojiHilomp{}
