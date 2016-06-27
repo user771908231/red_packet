@@ -12,36 +12,6 @@ import (
 水果机的 index
  */
 
-const (
-	S_ORANGE_1  		= ""
-	S_BELL_1			= ""
-	S_BAR_LITTLE		= ""
-	S_BAR			= ""
-	S_APPLE_1			= ""
-	S_APPLE_LITTLE		= ""
-	S_MANGO_1			= ""
-	S_WATERMELON		= ""
-	S_WATERMELON_LITTLE		= ""
-	S_LUCK_1			= ""
-	S_APPLE_2			= ""
-	S_ORANGE_LITTLE		= ""
-	S_ORANGE_2			= ""
-	S_BELL_2			= ""
-	S_77_LITTLE			= ""
-	S_77			= ""
-	S_APPLE_3			= ""
-	S_MANGO_LITTLE		= ""
-	S_MANGO_2			= ""
-	S_STAR			= ""
-	S_STAR_LITTLE		= ""
-	S_LUCK_2			= ""
-	S_APPLE_4			= ""
-	S_BELL_LITTLE		= ""
-
-)
-
-
-
 const(
 	INDEX_ORANGE_1 		= 	0
 	INDEX_BELL_1		=	1
@@ -65,7 +35,7 @@ const(
 	INDEX_STAR		=	19
 	INDEX_STAR_LITTLE	=	20
 	INDEX_LUCK_2		=	21
-	INDEX_APPLE_4		=	22
+	INDEX_APPLE_4	 	=	22
 	INDEX_BELL_LITTLE 	=	23
 )
 
@@ -92,6 +62,8 @@ var SGJ_WIN_TYPE_XIAOSANYUAN int32 = 7
 var SGJ_WIN_TYPE_RAND2 int32 = 8
 var SGJ_WIN_TYPE_RAND3 int32 = 9
 var SGJ_WIN_TYPE_ZONGHENGSIHAI int32 = 10
+var SGJ_WIN_TYPE_WU	 int32 = 10
+
 
 //奖励的个数
 var NUMBER_INT_1 int32 = 1
@@ -160,6 +132,7 @@ type ShuiGuoPro struct {
 	RAND4             int32 //随机赠送四炮
 	ZONGHENGSIHAI     int32 //纵横四海
 	WU		  int32	//没有跑到的概率(注意:只有先跑到luck之后才有这个概率)
+	MAX 		  int32	//产生随机数的区间 (0,max]
 }
 
 func ( p *ShuiGuoPro) GetMax() int32{
@@ -184,39 +157,39 @@ func ( p *ShuiGuoPro) GetMax() int32{
 跑中luck 时,其他的概率
  */
 var SGJLuckP ShuiGuoPro = ShuiGuoPro{
-	ORANGE_1 	             :        5,
-	BELL_1	             :        6,
-	BAR_LITTLE             :        7,
-	BAR	             :        8,
-	APPLE_1	          :        15,
-	APPLE_LITTLE             :        20,
-	MANGO_1	           :        25,
-	WATERMELON            :        30,
-	WATERMELON_LITTLE          :        35,
-	LUCK_1	           :        40,
+	ORANGE_1 	     	:        5,
+	BELL_1	             	:        6,
+	BAR_LITTLE           	:        7,
+	BAR	             	:        8,
+	APPLE_1	             	:        15,
+	APPLE_LITTLE         	:        20,
+	MANGO_1			:        25,
+	WATERMELON            	:        30,
+	WATERMELON_LITTLE       :        35,
+	LUCK_1	           	:        0,
 	APPLE_2	         	:        42,
-	ORANGE_LITTLE         :        43,
-	ORANGE_2	       :        46,
-	BELL_2	           :        47,
-	S77_LITTLE	         :        48,
-	S77	          :        49,
+	ORANGE_LITTLE           :        43,
+	ORANGE_2	       	:        46,
+	BELL_2	           	:        47,
+	S77_LITTLE	        :        48,
+	S77	          	:        49,
 	APPLE_3	         	:        50,
-	MANGO_LITTLE          :        60,
+	MANGO_LITTLE          	:        60,
 	MANGO_2	         	:        68,
-	STAR	             :        70,
+	STAR	             	:        70,
 	STAR_LITTLE             :        71,
-	LUCK_2	             :        72,
-	APPLE_4	             :        73,
-	BELL_LITTLE	 	:		73,
+	LUCK_2	             	:        72,
+	APPLE_4	             	:        73,
+	BELL_LITTLE	 	:	 73,
 
-	DASIXI                        :        74, //大四喜
-	DASANYUAN                :        75, //大三元
-	XIAOSANYUAN                :        76, //小三元
-	RAND1		             :        78, //随机两炮
-	RAND2                        :        80, //随机三炮
-	RAND3                        :        90, //Bar
-	RAND4                        :        100, //纵横四海
-	ZONGHENGSIHAI              :        100,
+	DASIXI                  :        74, //大四喜
+	DASANYUAN               :        75, //大三元
+	XIAOSANYUAN             :        76, //小三元
+	RAND1		        :        78, //随机两炮
+	RAND2                   :        80, //随机三炮
+	RAND3                   :        90, //Bar
+	RAND4                   :        100, //纵横四海
+	ZONGHENGSIHAI           :        100,
 
 }
 
@@ -253,11 +226,12 @@ var SGJP ShuiGuoPro = ShuiGuoPro{
 	DASIXI                  :        0,
 	DASANYUAN               :        0, //Bar
 	XIAOSANYUAN             :        0, //纵横四海
-	RAND1		      	:        0,
+	RAND1		      	:        1,
 	RAND2 			:   	 0,
-	RAND3                   :        3, //Bar
+	RAND3                   :        1, //Bar
 	RAND4                   :        0, //纵横四海
 	ZONGHENGSIHAI           :        0,
+	MAX 			:	 1,
 }
 
 
@@ -341,7 +315,8 @@ func HandlerShuiguoji(m *bbproto.Shuiguoji) (*bbproto.ShuiguojiRes, error) {
 	result := &bbproto.ShuiguojiRes{}
 	result.Result = make([]int32,24)
 	p := SGJP
-	err := BetResultWin(m,result, &p)
+	var seq int32 = 1		//初始顺序号
+	err := BetResultWin(m,result, &p,&seq)
 	if err != nil {
 		log.E(err.Error())
 		log.E("获取水果机结果的时候出错")
@@ -463,140 +438,130 @@ func HandlerShuiguojiHilomp(m *bbproto.Shuiguoji) (*bbproto.ShuiguojiHilomp, err
 }
 
 
-
 /**
 得到跑到的结果
+m: 请求的参数
  */
-func BetResultWin(m *bbproto.Shuiguoji, res *bbproto.ShuiguojiRes,p *ShuiGuoPro) (error) {
+func BetResultWin(m *bbproto.Shuiguoji, res *bbproto.ShuiguojiRes,p *ShuiGuoPro, seq *int32) (error) {
 	r := utils.Randn(p.GetMax())
 	log.T("水果机 随机数 %v", r)
 	log.T("水果机 概率 %v", *p)
 
 	if r < p.ORANGE_1 {
-		res.Result[INDEX_ORANGE_1] = 1
-		p.ORANGE_1 = 0
+		setResult(m,res,p,INDEX_ORANGE_1,seq)
 
 	} else if r < p.BELL_1 {
-		res.Result[INDEX_BELL_1] = 1
-		p.BELL_1 = 0
+		setResult(m,res,p,INDEX_BELL_1,seq)
 
 	} else if r < p.BAR_LITTLE {
-		res.Result[INDEX_BAR_LITTLE] = 1
-		p.BAR_LITTLE = 0
-
+		setResult(m,res,p,INDEX_BAR_LITTLE,seq)
 	} else if r < p.BAR {
-		res.Result[INDEX_BAR] = 1
-		p.BAR = 0
-
+		setResult(m,res,p,INDEX_BAR,seq)
 	} else if r < p.APPLE_1 {
-		res.Result[INDEX_APPLE_1] = 1
-		p.APPLE_1 = 0
-
+		setResult(m,res,p,INDEX_APPLE_1,seq)
 	} else if r < p.WATERMELON {
-		res.Result[INDEX_WATERMELON] = 1
-		p.WATERMELON = 0
-
+		setResult(m,res,p,INDEX_WATERMELON,seq)
 	} else if r < p.WATERMELON_LITTLE {
-		res.Result[INDEX_WATERMELON_LITTLE] = 1
-		p.WATERMELON_LITTLE = 0
+		setResult(m,res,p,INDEX_WATERMELON_LITTLE,seq)
 	} else if r < p.LUCK_1 {
-		res.Result[INDEX_LUCK_1] = 1
-		p.LUCK_1 = 0
 		//todo  这里需要处理luck  时候的中奖信息(两个luck都是一样的处理方法)
+		setResult(m,res,p,INDEX_LUCK_1,seq)
+		BetResultWin(m,res,p,seq)
 
 	} else if r < p.APPLE_2 {
-		res.Result[INDEX_APPLE_2] = 1
-		p.APPLE_2 = 0
+		setResult(m,res,p,INDEX_APPLE_2,seq)
 	} else if r < p.ORANGE_LITTLE {
-		res.Result[INDEX_ORANGE_LITTLE] = 1
-		p.ORANGE_LITTLE = 0
+		setResult(m,res,p,INDEX_ORANGE_LITTLE,seq)
 	} else if r < p.ORANGE_2 {
-		res.Result[INDEX_ORANGE_2] = 1
-		p.ORANGE_2 = 0
+		setResult(m,res,p,INDEX_ORANGE_2,seq)
 	} else if r < p.BELL_2 {
-		res.Result[INDEX_BELL_2] = 1
-		p.BELL_2 = 0
+		setResult(m,res,p,INDEX_BELL_2,seq)
 	} else if r < p.S77_LITTLE {
-		res.Result[INDEX_77_LITTLE] = 1
-		p.S77_LITTLE = 0
+		setResult(m,res,p,INDEX_77_LITTLE,seq)
 	} else if r < p.S77 {
-		res.Result[INDEX_77] = 1
-		p.S77 = 0
-
+		setResult(m,res,p,INDEX_77,seq)
 	} else if r < p.APPLE_3 {
-		res.Result[INDEX_APPLE_3] = 1
-		p.APPLE_3 = 0
-
+		setResult(m,res,p,INDEX_APPLE_3,seq)
 	} else if r < p.MANGO_LITTLE {
-		res.Result[INDEX_MANGO_LITTLE] = 1
-		p.MANGO_LITTLE = 0
-
+		setResult(m,res,p,INDEX_MANGO_LITTLE,seq)
 	} else if r < p.MANGO_2 {
-		res.Result[INDEX_MANGO_2] = 1
-		p.MANGO_2 = 0
-
+		setResult(m,res,p,INDEX_MANGO_2,seq)
 	} else if r < p.STAR {
-		res.Result[INDEX_STAR] = 1
-		p.STAR = 0
-
+		setResult(m,res,p,INDEX_STAR,seq)
 	} else if r < p.STAR_LITTLE {
-		res.Result[INDEX_STAR_LITTLE] = 1
-		p.STAR_LITTLE = 0
-
+		setResult(m,res,p,INDEX_STAR_LITTLE,seq)
 	} else if r < p.LUCK_2 {
-		res.Result[INDEX_LUCK_2] = 1
-		p.LUCK_2 = 0
-
+		setResult(m,res,p,INDEX_LUCK_2,seq)
+		BetResultWin(m,res,p,seq)
 	} else if r < p.APPLE_4 {
-		res.Result[INDEX_APPLE_4] = 1
-		p.APPLE_4 = 0
-
+		setResult(m,res,p,INDEX_APPLE_4,seq)
 	} else if r < p.BELL_LITTLE {
-		res.Result[INDEX_BELL_LITTLE] = 1
-		p.BELL_LITTLE = 0
-
+		setResult(m,res,p,INDEX_BELL_LITTLE,seq)
 	} else if r < p.DASIXI {	//大四喜
-		p.DASIXI = 0
-		res.Result[INDEX_APPLE_1] = 1
-		res.Result[INDEX_APPLE_2] = 2
-		res.Result[INDEX_APPLE_3] = 3
-		res.Result[INDEX_APPLE_4] = 4
+
+		setResult(m,res,p,INDEX_APPLE_1,seq)
+		setResult(m,res,p,INDEX_APPLE_2,seq)
+		setResult(m,res,p,INDEX_APPLE_3,seq)
+		setResult(m,res,p,INDEX_APPLE_4,seq)
 
 	} else if r < p.DASANYUAN {	//大三元
-		res.Result[INDEX_WATERMELON] = 1
-		res.Result[INDEX_STAR]  = 2
-		res.Result[INDEX_77]   = 3
-
+		setResult(m,res,p,INDEX_WATERMELON,seq)
+		setResult(m,res,p,INDEX_STAR,seq)
+		setResult(m,res,p,INDEX_77,seq)
 	} else if r < p.XIAOSANYUAN {	//小三元
-		res.Result[INDEX_ORANGE_1] = 1
-		res.Result[INDEX_MANGO_1]  = 2
-		res.Result[INDEX_BELL_1]   = 3
+		setResult(m,res,p,INDEX_ORANGE_1,seq)
+		setResult(m,res,p,INDEX_MANGO_1,seq)
+		setResult(m,res,p,INDEX_BELL_1,seq)
 
-	} else if r < p.RAND1 {	//随机赠送一炮
+	} else if r < p.RAND1 {	//随机赠送一炮,由于随机炮的概率是不同的,所以不用考虑随机炮再次打到随机炮的问题
 		log.T("彩蛋,随机赠送一炮")
 		pr1 := SGJPRand
-		BetResultWin(m,res,&pr1)
-		BetResultWin(m,res,&pr1)
+		BetResultWin(m,res,&pr1,seq)
+		BetResultWin(m,res,&pr1,seq)
 	} else if r < p.RAND2 {
 		log.T("彩蛋,随机赠送二炮")
 		pr2 := SGJPRand
-		BetResultWin(m,res,&pr2)
-		BetResultWin(m,res,&pr2)
-		BetResultWin(m,res,&pr2)
+		BetResultWin(m,res,&pr2,seq)
+		BetResultWin(m,res,&pr2,seq)
+		BetResultWin(m,res,&pr2,seq)
 	} else if r < p.RAND3 {
 		log.T("彩蛋,随机赠送三炮")
 		pr3 := SGJPRand
-		BetResultWin(m, res, &pr3)
-		BetResultWin(m, res, &pr3)
-		BetResultWin(m, res, &pr3)
-		BetResultWin(m, res, &pr3)
+		BetResultWin(m, res, &pr3,seq)
+		BetResultWin(m, res, &pr3,seq)
+		BetResultWin(m, res, &pr3,seq)
+		BetResultWin(m, res, &pr3,seq)
 	}else if r < p.ZONGHENGSIHAI {
-
 	} else if r < p.WU {
+		setWinType(res,&SGJ_WIN_TYPE_WU)//没有中奖
 		res.Result[INDEX_LUCK_2]   = 1
+		setResult(m,res,p,INDEX_ORANGE_1,seq)
 	}
 
 	return  nil
+
+}
+
+/**
+跑中之后设置值
+ */
+func setResult(m *bbproto.Shuiguoji, res *bbproto.ShuiguojiRes,p *ShuiGuoPro,index int,seq *int32) error{
+	if res.Result[index] > 0 {
+		BetResultWin(m,res,p,seq)
+	}else{
+		res.Result[index] = *seq
+		*seq ++		//顺序号加1
+	}
+	return nil
+}
+
+/**
+设置奖励类型
+ */
+func setWinType(res *bbproto.ShuiguojiRes,value *int32){
+	if res.GetWinType() <= 0 {
+		res.WinType = value
+	}
 
 }
 
