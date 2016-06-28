@@ -3,7 +3,7 @@ package mongodb
 import (
 	"testing"
 	"net"
-	"casino_server/msg/bbproto"
+	"casino_server/msg/bbprotogo"
 	"casino_server/utils/test"
 )
 

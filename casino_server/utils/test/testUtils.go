@@ -12,6 +12,7 @@ import (
 
 //
 func AssembleData(idv uint16, data proto.Message) []byte {
+	fmt.Println("需要转化的id",idv)
 	//1,把id转化成 []byte
 	id := make([]byte, 2)
 	binary.BigEndian.PutUint16(id, idv)

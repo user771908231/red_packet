@@ -21,9 +21,12 @@ var _ = math.Inf
 
 // Ignoring public import of EUnitRace from base.proto
 
+// Ignoring public import of EUnitProtoId from base.proto
+
 // 进入扎金花的房间
 type ZjhRoom struct {
-	XXX_unrecognized []byte `json:"-"`
+	Header           *ProtoHeader `protobuf:"bytes,1,opt,name=header" json:"header,omitempty"`
+	XXX_unrecognized []byte       `json:"-"`
 }
 
 func (m *ZjhRoom) Reset()                    { *m = ZjhRoom{} }
@@ -31,8 +34,16 @@ func (m *ZjhRoom) String() string            { return proto.CompactTextString(m)
 func (*ZjhRoom) ProtoMessage()               {}
 func (*ZjhRoom) Descriptor() ([]byte, []int) { return fileDescriptor10, []int{0} }
 
+func (m *ZjhRoom) GetHeader() *ProtoHeader {
+	if m != nil {
+		return m.Header
+	}
+	return nil
+}
+
 type ZjhBet struct {
-	XXX_unrecognized []byte `json:"-"`
+	Header           *ProtoHeader `protobuf:"bytes,1,opt,name=header" json:"header,omitempty"`
+	XXX_unrecognized []byte       `json:"-"`
 }
 
 func (m *ZjhBet) Reset()                    { *m = ZjhBet{} }
@@ -40,8 +51,16 @@ func (m *ZjhBet) String() string            { return proto.CompactTextString(m) 
 func (*ZjhBet) ProtoMessage()               {}
 func (*ZjhBet) Descriptor() ([]byte, []int) { return fileDescriptor10, []int{1} }
 
+func (m *ZjhBet) GetHeader() *ProtoHeader {
+	if m != nil {
+		return m.Header
+	}
+	return nil
+}
+
 type ZjhLottery struct {
-	XXX_unrecognized []byte `json:"-"`
+	Header           *ProtoHeader `protobuf:"bytes,1,opt,name=header" json:"header,omitempty"`
+	XXX_unrecognized []byte       `json:"-"`
 }
 
 func (m *ZjhLottery) Reset()                    { *m = ZjhLottery{} }
@@ -49,18 +68,34 @@ func (m *ZjhLottery) String() string            { return proto.CompactTextString
 func (*ZjhLottery) ProtoMessage()               {}
 func (*ZjhLottery) Descriptor() ([]byte, []int) { return fileDescriptor10, []int{2} }
 
-type ZjgQueryNoSeatUser struct {
-	XXX_unrecognized []byte `json:"-"`
+func (m *ZjhLottery) GetHeader() *ProtoHeader {
+	if m != nil {
+		return m.Header
+	}
+	return nil
 }
 
-func (m *ZjgQueryNoSeatUser) Reset()                    { *m = ZjgQueryNoSeatUser{} }
-func (m *ZjgQueryNoSeatUser) String() string            { return proto.CompactTextString(m) }
-func (*ZjgQueryNoSeatUser) ProtoMessage()               {}
-func (*ZjgQueryNoSeatUser) Descriptor() ([]byte, []int) { return fileDescriptor10, []int{3} }
+type ZjhQueryNoSeatUser struct {
+	Header           *ProtoHeader `protobuf:"bytes,1,opt,name=header" json:"header,omitempty"`
+	XXX_unrecognized []byte       `json:"-"`
+}
+
+func (m *ZjhQueryNoSeatUser) Reset()                    { *m = ZjhQueryNoSeatUser{} }
+func (m *ZjhQueryNoSeatUser) String() string            { return proto.CompactTextString(m) }
+func (*ZjhQueryNoSeatUser) ProtoMessage()               {}
+func (*ZjhQueryNoSeatUser) Descriptor() ([]byte, []int) { return fileDescriptor10, []int{3} }
+
+func (m *ZjhQueryNoSeatUser) GetHeader() *ProtoHeader {
+	if m != nil {
+		return m.Header
+	}
+	return nil
+}
 
 // 座位
 type ZjhReqSeat struct {
-	XXX_unrecognized []byte `json:"-"`
+	Header           *ProtoHeader `protobuf:"bytes,1,opt,name=header" json:"header,omitempty"`
+	XXX_unrecognized []byte       `json:"-"`
 }
 
 func (m *ZjhReqSeat) Reset()                    { *m = ZjhReqSeat{} }
@@ -68,8 +103,16 @@ func (m *ZjhReqSeat) String() string            { return proto.CompactTextString
 func (*ZjhReqSeat) ProtoMessage()               {}
 func (*ZjhReqSeat) Descriptor() ([]byte, []int) { return fileDescriptor10, []int{4} }
 
+func (m *ZjhReqSeat) GetHeader() *ProtoHeader {
+	if m != nil {
+		return m.Header
+	}
+	return nil
+}
+
 type ZjhMsg struct {
-	XXX_unrecognized []byte `json:"-"`
+	Header           *ProtoHeader `protobuf:"bytes,1,opt,name=header" json:"header,omitempty"`
+	XXX_unrecognized []byte       `json:"-"`
 }
 
 func (m *ZjhMsg) Reset()                    { *m = ZjhMsg{} }
@@ -77,23 +120,32 @@ func (m *ZjhMsg) String() string            { return proto.CompactTextString(m) 
 func (*ZjhMsg) ProtoMessage()               {}
 func (*ZjhMsg) Descriptor() ([]byte, []int) { return fileDescriptor10, []int{5} }
 
+func (m *ZjhMsg) GetHeader() *ProtoHeader {
+	if m != nil {
+		return m.Header
+	}
+	return nil
+}
+
 func init() {
 	proto.RegisterType((*ZjhRoom)(nil), "bbproto.ZjhRoom")
 	proto.RegisterType((*ZjhBet)(nil), "bbproto.ZjhBet")
 	proto.RegisterType((*ZjhLottery)(nil), "bbproto.ZjhLottery")
-	proto.RegisterType((*ZjgQueryNoSeatUser)(nil), "bbproto.ZjgQueryNoSeatUser")
+	proto.RegisterType((*ZjhQueryNoSeatUser)(nil), "bbproto.ZjhQueryNoSeatUser")
 	proto.RegisterType((*ZjhReqSeat)(nil), "bbproto.ZjhReqSeat")
 	proto.RegisterType((*ZjhMsg)(nil), "bbproto.ZjhMsg")
 }
 
 var fileDescriptor10 = []byte{
-	// 122 bytes of a gzipped FileDescriptorProto
+	// 155 bytes of a gzipped FileDescriptorProto
 	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x09, 0x6e, 0x88, 0x02, 0xff, 0xe2, 0xe2, 0xaf, 0xca, 0x48, 0xcc,
 	0xca, 0xcc, 0xcb, 0x28, 0x4d, 0xd4, 0x2b, 0x28, 0xca, 0x2f, 0xc9, 0x17, 0x62, 0x4f, 0x4a, 0x02,
-	0x33, 0xa4, 0xb8, 0x92, 0x12, 0x8b, 0x53, 0x21, 0x82, 0x4a, 0x9c, 0x5c, 0xec, 0x51, 0x59, 0x19,
-	0x41, 0xf9, 0xf9, 0xb9, 0x4a, 0x1c, 0x5c, 0x6c, 0x40, 0xa6, 0x53, 0x6a, 0x89, 0x12, 0x0f, 0x17,
-	0x17, 0x90, 0xe5, 0x93, 0x5f, 0x52, 0x92, 0x5a, 0x54, 0xa9, 0x24, 0xc2, 0x25, 0x14, 0x95, 0x95,
-	0x1e, 0x58, 0x0a, 0x64, 0xfb, 0xe5, 0x07, 0xa7, 0x26, 0x96, 0x84, 0x16, 0xa7, 0x16, 0x41, 0xd5,
-	0x04, 0xa5, 0x16, 0x82, 0x44, 0xa0, 0x7a, 0x7d, 0x8b, 0xd3, 0x03, 0x18, 0x00, 0x01, 0x00, 0x00,
-	0xff, 0xff, 0x4b, 0x60, 0xa8, 0x51, 0x79, 0x00, 0x00, 0x00,
+	0x33, 0xa4, 0xb8, 0x92, 0x12, 0x8b, 0x53, 0x21, 0x82, 0x4a, 0xfa, 0x5c, 0xec, 0x51, 0x59, 0x19,
+	0x41, 0xf9, 0xf9, 0xb9, 0x42, 0x2a, 0x5c, 0x6c, 0x19, 0xa9, 0x89, 0x29, 0xa9, 0x45, 0x12, 0x8c,
+	0x0a, 0x8c, 0x1a, 0xdc, 0x46, 0x22, 0x7a, 0x50, 0x0d, 0x7a, 0x01, 0x20, 0xd2, 0x03, 0x2c, 0xa7,
+	0xa4, 0xc7, 0xc5, 0x06, 0xd4, 0xe0, 0x94, 0x5a, 0x42, 0xa4, 0x7a, 0x23, 0x2e, 0x2e, 0xa0, 0x7a,
+	0x9f, 0xfc, 0x92, 0x92, 0xd4, 0xa2, 0x4a, 0x22, 0xf5, 0x58, 0x71, 0x09, 0x01, 0xf5, 0x04, 0x96,
+	0x02, 0x75, 0xf8, 0xe5, 0x07, 0xa7, 0x26, 0x96, 0x84, 0x16, 0xa7, 0x16, 0x91, 0x64, 0x5f, 0x50,
+	0x6a, 0x21, 0x48, 0x1f, 0x49, 0x7e, 0xf2, 0x2d, 0x4e, 0x27, 0x4e, 0x7d, 0x00, 0x03, 0x20, 0x00,
+	0x00, 0xff, 0xff, 0x93, 0x4b, 0x83, 0x63, 0x5d, 0x01, 0x00, 0x00,
 }

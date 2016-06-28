@@ -3,7 +3,7 @@ package mongodb
 import (
 	"testing"
 	"net"
-	"casino_server/msg/bbproto"
+	"casino_server/msg/bbprotogo"
 	"casino_server/utils/test"
 	"fmt"
 )
@@ -16,7 +16,7 @@ func TestShuiGuoJi(t *testing.T){
 	}
 	defer conn.Close()
 
-	var id uint16 = 7
+	var id uint16 = 10
 	var data bbproto.Shuiguoji
 
 	var nApple int32 = 1						//苹果的数量

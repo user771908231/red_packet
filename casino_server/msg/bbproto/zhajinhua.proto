@@ -4,39 +4,43 @@ package bbproto;
 
 //进入扎金花的房间
 message ZjhRoom {
-
-
+    optional ProtoHeader	header				= 1;
 }
 
 
 //押注
 
 message ZjhBet{
+    optional ProtoHeader	header				= 1;
 
 }
 
 //开奖,广播
 
 message ZjhLottery{
+    optional ProtoHeader	header				= 1;
 
 }
 
 
 //查询无座玩家列表,除了坐在位子上的玩家,以外的玩家
 
-message ZjgQueryNoSeatUser{
+message ZjhQueryNoSeatUser{
+    optional ProtoHeader	header				= 1;
 
 }
 
 
 //座位
 message ZjhReqSeat{
+    optional ProtoHeader	header				= 1;
 
 }
 
 //聊天
 
 message  ZjhMsg{
+    optional ProtoHeader	header				= 1;
 
 
 }

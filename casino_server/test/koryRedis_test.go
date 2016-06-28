@@ -4,7 +4,7 @@ import (
 	"testing"
 	"casino_server/utils/redis"
 	"fmt"
-	"casino_server/utils"
+	"casino_server/utils/numUtils"
 )
 
 func TestReids(t *testing.T){
@@ -21,7 +21,7 @@ func TestReids(t *testing.T){
 
 	var s2  string = "我是s2"
 	var i2  int32  = 89
-	str2,_ := utils.Int2String(i2)
+	str2,_ := numUtils.Int2String(i2)
 	fmt.Println(s2+str2)
 
 	//user := mode.User{

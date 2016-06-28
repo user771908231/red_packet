@@ -35,7 +35,7 @@ It has these top-level messages:
 	ZjhRoom
 	ZjhBet
 	ZjhLottery
-	ZjgQueryNoSeatUser
+	ZjhQueryNoSeatUser
 	ZjhReqSeat
 	ZjhMsg
 */
@@ -63,6 +63,8 @@ const _ = proto.ProtoPackageIsVersion2 // please upgrade the proto package
 // Ignoring public import of EUnitType from base.proto
 
 // Ignoring public import of EUnitRace from base.proto
+
+// Ignoring public import of EUnitProtoId from base.proto
 
 type ReqAuthUser struct {
 	Header           *ProtoHeader  `protobuf:"bytes,1,opt,name=header" json:"header,omitempty"`

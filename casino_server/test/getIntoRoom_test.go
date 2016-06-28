@@ -2,7 +2,7 @@ package mongodb
 
 import (
 	"net"
-	"casino_server/msg/bbproto"
+	"casino_server/msg/bbprotogo"
 	"testing"
 	"casino_server/utils/test"
 	"fmt"

@@ -11,14 +11,27 @@ import (
 )
 
 func init() {
-	// 向当前模块（game 模块）注册 Hello 消息的消息处理函数 handleHello
+	//
 	handler(&bbproto.TestP1{}, handleTestP1)
 	handler(&bbproto.Reg{}, handleProtHello)
+
+
+	//水果机相关的业务
 	handler(&bbproto.GetIntoRoom{}, handlerGetIntoRoom)
 	handler(&bbproto.RoomMsg{}, handlerRoomMsg)
 	handler(&bbproto.GetRewards{}, handlerRewards)
 	handler(&bbproto.Shuiguoji{}, handlerShuiguoji)
 	handler(&bbproto.ShuiguojiHilomp{},handlerShuiguojiHilomp)
+
+	//扎金花相关的业务
+	handler(&bbproto.ZjhRoom{},handlerZjhRoom)
+	handler(&bbproto.ZjhLottery{},handlerZjhLottery)
+	handler(&bbproto.ZjhMsg{},handlerZjhMsg)
+	handler(&bbproto.ZjhBet{},handlerZjhBet)
+	handler(&bbproto.ZjhReqSeat{},handlerZjhReqSeat)
+	handler(&bbproto.ZjhQueryNoSeatUser{},handlerZjhQueryNoSeatUser)
+
+
 }
 
 func handler(m interface{}, h interface{}) {
@@ -126,7 +139,7 @@ func handlerShuiguoji(args []interface{}) {
 
 
 /**
-处理水果机比大小的业务
+	处理水果机比大小的业务
  */
 func handlerShuiguojiHilomp(args []interface{}){
 	log.T("进入到 game.handlerShuiguojiHilomp()")
@@ -141,3 +154,55 @@ func handlerShuiguojiHilomp(args []interface{}){
 	log.N("%v",result)
 
 }
+
+/**
+	进入扎金花的房间
+ */
+func handlerZjhRoom(args []interface{}){
+	log.T("进入到扎金花的房间 game.handlerZjhRoom()")
+}
+
+
+/**
+	扎金花奖励
+
+ */
+func handlerZjhLottery(args []interface{}){
+	log.T("进入到扎金花的房间 game.handlerZjhRoom()")
+}
+
+
+/**
+	扎金花房间消息
+ */
+func handlerZjhMsg(args []interface{}){
+	log.T("进入到扎金花的房间 game.handlerZjhRoom()")
+}
+
+
+/**
+扎金花 押注
+ */
+func handlerZjhBet(args []interface{}){
+	log.T("进入到扎金花的房间 game.handlerZjhRoom()")
+}
+
+
+/**
+	扎金花请求座位
+ */
+func handlerZjhReqSeat(args []interface{}){
+	log.T("进入到扎金花的房间 game.handlerZjhRoom()")
+}
+
+
+/*
+	扎金花请求没有作为的玩家
+ */
+
+
+func handlerZjhQueryNoSeatUser(args []interface{}){
+	log.T("进入到扎金花的房间 game.handlerZjhRoom()")
+}
+
+

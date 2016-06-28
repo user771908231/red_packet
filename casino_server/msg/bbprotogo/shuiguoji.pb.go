@@ -21,6 +21,8 @@ var _ = math.Inf
 
 // Ignoring public import of EUnitRace from base.proto
 
+// Ignoring public import of EUnitProtoId from base.proto
+
 type Shuiguoji struct {
 	ProtoHeader *ProtoHeader `protobuf:"bytes,1,opt,name=ProtoHeader" json:"ProtoHeader,omitempty"`
 	// 押注
