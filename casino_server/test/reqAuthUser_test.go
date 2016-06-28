@@ -18,7 +18,7 @@ func TestReqUsr(t *testing.T){
 	var data bbproto.ReqAuthUser
 	sendMsg := "sdfajfoqiweu8198230hjksjlfj"
 	data.Uuid = &sendMsg
-	m := utils.AssembleData(id,&data)
+	m := test.AssembleData(id,&data)
 	conn.Write(m)
 
 }

@@ -9,16 +9,14 @@ import (
 )
 
 func TestZjhMain(t *testing.T) {
-	zjhRoom()
+	//zjhRoom()
+	zjhMsg()
+	//zjhQueryNoSeatUser()
+	//zjhReqSeat()
+	//zjhZjhLottery()
+	//zjhBet()
 }
 
-/**
-	PortoProcessor.Register(&bbproto.ZjhBet{})	//11	进入扎金花的房间
-	PortoProcessor.Register(&bbproto.ZjhMsg{})	//12	进入扎金花的房间
-	PortoProcessor.Register(&bbproto.ZjhQueryNoSeatUser{})	//13	进入扎金花的房间
-	PortoProcessor.Register(&bbproto.ZjhReqSeat{})	//14	进入扎金花的房间
-	PortoProcessor.Register(&bbproto.ZjhLottery{})	//15	进入扎金花的房间
- */
 
 func zjhRoom() {
 	conn, err := net.Dial(TCP, url)
@@ -36,8 +34,122 @@ func zjhRoom() {
 	h.UserId = &userid
 	data.Header = h
 
-	m := utils.AssembleData(uint16(ide), data)
+	m := test.AssembleData(uint16(ide), data)
 	conn.Write(m)
 	//result := utils.Read(conn).(*bbproto.ShuiguojiRes)
 	//fmt.Println("读取的结果:", result.Result)
+}
+
+
+func zjhMsg() {
+	conn, err := net.Dial(TCP, url)
+	if err != nil {
+		panic(err)
+	}
+	defer conn.Close()
+
+	ide := bbproto.EUnitProtoId_value[bbproto.EUnitProtoId_ZJHMSG.String()]
+	fmt.Println("proto 得到的id ",ide)
+	var userid uint32 = 10001
+	data := &bbproto.ZjhMsg{}
+	h := &bbproto.ProtoHeader{}
+
+	h.UserId = &userid
+	data.Header = h
+
+	m := test.AssembleData(uint16(ide), data)
+	conn.Write(m)
+	//result := utils.Read(conn).(*bbproto.ShuiguojiRes)
+	//fmt.Println("读取的结果:", result.Result)
+}
+
+
+func zjhQueryNoSeatUser() {
+	conn, err := net.Dial(TCP, url)
+	if err != nil {
+		panic(err)
+	}
+	defer conn.Close()
+
+	ide := bbproto.EUnitProtoId_value[bbproto.EUnitProtoId_ZJHQUERYNOSEATUSER.String()]
+	fmt.Println("proto 得到的id ",ide)
+	var userid uint32 = 10001
+	data := &bbproto.ZjhQueryNoSeatUser{}
+	h := &bbproto.ProtoHeader{}
+
+	h.UserId = &userid
+	data.Header = h
+
+	m := test.AssembleData(uint16(ide), data)
+	conn.Write(m)
+	//result := utils.Read(conn).(*bbproto.ShuiguojiRes)
+	//fmt.Println("读取的结果:", result.Result)
+}
+
+
+//
+func zjhReqSeat() {
+	conn, err := net.Dial(TCP, url)
+	if err != nil {
+		panic(err)
+	}
+	defer conn.Close()
+
+	ide := bbproto.EUnitProtoId_value[bbproto.EUnitProtoId_ZJHREQSEAT.String()]
+	fmt.Println("proto 得到的id ",ide)
+	var userid uint32 = 10001
+	data := &bbproto.ZjhReqSeat{}
+	h := &bbproto.ProtoHeader{}
+
+	h.UserId = &userid
+	data.Header = h
+
+	m := test.AssembleData(uint16(ide), data)
+	conn.Write(m)
+	//result := utils.Read(conn).(*bbproto.ShuiguojiRes)
+	//fmt.Println("读取的结果:", result.Result)
+}
+
+func zjhZjhLottery(){
+	conn, err := net.Dial(TCP, url)
+	if err != nil {
+		panic(err)
+	}
+	defer conn.Close()
+
+	ide := bbproto.EUnitProtoId_value[bbproto.EUnitProtoId_ZJHLOTTERY.String()]
+	fmt.Println("proto 得到的id ",ide)
+	var userid uint32 = 10001
+	data := &bbproto.ZjhLottery{}
+	h := &bbproto.ProtoHeader{}
+
+	h.UserId = &userid
+	data.Header = h
+
+	m := test.AssembleData(uint16(ide), data)
+	conn.Write(m)
+	//result := utils.Read(conn).(*bbproto.ShuiguojiRes)
+	//fmt.Println("读取的结果:", result.Result)
+}
+
+
+func zjhBet(){
+	conn, err := net.Dial(TCP, url)
+	if err != nil {
+		panic(err)
+	}
+	defer conn.Close()
+
+	ide := bbproto.EUnitProtoId_value[bbproto.EUnitProtoId_ZJHBET.String()]
+	fmt.Println("proto 得到的id ",ide)
+	var userid uint32 = 10001
+	data := &bbproto.ZjhBet{}
+	h := &bbproto.ProtoHeader{}
+
+	h.UserId = &userid
+	data.Header = h
+
+	m := test.AssembleData(uint16(ide), data)
+	conn.Write(m)
+
 }

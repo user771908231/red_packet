@@ -20,6 +20,6 @@ func TestRoomMsg(t *testing.T){
 	sendMsg := "测试发送的信息"
 	data.RoomId = &roomId
 	data.Msg    = &sendMsg
-	m := utils.AssembleData(id,&data)
+	m := test.AssembleData(id,&data)
 	conn.Write(m)
 }

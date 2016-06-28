@@ -21,7 +21,7 @@ func TestLogin(t *testing.T){
 	}
 	var data bbproto.ReqAuthUser
 	data.Header = h
-	m := utils.AssembleData(id,&data)
+	m := test.AssembleData(id,&data)
 	conn.Write(m)
 }
 

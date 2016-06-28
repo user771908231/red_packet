@@ -26,6 +26,10 @@ func init() {
 
 	//扎金花
 	msg.PortoProcessor.SetRouter(&bbproto.ZjhRoom{},game.ChanRPC)		//进入扎金花的房间
-
+	msg.PortoProcessor.SetRouter(&bbproto.ZjhLottery{},game.ChanRPC)		//进入扎金花的房间
+	msg.PortoProcessor.SetRouter(&bbproto.ZjhMsg{},game.ChanRPC)		//进入扎金花的房间
+	msg.PortoProcessor.SetRouter(&bbproto.ZjhBet{},game.ChanRPC)		//进入扎金花的房间
+	msg.PortoProcessor.SetRouter(&bbproto.ZjhReqSeat{},game.ChanRPC)		//进入扎金花的房间
+	msg.PortoProcessor.SetRouter(&bbproto.ZjhQueryNoSeatUser{},game.ChanRPC)		//进入扎金花的房间
 
 }

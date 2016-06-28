@@ -30,7 +30,7 @@ func fun1(t *testing.T) {
 
 	data.In = &inValue
 	data.UserId = &userId
-	m := utils.AssembleData(id,&data)
+	m := test.AssembleData(id,&data)
 	conn.Write(m)
 
 

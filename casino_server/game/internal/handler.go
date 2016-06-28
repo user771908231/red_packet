@@ -176,7 +176,7 @@ func handlerZjhLottery(args []interface{}){
 	扎金花房间消息
  */
 func handlerZjhMsg(args []interface{}){
-	log.T("进入到扎金花的房间 game.handlerZjhRoom()")
+	log.T("进入到扎金花的房间 game.handlerZjhMsg()")
 }
 
 
@@ -184,7 +184,7 @@ func handlerZjhMsg(args []interface{}){
 扎金花 押注
  */
 func handlerZjhBet(args []interface{}){
-	log.T("进入到扎金花的房间 game.handlerZjhRoom()")
+	log.T("进入到扎金花的房间 game.handlerZjhBet()")
 }
 
 
@@ -192,7 +192,7 @@ func handlerZjhBet(args []interface{}){
 	扎金花请求座位
  */
 func handlerZjhReqSeat(args []interface{}){
-	log.T("进入到扎金花的房间 game.handlerZjhRoom()")
+	log.T("进入到扎金花的房间 game.handlerZjhReqSeat()")
 }
 
 
@@ -202,7 +202,7 @@ func handlerZjhReqSeat(args []interface{}){
 
 
 func handlerZjhQueryNoSeatUser(args []interface{}){
-	log.T("进入到扎金花的房间 game.handlerZjhRoom()")
+	log.T("进入到扎金花的房间 game.handlerZjhQueryNoSeatUser()")
 }
 
 

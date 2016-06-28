@@ -29,8 +29,8 @@ func TestShuiGuoJi(t *testing.T){
 	data.ScoresWatermelon = &nApple
 	data.ScoresBell = &nApple
 
-	m := utils.AssembleData(id,&data)
+	m := test.AssembleData(id,&data)
 	conn.Write(m)
-	result := utils.Read(conn).(*bbproto.ShuiguojiRes)
+	result := test.Read(conn).(*bbproto.ShuiguojiRes)
 	fmt.Println("读取的结果:",result.Result)
 }
