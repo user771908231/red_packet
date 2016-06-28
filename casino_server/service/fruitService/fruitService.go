@@ -5,6 +5,8 @@ import (
 	"casino_server/utils"
 	"casino_server/common/log"
 	"reflect"
+	"github.com/name5566/leaf/gate"
+	"errors"
 )
 
 /**
@@ -422,6 +424,11 @@ func HandlerShuiguoji(m *bbproto.Shuiguoji) (*bbproto.ShuiguojiRes, error) {
 	result.ScoresWin = &scoresTotal
 	log.N("计算得到的总分是%v", result.GetScoresWin())
 
+	//更新用户的余额信息
+
+	updateUserData();
+
+
 	//返回值
 	return result, err
 
@@ -574,4 +581,28 @@ func setWinType(res *bbproto.ShuiguojiRes,value *int32){
 func HilompResult(id uint32) (*bbproto.ShuiguojiHilomp, error) {
 	result := &bbproto.ShuiguojiHilomp{}
 	return result, nil
+}
+
+
+/**
+更新用户的信息
+	1,本次等分
+	2,本次水果机剩余得分
+
+ */
+func updateUserData(res *bbproto.ShuiguojiRes,m gate.Agent) error{
+	//检查参数是否正确
+	user := m.UserData()	//存放的是指针
+	if user == nil  {
+		log.E("agent 中取User 的时候出错")
+		return errors.New("没有找到用户")
+	}
+
+	//2做更新操作
+
+
+
+
+
+
 }

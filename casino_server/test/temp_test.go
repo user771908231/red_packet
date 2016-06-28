@@ -2,26 +2,12 @@ package mongodb
 
 import (
 	"testing"
-	"casino_server/service/fruitService"
-	"fmt"
-	"time"
 )
 
 func TestTemp(t *testing.T) {
-
-	for {
-		for _, r := range `-\|/` {
-			fmt.Printf("\r%c", r)
-			time.Sleep(1 * time.Second)
-		}
-	}
-
+	var i1 int32 = 0
+	var i2 int = 10
+	i1 = int32(i2)
+	println(i2,i1)
 }
 
-func uPro(p fruitService.ShuiGuoPro) {
-	p.ORANGE_1 = 88888
-}
-
-func uProa(p *fruitService.ShuiGuoPro) {
-	p.ORANGE_1 = 777777
-}

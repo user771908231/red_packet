@@ -18,10 +18,9 @@ type AgentUserData struct {
 水果机上分
  */
 
-func (user *AgentUserData) FriutshangFen(){
+func (user *AgentUserData) FriutshangFen(scores int32){
 	user.Lock()
 	defer user.Unlock()
-
 }
 
 
