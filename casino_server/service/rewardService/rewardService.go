@@ -1,7 +1,7 @@
 package rewardService
 
 import (
-	"casino_server/msg/bbproto"
+	"casino_server/msg/bbprotogo"
 	"github.com/name5566/leaf/gate"
 	"casino_server/conf/intCons"
 )

@@ -4,7 +4,7 @@ import (
 )
 import (
 	"casino_server/msg"
-	"casino_server/msg/bbproto"
+	"casino_server/msg/bbprotogo"
 	"casino_server/game"
 	"casino_server/login"
 	"casino_server/system"

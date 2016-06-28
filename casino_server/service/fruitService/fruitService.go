@@ -1,7 +1,7 @@
 package fruitService
 
 import (
-	"casino_server/msg/bbproto"
+	"casino_server/msg/bbprotogo"
 	"casino_server/utils"
 	"casino_server/common/log"
 	"reflect"
@@ -307,7 +307,7 @@ type SGJValue struct {
 	得到一次的结果
 	水果机器的结果有可能有很多种,这里需要什么策略来返回结果?
  */
-func HandlerShuiguoji(m *bbproto.Shuiguoji) (*bbproto.ShuiguojiRes, error) {
+func HandlerShuiguoji(m *bbproto.Shuiguoji,a gate.Agent) (*bbproto.ShuiguojiRes, error) {
 	//1,检测参数并且根据押注的内容选择处理方式
 	if m == nil {
 		return nil,nil
@@ -426,9 +426,7 @@ func HandlerShuiguoji(m *bbproto.Shuiguoji) (*bbproto.ShuiguojiRes, error) {
 
 	//更新用户的余额信息
 
-	updateUserData();
-
-
+	updateUserData(result,a);
 	//返回值
 	return result, err
 
@@ -600,9 +598,6 @@ func updateUserData(res *bbproto.ShuiguojiRes,m gate.Agent) error{
 
 	//2做更新操作
 
-
-
-
-
+	return nil
 
 }

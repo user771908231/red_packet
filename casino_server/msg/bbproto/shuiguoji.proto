@@ -19,3 +19,58 @@ message Shuiguoji {
     optional int32 scoresBar = 11;
 
 }
+
+
+message ShuiguojiHilomp {
+    optional ProtoHeader ProtoHeader = 1;
+
+    optional int32 scoresBet = 3; //押注
+    optional int32 scoresWin = 4; //得分
+    //大小
+    optional int32 scoresHilomp = 5; //大小
+
+}
+
+
+message ShuiguojiRes {
+    optional ProtoHeader ProtoHeader = 1;
+
+    //押注
+    optional int32 scoresBet = 2; //压了总分
+    optional int32 scoresWin = 3; //赢的分数
+
+    //押注的分数
+    optional int32 scoresApple = 4;
+    optional int32 scoresOrange = 5;
+    optional int32 scoresMango = 6;
+    optional int32 scoresBell = 7;
+    optional int32 scoresWatermelon = 8;
+    optional int32 scoresStar = 9;
+    optional int32 scores77 = 10;
+    optional int32 scoresBar = 11;
+
+    //中了的分数
+
+    optional int32 winApple = 12;
+    optional int32 winOrange = 13;
+    optional int32 winMango = 14;
+    optional int32 winBell = 15;
+    optional int32 winWatermelon = 16;
+    optional int32 winStar = 17;
+    optional int32 win77 = 18;
+    optional int32 winBar = 19;
+
+    optional int32 winAppleLittle = 20;
+    optional int32 winOrangeLittle = 21;
+    optional int32 winMangoLittle = 22;
+    optional int32 winBellLittle = 23;
+    optional int32 winWatermelonLittle = 24;
+    optional int32 winStarLittle = 25;
+    optional int32 win77Little = 26;
+    optional int32 winBarLittle = 27;
+
+    optional int32 winType  = 28;           //中奖类型,大四喜,大三元....
+
+    repeated int32 result   =   29;
+
+}

@@ -3,11 +3,11 @@ package internal
 import (
 	"github.com/name5566/leaf/gate"
 	"reflect"
-	"casino_server/msg/bbproto"
 	"casino_server/common/log"
 	"casino_server/gamedata"
 	"casino_server/service/rewardService"
 	"casino_server/service/fruitService"
+	"casino_server/msg/bbprotogo"
 )
 
 func init() {
@@ -114,7 +114,7 @@ func handlerShuiguoji(args []interface{}) {
 	//检测参数是否正确
 	m := args[0].(*bbproto.Shuiguoji)                //请求体
 	a := args[1].(gate.Agent)
-	result, err := fruitService.HandlerShuiguoji(m)
+	result, err := fruitService.HandlerShuiguoji(m,a)
 	if err != nil {
 		log.E(err.Error())
 	}

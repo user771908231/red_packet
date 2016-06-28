@@ -14,10 +14,9 @@ It is generated from these files:
 	reg.proto
 	roomMsg.proto
 	shuiguoji.proto
-	shuiguojiHilomp.proto
-	shuiguojiRes.proto
 	testp1.proto
 	user.proto
+	zhajinhua.proto
 
 It has these top-level messages:
 	ReqAuthUser
@@ -33,6 +32,12 @@ It has these top-level messages:
 	ShuiguojiRes
 	TestP1
 	User
+	ZjhRoom
+	ZjhBet
+	ZjhLottery
+	ZjgQueryNoSeatUser
+	ZjhReqSeat
+	ZjhMsg
 */
 package bbproto
 

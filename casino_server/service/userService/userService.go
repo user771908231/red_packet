@@ -2,7 +2,7 @@ package userService
 
 import (
 	"casino_server/conf/casinoConf"
-	"casino_server/msg/bbproto"
+	"casino_server/msg/bbprotogo"
 	"fmt"
 	"github.com/name5566/leaf/db/mongodb"
 	"casino_server/mode"

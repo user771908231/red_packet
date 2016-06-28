@@ -1,0 +1,44 @@
+import public "base.proto";
+package bbproto;
+
+
+//进入扎金花的房间
+message ZjhRoom {
+
+
+}
+
+
+//押注
+
+message ZjhBet{
+
+}
+
+//开奖,广播
+
+message ZjhLottery{
+
+}
+
+
+//查询无座玩家列表,除了坐在位子上的玩家,以外的玩家
+
+message ZjgQueryNoSeatUser{
+
+}
+
+
+//座位
+message ZjhReqSeat{
+
+}
+
+//聊天
+
+message  ZjhMsg{
+
+
+}
+
+

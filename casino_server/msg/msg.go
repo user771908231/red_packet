@@ -2,7 +2,7 @@ package msg
 
 import (
 	"github.com/name5566/leaf/network/protobuf"
-	"casino_server/msg/bbproto"
+	"casino_server/msg/bbprotogo"
 )
 
 // protobuf 消息处理器

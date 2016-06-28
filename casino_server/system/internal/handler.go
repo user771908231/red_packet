@@ -1,7 +1,7 @@
 package internal
 
 import (
-	"casino_server/msg/bbproto"
+	"casino_server/msg/bbprotogo"
 	"reflect"
 	"casino_server/common/log"
 	"github.com/name5566/leaf/gate"

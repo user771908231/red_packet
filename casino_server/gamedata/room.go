@@ -3,7 +3,7 @@ package gamedata
 import (
 	"github.com/name5566/leaf/gate"
 	"casino_server/common/log"
-	"casino_server/msg/bbproto"
+	"casino_server/msg/bbprotogo"
 )
 
 func init() {
