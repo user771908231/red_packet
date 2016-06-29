@@ -1,11 +1,16 @@
 import public "base.proto";
+import public "user.proto";
+
 package bbproto;
 
 
-//进入扎金花的房间
+//进入扎金花的房间:押注中(剩余time）、开奖中（剩余time）、jackpot奖池金额、balance、庄家信息、在座玩家
 message ZjhRoom {
     optional ProtoHeader	header				= 1;
-    optional int32 reqType                         = 2;    //请求进入 还是退出 0 表示退出,1,表示进入
+    optional int32 reqType                      = 2;    //请求进入 还是退出 0 表示退出,1,表示进入
+    optional int32 jackpot                      = 3;    //奖金池
+    optional User  banker                       = 4;    //庄家的信息
+    optional User  me                           = 5;    //玩家的信息
 }
 
 

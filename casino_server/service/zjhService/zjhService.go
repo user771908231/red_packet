@@ -22,6 +22,31 @@ func HandlerZjhRoom(m *bbproto.ZjhRoom,a gate.Agent)(*bbproto.ZjhRoom,error){
 		//退出房间的请求
 		outRoom(m,a)
 	}
+
+
+	//模拟返回数据
+	//1,庄家的信息2,自己的信息
+	var bbalance int32 = 1000
+	var bname string = "我庄稼"
+
+	var mbalance int32 = 9999
+	var uname string = "用户哈哈哈哈"
+
+	userBanker := &bbproto.User{}
+	userMe	:= &bbproto.User{}
+	result := &bbproto.ZjhRoom{}
+
+	result.Banker = userBanker
+	result.Me = userMe
+
+	userBanker.Name = &bname
+	userBanker.Balance = &bbalance
+
+	userMe.Name = &uname
+	userMe.Balance = &mbalance
+
+	//返回信息
+	a.WriteMsg(result)
 	return nil,nil
 }
 
@@ -58,6 +83,10 @@ func HandlerZjhBet(m *bbproto.ZjhBet,a gate.Agent)(*bbproto.ZjhBet,error){
 
 func getIntoRoom(m *bbproto.ZjhRoom,a gate.Agent)(*bbproto.ZjhRoom,error){
 	service.ZJHroom.AddAgent(m.GetHeader().GetUserId(),a)
+
+	//这里给客户端返回信息,包括:押注中(剩余time）、开奖中（剩余time）、jackpot奖池金额、balance、庄家信息、在座玩家
+
+
 	return nil,nil
 }
 

@@ -38,8 +38,12 @@ func zjhRoom() {
 
 	m := test.AssembleData(uint16(ide), data)
 	conn.Write(m)
-	//result := utils.Read(conn).(*bbproto.ShuiguojiRes)
-	//fmt.Println("读取的结果:", result.Result)
+	result := test.Read(conn).(*bbproto.ZjhRoom)
+	fmt.Println("读取的结果:", result.GetBanker().GetName())
+	fmt.Println("读取的结果:", result.GetBanker().GetBalance())
+	fmt.Println("读取的结果:", result.GetMe().GetName())
+	fmt.Println("读取的结果:", result.GetMe().GetBalance())
+	fmt.Println("读取的结果:", result.GetJackpot())
 }
 
 
