@@ -2,7 +2,7 @@ package mongodb
 
 import (
 	"net"
-	"casino_server/msg/bbproto"
+	"casino_server/msg/bbprotogo"
 	"testing"
 	"casino_server/utils/test"
 	"fmt"
@@ -30,7 +30,7 @@ func fun1(t *testing.T) {
 
 	data.In = &inValue
 	data.UserId = &userId
-	m := utils.AssembleData(id,&data)
+	m := test.AssembleData(id,&data)
 	conn.Write(m)
 
 

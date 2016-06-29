@@ -14,10 +14,9 @@ It is generated from these files:
 	reg.proto
 	roomMsg.proto
 	shuiguoji.proto
-	shuiguojiHilomp.proto
-	shuiguojiRes.proto
 	testp1.proto
 	user.proto
+	zhajinhua.proto
 
 It has these top-level messages:
 	ReqAuthUser
@@ -33,6 +32,12 @@ It has these top-level messages:
 	ShuiguojiRes
 	TestP1
 	User
+	ZjhRoom
+	ZjhBet
+	ZjhLottery
+	ZjhQueryNoSeatUser
+	ZjhReqSeat
+	ZjhMsg
 */
 package bbproto
 
@@ -58,6 +63,8 @@ const _ = proto.ProtoPackageIsVersion2 // please upgrade the proto package
 // Ignoring public import of EUnitType from base.proto
 
 // Ignoring public import of EUnitRace from base.proto
+
+// Ignoring public import of EUnitProtoId from base.proto
 
 type ReqAuthUser struct {
 	Header           *ProtoHeader  `protobuf:"bytes,1,opt,name=header" json:"header,omitempty"`

@@ -5,6 +5,8 @@ import (
 	"casino_server/common/log"
 )
 
+
+
 func init() {
 	skeleton.RegisterChanRPC("NewAgent", rpcNewAgent)
 	skeleton.RegisterChanRPC("CloseAgent", rpcCloseAgent)
@@ -18,5 +20,6 @@ func rpcNewAgent(args []interface{}) {
 func rpcCloseAgent(args []interface{}) {
 	a := args[0].(gate.Agent)
 	_ = a
+
 	log.Normal("调用了.....rpcCloseAgent")
 }

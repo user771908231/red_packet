@@ -1,4 +1,4 @@
-package utils
+package test
 
 import (
 	"github.com/golang/protobuf/proto"
@@ -12,6 +12,7 @@ import (
 
 //
 func AssembleData(idv uint16, data proto.Message) []byte {
+	fmt.Println("需要转化的id",idv)
 	//1,把id转化成 []byte
 	id := make([]byte, 2)
 	binary.BigEndian.PutUint16(id, idv)
@@ -35,7 +36,7 @@ func AssembleData(idv uint16, data proto.Message) []byte {
 	return m2
 }
 
-func Read(conn net.Conn, m proto.Message) proto.Message{
+func Read(conn net.Conn) proto.Message{
 	fmt.Println("开始读取信息:")
 	lenBuf := make([]byte, 2)
 	conn.Read(lenBuf)
@@ -44,7 +45,6 @@ func Read(conn net.Conn, m proto.Message) proto.Message{
 	msgData := make([]byte, msgLen)
 	conn.Read(msgData[0:])
 	temp, _ := msg.PortoProcessor.Unmarshal(msgData)
-	m = temp.(proto.Message)
-	fmt.Println("读取信息完毕:",m)
-	return m
+	fmt.Println("读取信息完毕:",temp)
+	return temp.(proto.Message)
 }

@@ -2,7 +2,7 @@ package userService
 
 import (
 	"casino_server/conf/casinoConf"
-	"casino_server/msg/bbproto"
+	"casino_server/msg/bbprotogo"
 	"fmt"
 	"github.com/name5566/leaf/db/mongodb"
 	"casino_server/mode"
@@ -29,7 +29,8 @@ func CheckUserId(userId uint32) int8{
 
 /**
 快速登录
-	快速登录模式需要 为用户分配一个id,并且返回给用户
+	1,快速登录模式需要 为用户分配一个id,并且返回给用户
+	2,登陆成功之后,需要为agent 绑定userData
  */
 func QuickLogin(user *bbproto.ReqAuthUser) (*mode.User,error){
 	//1,判断入参是否正确

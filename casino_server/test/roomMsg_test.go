@@ -3,7 +3,7 @@ package mongodb
 import (
 	"testing"
 	"net"
-	"casino_server/msg/bbproto"
+	"casino_server/msg/bbprotogo"
 	"casino_server/utils/test"
 )
 
@@ -20,6 +20,6 @@ func TestRoomMsg(t *testing.T){
 	sendMsg := "测试发送的信息"
 	data.RoomId = &roomId
 	data.Msg    = &sendMsg
-	m := utils.AssembleData(id,&data)
+	m := test.AssembleData(id,&data)
 	conn.Write(m)
 }

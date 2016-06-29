@@ -12,16 +12,38 @@ enum EUnitType{
 }
 
 enum EUnitRace{
-    ALL             = 0; //all race
-    HUMAN           = 1;
-    UNDEAD          = 2;
-    MYTHIC          = 3;
-    BEAST           = 4;
-    MONSTER         = 5;
-    LEGEND          = 6;
-	DRAGON			= 7;
-    SCREAMCHEESE    = 8; //Leveup Material
-	EVOLVEPARTS		= 9; //Evolve Material
+    ALL             	= 0; //all race
+    HUMAN           	= 1;
+    UNDEAD          	= 2;
+    MYTHIC          	= 3;
+    BEAST           	= 4;
+    MONSTER         	= 5;
+    LEGEND          	= 6;
+	DRAGON				= 7;
+    SCREAMCHEESE    	= 8; //Leveup Material
+	EVOLVEPARTS			= 9; //Evolve Material
+}
+
+enum  EUnitProtoId{
+
+	TESTP1				= 0;
+	REG					= 1;
+	REQAUTHUSER			= 2;
+	HEATBEAT			= 3;
+	GETINTOROOM			= 4;
+	ROOMMSG				= 5;
+	GETREWARDS			= 6;
+	SHUIGUOJI			= 7;
+	SHUIGUOJIHILOMP		= 8;
+	SHUIGUOJIRES		= 9;
+
+	//扎金花相关的逻辑
+	ZJHROOM				= 10;
+	ZJHBET				= 11;
+	ZJHMSG				= 12;
+	ZJHQUERYNOSEATUSER	= 13;
+	ZJHREQSEAT			= 14;
+	ZJHLOTTERY			= 15;
 }
 
 //general response protocol

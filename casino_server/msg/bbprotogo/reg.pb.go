@@ -21,6 +21,8 @@ var _ = math.Inf
 
 // Ignoring public import of EUnitRace from base.proto
 
+// Ignoring public import of EUnitProtoId from base.proto
+
 type Reg struct {
 	Header           *ProtoHeader `protobuf:"bytes,1,opt,name=header" json:"header,omitempty"`
 	Name             *string      `protobuf:"bytes,2,opt,name=name" json:"name,omitempty"`

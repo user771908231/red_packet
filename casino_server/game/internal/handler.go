@@ -3,22 +3,37 @@ package internal
 import (
 	"github.com/name5566/leaf/gate"
 	"reflect"
-	"casino_server/msg/bbproto"
 	"casino_server/common/log"
-	"casino_server/gamedata"
 	"casino_server/service/rewardService"
 	"casino_server/service/fruitService"
+	"casino_server/msg/bbprotogo"
+	"casino_server/service/zjhService"
+	"casino_server/service"
+	"casino_server/conf/intCons"
 )
 
 func init() {
-	// 向当前模块（game 模块）注册 Hello 消息的消息处理函数 handleHello
+	//
 	handler(&bbproto.TestP1{}, handleTestP1)
 	handler(&bbproto.Reg{}, handleProtHello)
+
+
+	//水果机相关的业务
 	handler(&bbproto.GetIntoRoom{}, handlerGetIntoRoom)
 	handler(&bbproto.RoomMsg{}, handlerRoomMsg)
 	handler(&bbproto.GetRewards{}, handlerRewards)
 	handler(&bbproto.Shuiguoji{}, handlerShuiguoji)
 	handler(&bbproto.ShuiguojiHilomp{},handlerShuiguojiHilomp)
+
+	//扎金花相关的业务
+	handler(&bbproto.ZjhRoom{},handlerZjhRoom)
+	handler(&bbproto.ZjhLottery{},handlerZjhLottery)
+	handler(&bbproto.ZjhMsg{},handlerZjhMsg)
+	handler(&bbproto.ZjhBet{},handlerZjhBet)
+	handler(&bbproto.ZjhReqSeat{},handlerZjhReqSeat)
+	handler(&bbproto.ZjhQueryNoSeatUser{},handlerZjhQueryNoSeatUser)
+
+
 }
 
 func handler(m interface{}, h interface{}) {
@@ -71,10 +86,10 @@ func handlerGetIntoRoom(args []interface{}) {
 	a := args[1].(gate.Agent)                //连接
 	log.T("agent:", &a)
 	log.T("请求进入房间的user %v ,in:%v\n", m.GetUserId(), m.GetIn())
-	if m.GetIn() == 1 {
-		gamedata.CashOutRoom.AddAgent(m.GetUserId(), a)
+	if m.GetIn() == intCons.REQ_TYPE_IN{
+		service.SGJRoom.AddAgent(m.GetUserId(), a)
 	} else {
-		gamedata.CashOutRoom.RemoveAgent(m.GetUserId())
+		service.SGJRoom.RemoveAgent(m.GetUserId())
 	}
 }
 
@@ -88,7 +103,7 @@ func handlerRoomMsg(args []interface{}) {
 	m := args[0].(*bbproto.RoomMsg)                //请求体
 	a := args[1].(gate.Agent)
 	log.T("agent:", &a)
-	gamedata.CashOutRoom.BroadcastMsg(m.GetRoomId(), m.GetMsg())
+	service.SGJRoom.BroadcastMsg(m.GetRoomId(), m.GetMsg())
 }
 
 
@@ -114,7 +129,7 @@ func handlerShuiguoji(args []interface{}) {
 	//检测参数是否正确
 	m := args[0].(*bbproto.Shuiguoji)                //请求体
 	a := args[1].(gate.Agent)
-	result, err := fruitService.HandlerShuiguoji(m)
+	result, err := fruitService.HandlerShuiguoji(m,a)
 	if err != nil {
 		log.E(err.Error())
 	}
@@ -126,12 +141,12 @@ func handlerShuiguoji(args []interface{}) {
 
 
 /**
-处理水果机比大小的业务
+	处理水果机比大小的业务
  */
 func handlerShuiguojiHilomp(args []interface{}){
 	log.T("进入到 game.handlerShuiguojiHilomp()")
 	//检测参数是否正确
-	m := args[0].(*bbproto.Shuiguoji)                //请求体
+	m := args[0].(*bbproto.ShuiguojiHilomp)                //请求体
 	a := args[1].(gate.Agent)
 	result, err := fruitService.HandlerShuiguojiHilomp(m)
 	if err != nil {
@@ -141,3 +156,72 @@ func handlerShuiguojiHilomp(args []interface{}){
 	log.N("%v",result)
 
 }
+
+/**
+	进入扎金花的房间
+ */
+func handlerZjhRoom(args []interface{}){
+	log.T("进入到扎金花的房间 game.handlerZjhRoom()")
+	//检测参数是否正确
+	m := args[0].(*bbproto.ZjhRoom)                //请求体
+	a := args[1].(gate.Agent)
+
+	//通过serVice来处理
+	result,err := zjhService.HandlerZjhRoom(m,a)
+	if err != nil {
+		log.E(err.Error())
+	}
+
+	//处理返回信息
+	log.T("得到的结果:",result)
+
+}
+
+
+/**
+	扎金花奖励
+
+ */
+func handlerZjhLottery(args []interface{}){
+	log.T("进入到扎金花的房间 game.handlerZjhRoom()")
+}
+
+
+/**
+	扎金花房间消息
+ */
+func handlerZjhMsg(args []interface{}){
+	log.T("进入到扎金花的房间 game.handlerZjhMsg()")
+}
+
+
+/**
+扎金花 押注
+ */
+func handlerZjhBet(args []interface{}){
+	log.T("进入到扎金花的房间 game.handlerZjhBet()")
+	//检测参数是否正确
+	m := args[0].(*bbproto.ZjhBet)                //请求体
+	a := args[1].(gate.Agent)
+	zjhService.HandlerZjhBet(m,a)
+}
+
+
+/**
+	扎金花请求座位
+ */
+func handlerZjhReqSeat(args []interface{}){
+	log.T("进入到扎金花的房间 game.handlerZjhReqSeat()")
+}
+
+
+/*
+	扎金花请求没有作为的玩家
+ */
+
+
+func handlerZjhQueryNoSeatUser(args []interface{}){
+	log.T("进入到扎金花的房间 game.handlerZjhQueryNoSeatUser()")
+}
+
+

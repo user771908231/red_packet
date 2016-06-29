@@ -2,6 +2,7 @@ package service
 
 func handlerGetIntoRoom(){
 
+
 }
 
 
