@@ -5,6 +5,7 @@ import (
 	"casino_server/utils/redis"
 	"fmt"
 	"casino_server/utils/numUtils"
+	"casino_server/msg/bbprotogo"
 )
 
 func TestReids(t *testing.T){
@@ -24,10 +25,21 @@ func TestReids(t *testing.T){
 	str2,_ := numUtils.Int2String(i2)
 	fmt.Println(s2+str2)
 
-	//user := mode.User{
-	//	Name:"哈哈哈哈",
-	//}
-	//conn.Set()
+	var hahaha string = "哈哈哈哈哈你"
+	user := &bbproto.User{
+		Name:&hahaha,
+	}
 
+	err := conn.SetObj("testObj",user)
+	if err != nil {
+		panic(err)
+	}
+
+	user2 := &bbproto.User{}
+
+	err = conn.GetObj("testObj",user2)
+
+	fmt.Println("user.name",user.GetName())
+	fmt.Println("user2.name",user2.GetName())
 
 }

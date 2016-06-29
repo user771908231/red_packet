@@ -9,8 +9,8 @@ import (
 )
 
 func TestZjhMain(t *testing.T) {
-	//zjhRoom()
-	zjhMsg()
+	zjhRoom()
+	//zjhMsg()
 	//zjhQueryNoSeatUser()
 	//zjhReqSeat()
 	//zjhZjhLottery()
@@ -28,11 +28,13 @@ func zjhRoom() {
 	ide := bbproto.EUnitProtoId_value[bbproto.EUnitProtoId_ZJHROOM.String()]
 	fmt.Println("proto 得到的id ",ide)
 	var userid uint32 = 10001
+	var reqType int32 = 0
 	data := &bbproto.ZjhRoom{}
 	h := &bbproto.ProtoHeader{}
 
 	h.UserId = &userid
 	data.Header = h
+	data.ReqType =&reqType
 
 	m := test.AssembleData(uint16(ide), data)
 	conn.Write(m)

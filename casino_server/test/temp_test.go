@@ -2,12 +2,20 @@ package mongodb
 
 import (
 	"testing"
+	"fmt"
+	"time"
 )
 
 func TestTemp(t *testing.T) {
-	var i1 int32 = 0
-	var i2 int = 10
-	i1 = int32(i2)
-	println(i2,i1)
+	ticker := time.NewTicker(time.Second * 1)
+	go func() {
+		for _ = range ticker.C {
+			fmt.Println("ticked at %v", time.Now())
+		}
+	}()
+
+	for ; ;  {
+		
+	}
 }
 

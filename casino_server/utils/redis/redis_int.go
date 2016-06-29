@@ -5,6 +5,7 @@ import (
 	"casino_server/common/log"
 	"github.com/garyburd/redigo/redis"
 	"time"
+	"github.com/golang/protobuf/proto"
 )
 
 const (
@@ -195,6 +196,22 @@ func (t *Data) SetUInt(key string, value uint32) error {
 		log.Fatal("invalid redis conn:%v", t.conn)
 	}
 	return nil
+}
+
+func (t *Data) SetObj(key string,pb proto.Message) error{
+	d,err :=proto.Marshal(pb)
+	if err != nil {
+		return err
+	}
+	return t.Set(key,d)
+}
+
+func (t *Data) GetObj(key string,pb proto.Message) error{
+	d,err := t.Gets(key)
+	if err != nil {
+		return err
+	}
+	return proto.Unmarshal(d,pb)
 }
 
 func (t *Data) Del(key string) error {

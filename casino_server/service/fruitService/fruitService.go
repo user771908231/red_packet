@@ -9,6 +9,8 @@ import (
 	"errors"
 )
 
+
+
 /**
 
 水果机的 index
@@ -438,7 +440,7 @@ func HandlerShuiguoji(m *bbproto.Shuiguoji,a gate.Agent) (*bbproto.ShuiguojiRes,
 水果机比大小的业务
 
  */
-func HandlerShuiguojiHilomp(m *bbproto.Shuiguoji) (*bbproto.ShuiguojiHilomp, error) {
+func HandlerShuiguojiHilomp(m *bbproto.ShuiguojiHilomp) (*bbproto.ShuiguojiHilomp, error) {
 	return HilompResult(m.GetProtoHeader().GetUserId())
 }
 

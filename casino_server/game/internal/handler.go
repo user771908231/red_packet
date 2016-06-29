@@ -4,10 +4,12 @@ import (
 	"github.com/name5566/leaf/gate"
 	"reflect"
 	"casino_server/common/log"
-	"casino_server/gamedata"
 	"casino_server/service/rewardService"
 	"casino_server/service/fruitService"
 	"casino_server/msg/bbprotogo"
+	"casino_server/service/zjhService"
+	"casino_server/service"
+	"casino_server/conf/intCons"
 )
 
 func init() {
@@ -84,10 +86,10 @@ func handlerGetIntoRoom(args []interface{}) {
 	a := args[1].(gate.Agent)                //连接
 	log.T("agent:", &a)
 	log.T("请求进入房间的user %v ,in:%v\n", m.GetUserId(), m.GetIn())
-	if m.GetIn() == 1 {
-		gamedata.CashOutRoom.AddAgent(m.GetUserId(), a)
+	if m.GetIn() == intCons.REQ_TYPE_IN{
+		service.SGJRoom.AddAgent(m.GetUserId(), a)
 	} else {
-		gamedata.CashOutRoom.RemoveAgent(m.GetUserId())
+		service.SGJRoom.RemoveAgent(m.GetUserId())
 	}
 }
 
@@ -101,7 +103,7 @@ func handlerRoomMsg(args []interface{}) {
 	m := args[0].(*bbproto.RoomMsg)                //请求体
 	a := args[1].(gate.Agent)
 	log.T("agent:", &a)
-	gamedata.CashOutRoom.BroadcastMsg(m.GetRoomId(), m.GetMsg())
+	service.SGJRoom.BroadcastMsg(m.GetRoomId(), m.GetMsg())
 }
 
 
@@ -144,7 +146,7 @@ func handlerShuiguoji(args []interface{}) {
 func handlerShuiguojiHilomp(args []interface{}){
 	log.T("进入到 game.handlerShuiguojiHilomp()")
 	//检测参数是否正确
-	m := args[0].(*bbproto.Shuiguoji)                //请求体
+	m := args[0].(*bbproto.ShuiguojiHilomp)                //请求体
 	a := args[1].(gate.Agent)
 	result, err := fruitService.HandlerShuiguojiHilomp(m)
 	if err != nil {
@@ -160,6 +162,19 @@ func handlerShuiguojiHilomp(args []interface{}){
  */
 func handlerZjhRoom(args []interface{}){
 	log.T("进入到扎金花的房间 game.handlerZjhRoom()")
+	//检测参数是否正确
+	m := args[0].(*bbproto.ZjhRoom)                //请求体
+	a := args[1].(gate.Agent)
+
+	//通过serVice来处理
+	result,err := zjhService.HandlerZjhRoom(m,a)
+	if err != nil {
+		log.E(err.Error())
+	}
+
+	//处理返回信息
+	log.T("得到的结果:",result)
+
 }
 
 
@@ -185,6 +200,10 @@ func handlerZjhMsg(args []interface{}){
  */
 func handlerZjhBet(args []interface{}){
 	log.T("进入到扎金花的房间 game.handlerZjhBet()")
+	//检测参数是否正确
+	m := args[0].(*bbproto.ZjhBet)                //请求体
+	a := args[1].(gate.Agent)
+	zjhService.HandlerZjhBet(m,a)
 }
 
 
