@@ -9,12 +9,12 @@ import (
 )
 
 func TestZjhMain(t *testing.T) {
-	zjhRoom()
+	//zjhRoom()
 	//zjhMsg()
 	//zjhQueryNoSeatUser()
 	//zjhReqSeat()
 	//zjhZjhLottery()
-	//zjhBet()
+	zjhBet()
 }
 
 
@@ -149,13 +149,19 @@ func zjhBet(){
 	ide := bbproto.EUnitProtoId_value[bbproto.EUnitProtoId_ZJHBET.String()]
 	fmt.Println("proto 得到的id ",ide)
 	var userid uint32 = 10001
+	var ba int32 = 999
+
 	data := &bbproto.ZjhBet{}
 	h := &bbproto.ProtoHeader{}
 
 	h.UserId = &userid
 	data.Header = h
-
+	data.BetAmount = &ba
+	data.BetzoneA = &ba
 	m := test.AssembleData(uint16(ide), data)
 	conn.Write(m)
+
+	result := test.Read(conn).(*bbproto.ZjhBet)
+	fmt.Println("读取的结果:", result.GetBetAmount())		//测试服务器同意返回98989
 
 }

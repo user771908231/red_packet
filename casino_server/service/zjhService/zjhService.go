@@ -5,7 +5,6 @@ import (
 	"casino_server/msg/bbprotogo"
 	"casino_server/conf/intCons"
 	"casino_server/service"
-	"errors"
 )
 
 
@@ -59,16 +58,21 @@ func HandlerZjhRoom(m *bbproto.ZjhRoom,a gate.Agent)(*bbproto.ZjhRoom,error){
  */
 func HandlerZjhBet(m *bbproto.ZjhBet,a gate.Agent)(*bbproto.ZjhBet,error){
 	//1,判断是否属于押注的状态
-	if !service.ZJHroom.Betable() {
-		return nil,errors.New("现在不能下注了")
-	}
+	//if !service.ZJHroom.Betable() {
+	//	log.E("现在不能下注了")
+	//	return nil,errors.New("现在不能下注了")
+	//}
 
 	//2,开始押注,判断用户资金是否足够,等
 
 	//为了测试方便 随意返回数据
+
+	var ba int32 = 98989
+
 	result := &bbproto.ZjhBet{}
 	header := &bbproto.ProtoHeader{}
 	header.UserId = m.GetHeader().UserId
+	result.BetAmount = &ba
 	a.WriteMsg(result)
 
 	//广播发送押注信息
