@@ -8,8 +8,8 @@ import (
 	"casino_server/service/fruitService"
 	"casino_server/msg/bbprotogo"
 	"casino_server/service/zjhService"
-	"casino_server/service"
 	"casino_server/conf/intCons"
+	"casino_server/service/room"
 )
 
 func init() {
@@ -87,9 +87,9 @@ func handlerGetIntoRoom(args []interface{}) {
 	log.T("agent:", &a)
 	log.T("请求进入房间的user %v ,in:%v\n", m.GetUserId(), m.GetIn())
 	if m.GetIn() == intCons.REQ_TYPE_IN{
-		service.SGJRoom.AddAgent(m.GetUserId(), a)
+		room.SGJRoom.AddAgent(m.GetUserId(), a)
 	} else {
-		service.SGJRoom.RemoveAgent(m.GetUserId())
+		room.SGJRoom.RemoveAgent(m.GetUserId())
 	}
 }
 
@@ -103,7 +103,7 @@ func handlerRoomMsg(args []interface{}) {
 	m := args[0].(*bbproto.RoomMsg)                //请求体
 	a := args[1].(gate.Agent)
 	log.T("agent:", &a)
-	service.SGJRoom.BroadcastMsg(m.GetRoomId(), m.GetMsg())
+	room.SGJRoom.BroadcastMsg(m.GetRoomId(), m.GetMsg())
 }
 
 

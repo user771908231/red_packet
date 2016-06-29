@@ -35,6 +35,7 @@ It has these top-level messages:
 	ZjhRoom
 	ZjhBet
 	ZjhLottery
+	ZjhPai
 	ZjhQueryNoSeatUser
 	ZjhReqSeat
 	ZjhMsg

@@ -26,9 +26,30 @@ message ZjhBet{
 }
 
 //开奖,广播
-
 message ZjhLottery{
+
+    //牌面
     optional ProtoHeader	header				= 1;
+    optional ZjhPai     pbank   =2;
+    optional ZjhPai     pa  =3;
+    optional ZjhPai     pb  =4;
+    optional ZjhPai     pc  =5;
+    optional ZjhPai     pd  =6;
+
+    //自己的输赢
+    optional int32 balance   = 7;
+    optional int32 winAmount    = 8;
+
+}
+
+message ZjhPai{
+    optional  int32 PaiType     =1 ;
+    optional  int32 lotteryType =2 ;
+    optional  bool result       =3 ;
+    optional int32 Pai1         =4 ;
+    optional int32 Pai2         =5 ;
+    optional int32 Pai3         =6 ;
+    optional int32 winAmount    =7 ; // 输赢的分数是多少
 
 }
 

@@ -1,4 +1,4 @@
-package service
+package room
 
 import (
 	"github.com/name5566/leaf/gate"
@@ -6,6 +6,8 @@ import (
 	"casino_server/msg/bbprotogo"
 	"time"
 	"github.com/golang/protobuf/proto"
+	"sync"
+	"casino_server/conf/intCons"
 )
 
 func init() {
@@ -16,7 +18,7 @@ func init() {
 
 //confi
 
-var ZJH_BET_DURATION = time.Second * 30
+var ZJH_BET_DURATION = time.Second * 10
 var ZJH_LOTTERY_DURATION = time.Second *10
 
 
@@ -26,12 +28,16 @@ var ZJHroom zjhRoom        //扎金花的房间
 
 
 //-------------------------------------------------扎金花房间的状态----------------------------------------------
-var ZJH_STATUS_BETING	int32	=		1		// 押注中
+var ZJH_STATUS_BETING		int32	=		1		//押注中
+var ZJH_STATUS_LOTTERING	 int32	=		2		//等待开奖
+var ZJH_STATUS_LOTTERIED 	int32	=		3		//已经开奖
+
 
 /**
 游戏房间
  */
 type room struct {
+	sync.Mutex
 	Type int
 	RoomId	int32				//房间号
 	AgentMap map[uint32] gate.Agent
@@ -130,13 +136,15 @@ func OninitZjgRoom(){
 
 	//初始化开始押注时间,押注结束时间,开奖时间
 	ZJHroom.iniTime(time.Now())
-
+	ZJHroom.Status = ZJH_STATUS_BETING
 	//启动扎金花房间的run任务
 	ZJHroom.run()
 }
 
 
 func (r *zjhRoom) iniTime(t time.Time){
+	//r.Lock()
+	//defer r.Unlock()
 	r.BetStartTime	=	t					//首次开始押注的时间
 	r.BetEndTime	=	r.BetStartTime.Add(ZJH_BET_DURATION)	//首次押注结束的时间
 	r.LotteryTime	=	r.BetEndTime.Add(ZJH_LOTTERY_DURATION)	//首次开奖的时间
@@ -153,7 +161,7 @@ func (r *zjhRoom) iniTime(t time.Time){
 func (r *zjhRoom) run(){
 	ticker := time.NewTicker(time.Second * 1)
 	go func() {
-		for _ = range ticker.C {
+		for t := range ticker.C {
 			log.T("正在执行扎金花的逻辑...")
 			if len(r.AgentMap) < 1 {
 				log.T("没有玩家进入游戏...continue")
@@ -167,6 +175,12 @@ func (r *zjhRoom) run(){
 			for a := range r.AgentMap {
 				log.T("agent-userId:%v",a)
 			}
+
+			//投注结束的广播
+			r.betEnd(t)
+			//开奖的广播
+			r.lottery(t)
+
 		}
 
 	}()
@@ -183,7 +197,66 @@ func (r *zjhRoom) Betable()bool{
 	}
 }
 
+/**
+这个是开奖的广播
+ */
+func (r *zjhRoom) lottery(t time.Time){
+	r.Lock()
+	defer r.Unlock()
 
+
+	//打印测试信息
+	log.T("betEndTime",r.BetEndTime.String())
+	log.T("lotteryTime",r.LotteryTime.String())
+	log.T("now",t.String())
+	log.T("",r.LotteryTime.Before(t))
+	log.T("status",r.Status)
+
+	//如果当前时间已经过了开奖时间,并且现在的状态是开奖中,则重新设置状态,并且开奖
+	if r.LotteryTime.Before(t) && r.Status == ZJH_STATUS_LOTTERING {
+		log.T("开奖。。。。。。。。。。。。。。。。。。。。。。。。。。。。。。。。。。。。。。。。。。。。。")
+
+		r.Status = ZJH_STATUS_LOTTERIED                //设置状态已经开奖
+		//需要重新设置下一轮的时间
+		r.iniTime(t)
+
+		//需要伪造数据,并且发送给每个人
+		var balance1 int32 =  77878
+		var winAmount int32 =  666
+
+
+		result := &bbproto.ZjhLottery{}
+		pai := &bbproto.ZjhPai{}
+		pai.Pai1 = &intCons.TongHuaShun1.Pai1
+		pai.Pai2 = &intCons.TongHuaShun1.Pai2
+		pai.Pai3 = &intCons.TongHuaShun1.Pai3
+
+		result.Pbank = pai
+		result.Pa = pai
+		result.Pb = pai
+		result.Pc = pai
+		result.Pd = pai
+
+		result.Balance = &balance1
+		result.WinAmount = &winAmount
+
+		//开始广播消息
+		r.BroadcastProto(result,0)
+	}
+
+}
+
+
+func (r *zjhRoom) betEnd(t time.Time){
+	r.Lock()
+	defer r.Unlock()
+
+	if r.BetEndTime.Before(t) && r.Status == ZJH_STATUS_BETING {
+		log.T("投注结束。。。。。。。。。。。。。。。。。。。。。。。。。。。。。。。。。。。。。。。。。。。。。")
+		r.Status = ZJH_STATUS_LOTTERING
+	}
+
+}
 
 
 
