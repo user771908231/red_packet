@@ -10,13 +10,14 @@ import (
 )
 
 func TestZjhMain(t *testing.T) {
-	zjhRoom()
+	//zjhRoom()
 	//zjhMsg()
 	//zjhQueryNoSeatUser()
 	//zjhReqSeat()
 	//zjhZjhLottery()
 	//zjhBet()
 	//random()
+	createZjhList()
 	for ; ;  {
 		
 	}
@@ -154,20 +155,19 @@ func zjhBet(){
 	ide := bbproto.EUnitProtoId_value[bbproto.EUnitProtoId_ZJHBET.String()]
 	fmt.Println("proto 得到的id ",ide)
 	var userid uint32 = 10001
-	var ba int32 = 999
+	bezoned := make([]int32,4)
+	bezoned[0] = 99897
 
 	data := &bbproto.ZjhBet{}
 	h := &bbproto.ProtoHeader{}
 
 	h.UserId = &userid
 	data.Header = h
-	data.BetAmount = &ba
-	data.BetzoneA = &ba
+	data.Betzone = bezoned
 	m := test.AssembleData(uint16(ide), data)
 	conn.Write(m)
-
 	result := test.Read(conn).(*bbproto.ZjhBet)
-	fmt.Println("读取的结果:", result.GetBetAmount())		//测试服务器同意返回98989
+	fmt.Println("读取的结果:", result.GetHeader())		//测试服务器同意返回98989
 }
 
 func random(){
@@ -180,4 +180,15 @@ func random(){
 
 	result := porkService.CreateZjhList()
 	fmt.Println(result.String())
+}
+
+
+func createZjhList(){
+	result := porkService.CreateZjhList()
+	fmt.Println(result)
+
+	for i := 0; i < 10; i++ {
+		result = porkService.CreateZjhList()
+		fmt.Println(result)
+	}
 }

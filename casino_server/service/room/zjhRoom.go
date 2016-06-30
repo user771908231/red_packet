@@ -144,12 +144,11 @@ func (r *zjhRoom) lottery(t time.Time){
 		var balance1 int32 =  77878
 		var winAmount int32 =  666
 		result := &bbproto.ZjhLottery{}
-		result.Pbank 	= porkService.ConstructZjhPai(list[0])
-		result.Pa 	= porkService.ConstructZjhPai(list[0])
-		result.Pb 	= porkService.ConstructZjhPai(list[0])
-		result.Pc 	= porkService.ConstructZjhPai(list[0])
-		result.Pd 	= porkService.ConstructZjhPai(list[0])
-
+		zs := make([]*bbproto.ZjhPai,5)
+		for i := 0; i < 5; i++ {
+			zs[i] 	= porkService.ConstructZjhPai(list[i])
+		}
+		result.Zjhpai = zs
 		result.Balance = &balance1
 		result.WinAmount = &winAmount
 		//开始广播消息

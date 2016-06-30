@@ -15,14 +15,9 @@ message ZjhRoom {
 
 
 //押注：押注区betzone=1,2,3,4   押注金额betAmount （若当前时刻已停止押注，返回失败）
-//todo 一个数组 一个header
 message ZjhBet{
     optional ProtoHeader	header				= 1;
     repeated int32          betzone             = 2;
-    optional int32          betzoneA            = 3;        // 压得是那副牌。有1,2,3,4 总共四副牌
-    optional int32          betzoneB            = 4;        // 压得是那副牌。有1,2,3,4 总共四副牌
-    optional int32          betzoneC            = 5;        // 压得是那副牌。有1,2,3,4 总共四副牌
-    optional int32          betzoneD            = 6;        // 压得是那副牌。有1,2,3,4 总共四副牌
 }
 
 //开奖,广播
@@ -30,11 +25,8 @@ message ZjhLottery{
 
     //牌面
     optional ProtoHeader	header		= 1;
-    optional ZjhPai     pbank           = 2;
-    optional ZjhPai     pa              = 3;
-    optional ZjhPai     pb              = 4;
-    optional ZjhPai     pc              = 5;
-    optional ZjhPai     pd              = 6;
+    repeated ZjhPai     zjhpai          = 2;
+
 
     //自己的输赢
     optional int32 balance   = 7;
@@ -47,9 +39,7 @@ message ZjhPai{
     optional  int32 PaiType     =1 ;
     optional  int32 lotteryType =2 ;
     optional  bool result       =3 ;
-    optional Pai Pai1           =4 ;
-    optional Pai Pai2           =5 ;
-    optional Pai Pai3           =6 ;
+    repeated Pai pai           =4 ;
     optional int32 winAmount    =7 ; // 输赢的分数是多少
 }
 

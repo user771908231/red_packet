@@ -16,6 +16,12 @@ import (
 	2,能更具程序随机的产生指定的牌
 	3,适应各种游戏模式
 
+
+	HEART	红桃
+	DIAMOND	方块
+	CLUB	梅花
+	SPADE	黑桃
+
  */
 
 /**
@@ -150,7 +156,8 @@ func ( list ZjhPorkList) Swap(i,j int){
 func (z ZjhPorkList) String() string{
 	result := ""
 	for i := 0; i < len(z); i++ {
-		result = strings.Join([]string{result,z[i].String()}, "-------\n")
+		t,_ := numUtils.Int2String(z[i].zjhType)
+		result = strings.Join([]string{result,"type:",t ,",",z[i].String()}, "-------\n")
 	}
 	return result
 }
@@ -296,7 +303,7 @@ func (z *ZjhPork) getDuiziSanPai() int {
 /**
 	得到扎金花牌的类型
  */
-func (z *ZjhPork) getZjhType(){
+func (z *ZjhPork) initZjhType(){
 	if z.zjhType == 0{
 		//开始初始化扎金花的类型,从最大的开始算
 		if z.pork1.value == z.pork2.value && z.pork1.value == z.pork3.value {
@@ -312,8 +319,10 @@ func (z *ZjhPork) getZjhType(){
 		}else if checkShunzi(z.pork1.value,z.pork2.value,z.pork3.value) {
 			//判断是否是顺子
 			z.zjhType = ZJH_TYPE_SHUNZI
-		}else{
+		}else if z.pork1.value != z.pork2.value && z.pork1.value != z.pork3.value && z.pork2.value != z.pork3.value{
 			z.zjhType = ZJH_TYPE_SANPAI
+		}else{
+			z.zjhType = ZJH_TYPE_DUIZI
 		}
 	}
 }
@@ -342,6 +351,7 @@ func CreateZjhList() ZjhPorkList{
 		z.pork1 = CreatePorkByIndex(indexs[i*3])
 		z.pork2 = CreatePorkByIndex(indexs[i*3+1])
 		z.pork3 = CreatePorkByIndex(indexs[i*3+2])
+		z.initZjhType()		//初始化扎金花牌的类型
 		result = append(result,z)
 	}
 
@@ -384,15 +394,14 @@ func RandomPorkIndex(min, max int32) [PLAY_PORK_COUNT]int32 {
 	return *result;
 }
 
-
-
 //把这里的拍转换成扎金花proto的牌类型
 
 func ConstructZjhPai(p *ZjhPork) *bbproto.ZjhPai{
 	result := &bbproto.ZjhPai{}
-	result.Pai1 = constructPai(p.pork1)
-	result.Pai2 = constructPai(p.pork2)
-	result.Pai3 = constructPai(p.pork3)
+	ps := make([]*bbproto.Pai,3)
+	ps[0] = constructPai(p.pork1)
+	ps[1] = constructPai(p.pork2)
+	ps[2] = constructPai(p.pork3)
 	result.PaiType = &p.zjhType
 	return result
 }
