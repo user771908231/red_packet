@@ -1,3 +1,4 @@
+import public "base.proto";
 package bbproto;
 message HeatBeat {
 }

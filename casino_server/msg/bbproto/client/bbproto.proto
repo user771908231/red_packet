@@ -1,0 +1,246 @@
+package bbproto;
+
+enum  EProtoId{
+
+	TESTP1				= 0;
+	REG					= 1;
+	REQAUTHUSER			= 2;
+	HEATBEAT			= 3;
+	GETINTOROOM			= 4;
+	ROOMMSG				= 5;
+	GETREWARDS			= 6;
+	SHUIGUOJI			= 7;
+	SHUIGUOJIHILOMP		= 8;
+	SHUIGUOJIRES		= 9;
+
+	//扎金花相关的逻辑
+	ZJHROOM				= 10;
+	ZJHBET				= 11;
+	ZJHMSG				= 12;
+	ZJHQUERYNOSEATUSER	= 13;
+	ZJHREQSEAT			= 14;
+	ZJHLOTTERY			= 15;
+}
+
+//general response protocol
+message ProtoHeader {
+	optional string apiVer		= 1;
+	optional string sessionId	= 2;
+	optional uint32 userId		= 3;
+	optional int32	packetId	= 4;
+	optional int32	code		= 5; // result code
+	optional string error		= 6; // result error description
+	optional int32	extraTag	= 7; // addtional logic for future use
+}
+
+message TerminalInfo {
+	optional string	channel						= 1; // app market channel
+	optional string	deviceName					= 2; //
+	optional string	uuid						= 3;
+	optional string	os		 					= 4; // android / ios
+}
+//=====================================================
+
+message GetRewards {
+    optional uint32 userId						= 1;    // app market channel
+    optional int32	rewardsType					= 3;    // 奖励的类型
+    optional string memo                        = 4;    // 奖励说明
+}
+
+//=====================================================
+message HeatBeat {
+}
+
+//=====================================================
+message Reg {
+	optional ProtoHeader    	header    		= 1;
+	optional string  			name 			= 2;  // name
+    optional string  			password 		= 3;  // 密码
+    optional string  			mobile 			= 4;  // 电话号码
+}
+//=====================================================
+
+message RoomMsg {
+    optional ProtoHeader	header				= 1;
+    optional TerminalInfo	terminal			= 2;
+    optional string			msg			        = 3;
+    optional int32			roomId			    = 4;
+}
+//=====================================================
+
+message Shuiguoji {
+    optional ProtoHeader ProtoHeader = 1;
+
+    //押注
+    optional int32 scoresBet = 2; //压了总分
+    optional int32 scoresWin = 3; //赢的分数
+
+    //押注的分数
+    optional int32 scoresApple = 4;
+    optional int32 scoresOrange = 5;
+    optional int32 scoresMango = 6;
+    optional int32 scoresBell = 7;
+    optional int32 scoresWatermelon = 8;
+    optional int32 scoresStar = 9;
+    optional int32 scores77 = 10;
+    optional int32 scoresBar = 11;
+
+}
+
+
+message ShuiguojiHilomp {
+    optional ProtoHeader ProtoHeader = 1;
+
+    optional int32 scoresBet = 3; //押注
+    optional int32 scoresWin = 4; //得分
+    //大小
+    optional int32 scoresHilomp = 5; //大小
+
+}
+
+
+message ShuiguojiRes {
+    optional ProtoHeader ProtoHeader = 1;
+
+    //押注
+    optional int32 scoresBet = 2; //压了总分
+    optional int32 scoresWin = 3; //赢的分数
+
+    //押注的分数
+    optional int32 scoresApple = 4;
+    optional int32 scoresOrange = 5;
+    optional int32 scoresMango = 6;
+    optional int32 scoresBell = 7;
+    optional int32 scoresWatermelon = 8;
+    optional int32 scoresStar = 9;
+    optional int32 scores77 = 10;
+    optional int32 scoresBar = 11;
+
+    //中了的分数
+
+    optional int32 winApple = 12;
+    optional int32 winOrange = 13;
+    optional int32 winMango = 14;
+    optional int32 winBell = 15;
+    optional int32 winWatermelon = 16;
+    optional int32 winStar = 17;
+    optional int32 win77 = 18;
+    optional int32 winBar = 19;
+
+    optional int32 winAppleLittle = 20;
+    optional int32 winOrangeLittle = 21;
+    optional int32 winMangoLittle = 22;
+    optional int32 winBellLittle = 23;
+    optional int32 winWatermelonLittle = 24;
+    optional int32 winStarLittle = 25;
+    optional int32 win77Little = 26;
+    optional int32 winBarLittle = 27;
+
+    optional int32 winType  = 28;           //中奖类型,大四喜,大三元....
+
+    repeated int32 result   =   29;
+
+}
+
+
+message GetIntoRoom {
+    optional uint32 userId						= 1; // app market channel
+    optional int32	roomId  					= 2; //
+    optional int32	roomType					= 3;
+    optional int32  in                          = 4; // 如果in=1表示进入房间,其他值表示退出房间
+}
+//=====================================================
+message TestP1 {
+	  required string  name2 = 2;  // name 
+}
+//=====================================================
+message User {
+	optional ProtoHeader    	header    		= 1;
+	optional string  			name 			= 2;  	// name
+	optional int32				balance			= 3;	//用户的余额
+	optional uint32				userId			= 4;
+}
+
+//=====================================================
+
+
+//进入扎金花的房间:押注中(剩余time）、开奖中（剩余time）、jackpot奖池金额、balance、庄家信息、在座玩家
+message ZjhRoom {
+    optional ProtoHeader	header				= 1;
+    optional int32      reqType                      = 2;    //请求进入 还是退出 0 表示退出,1,表示进入
+    optional int64      jackpot                      = 3;    //奖金池
+    optional User       banker                       = 4;    //庄家的信息
+    optional User       me                           = 5;    //玩家的信息
+    repeated ZjhPai     zjhpai                       = 6;    //当前桌子上的牌
+    optional int32      betTime                      = 7;    //押注结束时间
+    optional int32      lotteryTime                  = 8;    // 开奖时间
+    optional int32      roomStatus                   = 9;    //房间状态(正在押注,等待开奖)
+}
+
+
+//押注：押注区betzone=1,2,3,4   押注金额betAmount （若当前时刻已停止押注，返回失败）
+message ZjhBet{
+    optional ProtoHeader	header				= 1;
+    repeated int32          betzone             = 2;
+}
+
+//开奖,广播
+message ZjhLottery{
+    //牌面
+    optional ProtoHeader	header		= 1;
+    repeated ZjhPai     zjhpai          = 2;
+
+
+    //自己的输赢
+    optional int32 balance   = 7;
+    optional int32 winAmount    = 8;
+
+}
+
+//对押注的信息进行广播
+message BroadcastBet{
+    optional ProtoHeader	header				= 1;
+    repeated int32          betzone             = 2;    //表示每个压住区域目前的押注金额
+}
+
+//扎金花牌的结构
+message ZjhPai{
+    optional  int32 PaiType     =1 ;
+    optional  int32 lotteryType =2 ;
+    optional  bool result       =3 ;
+    repeated Pai pai           =4 ;
+    optional int32 winAmount    =7 ; // 输赢的分数是多少
+}
+
+//单张牌的结构
+message Pai{
+    optional int32 mapKey       = 1;
+    optional string mapdes      = 2;
+    optional int32 value        = 3;
+    optional string flower      = 4;
+    optional string name        = 5;
+}
+
+
+//查询无座玩家列表,除了坐在位子上的玩家,以外的玩家
+message ZjhQueryNoSeatUser{
+    optional ProtoHeader	header				= 1;
+
+}
+
+
+//座位
+message ZjhReqSeat{
+    optional ProtoHeader	header				= 1;
+
+}
+
+//聊天
+
+message  ZjhMsg{
+    optional ProtoHeader	header				= 1;
+
+
+}
+
+
