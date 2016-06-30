@@ -5,24 +5,14 @@ import (
 	"casino_server/msg/bbprotogo"
 	"casino_server/conf/intCons"
 	"casino_server/service/room"
+	"casino_server/msg/bbprotoFuncs"
+	"casino_server/service/userService"
 )
 
 
 func init(){
 
 }
-
-
-var(
-	//奖励类型
-	ZJF_LOTTERY_TYPE_DANZHANG 	int32		=	0 	//单张=0
-	ZJF_LOTTERY_TYPE_DUIZI 		int32		=	1 	//对子=1
-	ZJF_LOTTERY_TYPE_SHUNZI 	int32		=	2 	//顺子=2
-	ZJF_LOTTERY_TYPE_TONGHUA 	int32		=	3 	//同花=3
-	ZJF_LOTTERY_TYPE_TONGHUASHUN 	int32		=	4 	//同花顺=4
-	ZJF_LOTTERY_TYPE_BAOZI 		int32		=	5 	//豹子=5
-)
-
 
 
 /**
@@ -37,31 +27,6 @@ func HandlerZjhRoom(m *bbproto.ZjhRoom,a gate.Agent)(*bbproto.ZjhRoom,error){
 		//退出房间的请求
 		outRoom(m,a)
 	}
-
-
-	//模拟返回数据
-	//1,庄家的信息2,自己的信息
-	var bbalance int32 = 1000
-	var bname string = "我庄稼"
-
-	var mbalance int32 = 9999
-	var uname string = "用户哈哈哈哈"
-
-	userBanker := &bbproto.User{}
-	userMe	:= &bbproto.User{}
-	result := &bbproto.ZjhRoom{}
-
-	result.Banker = userBanker
-	result.Me = userMe
-
-	userBanker.Name = &bname
-	userBanker.Balance = &bbalance
-
-	userMe.Name = &uname
-	userMe.Balance = &mbalance
-
-	//返回信息
-	a.WriteMsg(result)
 	return nil,nil
 }
 
@@ -103,11 +68,19 @@ func HandlerZjhBet(m *bbproto.ZjhBet,a gate.Agent)(*bbproto.ZjhBet,error){
 
 func getIntoRoom(m *bbproto.ZjhRoom,a gate.Agent)(*bbproto.ZjhRoom,error){
 	room.ZJHroom.AddAgent(m.GetHeader().GetUserId(),a)
-
 	//这里给客户端返回信息,包括:押注中(剩余time）、开奖中（剩余time）、jackpot奖池金额、balance、庄家信息、在座玩家
+	result := &bbproto.ZjhRoom{}
+	result.Header		=	porotoUtils.GetSuccHeader()		//header
+	result.Jackpot		=	&(room.ZJHroom.Jackpot)
+	result.BetTime		= 	room.ZJHroom.GetBetRemainTime()		//剩余的押注时间
+	result.LotteryTime	=	room.ZJHroom.GetLotteryRemainTime()	//剩余的开奖时间
+	result.RoomStatus	=	&room.ZJHroom.Status			//房间的当前状态
 
-
-	return nil,nil
+	//个人,庄家的信息信息
+	result.Banker =  userService.GetUserById(room.ZJHroom.BankerUserId)
+	result.Me = userService.GetUserById(m.GetHeader().GetUserId())
+	a.WriteMsg(result)
+	return result,nil
 }
 
 
