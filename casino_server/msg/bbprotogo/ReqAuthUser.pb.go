@@ -62,11 +62,7 @@ const _ = proto.ProtoPackageIsVersion2 // please upgrade the proto package
 
 // Ignoring public import of TerminalInfo from base.proto
 
-// Ignoring public import of EUnitType from base.proto
-
-// Ignoring public import of EUnitRace from base.proto
-
-// Ignoring public import of EUnitProtoId from base.proto
+// Ignoring public import of EProtoId from base.proto
 
 type ReqAuthUser struct {
 	Header           *ProtoHeader  `protobuf:"bytes,1,opt,name=header" json:"header,omitempty"`

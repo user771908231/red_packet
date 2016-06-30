@@ -17,11 +17,7 @@ var _ = math.Inf
 
 // Ignoring public import of TerminalInfo from base.proto
 
-// Ignoring public import of EUnitType from base.proto
-
-// Ignoring public import of EUnitRace from base.proto
-
-// Ignoring public import of EUnitProtoId from base.proto
+// Ignoring public import of EProtoId from base.proto
 
 type User struct {
 	Header           *ProtoHeader `protobuf:"bytes,1,opt,name=header" json:"header,omitempty"`

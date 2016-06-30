@@ -1,1 +1,4 @@
-package bbproto;message HeatBeat {}
+package bbproto;
+message HeatBeat {
+}
+
