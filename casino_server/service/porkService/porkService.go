@@ -161,7 +161,7 @@ func (z ZjhPorkList) String() string{
 type Pork struct {
 	mapKey	int32
 	mapDes  string		//从map出来时候的描述
-	value int32		//值,A对应14,K对应13
+	value int		//值,A对应14,K对应13
 	flower string		//花色 四中
 	name string		//牌值,2345678910JQKA
 }
@@ -171,8 +171,8 @@ type Pork struct {
  */
 func (p *Pork) initPork() error{
 	sarry :=  strings.Split(p.mapDes,"_")
-	p.value = int32(numUtils.String2Int(sarry[2]))
-	p.name = sarry[len(sarry)-1]
+	p.value = numUtils.String2Int(sarry[2])
+	p.name = sarry[3]
 	p.flower = sarry[1]
 	return nil
 }
@@ -245,88 +245,44 @@ func compareDuizi(a,b *ZjhPork) bool{
 /**
 	取散牌最大的
  */
-func (z *ZjhPork) getSanpai1() int32{
-	if z.pork1.value > z.pork2.value {
-		if z.pork1.value > z.pork3.value {
-			return z.pork1.value
-		}else{
-			return z.pork3.value
-		}
-	}else {
-		if z.pork2.value > z.pork3.value {
-			return z.pork2.value
-		}else{
-			return z.pork3.value
-		}
-	}
+func (z *ZjhPork) getSanpai1() int{
+	data := []int{z.pork1.value,z.pork2.value,z.pork3.value}
+	sort.Ints(data)
+	return data[2]
 
 }
 /**
 	取散牌第二大的
  */
-func (z *ZjhPork) getSanpai2() int32{
-	if z.pork1.value > z.pork2.value {
-		if z.pork1.value > z.pork3.value {
-			if z.pork2.value > z.pork3.value {
-				return z.pork2.value
-			}else{
-				return z.pork3.value
-			}
-		}else{
-			return z.pork1.value
-		}
-	}else {
-		if z.pork1.value < z.pork3.value {
-			if z.pork2.value < z.pork3.value {
-				return z.pork2.value
-			}else{
-				return z.pork3.value
-			}
-		}else {
-			return z.pork1.value
-		}
-	}
+func (z *ZjhPork) getSanpai2() int{
+	data := []int{z.pork1.value,z.pork2.value,z.pork3.value}
+	sort.Ints(data)
+	return data[1]
 }
 
 /**
 	取散牌第三大的
  */
-func (z *ZjhPork) getSanpai3() int32{
-	if z.pork1.value > z.pork2.value {
-		if z.pork2.value > z.pork3.value {
-			return z.pork3.value
-		}else{
-			return z.pork2.value
-		}
-	}else {
-		if z.pork3.value < z.pork1.value {
-			return z.pork3.value
-		}else{
-			return z.pork1.value
-		}
-	}
+func (z *ZjhPork) getSanpai3() int{
+	data := []int{z.pork1.value,z.pork2.value,z.pork3.value}
+	sort.Ints(data)
+	return data[0]
 
 }
 
 /**
 	取对子的值
  */
-func (z *ZjhPork) getDuizi() int32{
-	//是否需要是对子才能取对子
-	if z.pork1.value == z.pork2.value {
-		return z.pork1.value
-	}else if z.pork1.value == z.pork3.value {
-		return z.pork1.value
-	}else {
-		return z.pork3.value
-	}
+func (z *ZjhPork) getDuizi() int{
+	data := []int{z.pork1.value,z.pork2.value,z.pork3.value}
+	sort.Ints(data)
+	return data[1]
 }
-
 
 /**
 	取对子中的散牌
  */
-func (z *ZjhPork) getDuiziSanPai() int32 {
+func (z *ZjhPork) getDuiziSanPai() int {
 	//是否需要是对子才能取对子
 	if z.pork1.value == z.pork2.value {
 		return z.pork3.value
@@ -341,7 +297,38 @@ func (z *ZjhPork) getDuiziSanPai() int32 {
 	得到扎金花牌的类型
  */
 func (z *ZjhPork) getZjhType(){
+	if z.zjhType == 0{
+		//开始初始化扎金花的类型,从最大的开始算
+		if z.pork1.value == z.pork2.value && z.pork1.value == z.pork3.value {
+			z.zjhType = ZJH_TYPE_BAOZI
+		}else if strings.EqualFold(z.pork1.flower, z.pork2.flower) && strings.EqualFold(z.pork1.flower,z.pork3.flower){
+			//判断是否是同花顺
+			if  checkShunzi(z.pork1.value,z.pork2.value,z.pork3.value){
+				z.zjhType = ZJH_TYPE_TONGHUASHUN
 
+			}else{
+				z.zjhType = ZJH_TYPE_TONGHUA
+			}
+		}else if checkShunzi(z.pork1.value,z.pork2.value,z.pork3.value) {
+			//判断是否是顺子
+			z.zjhType = ZJH_TYPE_SHUNZI
+		}else{
+			z.zjhType = ZJH_TYPE_SANPAI
+		}
+	}
+}
+
+/**
+判断三个数字是否是顺子
+ */
+func checkShunzi(a,b,c int) bool{
+	data := []int{a,b,c}
+	sort.Ints(data)
+	if data[2] - data[1] == 1 && data[1] - data[0] == 1 {
+		return true
+	}else{
+		return false
+	}
 }
 
 
@@ -414,7 +401,8 @@ func constructPai(p *Pork) *bbproto.Pai{
 	result := &bbproto.Pai{}
 	result.Flower = &p.flower
 	result.Mapdes = &p.mapDes
-	result.Value = &p.value
+	var v int32  = int32(p.value)
+	result.Value = &v
 	result.Name = &p.name
 	return result
 }
