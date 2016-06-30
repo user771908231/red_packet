@@ -29,12 +29,12 @@ message ZjhBet{
 message ZjhLottery{
 
     //牌面
-    optional ProtoHeader	header				= 1;
-    optional ZjhPai     pbank   =2;
-    optional ZjhPai     pa  =3;
-    optional ZjhPai     pb  =4;
-    optional ZjhPai     pc  =5;
-    optional ZjhPai     pd  =6;
+    optional ProtoHeader	header		= 1;
+    optional ZjhPai     pbank           = 2;
+    optional ZjhPai     pa              = 3;
+    optional ZjhPai     pb              = 4;
+    optional ZjhPai     pc              = 5;
+    optional ZjhPai     pd              = 6;
 
     //自己的输赢
     optional int32 balance   = 7;
@@ -42,15 +42,24 @@ message ZjhLottery{
 
 }
 
+//扎金花牌的结构
 message ZjhPai{
     optional  int32 PaiType     =1 ;
     optional  int32 lotteryType =2 ;
     optional  bool result       =3 ;
-    optional int32 Pai1         =4 ;
-    optional int32 Pai2         =5 ;
-    optional int32 Pai3         =6 ;
+    optional Pai Pai1           =4 ;
+    optional Pai Pai2           =5 ;
+    optional Pai Pai3           =6 ;
     optional int32 winAmount    =7 ; // 输赢的分数是多少
+}
 
+//单张牌的结构
+message Pai{
+    optional int32 mapKey       = 1;
+    optional string mapdes      = 2;
+    optional int32 value        = 3;
+    optional string flower      = 4;
+    optional string name        = 5;
 }
 
 

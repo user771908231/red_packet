@@ -7,7 +7,7 @@ import (
 	"time"
 	"github.com/golang/protobuf/proto"
 	"sync"
-	"casino_server/conf/intCons"
+	"casino_server/service/porkService"
 )
 
 func init() {
@@ -220,26 +220,21 @@ func (r *zjhRoom) lottery(t time.Time){
 		//需要重新设置下一轮的时间
 		r.iniTime(t)
 
+		//得到5副牌
+		list := porkService.CreateZjhList()
+
 		//需要伪造数据,并且发送给每个人
 		var balance1 int32 =  77878
 		var winAmount int32 =  666
-
-
 		result := &bbproto.ZjhLottery{}
-		pai := &bbproto.ZjhPai{}
-		pai.Pai1 = &intCons.TongHuaShun1.Pai1
-		pai.Pai2 = &intCons.TongHuaShun1.Pai2
-		pai.Pai3 = &intCons.TongHuaShun1.Pai3
-
-		result.Pbank = pai
-		result.Pa = pai
-		result.Pb = pai
-		result.Pc = pai
-		result.Pd = pai
+		result.Pbank 	= porkService.ConstructZjhPai(list[0])
+		result.Pa 	= porkService.ConstructZjhPai(list[0])
+		result.Pb 	= porkService.ConstructZjhPai(list[0])
+		result.Pc 	= porkService.ConstructZjhPai(list[0])
+		result.Pd 	= porkService.ConstructZjhPai(list[0])
 
 		result.Balance = &balance1
 		result.WinAmount = &winAmount
-
 		//开始广播消息
 		r.BroadcastProto(result,0)
 	}
