@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"sort"
 	"casino_server/msg/bbprotogo"
+	"casino_server/utils/numUtils"
 )
 
 /**
@@ -165,6 +166,10 @@ type Pork struct {
 通过描述来初始化一张牌
  */
 func (p *Pork) initPork() error{
+	sarry :=  strings.Split(p.mapDes,"_")
+	p.value = int32(numUtils.String2Int(sarry[2]))
+	p.name = sarry[len(sarry)-1]
+	p.flower = sarry[1]
 	return nil
 }
 

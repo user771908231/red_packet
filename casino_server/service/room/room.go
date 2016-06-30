@@ -165,9 +165,10 @@ func (r *zjhRoom) run(){
 			log.T("正在执行扎金花的逻辑...")
 			if len(r.AgentMap) < 1 {
 				log.T("没有玩家进入游戏...continue")
+				//如果没有玩家进入 需要重置房间的状态和时间
+				r.iniTime(t)
 				continue
 			}
-
 
 			//这里测试代码,打印当前正在游戏中的玩家
 			log.T("当前玩家正在房间中")

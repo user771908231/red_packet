@@ -17,8 +17,10 @@ func Int2String(i int32) (string,error){
 /**
  字符转转int类型
  */
-func String2Int(s string) (int,error){
-	i, err := strconv.Atoi(s)
-	return i,err
+func String2Int(s string) (int){
+	i,_ := strconv.Atoi(s)
+	return i
 }
+
+
 
