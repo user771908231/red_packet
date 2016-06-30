@@ -21,7 +21,7 @@ var ZJH_LOTTERY_DURATION = time.Second *10
 
 //-------------------------------------------------扎金花房间的状态----------------------------------------------
 var ZJH_STATUS_BETING		int32	=		1		//押注中
-var ZJH_STATUS_LOTTERING	 int32	=		2		//等待开奖
+var ZJH_STATUS_LOTTERING	int32	=		2		//等待开奖
 var ZJH_STATUS_LOTTERIED 	int32	=		3		//已经开奖
 
 var ZJHroom zjhRoom        //扎金花的房间
@@ -36,8 +36,9 @@ type zjhRoom struct {
 	LotteryTime		time.Time	// 开奖时间
 	NextStartTime		time.Time	//下次开始时间
 	Status			int32		//房间状态:押注中,开奖中,
-	Jackpot			int32		//奖池大小
+	Jackpot			int64		//奖池大小
 	zoneAmount		[]int32		//押注区A的押注
+	BankerUserId		uint32		//庄家的信息
 }
 
 /**
@@ -183,5 +184,35 @@ func (r *zjhRoom) AddZoneAmount(d []int32){
 
 }
 
+/**
+	返回押注剩余的时间
+ */
+func (r *zjhRoom) GetBetRemainTime() *int32{
+	var result int32
+	if r.Status == ZJH_STATUS_BETING {
+		now := time.Now()
+		diff := r.BetEndTime.Sub(now)
+		result = int32(diff.Seconds())
+	}else{
+		result = 0
+	}
+	return &result
+}
 
+/**
+	返回开奖剩余的时间
+ */
+func (r *zjhRoom) GetLotteryRemainTime() *int32{
+	var result int32
+	if r.Status == ZJH_STATUS_BETING || r.Status == ZJH_STATUS_LOTTERING {
+		//押注中的状态或者等待开奖的状态的时候,可以返回等待开奖的时间
+		now := time.Now()
+		diff := r.LotteryTime.Sub(now)
+		result = int32(diff.Seconds())
+	}else{
+		result = 0
+	}
+	return &result
+
+}
 

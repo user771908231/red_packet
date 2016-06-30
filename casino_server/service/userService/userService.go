@@ -107,5 +107,12 @@ func newUserAndSaveToDB() (*mode.User,error){
 
 func AddGold(userId uint32,){
 
+}
 
+/**
+	根据用户id得到User的id
+ */
+func GetUserById(id uint32) *bbproto.User{
+	result := &bbproto.User{}
+	return result
 }

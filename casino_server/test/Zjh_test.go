@@ -10,14 +10,14 @@ import (
 )
 
 func TestZjhMain(t *testing.T) {
-	//zjhRoom()
+	zjhRoom()
 	//zjhMsg()
 	//zjhQueryNoSeatUser()
 	//zjhReqSeat()
 	//zjhZjhLottery()
 	//zjhBet()
 	//random()
-	createZjhList()
+	//createZjhList()
 	for ; ;  {
 		
 	}
