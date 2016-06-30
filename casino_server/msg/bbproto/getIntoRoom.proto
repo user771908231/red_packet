@@ -1,8 +1,0 @@
-package bbproto;
-
-message GetIntoRoom {
-    optional uint32 userId						= 1; // app market channel
-    optional int32	roomId  					= 2; //
-    optional int32	roomType					= 3;
-    optional int32  in                          = 4; // 如果in=1表示进入房间,其他值表示退出房间
-}

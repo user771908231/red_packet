@@ -11,6 +11,10 @@ message ZjhRoom {
     optional int64 jackpot                      = 3;    //奖金池
     optional User  banker                       = 4;    //庄家的信息
     optional User  me                           = 5;    //玩家的信息
+    repeated ZjhPai     zjhpai                  = 6;    //当前桌子上的牌
+    optional int32 betTime                      = 7;    //押注结束时间
+    optional int32  lotteryTime                 = 8;    // 开奖时间
+    optional int32 roomStatus                   = 9;    //房间状态(正在押注,等待开奖)
 }
 
 
@@ -22,7 +26,6 @@ message ZjhBet{
 
 //开奖,广播
 message ZjhLottery{
-
     //牌面
     optional ProtoHeader	header		= 1;
     repeated ZjhPai     zjhpai          = 2;
@@ -32,6 +35,12 @@ message ZjhLottery{
     optional int32 balance   = 7;
     optional int32 winAmount    = 8;
 
+}
+
+//对押注的信息进行广播
+message BroadcastBet{
+    optional ProtoHeader	header				= 1;
+    repeated int32          betzone             = 2;    //表示每个压住区域目前的押注金额
 }
 
 //扎金花牌的结构
@@ -54,7 +63,6 @@ message Pai{
 
 
 //查询无座玩家列表,除了坐在位子上的玩家,以外的玩家
-
 message ZjhQueryNoSeatUser{
     optional ProtoHeader	header				= 1;
 
