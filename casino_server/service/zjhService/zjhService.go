@@ -81,14 +81,14 @@ func HandlerZjhBet(m *bbproto.ZjhBet,a gate.Agent)(*bbproto.ZjhBet,error){
 
 	//2,开始押注,判断用户资金是否足够,等
 
+	//3,修改放房间的押注金额
+	room.ZJHroom.AddZoneAmount(m.Betzone)
+
 	//为了测试方便 随意返回数据
-
-	var ba int32 = 98989
-
 	result := &bbproto.ZjhBet{}
 	header := &bbproto.ProtoHeader{}
 	header.UserId = m.GetHeader().UserId
-	result.BetAmount = &ba
+	header.Code = &intCons.CODE_SUCC		//表示请求成功
 	a.WriteMsg(result)
 
 	//广播发送押注信息

@@ -15,14 +15,14 @@ message ZjhRoom {
 
 
 //押注：押注区betzone=1,2,3,4   押注金额betAmount （若当前时刻已停止押注，返回失败）
+//todo 一个数组 一个header
 message ZjhBet{
     optional ProtoHeader	header				= 1;
-    optional int32          betAmount           = 2;
+    repeated int32          betzone             = 2;
     optional int32          betzoneA            = 3;        // 压得是那副牌。有1,2,3,4 总共四副牌
     optional int32          betzoneB            = 4;        // 压得是那副牌。有1,2,3,4 总共四副牌
     optional int32          betzoneC            = 5;        // 压得是那副牌。有1,2,3,4 总共四副牌
     optional int32          betzoneD            = 6;        // 压得是那副牌。有1,2,3,4 总共四副牌
-
 }
 
 //开奖,广播
