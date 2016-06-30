@@ -1,0 +1,29 @@
+import public "base.proto";
+package bbproto;
+
+
+// 存到数据库的模型
+
+//User
+message TUser {
+	optional ProtoHeader    	header    		= 1;
+	optional string  			name 			= 2;  	// name
+	optional int32				balance			= 3;	//用户的余额
+	optional uint32				userId			= 4;
+}
+
+//押注的记录,针对每轮扎金花,只有一次押注记录
+message TBetRecord{
+
+
+}
+
+
+//每一轮扎金花的数据
+message TZjhRound{
+	optional	int32	id			=	1;	//id
+	optional 	int64	beginTime	=	2;	//开始时间
+	optional	int64	betEndTime	=	3;	//押注结束时间
+	optional	int64	lotteryTime	=	4;	//开奖时间
+	optional 	int64	endTime		=	5;	//结束时间
+}

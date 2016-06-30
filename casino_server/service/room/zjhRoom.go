@@ -65,6 +65,7 @@ func (r *zjhRoom) iniTime(t time.Time){
 	r.BetStartTime	=	t					//首次开始押注的时间
 	r.BetEndTime	=	r.BetStartTime.Add(ZJH_BET_DURATION)	//首次押注结束的时间
 	r.LotteryTime	=	r.BetEndTime.Add(ZJH_LOTTERY_DURATION)	//首次开奖的时间
+	r.NextStartTime = 	r.LotteryTime.Add(ZJH_LOTTERY_DURATION)	//下次开始的时间
 	//下次押注的时间
 
 }
@@ -98,6 +99,8 @@ func (r *zjhRoom) run(){
 			r.betEnd(t)
 			//开奖的广播
 			r.lottery(t)
+			//进行下一轮
+			r.next(t)
 
 		}
 
@@ -132,15 +135,12 @@ func (r *zjhRoom) lottery(t time.Time){
 
 	//如果当前时间已经过了开奖时间,并且现在的状态是开奖中,则重新设置状态,并且开奖
 	if r.LotteryTime.Before(t) && r.Status == ZJH_STATUS_LOTTERING {
-		log.T("开奖。。。。。。。。。。。。。。。。。。。。。。。。。。。。。。。。。。。。。。。。。。。。。")
-
-		r.Status = ZJH_STATUS_LOTTERIED                //设置状态已经开奖
+		log.T("-----------------------------------------开奖-----------------------------------------")
 		//需要重新设置下一轮的时间
 		r.iniTime(t)
 
 		//得到5副牌
 		list := porkService.CreateZjhList()
-
 		//需要伪造数据,并且发送给每个人
 		var balance1 int32 =  77878
 		var winAmount int32 =  666
@@ -154,6 +154,20 @@ func (r *zjhRoom) lottery(t time.Time){
 		result.WinAmount = &winAmount
 		//开始广播消息
 		r.BroadcastProto(result,0)
+		r.Status = ZJH_STATUS_LOTTERIED			              //设置状态已经开奖
+		log.T("---------------------------------------开奖结束-----------------------------------------")
+	}
+}
+
+/**
+	开始下一轮的游戏
+ */
+func (r *zjhRoom) next(t time.Time){
+	r.Lock()
+	defer r.Unlock()
+	if t.After(r.NextStartTime) && r.Status == ZJH_STATUS_LOTTERIED {
+		//开奖已经结束了..可以重新开始
+		r.iniTime(t)
 	}
 
 }
@@ -164,8 +178,9 @@ func (r *zjhRoom) betEnd(t time.Time){
 	defer r.Unlock()
 
 	if r.BetEndTime.Before(t) && r.Status == ZJH_STATUS_BETING {
-		log.T("投注结束。。。。。。。。。。。。。。。。。。。。。。。。。。。。。。。。。。。。。。。。。。。。。")
 		r.Status = ZJH_STATUS_LOTTERING
+		log.T("---------------------------------------押注结束-----------------------------------------")
+
 	}
 
 }

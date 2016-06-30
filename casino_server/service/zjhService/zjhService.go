@@ -7,6 +7,8 @@ import (
 	"casino_server/service/room"
 	"casino_server/msg/bbprotoFuncs"
 	"casino_server/service/userService"
+	"casino_server/common/log"
+	"errors"
 )
 
 
@@ -20,6 +22,7 @@ func init(){
  */
 func HandlerZjhRoom(m *bbproto.ZjhRoom,a gate.Agent)(*bbproto.ZjhRoom,error){
 	reqType := m.GetReqType()
+	log.T("进入房间的type:",reqType)
 	if reqType == intCons.REQ_TYPE_IN{
 		//进入房间的请求
 		getIntoRoom(m,a)
@@ -39,10 +42,10 @@ func HandlerZjhRoom(m *bbproto.ZjhRoom,a gate.Agent)(*bbproto.ZjhRoom,error){
  */
 func HandlerZjhBet(m *bbproto.ZjhBet,a gate.Agent)(*bbproto.ZjhBet,error){
 	//1,判断是否属于押注的状态
-	//if !service.ZJHroom.Betable() {
-	//	log.E("现在不能下注了")
-	//	return nil,errors.New("现在不能下注了")
-	//}
+	if !room.ZJHroom.Betable() {
+		log.E("现在不能下注了")
+		return nil,errors.New("现在不能下注了")
+	}
 
 	//2,开始押注,判断用户资金是否足够,等
 
