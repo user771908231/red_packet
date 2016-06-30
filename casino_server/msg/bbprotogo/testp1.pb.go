@@ -21,7 +21,7 @@ type TestP1 struct {
 func (m *TestP1) Reset()                    { *m = TestP1{} }
 func (m *TestP1) String() string            { return proto.CompactTextString(m) }
 func (*TestP1) ProtoMessage()               {}
-func (*TestP1) Descriptor() ([]byte, []int) { return fileDescriptor8, []int{0} }
+func (*TestP1) Descriptor() ([]byte, []int) { return fileDescriptor7, []int{0} }
 
 func (m *TestP1) GetName2() string {
 	if m != nil && m.Name2 != nil {
@@ -34,7 +34,7 @@ func init() {
 	proto.RegisterType((*TestP1)(nil), "bbproto.TestP1")
 }
 
-var fileDescriptor8 = []byte{
+var fileDescriptor7 = []byte{
 	// 68 bytes of a gzipped FileDescriptorProto
 	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x09, 0x6e, 0x88, 0x02, 0xff, 0xe2, 0xe2, 0x29, 0x49, 0x2d, 0x2e,
 	0x29, 0x30, 0xd4, 0x2b, 0x28, 0xca, 0x2f, 0xc9, 0x17, 0x62, 0x4f, 0x4a, 0x02, 0x33, 0x94, 0xc4,

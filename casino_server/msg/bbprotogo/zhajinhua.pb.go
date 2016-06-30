@@ -29,16 +29,20 @@ var _ = math.Inf
 type ZjhRoom struct {
 	Header           *ProtoHeader `protobuf:"bytes,1,opt,name=header" json:"header,omitempty"`
 	ReqType          *int32       `protobuf:"varint,2,opt,name=reqType" json:"reqType,omitempty"`
-	Jackpot          *int32       `protobuf:"varint,3,opt,name=jackpot" json:"jackpot,omitempty"`
+	Jackpot          *int64       `protobuf:"varint,3,opt,name=jackpot" json:"jackpot,omitempty"`
 	Banker           *User        `protobuf:"bytes,4,opt,name=banker" json:"banker,omitempty"`
 	Me               *User        `protobuf:"bytes,5,opt,name=me" json:"me,omitempty"`
+	Zjhpai           []*ZjhPai    `protobuf:"bytes,6,rep,name=zjhpai" json:"zjhpai,omitempty"`
+	BetTime          *int32       `protobuf:"varint,7,opt,name=betTime" json:"betTime,omitempty"`
+	LotteryTime      *int32       `protobuf:"varint,8,opt,name=lotteryTime" json:"lotteryTime,omitempty"`
+	RoomStatus       *int32       `protobuf:"varint,9,opt,name=roomStatus" json:"roomStatus,omitempty"`
 	XXX_unrecognized []byte       `json:"-"`
 }
 
 func (m *ZjhRoom) Reset()                    { *m = ZjhRoom{} }
 func (m *ZjhRoom) String() string            { return proto.CompactTextString(m) }
 func (*ZjhRoom) ProtoMessage()               {}
-func (*ZjhRoom) Descriptor() ([]byte, []int) { return fileDescriptor10, []int{0} }
+func (*ZjhRoom) Descriptor() ([]byte, []int) { return fileDescriptor9, []int{0} }
 
 func (m *ZjhRoom) GetHeader() *ProtoHeader {
 	if m != nil {
@@ -54,7 +58,7 @@ func (m *ZjhRoom) GetReqType() int32 {
 	return 0
 }
 
-func (m *ZjhRoom) GetJackpot() int32 {
+func (m *ZjhRoom) GetJackpot() int64 {
 	if m != nil && m.Jackpot != nil {
 		return *m.Jackpot
 	}
@@ -75,21 +79,45 @@ func (m *ZjhRoom) GetMe() *User {
 	return nil
 }
 
+func (m *ZjhRoom) GetZjhpai() []*ZjhPai {
+	if m != nil {
+		return m.Zjhpai
+	}
+	return nil
+}
+
+func (m *ZjhRoom) GetBetTime() int32 {
+	if m != nil && m.BetTime != nil {
+		return *m.BetTime
+	}
+	return 0
+}
+
+func (m *ZjhRoom) GetLotteryTime() int32 {
+	if m != nil && m.LotteryTime != nil {
+		return *m.LotteryTime
+	}
+	return 0
+}
+
+func (m *ZjhRoom) GetRoomStatus() int32 {
+	if m != nil && m.RoomStatus != nil {
+		return *m.RoomStatus
+	}
+	return 0
+}
+
 // 押注：押注区betzone=1,2,3,4   押注金额betAmount （若当前时刻已停止押注，返回失败）
 type ZjhBet struct {
 	Header           *ProtoHeader `protobuf:"bytes,1,opt,name=header" json:"header,omitempty"`
-	BetAmount        *int32       `protobuf:"varint,2,opt,name=betAmount" json:"betAmount,omitempty"`
-	BetzoneA         *int32       `protobuf:"varint,3,opt,name=betzoneA" json:"betzoneA,omitempty"`
-	BetzoneB         *int32       `protobuf:"varint,4,opt,name=betzoneB" json:"betzoneB,omitempty"`
-	BetzoneC         *int32       `protobuf:"varint,5,opt,name=betzoneC" json:"betzoneC,omitempty"`
-	BetzoneD         *int32       `protobuf:"varint,6,opt,name=betzoneD" json:"betzoneD,omitempty"`
+	Betzone          []int32      `protobuf:"varint,2,rep,name=betzone" json:"betzone,omitempty"`
 	XXX_unrecognized []byte       `json:"-"`
 }
 
 func (m *ZjhBet) Reset()                    { *m = ZjhBet{} }
 func (m *ZjhBet) String() string            { return proto.CompactTextString(m) }
 func (*ZjhBet) ProtoMessage()               {}
-func (*ZjhBet) Descriptor() ([]byte, []int) { return fileDescriptor10, []int{1} }
+func (*ZjhBet) Descriptor() ([]byte, []int) { return fileDescriptor9, []int{1} }
 
 func (m *ZjhBet) GetHeader() *ProtoHeader {
 	if m != nil {
@@ -98,50 +126,28 @@ func (m *ZjhBet) GetHeader() *ProtoHeader {
 	return nil
 }
 
-func (m *ZjhBet) GetBetAmount() int32 {
-	if m != nil && m.BetAmount != nil {
-		return *m.BetAmount
+func (m *ZjhBet) GetBetzone() []int32 {
+	if m != nil {
+		return m.Betzone
 	}
-	return 0
+	return nil
 }
 
-func (m *ZjhBet) GetBetzoneA() int32 {
-	if m != nil && m.BetzoneA != nil {
-		return *m.BetzoneA
-	}
-	return 0
-}
-
-func (m *ZjhBet) GetBetzoneB() int32 {
-	if m != nil && m.BetzoneB != nil {
-		return *m.BetzoneB
-	}
-	return 0
-}
-
-func (m *ZjhBet) GetBetzoneC() int32 {
-	if m != nil && m.BetzoneC != nil {
-		return *m.BetzoneC
-	}
-	return 0
-}
-
-func (m *ZjhBet) GetBetzoneD() int32 {
-	if m != nil && m.BetzoneD != nil {
-		return *m.BetzoneD
-	}
-	return 0
-}
-
+// 开奖,广播
 type ZjhLottery struct {
-	Header           *ProtoHeader `protobuf:"bytes,1,opt,name=header" json:"header,omitempty"`
-	XXX_unrecognized []byte       `json:"-"`
+	// 牌面
+	Header *ProtoHeader `protobuf:"bytes,1,opt,name=header" json:"header,omitempty"`
+	Zjhpai []*ZjhPai    `protobuf:"bytes,2,rep,name=zjhpai" json:"zjhpai,omitempty"`
+	// 自己的输赢
+	Balance          *int32 `protobuf:"varint,7,opt,name=balance" json:"balance,omitempty"`
+	WinAmount        *int32 `protobuf:"varint,8,opt,name=winAmount" json:"winAmount,omitempty"`
+	XXX_unrecognized []byte `json:"-"`
 }
 
 func (m *ZjhLottery) Reset()                    { *m = ZjhLottery{} }
 func (m *ZjhLottery) String() string            { return proto.CompactTextString(m) }
 func (*ZjhLottery) ProtoMessage()               {}
-func (*ZjhLottery) Descriptor() ([]byte, []int) { return fileDescriptor10, []int{2} }
+func (*ZjhLottery) Descriptor() ([]byte, []int) { return fileDescriptor9, []int{2} }
 
 func (m *ZjhLottery) GetHeader() *ProtoHeader {
 	if m != nil {
@@ -150,6 +156,154 @@ func (m *ZjhLottery) GetHeader() *ProtoHeader {
 	return nil
 }
 
+func (m *ZjhLottery) GetZjhpai() []*ZjhPai {
+	if m != nil {
+		return m.Zjhpai
+	}
+	return nil
+}
+
+func (m *ZjhLottery) GetBalance() int32 {
+	if m != nil && m.Balance != nil {
+		return *m.Balance
+	}
+	return 0
+}
+
+func (m *ZjhLottery) GetWinAmount() int32 {
+	if m != nil && m.WinAmount != nil {
+		return *m.WinAmount
+	}
+	return 0
+}
+
+// 对押注的信息进行广播
+type BroadcastBet struct {
+	Header           *ProtoHeader `protobuf:"bytes,1,opt,name=header" json:"header,omitempty"`
+	Betzone          []int32      `protobuf:"varint,2,rep,name=betzone" json:"betzone,omitempty"`
+	XXX_unrecognized []byte       `json:"-"`
+}
+
+func (m *BroadcastBet) Reset()                    { *m = BroadcastBet{} }
+func (m *BroadcastBet) String() string            { return proto.CompactTextString(m) }
+func (*BroadcastBet) ProtoMessage()               {}
+func (*BroadcastBet) Descriptor() ([]byte, []int) { return fileDescriptor9, []int{3} }
+
+func (m *BroadcastBet) GetHeader() *ProtoHeader {
+	if m != nil {
+		return m.Header
+	}
+	return nil
+}
+
+func (m *BroadcastBet) GetBetzone() []int32 {
+	if m != nil {
+		return m.Betzone
+	}
+	return nil
+}
+
+// 扎金花牌的结构
+type ZjhPai struct {
+	PaiType          *int32 `protobuf:"varint,1,opt,name=PaiType" json:"PaiType,omitempty"`
+	LotteryType      *int32 `protobuf:"varint,2,opt,name=lotteryType" json:"lotteryType,omitempty"`
+	Result           *bool  `protobuf:"varint,3,opt,name=result" json:"result,omitempty"`
+	Pai              []*Pai `protobuf:"bytes,4,rep,name=pai" json:"pai,omitempty"`
+	WinAmount        *int32 `protobuf:"varint,7,opt,name=winAmount" json:"winAmount,omitempty"`
+	XXX_unrecognized []byte `json:"-"`
+}
+
+func (m *ZjhPai) Reset()                    { *m = ZjhPai{} }
+func (m *ZjhPai) String() string            { return proto.CompactTextString(m) }
+func (*ZjhPai) ProtoMessage()               {}
+func (*ZjhPai) Descriptor() ([]byte, []int) { return fileDescriptor9, []int{4} }
+
+func (m *ZjhPai) GetPaiType() int32 {
+	if m != nil && m.PaiType != nil {
+		return *m.PaiType
+	}
+	return 0
+}
+
+func (m *ZjhPai) GetLotteryType() int32 {
+	if m != nil && m.LotteryType != nil {
+		return *m.LotteryType
+	}
+	return 0
+}
+
+func (m *ZjhPai) GetResult() bool {
+	if m != nil && m.Result != nil {
+		return *m.Result
+	}
+	return false
+}
+
+func (m *ZjhPai) GetPai() []*Pai {
+	if m != nil {
+		return m.Pai
+	}
+	return nil
+}
+
+func (m *ZjhPai) GetWinAmount() int32 {
+	if m != nil && m.WinAmount != nil {
+		return *m.WinAmount
+	}
+	return 0
+}
+
+// 单张牌的结构
+type Pai struct {
+	MapKey           *int32  `protobuf:"varint,1,opt,name=mapKey" json:"mapKey,omitempty"`
+	Mapdes           *string `protobuf:"bytes,2,opt,name=mapdes" json:"mapdes,omitempty"`
+	Value            *int32  `protobuf:"varint,3,opt,name=value" json:"value,omitempty"`
+	Flower           *string `protobuf:"bytes,4,opt,name=flower" json:"flower,omitempty"`
+	Name             *string `protobuf:"bytes,5,opt,name=name" json:"name,omitempty"`
+	XXX_unrecognized []byte  `json:"-"`
+}
+
+func (m *Pai) Reset()                    { *m = Pai{} }
+func (m *Pai) String() string            { return proto.CompactTextString(m) }
+func (*Pai) ProtoMessage()               {}
+func (*Pai) Descriptor() ([]byte, []int) { return fileDescriptor9, []int{5} }
+
+func (m *Pai) GetMapKey() int32 {
+	if m != nil && m.MapKey != nil {
+		return *m.MapKey
+	}
+	return 0
+}
+
+func (m *Pai) GetMapdes() string {
+	if m != nil && m.Mapdes != nil {
+		return *m.Mapdes
+	}
+	return ""
+}
+
+func (m *Pai) GetValue() int32 {
+	if m != nil && m.Value != nil {
+		return *m.Value
+	}
+	return 0
+}
+
+func (m *Pai) GetFlower() string {
+	if m != nil && m.Flower != nil {
+		return *m.Flower
+	}
+	return ""
+}
+
+func (m *Pai) GetName() string {
+	if m != nil && m.Name != nil {
+		return *m.Name
+	}
+	return ""
+}
+
+// 查询无座玩家列表,除了坐在位子上的玩家,以外的玩家
 type ZjhQueryNoSeatUser struct {
 	Header           *ProtoHeader `protobuf:"bytes,1,opt,name=header" json:"header,omitempty"`
 	XXX_unrecognized []byte       `json:"-"`
@@ -158,7 +312,7 @@ type ZjhQueryNoSeatUser struct {
 func (m *ZjhQueryNoSeatUser) Reset()                    { *m = ZjhQueryNoSeatUser{} }
 func (m *ZjhQueryNoSeatUser) String() string            { return proto.CompactTextString(m) }
 func (*ZjhQueryNoSeatUser) ProtoMessage()               {}
-func (*ZjhQueryNoSeatUser) Descriptor() ([]byte, []int) { return fileDescriptor10, []int{3} }
+func (*ZjhQueryNoSeatUser) Descriptor() ([]byte, []int) { return fileDescriptor9, []int{6} }
 
 func (m *ZjhQueryNoSeatUser) GetHeader() *ProtoHeader {
 	if m != nil {
@@ -176,7 +330,7 @@ type ZjhReqSeat struct {
 func (m *ZjhReqSeat) Reset()                    { *m = ZjhReqSeat{} }
 func (m *ZjhReqSeat) String() string            { return proto.CompactTextString(m) }
 func (*ZjhReqSeat) ProtoMessage()               {}
-func (*ZjhReqSeat) Descriptor() ([]byte, []int) { return fileDescriptor10, []int{4} }
+func (*ZjhReqSeat) Descriptor() ([]byte, []int) { return fileDescriptor9, []int{7} }
 
 func (m *ZjhReqSeat) GetHeader() *ProtoHeader {
 	if m != nil {
@@ -193,7 +347,7 @@ type ZjhMsg struct {
 func (m *ZjhMsg) Reset()                    { *m = ZjhMsg{} }
 func (m *ZjhMsg) String() string            { return proto.CompactTextString(m) }
 func (*ZjhMsg) ProtoMessage()               {}
-func (*ZjhMsg) Descriptor() ([]byte, []int) { return fileDescriptor10, []int{5} }
+func (*ZjhMsg) Descriptor() ([]byte, []int) { return fileDescriptor9, []int{8} }
 
 func (m *ZjhMsg) GetHeader() *ProtoHeader {
 	if m != nil {
@@ -206,28 +360,41 @@ func init() {
 	proto.RegisterType((*ZjhRoom)(nil), "bbproto.ZjhRoom")
 	proto.RegisterType((*ZjhBet)(nil), "bbproto.ZjhBet")
 	proto.RegisterType((*ZjhLottery)(nil), "bbproto.ZjhLottery")
+	proto.RegisterType((*BroadcastBet)(nil), "bbproto.BroadcastBet")
+	proto.RegisterType((*ZjhPai)(nil), "bbproto.ZjhPai")
+	proto.RegisterType((*Pai)(nil), "bbproto.Pai")
 	proto.RegisterType((*ZjhQueryNoSeatUser)(nil), "bbproto.ZjhQueryNoSeatUser")
 	proto.RegisterType((*ZjhReqSeat)(nil), "bbproto.ZjhReqSeat")
 	proto.RegisterType((*ZjhMsg)(nil), "bbproto.ZjhMsg")
 }
 
-var fileDescriptor10 = []byte{
-	// 270 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x09, 0x6e, 0x88, 0x02, 0xff, 0x8c, 0x90, 0xb1, 0x4e, 0xc3, 0x30,
-	0x10, 0x86, 0x71, 0xa1, 0x09, 0x1c, 0x42, 0x05, 0x8b, 0xc1, 0x20, 0x21, 0xa1, 0x88, 0x81, 0xc9,
-	0x43, 0x47, 0xb6, 0x16, 0x06, 0x06, 0x40, 0xa1, 0xc0, 0xc2, 0x66, 0xc3, 0x89, 0x90, 0x2a, 0xb9,
-	0xd4, 0x71, 0x86, 0xf6, 0x0d, 0x10, 0x2f, 0x8d, 0xe3, 0x5a, 0xd0, 0x81, 0xc1, 0x4b, 0x74, 0xfa,
-	0xee, 0xfe, 0xbb, 0x2f, 0x86, 0xd1, 0xaa, 0x50, 0xe5, 0x67, 0x5d, 0x74, 0x4a, 0x36, 0x86, 0x2c,
-	0xf1, 0x54, 0x6b, 0x5f, 0x9c, 0x82, 0x56, 0x2d, 0xca, 0x50, 0x77, 0x2d, 0x9a, 0x75, 0x9d, 0x7d,
-	0x33, 0x48, 0x5f, 0xcb, 0x62, 0x46, 0x54, 0xf1, 0x0b, 0x48, 0x0a, 0x54, 0xef, 0x68, 0x04, 0x3b,
-	0x67, 0x97, 0xfb, 0xe3, 0x63, 0x19, 0xd2, 0x32, 0xef, 0xbf, 0xb7, 0xbe, 0xc7, 0x47, 0x90, 0x1a,
-	0x5c, 0x3c, 0x2f, 0x1b, 0x14, 0x03, 0x37, 0x36, 0xec, 0x41, 0xa9, 0xde, 0xe6, 0x0d, 0x59, 0xb1,
-	0xed, 0xc1, 0x19, 0x24, 0x5a, 0xd5, 0x73, 0xb7, 0x67, 0xc7, 0xef, 0x39, 0xf8, 0xdd, 0xf3, 0xe2,
-	0x0e, 0xf3, 0x13, 0x18, 0x54, 0x28, 0x86, 0xff, 0xb4, 0xb2, 0x2f, 0x06, 0x89, 0xb3, 0x99, 0xa2,
-	0x8d, 0x94, 0x39, 0x82, 0x3d, 0x8d, 0x76, 0x52, 0x51, 0x57, 0xdb, 0xa0, 0x73, 0x08, 0xbb, 0x0e,
-	0xad, 0xa8, 0xc6, 0x49, 0xf0, 0xf9, 0x23, 0x53, 0x6f, 0xb4, 0x49, 0xae, 0xbd, 0xc8, 0x26, 0xb9,
-	0x11, 0x49, 0x4f, 0xb2, 0x31, 0x80, 0x53, 0xb9, 0x23, 0x6b, 0xd1, 0x2c, 0xe3, 0x74, 0xb2, 0x2b,
-	0xe0, 0x2e, 0xf3, 0xd8, 0xb9, 0xc4, 0x03, 0x3d, 0xa1, 0xb2, 0xfe, 0x87, 0xe3, 0xb2, 0xeb, 0x7b,
-	0x33, 0x5c, 0xf4, 0xb9, 0xc8, 0x8c, 0xf4, 0xcf, 0x75, 0xdf, 0x7e, 0xc4, 0xcd, 0xe7, 0x5b, 0x39,
-	0xfb, 0x09, 0x00, 0x00, 0xff, 0xff, 0xc2, 0x70, 0x63, 0xb0, 0x24, 0x02, 0x00, 0x00,
+var fileDescriptor9 = []byte{
+	// 419 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x09, 0x6e, 0x88, 0x02, 0xff, 0xa4, 0x52, 0x4d, 0x8f, 0xd3, 0x40,
+	0x0c, 0x25, 0x4d, 0x9b, 0x6e, 0xbc, 0x5d, 0x2a, 0x06, 0x0e, 0x01, 0x09, 0xb1, 0x8a, 0x38, 0x70,
+	0xca, 0x61, 0x8f, 0x5c, 0x10, 0x2b, 0x21, 0x21, 0xf1, 0xa1, 0xd2, 0x5d, 0x2e, 0xdc, 0x9c, 0xd6,
+	0x90, 0x64, 0x93, 0x4c, 0x76, 0x32, 0xa1, 0x6a, 0x7f, 0x30, 0xbf, 0x03, 0x8f, 0x13, 0xb6, 0x02,
+	0x81, 0x14, 0x89, 0x4b, 0xeb, 0xf8, 0x8d, 0xdf, 0xf3, 0xb3, 0x0d, 0xcb, 0x43, 0x86, 0x45, 0x5e,
+	0x67, 0x1d, 0x26, 0x8d, 0xd1, 0x56, 0xab, 0x79, 0x9a, 0x4a, 0xf0, 0x04, 0x52, 0x6c, 0x29, 0x19,
+	0xe2, 0xae, 0x25, 0xd3, 0xc7, 0xf1, 0x0f, 0x0f, 0xe6, 0x5f, 0x8a, 0x6c, 0xad, 0x75, 0xa5, 0x9e,
+	0x43, 0x90, 0x11, 0x6e, 0xc9, 0x44, 0xde, 0xb9, 0xf7, 0xe2, 0xf4, 0xe2, 0x51, 0x32, 0x54, 0x27,
+	0x2b, 0xf7, 0xfb, 0x56, 0x30, 0xb5, 0x84, 0xb9, 0xa1, 0xdb, 0xeb, 0x7d, 0x43, 0xd1, 0x84, 0x9f,
+	0xcd, 0x5c, 0xa2, 0xc0, 0xcd, 0x4d, 0xa3, 0x6d, 0xe4, 0x73, 0xc2, 0x57, 0x4f, 0x21, 0x48, 0xb1,
+	0xbe, 0x61, 0x9e, 0xa9, 0xf0, 0x9c, 0xdd, 0xf1, 0x7c, 0x66, 0x61, 0xf5, 0x18, 0x26, 0x15, 0x45,
+	0xb3, 0xbf, 0x41, 0xcf, 0x20, 0x38, 0x14, 0x59, 0x83, 0x79, 0x14, 0x9c, 0xfb, 0x0c, 0x2f, 0xef,
+	0x60, 0xee, 0x71, 0x85, 0xb9, 0xd3, 0x4a, 0xc9, 0x5e, 0xe7, 0x4c, 0x30, 0x17, 0xf1, 0x87, 0x70,
+	0x5a, 0x6a, 0x6b, 0xc9, 0xec, 0x25, 0x79, 0x22, 0x49, 0x05, 0x60, 0xd8, 0xd0, 0x95, 0x45, 0xdb,
+	0xb5, 0x51, 0xe8, 0x72, 0xf1, 0x2b, 0x08, 0x98, 0xe3, 0x92, 0xec, 0x78, 0x9b, 0xac, 0x74, 0xd0,
+	0xb5, 0xb3, 0xe9, 0x33, 0xc1, 0x0e, 0x80, 0x09, 0xde, 0xf7, 0x62, 0x23, 0x49, 0x8e, 0x7e, 0x26,
+	0xff, 0xf6, 0x83, 0x25, 0xd6, 0x9b, 0x5f, 0x7e, 0x1e, 0x40, 0xb8, 0xcb, 0xeb, 0xd7, 0x95, 0xee,
+	0x6a, 0xdb, 0xbb, 0x89, 0xdf, 0xc0, 0xe2, 0xd2, 0x68, 0xdc, 0x6e, 0xb0, 0xb5, 0xff, 0xd1, 0x7f,
+	0x29, 0x03, 0x18, 0x44, 0xf9, 0x4f, 0x36, 0xe8, 0xfd, 0x39, 0xc4, 0xe3, 0x5a, 0xef, 0x43, 0x60,
+	0xa8, 0xed, 0xca, 0x7e, 0xab, 0x27, 0xbc, 0x36, 0xdf, 0x19, 0x99, 0x8a, 0x91, 0xc5, 0x51, 0x93,
+	0x09, 0x7f, 0x6b, 0x5a, 0x7c, 0xc4, 0x6b, 0xf0, 0x1d, 0xc2, 0x24, 0x15, 0x36, 0xef, 0x68, 0x3f,
+	0x28, 0xf5, 0xdf, 0x5b, 0x6a, 0x45, 0x24, 0x54, 0x67, 0x30, 0xfb, 0x8e, 0x65, 0x47, 0xa2, 0x21,
+	0xf0, 0xd7, 0x52, 0xef, 0x86, 0xcb, 0x09, 0xd5, 0x02, 0xa6, 0x35, 0x0e, 0xc7, 0x12, 0xc6, 0x2f,
+	0x41, 0xb1, 0x83, 0x4f, 0x1d, 0xf7, 0xf9, 0x51, 0x5f, 0x11, 0x5a, 0xb9, 0x99, 0x51, 0xe3, 0x88,
+	0x2f, 0x64, 0x7b, 0x6b, 0xba, 0x75, 0x75, 0x23, 0x6b, 0x12, 0x99, 0xd8, 0x87, 0xf6, 0xdb, 0xb8,
+	0xf7, 0xab, 0x7b, 0x2b, 0xef, 0x67, 0x00, 0x00, 0x00, 0xff, 0xff, 0x92, 0xf0, 0xec, 0x45, 0x82,
+	0x03, 0x00, 0x00,
 }

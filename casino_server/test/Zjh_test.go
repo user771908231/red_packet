@@ -6,6 +6,7 @@ import (
 	"casino_server/msg/bbprotogo"
 	"fmt"
 	"casino_server/utils/test"
+	"casino_server/service/porkService"
 )
 
 func TestZjhMain(t *testing.T) {
@@ -14,7 +15,12 @@ func TestZjhMain(t *testing.T) {
 	//zjhQueryNoSeatUser()
 	//zjhReqSeat()
 	//zjhZjhLottery()
-	zjhBet()
+	//zjhBet()
+	//random()
+	createZjhList()
+	for ; ;  {
+		
+	}
 }
 
 
@@ -28,7 +34,7 @@ func zjhRoom() {
 	ide := bbproto.EUnitProtoId_value[bbproto.EUnitProtoId_ZJHROOM.String()]
 	fmt.Println("proto 得到的id ",ide)
 	var userid uint32 = 10001
-	var reqType int32 = 0
+	var reqType int32 = 1
 	data := &bbproto.ZjhRoom{}
 	h := &bbproto.ProtoHeader{}
 
@@ -149,19 +155,40 @@ func zjhBet(){
 	ide := bbproto.EUnitProtoId_value[bbproto.EUnitProtoId_ZJHBET.String()]
 	fmt.Println("proto 得到的id ",ide)
 	var userid uint32 = 10001
-	var ba int32 = 999
+	bezoned := make([]int32,4)
+	bezoned[0] = 99897
 
 	data := &bbproto.ZjhBet{}
 	h := &bbproto.ProtoHeader{}
 
 	h.UserId = &userid
 	data.Header = h
-	data.BetAmount = &ba
-	data.BetzoneA = &ba
+	data.Betzone = bezoned
 	m := test.AssembleData(uint16(ide), data)
 	conn.Write(m)
-
 	result := test.Read(conn).(*bbproto.ZjhBet)
-	fmt.Println("读取的结果:", result.GetBetAmount())		//测试服务器同意返回98989
+	fmt.Println("读取的结果:", result.GetHeader())		//测试服务器同意返回98989
+}
 
+func random(){
+
+	for i:=0;i<10 ;i++  {
+		iss := porkService.RandomPorkIndex(1,53)
+		fmt.Println("iiiii----%v",iss)
+
+	}
+
+	result := porkService.CreateZjhList()
+	fmt.Println(result.String())
+}
+
+
+func createZjhList(){
+	result := porkService.CreateZjhList()
+	fmt.Println(result)
+
+	for i := 0; i < 10; i++ {
+		result = porkService.CreateZjhList()
+		fmt.Println(result)
+	}
 }
