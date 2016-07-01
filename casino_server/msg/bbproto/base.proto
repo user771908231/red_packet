@@ -20,6 +20,7 @@ enum  EProtoId{
 	ZJHQUERYNOSEATUSER	= 13;
 	ZJHREQSEAT			= 14;
 	ZJHLOTTERY			= 15;
+	ZJHBROADCASTBEGINBET = 16;
 }
 
 //general response protocol

@@ -30,5 +30,6 @@ func init() {
 	PortoProcessor.Register(&bbproto.ZjhQueryNoSeatUser{})	//13	进入扎金花的房间
 	PortoProcessor.Register(&bbproto.ZjhReqSeat{})		//14	进入扎金花的房间
 	PortoProcessor.Register(&bbproto.ZjhLottery{})		//15	进入扎金花的房间
+	PortoProcessor.Register(&bbproto.ZjhBroadcastBeginBet{})	//16 广播可以押注了
 
 }
