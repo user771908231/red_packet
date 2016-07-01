@@ -33,7 +33,7 @@ func zjhRoom() {
 
 	ide := bbproto.EProtoId_value[bbproto.EProtoId_ZJHROOM.String()]
 	fmt.Println("proto 得到的id ",ide)
-	var userid uint32 = 10001
+	var userid uint32 = 10003
 	var reqType int32 = 1
 	data := &bbproto.ZjhRoom{}
 	h := &bbproto.ProtoHeader{}

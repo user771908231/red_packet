@@ -7,6 +7,7 @@ import (
 	"github.com/name5566/leaf/gate"
 	"casino_server/common/log"
 	"casino_server/utils/time"
+	"casino_server/service/userService"
 )
 
 func init() {
@@ -29,6 +30,7 @@ var ZJHroom zjhRoom        //扎金花的房间
 
 /**
 扎金花的room
+todo 可以把游戏相关的信息放置在邮箱相关的结构体中
  */
 type zjhRoom struct {
 	room					//继承基本的room的方法
@@ -38,8 +40,9 @@ type zjhRoom struct {
 	NextStartTime		time.Time	//下次开始时间
 	Status			int32		//房间状态:押注中,开奖中,
 	Jackpot			int64		//奖池大小
-	zoneAmount		[]int32		//押注区A的押注
+	zoneAmount		[]int32		//押注区域的大小
 	BankerUserId		uint32		//庄家的信息
+	Zjhpai 			[]*bbproto.ZjhPai		//本轮游戏的纸牌
 }
 
 /**
@@ -53,12 +56,20 @@ func OninitZjgRoom(){
 	ZJHroom.zoneAmount = make([]int32,4)
 
 	//初始化开始押注时间,押注结束时间,开奖时间
-	ZJHroom.iniTime(time.Now())
-	ZJHroom.Status = ZJH_STATUS_BETING
+	ZJHroom.Oninit(time.Now())
 	//启动扎金花房间的run任务
 	ZJHroom.run()
 }
 
+
+/**
+	初始化room
+ */
+func (r *zjhRoom) Oninit(t time.Time){
+	r.iniTime(t)				//初始化时间
+	r.OnInitZjhpai()				//初始化纸牌
+	r.Status = ZJH_STATUS_BETING	//初始化状态
+}
 
 func (r *zjhRoom) iniTime(t time.Time){
 	//r.Lock()
@@ -68,8 +79,18 @@ func (r *zjhRoom) iniTime(t time.Time){
 	r.LotteryTime	=	r.BetEndTime.Add(ZJH_LOTTERY_DURATION)	//首次开奖的时间
 	r.NextStartTime = 	r.LotteryTime.Add(ZJH_LOTTERY_DURATION)	//下次开始的时间
 	//下次押注的时间
-
 }
+
+//初始化本轮的牌
+func (r *zjhRoom) OnInitZjhpai(){
+	list := porkService.CreateZjhList()
+	zs := make([]*bbproto.ZjhPai,5)
+	for i := 0; i < 5; i++ {
+		zs[i] 	= porkService.ConstructZjhPai(list[i])
+	}
+	r.Zjhpai = zs
+}
+
 
 /**
 扎金花需要的启动函数
@@ -129,16 +150,12 @@ func (r *zjhRoom) lottery(t time.Time){
 	if r.LotteryTime.Before(t) && r.Status == ZJH_STATUS_LOTTERING {
 		log.T("-----------------------------------------开奖-----------------------------------------")
 		//得到5副牌
-		list := porkService.CreateZjhList()
+
 		//需要伪造数据,并且发送给每个人
 		var balance1 int32 =  77878
 		var winAmount int32 =  666
 		result := &bbproto.ZjhLottery{}
-		zs := make([]*bbproto.ZjhPai,5)
-		for i := 0; i < 5; i++ {
-			zs[i] 	= porkService.ConstructZjhPai(list[i])
-		}
-		result.Zjhpai = zs
+		result.Zjhpai = r.Zjhpai
 		result.Balance = &balance1
 		result.WinAmount = &winAmount
 		//开始广播消息
@@ -157,8 +174,7 @@ func (r *zjhRoom) next(t time.Time){
 	if t.After(r.NextStartTime) && r.Status == ZJH_STATUS_LOTTERIED {
 		log.T("---------------------------------------初始化下一轮-----------------------------------------")
 		//开奖已经结束了..可以重新开始
-		r.iniTime(t)
-		r.Status = ZJH_STATUS_BETING
+		r.Oninit(t)
 		log.T("--------------------------------------初始化下一轮结束---------------------------------------")
 
 	}
@@ -221,6 +237,22 @@ func (r *zjhRoom) GetLotteryRemainTime() *int32{
 		result = 0
 	}
 	return &result
+
+}
+
+
+/**
+	广播消息,开始押注
+ */
+func (r *zjhRoom) BroadcastBeginBet(){
+
+	//通知押注的信息
+	result := &bbproto.ZjhBroadcastBeginBet{}
+	result.Jackpot = &r.Jackpot
+	result.Banker = userService.GetUserById(r.BankerUserId)
+	result.Zjhpai = r.Zjhpai
+	result.BetTime = r.GetBetRemainTime()
+	result.LotteryTime = r.GetLotteryRemainTime()
 
 }
 

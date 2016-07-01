@@ -12,6 +12,7 @@ It is generated from these files:
 	heartbeat.proto
 	reg.proto
 	roomMsg.proto
+	serverModel.proto
 	shuiguoji.proto
 	testp1.proto
 	user.proto
@@ -25,6 +26,9 @@ It has these top-level messages:
 	HeatBeat
 	Reg
 	RoomMsg
+	TUser
+	TBetRecord
+	TZjhRound
 	Shuiguoji
 	ShuiguojiHilomp
 	ShuiguojiRes
@@ -40,6 +44,7 @@ It has these top-level messages:
 	ZjhQueryNoSeatUser
 	ZjhReqSeat
 	ZjhMsg
+	ZjhBroadcastBeginBet
 */
 package bbproto
 
