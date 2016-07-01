@@ -1,4 +1,4 @@
-package porotoUtils
+package protoUtils
 
 import (
 	"casino_server/msg/bbprotogo"

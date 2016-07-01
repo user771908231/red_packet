@@ -73,7 +73,7 @@ func getIntoRoom(m *bbproto.ZjhRoom,a gate.Agent)(*bbproto.ZjhRoom,error){
 	room.ZJHroom.AddAgent(m.GetHeader().GetUserId(),a)
 	//这里给客户端返回信息,包括:押注中(剩余time）、开奖中（剩余time）、jackpot奖池金额、balance、庄家信息、在座玩家
 	result := &bbproto.ZjhRoom{}
-	result.Header		=	porotoUtils.GetSuccHeader()		//header
+	result.Header		=	protoUtils.GetSuccHeader()		//header
 	result.Jackpot		=	&(room.ZJHroom.Jackpot)
 	result.BetTime		= 	room.ZJHroom.GetBetRemainTime()		//剩余的押注时间
 	result.LotteryTime	=	room.ZJHroom.GetLotteryRemainTime()	//剩余的开奖时间

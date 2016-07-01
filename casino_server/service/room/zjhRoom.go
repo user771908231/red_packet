@@ -8,6 +8,7 @@ import (
 	"casino_server/common/log"
 	"casino_server/utils/time"
 	"casino_server/service/userService"
+	"casino_server/msg/bbprotoFuncs"
 )
 
 func init() {
@@ -155,6 +156,8 @@ func (r *zjhRoom) lottery(t time.Time){
 		var balance1 int32 =  77878
 		var winAmount int32 =  666
 		result := &bbproto.ZjhLottery{}
+
+		result.Header = protoUtils.GetSuccHeader()
 		result.Zjhpai = r.Zjhpai
 		result.Balance = &balance1
 		result.WinAmount = &winAmount
