@@ -67,9 +67,10 @@ func OninitZjgRoom(){
 	初始化room
  */
 func (r *zjhRoom) Oninit(t time.Time){
-	r.iniTime(t)				//初始化时间
-	r.OnInitZjhpai()				//初始化纸牌
+	r.iniTime(t)			//初始化时间
+	r.OnInitZjhpai()		//初始化纸牌
 	r.Status = ZJH_STATUS_BETING	//初始化状态
+	//r.BroadcastBeginBet()		//广播可以开始押注了
 }
 
 func (r *zjhRoom) iniTime(t time.Time){
@@ -186,6 +187,7 @@ func (r *zjhRoom) next(t time.Time){
 		log.T("---------------------------------------初始化下一轮-----------------------------------------")
 		//开奖已经结束了..可以重新开始
 		r.Oninit(t)
+		r.BroadcastBeginBet()
 		log.T("--------------------------------------初始化下一轮结束---------------------------------------")
 
 	}
@@ -256,7 +258,6 @@ func (r *zjhRoom) GetLotteryRemainTime() *int32{
 	广播消息,开始押注
  */
 func (r *zjhRoom) BroadcastBeginBet(){
-
 	//通知押注的信息
 	result := &bbproto.ZjhBroadcastBeginBet{}
 	result.Jackpot = &r.Jackpot
@@ -264,6 +265,7 @@ func (r *zjhRoom) BroadcastBeginBet(){
 	result.Zjhpai = r.Zjhpai
 	result.BetTime = r.GetBetRemainTime()
 	result.LotteryTime = r.GetLotteryRemainTime()
+	r.BroadcastProto(result,0)
 
 }
 
