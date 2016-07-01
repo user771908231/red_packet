@@ -3,12 +3,15 @@ package mongodb
 import (
 	"testing"
 	"fmt"
+	"time"
+	"casino_server/utils/time"
 )
 
 var a int32 = 20
 
 func TestTemp(t *testing.T) {
-	fmt.Println(a)
-	fmt.Println(&a)
+
+	timeNow := time.Now()
+	fmt.Println("time:",timeNow.Format(timeUtils.TIME_LAYOUT))
 }
 

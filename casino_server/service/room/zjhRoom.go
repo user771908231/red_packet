@@ -6,6 +6,7 @@ import (
 	"casino_server/msg/bbprotogo"
 	"github.com/name5566/leaf/gate"
 	"casino_server/common/log"
+	"casino_server/utils/time"
 )
 
 func init() {
@@ -80,7 +81,7 @@ func (r *zjhRoom) run(){
 	ticker := time.NewTicker(time.Second * 1)
 	go func() {
 		for t := range ticker.C {
-			log.T("正在执行扎金花的逻辑...")
+			log.T("正在执行扎金花的逻辑当前状态:\n status[%v],\n betEndTime[%v],\nlotterTime[%v],\nnextStartTime[%v],\nbankerUserId[%v],\njackPort[%v],\nnow[%v]",r.Status,r.BetEndTime.Format(timeUtils.TIME_LAYOUT),r.LotteryTime.Format(timeUtils.TIME_LAYOUT),r.NextStartTime.Format(timeUtils.TIME_LAYOUT),r.BankerUserId,r.Jackpot,t.Format(timeUtils.TIME_LAYOUT))
 			if len(r.AgentMap) < 1 {
 				log.T("没有玩家进入游戏...continue")
 				//如果没有玩家进入 需要重置房间的状态和时间
@@ -124,21 +125,9 @@ func (r *zjhRoom) Betable()bool{
 func (r *zjhRoom) lottery(t time.Time){
 	r.Lock()
 	defer r.Unlock()
-
-
-	//打印测试信息
-	log.T("betEndTime",r.BetEndTime.String())
-	log.T("lotteryTime",r.LotteryTime.String())
-	log.T("now",t.String())
-	log.T("",r.LotteryTime.Before(t))
-	log.T("status",r.Status)
-
 	//如果当前时间已经过了开奖时间,并且现在的状态是开奖中,则重新设置状态,并且开奖
 	if r.LotteryTime.Before(t) && r.Status == ZJH_STATUS_LOTTERING {
 		log.T("-----------------------------------------开奖-----------------------------------------")
-		//需要重新设置下一轮的时间
-		r.iniTime(t)
-
 		//得到5副牌
 		list := porkService.CreateZjhList()
 		//需要伪造数据,并且发送给每个人
@@ -166,8 +155,12 @@ func (r *zjhRoom) next(t time.Time){
 	r.Lock()
 	defer r.Unlock()
 	if t.After(r.NextStartTime) && r.Status == ZJH_STATUS_LOTTERIED {
+		log.T("---------------------------------------初始化下一轮-----------------------------------------")
 		//开奖已经结束了..可以重新开始
 		r.iniTime(t)
+		r.Status = ZJH_STATUS_BETING
+		log.T("--------------------------------------初始化下一轮结束---------------------------------------")
+
 	}
 
 }

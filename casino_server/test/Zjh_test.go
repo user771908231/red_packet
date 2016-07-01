@@ -31,7 +31,7 @@ func zjhRoom() {
 	}
 	defer conn.Close()
 
-	ide := bbproto.EUnitProtoId_value[bbproto.EUnitProtoId_ZJHROOM.String()]
+	ide := bbproto.EProtoId_value[bbproto.EProtoId_ZJHROOM.String()]
 	fmt.Println("proto 得到的id ",ide)
 	var userid uint32 = 10001
 	var reqType int32 = 1
@@ -60,7 +60,7 @@ func zjhMsg() {
 	}
 	defer conn.Close()
 
-	ide := bbproto.EUnitProtoId_value[bbproto.EUnitProtoId_ZJHMSG.String()]
+	ide := bbproto.EProtoId_value[bbproto.EProtoId_ZJHMSG.String()]
 	fmt.Println("proto 得到的id ",ide)
 	var userid uint32 = 10001
 	data := &bbproto.ZjhMsg{}
@@ -83,7 +83,7 @@ func zjhQueryNoSeatUser() {
 	}
 	defer conn.Close()
 
-	ide := bbproto.EUnitProtoId_value[bbproto.EUnitProtoId_ZJHQUERYNOSEATUSER.String()]
+	ide := bbproto.EProtoId_value[bbproto.EProtoId_ZJHQUERYNOSEATUSER.String()]
 	fmt.Println("proto 得到的id ",ide)
 	var userid uint32 = 10001
 	data := &bbproto.ZjhQueryNoSeatUser{}
@@ -107,7 +107,7 @@ func zjhReqSeat() {
 	}
 	defer conn.Close()
 
-	ide := bbproto.EUnitProtoId_value[bbproto.EUnitProtoId_ZJHREQSEAT.String()]
+	ide := bbproto.EProtoId_value[bbproto.EProtoId_ZJHREQSEAT.String()]
 	fmt.Println("proto 得到的id ",ide)
 	var userid uint32 = 10001
 	data := &bbproto.ZjhReqSeat{}
@@ -129,7 +129,7 @@ func zjhZjhLottery(){
 	}
 	defer conn.Close()
 
-	ide := bbproto.EUnitProtoId_value[bbproto.EUnitProtoId_ZJHLOTTERY.String()]
+	ide := bbproto.EProtoId_value[bbproto.EProtoId_ZJHLOTTERY.String()]
 	fmt.Println("proto 得到的id ",ide)
 	var userid uint32 = 10001
 	data := &bbproto.ZjhLottery{}
@@ -152,7 +152,7 @@ func zjhBet(){
 	}
 	defer conn.Close()
 
-	ide := bbproto.EUnitProtoId_value[bbproto.EUnitProtoId_ZJHBET.String()]
+	ide := bbproto.EProtoId_value[bbproto.EProtoId_ZJHBET.String()]
 	fmt.Println("proto 得到的id ",ide)
 	var userid uint32 = 10001
 	bezoned := make([]int32,4)

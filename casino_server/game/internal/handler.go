@@ -17,7 +17,6 @@ func init() {
 	handler(&bbproto.TestP1{}, handleTestP1)
 	handler(&bbproto.Reg{}, handleProtHello)
 
-
 	//水果机相关的业务
 	handler(&bbproto.GetIntoRoom{}, handlerGetIntoRoom)
 	handler(&bbproto.RoomMsg{}, handlerRoomMsg)
