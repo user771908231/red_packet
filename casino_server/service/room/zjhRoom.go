@@ -150,15 +150,23 @@ func (r *zjhRoom) lottery(t time.Time){
 	//如果当前时间已经过了开奖时间,并且现在的状态是开奖中,则重新设置状态,并且开奖
 	if r.LotteryTime.Before(t) && r.Status == ZJH_STATUS_LOTTERING {
 		log.T("-----------------------------------------开奖-----------------------------------------")
-		//得到5副牌
+
+		//真是数据给每个人发送开奖信息
+		for key := range r.AgentMap {
+			log.Normal("开始给%v发送消息",key)
+			//首先判断连接是否有断开
+			//a :=r.AgentMap[key]
+			//a.WriteMsg(nil)
+			//log.Normal("给%v发送消息,发送完毕",key)
+		}
+
 
 		//需要伪造数据,并且发送给每个人
 		var balance1 int32 =  77878
 		var winAmount int32 =  666
 		result := &bbproto.ZjhLottery{}
-
 		result.Header = protoUtils.GetSuccHeader()
-		result.Zjhpai = r.Zjhpai
+		result.Zjhpai = r.Zjhpai	//纸牌中,第一幅牌是庄家的牌
 		result.Balance = &balance1
 		result.WinAmount = &winAmount
 		//开始广播消息
@@ -259,3 +267,6 @@ func (r *zjhRoom) BroadcastBeginBet(){
 
 }
 
+//func (r *zjhRoom) BroadcastLottery(){
+//
+//}

@@ -50,6 +50,10 @@ func zjhRoom() {
 	fmt.Println("读取的结果:", result.GetMe().GetName())
 	fmt.Println("读取的结果:", result.GetMe().GetBalance())
 	fmt.Println("读取的结果:", result.GetJackpot())
+	fmt.Println("读取的结果header.code:", result.GetHeader().GetCode())
+	fmt.Println("读取的结果header.errMsg:", result.GetHeader().GetError())
+
+
 }
 
 

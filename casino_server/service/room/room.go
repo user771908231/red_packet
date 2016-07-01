@@ -69,4 +69,3 @@ func (r *room) BroadcastProto(p proto.Message,ignoreUserId int32){
 		log.Normal("给%v发送消息,发送完毕",key)
 	}
 }
-
