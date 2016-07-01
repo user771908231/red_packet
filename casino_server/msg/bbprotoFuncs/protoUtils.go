@@ -1,4 +1,4 @@
-package porotoUtils
+package protoUtils
 
 import (
 	"casino_server/msg/bbprotogo"
@@ -9,8 +9,10 @@ import (
 	得到一个返回正确的header
  */
 func GetSuccHeader()*bbproto.ProtoHeader{
+	var errMsg string = "成功了"
 	result := &bbproto.ProtoHeader{}
 	result.Code = &intCons.CODE_SUCC
+	result.Error = &errMsg
 	return result
 }
 

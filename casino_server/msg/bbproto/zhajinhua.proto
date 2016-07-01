@@ -76,11 +76,17 @@ message ZjhReqSeat{
 }
 
 //聊天
-
 message  ZjhMsg{
     optional ProtoHeader	header				= 1;
+}
 
-
+message ZjhBroadcastBeginBet{
+    optional ProtoHeader	header				     = 1;
+    optional int64      jackpot                      = 2;    //奖金池
+    optional User       banker                       = 3;    //庄家的信息
+    repeated ZjhPai     zjhpai                       = 4;    //当前桌子上的牌
+    optional int32      betTime                      = 5;    //押注结束时间
+    optional int32      lotteryTime                  = 6;    // 开奖时间
 }
 
 

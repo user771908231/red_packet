@@ -39,7 +39,7 @@ type Shuiguoji struct {
 func (m *Shuiguoji) Reset()                    { *m = Shuiguoji{} }
 func (m *Shuiguoji) String() string            { return proto.CompactTextString(m) }
 func (*Shuiguoji) ProtoMessage()               {}
-func (*Shuiguoji) Descriptor() ([]byte, []int) { return fileDescriptor6, []int{0} }
+func (*Shuiguoji) Descriptor() ([]byte, []int) { return fileDescriptor7, []int{0} }
 
 func (m *Shuiguoji) GetProtoHeader() *ProtoHeader {
 	if m != nil {
@@ -130,7 +130,7 @@ type ShuiguojiHilomp struct {
 func (m *ShuiguojiHilomp) Reset()                    { *m = ShuiguojiHilomp{} }
 func (m *ShuiguojiHilomp) String() string            { return proto.CompactTextString(m) }
 func (*ShuiguojiHilomp) ProtoMessage()               {}
-func (*ShuiguojiHilomp) Descriptor() ([]byte, []int) { return fileDescriptor6, []int{1} }
+func (*ShuiguojiHilomp) Descriptor() ([]byte, []int) { return fileDescriptor7, []int{1} }
 
 func (m *ShuiguojiHilomp) GetProtoHeader() *ProtoHeader {
 	if m != nil {
@@ -198,7 +198,7 @@ type ShuiguojiRes struct {
 func (m *ShuiguojiRes) Reset()                    { *m = ShuiguojiRes{} }
 func (m *ShuiguojiRes) String() string            { return proto.CompactTextString(m) }
 func (*ShuiguojiRes) ProtoMessage()               {}
-func (*ShuiguojiRes) Descriptor() ([]byte, []int) { return fileDescriptor6, []int{2} }
+func (*ShuiguojiRes) Descriptor() ([]byte, []int) { return fileDescriptor7, []int{2} }
 
 func (m *ShuiguojiRes) GetProtoHeader() *ProtoHeader {
 	if m != nil {
@@ -414,7 +414,7 @@ type GetIntoRoom struct {
 func (m *GetIntoRoom) Reset()                    { *m = GetIntoRoom{} }
 func (m *GetIntoRoom) String() string            { return proto.CompactTextString(m) }
 func (*GetIntoRoom) ProtoMessage()               {}
-func (*GetIntoRoom) Descriptor() ([]byte, []int) { return fileDescriptor6, []int{3} }
+func (*GetIntoRoom) Descriptor() ([]byte, []int) { return fileDescriptor7, []int{3} }
 
 func (m *GetIntoRoom) GetUserId() uint32 {
 	if m != nil && m.UserId != nil {
@@ -451,7 +451,7 @@ func init() {
 	proto.RegisterType((*GetIntoRoom)(nil), "bbproto.GetIntoRoom")
 }
 
-var fileDescriptor6 = []byte{
+var fileDescriptor7 = []byte{
 	// 418 bytes of a gzipped FileDescriptorProto
 	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x09, 0x6e, 0x88, 0x02, 0xff, 0xe4, 0x92, 0xbf, 0x8f, 0xda, 0x30,
 	0x14, 0xc7, 0x4b, 0xf8, 0xfd, 0x42, 0x08, 0x84, 0x5f, 0x2e, 0xb4, 0x12, 0x62, 0x6a, 0x17, 0x86,

@@ -4,7 +4,6 @@ import (
 	"casino_server/utils"
 	"strings"
 	"casino_server/common/log"
-	"fmt"
 	"sort"
 	"casino_server/msg/bbprotogo"
 	"casino_server/utils/numUtils"
@@ -199,7 +198,6 @@ func (z *ZjhPork) String() string{
 	return strings.Join([]string{z.pork1.mapDes, z.pork2.mapDes,z.pork3.mapDes}, "-")
 }
 
-
 /**
 比较两个散牌的大小
  */
@@ -345,17 +343,19 @@ func CreateZjhList() ZjhPorkList{
 	result := ZjhPorkList{}
 	indexs := RandomPorkIndex(1,53)	//5组扎金花牌 总共15张牌
 	log.T("找到的索引%v",indexs)
-	fmt.Println("找到的索引%v",indexs)
+	//fmt.Println("找到的索引%v",indexs)
 	for i := int32(0);i < PLAYER_COUNT;i++ {
 		z := &ZjhPork{}
 		z.pork1 = CreatePorkByIndex(indexs[i*3])
 		z.pork2 = CreatePorkByIndex(indexs[i*3+1])
 		z.pork3 = CreatePorkByIndex(indexs[i*3+2])
 		z.initZjhType()		//初始化扎金花牌的类型
+		//log.T("%v副扎金花的牌:%v",i,z)
 		result = append(result,z)
 	}
 
 	sort.Sort(result)		//对扎金牌数组进行从大到小的排序
+	log.T("排序之后的牌:",result)
 	return result
 }
 
