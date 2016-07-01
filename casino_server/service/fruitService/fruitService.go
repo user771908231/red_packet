@@ -56,17 +56,21 @@ var SGJ_TYPE_Hilomp int32 = 2
 //
 
 //奖励的类型
-var SGJ_WIN_TYPE_LUCK0 		int32 = 1
-var SGJ_WIN_TYPE_LUCK1 		int32 = 2
-var SGJ_WIN_TYPE_LUCK2 		int32 = 3
-var SGJ_WIN_TYPE_LUCK3 		int32 = 4
-var SGJ_WIN_TYPE_DASIXI 	int32 = 5
-var SGJ_WIN_TYPE_DASANYUAN 	int32 = 6
-var SGJ_WIN_TYPE_XIAOSANYUAN 	int32 = 7
-var SGJ_WIN_TYPE_RAND2 		int32 = 8
-var SGJ_WIN_TYPE_RAND3 		int32 = 9
-var SGJ_WIN_TYPE_ZONGHENGSIHAI 	int32 = 10
-var SGJ_WIN_TYPE_WU	 	int32 = 10
+
+var SGJ_WIN_TYPE_N 		int32 = 1		//常见的一炮
+var SGJ_WIN_TYPE_LUCK0 		int32 = 2
+var SGJ_WIN_TYPE_LUCK1 		int32 = 3
+var SGJ_WIN_TYPE_LUCK2 		int32 = 4
+var SGJ_WIN_TYPE_LUCK3 		int32 = 5
+var SGJ_WIN_TYPE_DASIXI 	int32 = 6
+var SGJ_WIN_TYPE_DASANYUAN 	int32 = 7
+var SGJ_WIN_TYPE_XIAOSANYUAN 	int32 = 8
+var SGJ_WIN_TYPE_RAND1 		int32 = 9
+var SGJ_WIN_TYPE_RAND2 		int32 = 10
+var SGJ_WIN_TYPE_RAND3 		int32 = 11
+var SGJ_WIN_TYPE_ZONGHENGSIHAI 	int32 = 12
+var SGJ_WIN_TYPE_WU	 	int32 = 13
+
 
 
 //奖励的个数
@@ -76,24 +80,24 @@ var NUMBER_INT_1 int32 = 1
 配置每个水果对应的积分
  */
 var SGJV SGJValue = SGJValue{
-	Apple                :                        5,
-	AppleLittle        :                        3,
-	Orange                :                        10,
-	OrangeLittle        :                        3,
-	Mango                :                        15,
-	MangoLittle        :                        3,
-	Bell                :                        20,
-	BellLittle        :                        3,
-	Watermelon        :                        20,
-	WatermelonLittle:                        3,
-	Star                :                        30,
-	StarLittle        :                        3,
-	S77                :                        40,
-	S77Little        :                        3,
-	Bar                :                        120,
-	BarLittle        :                        50,
-	Litter                :                        3,
-	Lucky                :                        0,
+	Apple                	:                        5,
+	AppleLittle        	:                        3,
+	Orange                	:                        10,
+	OrangeLittle        	:                        3,
+	Mango                	:                        15,
+	MangoLittle        	:                        3,
+	Bell                	:                        20,
+	BellLittle        	:                        3,
+	Watermelon        	:                        20,
+	WatermelonLittle	:                        3,
+	Star                	:                        30,
+	StarLittle        	:                        3,
+	S77                	:                        40,
+	S77Little        	:                        3,
+	Bar                	:                        120,
+	BarLittle        	:                        50,
+	Litter                	:                        3,
+	Lucky                	:                        0,
 }
 
 
@@ -139,6 +143,7 @@ type ShuiGuoPro struct {
 	MAX 		  int32	//产生随机数的区间 (0,max]
 }
 
+//暂时用不了了  这个方法
 func ( p *ShuiGuoPro) GetMax() int32{
 	v := reflect.ValueOf(*p)
 	count := v.NumField()
@@ -203,39 +208,39 @@ var SGJLuckP ShuiGuoPro = ShuiGuoPro{
  */
 var SGJP ShuiGuoPro = ShuiGuoPro{
 	ORANGE_1 	        :        0,
-	BELL_1	               	:        0,
-	BAR_LITTLE              :        0,
-	BAR	                :        0,
-	APPLE_1	                :        0,
-	APPLE_LITTLE           	:        0,
-	MANGO_1	                :        0,
-	WATERMELON            	:        0,
-	WATERMELON_LITTLE     	:        0,
+	BELL_1	               	:        10,
+	BAR_LITTLE              :        20,
+	BAR	                :        30,
+	APPLE_1	                :        40,
+	APPLE_LITTLE           	:        50,
+	MANGO_1	                :        60,
+	WATERMELON            	:        70,
+	WATERMELON_LITTLE     	:        80,
 	LUCK_1	            	:        0,
-	APPLE_2	                :        0,
-	ORANGE_LITTLE         	:        0,
-	ORANGE_2	       	:        0,
-	BELL_2	             	:        0,
-	S77_LITTLE	       	:        0,
-	S77	             	:        0,
-	APPLE_3	                :        0,
-	MANGO_LITTLE            :        0,
-	MANGO_2	                :        0,
-	STAR	                :        0,
-	STAR_LITTLE             :        0,
+	APPLE_2	                :        100,
+	ORANGE_LITTLE         	:        110,
+	ORANGE_2	       	:        120,
+	BELL_2	             	:        130,
+	S77_LITTLE	       	:        140,
+	S77	             	:        150,
+	APPLE_3	                :        160,
+	MANGO_LITTLE            :        170,
+	MANGO_2	                :        180,
+	STAR	                :        190,
+	STAR_LITTLE             :        200,
 	LUCK_2	            	:        0,
-	APPLE_4	              	:        0,
-	BELL_LITTLE	        :        0,
+	APPLE_4	              	:        220,
+	BELL_LITTLE	        :        230,
 
 	DASIXI                  :        0,
 	DASANYUAN               :        0, //Bar
 	XIAOSANYUAN             :        0, //纵横四海
-	RAND1		      	:        1,
+	RAND1		      	:        0,
 	RAND2 			:   	 0,
-	RAND3                   :        1, //Bar
+	RAND3                   :        0, //Bar
 	RAND4                   :        0, //纵横四海
 	ZONGHENGSIHAI           :        0,
-	MAX 			:	 1,
+	MAX 			:	 230,
 }
 
 
@@ -456,20 +461,28 @@ func BetResultWin(m *bbproto.Shuiguoji, res *bbproto.ShuiguojiRes,p *ShuiGuoPro,
 
 	if r < p.ORANGE_1 {
 		setResult(m,res,p,INDEX_ORANGE_1,seq)
+		setWinType(res,&SGJ_WIN_TYPE_N)//
 
 	} else if r < p.BELL_1 {
 		setResult(m,res,p,INDEX_BELL_1,seq)
+		setWinType(res,&SGJ_WIN_TYPE_N)//
 
 	} else if r < p.BAR_LITTLE {
 		setResult(m,res,p,INDEX_BAR_LITTLE,seq)
+		setWinType(res,&SGJ_WIN_TYPE_N)//
+
 	} else if r < p.BAR {
 		setResult(m,res,p,INDEX_BAR,seq)
+		setWinType(res,&SGJ_WIN_TYPE_N)//
 	} else if r < p.APPLE_1 {
 		setResult(m,res,p,INDEX_APPLE_1,seq)
+		setWinType(res,&SGJ_WIN_TYPE_N)//
 	} else if r < p.WATERMELON {
 		setResult(m,res,p,INDEX_WATERMELON,seq)
+		setWinType(res,&SGJ_WIN_TYPE_N)//
 	} else if r < p.WATERMELON_LITTLE {
 		setResult(m,res,p,INDEX_WATERMELON_LITTLE,seq)
+		setWinType(res,&SGJ_WIN_TYPE_N)//
 	} else if r < p.LUCK_1 {
 		//todo  这里需要处理luck  时候的中奖信息(两个luck都是一样的处理方法)
 		pluck := SGJLuckP
@@ -478,34 +491,47 @@ func BetResultWin(m *bbproto.Shuiguoji, res *bbproto.ShuiguojiRes,p *ShuiGuoPro,
 
 	} else if r < p.APPLE_2 {
 		setResult(m,res,p,INDEX_APPLE_2,seq)
+		setWinType(res,&SGJ_WIN_TYPE_N)//
 	} else if r < p.ORANGE_LITTLE {
 		setResult(m,res,p,INDEX_ORANGE_LITTLE,seq)
+		setWinType(res,&SGJ_WIN_TYPE_N)//
 	} else if r < p.ORANGE_2 {
 		setResult(m,res,p,INDEX_ORANGE_2,seq)
+		setWinType(res,&SGJ_WIN_TYPE_N)//
 	} else if r < p.BELL_2 {
 		setResult(m,res,p,INDEX_BELL_2,seq)
+		setWinType(res,&SGJ_WIN_TYPE_N)//
 	} else if r < p.S77_LITTLE {
 		setResult(m,res,p,INDEX_77_LITTLE,seq)
+		setWinType(res,&SGJ_WIN_TYPE_N)//
 	} else if r < p.S77 {
 		setResult(m,res,p,INDEX_77,seq)
+		setWinType(res,&SGJ_WIN_TYPE_N)//
 	} else if r < p.APPLE_3 {
 		setResult(m,res,p,INDEX_APPLE_3,seq)
+		setWinType(res,&SGJ_WIN_TYPE_N)//
 	} else if r < p.MANGO_LITTLE {
 		setResult(m,res,p,INDEX_MANGO_LITTLE,seq)
+		setWinType(res,&SGJ_WIN_TYPE_N)//
 	} else if r < p.MANGO_2 {
 		setResult(m,res,p,INDEX_MANGO_2,seq)
+		setWinType(res,&SGJ_WIN_TYPE_N)//
 	} else if r < p.STAR {
 		setResult(m,res,p,INDEX_STAR,seq)
+		setWinType(res,&SGJ_WIN_TYPE_N)//
 	} else if r < p.STAR_LITTLE {
 		setResult(m,res,p,INDEX_STAR_LITTLE,seq)
+		setWinType(res,&SGJ_WIN_TYPE_N)//
 	} else if r < p.LUCK_2 {
 		pluck := SGJLuckP
 		setResult(m,res,&pluck,INDEX_LUCK_2,seq)
 		BetResultWin(m,res,&pluck,seq)
 	} else if r < p.APPLE_4 {
 		setResult(m,res,p,INDEX_APPLE_4,seq)
+		setWinType(res,&SGJ_WIN_TYPE_N)//
 	} else if r < p.BELL_LITTLE {
 		setResult(m,res,p,INDEX_BELL_LITTLE,seq)
+		setWinType(res,&SGJ_WIN_TYPE_N)//
 	} else if r < p.DASIXI {	//大四喜
 
 		setResult(m,res,p,INDEX_APPLE_1,seq)
@@ -524,6 +550,7 @@ func BetResultWin(m *bbproto.Shuiguoji, res *bbproto.ShuiguojiRes,p *ShuiGuoPro,
 
 	} else if r < p.RAND1 {	//随机赠送一炮,由于随机炮的概率是不同的,所以不用考虑随机炮再次打到随机炮的问题
 		log.T("彩蛋,随机赠送一炮")
+		setWinType(res,&SGJ_WIN_TYPE_RAND1)//没有中奖
 		pr1 := SGJPRand
 		BetResultWin(m,res,&pr1,seq)
 		BetResultWin(m,res,&pr1,seq)
