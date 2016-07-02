@@ -2,7 +2,6 @@ package room
 
 import (
 	"time"
-	"casino_server/service/porkService"
 	"casino_server/msg/bbprotogo"
 	"github.com/name5566/leaf/gate"
 	"casino_server/common/log"
@@ -12,6 +11,7 @@ import (
 	"casino_server/utils/numUtils"
 	"casino_server/utils/timeUtils"
 	"casino_server/msg/bbprotoFuncs"
+	"casino_server/mode"
 )
 
 func init() {
@@ -23,6 +23,7 @@ func init() {
 
 var ZJH_BET_DURATION = time.Second * 10
 var ZJH_LOTTERY_DURATION = time.Second *1
+var ZJH_AFTER_LOTTERY_DURATION = time.Second*10
 
 
 //-------------------------------------------------扎金花房间的状态----------------------------------------------
@@ -45,8 +46,9 @@ type zjhRoom struct {
 	Status			int32		//房间状态:押注中,开奖中,
 	Jackpot			int64		//奖池大小
 	zoneAmount		[]int32		//押注区域的大小
+	zoneWinAmount		[]int32		//押注区的输赢分数
 	BankerUserId		uint32		//庄家的信息
-	Zjhpai 			[]*bbproto.ZjhPai		//本轮游戏的纸牌
+	Zjhpai 			bbproto.ZjhPaiList		//本轮游戏的纸牌
 	ZjhRoundNumber		string		//本局游戏的编号
 }
 
@@ -57,13 +59,11 @@ func OninitZjgRoom(){
 	log.T("初始化扎金花的房间")
 
 	//初始化参数 agent 的集合
-	ZJHroom.AgentMap = make(map[uint32] gate.Agent)
-	ZJHroom.zoneAmount = make([]int32,4)
-
-	//初始化开始押注时间,押注结束时间,开奖时间
-	ZJHroom.Oninit(time.Now())
-	//启动扎金花房间的run任务
-	ZJHroom.run()
+	ZJHroom.AgentMap = make(map[uint32] gate.Agent)		//初始化agent缓冲区
+	ZJHroom.zoneAmount = make([]int32,4)			//初始化押注区
+	ZJHroom.zoneWinAmount = make([]int32,4)			//初始化押注区的输赢分数
+	ZJHroom.Oninit(time.Now())				//初始化开始押注时间,押注结束时间,开奖时间
+	ZJHroom.run()						//启动扎金花房间的run任务
 }
 
 
@@ -74,6 +74,8 @@ func (r *zjhRoom) Oninit(t time.Time){
 	r.iniTime(t)			//初始化时间
 	r.OnInitZjhpai()		//初始化纸牌
 	r.Status = ZJH_STATUS_BETING	//初始化状态
+	r.zoneWinAmount = []int32{0,0,0,0}
+	r.ZjhRoundNumber = "test_uuid"
 	//r.BroadcastBeginBet()		//广播可以开始押注了
 }
 
@@ -83,18 +85,21 @@ func (r *zjhRoom) iniTime(t time.Time){
 	r.BetStartTime	=	t					//首次开始押注的时间
 	r.BetEndTime	=	r.BetStartTime.Add(ZJH_BET_DURATION)	//首次押注结束的时间
 	r.LotteryTime	=	r.BetEndTime.Add(ZJH_LOTTERY_DURATION)	//首次开奖的时间
-	r.NextStartTime = 	r.LotteryTime.Add(ZJH_LOTTERY_DURATION)	//下次开始的时间
+	r.NextStartTime = 	r.LotteryTime.Add(ZJH_AFTER_LOTTERY_DURATION)	//下次开始的时间
 	//下次押注的时间
 }
 
 //初始化本轮的牌
 func (r *zjhRoom) OnInitZjhpai(){
-	list := porkService.CreateZjhList()
-	zs := make([]*bbproto.ZjhPai,5)
-	for i := 0; i < 5; i++ {
-		zs[i] 	= porkService.ConstructZjhPai(list[i])
-	}
-	r.Zjhpai = zs
+	//list := porkService.CreateZjhList()
+	//zs := make([]*bbproto.ZjhPai,5)
+	//for i := 0; i < 5; i++ {
+	//	zs[i] 	= porkService.ConstructZjhPai(list[i])
+	//}
+	//r.Zjhpai = zs
+
+	r.Zjhpai = bbproto.CreateZjhList()
+
 }
 
 
@@ -111,7 +116,7 @@ func (r *zjhRoom) run(){
 			log.T("正在执行扎金花的逻辑当前状态:\n status[%v],\n betEndTime[%v],\nlotterTime[%v],\nnextStartTime[%v],\nbankerUserId[%v],\njackPort[%v],\nnow[%v]",
 				r.Status,r.BetEndTime.Format(timeUtils.TIME_LAYOUT),r.LotteryTime.Format(timeUtils.TIME_LAYOUT),r.NextStartTime.Format(timeUtils.TIME_LAYOUT),r.BankerUserId,r.Jackpot,t.Format(timeUtils.TIME_LAYOUT))
 			if len(r.AgentMap) < 1 {
-				log.T("没有玩家进入游戏...continue")
+				log.T("没有玩家进入游戏...continue\n\n\n")
 				//如果没有玩家进入 需要重置房间的状态和时间
 				r.iniTime(t)
 				continue
@@ -154,30 +159,13 @@ func (r *zjhRoom) Betable()bool{
 	2,比较大小
 
  */
-func (r *zjhRoom) clear(){
-	//porkBanker := r.Zjhpai[0]		//庄家的牌
-	////如果游戏房间里没有人,直接返回不用清算
-	//if len(r.AgentMap) < 1 {
-	//	return
-	//}
-	////
-	////一次对每个人对清算,并且统计m,key 表示userId
-	//for key := range r.AgentMap {
-	//	//这里通过userId (key)取到用户的押注记录和用户信息,再更具牌面的大小来做结算
-	//	betRecode := GetTBetRecordByUserIdAnd(r.ZjhRoundNumber,key)
-	//	for i,d := range betRecode.Betzone{
-	//		if  {
-	//
-	//		}
-	//	}
-	//
-	//
-	//}
 
-}
 
 /**
-这个是开奖的广播
+	这个是开奖的广播,开奖的流程如下
+	1,清算本局扎金花的输赢结果
+	2,分别给每个人发送自己的得分,牌的结果
+	3,设置房间的状态准备下一轮游戏开始
  */
 func (r *zjhRoom) lottery(t time.Time){
 	r.Lock()
@@ -186,34 +174,64 @@ func (r *zjhRoom) lottery(t time.Time){
 	if r.LotteryTime.Before(t) && r.Status == ZJH_STATUS_LOTTERING {
 		log.T("-----------------------------------------开奖-----------------------------------------")
 
-		//开奖之前,首先为每个人结账,清算
-		//r.clear()
-		//
-		////真是数据给每个人发送开奖信息
-		//for key := range r.AgentMap {
-		//	log.Normal("开始给%v发送消息",key)
-		//	result := &bbproto.ZjhLottery{}
-		//	result.Header = protoUtils.GetSuccHeader()
-		//	result.Zjhpai = r.Zjhpai					//纸牌中,第一幅牌是庄家的牌
-		//	result.Balance = userService.GetUserById(key).Balance	//自己的余额
-		//	result.WinAmount = GetTBetRecordByUserIdAnd(r.ZjhRoundNumber,key).WinAmount	//本局的输赢分数
-		//	//活的agent 并且发送本局的数据
-		//	a :=r.AgentMap[key]
-		//	a.WriteMsg(result)
-		//	log.Normal("给%v发送消息,发送完毕",key)
-		//}
+		//1,开奖之前,首先为每个人结账,清算
+		//如果游戏房间里没有人,直接返回不用清算
+		if len(r.AgentMap) < 1 {
+			log.E("游戏房间中没有玩家,不用结算得分")
+			return
+		}
 
+		//一次对每个人对清算,并且统计m,key 表示userId
+		for key := range r.AgentMap {
+			log.T("开始给玩家userId[%v]结算本局得分",key)
+			//这里通过userId (key)取到用户的押注记录和用户信息,再更具牌面的大小来做结算
+			betRecode := GetTBetRecordByUserIdAnd(r.ZjhRoundNumber,key)
+			if betRecode.GetUserId()==0 {
+				log.T("玩家userId[%v]没有押注",key)
+				continue
+			}
 
-		//需要伪造数据,并且发送给每个人
-		var balance1 int32 =  77878
-		var winAmount int32 =  666
-		result := &bbproto.ZjhLottery{}
-		result.Header = protoUtils.GetSuccHeader()
-		result.Zjhpai = r.Zjhpai	//纸牌中,第一幅牌是庄家的牌
-		result.Balance = &balance1
-		result.WinAmount = &winAmount
-		//开始广播消息
-		r.BroadcastProto(result,0)
+			//打印目前的押注
+			log.T("玩家[%v]的押注信息:[%v]",key,betRecode)
+
+			//开始计算得分
+			for i,d := range betRecode.Betzone{
+				//比较牌的大小,从第二组牌开始算.如果庄家的牌大,则赢钱
+				if  r.Zjhpai.Less(0,(i+1)){
+					log.T("押注[%v]输了",i)
+					var btwa int32 = betRecode.GetWinAmount() - d
+					betRecode.WinAmount  = &btwa
+					r.zoneWinAmount[i]  += d		//游戏房间押注区域分数计算,庄家赢,庄家加分
+				}else{
+					log.T("押注[%v]赢了",i)
+					var btwa int32 = betRecode.GetWinAmount() + d
+					betRecode.WinAmount = &btwa		//庄家赢,个人加分
+					r.zoneWinAmount[i]  -= d		//游戏房间押注区域分数计算,庄家赢,庄家减分
+				}
+			}
+
+			log.T("给玩家userId[%v]结算本局得分结束,得分【%v】",key,betRecode.GetWinAmount())
+
+			//2,真是数据给每个人发送开奖信息
+			result := &bbproto.ZjhLottery{}
+			result.Header = protoUtils.GetSuccHeader()					//包头,返回结果
+			result.Zjhpai = r.Zjhpai							//纸牌中,第一幅牌是庄家的牌
+			result.Balance = userService.GetUserById(key).Balance				//自己的余额
+			result.WinAmount = betRecode.WinAmount						//本局的输赢分数
+
+			//更新用户的信息,保存用户信息到redis
+			SaveBetRecord(betRecode)
+			userService.UpdateRedisUserBalance(key,betRecode.GetWinAmount(),r.AgentMap[key].UserData().(*mode.LockUser))
+
+			//利用agent发送数据
+
+			log.Normal("开始给%d发送消息",key)
+			a :=r.AgentMap[key]
+			a.WriteMsg(result)
+			log.Normal("给%v发送消息完毕",key)
+		}
+
+		//3,设置房间状态
 		r.Status = ZJH_STATUS_LOTTERIED			              //设置状态已经开奖
 		log.T("---------------------------------------开奖结束-----------------------------------------")
 	}
@@ -318,7 +336,7 @@ func (r *zjhRoom) BroadcastBeginBet(){
 func GetReidsKeyBetRecord(zjhRoundNum string,userId uint32) string{
 	userIdStr,_ := numUtils.Uint2String(userId)
 	result := strings.Join([]string{zjhRoundNum,userIdStr},"-")
-	log.T("得到获取redis中用户的押注记录的key值:",result)
+	//log.T("得到获取redis中用户的押注记录的key[%v]值:",result)
 	return result
 }
 
@@ -328,6 +346,26 @@ func GetTBetRecordByUserIdAnd(zjhRoundNum string,userId uint32) *bbproto.TBetRec
 	defer conn.Close()
 	key := GetReidsKeyBetRecord(zjhRoundNum,userId)
 	result := &bbproto.TBetRecord{}
-	conn.GetObj(key,result)
+	err := conn.GetObj(key,result)
+	if err != nil {
+		log.E("reids中没有找到user【%v】对应的押注记录",userId)
+		return nil
+	}
+
+	if result.GetUserId() == 0{
+		return nil
+	}
 	return result
+}
+
+/**
+	保存押注记录,目前是只保存到redis 还没有保存到数据库当中
+ */
+func SaveBetRecord(record *bbproto.TBetRecord) error{
+	conn := data.Data{}
+	conn.Open("test")
+	defer conn.Close()
+	key := GetReidsKeyBetRecord(record.GetZjhRoundNumber(),uint32(record.GetUserId()))
+	conn.SetObj(key,record)
+	return nil
 }

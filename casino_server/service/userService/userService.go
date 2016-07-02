@@ -12,6 +12,9 @@ import (
 	"errors"
 	"casino_server/conf/StrCons"
 	"casino_server/conf/intCons"
+	"casino_server/utils/redis"
+	"casino_server/utils/numUtils"
+	"strings"
 )
 
 /**
@@ -109,10 +112,48 @@ func AddGold(userId uint32,){
 
 }
 
+
+func GetRedisUserKey(id uint32 ) string{
+	idStr,_ := numUtils.Uint2String(id)
+	return strings.Join([]string{idStr,casinoConf.DBT_T_USER},"-")
+}
+
 /**
 	根据用户id得到User的id
  */
 func GetUserById(id uint32) *bbproto.User{
+	conn := data.Data{}
+	conn.Open(casinoConf.REDIS_DB_NAME)
+	defer conn.Close()
+	key := GetRedisUserKey(id)
 	result := &bbproto.User{}
+	conn.GetObj(key,result)
 	return result
+}
+
+/**
+	将用户model保存在redis中
+ */
+func SaveRedisUser(u *bbproto.User){
+	conn := data.Data{}
+	conn.Open(casinoConf.REDIS_DB_NAME)
+	defer conn.Close()
+	key := GetRedisUserKey(u.GetUserId())
+	conn.SetObj(key,u)
+}
+
+/**
+	更新用用户余额的信息
+ */
+func UpdateRedisUserBalance(userId uint32,amount int32,l *mode.LockUser) error{
+	l.Lock()
+	defer l.Unlock()
+
+	//获取redis中的user
+	user := GetUserById(userId)
+	var b int32 = user.GetBalance()
+	b += amount
+	user.Balance = &b
+	//保存user
+	return nil
 }

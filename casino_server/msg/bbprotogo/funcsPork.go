@@ -16,61 +16,61 @@ var porkMap map[int32]string
 
 func init(){
 	porkMap = make(map[int32]string,54)
-	porkMap[1]  = "POKER_HEART_2_2"
-	porkMap[2]  = "POKER_HEART_3_3"
-	porkMap[3]  = "POKER_HEART_4_4"
-	porkMap[4] = "POKER_HEART_5_5"
-	porkMap[5] = "POKER_HEART_6_6"
-	porkMap[6] = "POKER_HEART_7_7"
-	porkMap[7] = "POKER_HEART_8_8"
-	porkMap[8] = "POKER_HEART_9_9"
-	porkMap[9] = "POKER_HEART_10_10"
-	porkMap[10] = "POKER_HEART_11_J"
-	porkMap[11] = "POKER_HEART_12_Q"
-	porkMap[12] = "POKER_HEART_13_K"
-	porkMap[13] = "POKER_HEART_14_A"
+	porkMap[1]  = "POKER_heart_2_2"
+	porkMap[2]  = "POKER_heart_3_3"
+	porkMap[3]  = "POKER_heart_4_4"
+	porkMap[4]  = "POKER_heart_5_5"
+	porkMap[5]  = "POKER_heart_6_6"
+	porkMap[6]  = "POKER_heart_7_7"
+	porkMap[7]  = "POKER_heart_8_8"
+	porkMap[8]  = "POKER_heart_9_9"
+	porkMap[9]  = "POKER_heart_10_10"
+	porkMap[10] = "POKER_heart_11_J"
+	porkMap[11] = "POKER_heart_12_Q"
+	porkMap[12] = "POKER_heart_13_K"
+	porkMap[13] = "POKER_heart_14_A"
 
-	porkMap[14]  = "POKER_DIAMOND_2_2"
-	porkMap[15]  = "POKER_DIAMOND_3_3"
-	porkMap[16] = "POKER_DIAMOND_4_4"
-	porkMap[17] = "POKER_DIAMOND_5_5"
-	porkMap[18] = "POKER_DIAMOND_6_6"
-	porkMap[19] = "POKER_DIAMOND_7_7"
-	porkMap[20] = "POKER_DIAMOND_8_8"
-	porkMap[21] = "POKER_DIAMOND_9_9"
-	porkMap[22] = "POKER_DIAMOND_10_10"
-	porkMap[23] = "POKER_DIAMOND_11_J"
-	porkMap[24] = "POKER_DIAMOND_12_Q"
-	porkMap[25] = "POKER_DIAMOND_13_K"
-	porkMap[26] = "POKER_DIAMOND_14_A"
+	porkMap[14] = "POKER_diamond_2_2"
+	porkMap[15] = "POKER_diamond_3_3"
+	porkMap[16] = "POKER_diamond_4_4"
+	porkMap[17] = "POKER_diamond_5_5"
+	porkMap[18] = "POKER_diamond_6_6"
+	porkMap[19] = "POKER_diamond_7_7"
+	porkMap[20] = "POKER_diamond_8_8"
+	porkMap[21] = "POKER_diamond_9_9"
+	porkMap[22] = "POKER_diamond_10_10"
+	porkMap[23] = "POKER_diamond_11_J"
+	porkMap[24] = "POKER_diamond_12_Q"
+	porkMap[25] = "POKER_diamond_13_K"
+	porkMap[26] = "POKER_diamond_14_A"
 
-	porkMap[27]  = "POKER_CLUB_2_2"
-	porkMap[28]  = "POKER_CLUB_3_3"
-	porkMap[29] = "POKER_CLUB_4_4"
-	porkMap[30] = "POKER_CLUB_5_5"
-	porkMap[31] = "POKER_CLUB_6_6"
-	porkMap[32] = "POKER_CLUB_7_7"
-	porkMap[33] = "POKER_CLUB_8_8"
-	porkMap[34] = "POKER_CLUB_9_9"
-	porkMap[35] = "POKER_CLUB_10_10"
-	porkMap[36] = "POKER_CLUB_11_J	"
-	porkMap[37] = "POKER_CLUB_12_Q"
-	porkMap[38] = "POKER_CLUB_13_K"
-	porkMap[39] = "POKER_CLUB_14_A"
+	porkMap[27] = "POKER_club_2_2"
+	porkMap[28] = "POKER_club_3_3"
+	porkMap[29] = "POKER_club_4_4"
+	porkMap[30] = "POKER_club_5_5"
+	porkMap[31] = "POKER_club_6_6"
+	porkMap[32] = "POKER_club_7_7"
+	porkMap[33] = "POKER_club_8_8"
+	porkMap[34] = "POKER_club_9_9"
+	porkMap[35] = "POKER_club_10_10"
+	porkMap[36] = "POKER_club_11_J	"
+	porkMap[37] = "POKER_club_12_Q"
+	porkMap[38] = "POKER_club_13_K"
+	porkMap[39] = "POKER_club_14_A"
 
-	porkMap[40]  = "POKER_SPADE_2_2"
-	porkMap[41]  = "POKER_SPADE_3_3"
-	porkMap[42] = "POKER_SPADE_4_4"
-	porkMap[43] = "POKER_SPADE_5_5"
-	porkMap[44] = "POKER_SPADE_6_6"
-	porkMap[45] = "POKER_SPADE_7_7"
-	porkMap[46] = "POKER_SPADE_8_8"
-	porkMap[47] = "POKER_SPADE_9_9"
-	porkMap[48] = "POKER_SPADE_10_10"
-	porkMap[49] = "POKER_SPADE_11_J"
-	porkMap[50] = "POKER_SPADE_12_Q"
-	porkMap[51] = "POKER_SPADE_13_K"
-	porkMap[52] = "POKER_SPADE_14_A"
+	porkMap[40] = "POKER_spade_2_2"
+	porkMap[41] = "POKER_spade_3_3"
+	porkMap[42] = "POKER_spade_4_4"
+	porkMap[43] = "POKER_spade_5_5"
+	porkMap[44] = "POKER_spade_6_6"
+	porkMap[45] = "POKER_spade_7_7"
+	porkMap[46] = "POKER_spade_8_8"
+	porkMap[47] = "POKER_spade_9_9"
+	porkMap[48] = "POKER_spade_10_10"
+	porkMap[49] = "POKER_spade_11_J"
+	porkMap[50] = "POKER_spade_12_Q"
+	porkMap[51] = "POKER_spade_13_K"
+	porkMap[52] = "POKER_spade_14_A"
 
 	porkMap[53] = "POKER_RED_JOKER"
 	porkMap[54] = "POKER_BLACK_JOKER"
@@ -202,8 +202,8 @@ func compareDuizi(a,b *ZjhPai) bool{
 func (z *ZjhPai) getIntArray() []int{
 	data := make([]int,3)
 	data[0] = int(z.Pai[0].GetValue())
+	data[1] = int(z.Pai[1].GetValue())
 	data[2] = int(z.Pai[2].GetValue())
-	data[3] = int(z.Pai[3].GetValue())
 	return data
 }
 
@@ -312,6 +312,7 @@ func CreateZjhList() ZjhPaiList{
 	//fmt.Println("找到的索引%v",indexs)
 	for i := int32(0);i < PLAYER_COUNT;i++ {
 		z := &ZjhPai{}
+		z.Pai = make([]*Pai,3)
 		z.Pai[0] = CreatePorkByIndex(indexs[i*3])
 		z.Pai[1] = CreatePorkByIndex(indexs[i*3+1])
 		z.Pai[2] = CreatePorkByIndex(indexs[i*3+2])
@@ -320,6 +321,7 @@ func CreateZjhList() ZjhPaiList{
 		result = append(result,z)
 	}
 
+	//todo 可以不需要排序
 	sort.Sort(result)		//对扎金牌数组进行从大到小的排序
 	log.T("排序之后的牌:",result)
 	return result
@@ -360,4 +362,8 @@ func RandomPorkIndex(min, max int32) [PLAY_PORK_COUNT]int32 {
 		}
 	}
 	return *result;
+}
+
+func CreateZjhPaiList(){
+
 }

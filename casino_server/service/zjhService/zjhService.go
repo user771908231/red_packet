@@ -9,8 +9,8 @@ import (
 	"casino_server/service/userService"
 	"casino_server/common/log"
 	"errors"
+	"casino_server/mode"
 )
-
 
 func init(){
 
@@ -48,6 +48,15 @@ func HandlerZjhBet(m *bbproto.ZjhBet,a gate.Agent)(*bbproto.ZjhBet,error){
 	}
 
 	//2,开始押注,判断用户资金是否足够,等
+	//todo 1,判断用户资金是否足够,2,判断各种权限
+	betrecord := room.GetTBetRecordByUserIdAnd(room.ZJHroom.ZjhRoundNumber,m.GetHeader().GetUserId())
+	if betrecord == nil {
+		log.T("玩家[%v]第一次押注[%v]",m.GetHeader().GetUserId(),m.GetBetzone())
+		betrecord = &bbproto.TBetRecord{}
+	}
+	betrecord.Betzone = m.GetBetzone()
+	room.SaveBetRecord(betrecord)		//保存数据到redis中去
+
 
 	//3,修改放房间的押注金额
 	room.ZJHroom.AddZoneAmount(m.Betzone)
@@ -68,6 +77,13 @@ func HandlerZjhBet(m *bbproto.ZjhBet,a gate.Agent)(*bbproto.ZjhBet,error){
  */
 
 func getIntoRoom(m *bbproto.ZjhRoom,a gate.Agent)(*bbproto.ZjhRoom,error){
+
+	//设置用户锁
+	l := &mode.LockUser{
+		UserId:m.GetHeader().GetUserId(),
+	}
+	a.SetUserData(l)
+
 	room.ZJHroom.AddAgent(m.GetHeader().GetUserId(),a)
 	//这里给客户端返回信息,包括:押注中(剩余time）、开奖中（剩余time）、jackpot奖池金额、balance、庄家信息、在座玩家
 	result := &bbproto.ZjhRoom{}
@@ -76,6 +92,7 @@ func getIntoRoom(m *bbproto.ZjhRoom,a gate.Agent)(*bbproto.ZjhRoom,error){
 	result.BetTime		= 	room.ZJHroom.GetBetRemainTime()		//剩余的押注时间
 	result.LotteryTime	=	room.ZJHroom.GetLotteryRemainTime()	//剩余的开奖时间
 	result.RoomStatus	=	&room.ZJHroom.Status			//房间的当前状态
+	result.Zjhpai		=	room.ZJHroom.Zjhpai			//当前的牌信息
 
 	//个人,庄家的信息信息
 	result.Banker =  userService.GetUserById(room.ZJHroom.BankerUserId)
@@ -87,7 +104,10 @@ func getIntoRoom(m *bbproto.ZjhRoom,a gate.Agent)(*bbproto.ZjhRoom,error){
 
 
 /**
-请求退出房间
+	请求退出房间,主要逻辑有:
+	1,保存数据:redis中的数据需要同步到mongodb中
+	2,删除游戏房间中管理的连接
+
  */
 
 func outRoom(m *bbproto.ZjhRoom,a gate.Agent)(*bbproto.ZjhRoom,error){
