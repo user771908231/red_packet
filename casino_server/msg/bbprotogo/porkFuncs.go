@@ -1,42 +1,15 @@
-package porkService
+package bbproto
 
 import (
-	"casino_server/utils"
 	"strings"
-	"casino_server/common/log"
-	"sort"
-	"casino_server/msg/bbprotogo"
 	"casino_server/utils/numUtils"
+	"sort"
+	"casino_server/utils"
+	"casino_server/common/log"
 )
 
-/**
-	制作一副扑克牌
-	1,一副扑克牌,完整的54张牌
-	2,能更具程序随机的产生指定的牌
-	3,适应各种游戏模式
-
-
-	HEART	红桃
-	DIAMOND	方块
-	CLUB	梅花
-	SPADE	黑桃
-
- */
-
-/**
-	定义一副牌
- */
-
 var PLAYER_COUNT int32 = 5				//总的玩家个数
-const  PLAY_PORK_COUNT int32 = 15		//每局需要的总牌数
-
-
-var ZJH_TYPE_SANPAI 	int32	= 1;
-var ZJH_TYPE_DUIZI  	int32	= 2;
-var ZJH_TYPE_SHUNZI 	int32	= 3;
-var ZJH_TYPE_TONGHUA  	int32	= 4;
-var ZJH_TYPE_TONGHUASHUN int32	= 5;
-var ZJH_TYPE_BAOZI  	int32	= 6;
+const  PLAY_PORK_COUNT int32 = 15			//每局需要的总牌数
 
 
 var porkMap map[int32]string
@@ -103,28 +76,33 @@ func init(){
 	porkMap[54] = "POKER_BLACK_JOKER"
 }
 
-/**
-	5个人玩的一组牌,需要更具大小进行排序
- */
-type ZjhPorkList []*ZjhPork		//表示扎金花的一组牌
+var ZJH_TYPE_SANPAI 	int32	= 1;
+var ZJH_TYPE_DUIZI  	int32	= 2;
+var ZJH_TYPE_SHUNZI 	int32	= 3;
+var ZJH_TYPE_TONGHUA  	int32	= 4;
+var ZJH_TYPE_TONGHUASHUN int32	= 5;
+var ZJH_TYPE_BAOZI  	int32	= 6;
+
+
+type ZjhPaiList []*ZjhPai
 
 /**
 使用sort包需要实现的方法
  */
-func ( list ZjhPorkList) Len() int{
+func ( list ZjhPaiList) Len() int{
 	return len(list)
 }
 
 //由大到小的排序
-func ( list ZjhPorkList) Less(i,j int) bool{
+func ( list ZjhPaiList) Less(i,j int) bool{
 
-	if list[i].zjhType > list[j].zjhType{	//比较类型
+	if list[i].GetPaiType() > list[j].GetPaiType(){	//比较类型
 		return true
-	}else if list[i].zjhType < list[j].zjhType{
+	}else if list[i].GetPaiType() < list[j].GetPaiType(){
 		return false
 	}else {
 		//当类型相同时候的比较各种不同的牌型
-		switch list[i].zjhType {
+		switch list[i].GetPaiType() {
 		case ZJH_TYPE_SANPAI:	//散牌
 			return compareSanPai(list[i],list[j])
 		case ZJH_TYPE_DUIZI:
@@ -144,62 +122,38 @@ func ( list ZjhPorkList) Less(i,j int) bool{
 }
 
 //交换函数
-func ( list ZjhPorkList) Swap(i,j int){
-	var temp *ZjhPork = list[i]
+func ( list ZjhPaiList) Swap(i,j int){
+	var temp *ZjhPai = list[i]
 	list[i] = list[j]
 	list[j] = temp
 }
 
 
-
-func (z ZjhPorkList) String() string{
-	result := ""
-	for i := 0; i < len(z); i++ {
-		t,_ := numUtils.Int2String(z[i].zjhType)
-		result = strings.Join([]string{result,"type:",t ,",",z[i].String()}, "-------\n")
-	}
-	return result
-}
-
-/**
-	表示一张牌
- */
-type Pork struct {
-	mapKey	int32
-	mapDes  string		//从map出来时候的描述
-	value int		//值,A对应14,K对应13
-	flower string		//花色 四中
-	name string		//牌值,2345678910JQKA
-}
-
 /**
 通过描述来初始化一张牌
  */
-func (p *Pork) initPork() error{
-	sarry :=  strings.Split(p.mapDes,"_")
-	p.value = numUtils.String2Int(sarry[2])
-	p.name = sarry[3]
-	p.flower = sarry[1]
+func (p *Pai) initPork() error{
+	sarry :=  strings.Split(p.GetMapdes(),"_")
+
+	var pvalue int32 = int32(numUtils.String2Int(sarry[2]))
+	var pname string = sarry[3]
+	var pflower string = sarry[1]
+
+	p.Value  = &pvalue
+	p.Name   = &pname
+	p.Flower = &pflower
 	return nil
 }
 
-
-/**
-	扎金花牌的结构
- */
-type ZjhPork struct {
-	zjhType		int32 	//哪种牌,散牌,对子,顺子,同花,同花顺
-	pork	[]*Pork		//第一张牌
+func (z *ZjhPai) ToString() string{
+	return strings.Join([]string{z.Pai[0].GetMapdes(), z.Pai[1].GetMapdes(),z.Pai[2].GetMapdes()}, "-")
 }
 
-func (z *ZjhPork) String() string{
-	return strings.Join([]string{z.pork[0].mapDes, z.pork[1].mapDes,z.pork[2].mapDes}, "-")
-}
 
 /**
 比较两个散牌的大小
  */
-func compareSanPai(a,b *ZjhPork) bool{
+func compareSanPai(a,b *ZjhPai) bool{
 	if a.getSanpai1() > b.getSanpai1() {
 		return true
 	}else if a.getSanpai1() == b.getSanpai1() {
@@ -222,7 +176,7 @@ func compareSanPai(a,b *ZjhPork) bool{
 /**
 只比较一组牌中最大的
  */
-func compreZuiDa(a,b *ZjhPork) bool{
+func compreZuiDa(a,b *ZjhPai) bool{
 	if a.getSanpai1() > b.getSanpai1() {
 		return true
 	}else {
@@ -230,7 +184,7 @@ func compreZuiDa(a,b *ZjhPork) bool{
 	}
 }
 
-func compareDuizi(a,b *ZjhPork) bool{
+func compareDuizi(a,b *ZjhPai) bool{
 	if a.getDuizi() > b.getDuizi() {
 		return true
 	}else if a.getDuizi() == b.getDuizi() {
@@ -245,20 +199,35 @@ func compareDuizi(a,b *ZjhPork) bool{
 
 }
 
+func (z *ZjhPai) getIntArray() []int{
+	data := make([]int,3)
+	data[0] = int(z.Pai[0].GetValue())
+	data[2] = int(z.Pai[2].GetValue())
+	data[3] = int(z.Pai[3].GetValue())
+	return data
+}
+
+func (z *ZjhPai) getSortIntArray() []int{
+	data := z.getIntArray()
+	sort.Ints(data)
+	return data
+}
+
+
+
 /**
 	取散牌最大的
  */
-func (z *ZjhPork) getSanpai1() int{
-	data := []int{z.pork[0].value,z.pork[1].value,z.pork[2].value}
-	sort.Ints(data)
+func (z *ZjhPai) getSanpai1() int{
+	data := z.getSortIntArray()
 	return data[2]
 
 }
 /**
 	取散牌第二大的
  */
-func (z *ZjhPork) getSanpai2() int{
-	data := []int{z.pork[0].value,z.pork[1].value,z.pork[2].value}
+func (z *ZjhPai) getSanpai2() int{
+	data := z.getSortIntArray()
 	sort.Ints(data)
 	return data[1]
 }
@@ -266,8 +235,8 @@ func (z *ZjhPork) getSanpai2() int{
 /**
 	取散牌第三大的
  */
-func (z *ZjhPork) getSanpai3() int{
-	data := []int{z.pork[0].value,z.pork[1].value,z.pork[2].value}
+func (z *ZjhPai) getSanpai3() int{
+	data := z.getSortIntArray()
 	sort.Ints(data)
 	return data[0]
 
@@ -276,8 +245,8 @@ func (z *ZjhPork) getSanpai3() int{
 /**
 	取对子的值
  */
-func (z *ZjhPork) getDuizi() int{
-	data := []int{z.pork[0].value,z.pork[1].value,z.pork[2].value}
+func (z *ZjhPai) getDuizi() int{
+	data := z.getSortIntArray()
 	sort.Ints(data)
 	return data[1]
 }
@@ -285,40 +254,39 @@ func (z *ZjhPork) getDuizi() int{
 /**
 	取对子中的散牌
  */
-func (z *ZjhPork) getDuiziSanPai() int {
+func (z *ZjhPai) getDuiziSanPai() int32 {
 	//是否需要是对子才能取对子
-	if z.pork[0].value == z.pork[1].value {
-		return z.pork[2].value
-	}else if z.pork[0].value == z.pork[2].value {
-		return z.pork[1].value
+	if z.Pai[0].GetValue() == z.Pai[1].GetValue() {
+		return z.Pai[2].GetValue()
+	}else if z.Pai[0].GetValue() == z.Pai[2].GetValue() {
+		return z.Pai[1].GetValue()
 	}else {
-		return z.pork[2].value
+		return z.Pai[2].GetValue()
 	}
 }
 
 /**
 	得到扎金花牌的类型
  */
-func (z *ZjhPork) initZjhType(){
-	if z.zjhType == 0{
+func (z *ZjhPai) initZjhType(){
+	if z.GetPaiType() == 0{
 		//开始初始化扎金花的类型,从最大的开始算
-		if z.pork[0].value == z.pork[1].value && z.pork[0].value == z.pork[2].value {
-			z.zjhType = ZJH_TYPE_BAOZI
-		}else if strings.EqualFold(z.pork[0].flower, z.pork[1].flower) && strings.EqualFold(z.pork[0].flower,z.pork[2].flower){
+		if z.Pai[0].GetValue() == z.Pai[1].GetValue() && z.Pai[0].GetValue() == z.Pai[2].GetValue() {
+			z.PaiType = &ZJH_TYPE_BAOZI
+		}else if strings.EqualFold(z.Pai[0].GetFlower(), z.Pai[1].GetFlower()) && strings.EqualFold(z.Pai[0].GetFlower(),z.Pai[2].GetFlower()){
 			//判断是否是同花顺
-			if  checkShunzi(z.pork[0].value,z.pork[1].value,z.pork[2].value){
-				z.zjhType = ZJH_TYPE_TONGHUASHUN
-
+			if  checkShunzi(z.Pai[0].GetValue(),z.Pai[1].GetValue(),z.Pai[2].GetValue()){
+				z.PaiType = &ZJH_TYPE_TONGHUASHUN
 			}else{
-				z.zjhType = ZJH_TYPE_TONGHUA
+				z.PaiType = &ZJH_TYPE_TONGHUA
 			}
-		}else if checkShunzi(z.pork[0].value,z.pork[1].value,z.pork[2].value) {
+		}else if checkShunzi(z.Pai[0].GetValue(),z.Pai[1].GetValue(),z.Pai[2].GetValue()) {
 			//判断是否是顺子
-			z.zjhType = ZJH_TYPE_SHUNZI
-		}else if z.pork[0].value != z.pork[1].value && z.pork[0].value != z.pork[2].value && z.pork[1].value != z.pork[2].value{
-			z.zjhType = ZJH_TYPE_SANPAI
+			z.PaiType = &ZJH_TYPE_SHUNZI
+		}else if z.Pai[0].GetValue() != z.Pai[1].GetValue()  && z.Pai[0].GetValue()  != z.Pai[2].GetValue()  && z.Pai[1].GetValue()  != z.Pai[2].GetValue() {
+			z.PaiType = &ZJH_TYPE_SANPAI
 		}else{
-			z.zjhType = ZJH_TYPE_DUIZI
+			z.PaiType = &ZJH_TYPE_DUIZI
 		}
 	}
 }
@@ -326,8 +294,8 @@ func (z *ZjhPork) initZjhType(){
 /**
 判断三个数字是否是顺子
  */
-func checkShunzi(a,b,c int) bool{
-	data := []int{a,b,c}
+func checkShunzi(a,b,c int32) bool{
+	data := []int{int(a),int(b),int(c)}
 	sort.Ints(data)
 	if data[2] - data[1] == 1 && data[1] - data[0] == 1 {
 		return true
@@ -337,17 +305,16 @@ func checkShunzi(a,b,c int) bool{
 }
 
 
-func CreateZjhList() ZjhPorkList{
-	result := ZjhPorkList{}
+func CreateZjhList() ZjhPaiList{
+	result := ZjhPaiList{}
 	indexs := RandomPorkIndex(1,53)	//5组扎金花牌 总共15张牌
 	log.T("找到的索引%v",indexs)
 	//fmt.Println("找到的索引%v",indexs)
 	for i := int32(0);i < PLAYER_COUNT;i++ {
-		z := &ZjhPork{}
-		z.pork = make([]*Pork,3)
-		z.pork[0] = CreatePorkByIndex(indexs[i*3])
-		z.pork[1] = CreatePorkByIndex(indexs[i*3+1])
-		z.pork[2] = CreatePorkByIndex(indexs[i*3+2])
+		z := &ZjhPai{}
+		z.Pai[0] = CreatePorkByIndex(indexs[i*3])
+		z.Pai[1] = CreatePorkByIndex(indexs[i*3+1])
+		z.Pai[2] = CreatePorkByIndex(indexs[i*3+2])
 		z.initZjhType()		//初始化扎金花牌的类型
 		//log.T("%v副扎金花的牌:%v",i,z)
 		result = append(result,z)
@@ -361,10 +328,12 @@ func CreateZjhList() ZjhPorkList{
 /**
 更具index生成一张纸牌
  */
-func CreatePorkByIndex(i int32) *Pork{
-	result :=&Pork{}
-	result.mapKey = i
-	result.mapDes = porkMap[i]
+func CreatePorkByIndex(i int32) *Pai{
+	//var rmapkey int32 = i
+	result :=&Pai{}
+	result.MapKey = &i
+	var rmapdes string = porkMap[i]
+	result.Mapdes = &rmapdes
 	result.initPork()
 	return result
 }
@@ -391,26 +360,4 @@ func RandomPorkIndex(min, max int32) [PLAY_PORK_COUNT]int32 {
 		}
 	}
 	return *result;
-}
-
-//把这里的拍转换成扎金花proto的牌类型
-
-func ConstructZjhPai(p *ZjhPork) *bbproto.ZjhPai{
-	result := &bbproto.ZjhPai{}
-	ps := make([]*bbproto.Pai,3)
-	ps[0] = constructPai(p.pork[0])
-	ps[1] = constructPai(p.pork[1])
-	ps[2] = constructPai(p.pork[2])
-	result.PaiType = &p.zjhType
-	return result
-}
-
-func constructPai(p *Pork) *bbproto.Pai{
-	result := &bbproto.Pai{}
-	result.Flower = &p.flower
-	result.Mapdes = &p.mapDes
-	var v int32  = int32(p.value)
-	result.Value = &v
-	result.Name = &p.name
-	return result
 }

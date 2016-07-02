@@ -6,8 +6,11 @@ import (
 	"casino_server/msg/bbprotogo"
 	"github.com/name5566/leaf/gate"
 	"casino_server/common/log"
-	"casino_server/utils/time"
 	"casino_server/service/userService"
+	"strings"
+	"casino_server/utils/redis"
+	"casino_server/utils/numUtils"
+	"casino_server/utils/timeUtils"
 	"casino_server/msg/bbprotoFuncs"
 )
 
@@ -19,7 +22,7 @@ func init() {
 //config
 
 var ZJH_BET_DURATION = time.Second * 10
-var ZJH_LOTTERY_DURATION = time.Second *10
+var ZJH_LOTTERY_DURATION = time.Second *1
 
 
 //-------------------------------------------------扎金花房间的状态----------------------------------------------
@@ -44,6 +47,7 @@ type zjhRoom struct {
 	zoneAmount		[]int32		//押注区域的大小
 	BankerUserId		uint32		//庄家的信息
 	Zjhpai 			[]*bbproto.ZjhPai		//本轮游戏的纸牌
+	ZjhRoundNumber		string		//本局游戏的编号
 }
 
 /**
@@ -104,7 +108,8 @@ func (r *zjhRoom) run(){
 	ticker := time.NewTicker(time.Second * 1)
 	go func() {
 		for t := range ticker.C {
-			log.T("正在执行扎金花的逻辑当前状态:\n status[%v],\n betEndTime[%v],\nlotterTime[%v],\nnextStartTime[%v],\nbankerUserId[%v],\njackPort[%v],\nnow[%v]",r.Status,r.BetEndTime.Format(timeUtils.TIME_LAYOUT),r.LotteryTime.Format(timeUtils.TIME_LAYOUT),r.NextStartTime.Format(timeUtils.TIME_LAYOUT),r.BankerUserId,r.Jackpot,t.Format(timeUtils.TIME_LAYOUT))
+			log.T("正在执行扎金花的逻辑当前状态:\n status[%v],\n betEndTime[%v],\nlotterTime[%v],\nnextStartTime[%v],\nbankerUserId[%v],\njackPort[%v],\nnow[%v]",
+				r.Status,r.BetEndTime.Format(timeUtils.TIME_LAYOUT),r.LotteryTime.Format(timeUtils.TIME_LAYOUT),r.NextStartTime.Format(timeUtils.TIME_LAYOUT),r.BankerUserId,r.Jackpot,t.Format(timeUtils.TIME_LAYOUT))
 			if len(r.AgentMap) < 1 {
 				log.T("没有玩家进入游戏...continue")
 				//如果没有玩家进入 需要重置房间的状态和时间
@@ -142,6 +147,35 @@ func (r *zjhRoom) Betable()bool{
 	}
 }
 
+
+/**
+	为每个人清算本局输赢
+	1,得到当前的押注记录
+	2,比较大小
+
+ */
+func (r *zjhRoom) clear(){
+	//porkBanker := r.Zjhpai[0]		//庄家的牌
+	////如果游戏房间里没有人,直接返回不用清算
+	//if len(r.AgentMap) < 1 {
+	//	return
+	//}
+	////
+	////一次对每个人对清算,并且统计m,key 表示userId
+	//for key := range r.AgentMap {
+	//	//这里通过userId (key)取到用户的押注记录和用户信息,再更具牌面的大小来做结算
+	//	betRecode := GetTBetRecordByUserIdAnd(r.ZjhRoundNumber,key)
+	//	for i,d := range betRecode.Betzone{
+	//		if  {
+	//
+	//		}
+	//	}
+	//
+	//
+	//}
+
+}
+
 /**
 这个是开奖的广播
  */
@@ -152,14 +186,22 @@ func (r *zjhRoom) lottery(t time.Time){
 	if r.LotteryTime.Before(t) && r.Status == ZJH_STATUS_LOTTERING {
 		log.T("-----------------------------------------开奖-----------------------------------------")
 
-		//真是数据给每个人发送开奖信息
-		for key := range r.AgentMap {
-			log.Normal("开始给%v发送消息",key)
-			//首先判断连接是否有断开
-			//a :=r.AgentMap[key]
-			//a.WriteMsg(nil)
-			//log.Normal("给%v发送消息,发送完毕",key)
-		}
+		//开奖之前,首先为每个人结账,清算
+		//r.clear()
+		//
+		////真是数据给每个人发送开奖信息
+		//for key := range r.AgentMap {
+		//	log.Normal("开始给%v发送消息",key)
+		//	result := &bbproto.ZjhLottery{}
+		//	result.Header = protoUtils.GetSuccHeader()
+		//	result.Zjhpai = r.Zjhpai					//纸牌中,第一幅牌是庄家的牌
+		//	result.Balance = userService.GetUserById(key).Balance	//自己的余额
+		//	result.WinAmount = GetTBetRecordByUserIdAnd(r.ZjhRoundNumber,key).WinAmount	//本局的输赢分数
+		//	//活的agent 并且发送本局的数据
+		//	a :=r.AgentMap[key]
+		//	a.WriteMsg(result)
+		//	log.Normal("给%v发送消息,发送完毕",key)
+		//}
 
 
 		//需要伪造数据,并且发送给每个人
@@ -263,12 +305,29 @@ func (r *zjhRoom) BroadcastBeginBet(){
 	result.Jackpot = &r.Jackpot
 	result.Banker = userService.GetUserById(r.BankerUserId)
 	result.Zjhpai = r.Zjhpai
-	result.BetTime = r.GetBetRemainTime()
+	result.BetTime = r.GetLotteryRemainTime()
 	result.LotteryTime = r.GetLotteryRemainTime()
 	r.BroadcastProto(result,0)
 
 }
 
-//func (r *zjhRoom) BroadcastLottery(){
-//
-//}
+/**
+	构造要住记录的key
+	每一局游戏,玩家对应的押注的key是   zjhRoundNum-userId
+ */
+func GetReidsKeyBetRecord(zjhRoundNum string,userId uint32) string{
+	userIdStr,_ := numUtils.Uint2String(userId)
+	result := strings.Join([]string{zjhRoundNum,userIdStr},"-")
+	log.T("得到获取redis中用户的押注记录的key值:",result)
+	return result
+}
+
+func GetTBetRecordByUserIdAnd(zjhRoundNum string,userId uint32) *bbproto.TBetRecord{
+	conn := data.Data{}
+	conn.Open("test")
+	defer conn.Close()
+	key := GetReidsKeyBetRecord(zjhRoundNum,userId)
+	result := &bbproto.TBetRecord{}
+	conn.GetObj(key,result)
+	return result
+}

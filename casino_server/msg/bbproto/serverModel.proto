@@ -14,8 +14,10 @@ message TUser {
 
 //押注的记录,针对每轮扎金花,只有一次押注记录
 message TBetRecord{
-
-
+	optional	int32 	userId			= 1;		//用户的id
+	repeated	int32 	betzone			= 2;		//押注的区间
+	optional	string	ZjhRoundNumber	= 3;		//这一轮游戏的编号
+	optional	int32 	winAmount		= 4;		//这一局赢了多少
 }
 
 

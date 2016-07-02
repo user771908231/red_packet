@@ -3,15 +3,19 @@ package mongodb
 import (
 	"testing"
 	"fmt"
-	"time"
-	"casino_server/utils/time"
+	"casino_server/msg/bbprotogo"
 )
 
 var a int32 = 20
 
 func TestTemp(t *testing.T) {
 
-	timeNow := time.Now()
-	fmt.Println("time:",timeNow.Format(timeUtils.TIME_LAYOUT))
+	ha := int32(1)
+	if ha == int32(bbproto.EProtoId_REG) {
+		fmt.Println("哈哈哈")
+	}else{
+		fmt.Println("gagaga ")
+	}
+
 }
 

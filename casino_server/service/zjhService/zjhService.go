@@ -54,13 +54,11 @@ func HandlerZjhBet(m *bbproto.ZjhBet,a gate.Agent)(*bbproto.ZjhBet,error){
 
 	//为了测试方便 随意返回数据
 	result := &bbproto.ZjhBet{}
-	header := &bbproto.ProtoHeader{}
-	header.UserId = m.GetHeader().UserId
-	header.Code = &intCons.CODE_SUCC		//表示请求成功
+	result.Header = protoUtils.GetSuccHeader()
 	a.WriteMsg(result)
 
 	//广播发送押注信息
-	room.ZJHroom.BroadcastProto(result,0)
+	//room.ZJHroom.BroadcastProto(result,0)
 
 	return  nil,nil
 }
@@ -82,6 +80,7 @@ func getIntoRoom(m *bbproto.ZjhRoom,a gate.Agent)(*bbproto.ZjhRoom,error){
 	//个人,庄家的信息信息
 	result.Banker =  userService.GetUserById(room.ZJHroom.BankerUserId)
 	result.Me = userService.GetUserById(m.GetHeader().GetUserId())
+	log.T("进入扎进话房间之后返回的数据:",result)
 	a.WriteMsg(result)
 	return result,nil
 }
@@ -95,3 +94,4 @@ func outRoom(m *bbproto.ZjhRoom,a gate.Agent)(*bbproto.ZjhRoom,error){
 	room.ZJHroom.RemoveAgent(m.GetHeader().GetUserId())
 	return nil,nil
 }
+
