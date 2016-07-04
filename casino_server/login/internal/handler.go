@@ -6,13 +6,13 @@ import (
 	"github.com/name5566/leaf/gate"
 	"casino_server/common/log"
 	"casino_server/service/userService"
-	"casino_server/mode"
 	"casino_server/conf/StrCons"
 	"casino_server/conf/intCons"
 	"runtime"
 	"strings"
 	"strconv"
 	"fmt"
+	"casino_server/msg/bbprotoFuncs"
 )
 
 func handleMsg(m interface{}, h interface{}) {
@@ -77,7 +77,7 @@ func handleReqAuthUser(args []interface{}){
 	log.Debug("介绍到的reqAuthUser %v", *m)
 
 	//判断是快速登录还是普通登录
-	var resUser *mode.User
+	var resUser *bbproto.TUser
 	var e   error
 	loginWay := userService.CheckUserId(m.GetHeader().GetUserId())
 	switch loginWay {
@@ -93,17 +93,11 @@ func handleReqAuthUser(args []interface{}){
 
 	//判断返回的信息,并且返回信息
 	resReqUser := &bbproto.ReqAuthUser{}
-	resHeader  := &bbproto.ProtoHeader{}
 	if e != nil {
 		log.E(e.Error())
-		resHeader.Error = &StrCons.STR_POINT_ERR_LOGIN_FAIL
-		resHeader.Code	= &intCons.CODE_FAIL
-
+		resReqUser.Header = protoUtils.GetErrorHeaderWithMsgUserid(resUser.Id,&StrCons.STR_POINT_ERR_LOGIN_FAIL)
 	}else{
-		resHeader.UserId = &(resUser.Id)
-		resHeader.Code	 = &intCons.CODE_SUCC
-		resHeader.Error	 = &StrCons.STR_POINT_ERR_LOGIN_SUCC
-		resReqUser.Header = resHeader
+		resReqUser.Header = protoUtils.GetSuccHeaderwithMsgUserid(resUser.Id,&StrCons.STR_POINT_ERR_LOGIN_SUCC)
 	}
 
 	//把数据返回给客户端

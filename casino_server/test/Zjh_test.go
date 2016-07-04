@@ -7,7 +7,6 @@ import (
 	"fmt"
 	"casino_server/utils/test"
 	"casino_server/service/porkService"
-	"casino_server/utils/redis"
 )
 
 

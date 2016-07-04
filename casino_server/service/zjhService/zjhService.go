@@ -18,7 +18,7 @@ func init(){
 
 
 /**
-处理关于游戏房间请求的action
+	处理关于游戏房间请求的action
  */
 func HandlerZjhRoom(m *bbproto.ZjhRoom,a gate.Agent)(*bbproto.ZjhRoom,error){
 	reqType := m.GetReqType()
@@ -55,6 +55,8 @@ func HandlerZjhBet(m *bbproto.ZjhBet,a gate.Agent)(*bbproto.ZjhBet,error){
 		betrecord = &bbproto.TBetRecord{}
 	}
 	betrecord.Betzone = m.GetBetzone()
+	betrecord.ZjhRoundNumber = &room.ZJHroom.ZjhRoundNumber
+	betrecord.UserId = m.GetHeader().UserId
 	room.SaveBetRecord(betrecord)		//保存数据到redis中去
 
 
@@ -77,7 +79,6 @@ func HandlerZjhBet(m *bbproto.ZjhBet,a gate.Agent)(*bbproto.ZjhBet,error){
  */
 
 func getIntoRoom(m *bbproto.ZjhRoom,a gate.Agent)(*bbproto.ZjhRoom,error){
-
 	//设置用户锁
 	l := &mode.LockUser{
 		UserId:m.GetHeader().GetUserId(),
@@ -86,9 +87,10 @@ func getIntoRoom(m *bbproto.ZjhRoom,a gate.Agent)(*bbproto.ZjhRoom,error){
 
 	room.ZJHroom.AddAgent(m.GetHeader().GetUserId(),a)
 	//这里给客户端返回信息,包括:押注中(剩余time）、开奖中（剩余time）、jackpot奖池金额、balance、庄家信息、在座玩家
-	result := &bbproto.ZjhRoom{}
+	var retErr error = nil							//需要返回的错误信息
+	result := &bbproto.ZjhRoom{}						//需要返回的数据
 	result.Header		=	protoUtils.GetSuccHeader()		//header
-	result.Jackpot		=	&(room.ZJHroom.Jackpot)
+	result.Jackpot		=	&(room.ZJHroom.Jackpot)			//奖池的大小
 	result.BetTime		= 	room.ZJHroom.GetBetRemainTime()		//剩余的押注时间
 	result.LotteryTime	=	room.ZJHroom.GetLotteryRemainTime()	//剩余的开奖时间
 	result.RoomStatus	=	&room.ZJHroom.Status			//房间的当前状态
@@ -96,10 +98,21 @@ func getIntoRoom(m *bbproto.ZjhRoom,a gate.Agent)(*bbproto.ZjhRoom,error){
 
 	//个人,庄家的信息信息
 	result.Banker =  userService.GetUserById(room.ZJHroom.BankerUserId)
+	if result.Banker == nil {
+		//没有查询到banker的信息,进入房间失败,返回到登录界面
+		result.Header.Code = &intCons.CODE_FAIL
+		retErr = errors.New("没有找到庄家信息")
+	}
 	result.Me = userService.GetUserById(m.GetHeader().GetUserId())
+	if result.Me == nil {
+		result.Header.Code = &intCons.CODE_FAIL
+		retErr = errors.New("没有找到用户信息")
+	}
+
+	//给客户端返回信息
 	log.T("进入扎进话房间之后返回的数据:",result)
-	a.WriteMsg(result)
-	return result,nil
+
+	return result,retErr
 }
 
 
@@ -111,6 +124,8 @@ func getIntoRoom(m *bbproto.ZjhRoom,a gate.Agent)(*bbproto.ZjhRoom,error){
  */
 
 func outRoom(m *bbproto.ZjhRoom,a gate.Agent)(*bbproto.ZjhRoom,error){
+	//todo 退出房间的时候,需要先保存数据
+	//todo 1,用户余额的信息,2,用户游戏的信息,这里表示的扎金花游戏的数据,
 	room.ZJHroom.RemoveAgent(m.GetHeader().GetUserId())
 	return nil,nil
 }

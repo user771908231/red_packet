@@ -20,7 +20,7 @@ type room struct {
 }
 
 func (r *room) AddAgent(userId uint32,a gate.Agent){
-	log.T("userId%v的agent放在CachOutRoom中管理\n",userId)
+	log.T("userId%v的agent放在Room中管理\n",userId)
 	r.AgentMap[userId] = a
 
 	//打印出 增加连接之后,但当前房间里的连接

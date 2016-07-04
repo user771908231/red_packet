@@ -1,4 +1,5 @@
 import public "base.proto";
+import public "zhajinhua.proto";
 package bbproto;
 
 
@@ -9,12 +10,13 @@ message TUser {
 	optional ProtoHeader    	header    		= 1;
 	optional string  			name 			= 2;  	// name
 	optional int32				balance			= 3;	//用户的余额
-	optional uint32				userId			= 4;
+	optional uint32				id				= 4;	//用户的Id
+	optional string				NickName		= 5;	//用户的昵称
 }
 
 //押注的记录,针对每轮扎金花,只有一次押注记录
 message TBetRecord{
-	optional	int32 	userId			= 1;		//用户的id
+	optional	uint32 	userId			= 1;		//用户的id
 	repeated	int32 	betzone			= 2;		//押注的区间
 	optional	string	ZjhRoundNumber	= 3;		//这一轮游戏的编号
 	optional	int32 	winAmount		= 4;		//这一局赢了多少
@@ -23,9 +25,14 @@ message TBetRecord{
 
 //每一轮扎金花的数据
 message TZjhRound{
-	optional	int32	id			=	1;	//id
+	optional	uint32	id			=	1;	//id
 	optional 	int64	beginTime	=	2;	//开始时间
 	optional	int64	betEndTime	=	3;	//押注结束时间
 	optional	int64	lotteryTime	=	4;	//开奖时间
 	optional 	int64	endTime		=	5;	//结束时间
+	repeated	int32	zoneAmount	=	6;	//押注区域的大小
+	repeated	int32	zoneWinAmount	=	7;	//押注区的输赢分数
+	optional	uint32	BankerUserId	=	8;	//庄家的信息
+	repeated 	ZjhPai	ZjhPaiList  	=	9;	//本轮游戏的纸牌
+	optional	string	Number 		=	10;	//本局游戏的编号
 }

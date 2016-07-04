@@ -12,6 +12,9 @@ import (
 	"casino_server/utils/timeUtils"
 	"casino_server/msg/bbprotoFuncs"
 	"casino_server/mode"
+	"github.com/name5566/leaf/db/mongodb"
+	"fmt"
+	"casino_server/conf/casinoConf"
 )
 
 func init() {
@@ -24,6 +27,7 @@ func init() {
 var ZJH_BET_DURATION = time.Second * 10
 var ZJH_LOTTERY_DURATION = time.Second *1
 var ZJH_AFTER_LOTTERY_DURATION = time.Second*10
+var ZJH_ROUND_NUMBER_PRE string = "zjh_round_pre"
 
 
 //-------------------------------------------------扎金花房间的状态----------------------------------------------
@@ -39,6 +43,7 @@ todo 可以把游戏相关的信息放置在邮箱相关的结构体中
  */
 type zjhRoom struct {
 	room					//继承基本的room的方法
+	id 			uint32		//数据库所以呢id
 	BetStartTime		time.Time	//首次投注时间
 	BetEndTime		time.Time	//结束投注时间
 	LotteryTime		time.Time	// 开奖时间
@@ -75,8 +80,66 @@ func (r *zjhRoom) Oninit(t time.Time){
 	r.OnInitZjhpai()		//初始化纸牌
 	r.Status = ZJH_STATUS_BETING	//初始化状态
 	r.zoneWinAmount = []int32{0,0,0,0}
-	r.ZjhRoundNumber = "test_uuid"
-	//r.BroadcastBeginBet()		//广播可以开始押注了
+	//r.BroadcastBeginBet()		//广播可以开始押注了--这一步目前是放在next 函数中使用的...
+	r.saveZjhRound()		//保存本局游戏到数据库
+
+}
+
+/**
+	初始化本局编号
+ */
+func (r *zjhRoom) OnInitRoundNumber(){
+	idStr,_ := numUtils.Uint2String(r.id)
+	log.T("新的一轮扎金花游戏的-number-idstr[%v],",idStr)
+	rtStr := strings.Join([]string{ZJH_ROUND_NUMBER_PRE,idStr},"_")
+	log.T("新的一轮扎金花游戏的-number[%v],",rtStr)
+	r.ZjhRoundNumber = rtStr
+}
+
+/**
+	保存本局扎金花的数据到数据库
+	1.保存的过程中得到 id之后可以初始化本局游戏编号
+ */
+func (r *zjhRoom) saveZjhRound() error{
+	bst := r.BetStartTime.UnixNano()	//开始押注时间毫秒数
+	bnt := r.BetEndTime.UnixNano()		//结束押注时间
+	ltt := r.LotteryTime.UnixNano()		//开奖时间
+
+	//得到需要保存的数据
+	d := &bbproto.TZjhRound{}
+	d.BeginTime = &bst
+	d.BetEndTime = &bnt
+	d.LotteryTime = &ltt
+	d.BankerUserId = &r.BankerUserId
+	d.ZjhPaiList = r.Zjhpai
+	d.ZoneAmount = r.zoneAmount
+	d.ZoneWinAmount = r.zoneWinAmount
+
+	// 获取连接 connection
+	c, err := mongodb.Dial(casinoConf.DB_IP, casinoConf.DB_PORT)
+	if err != nil {
+		fmt.Println(err)
+		return err
+	}
+	defer c.Close()
+
+	// 获取回话 session
+	s := c.Ref()
+	defer c.UnRef(s)
+
+	id,_ :=  c.NextSeq(casinoConf.DB_NAME, casinoConf.DBT_T_ZJH_ROUND, casinoConf.DB_ENSURECOUNTER_KEY)
+	log.T("通过数据库获取到的 t_zjh_round seq[%v]",id)
+	r.id = uint32(id)
+	d.Id = &r.id
+	r.OnInitRoundNumber()		//初始化编号
+	d.Number = &r.ZjhRoundNumber	//编号也要保存到数据库
+	e := s.DB(casinoConf.DB_NAME).C(casinoConf.DBT_T_ZJH_ROUND).Insert(d)
+	if e != nil {
+		log.Error(e.Error())
+		return e
+	}
+	return nil
+
 }
 
 func (r *zjhRoom) iniTime(t time.Time){
@@ -318,6 +381,7 @@ func (r *zjhRoom) GetLotteryRemainTime() *int32{
 	广播消息,开始押注
  */
 func (r *zjhRoom) BroadcastBeginBet(){
+	log.T("所有人发送可以开始押注的广播:")
 	//通知押注的信息
 	result := &bbproto.ZjhBroadcastBeginBet{}
 	result.Jackpot = &r.Jackpot
@@ -326,6 +390,7 @@ func (r *zjhRoom) BroadcastBeginBet(){
 	result.BetTime = r.GetLotteryRemainTime()
 	result.LotteryTime = r.GetLotteryRemainTime()
 	r.BroadcastProto(result,0)
+	log.T("所有人发送可以开始押注的广播借宿")
 
 }
 
@@ -336,7 +401,7 @@ func (r *zjhRoom) BroadcastBeginBet(){
 func GetReidsKeyBetRecord(zjhRoundNum string,userId uint32) string{
 	userIdStr,_ := numUtils.Uint2String(userId)
 	result := strings.Join([]string{zjhRoundNum,userIdStr},"-")
-	//log.T("得到获取redis中用户的押注记录的key[%v]值:",result)
+	log.T("得到获取redis中用户的押注记录的key[%v]值:",result)
 	return result
 }
 

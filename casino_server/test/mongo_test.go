@@ -14,10 +14,11 @@ func TestM(t *testing.T){
 	//_TestSave(t)
 	//saveWithSub(t)
 	//update(t)
-	//_select(t)
+	_select(t)
 	//saveSub2(t)
 	//selectSub2(t)
-	selectSub3(t)
+	//selectSub3(t)
+	//nestSeq(t)
 }
 
 
@@ -61,8 +62,6 @@ func _Del(t *testing.T){
 
 func update(t *testing.T){
 	t.Log("开始测试保存到数据库\n")
-
-
 
 
 	t.Log("\n开始测试保存到数据库--end\n")
@@ -212,6 +211,20 @@ func selectSub3(t *testing.T){
 
 
 
+func  nestSeq(t *testing.T){
+	//连接数据库
+	c,err := mongodb.Dial(casinoConf.DB_IP,casinoConf.DB_PORT)
+	if err != nil{
+		t.Error(err)
+	}
+	defer  c.Close()
+
+	//获取session
+	s := c.Ref()
+	defer s.Close()
+	id,_ :=  c.NextSeq("test", "t_user", "id")
+	fmt.Println("id",id)
+}
 
 
 
