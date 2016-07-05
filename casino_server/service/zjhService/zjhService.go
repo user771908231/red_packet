@@ -103,6 +103,8 @@ func getIntoRoom(m *bbproto.ZjhRoom,a gate.Agent)(*bbproto.ZjhRoom,error){
 		result.Header.Code = &intCons.CODE_FAIL
 		retErr = errors.New("没有找到庄家信息")
 	}
+
+	//个人信息
 	result.Me = userService.GetUserById(m.GetHeader().GetUserId())
 	if result.Me == nil {
 		result.Header.Code = &intCons.CODE_FAIL
@@ -111,6 +113,7 @@ func getIntoRoom(m *bbproto.ZjhRoom,a gate.Agent)(*bbproto.ZjhRoom,error){
 
 	//给客户端返回信息
 	log.T("进入扎进话房间之后返回的数据:",result)
+	a.WriteMsg(result)
 
 	return result,retErr
 }

@@ -79,6 +79,7 @@ func (r *zjhRoom) Oninit(t time.Time){
 	r.iniTime(t)			//初始化时间
 	r.OnInitZjhpai()		//初始化纸牌
 	r.Status = ZJH_STATUS_BETING	//初始化状态
+	r.Jackpot= 99909		//初始化奖池的大小
 	r.zoneWinAmount = []int32{0,0,0,0}
 	//r.BroadcastBeginBet()		//广播可以开始押注了--这一步目前是放在next 函数中使用的...
 	r.saveZjhRound()		//保存本局游戏到数据库
