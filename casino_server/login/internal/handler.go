@@ -31,17 +31,9 @@ func init() {
 	此方法可能暂时没有使用,而使用handleReqAuthUser
  */
 func handleProtHello(args []interface{}){
-	log.Debug("进入login.handler.handleProtHello()")
-	// 收到的 Hello 消息
-	m := args[0].(*bbproto.Reg)
-	// 消息的发送者
+	log.T("进入login.handler.handleProtHello()")
 	a := args[1].(gate.Agent)
-
-	// 输出收到的消息的内容
-	log.Debug("接收到的name %v", *m.Name)
-	//给发送者回应一个 Hello 消息
 	var data bbproto.Reg
-	//var n string = "a"+ time.Now().String()
 	var n string = "hi leaf"
 	data.Name = &n
 	a.WriteMsg(&data)
@@ -68,13 +60,8 @@ func GoID() int {
  */
 func handleReqAuthUser(args []interface{}){
 	log.Debug("进入login.handler.handleReqAuthUser()")
-
-	// 收到的 Hello 消息
 	m := args[0].(*bbproto.ReqAuthUser)
-	// 消息的发送者
 	a := args[1].(gate.Agent)
-	// 输出收到的消息的内容
-	log.Debug("介绍到的reqAuthUser %v", *m)
 
 	//判断是快速登录还是普通登录
 	var resUser *bbproto.TUser
@@ -99,6 +86,9 @@ func handleReqAuthUser(args []interface{}){
 	}else{
 		resReqUser.Header = protoUtils.GetSuccHeaderwithMsgUserid(resUser.Id,&StrCons.STR_POINT_ERR_LOGIN_SUCC)
 	}
+
+	//登录是在服务器需要做的操作
+
 
 	//把数据返回给客户端
 	a.WriteMsg(resReqUser)

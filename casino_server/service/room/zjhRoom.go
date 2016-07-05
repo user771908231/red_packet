@@ -11,7 +11,6 @@ import (
 	"casino_server/utils/numUtils"
 	"casino_server/utils/timeUtils"
 	"casino_server/msg/bbprotoFuncs"
-	"casino_server/mode"
 	"github.com/name5566/leaf/db/mongodb"
 	"fmt"
 	"casino_server/conf/casinoConf"
@@ -285,7 +284,7 @@ func (r *zjhRoom) lottery(t time.Time){
 
 			//更新用户的信息,保存用户信息到redis
 			SaveBetRecord(betRecode)
-			userService.UpdateRedisUserBalance(key,betRecode.GetWinAmount(),r.AgentMap[key].UserData().(*mode.LockUser))
+			userService.UpdateRedisUserBalance(key,betRecode.GetWinAmount())
 
 			//利用agent发送数据
 

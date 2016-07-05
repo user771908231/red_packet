@@ -9,7 +9,6 @@ import (
 	"casino_server/service/userService"
 	"casino_server/common/log"
 	"errors"
-	"casino_server/mode"
 )
 
 func init(){
@@ -80,11 +79,6 @@ func HandlerZjhBet(m *bbproto.ZjhBet,a gate.Agent)(*bbproto.ZjhBet,error){
 
 func getIntoRoom(m *bbproto.ZjhRoom,a gate.Agent)(*bbproto.ZjhRoom,error){
 	//设置用户锁
-	l := &mode.LockUser{
-		UserId:m.GetHeader().GetUserId(),
-	}
-	a.SetUserData(l)
-
 	room.ZJHroom.AddAgent(m.GetHeader().GetUserId(),a)
 	//这里给客户端返回信息,包括:押注中(剩余time）、开奖中（剩余time）、jackpot奖池金额、balance、庄家信息、在座玩家
 	var retErr error = nil							//需要返回的错误信息

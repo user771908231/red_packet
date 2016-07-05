@@ -5,7 +5,6 @@ import (
 	"casino_server/msg/bbprotogo"
 	"fmt"
 	"github.com/name5566/leaf/db/mongodb"
-	"casino_server/mode"
 	"casino_server/common/config"
 	"gopkg.in/mgo.v2/bson"
 	"casino_server/common/log"
@@ -16,6 +15,8 @@ import (
 	"casino_server/utils/numUtils"
 	"strings"
 )
+
+
 
 /**
 
@@ -181,7 +182,8 @@ func SaveRedisUser(u *bbproto.User) {
 /**
 	更新用用户余额的信息
  */
-func UpdateRedisUserBalance(userId uint32, amount int32, l *mode.LockUser) error {
+func UpdateRedisUserBalance(userId uint32, amount int32) error {
+	l := userLockPool.getUserLockByUserId(userId)
 	l.Lock()
 	defer l.Unlock()
 
