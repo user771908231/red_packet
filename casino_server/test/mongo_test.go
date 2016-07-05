@@ -7,6 +7,8 @@ import (
 	"casino_server/conf/casinoConf"
 	"gopkg.in/mgo.v2/bson"
 	"casino_server/mode"
+	"casino_server/msg/bbprotogo"
+	"casino_server/service/userService"
 )
 
 
@@ -14,13 +16,20 @@ func TestM(t *testing.T){
 	//_TestSave(t)
 	//saveWithSub(t)
 	//update(t)
-	_select(t)
+	//_select(t)
 	//saveSub2(t)
 	//selectSub2(t)
 	//selectSub3(t)
 	//nestSeq(t)
-}
 
+	testUpsertUser()
+}
+func testUpsertUser(){
+	var userId uint32 = 99999
+	user := &bbproto.TUser{}
+	user.Id = &userId
+	userService.UpsertUser2Mongo(user)
+}
 
 
 func _TestSave(t *testing.T){

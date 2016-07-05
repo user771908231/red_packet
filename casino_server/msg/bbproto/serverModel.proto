@@ -5,15 +5,6 @@ package bbproto;
 
 // 存到数据库的模型
 
-//User
-message TUser {
-	optional ProtoHeader    	header    		= 1;
-	optional string  			name 			= 2;  	// name
-	optional int32				balance			= 3;	//用户的余额
-	optional uint32				id				= 4;	//用户的Id
-	optional string				NickName		= 5;	//用户的昵称
-}
-
 //押注的记录,针对每轮扎金花,只有一次押注记录
 message TBetRecord{
 	optional	uint32 	userId			= 1;		//用户的id

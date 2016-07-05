@@ -26,7 +26,6 @@ It has these top-level messages:
 	HeatBeat
 	Reg
 	RoomMsg
-	TUser
 	TBetRecord
 	TZjhRound
 	Shuiguoji

@@ -17,6 +17,14 @@ import (
 )
 
 
+//const-config
+var(
+	//更新的方式,是只更新到redis 还是redis和mongo都需要更新
+	UPDATE_TYPE_ONLY_REDIS	int  = 1
+	UPDATE_TYPE_REAIS_MONGO int  = 2
+
+)
+
 
 /**
 
@@ -36,7 +44,7 @@ func CheckUserId(userId uint32) int8 {
 	1,快速登录模式需要 为用户分配一个id,并且返回给用户
 	2,登陆成功之后,需要为agent 绑定userData
  */
-func QuickLogin(user *bbproto.ReqAuthUser) (*bbproto.TUser, error) {
+func QuickLogin(user *bbproto.ReqAuthUser) (*bbproto.User, error) {
 	//1,判断入参是否正确
 	uuid := user.Uuid
 	log.Debug("header.code %v", uuid)
@@ -57,13 +65,13 @@ func QuickLogin(user *bbproto.ReqAuthUser) (*bbproto.TUser, error) {
 /**
 普通登录
  */
-func Login(user *bbproto.ReqAuthUser) (*bbproto.TUser, error) {
+func Login(user *bbproto.ReqAuthUser) (*bbproto.User, error) {
 	//1,检测参数
 	userId := user.Header.UserId
 	log.Debug("需要登陆的userId %v", userId)
 
 	//2,通过userId 在mongo 中查询user的信息
-	dbUser := &bbproto.TUser{}
+	dbUser := &bbproto.User{}
 	//1,获取数据库连接和回话
 	c, err := mongodb.Dial(casinoConf.DB_IP, casinoConf.DB_PORT)
 	if err != nil {
@@ -87,7 +95,7 @@ func Login(user *bbproto.ReqAuthUser) (*bbproto.TUser, error) {
 	2,保存mongo
 	3,缓存到redis
  */
-func newUserAndSave() (*bbproto.TUser, error) {
+func newUserAndSave() (*bbproto.User, error) {
 	//1,获取数据库连接和回话
 	c, err := mongodb.Dial(casinoConf.DB_IP, casinoConf.DB_PORT)
 	if err != nil {
@@ -108,8 +116,8 @@ func newUserAndSave() (*bbproto.TUser, error) {
 	Nickname := config.RandNickname()
 
 	//构造user
-	nuser := &bbproto.TUser{}
-	nuser.Id = &userId
+	nuser := &bbproto.User{}
+	nuser.UserId = &userId
 	nuser.NickName = &Nickname
 	nuser.Balance = &intCons.NUM_INT32_0
 	err = s.DB(casinoConf.DB_NAME).C(casinoConf.DBT_T_USER).Insert(nuser)
@@ -142,6 +150,7 @@ func GetUserById(id uint32) *bbproto.User {
 	conn := data.Data{}
 	conn.Open(casinoConf.REDIS_DB_NAME)
 	defer conn.Close()
+
 	key := GetRedisUserKey(id)
 	result := &bbproto.User{}
 	conn.GetObj(key, result)
@@ -158,9 +167,9 @@ func GetUserById(id uint32) *bbproto.User {
 		defer c.UnRef(s)
 
 		//从数据库中查询user
-		user := &bbproto.TUser{}
+		user := &bbproto.User{}
 		s.DB(casinoConf.DB_NAME).C(casinoConf.DBT_T_USER).Find(bson.M{"id": id}).One(user)
-		if user.GetId() < casinoConf.MIN_USER_ID {
+		if user.GetUserId() < casinoConf.MIN_USER_ID {
 			result = nil
 		}
 	}
@@ -171,7 +180,7 @@ func GetUserById(id uint32) *bbproto.User {
 /**
 	将用户model保存在redis中
  */
-func SaveRedisUser(u *bbproto.User) {
+func SaveUser2Redis(u *bbproto.User) {
 	conn := data.Data{}
 	conn.Open(casinoConf.REDIS_DB_NAME)
 	defer conn.Close()
@@ -179,19 +188,44 @@ func SaveRedisUser(u *bbproto.User) {
 	conn.SetObj(key, u)
 }
 
+
+func UpsertUser2Mongo(u *bbproto.User){
+	c, err := mongodb.Dial("localhost", 51668)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	defer c.Close()
+
+	// 获取回话 session
+	s := c.Ref()
+	defer c.UnRef(s)
+	s.DB(casinoConf.DB_NAME).C(casinoConf.DBT_T_TEST).UpsertId(bson.M{"id": u.GetUserId()},u)
+
+}
 /**
 	更新用用户余额的信息
  */
-func UpdateRedisUserBalance(userId uint32, amount int32) error {
+func UpUserBalance(userId uint32, amount int32,utype int) error {
+
+	//1,获得锁
 	l := userLockPool.getUserLockByUserId(userId)
 	l.Lock()
 	defer l.Unlock()
 
-	//获取redis中的user
+
+	//2,跟新redis中的值
+	//由于用户user相关的都会存在redis 中的,所以肯定会更新redis
 	user := GetUserById(userId)
 	var b int32 = user.GetBalance()
 	b += amount
 	user.Balance = &b
-	//保存user
+	SaveUser2Redis(user)	//保存user
+
+	//3,更新mongo 中的值
+	if utype == UPDATE_TYPE_REAIS_MONGO {
+		UpsertUser2Mongo(user)
+	}
+
 	return nil
 }

@@ -3,6 +3,15 @@ import public "user.proto";
 
 package bbproto;
 
+enum EPaiType {
+    ZJH_TYPE_SANPAI     = 1;
+    ZJH_TYPE_DUIZI      = 2;
+    ZJH_TYPE_SHUNZI     = 3;
+    ZJH_TYPE_TONGHUA    = 4;
+    ZJH_TYPE_TONGHUASHUN = 5;
+    ZJH_TYPE_BAOZI      = 6;
+}
+
 
 //进入扎金花的房间:押注中(剩余time）、开奖中（剩余time）、jackpot奖池金额、balance、庄家信息、在座玩家
 message ZjhRoom {
