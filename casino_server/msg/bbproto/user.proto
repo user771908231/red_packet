@@ -3,6 +3,6 @@ package bbproto;
 message User {
 	optional string  			name 			= 2;  	// name
 	optional int32				balance			= 3;	//用户的余额
-	optional uint32				userId			= 4;
+	optional uint32				id				= 4;
 	optional string				NickName		= 5;	//用户的昵称
 }

@@ -3,6 +3,8 @@ package mode
 
 import "gopkg.in/mgo.v2/bson"
 
+//import "gopkg.in/mgo.v2/bson"
+
 type User struct {
 	Mid		bson.ObjectId		`json:"mid" bson:"_id"`
 	Id 		uint32		//id

@@ -117,7 +117,7 @@ func newUserAndSave() (*bbproto.User, error) {
 
 	//构造user
 	nuser := &bbproto.User{}
-	nuser.UserId = &userId
+	nuser.Id = &userId
 	nuser.NickName = &Nickname
 	nuser.Balance = &intCons.NUM_INT32_0
 	err = s.DB(casinoConf.DB_NAME).C(casinoConf.DBT_T_USER).Insert(nuser)
@@ -154,7 +154,7 @@ func GetUserById(id uint32) *bbproto.User {
 	key := GetRedisUserKey(id)
 	result := &bbproto.User{}
 	conn.GetObj(key, result)
-	if result == nil || result.GetUserId() == 0 {
+	if result == nil || result.GetId() == 0 {
 
 		log.E("redis中没有找到user[%v],需要在mongo中查询,并且缓存在redis中。", id)
 		// 获取连接 connection
@@ -169,7 +169,7 @@ func GetUserById(id uint32) *bbproto.User {
 		//从数据库中查询user
 		user := &bbproto.User{}
 		s.DB(casinoConf.DB_NAME).C(casinoConf.DBT_T_USER).Find(bson.M{"id": id}).One(user)
-		if user.GetUserId() < casinoConf.MIN_USER_ID {
+		if user.GetId() < casinoConf.MIN_USER_ID {
 			result = nil
 		}
 	}
@@ -184,13 +184,13 @@ func SaveUser2Redis(u *bbproto.User) {
 	conn := data.Data{}
 	conn.Open(casinoConf.REDIS_DB_NAME)
 	defer conn.Close()
-	key := GetRedisUserKey(u.GetUserId())
+	key := GetRedisUserKey(u.GetId())
 	conn.SetObj(key, u)
 }
 
 
 func UpsertUser2Mongo(u *bbproto.User){
-	c, err := mongodb.Dial("localhost", 51668)
+	c, err := mongodb.Dial(casinoConf.DB_IP, casinoConf.DB_PORT)
 	if err != nil {
 		fmt.Println(err)
 		return
@@ -200,7 +200,7 @@ func UpsertUser2Mongo(u *bbproto.User){
 	// 获取回话 session
 	s := c.Ref()
 	defer c.UnRef(s)
-	s.DB(casinoConf.DB_NAME).C(casinoConf.DBT_T_TEST).UpsertId(bson.M{"id": u.GetUserId()},u)
+	s.DB(casinoConf.DB_NAME).C(casinoConf.DBT_T_USER).UpsertId(bson.M{"id": u.GetId()},u)
 
 }
 /**

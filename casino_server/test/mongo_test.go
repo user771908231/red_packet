@@ -8,7 +8,6 @@ import (
 	"gopkg.in/mgo.v2/bson"
 	"casino_server/mode"
 	"casino_server/msg/bbprotogo"
-	"casino_server/service/userService"
 )
 
 
@@ -21,14 +20,44 @@ func TestM(t *testing.T){
 	//selectSub2(t)
 	//selectSub3(t)
 	//nestSeq(t)
-
-	testUpsertUser()
+	testUpsertUser(t)
 }
-func testUpsertUser(){
-	var userId uint32 = 99999
-	user := &bbproto.TUser{}
-	user.Id = &userId
-	userService.UpsertUser2Mongo(user)
+func testUpsertUser(t *testing.T){
+	fmt.Println("开始保存")
+	var userId int = 99999
+	user := &bbproto.User{}
+	//user.Id = &userId
+	//userService.UpsertUser2Mongo(user)
+	//fmt.Println("保存结束")
+
+	t.Log("开始测试保存到数据库\n")
+
+	// 获取连接 connection
+	c, err := mongodb.Dial("localhost", 51668)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	defer c.Close()
+
+	// 获取回话 session
+	s := c.Ref()
+	defer c.UnRef(s)
+
+	vid := uint32(userId)
+	user.Id = &vid
+	//user.Mid = bson.NewObjectId();
+	e := s.DB("test").C("t_user").Insert(user)
+	if e != nil {
+		t.Error(e)
+	}
+
+	var testResult mode.T_test
+	testResult.Name = "测试2"
+	testResult.Mid = bson.NewObjectId()
+	s.DB(casinoConf.DB_NAME).C(casinoConf.DBT_T_TEST).Insert(testResult)
+
+	t.Log("开始测试保存到数据库--end\n")
 }
 
 
@@ -50,7 +79,7 @@ func _TestSave(t *testing.T){
 	user := mode.User{}
 	id,_ :=  c.NextSeq("test", "t_user", "id")
 	user.Id = uint32(id)
-	user.Mid = bson.NewObjectId();
+	//user.Mid = bson.NewObjectId();
 	e := s.DB("test").C("t_user").Insert(user)
 	if e != nil {
 		t.Error(e)
@@ -95,7 +124,7 @@ func _select(t *testing.T){
 
 	result := mode.User{}
 	s.DB(casinoConf.DB_NAME).C(casinoConf.DBT_T_USER).Find(bson.M{"id": 19}).One(&result)
-	t.Log("Mid ",result.Mid)
+	//t.Log("Mid ",result.Mid)
 	t.Log("Id ",result.Id)
 	t.Log("Mobile ",result.Mobile)
 	t.Log("Name ",result.Name)
