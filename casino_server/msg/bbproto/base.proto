@@ -21,6 +21,11 @@ enum  EProtoId{
 	ZJHREQSEAT			= 14;
 	ZJHLOTTERY			= 15;
 	ZJHBROADCASTBEGINBET = 16;
+
+	LOGINSIGNINBONUS	=	17;		//17	登录签到奖励
+	LOGINTURNTABLEBONUS	=	18;		//18	登录转盘奖励
+	OLINEBONUS			=	19;		//19	在线奖励
+	TIMINGBONUS			=	20;		//20	定时奖励
 }
 
 //general response protocol

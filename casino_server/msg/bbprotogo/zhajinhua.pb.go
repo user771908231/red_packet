@@ -65,7 +65,7 @@ func (x *EPaiType) UnmarshalJSON(data []byte) error {
 	*x = EPaiType(value)
 	return nil
 }
-func (EPaiType) EnumDescriptor() ([]byte, []int) { return fileDescriptor10, []int{0} }
+func (EPaiType) EnumDescriptor() ([]byte, []int) { return fileDescriptor11, []int{0} }
 
 // 进入扎金花的房间:押注中(剩余time）、开奖中（剩余time）、jackpot奖池金额、balance、庄家信息、在座玩家
 type ZjhRoom struct {
@@ -84,7 +84,7 @@ type ZjhRoom struct {
 func (m *ZjhRoom) Reset()                    { *m = ZjhRoom{} }
 func (m *ZjhRoom) String() string            { return proto.CompactTextString(m) }
 func (*ZjhRoom) ProtoMessage()               {}
-func (*ZjhRoom) Descriptor() ([]byte, []int) { return fileDescriptor10, []int{0} }
+func (*ZjhRoom) Descriptor() ([]byte, []int) { return fileDescriptor11, []int{0} }
 
 func (m *ZjhRoom) GetHeader() *ProtoHeader {
 	if m != nil {
@@ -159,7 +159,7 @@ type ZjhBet struct {
 func (m *ZjhBet) Reset()                    { *m = ZjhBet{} }
 func (m *ZjhBet) String() string            { return proto.CompactTextString(m) }
 func (*ZjhBet) ProtoMessage()               {}
-func (*ZjhBet) Descriptor() ([]byte, []int) { return fileDescriptor10, []int{1} }
+func (*ZjhBet) Descriptor() ([]byte, []int) { return fileDescriptor11, []int{1} }
 
 func (m *ZjhBet) GetHeader() *ProtoHeader {
 	if m != nil {
@@ -189,7 +189,7 @@ type ZjhLottery struct {
 func (m *ZjhLottery) Reset()                    { *m = ZjhLottery{} }
 func (m *ZjhLottery) String() string            { return proto.CompactTextString(m) }
 func (*ZjhLottery) ProtoMessage()               {}
-func (*ZjhLottery) Descriptor() ([]byte, []int) { return fileDescriptor10, []int{2} }
+func (*ZjhLottery) Descriptor() ([]byte, []int) { return fileDescriptor11, []int{2} }
 
 func (m *ZjhLottery) GetHeader() *ProtoHeader {
 	if m != nil {
@@ -229,7 +229,7 @@ type BroadcastBet struct {
 func (m *BroadcastBet) Reset()                    { *m = BroadcastBet{} }
 func (m *BroadcastBet) String() string            { return proto.CompactTextString(m) }
 func (*BroadcastBet) ProtoMessage()               {}
-func (*BroadcastBet) Descriptor() ([]byte, []int) { return fileDescriptor10, []int{3} }
+func (*BroadcastBet) Descriptor() ([]byte, []int) { return fileDescriptor11, []int{3} }
 
 func (m *BroadcastBet) GetHeader() *ProtoHeader {
 	if m != nil {
@@ -258,7 +258,7 @@ type ZjhPai struct {
 func (m *ZjhPai) Reset()                    { *m = ZjhPai{} }
 func (m *ZjhPai) String() string            { return proto.CompactTextString(m) }
 func (*ZjhPai) ProtoMessage()               {}
-func (*ZjhPai) Descriptor() ([]byte, []int) { return fileDescriptor10, []int{4} }
+func (*ZjhPai) Descriptor() ([]byte, []int) { return fileDescriptor11, []int{4} }
 
 func (m *ZjhPai) GetPaiType() int32 {
 	if m != nil && m.PaiType != nil {
@@ -308,7 +308,7 @@ type Pai struct {
 func (m *Pai) Reset()                    { *m = Pai{} }
 func (m *Pai) String() string            { return proto.CompactTextString(m) }
 func (*Pai) ProtoMessage()               {}
-func (*Pai) Descriptor() ([]byte, []int) { return fileDescriptor10, []int{5} }
+func (*Pai) Descriptor() ([]byte, []int) { return fileDescriptor11, []int{5} }
 
 func (m *Pai) GetMapKey() int32 {
 	if m != nil && m.MapKey != nil {
@@ -354,7 +354,7 @@ type ZjhQueryNoSeatUser struct {
 func (m *ZjhQueryNoSeatUser) Reset()                    { *m = ZjhQueryNoSeatUser{} }
 func (m *ZjhQueryNoSeatUser) String() string            { return proto.CompactTextString(m) }
 func (*ZjhQueryNoSeatUser) ProtoMessage()               {}
-func (*ZjhQueryNoSeatUser) Descriptor() ([]byte, []int) { return fileDescriptor10, []int{6} }
+func (*ZjhQueryNoSeatUser) Descriptor() ([]byte, []int) { return fileDescriptor11, []int{6} }
 
 func (m *ZjhQueryNoSeatUser) GetHeader() *ProtoHeader {
 	if m != nil {
@@ -372,7 +372,7 @@ type ZjhReqSeat struct {
 func (m *ZjhReqSeat) Reset()                    { *m = ZjhReqSeat{} }
 func (m *ZjhReqSeat) String() string            { return proto.CompactTextString(m) }
 func (*ZjhReqSeat) ProtoMessage()               {}
-func (*ZjhReqSeat) Descriptor() ([]byte, []int) { return fileDescriptor10, []int{7} }
+func (*ZjhReqSeat) Descriptor() ([]byte, []int) { return fileDescriptor11, []int{7} }
 
 func (m *ZjhReqSeat) GetHeader() *ProtoHeader {
 	if m != nil {
@@ -390,7 +390,7 @@ type ZjhMsg struct {
 func (m *ZjhMsg) Reset()                    { *m = ZjhMsg{} }
 func (m *ZjhMsg) String() string            { return proto.CompactTextString(m) }
 func (*ZjhMsg) ProtoMessage()               {}
-func (*ZjhMsg) Descriptor() ([]byte, []int) { return fileDescriptor10, []int{8} }
+func (*ZjhMsg) Descriptor() ([]byte, []int) { return fileDescriptor11, []int{8} }
 
 func (m *ZjhMsg) GetHeader() *ProtoHeader {
 	if m != nil {
@@ -412,7 +412,7 @@ type ZjhBroadcastBeginBet struct {
 func (m *ZjhBroadcastBeginBet) Reset()                    { *m = ZjhBroadcastBeginBet{} }
 func (m *ZjhBroadcastBeginBet) String() string            { return proto.CompactTextString(m) }
 func (*ZjhBroadcastBeginBet) ProtoMessage()               {}
-func (*ZjhBroadcastBeginBet) Descriptor() ([]byte, []int) { return fileDescriptor10, []int{9} }
+func (*ZjhBroadcastBeginBet) Descriptor() ([]byte, []int) { return fileDescriptor11, []int{9} }
 
 func (m *ZjhBroadcastBeginBet) GetHeader() *ProtoHeader {
 	if m != nil {
@@ -470,7 +470,7 @@ func init() {
 	proto.RegisterEnum("bbproto.EPaiType", EPaiType_name, EPaiType_value)
 }
 
-var fileDescriptor10 = []byte{
+var fileDescriptor11 = []byte{
 	// 532 bytes of a gzipped FileDescriptorProto
 	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x09, 0x6e, 0x88, 0x02, 0xff, 0xa4, 0x53, 0xcb, 0x92, 0xd2, 0x40,
 	0x14, 0x35, 0x04, 0x02, 0xdc, 0x61, 0x06, 0x6c, 0x59, 0x44, 0xab, 0x2c, 0xa7, 0x52, 0x2e, 0x2c,

@@ -3,9 +3,15 @@ package mode
 
 import "gopkg.in/mgo.v2/bson"
 
-//import "gopkg.in/mgo.v2/bson"
 
-type User struct {
+
+/**
+
+	warn 需要注意的事情:
+	model中比较ObjectId
+ */
+
+type T_user struct {
 	Mid		bson.ObjectId		`json:"mid" bson:"_id"`
 	Id 		uint32		//id
 	Name 		string
@@ -16,6 +22,8 @@ type User struct {
 	Location 	string		//地区
 	Password 	string
 	Mobile 		string
+
+	Balance		int32		//余额
 
 	Gold		int32		//金币
 	Diamond		int32		//钻石

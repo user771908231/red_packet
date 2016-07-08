@@ -279,6 +279,12 @@ func (r *zjhRoom) lottery(t time.Time){
 			result := &bbproto.ZjhLottery{}
 			result.Header = protoUtils.GetSuccHeader()					//包头,返回结果
 			result.Zjhpai = r.Zjhpai							//纸牌中,第一幅牌是庄家的牌
+			userMe := userService.GetUserById(key)
+			if userMe == nil {
+				log.E("用户userId[%v]没有找到.",key)
+				return
+			}
+
 			result.Balance = userService.GetUserById(key).Balance				//自己的余额
 			result.WinAmount = betRecode.WinAmount						//本局的输赢分数
 

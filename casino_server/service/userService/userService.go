@@ -14,6 +14,7 @@ import (
 	"casino_server/utils/redis"
 	"casino_server/utils/numUtils"
 	"strings"
+	"casino_server/mode"
 )
 
 
@@ -167,10 +168,13 @@ func GetUserById(id uint32) *bbproto.User {
 		defer c.UnRef(s)
 
 		//从数据库中查询user
-		user := &bbproto.User{}
-		s.DB(casinoConf.DB_NAME).C(casinoConf.DBT_T_USER).Find(bson.M{"id": id}).One(user)
-		if user.GetId() < casinoConf.MIN_USER_ID {
+		tuser := &mode.T_user{}
+		s.DB(casinoConf.DB_NAME).C(casinoConf.DBT_T_USER).Find(bson.M{"id": id}).One(tuser)
+		if tuser.Id < casinoConf.MIN_USER_ID {
 			result = nil
+		}else{
+			//把从数据获得的结果填充到redis的model中
+			result,_ = Tuser2Ruser(tuser)
 		}
 	}
 
@@ -190,6 +194,7 @@ func SaveUser2Redis(u *bbproto.User) {
 
 
 func UpsertUser2Mongo(u *bbproto.User){
+	//得到数据库连接池
 	c, err := mongodb.Dial(casinoConf.DB_IP, casinoConf.DB_PORT)
 	if err != nil {
 		fmt.Println(err)
@@ -200,7 +205,10 @@ func UpsertUser2Mongo(u *bbproto.User){
 	// 获取回话 session
 	s := c.Ref()
 	defer c.UnRef(s)
-	s.DB(casinoConf.DB_NAME).C(casinoConf.DBT_T_USER).UpsertId(bson.M{"id": u.GetId()},u)
+
+	//把bbproto.User转化为  model.User
+	tuser,_:=Ruser2Tuser(u)	//
+	s.DB(casinoConf.DB_NAME).C(casinoConf.DBT_T_USER).UpsertId(bson.M{"_id": tuser.Mid},tuser)
 
 }
 /**
@@ -212,7 +220,6 @@ func UpUserBalance(userId uint32, amount int32,utype int) error {
 	l := userLockPool.getUserLockByUserId(userId)
 	l.Lock()
 	defer l.Unlock()
-
 
 	//2,跟新redis中的值
 	//由于用户user相关的都会存在redis 中的,所以肯定会更新redis
@@ -228,4 +235,44 @@ func UpUserBalance(userId uint32, amount int32,utype int) error {
 	}
 
 	return nil
+}
+
+
+/**
+	mongo中User模型转化为 redis中的user模型
+ */
+func Tuser2Ruser(tu *mode.T_user)(*bbproto.User,error){
+	result := &bbproto.User{}
+	if tu.Mid.Hex() != "" {
+		hesStr := tu.Mid.Hex()
+		result.Mid = &hesStr
+		log.T(" 活的t_user.mid %v",hesStr)
+	}
+
+	result.Name = &tu.Name
+	result.Id = &tu.Id
+	result.NickName = &tu.Name
+	result.Balance = &tu.Balance
+	return result,nil
+}
+
+/**
+	redis中的user模型转化为mongdo的User模型
+	把Redis_user 转化为mongo_t_user的时候喂自动为其分配objectId,方存储
+ */
+
+func Ruser2Tuser(ru *bbproto.User) (*mode.T_user,error){
+	result := &mode.T_user{}
+
+	if ru.Mid != nil {
+		result.Mid = bson.ObjectIdHex(ru.GetMid())
+	}else{
+		result.Mid = bson.NewObjectId()
+	}
+
+	result.Id = ru.GetId()
+	result.Name = ru.GetName()
+	result.NickName = ru.GetNickName()
+	result.Balance = ru.GetBalance()
+	return result,nil
 }

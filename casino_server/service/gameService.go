@@ -4,5 +4,3 @@ func handlerGetIntoRoom(){
 
 
 }
-
-

@@ -18,7 +18,7 @@ func f1(t *testing.T){
 		t.Error(err)
 	}
 
-	user:=mode.User{
+	user:=mode.T_user{
 		Name:"cacheuser",
 	}
 

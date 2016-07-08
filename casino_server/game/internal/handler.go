@@ -32,7 +32,6 @@ func init() {
 	handler(&bbproto.ZjhReqSeat{},handlerZjhReqSeat)
 	handler(&bbproto.ZjhQueryNoSeatUser{},handlerZjhQueryNoSeatUser)
 
-
 }
 
 func handler(m interface{}, h interface{}) {

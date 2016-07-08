@@ -1,7 +1,4 @@
 package login
-
-import (
-)
 import "casino_server/login/internal"
 
 var (

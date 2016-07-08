@@ -2,19 +2,22 @@ package mongodb
 
 import (
 	"testing"
+	"casino_server/mode"
 	"fmt"
-	"casino_server/msg/bbprotogo"
 )
 
-var a int32 = 20
 
 func TestTemp(t *testing.T) {
 
-	ha := int32(1)
-	if ha == int32(bbproto.EProtoId_REG) {
-		fmt.Println("哈哈哈")
+	u := &mode.T_user{}
+	//u.Mid = bson.NewObjectId()
+	fmt.Println("v:",u.Mid)
+	fmt.Println("v:",u.Mid.Hex())
+	fmt.Println("v:",u.Mid.String())
+	if u.Mid.Hex() == "" {
+		fmt.Println("u.mid == nil")
 	}else{
-		fmt.Println("gagaga ")
+		fmt.Println(" u.mid != nil")
 	}
 
 }

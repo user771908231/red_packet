@@ -10,6 +10,7 @@ import (
 )
 
 const url = "192.168.199.120:3563"
+//const url = "182.92.179.230:3563"
 const TCP = "tcp"
 
 func TestGetIntoRoom(t *testing.T) {

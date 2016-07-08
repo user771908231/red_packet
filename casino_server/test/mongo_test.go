@@ -76,7 +76,7 @@ func _TestSave(t *testing.T){
 	s := c.Ref()
 	defer c.UnRef(s)
 
-	user := mode.User{}
+	user := mode.T_user{}
 	id,_ :=  c.NextSeq("test", "t_user", "id")
 	user.Id = uint32(id)
 	//user.Mid = bson.NewObjectId();
@@ -122,7 +122,7 @@ func _select(t *testing.T){
 	s := c.Ref()
 	defer c.UnRef(s)
 
-	result := mode.User{}
+	result := mode.T_user{}
 	s.DB(casinoConf.DB_NAME).C(casinoConf.DBT_T_USER).Find(bson.M{"id": 19}).One(&result)
 	//t.Log("Mid ",result.Mid)
 	t.Log("Id ",result.Id)

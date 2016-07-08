@@ -32,4 +32,13 @@ func init() {
 	PortoProcessor.Register(&bbproto.ZjhLottery{})		//15	进入扎金花的房间
 	PortoProcessor.Register(&bbproto.ZjhBroadcastBeginBet{})	//16 广播可以押注了
 
+
+	//用户奖励相关的
+	PortoProcessor.Register(&bbproto.LoginSignInBonus{})	//17	登录签到奖励
+	PortoProcessor.Register(&bbproto.LoginTurntableBonus{})	//18	登录转盘奖励
+	PortoProcessor.Register(&bbproto.OlineBonus{})		//19	在线奖励
+	PortoProcessor.Register(&bbproto.TimingBonus{})		//20	定时奖励
+
+
+
 }
