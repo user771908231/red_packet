@@ -61,13 +61,17 @@ type zjhRoom struct {
  */
 func OninitZjgRoom(){
 	log.T("初始化扎金花的房间")
-
 	//初始化参数 agent 的集合
 	ZJHroom.AgentMap = make(map[uint32] gate.Agent)		//初始化agent缓冲区
 	ZJHroom.zoneAmount = make([]int32,4)			//初始化押注区
 	ZJHroom.zoneWinAmount = make([]int32,4)			//初始化押注区的输赢分数
 	ZJHroom.Oninit(time.Now())				//初始化开始押注时间,押注结束时间,开奖时间
-	ZJHroom.run()						//启动扎金花房间的run任务
+
+	if casinoConf.SWITCH_ZJH {
+		ZJHroom.run()						//启动扎金花房间的run任务
+	}
+
+
 }
 
 
@@ -285,7 +289,7 @@ func (r *zjhRoom) lottery(t time.Time){
 				return
 			}
 
-			result.Balance = userService.GetUserById(key).Balance				//自己的余额
+			result.Balance = userService.GetUserById(key).Coin				//自己的余额
 			result.WinAmount = betRecode.WinAmount						//本局的输赢分数
 
 			//更新用户的信息,保存用户信息到redis

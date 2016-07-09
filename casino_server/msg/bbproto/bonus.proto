@@ -12,11 +12,11 @@ package bbproto;
 
 //访问协议
 
-
 //登陆转盘奖励,每天最多一次
 message LoginTurntableBonus{
     optional ProtoHeader	header				     = 1;
-    repeated int32          bonusZone                = 2;   //标志中奖的区域,转盘的index大小待确定
+    optional int32          succIndex                = 2;   //中奖的index是哪个?
+    optional int32          bonusAmount              = 3;   //中奖的数据
 }
 
 //每日签到的签到奖励

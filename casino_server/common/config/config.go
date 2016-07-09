@@ -142,6 +142,11 @@ func InitMongoDb() error{
 		return err
 	}
 
+	//为转盘奖励设置自增主键
+	err = c.EnsureCounter(casinoConf.DB_NAME, casinoConf.DBT_T_BONUS_TURNTABLE, casinoConf.DB_ENSURECOUNTER_KEY)
+	if err != nil {
+		return err
+	}
 
 	return nil
 }

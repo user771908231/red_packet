@@ -120,7 +120,7 @@ func newUserAndSave() (*bbproto.User, error) {
 	nuser := &bbproto.User{}
 	nuser.Id = &userId
 	nuser.NickName = &Nickname
-	nuser.Balance = &intCons.NUM_INT32_0
+	nuser.Coin = &intCons.NUM_INT32_0
 	err = s.DB(casinoConf.DB_NAME).C(casinoConf.DBT_T_USER).Insert(nuser)
 	if err != nil {
 		return nil,err
@@ -177,7 +177,7 @@ func GetUserById(id uint32) *bbproto.User {
 			result,_ = Tuser2Ruser(tuser)
 		}
 	}
-
+	result.OninitLoginTurntableState()	//初始化登录转盘之后的奖励
 	return result
 }
 
@@ -217,16 +217,16 @@ func UpsertUser2Mongo(u *bbproto.User){
 func UpUserBalance(userId uint32, amount int32,utype int) error {
 
 	//1,获得锁
-	l := userLockPool.getUserLockByUserId(userId)
+	l := UserLockPools.GetUserLockByUserId(userId)
 	l.Lock()
 	defer l.Unlock()
 
 	//2,跟新redis中的值
 	//由于用户user相关的都会存在redis 中的,所以肯定会更新redis
 	user := GetUserById(userId)
-	var b int32 = user.GetBalance()
+	var b int32 = user.GetCoin()
 	b += amount
-	user.Balance = &b
+	user.Coin = &b
 	SaveUser2Redis(user)	//保存user
 
 	//3,更新mongo 中的值
@@ -252,7 +252,7 @@ func Tuser2Ruser(tu *mode.T_user)(*bbproto.User,error){
 	result.Name = &tu.Name
 	result.Id = &tu.Id
 	result.NickName = &tu.Name
-	result.Balance = &tu.Balance
+	result.Coin = &tu.Coin
 	return result,nil
 }
 
@@ -273,6 +273,14 @@ func Ruser2Tuser(ru *bbproto.User) (*mode.T_user,error){
 	result.Id = ru.GetId()
 	result.Name = ru.GetName()
 	result.NickName = ru.GetNickName()
-	result.Balance = ru.GetBalance()
+	result.Coin = ru.GetCoin()
 	return result,nil
+}
+
+func CheckUserIdRightful(userId uint32) bool{
+	if userId  > casinoConf.MAX_USER_ID || userId < casinoConf.MIN_USER_ID {
+		return false
+	}else{
+		return true
+	}
 }

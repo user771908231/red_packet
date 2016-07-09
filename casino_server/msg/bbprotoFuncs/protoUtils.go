@@ -14,6 +14,14 @@ func GetSuccHeader() *bbproto.ProtoHeader {
 	return result
 }
 
+func GetSuccHeaderwithUserid(userId *uint32) *bbproto.ProtoHeader {
+	result := &bbproto.ProtoHeader{}
+	result.Code = &intCons.CODE_SUCC
+	result.UserId = userId
+	return result
+}
+
+
 func GetSuccHeaderwithMsgUserid(userId *uint32, msg *string) *bbproto.ProtoHeader {
 	result := &bbproto.ProtoHeader{}
 	result.Code = &intCons.CODE_SUCC

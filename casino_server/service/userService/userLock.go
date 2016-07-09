@@ -3,7 +3,7 @@ package userService
 import "sync"
 
 
-var userLockPool UserLockPool
+var UserLockPools UserLockPool
 
 func init(){
 	userLockPool := &UserLockPool{}
@@ -30,7 +30,7 @@ type UserLockPool struct {
 /**
 	通过UserId活的用户锁
  */
-func (u *UserLockPool) getUserLockByUserId(userId uint32) *UserLock{
+func (u *UserLockPool) GetUserLockByUserId(userId uint32) *UserLock{
 	result := u.pool[userId]
 	return result
 }
