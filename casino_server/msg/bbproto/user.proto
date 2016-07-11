@@ -8,6 +8,9 @@ message User {
 	optional string				nickName		= 5;	//用户的昵称
 	optional bool				loginTurntable	= 6;	//今日转盘奖励是否领取
 	optional string				loginTurntableTime = 7;	//今日领取时间
-	optional int32				scores			=8;		//积分
+	optional int32				scores			= 8;	//积分
+
+	optional string				lastSignTime	= 9;	//最后一次签到的时间
+	optional int32				signCount		= 10;	//连续签到的次数
 
 }

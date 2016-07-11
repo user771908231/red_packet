@@ -192,6 +192,15 @@ func SaveUser2Redis(u *bbproto.User) {
 	conn.SetObj(key, u)
 }
 
+/**
+	保存数据到redis和mongo中
+ */
+func SaveUser2RedisAndMongo(u *bbproto.User){
+	SaveUser2Redis(u)
+	UpsertUser2Mongo(u)
+}
+
+
 
 func UpsertUser2Mongo(u *bbproto.User){
 	//得到数据库连接池

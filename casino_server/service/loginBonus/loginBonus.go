@@ -26,6 +26,10 @@ var LoginTurntableProMax = 200
 var LoginTurntableCount  = 11		//转盘的格子最大数目
 
 
+//config 连续签到配置。
+var LoginSignBonus []int32 = []int32{0,100,500,1000,5000,6000,10000}	//连续签到
+
+
 /**
 	转盘奖励:
 	1,每日只有一次
@@ -140,6 +144,59 @@ func updateTurntableBonus(userId uint32,amount int32) error{
 	user.LoginTurntableTime = timeUtils.FormatYYYYMMDD(time.Now())
 	user.Coin = &coinResult
 	userService.SaveUser2Redis(user)
+
+	return nil
+}
+
+
+/**
+	处理连续签到登录奖励的问题
+ */
+func HandleLoginSignInBonus(m *bbproto.LoginSignInBonus,a gate.Agent) error{
+	//加锁
+	//判断参数是否正确
+	userId := m.GetHeader().GetUserId()
+	if !userService.CheckUserIdRightful(userId) {
+		log.E("用户Id无效")
+		return errors.New("用户Id不合法")
+	}
+
+	lock := userService.UserLockPools.GetUserLockByUserId(userId)
+	lock.Lock()
+	defer lock.Unlock()
+
+	//判断是否是连续签到
+	var signCount int32 = 1		//第一天签到
+	user := userService.GetUserById(userId)
+	nowTime := timeUtils.NowYYYYMMDD()
+	lastSignTime :=  timeUtils.StringYYYYMMDD2time(user.GetLastSignTime())
+	if nowTime.Year()==lastSignTime.Year() && nowTime.Month() == lastSignTime.Month() && (nowTime.Day()-lastSignTime.Day())==1 {
+		//满足条件 年份相同,月份相同,上次签到的号数和当前时间相差一天则表示连续签到
+		signCount = user.GetSignCount()+1
+	}
+	user.SignCount = &signCount	//用户的连续签到次数
+	user.LastSignTime = timeUtils.FormatYYYYMMDD(nowTime)
+
+	//计算应该得到的奖励
+	var coinBonus int32 =0
+	if user.GetSignCount() >= len(LoginSignBonus) {
+		coinBonus =  LoginSignBonus[len(LoginSignBonus-1)]
+	}else{
+		coinBonus =  LoginSignBonus[user.GetSignCount()]
+	}
+	var coinTotal int32 = user.GetCoin() + coinBonus
+	user.Coin = &coinTotal
+
+	userService.SaveUser2Redis(user)
+
+	//发送奖励
+	result := &bbproto.LoginSignInBonus{}
+	result.Header = protoUtils.GetSuccHeaderwithUserid(user.Id)
+	result.Count = user.SignCount
+	result.Coin = user.Coin
+
+	//给客户端发送信息
+	a.WriteMsg(result)
 
 	return nil
 }

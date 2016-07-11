@@ -1,7 +1,10 @@
 
 package mode
 
-import "gopkg.in/mgo.v2/bson"
+import (
+	"gopkg.in/mgo.v2/bson"
+	"time"
+)
 
 
 
@@ -31,6 +34,8 @@ type T_user struct {
 	Rank     string   //称号
 
 	Gift     []string //礼物的记录
+	TimeLastSign	time.Time	//最后一次签到时间
+	ContinueSignCount int32		//连续签到的次数
 }
 
 

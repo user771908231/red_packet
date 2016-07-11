@@ -22,6 +22,8 @@ message LoginTurntableBonus{
 //每日签到的签到奖励
 message LoginSignInBonus{
     optional ProtoHeader	header				     = 1;
+    optional int32          count                    = 2;   //签到的时候,连续签到的次数
+    optional int32          coin                     = 3;   //获得的奖励
 
 }
 
