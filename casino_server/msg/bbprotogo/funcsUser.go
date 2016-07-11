@@ -22,4 +22,8 @@ func (u *User) OninitLoginTurntableState(){
 	}
 
 	u.LoginTurntable = &able
+
+	//todo 需要删除的代码,这里方便测试转盘奖励
+	able = true
+	u.LoginTurntable = &able
 }

@@ -42,7 +42,6 @@ func handleLoginTurntableBonus(args []interface{}){
 	log.T("进入了处理登录转盘奖励的接口...handleLoginTurntableBonus")
 	m := args[0].(*bbproto.LoginTurntableBonus)
 	a := args[1].(gate.Agent)
-	log.T("",m,a)
 	loginBonus.HandleLoginTurntableBonus(m,a)
 
 

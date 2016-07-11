@@ -117,15 +117,19 @@ func newUserAndSave() (*bbproto.User, error) {
 	Nickname := config.RandNickname()
 
 	//构造user
-	nuser := &bbproto.User{}
-	nuser.Id = &userId
-	nuser.NickName = &Nickname
-	nuser.Coin = &intCons.NUM_INT32_0
+	nuser := &mode.T_user{}
+	nuser.Mid = bson.NewObjectId()
+	nuser.Id = userId
+	nuser.NickName = Nickname
+	nuser.Coin = intCons.NUM_INT32_0
 	err = s.DB(casinoConf.DB_NAME).C(casinoConf.DBT_T_USER).Insert(nuser)
 	if err != nil {
+		log.E("保存用户的时候失败 error【%v】",err.Error())
 		return nil,err
 	}
-	return nuser, nil
+
+	result,_ := Tuser2Ruser(nuser)
+	return result, nil
 
 }
 
@@ -177,8 +181,15 @@ func GetUserById(id uint32) *bbproto.User {
 			result,_ = Tuser2Ruser(tuser)
 		}
 	}
-	result.OninitLoginTurntableState()	//初始化登录转盘之后的奖励
-	return result
+
+	//判断用户是否存在,如果不存在,则返回空
+	if result == nil {
+		return nil
+	}else{
+		result.OninitLoginTurntableState()	//初始化登录转盘之后的奖励
+		return result
+	}
+
 }
 
 /**
@@ -255,7 +266,7 @@ func Tuser2Ruser(tu *mode.T_user)(*bbproto.User,error){
 	if tu.Mid.Hex() != "" {
 		hesStr := tu.Mid.Hex()
 		result.Mid = &hesStr
-		log.T(" 活的t_user.mid %v",hesStr)
+		log.T("获得t_user.mid %v",hesStr)
 	}
 
 	result.Name = &tu.Name

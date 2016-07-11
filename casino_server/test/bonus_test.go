@@ -23,10 +23,9 @@ func testLoginTurntable(){
 	}
 	defer conn.Close()
 
-
 	//请求登陆奖励
 	ide := bbproto.EProtoId_value[bbproto.EProtoId_LOGINTURNTABLEBONUS.String()]
-	var userId uint32 = 10001
+	var userId uint32 = 10005
 	res := &bbproto.LoginTurntableBonus{}
 	res.Header = protoUtils.GetSuccHeaderwithUserid(&userId)
 
@@ -34,7 +33,8 @@ func testLoginTurntable(){
 	conn.Write(test.AssembleData(uint16(ide), res))
 	fmt.Println("请求结束")
 
-	result := test.Read(conn).(*bbproto.ZjhRoom)
-	fmt.Println("读取到的结果:",result)
+	result := test.Read(conn).(*bbproto.LoginTurntableBonus)
+	fmt.Println("读取到的结果-code:",result.GetHeader().GetCode())
+	fmt.Println("读取到的结果-msg:",result.GetHeader().GetError())
 
 }

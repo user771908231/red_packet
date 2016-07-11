@@ -20,7 +20,7 @@ import (
 //转盘的格子
 //转盘的奖励的中奖概率设置
 
-var LoginTurntableBonus []int32 = []int32{1,2,3,4,5,6,7,8,9,10,11}
+var LoginTurntableBonus []int32 = []int32{11111,222222,333333,444444,555555,66666,777777,888888,99999,10000000,110000101}
 var LoginTurntablePro []int32 = []int32{0,10,20,30,40,50,60,70,80,90,100,110}
 var LoginTurntableProMax int32 = 200
 var LoginTurntableCount  = 11		//转盘的格子最大数目
@@ -51,8 +51,11 @@ func HandleLoginTurntableBonus(m *bbproto.LoginTurntableBonus,a gate.Agent) erro
 	//2,开始发放奖励
 	var si int32 = 0
 	pro := utils.Randn(LoginTurntableProMax)		//的到的概率
+	log.T("userId[%v]转盘的随机数[%v]",m.GetHeader().GetUserId(),pro)
 	for i := 0; i<LoginTurntableCount;i++  {
+		log.T("pro[%v],LoginTurntablePro[i[%v] + 1]--(%v)",pro,i,LoginTurntablePro[i + 1])
 		if pro < LoginTurntablePro[i + 1] {
+			log.T("pro[%v] <LoginTurntablePro[i[%v] + 1]--(%v) ",pro,i,LoginTurntablePro[i + 1])
 			si = int32(i)
 			break
 		}
@@ -88,6 +91,10 @@ func checkBonusAble(userId uint32) (error){
 
 	//2,判断今日是否可以再次领取
 	user := userService.GetUserById(userId)
+	if user == nil {
+		return errors.New("没有找到用户")
+	}
+
 	if user.GetLoginTurntable() {
 		return nil
 	}else{

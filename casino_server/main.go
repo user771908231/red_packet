@@ -14,6 +14,7 @@ import (
 	"casino_server/common/config"
 	"casino_server/common/log"
 	"math/rand"
+	"casino_server/bonus"
 )
 
 func init() {
@@ -45,5 +46,6 @@ func main() {
 		game.Module,
 		gate.Module,
 		login.Module,
+		bonus.Module,
 	)
 }

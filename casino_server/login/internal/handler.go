@@ -82,9 +82,11 @@ func handleReqAuthUser(args []interface{}){
 	resReqUser := &bbproto.ReqAuthUser{}
 	if e != nil {
 		log.E(e.Error())
-		resReqUser.Header = protoUtils.GetErrorHeaderWithMsgUserid(resUser.Id,&StrCons.STR_POINT_ERR_LOGIN_FAIL)
+		resReqUser.Header = protoUtils.GetErrorHeaderWithMsg(&StrCons.STR_POINT_ERR_LOGIN_FAIL)
 	}else{
 		resReqUser.Header = protoUtils.GetSuccHeaderwithMsgUserid(resUser.Id,&StrCons.STR_POINT_ERR_LOGIN_SUCC)
+		//增加用户锁
+		userService.UserLockPools.AddUserLockByUserId(resReqUser.GetHeader().GetUserId())
 	}
 
 	//登录是在服务器需要做的操作

@@ -1,13 +1,15 @@
 package userService
 
-import "sync"
+import (
+	"sync"
+	"casino_server/common/log"
+)
 
 
 var UserLockPools UserLockPool
 
 func init(){
-	userLockPool := &UserLockPool{}
-	userLockPool.pool = make(map[uint32]*UserLock)
+	UserLockPools.pool = make(map[uint32]*UserLock)
 }
 
 /**
@@ -31,6 +33,7 @@ type UserLockPool struct {
 	通过UserId活的用户锁
  */
 func (u *UserLockPool) GetUserLockByUserId(userId uint32) *UserLock{
+	log.T("用过userId[%v]活的锁,all【%v】",userId,u.pool)
 	result := u.pool[userId]
 	return result
 }
@@ -39,10 +42,13 @@ func (u *UserLockPool) GetUserLockByUserId(userId uint32) *UserLock{
 /**
 	为用户锁池中增加锁
  */
-func (u *UserLockPool) addUserLockByUserId(userId uint32) (*UserLock,error){
+func (u *UserLockPool) AddUserLockByUserId(userId uint32) (*UserLock,error){
 	//首先判断pool中是否已经存在,如果存在返回保存失败,如果不存在则从新生成并且返回结果
 	result := &UserLock{}
 	result.userId = userId
+	if u.pool == nil {
+		log.E("u.pool==nil")
+	}
 	u.pool[userId] = result
 	return result,nil
 }
