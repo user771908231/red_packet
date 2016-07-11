@@ -22,7 +22,7 @@ import (
 
 var LoginTurntableBonus []int32 = []int32{1,2,3,4,5,6,7,8,9,10,11}
 var LoginTurntablePro []int32 = []int32{0,10,20,30,40,50,60,70,80,90,100,110}
-var LoginTurntableProMax = 200
+var LoginTurntableProMax int32 = 200
 var LoginTurntableCount  = 11		//转盘的格子最大数目
 
 
@@ -105,7 +105,7 @@ func updateTurntableBonus(userId uint32,amount int32) error{
 	defer lock.Unlock()
 
 	user := userService.GetUserById(userId)
-	if user.LoginTurntable == false{
+	if user.GetLoginTurntable() == false{
 		log.E("用户[%v]领取转盘奖励失败,因为今天已经领取过了...",userId)
 		return errors.New("领取失败,今日奖励已经领取过了")
 	}
@@ -124,14 +124,14 @@ func updateTurntableBonus(userId uint32,amount int32) error{
 	//2,创建user获得自增主键
 	tid, err := c.NextSeq(casinoConf.DB_NAME, casinoConf.DBT_T_BONUS_TURNTABLE, casinoConf.DB_ENSURECOUNTER_KEY)
 	if err != nil {
-		return nil, err
+		return err
 	}
 	t := &mode.T_bonus_turntable{}
 	t.Mid = bson.NewObjectId()
 	t.Amount = amount
 	t.Time = time.Now()
 	t.UserId = userId
-	t.Id =tid
+	t.Id =uint32(tid)
 	err = s.DB(casinoConf.DB_NAME).C(casinoConf.DBT_T_BONUS_TURNTABLE).Insert(t)
 	if err != nil {
 		log.E("给用户发送转盘奖励的时候,出错:",err.Error())
@@ -139,9 +139,11 @@ func updateTurntableBonus(userId uint32,amount int32) error{
 	}
 	//3,更新用户的记录
 	var coinResult = user.GetCoin() + amount
+	var LoginTurntableFlag = false
+	var LoginTurntableTimeStr string= timeUtils.FormatYYYYMMDD(time.Now())
 
-	user.LoginTurntable = false;	//表示已经领取
-	user.LoginTurntableTime = timeUtils.FormatYYYYMMDD(time.Now())
+	user.LoginTurntable = &LoginTurntableFlag;	//表示已经领取
+	user.LoginTurntableTime = &LoginTurntableTimeStr
 	user.Coin = &coinResult
 	userService.SaveUser2Redis(user)
 
@@ -166,21 +168,23 @@ func HandleLoginSignInBonus(m *bbproto.LoginSignInBonus,a gate.Agent) error{
 	defer lock.Unlock()
 
 	//判断是否是连续签到
-	var signCount int32 = 1		//第一天签到
-	user := userService.GetUserById(userId)
 	nowTime := timeUtils.NowYYYYMMDD()
+	var signCount int32 = 1		//第一天签到
+	var lastSignTimeStr = timeUtils.FormatYYYYMMDD(nowTime)
+	user := userService.GetUserById(userId)
+
 	lastSignTime :=  timeUtils.StringYYYYMMDD2time(user.GetLastSignTime())
 	if nowTime.Year()==lastSignTime.Year() && nowTime.Month() == lastSignTime.Month() && (nowTime.Day()-lastSignTime.Day())==1 {
 		//满足条件 年份相同,月份相同,上次签到的号数和当前时间相差一天则表示连续签到
 		signCount = user.GetSignCount()+1
 	}
 	user.SignCount = &signCount	//用户的连续签到次数
-	user.LastSignTime = timeUtils.FormatYYYYMMDD(nowTime)
+	user.LastSignTime = &lastSignTimeStr
 
 	//计算应该得到的奖励
 	var coinBonus int32 =0
-	if user.GetSignCount() >= len(LoginSignBonus) {
-		coinBonus =  LoginSignBonus[len(LoginSignBonus-1)]
+	if user.GetSignCount() >= int32(len(LoginSignBonus)) {
+		coinBonus =  LoginSignBonus[len(LoginSignBonus)-1]
 	}else{
 		coinBonus =  LoginSignBonus[user.GetSignCount()]
 	}
