@@ -40,5 +40,9 @@ func init() {
 	PortoProcessor.Register(&bbproto.TimingBonus{})		//20	定时奖励
 
 
+	//德州扑克
+	PortoProcessor.Register(&bbproto.ThRoom{})		//21	德州扑克
+
+
 
 }

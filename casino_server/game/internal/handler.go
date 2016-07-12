@@ -32,6 +32,10 @@ func init() {
 	handler(&bbproto.ZjhReqSeat{},handlerZjhReqSeat)
 	handler(&bbproto.ZjhQueryNoSeatUser{},handlerZjhQueryNoSeatUser)
 
+	//德州扑克相关的业务
+	handler(&bbproto.ThRoom{},handlerThRoom)
+
+
 }
 
 func handler(m interface{}, h interface{}) {
@@ -222,4 +226,13 @@ func handlerZjhQueryNoSeatUser(args []interface{}){
 	log.T("进入到扎金花的房间 game.handlerZjhQueryNoSeatUser()")
 }
 
+
+/**
+	退出或者进入德州扑克的房间
+ */
+func handlerThRoom(args []interface{}){
+	log.T("退出或者进入德州扑克的房间")
+
+
+}
 

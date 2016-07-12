@@ -26,6 +26,11 @@ enum  EProtoId{
 	LOGINTURNTABLEBONUS	=	18;		//18	登录转盘奖励
 	OLINEBONUS			=	19;		//19	在线奖励
 	TIMINGBONUS			=	20;		//20	定时奖励
+
+
+	//德州扑克相关的
+
+	THROOM				=	21;		//21	德州扑克房间xianggaun的
 }
 
 //general response protocol

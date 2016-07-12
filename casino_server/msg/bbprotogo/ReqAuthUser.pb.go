@@ -16,6 +16,7 @@ It is generated from these files:
 	serverModel.proto
 	shuiguoji.proto
 	testp1.proto
+	thPork.proto
 	user.proto
 	zhajinhua.proto
 
@@ -38,6 +39,8 @@ It has these top-level messages:
 	ShuiguojiRes
 	GetIntoRoom
 	TestP1
+	ThRoom
+	THPork
 	User
 	ZjhRoom
 	ZjhBet

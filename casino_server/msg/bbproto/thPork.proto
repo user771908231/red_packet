@@ -1,0 +1,44 @@
+import public "base.proto";
+import public "user.proto";
+import public "zhajinhua.proto";
+
+package bbproto;
+
+
+// 德州扑克的
+enum ETHType {
+    TH_TYPE_GAOPAI          = 1;       //顺子
+    TH_TYPE_YIDUI           = 2;       //顺子
+    TH_TYPE_LIANGDUI        = 3;       //顺子
+    TH_TYPE_THREE           = 4;       //顺子
+    TH_TYPE_SHUNZI          = 5;       //顺子
+    TH_TYPE_TONGHUA         = 6;       //同花
+    TH_TYPE_HULU            = 7;       //葫芦
+    TH_TYPE_SITIAO          = 8;       //四条
+    TH_TYPE_TONGHUASHUN     = 9;       //同花顺
+    TH_TYPE_HUANGSHITONGHUASHUN     = 10;       //同花顺
+}
+
+
+//进入扎金花的房间:押注中(剩余time）、开奖中（剩余time）、jackpot奖池金额、balance、庄家信息、在座玩家
+message ThRoom {
+    optional ProtoHeader	header				     = 1;
+    optional int32      reqType                      = 2;    //请求进入 还是退出 0 表示退出,1,表示进入
+    optional int64      jackpot                      = 3;    //奖金池
+    optional User       banker                       = 4;    //庄家的信息
+    optional User       me                           = 5;    //玩家的信息
+    repeated ZjhPai     zjhpai                       = 6;    //当前桌子上的牌
+    optional int32      betTime                      = 7;    //押注结束时间
+    optional int32      roomStatus                   = 8;    //房间状态(正在押注,等待开奖)
+    repeated Pai        publicPais                   = 9;    //公共牌
+}
+
+//德州的牌
+message THPork{
+    optional        int32       thType         = 1;         //牌的类型
+    repeated        Pai         pais           = 2;         //
+}
+
+
+
+
