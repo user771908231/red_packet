@@ -6,9 +6,12 @@ import (
 )
 
 func TestTemp(t *testing.T) {
-	r := 21 /24
-	fmt.Println("a", r)
-	r = 24 /24
-	fmt.Println("b", r)
+	var a *int32
+	a = new(int32)
+	*a = 1232
+
+	fmt.Println(a)
+	fmt.Println(a)
+
 }
 

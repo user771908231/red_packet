@@ -20,7 +20,6 @@ enum ETHType {
 }
 
 
-//进入扎金花的房间:押注中(剩余time）、开奖中（剩余time）、jackpot奖池金额、balance、庄家信息、在座玩家
 message ThRoom {
     optional ProtoHeader	header				     = 1;
     optional int32      reqType                      = 2;    //请求进入 还是退出 0 表示退出,1,表示进入
@@ -33,10 +32,16 @@ message ThRoom {
     repeated Pai        publicPais                   = 9;    //公共牌
 }
 
-//德州的牌
 message THPork{
     optional        int32       thType         = 1;         //牌的类型
     repeated        Pai         pais           = 2;         //
+}
+
+message THBet{
+    optional ProtoHeader	header				     = 1;
+    optional int32          betType                  = 2;   //类型:弃牌,跟注,加注
+    optional int32          betAmount                = 3;   //押注的金额
+
 }
 
 

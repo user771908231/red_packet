@@ -19,14 +19,14 @@ type room struct {
 	AgentMap map[uint32] gate.Agent
 }
 
-func (r *room) AddAgent(userId uint32,a gate.Agent){
+func (r *room) AddAgent(userId uint32,a gate.Agent) error{
 	log.T("userId%v的agent放在Room中管理\n",userId)
 	r.AgentMap[userId] = a
-
 	//打印出 增加连接之后,但当前房间里的连接
 	for key := range r.AgentMap {
 		log.Normal("当前存在的连接%v",key)
 	}
+	return nil
 }
 
 func (r *room) RemoveAgent(userId uint32){

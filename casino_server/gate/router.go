@@ -37,10 +37,8 @@ func init() {
 	msg.PortoProcessor.SetRouter(&bbproto.LoginTurntableBonus{},bonus.ChanRPC)	//登陆奖励
 	msg.PortoProcessor.SetRouter(&bbproto.LoginSignInBonus{},bonus.ChanRPC)		//连续签到的奖励
 
+	//德州扑克
 	msg.PortoProcessor.SetRouter(&bbproto.ThRoom{},game.ChanRPC)		//处理德州扑克房间
-
-
-
-
+	msg.PortoProcessor.SetRouter(&bbproto.THBet{},game.ChanRPC)		//处理德州扑克押注
 
 }

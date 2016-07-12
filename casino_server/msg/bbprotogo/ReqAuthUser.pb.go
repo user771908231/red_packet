@@ -41,6 +41,7 @@ It has these top-level messages:
 	TestP1
 	ThRoom
 	THPork
+	THBet
 	User
 	ZjhRoom
 	ZjhBet

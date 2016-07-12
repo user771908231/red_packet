@@ -31,6 +31,7 @@ enum  EProtoId{
 	//德州扑克相关的
 
 	THROOM				=	21;		//21	德州扑克房间xianggaun的
+	THBET				=	22;		//22	德州扑克押注
 }
 
 //general response protocol

@@ -297,6 +297,9 @@ func Ruser2Tuser(ru *bbproto.User) (*mode.T_user,error){
 	return result,nil
 }
 
+/**
+	判断用户id是否合法,todo 这里是否在数据库中判断?由于之后的查询会在数据库中查询,所以这里可以先不用判断
+ */
 func CheckUserIdRightful(userId uint32) bool{
 	if userId  > casinoConf.MAX_USER_ID || userId < casinoConf.MIN_USER_ID {
 		return false

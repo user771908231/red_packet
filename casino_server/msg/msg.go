@@ -42,7 +42,7 @@ func init() {
 
 	//德州扑克
 	PortoProcessor.Register(&bbproto.ThRoom{})		//21	德州扑克
-
+	PortoProcessor.Register(&bbproto.THBet{})		//22	扎金花 押注
 
 
 }
