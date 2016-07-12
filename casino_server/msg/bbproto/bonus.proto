@@ -1,0 +1,41 @@
+import public "base.proto";
+package bbproto;
+
+
+//常量的表示
+
+
+
+//会多次用到的结构
+
+
+
+//访问协议
+
+//登陆转盘奖励,每天最多一次
+message LoginTurntableBonus{
+    optional ProtoHeader	header				     = 1;
+    optional int32          succIndex                = 2;   //中奖的index是哪个?
+    optional int32          bonusAmount              = 3;   //中奖的数据
+}
+
+//每日签到的签到奖励
+message LoginSignInBonus{
+    optional ProtoHeader	header				     = 1;
+    optional int32          count                    = 2;   //签到的时候,连续签到的次数
+    optional int32          coin                     = 3;   //获得的奖励
+
+}
+
+//在线奖励,用户在线的时候,系统倒计时
+message OlineBonus{
+    optional ProtoHeader	header				     = 1;
+
+}
+
+//定时奖励,在特定的时间段可以领取特定的奖励
+message TimingBonus{
+    optional ProtoHeader	header				     = 1;
+
+}
+

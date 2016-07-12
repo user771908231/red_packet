@@ -125,7 +125,7 @@ func (c *DialContext) EnsureCounter(db string, collection string, id string) err
 
 	err := s.DB(db).C(collection).Insert(bson.M{
 		"_id": id,
-		"seq": 0,
+		"seq": 10000,
 	})
 	if mgo.IsDup(err) {
 		return nil

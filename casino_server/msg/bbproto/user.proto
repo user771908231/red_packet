@@ -1,8 +1,16 @@
 import public "base.proto";
 package bbproto;
 message User {
-	optional ProtoHeader    	header    		= 1;
+	optional string				mid				= 1;	//mongdo Mid
 	optional string  			name 			= 2;  	// name
-	optional int32				balance			= 3;	//用户的余额
-	optional uint32				userId			= 4;
+	optional int32				coin			= 3;	//用户的金币
+	optional uint32				id				= 4;
+	optional string				nickName		= 5;	//用户的昵称
+	optional bool				loginTurntable	= 6;	//今日转盘奖励是否领取
+	optional string				loginTurntableTime = 7;	//今日领取时间
+	optional int32				scores			= 8;	//积分
+
+	optional string				lastSignTime	= 9;	//最后一次签到的时间
+	optional int32				signCount		= 10;	//连续签到的次数
+
 }

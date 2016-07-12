@@ -112,3 +112,9 @@ func init(){
 	TongHuaShun1.Pai3 = POKER_CLUB_4
 }
 
+
+// 常用的数字变量,方便取地址 1--10
+var(
+	NUM_INT32_0  int32 = 0
+)
+

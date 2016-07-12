@@ -9,15 +9,22 @@ import (
 	"casino_server/service/porkService"
 )
 
+
+var conn net.Conn
+func init(){
+	conn,_= net.Dial(TCP, url)
+}
+
 func TestZjhMain(t *testing.T) {
-	zjhRoom()
+	//zjhRoom()
 	//zjhMsg()
 	//zjhQueryNoSeatUser()
 	//zjhReqSeat()
 	//zjhZjhLottery()
-	//zjhBet()
+	zjhBet()
 	//random()
 	//createZjhList()
+
 	for ; ;  {
 		
 	}
@@ -25,10 +32,7 @@ func TestZjhMain(t *testing.T) {
 
 
 func zjhRoom() {
-	conn, err := net.Dial(TCP, url)
-	if err != nil {
-		panic(err)
-	}
+
 	defer conn.Close()
 
 	ide := bbproto.EProtoId_value[bbproto.EProtoId_ZJHROOM.String()]
@@ -45,15 +49,11 @@ func zjhRoom() {
 	m := test.AssembleData(uint16(ide), data)
 	conn.Write(m)
 	result := test.Read(conn).(*bbproto.ZjhRoom)
-	fmt.Println("读取的结果:", result.GetBanker().GetName())
-	fmt.Println("读取的结果:", result.GetBanker().GetBalance())
-	fmt.Println("读取的结果:", result.GetMe().GetName())
-	fmt.Println("读取的结果:", result.GetMe().GetBalance())
 	fmt.Println("读取的结果:", result.GetJackpot())
 	fmt.Println("读取的结果header.code:", result.GetHeader().GetCode())
 	fmt.Println("读取的结果header.errMsg:", result.GetHeader().GetError())
-
-
+	fmt.Println("读取的结果room.status:", result.GetRoomStatus())
+	fmt.Println("读取的结果bettime:", result.GetBetTime())
 }
 
 
@@ -156,9 +156,22 @@ func zjhBet(){
 	}
 	defer conn.Close()
 
+	ide2 := bbproto.EProtoId_value[bbproto.EProtoId_ZJHROOM.String()]
+	fmt.Println("proto 得到的id ",ide2)
+	var userid uint32 = 10003
+	var reqType int32 = 1
+	data2 := &bbproto.ZjhRoom{}
+	h2 := &bbproto.ProtoHeader{}
+
+	h2.UserId = &userid
+	data2.Header = h2
+	data2.ReqType =&reqType
+	m2 := test.AssembleData(uint16(ide2), data2)
+	conn.Write(m2)
+
+
 	ide := bbproto.EProtoId_value[bbproto.EProtoId_ZJHBET.String()]
 	fmt.Println("proto 得到的id ",ide)
-	var userid uint32 = 10001
 	bezoned := make([]int32,4)
 	bezoned[0] = 99897
 

@@ -92,9 +92,11 @@ func (p *Processor) Route(msg interface{}, userData interface{}) error {
 
 	i := p.msgInfo[id]
 	if i.msgHandler != nil {
+		//log.Debug("msgHandler !=nil")
 		i.msgHandler([]interface{}{msg, userData})
 	}
 	if i.msgRouter != nil {
+		//log.Debug("msgRouter !=nil")
 		i.msgRouter.Go(msgType, msg, userData)
 	}
 	return nil

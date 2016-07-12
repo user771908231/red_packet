@@ -14,6 +14,15 @@ func Int2String(i int32) (string,error){
 	return str,nil
 }
 
+
+/**
+	uint类型转字符串u
+ */
+func Uint2String(i uint32) (string,error){
+	str := fmt.Sprintf("%d", i)
+	return str,nil
+}
+
 /**
  字符转转int类型
  */

@@ -11,6 +11,8 @@ const (
 	DBT_T_USER 		= "t_user"		//user表名字
 	DBT_T_TEST 		= "t_test"		//user表名字
 	DBT_T_SUB2 		= "t_test_sub2"		//user表名字
+	DBT_T_ZJH_ROUND		= "t_zjh_round"		//每局炸扎金花的数据
+	DBT_T_BONUS_TURNTABLE	= "t_bonus_turntable"	//转盘奖励的表
 
 	//数据库的常用设置
 	MIN_USER_ID = 10000		//USER_ID 起始
@@ -22,4 +24,7 @@ const (
 	REDIS_IP		=	"127.0.0.1"
 	REDIS_PORT		=	"6379"
 	REDIS_DB_NAME		=	"test"
+
+	//-------------------------------游戏设置---------------------------------
+	SWITCH_ZJH	bool	= false
 )

@@ -189,13 +189,11 @@ func (p *Pork) initPork() error{
  */
 type ZjhPork struct {
 	zjhType		int32 	//哪种牌,散牌,对子,顺子,同花,同花顺
-	pork1	*Pork		//第一张牌
-	pork2	*Pork		//第二张牌
-	pork3 	*Pork		//第三张牌
+	pork	[]*Pork		//第一张牌
 }
 
 func (z *ZjhPork) String() string{
-	return strings.Join([]string{z.pork1.mapDes, z.pork2.mapDes,z.pork3.mapDes}, "-")
+	return strings.Join([]string{z.pork[0].mapDes, z.pork[1].mapDes,z.pork[2].mapDes}, "-")
 }
 
 /**
@@ -251,7 +249,7 @@ func compareDuizi(a,b *ZjhPork) bool{
 	取散牌最大的
  */
 func (z *ZjhPork) getSanpai1() int{
-	data := []int{z.pork1.value,z.pork2.value,z.pork3.value}
+	data := []int{z.pork[0].value,z.pork[1].value,z.pork[2].value}
 	sort.Ints(data)
 	return data[2]
 
@@ -260,7 +258,7 @@ func (z *ZjhPork) getSanpai1() int{
 	取散牌第二大的
  */
 func (z *ZjhPork) getSanpai2() int{
-	data := []int{z.pork1.value,z.pork2.value,z.pork3.value}
+	data := []int{z.pork[0].value,z.pork[1].value,z.pork[2].value}
 	sort.Ints(data)
 	return data[1]
 }
@@ -269,7 +267,7 @@ func (z *ZjhPork) getSanpai2() int{
 	取散牌第三大的
  */
 func (z *ZjhPork) getSanpai3() int{
-	data := []int{z.pork1.value,z.pork2.value,z.pork3.value}
+	data := []int{z.pork[0].value,z.pork[1].value,z.pork[2].value}
 	sort.Ints(data)
 	return data[0]
 
@@ -279,7 +277,7 @@ func (z *ZjhPork) getSanpai3() int{
 	取对子的值
  */
 func (z *ZjhPork) getDuizi() int{
-	data := []int{z.pork1.value,z.pork2.value,z.pork3.value}
+	data := []int{z.pork[0].value,z.pork[1].value,z.pork[2].value}
 	sort.Ints(data)
 	return data[1]
 }
@@ -289,12 +287,12 @@ func (z *ZjhPork) getDuizi() int{
  */
 func (z *ZjhPork) getDuiziSanPai() int {
 	//是否需要是对子才能取对子
-	if z.pork1.value == z.pork2.value {
-		return z.pork3.value
-	}else if z.pork1.value == z.pork3.value {
-		return z.pork2.value
+	if z.pork[0].value == z.pork[1].value {
+		return z.pork[2].value
+	}else if z.pork[0].value == z.pork[2].value {
+		return z.pork[1].value
 	}else {
-		return z.pork3.value
+		return z.pork[2].value
 	}
 }
 
@@ -304,20 +302,20 @@ func (z *ZjhPork) getDuiziSanPai() int {
 func (z *ZjhPork) initZjhType(){
 	if z.zjhType == 0{
 		//开始初始化扎金花的类型,从最大的开始算
-		if z.pork1.value == z.pork2.value && z.pork1.value == z.pork3.value {
+		if z.pork[0].value == z.pork[1].value && z.pork[0].value == z.pork[2].value {
 			z.zjhType = ZJH_TYPE_BAOZI
-		}else if strings.EqualFold(z.pork1.flower, z.pork2.flower) && strings.EqualFold(z.pork1.flower,z.pork3.flower){
+		}else if strings.EqualFold(z.pork[0].flower, z.pork[1].flower) && strings.EqualFold(z.pork[0].flower,z.pork[2].flower){
 			//判断是否是同花顺
-			if  checkShunzi(z.pork1.value,z.pork2.value,z.pork3.value){
+			if  checkShunzi(z.pork[0].value,z.pork[1].value,z.pork[2].value){
 				z.zjhType = ZJH_TYPE_TONGHUASHUN
 
 			}else{
 				z.zjhType = ZJH_TYPE_TONGHUA
 			}
-		}else if checkShunzi(z.pork1.value,z.pork2.value,z.pork3.value) {
+		}else if checkShunzi(z.pork[0].value,z.pork[1].value,z.pork[2].value) {
 			//判断是否是顺子
 			z.zjhType = ZJH_TYPE_SHUNZI
-		}else if z.pork1.value != z.pork2.value && z.pork1.value != z.pork3.value && z.pork2.value != z.pork3.value{
+		}else if z.pork[0].value != z.pork[1].value && z.pork[0].value != z.pork[2].value && z.pork[1].value != z.pork[2].value{
 			z.zjhType = ZJH_TYPE_SANPAI
 		}else{
 			z.zjhType = ZJH_TYPE_DUIZI
@@ -346,9 +344,10 @@ func CreateZjhList() ZjhPorkList{
 	//fmt.Println("找到的索引%v",indexs)
 	for i := int32(0);i < PLAYER_COUNT;i++ {
 		z := &ZjhPork{}
-		z.pork1 = CreatePorkByIndex(indexs[i*3])
-		z.pork2 = CreatePorkByIndex(indexs[i*3+1])
-		z.pork3 = CreatePorkByIndex(indexs[i*3+2])
+		z.pork = make([]*Pork,3)
+		z.pork[0] = CreatePorkByIndex(indexs[i*3])
+		z.pork[1] = CreatePorkByIndex(indexs[i*3+1])
+		z.pork[2] = CreatePorkByIndex(indexs[i*3+2])
 		z.initZjhType()		//初始化扎金花牌的类型
 		//log.T("%v副扎金花的牌:%v",i,z)
 		result = append(result,z)
@@ -399,9 +398,9 @@ func RandomPorkIndex(min, max int32) [PLAY_PORK_COUNT]int32 {
 func ConstructZjhPai(p *ZjhPork) *bbproto.ZjhPai{
 	result := &bbproto.ZjhPai{}
 	ps := make([]*bbproto.Pai,3)
-	ps[0] = constructPai(p.pork1)
-	ps[1] = constructPai(p.pork2)
-	ps[2] = constructPai(p.pork3)
+	ps[0] = constructPai(p.pork[0])
+	ps[1] = constructPai(p.pork[1])
+	ps[2] = constructPai(p.pork[2])
 	result.PaiType = &p.zjhType
 	return result
 }

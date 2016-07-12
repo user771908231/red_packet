@@ -10,6 +10,7 @@ import (
 	"casino_server/service/zjhService"
 	"casino_server/conf/intCons"
 	"casino_server/service/room"
+	"casino_server/service/thService"
 )
 
 func init() {
@@ -31,6 +32,9 @@ func init() {
 	handler(&bbproto.ZjhBet{},handlerZjhBet)
 	handler(&bbproto.ZjhReqSeat{},handlerZjhReqSeat)
 	handler(&bbproto.ZjhQueryNoSeatUser{},handlerZjhQueryNoSeatUser)
+
+	//德州扑克相关的业务
+	handler(&bbproto.ThRoom{},handlerThRoom)
 
 
 }
@@ -224,3 +228,30 @@ func handlerZjhQueryNoSeatUser(args []interface{}){
 }
 
 
+/**
+	退出或者进入德州扑克的房间
+ */
+func handlerThRoom(args []interface{}){
+	log.T("退出或者进入德州扑克的房间")
+	m := args[0].(*bbproto.ThRoom)                //请求体
+	a := args[1].(gate.Agent)
+	err := dzService.HandlerThRoom(m,a)
+	if err != nil {
+		log.E("请求进入或者退出德州扑克房间的时候出错了[%v]",err.Error())
+	}
+}
+
+
+/**
+	处理德州扑克押注
+ */
+func handlerThBet(args []interface{}){
+	log.T("处理德州扑克押注")
+	m := args[0].(*bbproto.THBet)                //请求体
+	a := args[1].(gate.Agent)
+	err := dzService.HandlerTHBet(m,a)
+	if err != nil {
+		log.E("请求进入或者退出德州扑克房间的时候出错了[%v]",err.Error())
+	}
+
+}

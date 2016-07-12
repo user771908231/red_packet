@@ -42,7 +42,7 @@ var NickNames = []string{
 } //1000 names
 
 
-func RandNikeName() string{
+func RandNickname() string{
 	r := rand.New(rand.NewSource(time.Now().UnixNano()))
 	id := r.Intn(len(NickNames))
 	return NickNames[id]

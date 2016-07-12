@@ -130,11 +130,24 @@ func InitMongoDb() error{
 	}
 	defer c.Close()
 
-	//1,建立自增主键
+	//1,建立自增主键,t_user表
 	err = c.EnsureCounter(casinoConf.DB_NAME, casinoConf.DBT_T_USER, casinoConf.DB_ENSURECOUNTER_KEY)
 	if err != nil {
 		return err
 	}
+
+	//,建立自增主键,t_zjh_round 数据库表
+	err = c.EnsureCounter(casinoConf.DB_NAME, casinoConf.DBT_T_ZJH_ROUND, casinoConf.DB_ENSURECOUNTER_KEY)
+	if err != nil {
+		return err
+	}
+
+	//为转盘奖励设置自增主键
+	err = c.EnsureCounter(casinoConf.DB_NAME, casinoConf.DBT_T_BONUS_TURNTABLE, casinoConf.DB_ENSURECOUNTER_KEY)
+	if err != nil {
+		return err
+	}
+
 	return nil
 }
 

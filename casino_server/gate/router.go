@@ -8,6 +8,7 @@ import (
 	"casino_server/game"
 	"casino_server/login"
 	"casino_server/system"
+	"casino_server/bonus"
 )
 
 func init() {
@@ -31,5 +32,13 @@ func init() {
 	msg.PortoProcessor.SetRouter(&bbproto.ZjhBet{},game.ChanRPC)		//进入扎金花的房间
 	msg.PortoProcessor.SetRouter(&bbproto.ZjhReqSeat{},game.ChanRPC)		//进入扎金花的房间
 	msg.PortoProcessor.SetRouter(&bbproto.ZjhQueryNoSeatUser{},game.ChanRPC)		//进入扎金花的房间
+
+	//奖励
+	msg.PortoProcessor.SetRouter(&bbproto.LoginTurntableBonus{},bonus.ChanRPC)	//登陆奖励
+	msg.PortoProcessor.SetRouter(&bbproto.LoginSignInBonus{},bonus.ChanRPC)		//连续签到的奖励
+
+	//德州扑克
+	msg.PortoProcessor.SetRouter(&bbproto.ThRoom{},game.ChanRPC)		//处理德州扑克房间
+	msg.PortoProcessor.SetRouter(&bbproto.THBet{},game.ChanRPC)		//处理德州扑克押注
 
 }
