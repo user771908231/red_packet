@@ -1,0 +1,19 @@
+package bbproto;
+
+//Audio config file
+message AudioConfigItem {
+	optional int32	version					= 1;
+    optional int32	id						= 2;
+    optional string	name					= 3;
+    optional string	resourcePath			= 4;
+	optional EPlayType	type				= 5;
+}
+
+message AudioConfigFile {
+    repeated AudioConfigItem	audioConfig	= 1;
+}
+
+enum EPlayType {
+	ONCE									= 1;
+	LOOP									= 2;
+}
