@@ -13,6 +13,7 @@ import (
 	"strconv"
 	"fmt"
 	"casino_server/msg/bbprotoFuncs"
+	"casino_server/gamedata"
 )
 
 func handleMsg(m interface{}, h interface{}) {
@@ -24,7 +25,6 @@ func init() {
 	handleMsg(&bbproto.ReqAuthUser{},handleReqAuthUser)
 
 }
-
 
 /**
 	处理注册消息的方法
@@ -89,8 +89,9 @@ func handleReqAuthUser(args []interface{}){
 		userService.UserLockPools.AddUserLockByUserId(resReqUser.GetHeader().GetUserId())
 	}
 
-	//登录是在服务器需要做的操作
-
+	//登录后在服务器需要做的操作
+	agentUser :=gamedata.NewAgentUser(resReqUser.GetHeader().GetUserId())
+	a.SetUserData(agentUser)
 
 	//把数据返回给客户端
 	a.WriteMsg(resReqUser)

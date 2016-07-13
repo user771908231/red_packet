@@ -5,19 +5,20 @@ import (
 	"net"
 	"casino_server/msg/bbprotogo"
 	"casino_server/utils/test"
+	"fmt"
 )
 
-func TestLogin(t *testing.T){
+func TestLogin(t *testing.T) {
 	//login2()
-login1()
-	for ; ;  {
-		
+	login1()
+	for ; ; {
+
 	}
 }
 
 
 //指定id登陆
-func login1(){
+func login1() {
 	conn, err := net.Dial(TCP, url)
 	if err != nil {
 		panic(err)
@@ -31,13 +32,21 @@ func login1(){
 	}
 	var data bbproto.ReqAuthUser
 	data.Header = h
-	m := test.AssembleData(id,&data)
+	m := test.AssembleData(id, &data)
 	conn.Write(m)
+
+	result := test.Read(conn).(*bbproto.ReqAuthUser)
+	fmt.Println("读取的结果header:", result.GetHeader())
+	fmt.Println("读取的结果code:", result.GetHeader().GetCode())
+	fmt.Println("读取的结果error:", result.GetHeader().GetError())
+
+	fmt.Println("读取的结果:", result)
+
 }
 
 //游客登陆
 
-func login2(){
+func login2() {
 	conn, err := net.Dial(TCP, url)
 	if err != nil {
 		panic(err)
@@ -50,6 +59,6 @@ func login2(){
 	var uuidStr = "8029409jowejfiosjljfl"
 	data.Header = h
 	data.Uuid = &uuidStr
-	m := test.AssembleData(id,&data)
+	m := test.AssembleData(id, &data)
 	conn.Write(m)
 }

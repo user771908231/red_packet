@@ -8,6 +8,7 @@ import (
 	"path"
 	"strings"
 	"time"
+	"runtime"
 )
 
 // levels
@@ -108,7 +109,9 @@ func (logger *Logger) doPrintf(level int, printLevel string, format string, a ..
 }
 
 func (logger *Logger) Debug(format string, a ...interface{}) {
-	logger.doPrintf(debugLevel, printDebugLevel, format, a...)
+	_, file, line, _ := runtime.Caller(2) //calldepth=3
+	lineStr := fmt.Sprintf("[%v:%v]\t", shortFileName(file), line)
+	logger.doPrintf(debugLevel, printDebugLevel+lineStr, format, a...)
 }
 
 func (logger *Logger) Release(format string, a ...interface{}) {
@@ -116,7 +119,9 @@ func (logger *Logger) Release(format string, a ...interface{}) {
 }
 
 func (logger *Logger) Error(format string, a ...interface{}) {
-	logger.doPrintf(errorLevel, printErrorLevel, format, a...)
+	_, file, line, _ := runtime.Caller(2) //calldepth=3
+	lineStr := fmt.Sprintf("[%v:%v]\t", shortFileName(file), line)
+	logger.doPrintf(errorLevel, printErrorLevel+lineStr, format, a...)
 }
 
 func (logger *Logger) Fatal(format string, a ...interface{}) {
@@ -150,4 +155,16 @@ func Fatal(format string, a ...interface{}) {
 
 func Close() {
 	gLogger.Close()
+}
+
+
+func shortFileName(file string) string {
+	short := file
+	for i := len(file) - 1; i > 0; i-- {
+		if file[i] == '/' {
+			short = file[i+1:]
+			break
+		}
+	}
+	return short
 }
