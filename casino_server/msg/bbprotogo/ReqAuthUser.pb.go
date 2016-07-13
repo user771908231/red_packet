@@ -42,6 +42,7 @@ It has these top-level messages:
 	ThRoom
 	THPork
 	THBet
+	THBetRes
 	THBegin
 	THUser
 	User

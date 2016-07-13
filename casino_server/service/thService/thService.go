@@ -60,13 +60,22 @@ func getIntoRoom(m *bbproto.ThRoom, a gate.Agent) error {
 
 
 	//1,判断参数是否正确
-	//判断是否已经在房间了
 	userId := m.GetHeader().GetUserId()
 	userCheck := userService.CheckUserIdRightful(userId)
 	if userCheck == false {
 		log.E("用户[%v]不合法", userId)
 		return errors.New("用户Id不合法")
 	}
+
+	//判断是否已经在房间:这里可以用过agent user data 来判断
+	//agentUser := a.UserData().(*gamedata.AgentUserData{})
+	//if agentUser.Status == gamedata.AGENT_USER_STATUS_GAMING && agentUser.ZhDeskId > 0 {
+	//	log.E("用户已经在房间中了,请不要重复进入")
+	//	return errors.New("玩家已经在房间中了,请不要重复进入")
+	//}
+
+
+
 
 	//2,查询哪个德州的房间缺人:循环每个德州的房间,然后查询哪个房间缺人
 	var mydesk *room.ThDesk = nil
@@ -112,11 +121,12 @@ func getIntoRoom(m *bbproto.ThRoom, a gate.Agent) error {
 		}
 	}
 	//4,修改gameRoom的状态
-
 	result := &bbproto.ThRoom{}
 	result.Header = protoUtils.GetSuccHeaderwithUserid(m.GetHeader().UserId)
-	result.RoomStatus = mydesk.Status		//当前桌子的状态
+	result.DeskStatus = mydesk.Status		//当前桌子的状态
 	result.PublicPais = mydesk.PublicPai		//公共牌
+	result.Users = mydesk.GetResUserModel()
+
 	log.T("返回信息",result)
 	a.WriteMsg(result)
 
@@ -141,6 +151,11 @@ func getOutRoom(m *bbproto.ThRoom, a gate.Agent) error {
 	处理德州扑克押注的问题
  */
 func HandlerTHBet(m *bbproto.THBet, a gate.Agent) error {
+	//找到游戏的桌子号
+
+
+
+
 	return nil
 }
 

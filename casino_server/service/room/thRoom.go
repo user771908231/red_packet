@@ -8,22 +8,25 @@ import (
 	"errors"
 	"github.com/golang/protobuf/proto"
 	"casino_server/msg/bbprotoFuncs"
+	"casino_server/service/userService"
 )
 
 
 
 //config
-var THROOM_SEAT_COUNT int32 = 8                //玩德州扑克,每个房间最多多少人
-var GAME_THROOM_MAX_COUNT int32 = 500                //一个游戏大厅最多有多少桌德州扑克
+var THROOM_SEAT_COUNT int32 = 8               //玩德州扑克,每个房间最多多少人
+var GAME_THROOM_MAX_COUNT int32 = 500         //一个游戏大厅最多有多少桌德州扑克
 var TH_DESK_LEAST_START_USER int32 = 2        //最少多少人可以开始游戏
 
 //德州扑克 玩家的状态
-var TH_USER_STATUS_WAITSEAT int32 = 1; //刚上桌子 等待开始的玩家
+var TH_USER_STATUS_WAITSEAT 	int32 = 1; //刚上桌子 等待开始的玩家
+var TH_USER_STATUS_SEATED 	int32 = 2; //刚上桌子 等待开始的玩家
+
 
 
 //德州扑克,牌桌的状态
 var TH_DESK_STATUS_STOP int32 = 1; //没有开始的状态
-var TH_DESK_STATUS_SART int32 = 1; //没有已经开始的状态
+var TH_DESK_STATUS_SART int32 = 2; //没有已经开始的状态
 
 
 /**
@@ -78,6 +81,16 @@ type ThUser struct {
 	userId *uint32    //用户id
 	agent  gate.Agent //agent
 	status *int32     //当前的状态
+	cards  []*bbproto.Pai
+}
+
+//
+func (t *ThUser) trans2bbprotoThuser() *bbproto.THUser{
+	thuserTemp := &bbproto.THUser{}
+	thuserTemp.Status = t.status	//已经就做
+	thuserTemp.U =userService.GetUserById(*t.userId) 	//得到user
+	thuserTemp.HandPais = t.cards
+	return thuserTemp
 }
 
 func NewThUser() *ThUser {
@@ -219,8 +232,26 @@ func (t *ThDesk) THBroadcastProto(p proto.Message, ignoreUserId int32) error {
 	返回res需要的User实体
  */
 func (t *ThDesk) GetResUserModel() []*bbproto.THUser {
+	result := make([]*bbproto.THUser,THROOM_SEAT_COUNT)
 
-	return nil
+	var countSeated int32 = 0
+
+	//就做的人
+	for i := 0; i< len(t.userSeated);  {
+		if  t.userSeated[i] !=nil {
+			result[countSeated] = t.userSeated[i].trans2bbprotoThuser()
+			countSeated +=1
+		}
+	}
+
+	//等待的人
+	for i := 0; i< len(t.userWait);  {
+		if  t.userWait[i] !=nil {
+			result[countSeated] = t.userWait[i].trans2bbprotoThuser()
+			countSeated +=1
+		}
+	}
+	return result
 }
 
 

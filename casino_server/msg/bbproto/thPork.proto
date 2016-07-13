@@ -24,12 +24,10 @@ message ThRoom {
     optional ProtoHeader	header				     = 1;
     optional int32      reqType                      = 2;    //请求进入 还是退出 0 表示退出,1,表示进入
     optional int64      jackpot                      = 3;    //奖金池
-    optional User       banker                       = 4;    //庄家的信息
-    optional User       me                           = 5;    //玩家的信息
-    repeated Pai        myCards                      = 6;    //当前桌子上的牌
-    optional int32      betTime                      = 7;    //押注结束时间
-    optional int32      roomStatus                   = 8;    //房间状态(正在押注,等待开奖)
-    repeated Pai        publicPais                   = 9;    //公共牌
+    repeated THUser     users                        = 4;    //已经坐下的玩家的信息
+    optional int32      betTime                      = 5;    //押注结束时间
+    optional int32      deskStatus                   = 6;    //桌子状态
+    repeated Pai        publicPais                   = 7;    //公共牌
 }
 
 message THPork{
@@ -41,6 +39,13 @@ message THBet{
     optional ProtoHeader	header				     = 1;
     optional int32          betType                  = 2;   //类型:弃牌,跟注,加注
     optional int32          betAmount                = 3;   //押注的金额
+}
+
+message THBetRes{
+    optional ProtoHeader	header				     = 1;
+    optional int32          betType                  = 2;   //类型:弃牌,跟注,加注
+    optional int32          betAmount                = 3;   //押注的金额
+    repeated THUser         users                    = 4;   //每个玩家的信息
 
 }
 
@@ -52,8 +57,9 @@ message THBegin{
 
 // 德州扑克中的User
 message THUser{
-    optional User   u                               = 1;
-    repeated        Pai         handPais                = 2;         //手牌
+    optional User       u                       = 1;
+    repeated Pai        handPais                = 2;            //手牌
+    optional int32      status                  = 3;            //玩家的状态
 }
 
 
