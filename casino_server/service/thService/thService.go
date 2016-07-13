@@ -9,6 +9,7 @@ import (
 	"casino_server/common/log"
 	"casino_server/service/room"
 	"errors"
+	"casino_server/gamedata"
 )
 
 /**
@@ -112,7 +113,7 @@ func getIntoRoom(m *bbproto.ThRoom, a gate.Agent) error {
 		return err
 	}
 
-
+	mydesk.LogString()	//答应当前房间的信息
 
 	//4,返回信息
 	log.T("开始给客户端返回信息")
@@ -127,6 +128,7 @@ func getIntoRoom(m *bbproto.ThRoom, a gate.Agent) error {
 
 	a.WriteMsg(result)
 
+	//目前mydesk的信息
 
 	//最后:确定是否开始游戏, 上了牌桌之后,如果玩家人数大于1,并且游戏处于stop的状态,则直接开始游戏
 	if *mydesk.SeatedCount >= room.TH_DESK_LEAST_START_USER  && *mydesk.Status == room.TH_DESK_STATUS_STOP{
@@ -157,10 +159,9 @@ func getOutRoom(m *bbproto.ThRoom, a gate.Agent) error {
  */
 func HandlerTHBet(m *bbproto.THBet, a gate.Agent) error {
 	//找到游戏的桌子号
-
-
-
-
+	userData := a.UserData().(gamedata.AgentUserData)		//agentUserId
+	deskId := userData.ZhDeskId					//德州扑克桌子号码:存醋方式有很多,目前暂时存醋在userData当中
+	log.T("用户[%v]所在的德州扑克的deskId[%v]",m.GetHeader().GetUserId(),deskId)
 	return nil
 }
 

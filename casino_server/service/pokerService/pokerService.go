@@ -1,4 +1,4 @@
-package porkService
+package pokerService
 
 import (
 	"casino_server/utils"
@@ -106,7 +106,7 @@ func init(){
 /**
 	5个人玩的一组牌,需要更具大小进行排序
  */
-type ZjhPorkList []*ZjhPork		//表示扎金花的一组牌
+type ZjhPorkList []*ZjhPoker                //表示扎金花的一组牌
 
 /**
 使用sort包需要实现的方法
@@ -145,7 +145,7 @@ func ( list ZjhPorkList) Less(i,j int) bool{
 
 //交换函数
 func ( list ZjhPorkList) Swap(i,j int){
-	var temp *ZjhPork = list[i]
+	var temp *ZjhPoker = list[i]
 	list[i] = list[j]
 	list[j] = temp
 }
@@ -164,7 +164,7 @@ func (z ZjhPorkList) String() string{
 /**
 	表示一张牌
  */
-type Pork struct {
+type Poker struct {
 	mapKey	int32
 	mapDes  string		//从map出来时候的描述
 	value int		//值,A对应14,K对应13
@@ -175,7 +175,7 @@ type Pork struct {
 /**
 通过描述来初始化一张牌
  */
-func (p *Pork) initPork() error{
+func (p *Poker) initPoker() error{
 	sarry :=  strings.Split(p.mapDes,"_")
 	p.value = numUtils.String2Int(sarry[2])
 	p.name = sarry[3]
@@ -187,19 +187,19 @@ func (p *Pork) initPork() error{
 /**
 	扎金花牌的结构
  */
-type ZjhPork struct {
-	zjhType		int32 	//哪种牌,散牌,对子,顺子,同花,同花顺
-	pork	[]*Pork		//第一张牌
+type ZjhPoker struct {
+	zjhType		int32 //哪种牌,散牌,对子,顺子,同花,同花顺
+	pork	[]*Poker         //第一张牌
 }
 
-func (z *ZjhPork) String() string{
+func (z *ZjhPoker) String() string{
 	return strings.Join([]string{z.pork[0].mapDes, z.pork[1].mapDes,z.pork[2].mapDes}, "-")
 }
 
 /**
 比较两个散牌的大小
  */
-func compareSanPai(a,b *ZjhPork) bool{
+func compareSanPai(a,b *ZjhPoker) bool{
 	if a.getSanpai1() > b.getSanpai1() {
 		return true
 	}else if a.getSanpai1() == b.getSanpai1() {
@@ -222,7 +222,7 @@ func compareSanPai(a,b *ZjhPork) bool{
 /**
 只比较一组牌中最大的
  */
-func compreZuiDa(a,b *ZjhPork) bool{
+func compreZuiDa(a,b *ZjhPoker) bool{
 	if a.getSanpai1() > b.getSanpai1() {
 		return true
 	}else {
@@ -230,7 +230,7 @@ func compreZuiDa(a,b *ZjhPork) bool{
 	}
 }
 
-func compareDuizi(a,b *ZjhPork) bool{
+func compareDuizi(a,b *ZjhPoker) bool{
 	if a.getDuizi() > b.getDuizi() {
 		return true
 	}else if a.getDuizi() == b.getDuizi() {
@@ -248,7 +248,7 @@ func compareDuizi(a,b *ZjhPork) bool{
 /**
 	取散牌最大的
  */
-func (z *ZjhPork) getSanpai1() int{
+func (z *ZjhPoker) getSanpai1() int{
 	data := []int{z.pork[0].value,z.pork[1].value,z.pork[2].value}
 	sort.Ints(data)
 	return data[2]
@@ -257,7 +257,7 @@ func (z *ZjhPork) getSanpai1() int{
 /**
 	取散牌第二大的
  */
-func (z *ZjhPork) getSanpai2() int{
+func (z *ZjhPoker) getSanpai2() int{
 	data := []int{z.pork[0].value,z.pork[1].value,z.pork[2].value}
 	sort.Ints(data)
 	return data[1]
@@ -266,7 +266,7 @@ func (z *ZjhPork) getSanpai2() int{
 /**
 	取散牌第三大的
  */
-func (z *ZjhPork) getSanpai3() int{
+func (z *ZjhPoker) getSanpai3() int{
 	data := []int{z.pork[0].value,z.pork[1].value,z.pork[2].value}
 	sort.Ints(data)
 	return data[0]
@@ -276,7 +276,7 @@ func (z *ZjhPork) getSanpai3() int{
 /**
 	取对子的值
  */
-func (z *ZjhPork) getDuizi() int{
+func (z *ZjhPoker) getDuizi() int{
 	data := []int{z.pork[0].value,z.pork[1].value,z.pork[2].value}
 	sort.Ints(data)
 	return data[1]
@@ -285,7 +285,7 @@ func (z *ZjhPork) getDuizi() int{
 /**
 	取对子中的散牌
  */
-func (z *ZjhPork) getDuiziSanPai() int {
+func (z *ZjhPoker) getDuiziSanPai() int {
 	//是否需要是对子才能取对子
 	if z.pork[0].value == z.pork[1].value {
 		return z.pork[2].value
@@ -299,7 +299,7 @@ func (z *ZjhPork) getDuiziSanPai() int {
 /**
 	得到扎金花牌的类型
  */
-func (z *ZjhPork) initZjhType(){
+func (z *ZjhPoker) initZjhType(){
 	if z.zjhType == 0{
 		//开始初始化扎金花的类型,从最大的开始算
 		if z.pork[0].value == z.pork[1].value && z.pork[0].value == z.pork[2].value {
@@ -343,8 +343,8 @@ func CreateZjhList() ZjhPorkList{
 	log.T("找到的索引%v",indexs)
 	//fmt.Println("找到的索引%v",indexs)
 	for i := int32(0);i < PLAYER_COUNT;i++ {
-		z := &ZjhPork{}
-		z.pork = make([]*Pork,3)
+		z := &ZjhPoker{}
+		z.pork = make([]*Poker,3)
 		z.pork[0] = CreatePorkByIndex(indexs[i*3])
 		z.pork[1] = CreatePorkByIndex(indexs[i*3+1])
 		z.pork[2] = CreatePorkByIndex(indexs[i*3+2])
@@ -361,11 +361,11 @@ func CreateZjhList() ZjhPorkList{
 /**
 更具index生成一张纸牌
  */
-func CreatePorkByIndex(i int32) *Pork{
-	result :=&Pork{}
+func CreatePorkByIndex(i int32) *Poker {
+	result :=&Poker{}
 	result.mapKey = i
 	result.mapDes = porkMap[i]
-	result.initPork()
+	result.initPoker()
 	return result
 }
 
@@ -395,7 +395,7 @@ func RandomPorkIndex(min, max int32) [PLAY_PORK_COUNT]int32 {
 
 //把这里的拍转换成扎金花proto的牌类型
 
-func ConstructZjhPai(p *ZjhPork) *bbproto.ZjhPai{
+func ConstructZjhPai(p *ZjhPoker) *bbproto.ZjhPai{
 	result := &bbproto.ZjhPai{}
 	ps := make([]*bbproto.Pai,3)
 	ps[0] = constructPai(p.pork[0])
@@ -405,7 +405,7 @@ func ConstructZjhPai(p *ZjhPork) *bbproto.ZjhPai{
 	return result
 }
 
-func constructPai(p *Pork) *bbproto.Pai{
+func constructPai(p *Poker) *bbproto.Pai{
 	result := &bbproto.Pai{}
 	result.Flower = &p.flower
 	result.Mapdes = &p.mapDes

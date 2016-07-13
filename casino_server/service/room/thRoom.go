@@ -9,6 +9,7 @@ import (
 	"github.com/golang/protobuf/proto"
 	"casino_server/msg/bbprotoFuncs"
 	"casino_server/service/userService"
+	"casino_server/service/pokerService"
 )
 
 
@@ -115,6 +116,12 @@ type ThDesk struct {
 }
 
 
+func (t *ThDesk) LogString(){
+	log.T("当前desk[%v]的信息:-----------------------------------begin",t.Id)
+	log.T("当前desk[%v]的信息的状态status[%v]",*t.Id,*t.Status)
+	log.T("当前desk[%v]的信息的状态users[%v]",*t.Id,t.users)
+	log.T("当前desk[%v]的信息:-----------------------------------end",t.Id)
+}
 
 /**
 	为桌子增加一个人
@@ -183,22 +190,38 @@ func (t *ThDesk) Run() error {
 	把正在等待的用户安置在座位上
  */
 func (t *ThDesk) UserWait2Seat() error {
-
 	//打印移动之前的信息
 	log.T("UserWait2Seat 之前,t.users,[%v]",t.users)
 	for i := 0; i < len(t.users); i++ {
-		t.users[i].status = &TH_USER_STATUS_SEATED
+		if t.users[i] !=nil {
+			t.users[i].status = &TH_USER_STATUS_SEATED
+		}
 	}
 	//打印测试消息
 	log.T("UserWait2Seat 之后,t.users,[%v]",t.users)
 	return nil
 }
 
-
 /**
 	初始化纸牌的信息
  */
 func (t *ThDesk) OnInitCards() error {
+	var total = 21;
+	totalCards  := pokerService.RandomTHPorkCards(total)	//得到牌
+	log.T("得到的所有手牌:",totalCards)
+	//得到所有的牌,前五张为公共牌,后边的每两张为手牌
+	t.PublicPai = totalCards[0:5]
+	log.T("得到的公共牌:",t.PublicPai)
+	log.T("总人数:",len(t.users))
+
+	//给每个人分配手牌
+	for i := 0; i < len(t.users); i++ {
+		if t.users[i] !=nil && userService.CheckUserIdRightful(*t.users[i].userId)  {
+			t.users[i].cards = totalCards[i*2+5:i*2+5+2]
+			log.T("用户[%v]的手牌[%v]",t.users[i].userId,t.users[i].cards)
+		}
+	}
+
 	return nil
 
 }
@@ -210,10 +233,12 @@ func (t *ThDesk) OnInitCards() error {
 func (t *ThDesk) THBroadcastProto(p proto.Message, ignoreUserId int32) error {
 	log.Normal("给每个房间发送proto 消息%v", p)
 	for i := 0; i < len(t.users); i++ {
-		log.Normal("开始userId[%v]发送消息", t.users[i].userId)
-		a := t.users[i].agent
-		a.WriteMsg(p)
-		log.Normal("给userId[%v]发送消息,发送完毕", t.users[i].userId)
+		if t.users[i] != nil {
+			log.Normal("开始userId[%v]发送消息", t.users[i].userId)
+			a := t.users[i].agent
+			a.WriteMsg(p)
+			log.Normal("给userId[%v]发送消息,发送完毕", t.users[i].userId)
+		}
 	}
 	return nil
 }
@@ -269,9 +294,10 @@ type ThSeat struct {
  */
 func NewThDesk() *ThDesk {
 	result := new(ThDesk)
+	result.Id = new(uint32)
 	result.SeatedCount = new(int32)
 	result.Dealer = new(uint32)
-	result.Status = new(int32)
+	result.Status = &TH_DESK_STATUS_STOP
 	result.BetUserNow = new(uint32)
 	result.BetUserStart = new(uint32)
 	result.users = make([]*ThUser,THROOM_SEAT_COUNT)
