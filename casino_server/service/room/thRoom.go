@@ -108,8 +108,7 @@ type ThDesk struct {
 	Dealer      *uint32        //荷官的UserId
 	PublicPai   []*bbproto.Pai //公共牌的部分
 	SeatedCount *int32         //已经坐下的人数
-	userSeated  []*ThUser      //坐下的人
-	userWait    []*ThUser      //等待开始的人
+	users	   []*ThUser      //坐下的人
 	Status      *int32         //牌桌的状态
 	BetUserStart	*uint32    //第一个押注人的Id
 	BetUserNow	*uint32	   //当前押注人的Id
@@ -129,16 +128,20 @@ func (t *ThDesk) AddThUser(userId uint32, a gate.Agent) error {
 	*thUser.status = TH_USER_STATUS_WAITSEAT        //刚进房间的玩家
 
 	//添加thuser
-	for i := 0; i < len(t.userWait); i++ {
-		if t.userWait[i] == nil {
-			t.userWait[i] = thUser
+	for i := 0; i < len(t.users); i++ {
+		if t.users[i] == nil {
+			t.users[i] = thUser
 			break
 		}
-		if (i + 1) == len(t.userWait) {
+		if (i + 1) == len(t.users) {
+			log.E("玩家加入桌子失败")
 			return errors.New("加入房间失败")
 		}
 	}
 
+	//等待的用户加1
+	*t.SeatedCount = (*t.SeatedCount) + 1
+	log.T("玩家加入桌子的结果,",t.users)
 	return nil
 }
 
@@ -182,23 +185,12 @@ func (t *ThDesk) Run() error {
 func (t *ThDesk) UserWait2Seat() error {
 
 	//打印移动之前的信息
-	log.T("UserWait2Seat 之前,t.userWait,[%v]",t.userWait)
-	log.T("UserWait2Seat 之前,t.userSeated,[%v]",t.userSeated)
-
-
-	for i := 0; i < len(t.userWait); i++ {
-		for j := 0; j < len(t.userSeated); j++ {
-			if t.userSeated[j] == nil {
-				t.userSeated[j] = t.userWait[i]
-				break
-			}
-		}
+	log.T("UserWait2Seat 之前,t.users,[%v]",t.users)
+	for i := 0; i < len(t.users); i++ {
+		t.users[i].status = &TH_USER_STATUS_SEATED
 	}
-
 	//打印测试消息
-	log.T("UserWait2Seat 之后,t.userWait,[%v]",t.userWait)
-	log.T("UserWait2Seat 之后,t.userSeated,[%v]",t.userSeated)
-
+	log.T("UserWait2Seat 之后,t.users,[%v]",t.users)
 	return nil
 }
 
@@ -217,13 +209,12 @@ func (t *ThDesk) OnInitCards() error {
  */
 func (t *ThDesk) THBroadcastProto(p proto.Message, ignoreUserId int32) error {
 	log.Normal("给每个房间发送proto 消息%v", p)
-	for i := 0; i < len(t.userSeated); i++ {
-		log.Normal("开始userId[%v]发送消息", t.userSeated[i].userId)
-		a := t.userSeated[i].agent
+	for i := 0; i < len(t.users); i++ {
+		log.Normal("开始userId[%v]发送消息", t.users[i].userId)
+		a := t.users[i].agent
 		a.WriteMsg(p)
-		log.Normal("给userId[%v]发送消息,发送完毕", t.userSeated[i].userId)
+		log.Normal("给userId[%v]发送消息,发送完毕", t.users[i].userId)
 	}
-
 	return nil
 }
 
@@ -234,30 +225,23 @@ func (t *ThDesk) THBroadcastProto(p proto.Message, ignoreUserId int32) error {
 func (t *ThDesk) GetResUserModel() []*bbproto.THUser {
 	result := make([]*bbproto.THUser,THROOM_SEAT_COUNT)
 
-	var countSeated int32 = 0
-
-	//就做的人
-	for i := 0; i< len(t.userSeated);  {
-		if  t.userSeated[i] !=nil {
-			result[countSeated] = t.userSeated[i].trans2bbprotoThuser()
-			countSeated +=1
+	//就坐的人
+	for i := 0; i< len(t.users);i++  {
+		if  t.users[i] != nil {
+			result[i] = t.users[i].trans2bbprotoThuser()
+		}else{
+			result[i] = &bbproto.THUser{}
 		}
 	}
 
-	//等待的人
-	for i := 0; i< len(t.userWait);  {
-		if  t.userWait[i] !=nil {
-			result[countSeated] = t.userWait[i].trans2bbprotoThuser()
-			countSeated +=1
-		}
-	}
+	log.T("得到的User的情况,",result)
 	return result
 }
 
 
 // 	初始化第一个押注的人
 func (t *ThDesk) OinitBetUserStar() error{
-	users := t.userSeated
+	users := t.users
 	for i := 0; i < len(users); i++ {
 		if users[i] !=nil {
 			t.BetUserStart = users[i].userId
@@ -290,6 +274,6 @@ func NewThDesk() *ThDesk {
 	result.Status = new(int32)
 	result.BetUserNow = new(uint32)
 	result.BetUserStart = new(uint32)
-
+	result.users = make([]*ThUser,THROOM_SEAT_COUNT)
 	return result
 }
