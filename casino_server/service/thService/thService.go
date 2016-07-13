@@ -98,6 +98,7 @@ func getIntoRoom(m *bbproto.ThRoom, a gate.Agent) error {
 		}
 	}
 
+	//如果没有可以使用的桌子,那么重新创建一个,并且放进游戏大厅
 	if len(room.ThGameRoomIns.ThDeskBuf) == 0 || mydesk == nil {
 		log.T("没有多余的desk可以用,重新创建一个desk")
 		mydesk = room.NewThDesk()
@@ -110,17 +111,11 @@ func getIntoRoom(m *bbproto.ThRoom, a gate.Agent) error {
 		log.E("用户上德州扑克的桌子 失败...")
 		return err
 	}
-	*mydesk.SeatedCount = *mydesk.SeatedCount + 1
 
-	//上了牌桌之后,如果玩家人数大于1,并且游戏处于stop的状态,则直接开始游戏
-	if *mydesk.SeatedCount >= room.TH_DESK_LEAST_START_USER  && *mydesk.Status == room.TH_DESK_STATUS_STOP{
-		err = mydesk.Run()
-		if err != nil {
-			log.E("开始德州扑克游戏的时候失败")
-			return nil
-		}
-	}
-	//4,修改gameRoom的状态
+
+
+	//4,返回信息
+	log.T("开始给客户端返回信息")
 	result := &bbproto.ThRoom{}
 	result.Header = protoUtils.GetSuccHeaderwithUserid(m.GetHeader().UserId)
 	result.DeskStatus = mydesk.Status		//当前桌子的状态
@@ -128,9 +123,19 @@ func getIntoRoom(m *bbproto.ThRoom, a gate.Agent) error {
 	result.Users = mydesk.GetResUserModel()
 
 	log.T("返回信息",result)
+	log.T("返回信息Users",result.Users)
+
 	a.WriteMsg(result)
 
-	//5,返回结果
+
+	//最后:确定是否开始游戏, 上了牌桌之后,如果玩家人数大于1,并且游戏处于stop的状态,则直接开始游戏
+	if *mydesk.SeatedCount >= room.TH_DESK_LEAST_START_USER  && *mydesk.Status == room.TH_DESK_STATUS_STOP{
+		err = mydesk.Run()
+		if err != nil {
+			log.E("开始德州扑克游戏的时候失败")
+			return nil
+		}
+	}
 	return nil
 }
 
