@@ -25,7 +25,6 @@ func init() {
 
 }
 
-
 /**
 	处理注册消息的方法
 	此方法可能暂时没有使用,而使用handleReqAuthUser

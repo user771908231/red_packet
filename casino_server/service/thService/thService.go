@@ -8,6 +8,7 @@ import (
 	"casino_server/service/userService"
 	"casino_server/common/log"
 	"casino_server/service/room"
+	"errors"
 )
 
 /**
@@ -15,7 +16,7 @@ import (
  */
 func HandlerThRoom(m *bbproto.ThRoom, a gate.Agent) error {
 	var err error
-	result := *&bbproto.ThRoom{}
+	//result := *&bbproto.ThRoom{}
 	reqType := m.GetReqType()
 	if reqType == intCons.REQ_TYPE_IN {
 		//表示进入德州扑克的房间
@@ -25,17 +26,17 @@ func HandlerThRoom(m *bbproto.ThRoom, a gate.Agent) error {
 		err = getOutRoom(m, a)
 	}
 
-	if err != nil {
-		//表示进入或者退出房间出错了
-		errMsg := string(err.Error())
-		result.Header = protoUtils.GetErrorHeaderWithMsg(&errMsg)
-	} else {
-		//退出或者进入房间成功
-		result.Header = protoUtils.GetSuccHeader()
-	}
-
-	//向客户端返回结果
-	a.WriteMsg(result)
+	//if err != nil {
+	//	//表示进入或者退出房间出错了
+	//	errMsg := string(err.Error())
+	//	result.Header = protoUtils.GetErrorHeaderWithMsg(&errMsg)
+	//} else {
+	//	//退出或者进入房间成功
+	//	result.Header = protoUtils.GetSuccHeader()
+	//}
+	//
+	////向客户端返回结果
+	//a.WriteMsg(result)
 	return err
 }
 
@@ -47,6 +48,8 @@ func HandlerThRoom(m *bbproto.ThRoom, a gate.Agent) error {
 	2,判断那个房间缺人
 	3,管理agent
 
+	4,如果正在游戏中,需要吧当前的状态放回给玩家,比如公共牌什么的
+
 	如果进入房间之后,游戏正在进行中,则等待游戏完成,进入下一轮
  */
 func getIntoRoom(m *bbproto.ThRoom, a gate.Agent) error {
@@ -57,42 +60,52 @@ func getIntoRoom(m *bbproto.ThRoom, a gate.Agent) error {
 
 
 	//1,判断参数是否正确
+	//判断是否已经在房间了
 	userId := m.GetHeader().GetUserId()
 	userCheck := userService.CheckUserIdRightful(userId)
 	if userCheck == false {
 		log.E("用户[%v]不合法", userId)
+		return errors.New("用户Id不合法")
 	}
 
-
-	//2,查询那个德州的房间缺人:循环每个德州的房间,然后查询哪个房间缺人
-	var intoRoom *room.ThDesk = nil
-	if len(room.ThGameRoomIns.ThRoomBuf) > 0 {
-		for roomId := range room.ThGameRoomIns.ThRoomBuf {
-			log.T("roomid[%v]", roomId)
-			intoRoom = room.ThGameRoomIns.ThRoomBuf[roomId]        //通过roomId找到德州的room
-			if *intoRoom.SeatedCount < *room.ThGameRoomIns.ThRoomSeatMax {
-				break;
+	//2,查询哪个德州的房间缺人:循环每个德州的房间,然后查询哪个房间缺人
+	var mydesk *room.ThDesk = nil
+	var index int = 0
+	if len(room.ThGameRoomIns.ThDeskBuf) > 0 {
+		log.T("当前拥有的ThDesk 的数量[%v]",len(room.ThGameRoomIns.ThDeskBuf))
+		for  deskIndex := 0; deskIndex < len(room.ThGameRoomIns.ThDeskBuf); deskIndex++ {
+			if room.ThGameRoomIns.ThDeskBuf[deskIndex] !=nil {
+				mydesk = room.ThGameRoomIns.ThDeskBuf[deskIndex]        //通过roomId找到德州的room
+				if *mydesk.SeatedCount < *room.ThGameRoomIns.ThRoomSeatMax {
+					log.T("roomid[%v]有空的座位,", deskIndex)
+					break;
+				}
+			}else{
+				index = deskIndex
+				log.T("deskId[%v]为nil,直接返回,", deskIndex)
+				break
 			}
+
 		}
 	}
 
-	if len(room.ThGameRoomIns.ThRoomBuf) == 0 || intoRoom == nil {
-		intoRoom = room.NewThDesk()
-		room.ThGameRoomIns.AddThRoom(intoRoom)
+	if len(room.ThGameRoomIns.ThDeskBuf) == 0 || mydesk == nil {
+		log.T("没有多余的desk可以用,重新创建一个desk")
+		mydesk = room.NewThDesk()
+		room.ThGameRoomIns.AddThRoom(index,mydesk)
 	}
 
 	//3,进入房间
-	err := intoRoom.AddThUser(userId, a)
+	err := mydesk.AddThUser(userId, a)
 	if err != nil {
 		log.E("用户上德州扑克的桌子 失败...")
 		return err
 	}
-	*intoRoom.SeatedCount = *intoRoom.SeatedCount + 1
-
+	*mydesk.SeatedCount = *mydesk.SeatedCount + 1
 
 	//上了牌桌之后,如果玩家人数大于1,并且游戏处于stop的状态,则直接开始游戏
-	if *intoRoom.SeatedCount >= room.TH_DESK_LEAST_START_USER  && *intoRoom.Status == room.TH_DESK_STATUS_STOP{
-		err = intoRoom.Run()
+	if *mydesk.SeatedCount >= room.TH_DESK_LEAST_START_USER  && *mydesk.Status == room.TH_DESK_STATUS_STOP{
+		err = mydesk.Run()
 		if err != nil {
 			log.E("开始德州扑克游戏的时候失败")
 			return nil
@@ -100,7 +113,12 @@ func getIntoRoom(m *bbproto.ThRoom, a gate.Agent) error {
 	}
 	//4,修改gameRoom的状态
 
-
+	result := &bbproto.ThRoom{}
+	result.Header = protoUtils.GetSuccHeaderwithUserid(m.GetHeader().UserId)
+	result.RoomStatus = mydesk.Status		//当前桌子的状态
+	result.PublicPais = mydesk.PublicPai		//公共牌
+	log.T("返回信息",result)
+	a.WriteMsg(result)
 
 	//5,返回结果
 	return nil

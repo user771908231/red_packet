@@ -46,7 +46,7 @@ func init() {
 type ThGameRoom struct {
 	sync.Mutex
 	RoomStatus    *int32 //游戏大厅的状态
-	ThRoomBuf     []*ThDesk
+	ThDeskBuf     []*ThDesk
 	ThRoomSeatMax *int32 //每个房间的座位数目
 	ThRoomCount   *int32 //房间数目
 }
@@ -54,7 +54,7 @@ type ThGameRoom struct {
 
 //初始化游戏房间
 func (r *ThGameRoom) OnInit() {
-	r.ThRoomBuf = make([]*ThDesk, GAME_THROOM_MAX_COUNT)
+	r.ThDeskBuf = make([]*ThDesk, GAME_THROOM_MAX_COUNT)
 	r.ThRoomSeatMax = &THROOM_SEAT_COUNT
 }
 
@@ -65,19 +65,9 @@ func (r *ThGameRoom) Run() {
 
 
 //增加一个thRoom
-func (r *ThGameRoom) AddThRoom(throom *ThDesk) error {
-	var result error = nil
-	for i := 0; i < int(GAME_THROOM_MAX_COUNT); i++ {
-		if r.ThRoomBuf[i] == nil {
-			r.ThRoomBuf[i] = throom
-			break;
-		}
-	}
-	if result != nil {
-		log.E("增加德州扑克的桌子失败")
-	}
-	return result
-
+func (r *ThGameRoom) AddThRoom(index int,throom *ThDesk) error {
+	r.ThDeskBuf[index] = throom
+	return nil
 }
 
 
@@ -108,6 +98,8 @@ type ThDesk struct {
 	userSeated  []*ThUser      //坐下的人
 	userWait    []*ThUser      //等待开始的人
 	Status      *int32         //牌桌的状态
+	BetUserStart	*uint32    //第一个押注人的Id
+	BetUserNow	*uint32	   //当前押注人的Id
 }
 
 
@@ -142,9 +134,6 @@ func (t *ThDesk) AddThUser(userId uint32, a gate.Agent) error {
  */
 func (t *ThDesk) Run() error {
 
-	//设置房间状态
-	*t.Status = TH_DESK_STATUS_SART                //设置状态为开始游戏
-
 	//把正在等待的用户设置可以游戏
 	err := t.UserWait2Seat()
 	if err != nil {
@@ -153,7 +142,7 @@ func (t *ThDesk) Run() error {
 	}
 
 	//初始化牌的信息
-	err = t.OnInitPork()
+	err = t.OnInitCards()
 	if err != nil {
 		log.E("开始德州扑克游戏,初始化扑克牌的时候出错")
 	}
@@ -168,6 +157,9 @@ func (t *ThDesk) Run() error {
 		return err
 	}
 
+	//设置房间状态
+	*t.Status = TH_DESK_STATUS_SART                	//设置状态为开始游戏
+	t.OinitBetUserStar()				//设置第一个押注的人
 	return nil
 }
 
@@ -201,7 +193,7 @@ func (t *ThDesk) UserWait2Seat() error {
 /**
 	初始化纸牌的信息
  */
-func (t *ThDesk) OnInitPork() error {
+func (t *ThDesk) OnInitCards() error {
 	return nil
 
 }
@@ -232,6 +224,18 @@ func (t *ThDesk) GetResUserModel() []*bbproto.THUser {
 }
 
 
+// 	初始化第一个押注的人
+func (t *ThDesk) OinitBetUserStar() error{
+	users := t.userSeated
+	for i := 0; i < len(users); i++ {
+		if users[i] !=nil {
+			t.BetUserStart = users[i].userId
+			t.BetUserNow   = users[i].userId
+		}
+	}
+
+	return nil
+}
 
 
 /**
@@ -253,6 +257,8 @@ func NewThDesk() *ThDesk {
 	result.SeatedCount = new(int32)
 	result.Dealer = new(uint32)
 	result.Status = new(int32)
+	result.BetUserNow = new(uint32)
+	result.BetUserStart = new(uint32)
 
 	return result
 }

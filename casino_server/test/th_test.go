@@ -25,7 +25,6 @@ func intoRoom(){
 	}
 	defer conn.Close()
 
-	//ide2 := bbproto.EProtoId_value[bbproto.EProtoId_THROOM.String()]
 	ide2 := int32(bbproto.EProtoId_THROOM)
 	fmt.Println("proto 得到的id ",ide2)
 	var userid uint32 = 10005

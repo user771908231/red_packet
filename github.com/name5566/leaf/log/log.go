@@ -119,7 +119,9 @@ func (logger *Logger) Release(format string, a ...interface{}) {
 }
 
 func (logger *Logger) Error(format string, a ...interface{}) {
-	logger.doPrintf(errorLevel, printErrorLevel, format, a...)
+	_, file, line, _ := runtime.Caller(2) //calldepth=3
+	lineStr := fmt.Sprintf("[%v:%v]\t", shortFileName(file), line)
+	logger.doPrintf(errorLevel, printErrorLevel+lineStr, format, a...)
 }
 
 func (logger *Logger) Fatal(format string, a ...interface{}) {

@@ -26,7 +26,7 @@ message ThRoom {
     optional int64      jackpot                      = 3;    //奖金池
     optional User       banker                       = 4;    //庄家的信息
     optional User       me                           = 5;    //玩家的信息
-    repeated ZjhPai     zjhpai                       = 6;    //当前桌子上的牌
+    repeated Pai        myCards                      = 6;    //当前桌子上的牌
     optional int32      betTime                      = 7;    //押注结束时间
     optional int32      roomStatus                   = 8;    //房间状态(正在押注,等待开奖)
     repeated Pai        publicPais                   = 9;    //公共牌
