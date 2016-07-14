@@ -232,7 +232,7 @@ func handlerZjhQueryNoSeatUser(args []interface{}){
 	退出或者进入德州扑克的房间
  */
 func handlerThRoom(args []interface{}){
-	log.T("退出或者进入德州扑克的房间")
+	log.T("handlerThRoom()")
 	m := args[0].(*bbproto.ThRoom)                //请求体
 	a := args[1].(gate.Agent)
 	err := dzService.HandlerThRoom(m,a)

@@ -4,7 +4,6 @@ import (
 	"casino_server/utils"
 	"casino_server/msg/bbprotogo"
 	"casino_server/common/log"
-	"fmt"
 	"sort"
 )
 
@@ -114,7 +113,7 @@ func GetTHMax(hand,public []*bbproto.Pai,count int) *ThCards{
 			hand = append(hand,public[i])
 		}
 	}
-	log.T("总共有[%v]张牌",len(hand))
+	//log.T("总共有[%v]张牌",len(hand))
 	tcsList := Com(7,count,hand)
 	sort.Sort(tcsList)
 	return tcsList[0]
@@ -143,7 +142,6 @@ func   Com(n,k int,allCards []*bbproto.Pai) ThCardsList{
 		tcs := &ThCards{}
 		tcs.Cards = make([]*bbproto.Pai,5)
 		for i := 1;i<=k ;i++  {
-			fmt.Print(a[i]-1)
 			tcs.Cards[1] = allCards[a[i]-1]
 		}
 
@@ -154,8 +152,6 @@ func   Com(n,k int,allCards []*bbproto.Pai) ThCardsList{
 			result = append(result,tcs)
 		}
 
-
-		fmt.Println("")
 		if a[1] == (n - k + 1) {
 			break
 		}

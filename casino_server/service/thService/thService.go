@@ -55,6 +55,7 @@ func HandlerThRoom(m *bbproto.ThRoom, a gate.Agent) error {
  */
 func getIntoRoom(m *bbproto.ThRoom, a gate.Agent) error {
 
+
 	//进入房间需要加锁
 	room.ThGameRoomIns.Lock()
 	defer room.ThGameRoomIns.Unlock()
@@ -67,6 +68,9 @@ func getIntoRoom(m *bbproto.ThRoom, a gate.Agent) error {
 		log.E("用户[%v]不合法", userId)
 		return errors.New("用户Id不合法")
 	}
+
+	log.T("userid【%v】进入德州扑克的房间",userId)
+
 
 	//判断是否已经在房间:这里可以用过agent user data 来判断
 	//agentUser := a.UserData().(*gamedata.AgentUserData{})
@@ -90,6 +94,7 @@ func getIntoRoom(m *bbproto.ThRoom, a gate.Agent) error {
 					break;
 				}
 			}else{
+				mydesk = nil
 				index = deskIndex
 				log.T("deskId[%v]为nil,直接返回,", deskIndex)
 				break
@@ -97,6 +102,7 @@ func getIntoRoom(m *bbproto.ThRoom, a gate.Agent) error {
 
 		}
 	}
+
 
 	//如果没有可以使用的桌子,那么重新创建一个,并且放进游戏大厅
 	if len(room.ThGameRoomIns.ThDeskBuf) == 0 || mydesk == nil {

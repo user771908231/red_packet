@@ -208,14 +208,14 @@ func (t *ThDesk) Run() error {
  */
 func (t *ThDesk) UserWait2Seat() error {
 	//打印移动之前的信息
-	log.T("UserWait2Seat 之前,t.users,[%v]",t.users)
+	//log.T("UserWait2Seat 之前,t.users,[%v]",t.users)
 	for i := 0; i < len(t.users); i++ {
 		if t.users[i] !=nil {
 			t.users[i].status = &TH_USER_STATUS_SEATED
 		}
 	}
 	//打印测试消息
-	log.T("UserWait2Seat 之后,t.users,[%v]",t.users)
+	//log.T("UserWait2Seat 之后,t.users,[%v]",t.users)
 	return nil
 }
 
