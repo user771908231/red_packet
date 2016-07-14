@@ -43,6 +43,7 @@ func init() {
 	//德州扑克
 	PortoProcessor.Register(&bbproto.ThRoom{})		//21	德州扑克
 	PortoProcessor.Register(&bbproto.THBet{})		//22	德州扑克押注
+	PortoProcessor.Register(&bbproto.THBegin{})		//23	德州扑克开始的广播
 
 
 }

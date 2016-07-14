@@ -2,16 +2,10 @@ package mongodb
 
 import (
 	"testing"
-	"fmt"
+	"casino_server/service/pokerService"
 )
 
 func TestTemp(t *testing.T) {
-	var a *int32
-	a = new(int32)
-	*a = 1232
-
-	fmt.Println(a)
-	fmt.Println(a)
-
+	pokerService.Com(7,5)
 }
 

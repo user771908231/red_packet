@@ -120,6 +120,8 @@ func (t *ThDesk) LogString(){
 	log.T("当前desk[%v]的信息:-----------------------------------begin",t.Id)
 	log.T("当前desk[%v]的信息的状态status[%v]",*t.Id,*t.Status)
 	log.T("当前desk[%v]的信息的状态users[%v]",*t.Id,t.users)
+	log.T("当前desk[%v]的信息的状态SeatedCount[%v]",*t.Id,*t.SeatedCount)
+
 	log.T("当前desk[%v]的信息:-----------------------------------end",t.Id)
 }
 
@@ -262,6 +264,29 @@ func (t *ThDesk) GetResUserModel() []*bbproto.THUser {
 	log.T("得到的User的情况,",result)
 	return result
 }
+
+// 返回res需要的User实体 并且排序,排序规则是,当前用户排在第一个
+func (t *ThDesk) GetResUserModelClieSeq(userId uint32) []*bbproto.THUser {
+	//需要根据当前用户的Userid来进行排序
+	users := t.GetResUserModel()
+	var userIndex int = 0
+	for i := 0; i < len(users); i++ {
+		if users[i] !=nil && *(users[i].U.Id) == userId {
+			userIndex = i
+			break
+		}
+	}
+
+	result := make([]*bbproto.THUser,len(users))
+	for i := 0; i < len(users); i++ {
+		result[i] = users[(i+userIndex)%len(users)]
+	}
+
+	log.T("得到排序后的User的情况,",result)
+	return result
+}
+
+
 
 
 // 	初始化第一个押注的人

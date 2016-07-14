@@ -76,8 +76,6 @@ func getIntoRoom(m *bbproto.ThRoom, a gate.Agent) error {
 	//}
 
 
-
-
 	//2,查询哪个德州的房间缺人:循环每个德州的房间,然后查询哪个房间缺人
 	var mydesk *room.ThDesk = nil
 	var index int = 0
@@ -86,6 +84,7 @@ func getIntoRoom(m *bbproto.ThRoom, a gate.Agent) error {
 		for  deskIndex := 0; deskIndex < len(room.ThGameRoomIns.ThDeskBuf); deskIndex++ {
 			if room.ThGameRoomIns.ThDeskBuf[deskIndex] !=nil {
 				mydesk = room.ThGameRoomIns.ThDeskBuf[deskIndex]        //通过roomId找到德州的room
+				mydesk.LogString()
 				if *mydesk.SeatedCount < *room.ThGameRoomIns.ThRoomSeatMax {
 					log.T("roomid[%v]有空的座位,", deskIndex)
 					break;
@@ -121,7 +120,7 @@ func getIntoRoom(m *bbproto.ThRoom, a gate.Agent) error {
 	result.Header = protoUtils.GetSuccHeaderwithUserid(m.GetHeader().UserId)
 	result.DeskStatus = mydesk.Status		//当前桌子的状态
 	result.PublicPais = mydesk.PublicPai		//公共牌
-	result.Users = mydesk.GetResUserModel()
+	result.Users = mydesk.GetResUserModelClieSeq(userId)
 
 	log.T("返回信息",result)
 	log.T("返回信息Users",result.Users)
@@ -131,6 +130,7 @@ func getIntoRoom(m *bbproto.ThRoom, a gate.Agent) error {
 	//目前mydesk的信息
 
 	//最后:确定是否开始游戏, 上了牌桌之后,如果玩家人数大于1,并且游戏处于stop的状态,则直接开始游戏
+	//这是游戏刚开始,的处理方式
 	if *mydesk.SeatedCount >= room.TH_DESK_LEAST_START_USER  && *mydesk.Status == room.TH_DESK_STATUS_STOP{
 		err = mydesk.Run()
 		if err != nil {
