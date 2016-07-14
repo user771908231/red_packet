@@ -20,15 +20,24 @@ var GAME_THROOM_MAX_COUNT int32 = 500         //一个游戏大厅最多有多�
 var TH_DESK_LEAST_START_USER int32 = 2        //最少多少人可以开始游戏
 
 //德州扑克 玩家的状态
-var TH_USER_STATUS_WAITSEAT 	int32 = 1; //刚上桌子 等待开始的玩家
-var TH_USER_STATUS_SEATED 	int32 = 2; //刚上桌子 等待开始的玩家
+var TH_USER_STATUS_WAITSEAT 	int32 = 1	 //刚上桌子 等待开始的玩家
+var TH_USER_STATUS_SEATED 	int32 = 2	 //刚上桌子 等待开始的玩家
 
 
 
 //德州扑克,牌桌的状态
-var TH_DESK_STATUS_STOP int32 = 1; //没有开始的状态
-var TH_DESK_STATUS_SART int32 = 2; //没有已经开始的状态
+var TH_DESK_STATUS_STOP int32 = 1	 //没有开始的状态
+var TH_DESK_STATUS_SART int32 = 2	 //没有已经开始的状态
 
+
+//押注的类型
+var TH_DESK_BET_TYPE_BET	int32	=	1	//押注
+var TH_DESK_BET_TYPE_CALL	int32	=	2	//跟注,和别人下相同的筹码
+var TH_DESK_BET_TYPE_FOLD	int32	=	3	//弃牌
+var TH_DESK_BET_TYPE_CHECK	int32	=	4	//让牌
+var TH_DESK_BET_TYPE_RAISE	int32	=	5	//加注
+var TH_DESK_BET_TYPE_RERRAISE	int32	=	6	//再加注
+var TH_DESK_BET_TYPE_ALLIN	int32	=	7	//全下
 
 /**
 	初始化函数:
@@ -39,7 +48,7 @@ var ThGameRoomIns ThGameRoom        //房间实例,在init函数中初始化
 
 func init() {
 	ThGameRoomIns.OnInit()                //初始化房间
-	ThGameRoomIns.Run()                //运行房间
+	ThGameRoomIns.Run()                   //运行房间
 }
 
 /**
@@ -74,6 +83,11 @@ func (r *ThGameRoom) AddThRoom(index int,throom *ThDesk) error {
 	return nil
 }
 
+//通过Id找到对应的桌子
+func (r *ThGameRoom) GetDeskById(id uint32) *ThDesk{
+	return nil
+}
+
 
 /**
 	正在玩德州的人
@@ -82,7 +96,8 @@ type ThUser struct {
 	userId *uint32    //用户id
 	agent  gate.Agent //agent
 	status *int32     //当前的状态
-	cards  []*bbproto.Pai
+	cards  []*bbproto.Pai	//手牌
+	thCards *pokerService.ThCards	//手牌加公共牌取出来的值,这个值可以实在结算的时候来取
 }
 
 //
@@ -221,8 +236,10 @@ func (t *ThDesk) OnInitCards() error {
 		if t.users[i] !=nil && userService.CheckUserIdRightful(*t.users[i].userId)  {
 			t.users[i].cards = totalCards[i*2+5:i*2+5+2]
 			log.T("用户[%v]的手牌[%v]",t.users[i].userId,t.users[i].cards)
+			t.users[i].thCards = pokerService.GetTHMax(t.users[i].cards,t.PublicPai,5)
 		}
 	}
+
 
 	return nil
 
@@ -289,7 +306,7 @@ func (t *ThDesk) GetResUserModelClieSeq(userId uint32) []*bbproto.THUser {
 
 
 
-// 	初始化第一个押注的人
+// 	初始化第一个押注的人,当前押注的人
 func (t *ThDesk) OinitBetUserStar() error{
 	users := t.users
 	for i := 0; i < len(users); i++ {
@@ -302,6 +319,53 @@ func (t *ThDesk) OinitBetUserStar() error{
 	return nil
 }
 
+
+//	开奖
+func (t *ThDesk) Lottery() error{
+
+	return nil
+
+}
+
+
+
+/**
+	押注,押注其实也是桌子在负责
+	押注的逻辑说明:
+	1,userId必须是当前的UserId
+var TH_DESK_BET_TYPE_BET	=	1	//押注
+var TH_DESK_BET_TYPE_CALL	=	2	//跟注,和别人下相同的筹码
+var TH_DESK_BET_TYPE_FOLD	=	3	//弃牌
+var TH_DESK_BET_TYPE_CHECK	=	4	//让牌
+var TH_DESK_BET_TYPE_RAISE	=	5	//加注
+var TH_DESK_BET_TYPE_RERRAISE	=	6	//再加注
+var TH_DESK_BET_TYPE_ALLIN	=	7	//全下
+
+ */
+func (t *ThDesk) Bet(m *bbproto.THBet,a gate.Agent) error{
+
+	//1,检测押注的userId是否正确
+	userId := m.GetHeader().GetUserId()
+	if userId != *t.BetUserNow {
+		//如果押注的不是当前用户,则直接返回错误
+		log.E("当前应该押注的用户是[%v]二不是[%v]",*t.BetUserNow,userId)
+		return errors.New("押注的用户Id不正确")
+	}
+
+	//2,根据押注的类型来分别处理
+	betType := m.GetBetType()
+	switch betType {
+	case TH_DESK_BET_TYPE_BET:
+		//押注
+	case TH_DESK_BET_TYPE_CALL:
+	case TH_DESK_BET_TYPE_FOLD:
+	case TH_DESK_BET_TYPE_CHECK:
+	case TH_DESK_BET_TYPE_RAISE:
+	case TH_DESK_BET_TYPE_RERRAISE:
+	case TH_DESK_BET_TYPE_ALLIN:
+	}
+	return nil
+}
 
 /**
 	一个德州扑克的座位,座位包含一下信息:

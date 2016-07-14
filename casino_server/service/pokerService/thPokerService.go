@@ -5,6 +5,7 @@ import (
 	"casino_server/msg/bbprotogo"
 	"casino_server/common/log"
 	"fmt"
+	"sort"
 )
 
 //德州扑克的纸牌
@@ -77,8 +78,7 @@ func (list ThCardsList) Less(i,j int) bool{
 
 }
 
-func (list ThCardsList) Swap(i,j int) []*ThCards{
-	return nil
+func (list ThCardsList) Swap(i,j int){
 }
 
 //------------------------------------------------------------实现德州牌的排序结束--------------------------------------
@@ -105,9 +105,8 @@ func RandomTHPorkIndex(min, max,total int) []int32 {
 	return result;
 }
 
-
 //通过手牌,和给定的牌得到最大的德州牌
-func GetTHMax(hand,public []*bbproto.Pai,count int) []*ThCards{
+func GetTHMax(hand,public []*bbproto.Pai,count int) *ThCards{
 
 	//把公共牌增加到手牌中
 	for i := 0; i < len(public); i++ {
@@ -115,52 +114,61 @@ func GetTHMax(hand,public []*bbproto.Pai,count int) []*ThCards{
 			hand = append(hand,public[i])
 		}
 	}
-
 	log.T("总共有[%v]张牌",len(hand))
-	//var totalCount = len(hand);
-	//var desCount	= 5;
-	return nil
+	tcsList := Com(7,count,hand)
+	sort.Sort(tcsList)
+	return tcsList[0]
 
 }
 
-// 组合函数// 1-n里面取k个组合
-func   Com(n,k int) {
 
+// 组合函数// 1-n里面取k个组合
+func   Com(n,k int,allCards []*bbproto.Pai) ThCardsList{
+	var result ThCardsList
 	//判断参数是否正确
 	if (n < k || n <= 0 || k <= 0) {
 		log.E("n,k数据输入不合理")
-		return;
+		return nil;
 	}
 
 	a := make([]int,k+1)
 	fg := make([]int,k+1)
 
-	for i:=1;i<=k ;i++  {
-		a[i] = i;
-		fg[i] = i - k + n;
+	for i:=1;i<=k;i++{
+		a[i] = i
+		fg[i] = i-k+n
 	}
-	fmt.Println(a)
-	fmt.Println(fg)
-
 
 	for ; ;  {
-		for i := 1; i <= k; i++ {
-			fmt.Print(a[i])
+		tcs := &ThCards{}
+		tcs.Cards = make([]*bbproto.Pai,5)
+		for i := 1;i<=k ;i++  {
+			fmt.Print(a[i]-1)
+			tcs.Cards[1] = allCards[a[i]-1]
 		}
-		fmt.Println("a[1]",a[1])
+
+		if result ==nil {
+			result = make([]*ThCards,1)
+			result[0] = tcs
+		}else{
+			result = append(result,tcs)
+		}
 
 
-		if (a[1] == n - k + 1){
-			break;// 跳出条件
+		fmt.Println("")
+		if a[1] == (n - k + 1) {
+			break
 		}
+
 		for i := k; i >= 1; i-- {
-			if (a[i] < fg[i]) {
-				a[i]++;
-				for j := i+1; j<=k;j++  {
-					a[j] = a[j - 1] + 1;
-					break;
+			if a[i] < fg[i] {
+				a[i]++
+				for j:=i+1;j<=k ;j++  {
+					a[j] = a[j-1] +1;
 				}
+				break
 			}
 		}
 	}
+	return result
 }

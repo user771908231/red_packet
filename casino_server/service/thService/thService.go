@@ -153,7 +153,6 @@ func getOutRoom(m *bbproto.ThRoom, a gate.Agent) error {
 	return nil
 }
 
-
 /**
 	处理德州扑克押注的问题
  */
@@ -162,7 +161,10 @@ func HandlerTHBet(m *bbproto.THBet, a gate.Agent) error {
 	userData := a.UserData().(gamedata.AgentUserData)		//agentUserId
 	deskId := userData.ZhDeskId					//德州扑克桌子号码:存醋方式有很多,目前暂时存醋在userData当中
 	log.T("用户[%v]所在的德州扑克的deskId[%v]",m.GetHeader().GetUserId(),deskId)
-	return nil
+	//通过桌子号找到桌子
+	desk := room.ThGameRoomIns.GetDeskById(deskId)
+	err := desk.Bet(m,a)
+	return err
 }
 
 
