@@ -137,7 +137,7 @@ type ThDesk struct {
 	users        []*ThUser      //坐下的人
 	Status       *int32         //牌桌的状态
 	BigBlind     *uint32        //第一个押注人的Id
-	SmallBlind    *uint32        //第一个押注人的Id
+	SmallBlind   *uint32        //第一个押注人的Id
 	BetUserNow   *uint32        //当前押注人的Id
 	RemainTime   *int32         //剩余投资的时间  多少秒
 	BetAmountNow *int32         //挡墙的押注金额是多少
@@ -200,9 +200,9 @@ func (t *ThDesk) Run() error {
 	if err != nil {
 		log.E("开始德州扑克游戏,初始化扑克牌的时候出错")
 	}
+
 	//设置房间状态
-	*t.Status = TH_DESK_STATUS_SART                	//设置状态为开始游戏
-	t.OinitBetUserStar()
+	t.OinitBegin()
 
 
 	//广播消息
@@ -323,15 +323,29 @@ func (t *ThDesk) GetResUserModelClieSeq(userId uint32) []*bbproto.THUser {
 
 
 // 	初始化第一个押注的人,当前押注的人
-func (t *ThDesk) OinitBetUserStar() error{
+func (t *ThDesk) OinitBegin() error{
+	//设置德州desk状态
+	*t.Status = TH_DESK_STATUS_SART                	//设置状态为开始游戏
 	users := t.users
-	for i := 0; i < len(users); i++ {
+
+	//这里需要定义一个庄家,todo 暂时默认为第一个,后边再修改
+	var dealerIndex int = 0;
+	//
+	for i := dealerIndex; i < len(users); i++ {
 		if users[i] !=nil {
 			t.BigBlind = users[i].userId
 			t.BetUserNow   = users[i].userId
+			break
 		}
 	}
 
+	for i := dealerIndex; i < len(users); i++ {
+		if users[i] !=nil {
+			t.BigBlind = users[i].userId
+			t.BetUserNow   = users[i].userId
+			break
+		}
+	}
 	return nil
 }
 
