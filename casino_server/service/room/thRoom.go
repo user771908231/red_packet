@@ -183,7 +183,7 @@ func (t *ThDesk) AddThUser(userId uint32, a gate.Agent) error {
 }
 
 /**
-	开始游戏
+	开始游戏,开始游戏的时候需要初始化desk
  */
 func (t *ThDesk) Run() error {
 
@@ -373,7 +373,7 @@ func (t *ThDesk) Bet(m *bbproto.THBet,a gate.Agent) error{
 	betType := m.GetBetType()
 	switch betType {
 	case TH_DESK_BET_TYPE_BET:
-		//押注
+		//押注:大盲注之后的第一个人
 	case TH_DESK_BET_TYPE_CALL:
 		//跟注
 	case TH_DESK_BET_TYPE_FOLD:
