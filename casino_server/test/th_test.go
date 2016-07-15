@@ -10,7 +10,9 @@ import (
 
 func TestTh(t *testing.T){
 	intoRoom()
-
+	for ; ;  {
+		
+	}
 
 }
 

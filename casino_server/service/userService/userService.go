@@ -133,9 +133,6 @@ func newUserAndSave() (*bbproto.User, error) {
 
 }
 
-func AddGold(userId uint32, ) {
-
-}
 
 func GetRedisUserKey(id uint32) string {
 	idStr, _ := numUtils.Uint2String(id)
@@ -306,4 +303,14 @@ func CheckUserIdRightful(userId uint32) bool{
 	}else{
 		return true
 	}
+}
+
+//增加用户的coin
+func IncreasUserCoin(userId uint32,coin int32) error{
+	return nil
+}
+
+func decreaseUserCoin(userId uint32,coin int32) error{
+	return nil
+
 }

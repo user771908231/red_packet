@@ -82,13 +82,14 @@ func getIntoRoom(m *bbproto.ThRoom, a gate.Agent) error {
 	var mydesk *room.ThDesk = nil
 	var index int = 0
 	if len(room.ThGameRoomIns.ThDeskBuf) > 0 {
-		log.T("当前拥有的ThDesk 的数量[%v]",len(room.ThGameRoomIns.ThDeskBuf))
+		//log.T("当前拥有的ThDesk 的数量[%v]",len(room.ThGameRoomIns.ThDeskBuf))
 		for  deskIndex := 0; deskIndex < len(room.ThGameRoomIns.ThDeskBuf); deskIndex++ {
 			if room.ThGameRoomIns.ThDeskBuf[deskIndex] !=nil {
 				mydesk = room.ThGameRoomIns.ThDeskBuf[deskIndex]        //通过roomId找到德州的room
 				mydesk.LogString()
+				log.T("每个desk限制的最大人数是[%v]",*room.ThGameRoomIns.ThRoomSeatMax)
 				if *mydesk.SeatedCount < *room.ThGameRoomIns.ThRoomSeatMax {
-					log.T("roomid[%v]有空的座位,", deskIndex)
+					log.T("room.index[%v]有空的座位,", deskIndex)
 					break;
 				}
 			}else{
