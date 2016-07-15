@@ -57,8 +57,8 @@ message THBet{
 message THBetBegin{
     optional ProtoHeader	header				     = 1;
     optional uint32         dealer                   = 2;   //庄家
-    optional uint32         bigBlind                 = 3;   //大盲注
-    optional uint32         smallBlind               = 4;   //小盲注
+    optional THUser         bigBlind                 = 3;   //大盲注
+    optional THUser         smallBlind               = 4;   //小盲注
     optional uint32         betUserNow               = 5;   //当前押注的人
 }
 

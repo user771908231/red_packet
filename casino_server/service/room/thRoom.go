@@ -20,33 +20,31 @@ var GAME_THROOM_MAX_COUNT int32 = 500         //一个游戏大厅最多有多�
 var TH_DESK_LEAST_START_USER int32 = 2        //最少多少人可以开始游戏
 
 //德州扑克 玩家的状态
-var TH_USER_STATUS_WAITSEAT 	int32 = 1	//刚上桌子 等待开始的玩家
-var TH_USER_STATUS_SEATED 	int32 = 2	//刚上桌子 游戏中的玩家
-var TH_USER_STATUS_BETING	int32 = 3	//押注中
-var TH_USER_STATUS_ALLINING	int32 = 4	//allIn
-var TH_USER_STATUS_FOLDED	int32 = 5	//弃牌
-
+var TH_USER_STATUS_WAITSEAT int32 = 1        //刚上桌子 等待开始的玩家
+var TH_USER_STATUS_SEATED int32 = 2        //刚上桌子 游戏中的玩家
+var TH_USER_STATUS_BETING int32 = 3        //押注中
+var TH_USER_STATUS_ALLINING int32 = 4        //allIn
+var TH_USER_STATUS_FOLDED int32 = 5        //弃牌
 
 
 //德州扑克,牌桌的状态
-var TH_DESK_STATUS_STOP int32 = 1	 //没有开始的状态
-var TH_DESK_STATUS_SART int32 = 2	 //没有已经开始的状态
-var TH_DESK_STATUS_ROUND1 int32 = 3	 //第一轮押注
-var TH_DESK_STATUS_ROUND2 int32 = 4	 //第二轮押注
-var TH_DESK_STATUS_ROUND3 int32 = 5	 //第三轮押注
-var TH_DESK_STATUS_ROUND4 int32 = 6	 //第四轮押注
-var TH_DESK_STATUS_ROUND5 int32 = 7	 //第五轮押注
-
+var TH_DESK_STATUS_STOP int32 = 1         //没有开始的状态
+var TH_DESK_STATUS_SART int32 = 2         //没有已经开始的状态
+var TH_DESK_STATUS_ROUND1 int32 = 3         //第一轮押注
+var TH_DESK_STATUS_ROUND2 int32 = 4         //第二轮押注
+var TH_DESK_STATUS_ROUND3 int32 = 5         //第三轮押注
+var TH_DESK_STATUS_ROUND4 int32 = 6         //第四轮押注
+var TH_DESK_STATUS_ROUND5 int32 = 7         //第五轮押注
 
 
 //押注的类型
-var TH_DESK_BET_TYPE_BET	int32	=	1	//押注
-var TH_DESK_BET_TYPE_CALL	int32	=	2	//跟注,和别人下相同的筹码
-var TH_DESK_BET_TYPE_FOLD	int32	=	3	//弃牌
-var TH_DESK_BET_TYPE_CHECK	int32	=	4	//让牌
-var TH_DESK_BET_TYPE_RAISE	int32	=	5	//加注
-var TH_DESK_BET_TYPE_RERRAISE	int32	=	6	//再加注
-var TH_DESK_BET_TYPE_ALLIN	int32	=	7	//全下
+var TH_DESK_BET_TYPE_BET int32 = 1        //押注
+var TH_DESK_BET_TYPE_CALL int32 = 2        //跟注,和别人下相同的筹码
+var TH_DESK_BET_TYPE_FOLD int32 = 3        //弃牌
+var TH_DESK_BET_TYPE_CHECK int32 = 4        //让牌
+var TH_DESK_BET_TYPE_RAISE int32 = 5        //加注
+var TH_DESK_BET_TYPE_RERRAISE int32 = 6        //再加注
+var TH_DESK_BET_TYPE_ALLIN int32 = 7        //全下
 
 /**
 	初始化函数:
@@ -87,13 +85,13 @@ func (r *ThGameRoom) Run() {
 
 
 //增加一个thRoom
-func (r *ThGameRoom) AddThRoom(index int,throom *ThDesk) error {
+func (r *ThGameRoom) AddThRoom(index int, throom *ThDesk) error {
 	r.ThDeskBuf[index] = throom
 	return nil
 }
 
 //通过Id找到对应的桌子
-func (r *ThGameRoom) GetDeskById(id uint32) *ThDesk{
+func (r *ThGameRoom) GetDeskById(id uint32) *ThDesk {
 	return nil
 }
 
@@ -102,18 +100,18 @@ func (r *ThGameRoom) GetDeskById(id uint32) *ThDesk{
 	正在玩德州的人
  */
 type ThUser struct {
-	userId *uint32    //用户id
-	agent  gate.Agent //agent
-	status *int32     //当前的状态
-	cards  []*bbproto.Pai	//手牌
-	thCards *pokerService.ThCards	//手牌加公共牌取出来的值,这个值可以实在结算的时候来取
+	userId  *uint32               //用户id
+	agent   gate.Agent            //agent
+	status  *int32                //当前的状态
+	cards   []*bbproto.Pai        //手牌
+	thCards *pokerService.ThCards //手牌加公共牌取出来的值,这个值可以实在结算的时候来取
 }
 
 //
-func (t *ThUser) trans2bbprotoThuser() *bbproto.THUser{
+func (t *ThUser) trans2bbprotoThuser() *bbproto.THUser {
 	thuserTemp := &bbproto.THUser{}
-	thuserTemp.Status = t.status	//已经就做
-	thuserTemp.User =userService.GetUserById(*t.userId) 	//得到user
+	thuserTemp.Status = t.status        //已经就做
+	thuserTemp.User = userService.GetUserById(*t.userId)        //得到user
 	thuserTemp.HandPais = t.cards
 	return thuserTemp
 }
@@ -143,13 +141,12 @@ type ThDesk struct {
 	BetAmountNow *int32         //挡墙的押注金额是多少
 }
 
-
-func (t *ThDesk) LogString(){
-	log.T("当前desk[%v]的信息:-----------------------------------begin",t.Id)
-	log.T("当前desk[%v]的信息的状态status[%v]",*t.Id,*t.Status)
-	log.T("当前desk[%v]的信息的状态users[%v]",*t.Id,t.users)
-	log.T("当前desk[%v]的信息的状态SeatedCount[%v]",*t.Id,*t.SeatedCount)
-	log.T("当前desk[%v]的信息:-----------------------------------end",t.Id)
+func (t *ThDesk) LogString() {
+	log.T("当前desk[%v]的信息:-----------------------------------begin", t.Id)
+	log.T("当前desk[%v]的信息的状态status[%v]", *t.Id, *t.Status)
+	log.T("当前desk[%v]的信息的状态users[%v]", *t.Id, t.users)
+	log.T("当前desk[%v]的信息的状态SeatedCount[%v]", *t.Id, *t.SeatedCount)
+	log.T("当前desk[%v]的信息:-----------------------------------end", t.Id)
 }
 
 /**
@@ -177,7 +174,7 @@ func (t *ThDesk) AddThUser(userId uint32, a gate.Agent) error {
 
 	//等待的用户加1
 	*t.SeatedCount = (*t.SeatedCount) + 1
-	log.T("玩家加入桌子的结果,",t.users)
+	log.T("玩家加入桌子的结果,", t.users)
 	return nil
 }
 
@@ -204,18 +201,18 @@ func (t *ThDesk) Run() error {
 	//设置房间状态
 	t.OinitBegin()
 
-
 	//广播消息
-	res := &bbproto.THBetBroadcast{}
+	res := &bbproto.THBetBegin{}
 	res.Header = protoUtils.GetSuccHeader()
-	res.Users = t.GetResUserModel()
+	res.SmallBlind = t.GetResUserModelById(*t.SmallBlind)
+	res.BigBlind = t.GetResUserModelById(*t.BigBlind)
 	err = t.THBroadcastProto(res, 0)
 	if err != nil {
 		log.E("广播开始消息的时候出错")
 		return err
 	}
 
-				//设置第一个押注的人
+	//设置第一个押注的人
 	return nil
 }
 
@@ -226,7 +223,7 @@ func (t *ThDesk) UserWait2Seat() error {
 	//打印移动之前的信息
 	//log.T("UserWait2Seat 之前,t.users,[%v]",t.users)
 	for i := 0; i < len(t.users); i++ {
-		if t.users[i] !=nil {
+		if t.users[i] != nil {
 			t.users[i].status = &TH_USER_STATUS_SEATED
 		}
 	}
@@ -240,22 +237,21 @@ func (t *ThDesk) UserWait2Seat() error {
  */
 func (t *ThDesk) OnInitCards() error {
 	var total = 21;
-	totalCards  := pokerService.RandomTHPorkCards(total)	//得到牌
-	log.T("得到的所有手牌:",totalCards)
+	totalCards := pokerService.RandomTHPorkCards(total)        //得到牌
+	log.T("得到的所有手牌:", totalCards)
 	//得到所有的牌,前五张为公共牌,后边的每两张为手牌
 	t.PublicPai = totalCards[0:5]
-	log.T("得到的公共牌:",t.PublicPai)
-	log.T("总人数:",len(t.users))
+	log.T("得到的公共牌:", t.PublicPai)
+	log.T("总人数:", len(t.users))
 
 	//给每个人分配手牌
 	for i := 0; i < len(t.users); i++ {
-		if t.users[i] !=nil && userService.CheckUserIdRightful(*t.users[i].userId)  {
-			t.users[i].cards = totalCards[i*2+5:i*2+5+2]
-			log.T("用户[%v]的手牌[%v]",t.users[i].userId,t.users[i].cards)
-			t.users[i].thCards = pokerService.GetTHMax(t.users[i].cards,t.PublicPai,5)
+		if t.users[i] != nil && userService.CheckUserIdRightful(*t.users[i].userId) {
+			t.users[i].cards = totalCards[i * 2 + 5:i * 2 + 5 + 2]
+			log.T("用户[%v]的手牌[%v]", t.users[i].userId, t.users[i].cards)
+			t.users[i].thCards = pokerService.GetTHMax(t.users[i].cards, t.PublicPai, 5)
 		}
 	}
-
 
 	return nil
 
@@ -268,7 +264,7 @@ func (t *ThDesk) OnInitCards() error {
 func (t *ThDesk) THBroadcastProto(p proto.Message, ignoreUserId uint32) error {
 	log.Normal("给每个房间发送proto 消息%v", p)
 	for i := 0; i < len(t.users); i++ {
-		if t.users[i] != nil && *t.users[i].userId != ignoreUserId{
+		if t.users[i] != nil && *t.users[i].userId != ignoreUserId {
 			log.Normal("开始userId[%v]发送消息", t.users[i].userId)
 			a := t.users[i].agent
 			a.WriteMsg(p)
@@ -283,18 +279,29 @@ func (t *ThDesk) THBroadcastProto(p proto.Message, ignoreUserId uint32) error {
 	返回res需要的User实体
  */
 func (t *ThDesk) GetResUserModel() []*bbproto.THUser {
-	result := make([]*bbproto.THUser,THROOM_SEAT_COUNT)
+	result := make([]*bbproto.THUser, THROOM_SEAT_COUNT)
 
 	//就坐的人
-	for i := 0; i< len(t.users);i++  {
-		if  t.users[i] != nil {
+	for i := 0; i < len(t.users); i++ {
+		if t.users[i] != nil {
 			result[i] = t.users[i].trans2bbprotoThuser()
-		}else{
+		} else {
 			result[i] = &bbproto.THUser{}
 		}
 	}
 
-	log.T("得到的User的情况,",result)
+	log.T("得到的User的情况,", result)
+	return result
+}
+
+func (t *ThDesk) GetResUserModelById(userId uint32) *bbproto.THUser {
+	var result *bbproto.THUser
+	for i := 0; i < len(t.users); i++ {
+		if t.users[i] != nil &&  *t.users[i].userId == userId {
+			result = t.users[i].trans2bbprotoThuser()
+		}
+	}
+	log.T("通过userId得到的bbproto.THUser的情况,", result)
 	return result
 }
 
@@ -304,18 +311,18 @@ func (t *ThDesk) GetResUserModelClieSeq(userId uint32) []*bbproto.THUser {
 	users := t.GetResUserModel()
 	var userIndex int = 0
 	for i := 0; i < len(users); i++ {
-		if users[i] !=nil && *(users[i].User.Id) == userId {
+		if users[i] != nil && *(users[i].User.Id) == userId {
 			userIndex = i
 			break
 		}
 	}
 
-	result := make([]*bbproto.THUser,len(users))
+	result := make([]*bbproto.THUser, len(users))
 	for i := 0; i < len(users); i++ {
-		result[i] = users[(i+userIndex)%len(users)]
+		result[i] = users[(i + userIndex) % len(users)]
 	}
 
-	log.T("得到排序后的User的情况,",result)
+	log.T("得到排序后的User的情况,", result)
 	return result
 }
 
@@ -323,35 +330,58 @@ func (t *ThDesk) GetResUserModelClieSeq(userId uint32) []*bbproto.THUser {
 
 
 // 	初始化第一个押注的人,当前押注的人
-func (t *ThDesk) OinitBegin() error{
-	//设置德州desk状态
-	*t.Status = TH_DESK_STATUS_SART                	//设置状态为开始游戏
+func (t *ThDesk) OinitBegin() error {
+
+	//设置德州desk状态//设置状态为开始游戏
+	*t.Status = TH_DESK_STATUS_SART
+
 	users := t.users
-
 	//这里需要定义一个庄家,todo 暂时默认为第一个,后边再修改
-	var dealerIndex int = 0;
-	//
-	for i := dealerIndex; i < len(users); i++ {
-		if users[i] !=nil {
-			t.BigBlind = users[i].userId
-			t.BetUserNow   = users[i].userId
+	var dealerIndex int;
+	if t.Dealer == nil {
+		dealerIndex = -1
+	} else {
+		dealerIndex = t.GetUserIndex(*t.Dealer)
+	}
+
+	//设置庄家为下一个人
+	dealerIndex ++
+
+	//设置小盲注
+	for i := dealerIndex; i < len(users)+dealerIndex; i++ {
+		if users[i%len(users)] != nil {
+			t.SmallBlind = users[i%len(users)].userId
+			users[i%len(users)] = nil
 			break
 		}
 	}
 
-	for i := dealerIndex; i < len(users); i++ {
-		if users[i] !=nil {
-			t.BigBlind = users[i].userId
-			t.BetUserNow   = users[i].userId
+	//设置大盲注
+	for i := dealerIndex; i < len(users)+dealerIndex; i++ {
+		if users[i%len(users)] != nil {
+			t.BigBlind = users[i%len(users)].userId
+			users[i%len(users)] = nil
 			break
 		}
 	}
+
+	//设置当前押注的人
+	for i := dealerIndex; i < len(users)+dealerIndex; i++ {
+		if users[i%len(users)] != nil {
+			t.BigBlind = users[i%len(users)].userId
+			users[i%len(users)] = nil
+			break
+		}
+	}
+
+
+
 	return nil
 }
 
 
 //	开奖
-func (t *ThDesk) Lottery() error{
+func (t *ThDesk) Lottery() error {
 
 	return nil
 
@@ -366,7 +396,7 @@ func (t *ThDesk) Lottery() error{
 	2,当加注的时候,庄变成加注的那个人
 	3,跟注到庄的时候一轮结束
  */
-func (t *ThDesk) Bet(m *bbproto.THBet,a gate.Agent) error{
+func (t *ThDesk) Bet(m *bbproto.THBet, a gate.Agent) error {
 	t.Lock()
 	t.Unlock()
 
@@ -375,7 +405,7 @@ func (t *ThDesk) Bet(m *bbproto.THBet,a gate.Agent) error{
 	userId := m.GetHeader().GetUserId()
 	if userId != *t.BetUserNow {
 		//如果押注的不是当前用户,则直接返回错误
-		log.E("当前应该押注的用户是[%v]二不是[%v]",*t.BetUserNow,userId)
+		log.E("当前应该押注的用户是[%v]二不是[%v]", *t.BetUserNow, userId)
 		return errors.New("押注的用户Id不正确")
 	}
 
@@ -390,26 +420,27 @@ func (t *ThDesk) Bet(m *bbproto.THBet,a gate.Agent) error{
 	betType := m.GetBetType()
 	switch betType {
 	case TH_DESK_BET_TYPE_BET:
-		//押注:大盲注之后的第一个人
+	//押注:大盲注之后的第一个人
 	case TH_DESK_BET_TYPE_CALL:
-		//跟注
+	//跟注
 	case TH_DESK_BET_TYPE_FOLD:
-		//弃牌
+	//弃牌
 	case TH_DESK_BET_TYPE_CHECK:
-		//让牌
+	//让牌
 	case TH_DESK_BET_TYPE_RAISE:
-		//加注
+	//加注
 	case TH_DESK_BET_TYPE_RERRAISE:
-		//再加注
+	//再加注
 	case TH_DESK_BET_TYPE_ALLIN:
-		//全部
+	//全部
 	}
 
 	//3,处理之后,设置desk的状态
 	userIndex := t.GetUserIndex(userId)
 	for i := userIndex; i < userIndex + len(t.users); i++ {
 		nextUser := t.users[(i + 1) % len(t.users)]
-		if  nextUser != nil && *nextUser.status != TH_USER_STATUS_BETING {	//用户不为nil ,并且状态是押注中的才可以押注
+		if nextUser != nil && *nextUser.status != TH_USER_STATUS_BETING {
+			//用户不为nil ,并且状态是押注中的才可以押注
 			t.BetUserNow = nextUser.userId
 			break
 		}
@@ -421,10 +452,11 @@ func (t *ThDesk) Bet(m *bbproto.THBet,a gate.Agent) error{
 	result.Header = protoUtils.GetSuccHeader()
 	result.BetType = m.BetType
 	result.BetAmount = m.BetAmount
-	result.BetUserId = m.GetHeader().UserId
+	result.User = t.GetResUserModelById(m.GetHeader().GetUserId())
+	result.NextBetUserId = m.GetHeader().UserId
 
 	//广播给每个玩家
-	t.THBroadcastProto(result,userId)
+	t.THBroadcastProto(result, userId)
 
 	//给押注的玩家返回押注结果
 	betResult := &bbproto.THBet{}
@@ -439,10 +471,10 @@ func (t *ThDesk) Bet(m *bbproto.THBet,a gate.Agent) error{
 /**
 	根据userId 找到在桌子上的index
  */
-func (t *ThDesk) GetUserIndex(userId uint32) int{
+func (t *ThDesk) GetUserIndex(userId uint32) int {
 	var result int = 0
-	for i:=0;i< len(t.users) ;i++  {
-		if t.users[i] != nil && *t.users[i].userId == userId{
+	for i := 0; i < len(t.users); i++ {
+		if t.users[i] != nil && *t.users[i].userId == userId {
 			result = i
 			break
 		}
@@ -469,12 +501,12 @@ func NewThDesk() *ThDesk {
 	result := new(ThDesk)
 	result.Id = new(uint32)
 	result.SeatedCount = new(int32)
-	result.Dealer = new(uint32)
+	//result.Dealer = new(uint32)		//不需要创建  默认就是为空
 	result.Status = &TH_DESK_STATUS_STOP
 	result.BetUserNow = new(uint32)
 	result.BigBlind = new(uint32)
-	result.SmallBlind = new (uint32)
-	result.users = make([]*ThUser,THROOM_SEAT_COUNT)
+	result.SmallBlind = new(uint32)
+	result.users = make([]*ThUser, THROOM_SEAT_COUNT)
 	result.RemainTime = new(int32)
 	return result
 }
