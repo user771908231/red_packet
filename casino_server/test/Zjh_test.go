@@ -6,7 +6,7 @@ import (
 	"casino_server/msg/bbprotogo"
 	"fmt"
 	"casino_server/utils/test"
-	"casino_server/service/porkService"
+	"casino_server/service/pokerService"
 )
 
 
@@ -190,22 +190,22 @@ func zjhBet(){
 func random(){
 
 	for i:=0;i<10 ;i++  {
-		iss := porkService.RandomPorkIndex(1,53)
+		iss := pokerService.RandomPorkIndex(1,53)
 		fmt.Println("iiiii----%v",iss)
 
 	}
 
-	result := porkService.CreateZjhList()
+	result := pokerService.CreateZjhList()
 	fmt.Println(result.String())
 }
 
 
 func createZjhList(){
-	result := porkService.CreateZjhList()
+	result := pokerService.CreateZjhList()
 	fmt.Println(result)
 
 	for i := 0; i < 10; i++ {
-		result = porkService.CreateZjhList()
+		result = pokerService.CreateZjhList()
 		fmt.Println(result)
 	}
 }

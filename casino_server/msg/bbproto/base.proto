@@ -32,6 +32,8 @@ enum  EProtoId{
 
 	THROOM				=	21;		//21	德州扑克房间xianggaun的
 	THBET				=	22;		//22	德州扑克押注
+	THBEGIN				=	23;		//23	德州扑克开始的广播
+	THBETBROADCAST		=	24;		//24	押注之后的广播
 }
 
 //general response protocol

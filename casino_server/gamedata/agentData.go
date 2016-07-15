@@ -16,7 +16,7 @@ var(
 type AgentUserData struct {
 	UserId uint32
 	Status int32	//当前状态
-	ZhDeskId	int32 	//德州扑克deskId
+	ZhDeskId	uint32 	//德州扑克deskId
 }
 
 //初始化一个agentUser,这个agentUser 在登录的时候使用

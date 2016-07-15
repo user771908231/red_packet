@@ -139,7 +139,7 @@ func AddGold(userId uint32, ) {
 
 func GetRedisUserKey(id uint32) string {
 	idStr, _ := numUtils.Uint2String(id)
-	return strings.Join([]string{idStr, casinoConf.DBT_T_USER}, "-")
+	return strings.Join([]string{casinoConf.DBT_T_USER,idStr}, "-")
 }
 
 /**
@@ -160,7 +160,6 @@ func GetUserById(id uint32) *bbproto.User {
 	result := &bbproto.User{}
 	conn.GetObj(key, result)
 	if result == nil || result.GetId() == 0 {
-
 		log.E("redis中没有找到user[%v],需要在mongo中查询,并且缓存在redis中。", id)
 		// 获取连接 connection
 		c, err := mongodb.Dial(casinoConf.DB_IP, casinoConf.DB_PORT)
@@ -186,6 +185,7 @@ func GetUserById(id uint32) *bbproto.User {
 	if result == nil {
 		return nil
 	}else{
+		SaveUser2Redis(result)
 		result.OninitLoginTurntableState()	//初始化登录转盘之后的奖励
 		return result
 	}
@@ -271,7 +271,7 @@ func Tuser2Ruser(tu *mode.T_user)(*bbproto.User,error){
 
 	result.Name = &tu.Name
 	result.Id = &tu.Id
-	result.NickName = &tu.Name
+	result.NickName = &tu.NickName
 	result.Coin = &tu.Coin
 	return result,nil
 }
