@@ -35,17 +35,20 @@ message THPork{
     repeated        Pai         pais           = 2;         //
 }
 
+
 message THBet{
     optional ProtoHeader	header				     = 1;
     optional int32          betType                  = 2;   //类型:弃牌,跟注,加注
     optional int32          betAmount                = 3;   //押注的金额
 }
 
-message THBetRes{
+
+message THBetBroadcast{
     optional ProtoHeader	header				     = 1;
     optional int32          betType                  = 2;   //类型:弃牌,跟注,加注
     optional int32          betAmount                = 3;   //押注的金额
     repeated THUser         users                    = 4;   //每个玩家的信息
+    optional uint32          betUserId                = 5;   //押注的玩家Id
 
 }
 

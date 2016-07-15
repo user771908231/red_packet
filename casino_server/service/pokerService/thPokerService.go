@@ -57,9 +57,28 @@ type ThCards struct {
 	IsLiangDui	*bool		//是否是两队
 }
 
-//创建一个德州的牌面
+//创建一个德州的牌面,并且对属性做0值初始化
 func NewThCards() *ThCards{
+
 	result := &ThCards{}
+
+	var initInt int32 = 0
+	var initBool bool = false
+
+	result.ThType = &initInt
+	result.KeyValue = make([]int32,5)
+	result.DuiziCount = &initInt
+	result.SanTiaoCount = &initInt
+	result.SiTiaoCount = &initInt
+	result.CardsStatistics = make([]int32,14)
+	result.IsShunzi = &initBool
+	result.IsTongHua = &initBool
+	result.IsSiTiao = &initBool
+	result.IsSanTiao = &initBool
+	result.IsHulu = &initBool
+	result.IsGaoPai = &initBool
+	result.IsDuiZi = &initBool
+	result.IsLiangDui = &initBool
 	return result
 }
 
@@ -435,7 +454,8 @@ func   Com(n,k int,allCards []*bbproto.Pai) ThCardsList{
 	}
 
 	for ; ;  {
-		tcs := &ThCards{}
+		tcs := NewThCards()
+
 		tcs.Cards = make([]*bbproto.Pai,5)
 		for i := 1;i<=k ;i++  {
 			tcs.Cards[1] = allCards[a[i]-1]

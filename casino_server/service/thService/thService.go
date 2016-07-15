@@ -42,7 +42,6 @@ func HandlerThRoom(m *bbproto.ThRoom, a gate.Agent) error {
 }
 
 
-
 /**
 	进入房间
 	1,修改gameRoom的数据,增加房间人数等
@@ -50,7 +49,6 @@ func HandlerThRoom(m *bbproto.ThRoom, a gate.Agent) error {
 	3,管理agent
 
 	4,如果正在游戏中,需要吧当前的状态放回给玩家,比如公共牌什么的
-
 	如果进入房间之后,游戏正在进行中,则等待游戏完成,进入下一轮
  */
 func getIntoRoom(m *bbproto.ThRoom, a gate.Agent) error {

@@ -129,14 +129,16 @@ func NewThUser() *ThUser {
 	一个德州扑克的房间
  */
 type ThDesk struct {
+	sync.Mutex
 	Id          *uint32        //roomid
 	Dealer      *uint32        //荷官的UserId
 	PublicPai   []*bbproto.Pai //公共牌的部分
 	SeatedCount *int32         //已经坐下的人数
-	users	   []*ThUser      //坐下的人
+	users	   []*ThUser       //坐下的人
 	Status      *int32         //牌桌的状态
 	BetUserStart	*uint32    //第一个押注人的Id
 	BetUserNow	*uint32	   //当前押注人的Id
+	RemainTime	*int32     //剩余投资的时间  多少秒
 }
 
 
@@ -342,16 +344,10 @@ func (t *ThDesk) Lottery() error{
 	押注,押注其实也是桌子在负责
 	押注的逻辑说明:
 	1,userId必须是当前的UserId
-var TH_DESK_BET_TYPE_BET	=	1	//押注
-var TH_DESK_BET_TYPE_CALL	=	2	//跟注,和别人下相同的筹码
-var TH_DESK_BET_TYPE_FOLD	=	3	//弃牌
-var TH_DESK_BET_TYPE_CHECK	=	4	//让牌
-var TH_DESK_BET_TYPE_RAISE	=	5	//加注
-var TH_DESK_BET_TYPE_RERRAISE	=	6	//再加注
-var TH_DESK_BET_TYPE_ALLIN	=	7	//全下
-
  */
 func (t *ThDesk) Bet(m *bbproto.THBet,a gate.Agent) error{
+	t.Lock()
+	t.Unlock()
 
 	//1,检测押注的参数是否正确
 	//1.1 userId是否正确
@@ -389,18 +385,26 @@ func (t *ThDesk) Bet(m *bbproto.THBet,a gate.Agent) error{
 	}
 
 	//3,处理之后,设置desk的状态
-
 	userIndex := t.GetUserIndex(userId)
-
 	for i := userIndex; i < userIndex + len(t.users); i++ {
 		nextUser := t.users[(i + 1) % len(t.users)]
 		if  nextUser != nil && *nextUser.status != TH_USER_STATUS_BETING {	//用户不为nil ,并且状态是押注中的才可以押注
 			t.BetUserNow = nextUser.userId
 			break
 		}
-
-
 	}
+
+
+	//4,押注完成之后返回信息
+	result := &bbproto.THBetBroadcast{}
+	result.Header = protoUtils.GetSuccHeader()
+	result.BetType = m.BetType
+	result.BetAmount = m.BetAmount
+	result.BetUserId = m.GetHeader().UserId
+
+	//广播给每个玩家
+	t.THBroadcastProto(result,0)
+
 	return nil
 }
 
@@ -442,5 +446,6 @@ func NewThDesk() *ThDesk {
 	result.BetUserNow = new(uint32)
 	result.BetUserStart = new(uint32)
 	result.users = make([]*ThUser,THROOM_SEAT_COUNT)
+	result.RemainTime = new(int32)
 	return result
 }

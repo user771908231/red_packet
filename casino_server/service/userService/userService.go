@@ -271,7 +271,7 @@ func Tuser2Ruser(tu *mode.T_user)(*bbproto.User,error){
 
 	result.Name = &tu.Name
 	result.Id = &tu.Id
-	result.NickName = &tu.Name
+	result.NickName = &tu.NickName
 	result.Coin = &tu.Coin
 	return result,nil
 }
