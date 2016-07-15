@@ -20,14 +20,23 @@ var GAME_THROOM_MAX_COUNT int32 = 500         //一个游戏大厅最多有多�
 var TH_DESK_LEAST_START_USER int32 = 2        //最少多少人可以开始游戏
 
 //德州扑克 玩家的状态
-var TH_USER_STATUS_WAITSEAT 	int32 = 1	 //刚上桌子 等待开始的玩家
-var TH_USER_STATUS_SEATED 	int32 = 2	 //刚上桌子 等待开始的玩家
+var TH_USER_STATUS_WAITSEAT 	int32 = 1	//刚上桌子 等待开始的玩家
+var TH_USER_STATUS_SEATED 	int32 = 2	//刚上桌子 游戏中的玩家
+var TH_USER_STATUS_BETING	int32 = 3	//押注中
+var TH_USER_STATUS_ALLINING	int32 = 4	//allIn
+var TH_USER_STATUS_FOLDED	int32 = 5	//弃牌
 
 
 
 //德州扑克,牌桌的状态
 var TH_DESK_STATUS_STOP int32 = 1	 //没有开始的状态
 var TH_DESK_STATUS_SART int32 = 2	 //没有已经开始的状态
+var TH_DESK_STATUS_ROUND1 int32 = 3	 //第一轮押注
+var TH_DESK_STATUS_ROUND2 int32 = 4	 //第二轮押注
+var TH_DESK_STATUS_ROUND3 int32 = 5	 //第三轮押注
+var TH_DESK_STATUS_ROUND4 int32 = 6	 //第四轮押注
+var TH_DESK_STATUS_ROUND5 int32 = 7	 //第五轮押注
+
 
 
 //押注的类型
@@ -344,7 +353,8 @@ var TH_DESK_BET_TYPE_ALLIN	=	7	//全下
  */
 func (t *ThDesk) Bet(m *bbproto.THBet,a gate.Agent) error{
 
-	//1,检测押注的userId是否正确
+	//1,检测押注的参数是否正确
+	//1.1 userId是否正确
 	userId := m.GetHeader().GetUserId()
 	if userId != *t.BetUserNow {
 		//如果押注的不是当前用户,则直接返回错误
@@ -352,19 +362,61 @@ func (t *ThDesk) Bet(m *bbproto.THBet,a gate.Agent) error{
 		return errors.New("押注的用户Id不正确")
 	}
 
+	//1.2 是否轮到当前押注
+	if *t.BetUserNow != userId {
+		log.E("还没有轮到当前用户押注")
+		return errors.New("用户不合法")
+	}
+
+
 	//2,根据押注的类型来分别处理
 	betType := m.GetBetType()
 	switch betType {
 	case TH_DESK_BET_TYPE_BET:
 		//押注
 	case TH_DESK_BET_TYPE_CALL:
+		//跟注
 	case TH_DESK_BET_TYPE_FOLD:
+		//弃牌
 	case TH_DESK_BET_TYPE_CHECK:
+		//让牌
 	case TH_DESK_BET_TYPE_RAISE:
+		//加注
 	case TH_DESK_BET_TYPE_RERRAISE:
+		//再加注
 	case TH_DESK_BET_TYPE_ALLIN:
+		//全部
+	}
+
+	//3,处理之后,设置desk的状态
+
+	userIndex := t.GetUserIndex(userId)
+
+	for i := userIndex; i < userIndex + len(t.users); i++ {
+		nextUser := t.users[(i + 1) % len(t.users)]
+		if  nextUser != nil && *nextUser.status != TH_USER_STATUS_BETING {	//用户不为nil ,并且状态是押注中的才可以押注
+			t.BetUserNow = nextUser.userId
+			break
+		}
+
+
 	}
 	return nil
+}
+
+/**
+	根据userId 找到在桌子上的index
+ */
+func (t *ThDesk) GetUserIndex(userId uint32) int{
+	var result int = 0
+	for i:=0;i< len(t.users) ;i++  {
+		if t.users[i] != nil && *t.users[i].userId == userId{
+			result = i
+			break
+		}
+	}
+
+	return result
 }
 
 /**
