@@ -113,7 +113,7 @@ type ThUser struct {
 func (t *ThUser) trans2bbprotoThuser() *bbproto.THUser{
 	thuserTemp := &bbproto.THUser{}
 	thuserTemp.Status = t.status	//已经就做
-	thuserTemp.U =userService.GetUserById(*t.userId) 	//得到user
+	thuserTemp.User =userService.GetUserById(*t.userId) 	//得到user
 	thuserTemp.HandPais = t.cards
 	return thuserTemp
 }
@@ -201,7 +201,7 @@ func (t *ThDesk) Run() error {
 	}
 
 	//广播消息
-	res := &bbproto.THBegin{}
+	res := &bbproto.THBetBroadcast{}
 	res.Header = protoUtils.GetSuccHeader()
 	res.Users = t.GetResUserModel()
 	err = t.THBroadcastProto(res, 0)
@@ -301,7 +301,7 @@ func (t *ThDesk) GetResUserModelClieSeq(userId uint32) []*bbproto.THUser {
 	users := t.GetResUserModel()
 	var userIndex int = 0
 	for i := 0; i < len(users); i++ {
-		if users[i] !=nil && *(users[i].U.Id) == userId {
+		if users[i] !=nil && *(users[i].User.Id) == userId {
 			userIndex = i
 			break
 		}

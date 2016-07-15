@@ -22,12 +22,17 @@ enum ETHType {
 
 message ThRoom {
     optional ProtoHeader	header				     = 1;
-    optional int32      reqType                      = 2;    //请求进入 还是退出 0 表示退出,1,表示进入
-    optional int64      jackpot                      = 3;    //奖金池
-    repeated THUser     users                        = 4;    //已经坐下的玩家的信息
-    optional int32      betTime                      = 5;    //押注结束时间
-    optional int32      deskStatus                   = 6;    //桌子状态
-    repeated Pai        publicPais                   = 7;    //公共牌
+    optional int32          reqType                  = 2;    //请求进入 还是退出 0 表示退出,1,表示进入
+    optional int64          jackpot                  = 3;    //奖金池
+    repeated THUser         users                    = 4;    //已经坐下的玩家的信息
+    optional int32          betTime                  = 5;    //押注结束时间
+    optional int32          deskStatus               = 6;    //桌子状态
+    repeated Pai            publicPais               = 7;    //公共牌
+    optional uint32         betUserId                = 8;   //押注的玩家Id
+    optional uint32         bigBlind                 = 9;   //大盲注
+    optional uint32         smallBlind               = 10;   //大盲注
+    optional uint32         butten                   = 11;   //庄家
+    optional int32          betRemainTime               = 12;   //剩余下注的时间
 }
 
 message THPork{
@@ -48,19 +53,17 @@ message THBetBroadcast{
     optional int32          betType                  = 2;   //类型:弃牌,跟注,加注
     optional int32          betAmount                = 3;   //押注的金额
     repeated THUser         users                    = 4;   //每个玩家的信息
-    optional uint32          betUserId                = 5;   //押注的玩家Id
-
-}
-
-message THBegin{
-    optional ProtoHeader	header				     = 1;
-    repeated THUser         users                    = 2;
+    optional uint32         betUserId                = 5;   //押注的玩家Id
+    optional uint32         bigBlind                 = 6;   //大盲注
+    optional uint32         smallBlind               = 7;   //大盲注
+    optional uint32         butten                   = 8;   //庄家
+    optional int32          remainTime               = 9;   //剩余下注的时间
 }
 
 
 // 德州扑克中的User
 message THUser{
-    optional User       u                       = 1;
+    optional User       user                    = 1;
     repeated Pai        handPais                = 2;            //手牌
     optional int32      status                  = 3;            //玩家的状态
 }

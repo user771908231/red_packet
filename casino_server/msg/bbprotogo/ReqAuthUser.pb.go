@@ -43,7 +43,6 @@ It has these top-level messages:
 	THPork
 	THBet
 	THBetBroadcast
-	THBegin
 	THUser
 	User
 	ZjhRoom
