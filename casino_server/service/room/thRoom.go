@@ -130,17 +130,17 @@ func NewThUser() *ThUser {
  */
 type ThDesk struct {
 	sync.Mutex
-	Id          *uint32        //roomid
-	Dealer      *uint32        //荷官的UserId
-	PublicPai   []*bbproto.Pai //公共牌的部分
-	SeatedCount *int32         //已经坐下的人数
-	users	   []*ThUser       //坐下的人
-	Status      *int32         //牌桌的状态
-	BetUserStart	*uint32    //第一个押注人的Id
-	BetUserNow	*uint32	   //当前押注人的Id
-	BetUserButten	*uint32	   //庄家
-	RemainTime	*int32     //剩余投资的时间  多少秒
-	BetAmountNow	*int32	   //挡墙的押注金额是多少
+	Id           *uint32        //roomid
+	Dealer       *uint32        //庄家
+	PublicPai    []*bbproto.Pai //公共牌的部分
+	SeatedCount  *int32         //已经坐下的人数
+	users        []*ThUser      //坐下的人
+	Status       *int32         //牌桌的状态
+	BigBlind     *uint32        //第一个押注人的Id
+	SmallBlind    *uint32        //第一个押注人的Id
+	BetUserNow   *uint32        //当前押注人的Id
+	RemainTime   *int32         //剩余投资的时间  多少秒
+	BetAmountNow *int32         //挡墙的押注金额是多少
 }
 
 
@@ -149,7 +149,6 @@ func (t *ThDesk) LogString(){
 	log.T("当前desk[%v]的信息的状态status[%v]",*t.Id,*t.Status)
 	log.T("当前desk[%v]的信息的状态users[%v]",*t.Id,t.users)
 	log.T("当前desk[%v]的信息的状态SeatedCount[%v]",*t.Id,*t.SeatedCount)
-
 	log.T("当前desk[%v]的信息:-----------------------------------end",t.Id)
 }
 
@@ -184,6 +183,8 @@ func (t *ThDesk) AddThUser(userId uint32, a gate.Agent) error {
 
 /**
 	开始游戏,开始游戏的时候需要初始化desk
+	1,初始化庄
+	2,初始化
  */
 func (t *ThDesk) Run() error {
 
@@ -199,6 +200,10 @@ func (t *ThDesk) Run() error {
 	if err != nil {
 		log.E("开始德州扑克游戏,初始化扑克牌的时候出错")
 	}
+	//设置房间状态
+	*t.Status = TH_DESK_STATUS_SART                	//设置状态为开始游戏
+	t.OinitBetUserStar()
+
 
 	//广播消息
 	res := &bbproto.THBetBroadcast{}
@@ -210,9 +215,7 @@ func (t *ThDesk) Run() error {
 		return err
 	}
 
-	//设置房间状态
-	*t.Status = TH_DESK_STATUS_SART                	//设置状态为开始游戏
-	t.OinitBetUserStar()				//设置第一个押注的人
+				//设置第一个押注的人
 	return nil
 }
 
@@ -324,7 +327,7 @@ func (t *ThDesk) OinitBetUserStar() error{
 	users := t.users
 	for i := 0; i < len(users); i++ {
 		if users[i] !=nil {
-			t.BetUserStart = users[i].userId
+			t.BigBlind = users[i].userId
 			t.BetUserNow   = users[i].userId
 		}
 	}
@@ -455,7 +458,8 @@ func NewThDesk() *ThDesk {
 	result.Dealer = new(uint32)
 	result.Status = &TH_DESK_STATUS_STOP
 	result.BetUserNow = new(uint32)
-	result.BetUserStart = new(uint32)
+	result.BigBlind = new(uint32)
+	result.SmallBlind = new (uint32)
 	result.users = make([]*ThUser,THROOM_SEAT_COUNT)
 	result.RemainTime = new(int32)
 	return result

@@ -40,8 +40,10 @@ It has these top-level messages:
 	GetIntoRoom
 	TestP1
 	ThRoom
+	THRoomAddUserBroadcast
 	THPork
 	THBet
+	THBetBegin
 	THBetBroadcast
 	THUser
 	User

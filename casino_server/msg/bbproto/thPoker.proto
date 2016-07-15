@@ -32,7 +32,14 @@ message ThRoom {
     optional uint32         bigBlind                 = 9;   //大盲注
     optional uint32         smallBlind               = 10;   //大盲注
     optional uint32         butten                   = 11;   //庄家
-    optional int32          betRemainTime               = 12;   //剩余下注的时间
+    optional int32          betRemainTime            = 12;   //剩余下注的时间
+}
+
+//刚进来的人
+message THRoomAddUserBroadcast{
+    optional ProtoHeader	header				     = 1;
+    repeated THUser         users                    = 2;    //新增加的User的信息
+
 }
 
 message THPork{
@@ -47,17 +54,19 @@ message THBet{
     optional int32          betAmount                = 3;   //押注的金额
 }
 
+message THBetBegin{
+    optional ProtoHeader	header				     = 1;
+    optional uint32         dealer                   = 2;   //庄家
+    optional uint32         bigBlind                 = 3;   //大盲注
+    optional uint32         smallBlind               = 4;   //小盲注
+}
+
 
 message THBetBroadcast{
     optional ProtoHeader	header				     = 1;
     optional int32          betType                  = 2;   //类型:弃牌,跟注,加注
     optional int32          betAmount                = 3;   //押注的金额
-    repeated THUser         users                    = 4;   //每个玩家的信息
-    optional uint32         betUserId                = 5;   //押注的玩家Id
-    optional uint32         bigBlind                 = 6;   //大盲注
-    optional uint32         smallBlind               = 7;   //大盲注
-    optional uint32         butten                   = 8;   //庄家
-    optional int32          remainTime               = 9;   //剩余下注的时间
+    optional THUser         users                    = 4;   //押注的玩家
 }
 
 
@@ -66,6 +75,7 @@ message THUser{
     optional User       user                    = 1;
     repeated Pai        handPais                = 2;            //手牌
     optional int32      status                  = 3;            //玩家的状态
+    optional int32      seatNumber              = 4;            //座位号
 }
 
 
