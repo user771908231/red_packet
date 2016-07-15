@@ -16,7 +16,7 @@ It is generated from these files:
 	serverModel.proto
 	shuiguoji.proto
 	testp1.proto
-	thPork.proto
+	thPoker.proto
 	user.proto
 	zhajinhua.proto
 
@@ -43,7 +43,6 @@ It has these top-level messages:
 	THPork
 	THBet
 	THBetBroadcast
-	THBegin
 	THUser
 	User
 	ZjhRoom

@@ -113,7 +113,7 @@ type ThUser struct {
 func (t *ThUser) trans2bbprotoThuser() *bbproto.THUser{
 	thuserTemp := &bbproto.THUser{}
 	thuserTemp.Status = t.status	//已经就做
-	thuserTemp.U =userService.GetUserById(*t.userId) 	//得到user
+	thuserTemp.User =userService.GetUserById(*t.userId) 	//得到user
 	thuserTemp.HandPais = t.cards
 	return thuserTemp
 }
@@ -183,7 +183,7 @@ func (t *ThDesk) AddThUser(userId uint32, a gate.Agent) error {
 }
 
 /**
-	开始游戏
+	开始游戏,开始游戏的时候需要初始化desk
  */
 func (t *ThDesk) Run() error {
 
@@ -201,7 +201,7 @@ func (t *ThDesk) Run() error {
 	}
 
 	//广播消息
-	res := &bbproto.THBegin{}
+	res := &bbproto.THBetBroadcast{}
 	res.Header = protoUtils.GetSuccHeader()
 	res.Users = t.GetResUserModel()
 	err = t.THBroadcastProto(res, 0)
@@ -301,7 +301,7 @@ func (t *ThDesk) GetResUserModelClieSeq(userId uint32) []*bbproto.THUser {
 	users := t.GetResUserModel()
 	var userIndex int = 0
 	for i := 0; i < len(users); i++ {
-		if users[i] !=nil && *(users[i].U.Id) == userId {
+		if users[i] !=nil && *(users[i].User.Id) == userId {
 			userIndex = i
 			break
 		}
@@ -373,7 +373,7 @@ func (t *ThDesk) Bet(m *bbproto.THBet,a gate.Agent) error{
 	betType := m.GetBetType()
 	switch betType {
 	case TH_DESK_BET_TYPE_BET:
-		//押注
+		//押注:大盲注之后的第一个人
 	case TH_DESK_BET_TYPE_CALL:
 		//跟注
 	case TH_DESK_BET_TYPE_FOLD:

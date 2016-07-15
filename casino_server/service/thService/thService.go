@@ -131,9 +131,12 @@ func getIntoRoom(m *bbproto.ThRoom, a gate.Agent) error {
 
 	a.WriteMsg(result)
 
+	//5,进入房间的广播,告诉其他人有新的玩家进来了
+	mydesk.THBroadcastProto(result,userId)
+
 	//目前mydesk的信息
 
-	//最后:确定是否开始游戏, 上了牌桌之后,如果玩家人数大于1,并且游戏处于stop的状态,则直接开始游戏
+	//6,最后:确定是否开始游戏, 上了牌桌之后,如果玩家人数大于1,并且游戏处于stop的状态,则直接开始游戏
 	//这是游戏刚开始,的处理方式
 	if *mydesk.SeatedCount >= room.TH_DESK_LEAST_START_USER  && *mydesk.Status == room.TH_DESK_STATUS_STOP{
 		err = mydesk.Run()
