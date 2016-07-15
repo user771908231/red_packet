@@ -138,7 +138,9 @@ type ThDesk struct {
 	Status      *int32         //牌桌的状态
 	BetUserStart	*uint32    //第一个押注人的Id
 	BetUserNow	*uint32	   //当前押注人的Id
+	BetUserButten	*uint32	   //庄家
 	RemainTime	*int32     //剩余投资的时间  多少秒
+	BetAmountNow	*int32	   //挡墙的押注金额是多少
 }
 
 
@@ -260,10 +262,10 @@ func (t *ThDesk) OnInitCards() error {
 /**
 	德州扑克广播消息
  */
-func (t *ThDesk) THBroadcastProto(p proto.Message, ignoreUserId int32) error {
+func (t *ThDesk) THBroadcastProto(p proto.Message, ignoreUserId uint32) error {
 	log.Normal("给每个房间发送proto 消息%v", p)
 	for i := 0; i < len(t.users); i++ {
-		if t.users[i] != nil {
+		if t.users[i] != nil && *t.users[i].userId != ignoreUserId{
 			log.Normal("开始userId[%v]发送消息", t.users[i].userId)
 			a := t.users[i].agent
 			a.WriteMsg(p)
@@ -344,6 +346,8 @@ func (t *ThDesk) Lottery() error{
 	押注,押注其实也是桌子在负责
 	押注的逻辑说明:
 	1,userId必须是当前的UserId
+	2,当加注的时候,庄变成加注的那个人
+	3,跟注到庄的时候一轮结束
  */
 func (t *ThDesk) Bet(m *bbproto.THBet,a gate.Agent) error{
 	t.Lock()
@@ -403,7 +407,14 @@ func (t *ThDesk) Bet(m *bbproto.THBet,a gate.Agent) error{
 	result.BetUserId = m.GetHeader().UserId
 
 	//广播给每个玩家
-	t.THBroadcastProto(result,0)
+	t.THBroadcastProto(result,userId)
+
+	//给押注的玩家返回押注结果
+	betResult := &bbproto.THBet{}
+	betResult.Header = protoUtils.GetSuccHeaderwithUserid(m.GetHeader().UserId)
+	betResult.BetAmount = m.BetAmount
+	betResult.BetType = m.BetType
+	a.WriteMsg(betResult)
 
 	return nil
 }
