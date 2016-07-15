@@ -59,6 +59,7 @@ message THBetBegin{
     optional uint32         dealer                   = 2;   //庄家
     optional uint32         bigBlind                 = 3;   //大盲注
     optional uint32         smallBlind               = 4;   //小盲注
+    optional uint32         betUserNow               = 5;   //当前押注的人
 }
 
 
@@ -67,6 +68,7 @@ message THBetBroadcast{
     optional int32          betType                  = 2;   //类型:弃牌,跟注,加注
     optional int32          betAmount                = 3;   //押注的金额
     optional THUser         users                    = 4;   //押注的玩家
+    optional uint32         nextBetUserId            = 5;   //押注的玩家
 }
 
 
