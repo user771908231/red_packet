@@ -20,6 +20,16 @@ enum ETHType {
 }
 
 
+enum ETHAction {
+    TH_DESK_BET_TYPE_BET  		= 1;        //押注
+    TH_DESK_BET_TYPE_CALL  	    = 2;        //跟注,和别人下相同的筹码
+    TH_DESK_BET_TYPE_FOLD  	    = 3;        //弃牌
+    TH_DESK_BET_TYPE_CHECK 	    = 4;        //让牌
+    TH_DESK_BET_TYPE_RAISE 	    = 5;        //加注
+    TH_DESK_BET_TYPE_RERRAISE  	= 6;        //再加注
+    TH_DESK_BET_TYPE_ALLIN      = 7;        //全下
+}
+
 message ThRoom {
     optional ProtoHeader	header				     = 1;
     optional int32          reqType                  = 2;    //请求进入 还是退出 0 表示退出,1,表示进入
