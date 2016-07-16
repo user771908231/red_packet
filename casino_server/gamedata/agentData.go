@@ -14,9 +14,9 @@ var(
 次数据和 agent 绑定在一起
  */
 type AgentUserData struct {
-	UserId uint32
-	Status int32	//当前状态
-	ZhDeskId	uint32 	//德州扑克deskId
+	UserId   uint32
+	Status   int32  //当前状态
+	ThDeskId uint32 //德州扑克deskId
 }
 
 //初始化一个agentUser,这个agentUser 在登录的时候使用

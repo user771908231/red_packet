@@ -2,12 +2,18 @@ package mongodb
 
 import (
 	"testing"
-	"casino_server/service/userService"
 	"fmt"
 )
 
 func TestTemp(t *testing.T) {
-	u := userService.GetUserById(10005)
-	fmt.Println("user:",u)
+	var a *int32
+	var b int32 = 999;
+	a = &b
+	fmt.Println("b:",b)
+	fmt.Println("a:",a)
+	fmt.Println("*a:",*a)
+	*a ++
+	fmt.Println("*a ++:",*a)
+	fmt.Println("a ++:",a)
 }
 

@@ -9,8 +9,8 @@ import (
 )
 
 func TestLogin(t *testing.T) {
-	//login2()
-	login1()
+	login2()
+	//login1()
 	for ; ; {
 
 	}

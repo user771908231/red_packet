@@ -6,13 +6,12 @@ import (
 	"fmt"
 	"casino_server/utils/test"
 	"net"
+	"casino_server/service/room"
 )
 
 func TestTh(t *testing.T){
 	intoRoom()
-
 	//bet()
-
 }
 
 
@@ -29,7 +28,7 @@ func intoRoom(){
 
 	ide2 := int32(bbproto.EProtoId_THROOM)
 	fmt.Println("proto 得到的id ",ide2)
-	var userid uint32 = 10007
+	var userid uint32 = 10012
 	var reqType int32 = 1
 	data2 := &bbproto.ThRoom{}
 	h2 := &bbproto.ProtoHeader{}
@@ -55,7 +54,7 @@ func  bet(){
 
 	ide2 := int32(bbproto.EProtoId_THBET)
 	fmt.Println("proto 得到的id ",ide2)
-	var userid uint32 = 10007
+	var userid uint32 = 10008
 	var amount int32 = 999
 	data2 := &bbproto.THBet{}
 	h2 := &bbproto.ProtoHeader{}
@@ -63,9 +62,10 @@ func  bet(){
 	h2.UserId = &userid
 	data2.Header = h2
 	data2.BetAmount = &amount
+	data2.BetType = &(room.TH_DESK_BET_TYPE_CALL)
 	m2 := test.AssembleData(uint16(ide2), data2)
 	conn.Write(m2)
 
-	result := test.Read(conn).(*bbproto.ThRoom)
+	result := test.Read(conn).(*bbproto.THBet)
 	fmt.Println("读取的结果:", result.GetHeader())		//测试服务器同意返回98989
 }

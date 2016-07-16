@@ -21,12 +21,12 @@ func Md5IdAndData(id,data []byte) []byte{
 }
 
 func Md5(data []byte) []byte{
-	log.T("需要校验的data%v",data)
+	//log.T("需要校验的data%v",data)
 	md5data := append(data,SECRET_KEY[0],SECRET_KEY[1],SECRET_KEY[2],SECRET_KEY[3])
 	h := md5.New()
 	h.Write(md5data)
 	resultByte := h.Sum(nil)
-	log.T("校验计算出来的完整md5:%v",resultByte)
+	//log.T("校验计算出来的完整md5:%v",resultByte)
 
 	var resultByte4 []byte
 	resultByte4 = append(resultByte4,resultByte[4],resultByte[6],resultByte[8],resultByte[10])
