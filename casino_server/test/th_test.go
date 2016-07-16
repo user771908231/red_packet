@@ -10,8 +10,8 @@ import (
 )
 
 func TestTh(t *testing.T){
-	//intoRoom()
-	bet()
+	intoRoom()
+	//bet()
 }
 
 
@@ -54,7 +54,7 @@ func  bet(){
 
 	ide2 := int32(bbproto.EProtoId_THBET)
 	fmt.Println("proto 得到的id ",ide2)
-	var userid uint32 = 10010
+	var userid uint32 = 10008
 	var amount int32 = 999
 	data2 := &bbproto.THBet{}
 	h2 := &bbproto.ProtoHeader{}

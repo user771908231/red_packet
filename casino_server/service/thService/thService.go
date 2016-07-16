@@ -118,7 +118,7 @@ func getIntoRoom(m *bbproto.ThRoom, a gate.Agent) error {
 
 	mydesk.LogString()	//答应当前房间的信息
 
-	//4,返回信息
+	//4,进入房间的玩家的信息
 	log.T("开始给客户端返回信息")
 	result := &bbproto.ThRoom{}
 	result.Header = protoUtils.GetSuccHeaderwithUserid(m.GetHeader().UserId)
@@ -128,13 +128,10 @@ func getIntoRoom(m *bbproto.ThRoom, a gate.Agent) error {
 
 	log.T("返回信息",result)
 	log.T("返回信息Users",result.Users)
-
 	a.WriteMsg(result)
 
 	//5,进入房间的广播,告诉其他人有新的玩家进来了
-	mydesk.THBroadcastProto(result,userId)
-
-	//目前mydesk的信息
+	mydesk.THBroadcastAddUser(userId,userId)
 
 	//6,最后:确定是否开始游戏, 上了牌桌之后,如果玩家人数大于1,并且游戏处于stop的状态,则直接开始游戏
 	//这是游戏刚开始,的处理方式
