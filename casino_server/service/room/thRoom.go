@@ -34,7 +34,6 @@ var TH_DESK_STATUS_ROUND1 int32 = 3         //第一轮押注
 var TH_DESK_STATUS_ROUND2 int32 = 4         //第二轮押注
 var TH_DESK_STATUS_ROUND3 int32 = 5         //第三轮押注
 var TH_DESK_STATUS_ROUND4 int32 = 6         //第四轮押注
-var TH_DESK_STATUS_ROUND5 int32 = 7         //第五轮押注
 
 
 //押注的类型
@@ -372,7 +371,7 @@ func (t *ThDesk) OinitBegin() error {
 		}
 	}
 
-	if t.SeatedCount == 2 {	//如果只有两个人,当前押注的人是小盲注
+	if *t.SeatedCount == int32(2) {	//如果只有两个人,当前押注的人是小盲注
 		t.BetUserNow = t.SmallBlind
 	}else{
 		//设置当前押注的人
