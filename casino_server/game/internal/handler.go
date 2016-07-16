@@ -35,6 +35,8 @@ func init() {
 
 	//德州扑克相关的业务
 	handler(&bbproto.ThRoom{},handlerThRoom)
+	handler(&bbproto.THBet{},handlerThBet)		//押注的协议
+
 
 
 }

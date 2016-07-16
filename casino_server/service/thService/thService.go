@@ -9,7 +9,6 @@ import (
 	"casino_server/common/log"
 	"casino_server/service/room"
 	"errors"
-	"casino_server/gamedata"
 )
 
 /**
@@ -166,13 +165,21 @@ func getOutRoom(m *bbproto.ThRoom, a gate.Agent) error {
  */
 func HandlerTHBet(m *bbproto.THBet, a gate.Agent) error {
 	//找到游戏的桌子号
-	userData := a.UserData().(gamedata.AgentUserData)		//agentUserId
-	deskId := userData.ZhDeskId					//德州扑克桌子号码:存醋方式有很多,目前暂时存醋在userData当中
+	//userData := a.UserData().(gamedata.AgentUserData)		//agentUserId
+	//deskId := userData.ZhDeskId					//德州扑克桌子号码:存醋方式有很多,目前暂时存醋在userData当中
+	deskId := uint32(0)
 	log.T("用户[%v]所在的德州扑克的deskId[%v]",m.GetHeader().GetUserId(),deskId)
 	//通过桌子号找到桌子
 	desk := room.ThGameRoomIns.GetDeskById(deskId)
+	if desk == nil {
+		log.E("没有找到id[%v]对应的桌子.",deskId)
+		return errors.New("没有找到id[%v]对应的桌子")
+	}
 	err := desk.Bet(m,a)
+	if err != nil {
+		log.E("用户[%v]在桌子[%v]押注的时候出错errMsg[%v]",m.GetHeader().GetUserId(),deskId,err.Error())
+	}
+	//返回错误信息
 	return err
 }
-
 

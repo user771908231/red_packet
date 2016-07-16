@@ -310,7 +310,7 @@ func IncreasUserCoin(userId uint32,coin int32) error{
 	return nil
 }
 
-func decreaseUserCoin(userId uint32,coin int32) error{
+func DecreaseUserCoin(userId uint32,coin int32) error{
 	return nil
 
 }
