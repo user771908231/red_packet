@@ -9,7 +9,6 @@ import (
 	"casino_server/common/log"
 	"casino_server/service/room"
 	"errors"
-	"casino_server/gamedata"
 )
 
 /**
@@ -82,13 +81,14 @@ func getIntoRoom(m *bbproto.ThRoom, a gate.Agent) error {
 	var mydesk *room.ThDesk = nil
 	var index int = 0
 	if len(room.ThGameRoomIns.ThDeskBuf) > 0 {
-		log.T("当前拥有的ThDesk 的数量[%v]",len(room.ThGameRoomIns.ThDeskBuf))
+		//log.T("当前拥有的ThDesk 的数量[%v]",len(room.ThGameRoomIns.ThDeskBuf))
 		for  deskIndex := 0; deskIndex < len(room.ThGameRoomIns.ThDeskBuf); deskIndex++ {
 			if room.ThGameRoomIns.ThDeskBuf[deskIndex] !=nil {
 				mydesk = room.ThGameRoomIns.ThDeskBuf[deskIndex]        //通过roomId找到德州的room
 				mydesk.LogString()
+				log.T("每个desk限制的最大人数是[%v]",*room.ThGameRoomIns.ThRoomSeatMax)
 				if *mydesk.SeatedCount < *room.ThGameRoomIns.ThRoomSeatMax {
-					log.T("roomid[%v]有空的座位,", deskIndex)
+					log.T("room.index[%v]有空的座位,", deskIndex)
 					break;
 				}
 			}else{
@@ -165,13 +165,21 @@ func getOutRoom(m *bbproto.ThRoom, a gate.Agent) error {
  */
 func HandlerTHBet(m *bbproto.THBet, a gate.Agent) error {
 	//找到游戏的桌子号
-	userData := a.UserData().(gamedata.AgentUserData)		//agentUserId
-	deskId := userData.ZhDeskId					//德州扑克桌子号码:存醋方式有很多,目前暂时存醋在userData当中
+	//userData := a.UserData().(gamedata.AgentUserData)		//agentUserId
+	//deskId := userData.ZhDeskId					//德州扑克桌子号码:存醋方式有很多,目前暂时存醋在userData当中
+	deskId := uint32(0)
 	log.T("用户[%v]所在的德州扑克的deskId[%v]",m.GetHeader().GetUserId(),deskId)
 	//通过桌子号找到桌子
 	desk := room.ThGameRoomIns.GetDeskById(deskId)
+	if desk == nil {
+		log.E("没有找到id[%v]对应的桌子.",deskId)
+		return errors.New("没有找到id[%v]对应的桌子")
+	}
 	err := desk.Bet(m,a)
+	if err != nil {
+		log.E("用户[%v]在桌子[%v]押注的时候出错errMsg[%v]",m.GetHeader().GetUserId(),deskId,err.Error())
+	}
+	//返回错误信息
 	return err
 }
-
 

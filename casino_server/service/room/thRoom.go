@@ -34,7 +34,6 @@ var TH_DESK_STATUS_ROUND1 int32 = 3         //第一轮押注
 var TH_DESK_STATUS_ROUND2 int32 = 4         //第二轮押注
 var TH_DESK_STATUS_ROUND3 int32 = 5         //第三轮押注
 var TH_DESK_STATUS_ROUND4 int32 = 6         //第四轮押注
-var TH_DESK_STATUS_ROUND5 int32 = 7         //第五轮押注
 
 
 //押注的类型
@@ -92,7 +91,14 @@ func (r *ThGameRoom) AddThRoom(index int, throom *ThDesk) error {
 
 //通过Id找到对应的桌子
 func (r *ThGameRoom) GetDeskById(id uint32) *ThDesk {
-	return nil
+	var result *ThDesk = nil
+	for i := 0; i < len(r.ThDeskBuf); i++ {
+		if r.ThDeskBuf[i] != nil && *r.ThDeskBuf[i].Id == id{
+			result = r.ThDeskBuf[i]
+			break
+		}
+	}
+	return result
 }
 
 
@@ -246,7 +252,7 @@ func (t *ThDesk) OnInitCards() error {
 
 	//给每个人分配手牌
 	for i := 0; i < len(t.users); i++ {
-		if t.users[i] != nil && userService.CheckUserIdRightful(*t.users[i].userId) {
+		if t.users[i] != nil {
 			t.users[i].cards = totalCards[i * 2 + 5:i * 2 + 5 + 2]
 			log.T("用户[%v]的手牌[%v]", t.users[i].userId, t.users[i].cards)
 			t.users[i].thCards = pokerService.GetTHMax(t.users[i].cards, t.PublicPai, 5)
@@ -335,47 +341,54 @@ func (t *ThDesk) OinitBegin() error {
 	//设置德州desk状态//设置状态为开始游戏
 	*t.Status = TH_DESK_STATUS_SART
 
-	users := t.users
+	userTemp := make([]*ThUser ,len(t.users))
+	copy(userTemp,t.users)
 	//这里需要定义一个庄家,todo 暂时默认为第一个,后边再修改
-	var dealerIndex int;
+	var dealerIndex int = 0;
 	if t.Dealer == nil {
-		dealerIndex = -1
+		t.Dealer = t.users[0].userId
 	} else {
 		dealerIndex = t.GetUserIndex(*t.Dealer)
+		dealerIndex ++
 	}
 
-	//设置庄家为下一个人
-	dealerIndex ++
 
 	//设置小盲注
-	for i := dealerIndex; i < len(users)+dealerIndex; i++ {
-		if users[i%len(users)] != nil {
-			t.SmallBlind = users[i%len(users)].userId
-			users[i%len(users)] = nil
+	for i := dealerIndex; i < len(userTemp)+dealerIndex; i++ {
+		if userTemp[i%len(userTemp)] != nil {
+			t.SmallBlind = userTemp[i%len(userTemp)].userId
+			userTemp[i%len(userTemp)] = nil
 			break
 		}
 	}
 
 	//设置大盲注
-	for i := dealerIndex; i < len(users)+dealerIndex; i++ {
-		if users[i%len(users)] != nil {
-			t.BigBlind = users[i%len(users)].userId
-			users[i%len(users)] = nil
+	for i := dealerIndex; i < len(userTemp)+dealerIndex; i++ {
+		if userTemp[i%len(userTemp)] != nil {
+			t.BigBlind = userTemp[i%len(userTemp)].userId
+			userTemp[i%len(userTemp)] = nil
 			break
 		}
 	}
 
-	//设置当前押注的人
-	for i := dealerIndex; i < len(users)+dealerIndex; i++ {
-		if users[i%len(users)] != nil {
-			t.BigBlind = users[i%len(users)].userId
-			users[i%len(users)] = nil
-			break
+	if *t.SeatedCount == int32(2) {	//如果只有两个人,当前押注的人是小盲注
+		t.BetUserNow = t.SmallBlind
+	}else{
+		//设置当前押注的人
+		for i := dealerIndex; i < len(userTemp)+dealerIndex; i++ {
+			if userTemp[i%len(userTemp)] != nil {
+				t.BetUserNow = userTemp[i%len(userTemp)].userId
+				userTemp[i%len(userTemp)] = nil
+				break
+			}
 		}
 	}
 
 
-
+	log.T("初始化游戏之后,庄家[%v]",*t.Dealer)
+	log.T("初始化游戏之后,大盲注[%v]",*t.BigBlind)
+	log.T("初始化游戏之后,小盲注[%v]",*t.SmallBlind)
+	log.T("初始化游戏之后,当前押注Id[%v]",*t.BetUserNow)
 	return nil
 }
 
@@ -420,20 +433,26 @@ func (t *ThDesk) Bet(m *bbproto.THBet, a gate.Agent) error {
 	betType := m.GetBetType()
 	switch betType {
 	case TH_DESK_BET_TYPE_BET:
-	//押注:大盲注之后的第一个人
+		//押注:大盲注之后的第一个人,这个类型不会使用到
+
 	case TH_DESK_BET_TYPE_CALL:
-	//跟注
+		t.BetUserCall(userId,m.GetBetAmount())
+
 	case TH_DESK_BET_TYPE_FOLD:
-	//弃牌
-	case TH_DESK_BET_TYPE_CHECK:
-	//让牌
-	case TH_DESK_BET_TYPE_RAISE:
-	//加注
-	case TH_DESK_BET_TYPE_RERRAISE:
-	//再加注
-	case TH_DESK_BET_TYPE_ALLIN:
-	//全部
+		t.BetUserFold(userId)
+
+	case TH_DESK_BET_TYPE_CHECK:	//让牌
+		t.BetUserCheck(userId)
+
+	case TH_DESK_BET_TYPE_RAISE:	//加注
+		t.BetUserRaise(userId)
+
+	case TH_DESK_BET_TYPE_RERRAISE:	//再加注
+
+	case TH_DESK_BET_TYPE_ALLIN:	//全部
+		t.BetUserAllIn(userId)
 	}
+
 
 	//3,处理之后,设置desk的状态
 	userIndex := t.GetUserIndex(userId)
@@ -468,6 +487,43 @@ func (t *ThDesk) Bet(m *bbproto.THBet, a gate.Agent) error {
 	return nil
 }
 
+
+//跟注:跟注的时候 不需要重新设置押注的人
+/**
+	只是跟注,需要减少用户的资产,增加奖池的金额
+ */
+func (t *ThDesk) BetUserCall(userId uint32,coin int32) error{
+
+	//1,增加奖池的金额
+
+	//2,减少用户的金额
+	userService.DecreaseUserCoin(userId,coin)
+
+	//3,修改下次押注的人
+
+	return nil
+}
+
+//用户弃牌
+func (t *ThDesk) BetUserFold(userId uint32) error{
+	return nil
+}
+
+
+func (t *ThDesk) BetUserCheck(userId uint32) error{
+	return nil
+}
+
+//用户加注
+func (t *ThDesk) BetUserRaise(userId uint32) error{
+	return nil
+}
+
+//用户AllIn
+func (t *ThDesk) BetUserAllIn(userId uint32) error{
+	return nil
+}
+
 /**
 	根据userId 找到在桌子上的index
  */
@@ -481,6 +537,22 @@ func (t *ThDesk) GetUserIndex(userId uint32) int {
 	}
 
 	return result
+}
+
+/**
+	初始化下一个押注的人
+ */
+func (t *ThDesk) NextBetUser() error{
+	index := t.GetUserIndex(*t.BetUserNow)
+	for i := index; i < len(t.users)+index;i++ {
+		u :=  t.users[i % len(t.users)]
+		if u !=nil && *u.status ==  TH_USER_STATUS_BETING {
+			t.BetUserNow = u.userId
+			break
+		}
+	}
+	return nil
+
 }
 
 /**
