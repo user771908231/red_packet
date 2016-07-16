@@ -51,8 +51,6 @@ func HandlerThRoom(m *bbproto.ThRoom, a gate.Agent) error {
 	如果进入房间之后,游戏正在进行中,则等待游戏完成,进入下一轮
  */
 func getIntoRoom(m *bbproto.ThRoom, a gate.Agent) error {
-
-
 	//进入房间需要加锁
 	room.ThGameRoomIns.Lock()
 	defer room.ThGameRoomIns.Unlock()
@@ -70,12 +68,12 @@ func getIntoRoom(m *bbproto.ThRoom, a gate.Agent) error {
 
 
 	//判断是否已经在房间:这里可以用过agent user data 来判断
-	//agentUser := a.UserData().(*gamedata.AgentUserData{})
-	//if agentUser.Status == gamedata.AGENT_USER_STATUS_GAMING && agentUser.ZhDeskId > 0 {
-	//	log.E("用户已经在房间中了,请不要重复进入")
-	//	return errors.New("玩家已经在房间中了,请不要重复进入")
-	//}
-
+	//关于有没有重复进入房间,通过agentUser来判断可能不太准确
+	isRepeat := room.ThGameRoomIns.IsRepeatIntoRoom(userId)
+	if isRepeat {
+		log.E("重复进入房间了")
+		return errors.New("重复进入房间")
+	}
 
 	//2,查询哪个德州的房间缺人:循环每个德州的房间,然后查询哪个房间缺人
 	var mydesk *room.ThDesk = nil
@@ -161,21 +159,18 @@ func getOutRoom(m *bbproto.ThRoom, a gate.Agent) error {
 	处理德州扑克押注的问题
  */
 func HandlerTHBet(m *bbproto.THBet, a gate.Agent) error {
-	//找到游戏的桌子号
-	//userData := a.UserData().(gamedata.AgentUserData)		//agentUserId
-	//deskId := userData.ZhDeskId					//德州扑克桌子号码:存醋方式有很多,目前暂时存醋在userData当中
-	deskId := uint32(0)
-	log.T("用户[%v]所在的德州扑克的deskId[%v]",m.GetHeader().GetUserId(),deskId)
 	//通过桌子号找到桌子
-	desk := room.ThGameRoomIns.GetDeskById(deskId)
+	desk := room.ThGameRoomIns.GetDeskByUserId(m.GetHeader().GetUserId())
 	if desk == nil {
-		log.E("没有找到id[%v]对应的桌子.",deskId)
 		return errors.New("没有找到id[%v]对应的桌子")
 	}
+
+	//开始进行押注
 	err := desk.Bet(m,a)
 	if err != nil {
-		log.E("用户[%v]在桌子[%v]押注的时候出错errMsg[%v]",m.GetHeader().GetUserId(),deskId,err.Error())
+		log.E("用户[%v]在桌子[%v]押注的时候出错errMsg[%v]",m.GetHeader().GetUserId(),*desk.Id,err.Error())
 	}
+
 	//返回错误信息
 	return err
 }

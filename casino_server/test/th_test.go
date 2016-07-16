@@ -28,7 +28,7 @@ func intoRoom(){
 
 	ide2 := int32(bbproto.EProtoId_THROOM)
 	fmt.Println("proto 得到的id ",ide2)
-	var userid uint32 = 10011
+	var userid uint32 = 10012
 	var reqType int32 = 1
 	data2 := &bbproto.ThRoom{}
 	h2 := &bbproto.ProtoHeader{}

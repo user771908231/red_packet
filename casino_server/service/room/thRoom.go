@@ -104,6 +104,66 @@ func (r *ThGameRoom) GetDeskById(id uint32) *ThDesk {
 	return result
 }
 
+//通过UserId判断是不是重复进入房间
+func (r *ThGameRoom) IsRepeatIntoRoom(userId uint32) bool {
+
+	//废弃的判断的代码
+	/**
+	//todo 开发过程中,可能需要关掉这个限制
+	var  agentUser *gamedata.AgentUserData
+	userData := a.UserData()
+	if userData == nil {
+		log.T("用户进入德州扑克房间的时候,没有知道对应的agentUserdata")
+		//todo 需要删掉的代码
+		agentUser = &gamedata.AgentUserData{}
+		a.SetUserData(agentUser)
+	}else {
+		agentUser = userData.(*gamedata.AgentUserData)
+	}
+
+	if agentUser.Status == gamedata.AGENT_USER_STATUS_GAMING && agentUser.ThDeskId > 0 {
+		log.E("用户已经在房间中了,请不要重复进入")
+		return errors.New("玩家已经在房间中了,请不要重复进入")
+	}
+ */
+
+	//新的判断的代码
+	result := r.GetDeskByUserId(userId)
+	if result == nil {
+		return false
+	}else{
+		return true
+	}
+}
+
+/**
+	通过UserId 找到对应的桌子
+ */
+func (r *ThGameRoom) GetDeskByUserId(userId uint32) *ThDesk{
+	var result *ThDesk
+	var breakFlag bool = false
+	desks := ThGameRoomIns.ThDeskBuf
+	for i := 0; i < len(desks); i++ {
+		if breakFlag {
+			break
+		}
+		desk := desks[i]
+		if desk != nil {
+			users := desk.users
+			for j := 0; j < len(users); j++ {
+				u := users[j]
+				if u != nil && *u.userId == userId {
+					result = desk
+					breakFlag = true
+					break
+				}
+			}
+
+		}
+	}
+	return result
+}
+
 
 /**
 	正在玩德州的人
@@ -155,14 +215,14 @@ type ThDesk struct {
 }
 
 func (t *ThDesk) LogString() {
-	log.T("当前desk[%v]的信息:-----------------------------------begin----------------------------------", t.Id)
+	log.T("当前desk[%v]的信息:-----------------------------------begin----------------------------------", *t.Id)
 	log.T("当前desk[%v]的信息的状态status[%v]", *t.Id, *t.Status)
 	log.T("当前desk[%v]的信息的状态users[%v]", *t.Id, t.users)
 	log.T("当前desk[%v]的信息的状态,总人数SeatedCount[%v]", *t.Id, *t.SeatedCount)
 	log.T("当前desk[%v]的信息的状态,小盲注[%v]", *t.Id, *t.SmallBlind)
 	log.T("当前desk[%v]的信息的状态,大盲注[%v]", *t.Id, *t.BigBlind)
 	log.T("当前desk[%v]的信息的状态,压注人[%v]", *t.Id, *t.BetUserNow)
-	log.T("当前desk[%v]的信息:-----------------------------------end----------------------------------", t.Id)
+	log.T("当前desk[%v]的信息:-----------------------------------end----------------------------------", *t.Id)
 }
 
 /**
@@ -293,21 +353,21 @@ func (t *ThDesk) THBroadcastProto(p proto.Message, ignoreUserId uint32) error {
 /**
 当有新用户进入房间的时候,为其他人广播新过来的人的信息
  */
-func (t *ThDesk) THBroadcastAddUser(newUserId,ignoreUserId uint32) error{
+func (t *ThDesk) THBroadcastAddUser(newUserId, ignoreUserId uint32) error {
 	for i := 0; i < len(t.users); i++ {
 		if t.users[i] != nil && *t.users[i].userId != ignoreUserId {
 			users := t.GetResUserModelClieSeq(*t.users[i].userId)
 			broadUsers := &bbproto.THRoomAddUserBroadcast{}
 			broadUsers.Header = protoUtils.GetSuccHeaderwithUserid(t.users[i].userId)
 			for i := 0; i < len(users); i++ {
-				if  users[i] != nil && users[i].User.GetId() == newUserId{
+				if users[i] != nil && users[i].User.GetId() == newUserId {
 					broadUsers.User = users[i]
 					break
 				}
 			}
 
 			a := t.users[i].agent
-			log.Normal("给userId[%v]发送消息:[%v]", *t.users[i].userId,broadUsers)
+			log.Normal("给userId[%v]发送消息:[%v]", *t.users[i].userId, broadUsers)
 			a.WriteMsg(broadUsers)
 		}
 	}
@@ -327,8 +387,8 @@ func (t *ThDesk) GetResUserModel() []*bbproto.THUser {
 		if t.users[i] != nil {
 			result[i] = t.users[i].trans2bbprotoThuser()
 		} else {
-			result[i] = nil
-
+			result[i] = &bbproto.THUser{}
+			result[i].SeatNumber = new(int32)        //设置为0
 		}
 	}
 
@@ -353,7 +413,7 @@ func (t *ThDesk) GetResUserModelClieSeq(userId uint32) []*bbproto.THUser {
 	users := t.GetResUserModel()
 	var userIndex int = 0
 	for i := 0; i < len(users); i++ {
-		if users[i] != nil && *(users[i].User.Id) == userId {
+		if users[i] != nil && users[i].User != nil && *(users[i].User.Id) == userId {
 			userIndex = i
 			break
 		}
