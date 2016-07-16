@@ -29,8 +29,9 @@ func handler(m interface{}, h interface{}) {
 //处理登陆签到的奖励
 func handleLoginSignInBonus(args []interface{}){
 	log.T("进入了处理登录签到奖励的接口...handleLoginSignInBonus")
-	m := args[0].(*bbproto.Reg)
+	m := args[0].(*bbproto.LoginSignInBonus)
 	a := args[1].(gate.Agent)
+	loginBonus.HandleLoginSignInBonus(m,a)
 	log.T("",m,a)
 }
 
@@ -43,8 +44,6 @@ func handleLoginTurntableBonus(args []interface{}){
 	m := args[0].(*bbproto.LoginTurntableBonus)
 	a := args[1].(gate.Agent)
 	loginBonus.HandleLoginTurntableBonus(m,a)
-
-
 }
 
 
