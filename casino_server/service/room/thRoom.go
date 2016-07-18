@@ -10,6 +10,8 @@ import (
 	"casino_server/msg/bbprotoFuncs"
 	"casino_server/service/userService"
 	"casino_server/service/pokerService"
+	"time"
+	"github.com/nu7hatch/gouuid"
 )
 
 
@@ -169,21 +171,73 @@ func (r *ThGameRoom) GetDeskByUserId(userId uint32) *ThDesk{
 	正在玩德州的人
  */
 type ThUser struct {
-	userId  *uint32               //用户id
-	agent   gate.Agent            //agent
-	status  *int32                //当前的状态
-	cards   []*bbproto.Pai        //手牌
-	thCards *pokerService.ThCards //手牌加公共牌取出来的值,这个值可以实在结算的时候来取
+	sync.Mutex
+	userId   *uint32               //用户id
+	agent    gate.Agent            //agent
+	status   *int32                //当前的状态
+	cards    []*bbproto.Pai        //手牌
+	thCards  *pokerService.ThCards //手牌加公共牌取出来的值,这个值可以实在结算的时候来取
+	waiTime  time.Time             //等待时间
+	waitUUID string                //等待标志
+	deskId   *uint32               //用户所在的桌子的编号
 }
 
 //
 func (t *ThUser) trans2bbprotoThuser() *bbproto.THUser {
+
 	thuserTemp := &bbproto.THUser{}
 	thuserTemp.Status = t.status        //已经就做
 	thuserTemp.User = userService.GetUserById(*t.userId)        //得到user
 	thuserTemp.HandPais = t.cards
 	thuserTemp.SeatNumber = new(int32)
 	return thuserTemp
+}
+
+//等待用户出牌
+
+func (t *ThUser) wait() error{
+	ticker := time.NewTicker(time.Second * 1)
+	t.waiTime = time.Now()
+	uuid,_ := uuid.NewV4()
+	t.waitUUID = uuid.String()		//设置出牌等待的标志
+	go func() {
+		for timeNow := range ticker.C {
+			//表示已经过期了
+			t.TimeOut(timeNow)
+
+		}
+
+	}()
+}
+
+//返回自己所在的桌子
+func (t *ThUser) GetDesk() *ThDesk{
+	desk := ThGameRoomIns.GetDeskById(t.deskId)
+	return desk
+
+}
+//用户超市,做处理
+func (t *ThUser) TimeOut(timeNow time.Time) error{
+	t.Lock()
+	defer t.Unlock()
+	if t.waiTime.Before(timeNow) && t.waitUUID != ""{
+		//表示已经超时了
+		t.waitUUID = ""
+		//给玩家发送超时的广播
+
+		//玩家自动押注弃牌,这里需要模拟数据
+		m := &bbproto.THBet{}
+		m.Header = protoUtils.GetSuccHeaderwithUserid(t.userId)
+		m.BetType = TH_DESK_BET_TYPE_FOLD
+		
+		a := t.agent
+		desk := t.GetDesk()
+		err := desk.Bet(m,a)
+		//给其他玩家广播
+		return err
+	}
+
+	return nil
 }
 
 func NewThUser() *ThUser {
@@ -707,10 +761,15 @@ func (t *ThDesk) GetUserIndex(userId uint32) int {
 	return result
 }
 
+
+
 /**
 	初始化下一个押注的人
+	初始化下一个人的时候需要一个超时的处理
  */
 func (t *ThDesk) NextBetUser() error {
+
+
 	log.T("当前押注的人是userId[%v]", *t.BetUserNow)
 	index := t.GetUserIndex(*t.BetUserNow)
 	for i := index; i < len(t.users) + index; i++ {
@@ -733,6 +792,10 @@ func (t *ThDesk) NextBetUser() error {
 		log.T("设置下次押注的人是小盲注,下轮次[%v]", *t.RoundCount)
 	}
 
+
+	//用户开始等待,如果超时,需要做超时的处理
+	waitUser := t.users[t.GetUserIndex(*t.BetUserNow)]
+	waitUser.wait()
 	log.T("重新计算出来的押注userId是[%v]", *t.BetUserNow)
 	return nil
 
