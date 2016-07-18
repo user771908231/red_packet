@@ -45,6 +45,7 @@ func init() {
 	PortoProcessor.Register(&bbproto.THBet{})		//22	德州扑克押注
 	PortoProcessor.Register(&bbproto.THBetBegin{})		//23	开始德州扑克的广播
 	PortoProcessor.Register(&bbproto.THBetBroadcast{})	//24	德州扑克,押注之后的广播
+	PortoProcessor.Register(&bbproto.THRoomAddUserBroadcast{})	//	房间增加一个玩家
 
 
 }

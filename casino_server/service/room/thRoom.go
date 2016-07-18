@@ -215,7 +215,7 @@ func (t *ThUser) wait() error {
 
 			//判断是否已经超时
 			if bool {
-				log.E("user[%v]已经超市,结束等待任务", *t.userId)
+				log.E("user[%v]已经超时,结束等待任务", *t.userId)
 				return
 			}
 		}
@@ -443,10 +443,10 @@ func (t *ThDesk) THBroadcastProto(p proto.Message, ignoreUserId uint32) error {
 	log.Normal("给每个房间发送proto 消息%v", p)
 	for i := 0; i < len(t.users); i++ {
 		if t.users[i] != nil && *t.users[i].userId != ignoreUserId {
-			log.Normal("开始userId[%v]发送消息", *t.users[i].userId)
+			//log.Normal("开始userId[%v]发送消息", *t.users[i].userId)
 			a := t.users[i].agent
 			a.WriteMsg(p)
-			log.Normal("给userId[%v]发送消息,发送完毕", *t.users[i].userId)
+			//log.Normal("给userId[%v]发送消息,发送完毕", *t.users[i].userId)
 		}
 	}
 	return nil
@@ -504,7 +504,7 @@ func (t *ThDesk) GetResUserModelById(userId uint32) *bbproto.THUser {
 			result = t.users[i].trans2bbprotoThuser()
 		}
 	}
-	log.T("通过userId得到的bbproto.THUser的情况,", result)
+	log.T("通过userId得到的bbproto.THUser的情况【%v】", result)
 	return result
 }
 

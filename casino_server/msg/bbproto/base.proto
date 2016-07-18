@@ -34,6 +34,7 @@ enum  EProtoId{
 	THBET				=	22;		//22	德州扑克押注
 	THBETBEGIN			=	23;		//23	开始德州扑克
 	THBETBROADCAST		=	24;		//23	押注之后的广播
+	THROOMADDUSERBROADCAST		=	25;	//25	新用户假如德州的游戏房间
 }
 
 //general response protocol

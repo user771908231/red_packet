@@ -7,6 +7,7 @@ import (
 	"reflect"
 	"time"
 	"casino_server/utils/security"
+	clog "casino_server/common/log"
 )
 
 type Gate struct {
@@ -87,9 +88,9 @@ type agent struct {
 
 func (a *agent) Run() {
 	for {
-		log.Debug("try readmsg...")
+		clog.D("try readmsg...")
 		data, err := a.conn.ReadMsg()
-		log.Debug("readmsg..ret:%v", data)
+		clog.D("readmsg..ret:%v", data)
 		//log.Debug(string(debug.Stack()))
 
 		if err != nil {
@@ -111,7 +112,7 @@ func (a *agent) Run() {
 				break
 			}
 			err = a.gate.Processor.Route(msg, a)
-			log.Debug("a.gate.Processor.Route end.")
+			//clog.D("a.gate.Processor.Route end.")
 			if err != nil {
 				log.Debug("route message error: %v", err)
 				break
