@@ -254,6 +254,22 @@ func (t *ThDesk) AddThUser(userId uint32, a gate.Agent) error {
 	return nil
 }
 
+//  用户退出德州游戏的房间,rmUser 需要在事物中进行
+func (t *ThDesk) RmThuser(userId uint32) error{
+	t.Lock()
+	defer  t.Unlock()
+
+	//设置为nil就行了
+	index := t.GetUserIndex(userId)		//
+	t.users[index] = nil			//设置为nil
+
+	//设置在线的人数 减1
+	*t.SeatedCount --
+	return nil
+
+}
+
+
 /**
 	开始游戏,开始游戏的时候需要初始化desk
 	1,初始化庄

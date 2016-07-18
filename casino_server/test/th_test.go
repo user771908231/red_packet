@@ -15,7 +15,7 @@ func TestTh(t *testing.T){
 }
 
 
-/**
+/** 182.92.179.230
 	测试进入房间
  */
 func intoRoom(){
@@ -28,7 +28,7 @@ func intoRoom(){
 
 	ide2 := int32(bbproto.EProtoId_THROOM)
 	fmt.Println("proto 得到的id ",ide2)
-	var userid uint32 = 10012
+	var userid uint32 = 10010
 	var reqType int32 = 1
 	data2 := &bbproto.ThRoom{}
 	h2 := &bbproto.ProtoHeader{}
