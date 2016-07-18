@@ -5,6 +5,7 @@ import (
 	"casino_server/msg/bbprotogo"
 	"casino_server/common/log"
 	"sort"
+	"fmt"
 )
 
 //德州扑克的纸牌
@@ -61,24 +62,20 @@ type ThCards struct {
 func NewThCards() *ThCards{
 
 	result := &ThCards{}
-
-	var initInt int32 = 0
-	var initBool bool = false
-
-	result.ThType = &initInt
+	result.ThType = new(int32)
 	result.KeyValue = make([]int32,5)
-	result.DuiziCount = &initInt
-	result.SanTiaoCount = &initInt
-	result.SiTiaoCount = &initInt
+	result.DuiziCount = new(int32)
+	result.SanTiaoCount = new(int32)
+	result.SiTiaoCount = new(int32)
 	result.CardsStatistics = make([]int32,14)
-	result.IsShunzi = &initBool
-	result.IsTongHua = &initBool
-	result.IsSiTiao = &initBool
-	result.IsSanTiao = &initBool
-	result.IsHulu = &initBool
-	result.IsGaoPai = &initBool
-	result.IsDuiZi = &initBool
-	result.IsLiangDui = &initBool
+	result.IsShunzi = new(bool)
+	result.IsTongHua = new(bool)
+	result.IsSiTiao = new(bool)
+	result.IsSanTiao = new(bool)
+	result.IsHulu = new(bool)
+	result.IsGaoPai = new(bool)
+	result.IsDuiZi = new(bool)
+	result.IsLiangDui = new(bool)
 	return result
 }
 
@@ -247,17 +244,23 @@ func (c *ThCards) OnInitStatisticsCard() error{
 	list := c.Cards
 
 	//可以通过这个统计来计算,对子有多少,三条有多少,四条有多少
-	c.CardsStatistics  = make([]int32,14)
+	c.CardsStatistics  = make([]int32,15)
 	for i := 0; i < len(list); i++ {
 		c.CardsStatistics[*list[i].Value] ++
 	}
 
+	fmt.Println("统计出来的牌数量:s",c.CardsStatistics)
 	for i := 0; i < len(c.CardsStatistics); i++ {
+		fmt.Println("开始检测:",c.CardsStatistics[i])
+
 		if c.CardsStatistics[i] == 2  {
+			fmt.Println("检测到的对子是:",c.CardsStatistics[i])
 			*c.DuiziCount ++
 		}else if c.CardsStatistics[i] == 3 {
+			fmt.Println("检测到的三条是:",c.CardsStatistics[i])
 			*c.SanTiaoCount ++
 		}else if c.CardsStatistics[i] == 4 {
+			fmt.Println("检测到的四条是:",c.CardsStatistics[i])
 			*c.SiTiaoCount ++
 		}
 	}
@@ -289,6 +292,21 @@ func (c *ThCards) OnInit() error{
 	var cdList CardsList = c.Cards
 	sort.Sort(cdList)
 	c.Cards = cdList
+
+	//做统计初始化
+	c.OnInitStatisticsCard()
+	fmt.Println("c.DuiziCount",*c.DuiziCount)
+	fmt.Println("c.SanTiaoCount",*c.SanTiaoCount)
+	fmt.Println("c.SiTiaoCount",*c.SiTiaoCount)
+
+	fmt.Println("c.SiTiaoCount",*c.IsDuiZi)
+	fmt.Println("c.IsLiangDui",*c.IsLiangDui)
+	fmt.Println("c.IsTongHua",*c.IsTongHua)
+	fmt.Println("c.IsSanTiao",*c.IsSanTiao)
+	fmt.Println("c.IsSiTiao",*c.IsSiTiao)
+	fmt.Println("c.IsGaoPai",*c.IsGaoPai)
+	fmt.Println("c.IsHulu",*c.IsHulu)
+	fmt.Println("c.IsShunzi",*c.IsShunzi)
 
 
 	//解析牌的keyValue值,属性
@@ -322,6 +340,7 @@ func (c *ThCards) OnInit() error{
 			c.ThType = &THPOKER_TYPE_GAOPAI
 		}
 	}
+
 
 	return nil
 }
@@ -420,16 +439,12 @@ func RandomTHPorkIndex(min, max,total int) []int32 {
 }
 
 //通过手牌,和给定的牌得到最大的德州牌
-func GetTHMax(hand,public []*bbproto.Pai,count int) *ThCards{
+func GetTHPoker(hand,public []*bbproto.Pai,count int) *ThCards{
 
-	//把公共牌增加到手牌中
-	for i := 0; i < len(public); i++ {
-		if public[i] !=nil {
-			hand = append(hand,public[i])
-		}
-	}
-	//log.T("总共有[%v]张牌",len(hand))
-	tcsList := Com(7,count,hand)
+	var allCards = make([]*bbproto.Pai,7)
+	copy(allCards[0:2],hand)
+	copy(allCards[2:],public)
+	tcsList := Com(7,count, allCards)
 	sort.Sort(tcsList)
 	return tcsList[0]
 
@@ -458,8 +473,19 @@ func   Com(n,k int,allCards []*bbproto.Pai) ThCardsList{
 
 		tcs.Cards = make([]*bbproto.Pai,5)
 		for i := 1;i<=k ;i++  {
-			tcs.Cards[1] = allCards[a[i]-1]
+			//fmt.Print(" --%v-- ",a[i]-1)
+			tcs.Cards[i-1] = allCards[a[i]-1]
 		}
+
+		fmt.Println("排序之前的牌",tcs.Cards)
+		var cs CardsList = tcs.Cards
+		sort.Sort(cs)
+		fmt.Println("排序之后的牌",tcs.Cards)
+		tcs.OnInit()	//初始化德州
+		fmt.Println("排序之后的类型",*tcs.ThType)
+
+
+		//fmt.Println("")
 
 		if result ==nil {
 			result = make([]*ThCards,1)

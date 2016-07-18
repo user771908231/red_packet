@@ -51,7 +51,7 @@ message THRoomAddUserBroadcast{
     optional THUser         user                     = 2;    //新增加的User的信息
 }
 
-message THPork{
+message THPoker{
     optional        int32       thType         = 1;         //牌的类型
     repeated        Pai         pais           = 2;         //
 }
@@ -88,7 +88,12 @@ message THUser{
     repeated Pai        handPais                = 2;            //手牌
     optional int32      status                  = 3;            //玩家的状态
     optional int32      seatNumber              = 4;            //座位号
+    optional THPoker    thpoker                 = 5;            //最终的德州的牌
 }
 
+//开奖时需要用到的协议
+message THLottery{
+    optional ProtoHeader	header				     = 1;
+    repeated THUser         users                    = 2;
 
-
+}

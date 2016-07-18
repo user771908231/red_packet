@@ -20,6 +20,8 @@ import (
 var THROOM_SEAT_COUNT int32 = 8               //玩德州扑克,每个房间最多多少人
 var GAME_THROOM_MAX_COUNT int32 = 500         //一个游戏大厅最多有多少桌德州扑克
 var TH_TIMEOUT_DURATION = time.Second * 5              //德州出牌的超时时间
+var TH_LOTTERY_DURATION = time.Second * 5              //德州开奖的时间
+
 
 //测试的时候 修改喂多人才可以游戏
 var TH_DESK_LEAST_START_USER int32 = 5        //最少多少人可以开始游戏
@@ -417,17 +419,21 @@ func (t *ThDesk) UserWait2Seat() error {
 func (t *ThDesk) OnInitCards() error {
 	var total = 21;
 	totalCards := pokerService.RandomTHPorkCards(total)        //得到牌
-	log.T("得到的所有手牌:[%v]", totalCards)
+	log.T("得到的所有牌:[%v]", totalCards)
 	//得到所有的牌,前五张为公共牌,后边的每两张为手牌
 	t.PublicPai = totalCards[0:5]
 	log.T("得到的公共牌:[%v]", t.PublicPai)
 
 	//给每个人分配手牌
 	for i := 0; i < len(t.users); i++ {
+
 		if t.users[i] != nil {
-			t.users[i].cards = totalCards[i * 2 + 5:i * 2 + 5 + 2]
+			begin := i * 2 + 5
+			end   := i * 2 + 5 + 2
+			t.users[i].cards = totalCards[begin:end]
 			log.T("用户[%v]的手牌[%v]", *t.users[i].userId, t.users[i].cards)
-			t.users[i].thCards = pokerService.GetTHMax(t.users[i].cards, t.PublicPai, 5)
+			t.users[i].thCards = pokerService.GetTHPoker(t.users[i].cards, t.PublicPai, 5)
+			log.T("用户[%v]的所有牌[%v]",*t.users[i].userId,t.users[i].thCards.Cards)
 		}
 	}
 
@@ -649,7 +655,16 @@ func (t *ThDesk) Lottery() error {
 	//设置desk的状态
 	t.Status = &TH_DESK_STATUS_LOTTERY
 
+	//做每个用户做结算
+
+	//返回结果
+	result := &bbproto.THLottery{}
+	result.Header = protoUtils.GetSuccHeader()
+	result.Users = t.GetResUserModel()
+	t.THBroadcastProto(result,0)	//给每个人发送开奖公告
+
 	//开奖完成之后,需要重新开始下一局,调用t.Run表示重新下一句
+	time.Sleep(TH_LOTTERY_DURATION)
 	t.Run()
 	return nil
 }
@@ -710,38 +725,12 @@ func (t *ThDesk) Bet(m *bbproto.THBet, a gate.Agent) error {
 		t.BetUserAllIn(userId)
 	}
 
-	//押注的人移动到下一个人
-	t.NextBetUser()
-	//押注之后,desk的状态
-	t.LogString()
 
-	//是否可以开奖
-	/**
-
-	 */
-
+	//判断是否属于开奖的时候,如果是,那么开奖,如果不是,设置下一个押注的人
 	if t.Tiem2Lottery() {
 		return t.Lottery()
 	} else {
-		//继续押注
-
-		//4,押注完成之后返回信息,广播给其他玩家的信息玩家
-		result := &bbproto.THBetBroadcast{}
-		result.Header = protoUtils.GetSuccHeader()
-		result.BetType = m.BetType
-		result.BetAmount = m.BetAmount
-		result.User = t.GetResUserModelById(m.GetHeader().GetUserId())
-		result.NextBetUserId = t.BetUserNow
-
-		t.THBroadcastProto(result, userId)
-
-		//给押注的玩家返回押注结果
-		betResult := &bbproto.THBet{}
-		betResult.Header = protoUtils.GetSuccHeaderwithUserid(m.GetHeader().UserId)
-		betResult.BetAmount = m.BetAmount
-		betResult.BetType = m.BetType
-		betResult.NextBetUser = t.BetUserNow
-		a.WriteMsg(betResult)
+		t.NextBetUser(m,a)
 	}
 
 	return nil
@@ -858,7 +847,7 @@ func (t *ThDesk) GetUserIndex(userId uint32) int {
 	初始化下一个押注的人
 	初始化下一个人的时候需要一个超时的处理
  */
-func (t *ThDesk) NextBetUser() error {
+func (t *ThDesk) NextBetUser(m *bbproto.THBet,a gate.Agent) error {
 
 	log.T("当前押注的人是userId[%v]", *t.BetUserNow)
 	index := t.GetUserIndex(*t.BetUserNow)
@@ -885,8 +874,30 @@ func (t *ThDesk) NextBetUser() error {
 	waitUser := t.users[t.GetUserIndex(*t.BetUserNow)]
 	waitUser.wait()
 	log.T("重新计算出来的押注userId是[%v]", *t.BetUserNow)
-	return nil
 
+
+	//4,押注完成之后返回信息,广播给其他玩家的信息玩家
+	result := &bbproto.THBetBroadcast{}
+	result.Header = protoUtils.GetSuccHeader()
+	result.BetType = m.BetType
+	result.BetAmount = m.BetAmount
+	result.User = t.GetResUserModelById(m.GetHeader().GetUserId())
+	result.NextBetUserId = t.BetUserNow
+
+	t.THBroadcastProto(result, m.GetHeader().GetUserId())
+
+	//5,给押注的玩家返回押注结果
+	betResult := &bbproto.THBet{}
+	betResult.Header = protoUtils.GetSuccHeaderwithUserid(m.GetHeader().UserId)
+	betResult.BetAmount = m.BetAmount
+	betResult.BetType = m.BetType
+	betResult.NextBetUser = t.BetUserNow
+	a.WriteMsg(betResult)
+
+
+	//打印测试消息
+	t.LogString()
+	return nil
 }
 
 /**
@@ -897,7 +908,7 @@ func (t *ThDesk) NextBetUser() error {
 type ThSeat struct {
 	User     *bbproto.User   //座位上的人
 	HandPais []*bbproto.Pai  //手牌
-	THPork   *bbproto.THPork //德州的牌
+	THPork   *bbproto.THPoker //德州的牌
 }
 
 /**
