@@ -14,7 +14,7 @@ func TestTh(t *testing.T){
 	intoRoom(10008)
 	intoRoom(10009)
 	intoRoom(10010)
-	//intoRoom(10011)
+	intoRoom(10011)
 	//bet()
 }
 

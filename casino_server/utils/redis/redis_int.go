@@ -60,7 +60,7 @@ func (t *Data) Open(table string) error {
 
 func (t *Data) Close() (err error) {
 	if t.conn != nil {
-		log.T("[TRACE] t.conn.Close().")
+		//log.T("[TRACE] t.conn.Close().")
 		err = t.conn.Close()
 		t.conn = nil
 		return err
