@@ -5,7 +5,6 @@ import (
 	"casino_server/msg/bbprotogo"
 	"casino_server/common/log"
 	"sort"
-	"fmt"
 )
 
 //德州扑克的纸牌
@@ -35,8 +34,6 @@ var (
 
 
 //config
-
-
 type  ThCardsList 	[]*ThCards	//需要比较的牌
 type  CardsList		[]*bbproto.Pai	//对牌进行排序
 
@@ -249,18 +246,18 @@ func (c *ThCards) OnInitStatisticsCard() error{
 		c.CardsStatistics[*list[i].Value] ++
 	}
 
-	fmt.Println("统计出来的牌数量:s",c.CardsStatistics)
+	//fmt.Println("统计出来的牌数量:s",c.CardsStatistics)
 	for i := 0; i < len(c.CardsStatistics); i++ {
-		fmt.Println("开始检测:",c.CardsStatistics[i])
+		//fmt.Println("开始检测:",c.CardsStatistics[i])
 
 		if c.CardsStatistics[i] == 2  {
-			fmt.Println("检测到的对子是:",c.CardsStatistics[i])
+			//fmt.Println("检测到的对子是:",c.CardsStatistics[i])
 			*c.DuiziCount ++
 		}else if c.CardsStatistics[i] == 3 {
-			fmt.Println("检测到的三条是:",c.CardsStatistics[i])
+			//fmt.Println("检测到的三条是:",c.CardsStatistics[i])
 			*c.SanTiaoCount ++
 		}else if c.CardsStatistics[i] == 4 {
-			fmt.Println("检测到的四条是:",c.CardsStatistics[i])
+			//fmt.Println("检测到的四条是:",c.CardsStatistics[i])
 			*c.SiTiaoCount ++
 		}
 	}
@@ -271,7 +268,7 @@ func (c *ThCards) OnInitStatisticsCard() error{
 	}
 
 
-	log.T("统计之后的牌面值")
+	//log.T("统计之后的牌面值")
 
 	c.OnInitTongHuaStatus()
 	c.OnInitShunZiStatus()
@@ -295,18 +292,18 @@ func (c *ThCards) OnInit() error{
 
 	//做统计初始化
 	c.OnInitStatisticsCard()
-	fmt.Println("c.DuiziCount",*c.DuiziCount)
-	fmt.Println("c.SanTiaoCount",*c.SanTiaoCount)
-	fmt.Println("c.SiTiaoCount",*c.SiTiaoCount)
-
-	fmt.Println("c.SiTiaoCount",*c.IsDuiZi)
-	fmt.Println("c.IsLiangDui",*c.IsLiangDui)
-	fmt.Println("c.IsTongHua",*c.IsTongHua)
-	fmt.Println("c.IsSanTiao",*c.IsSanTiao)
-	fmt.Println("c.IsSiTiao",*c.IsSiTiao)
-	fmt.Println("c.IsGaoPai",*c.IsGaoPai)
-	fmt.Println("c.IsHulu",*c.IsHulu)
-	fmt.Println("c.IsShunzi",*c.IsShunzi)
+	//fmt.Println("c.DuiziCount",*c.DuiziCount)
+	//fmt.Println("c.SanTiaoCount",*c.SanTiaoCount)
+	//fmt.Println("c.SiTiaoCount",*c.SiTiaoCount)
+	//
+	//fmt.Println("c.SiTiaoCount",*c.IsDuiZi)
+	//fmt.Println("c.IsLiangDui",*c.IsLiangDui)
+	//fmt.Println("c.IsTongHua",*c.IsTongHua)
+	//fmt.Println("c.IsSanTiao",*c.IsSanTiao)
+	//fmt.Println("c.IsSiTiao",*c.IsSiTiao)
+	//fmt.Println("c.IsGaoPai",*c.IsGaoPai)
+	//fmt.Println("c.IsHulu",*c.IsHulu)
+	//fmt.Println("c.IsShunzi",*c.IsShunzi)
 
 
 	//解析牌的keyValue值,属性
@@ -364,6 +361,7 @@ func ( list CardsList) Less(i,j int) bool{
 	}
 }
 
+
 //交换函数
 func ( list CardsList) Swap(i,j int){
 	var temp *bbproto.Pai = list[i]
@@ -389,6 +387,7 @@ func (list ThCardsList) Len() int{
 	return len(list)
 }
 
+//判断是否大于
 func (list ThCardsList) Less(i,j int) bool{
 	if *(list[i].ThType) > *(list[j].ThType) {
 		return true
@@ -477,13 +476,12 @@ func   Com(n,k int,allCards []*bbproto.Pai) ThCardsList{
 			tcs.Cards[i-1] = allCards[a[i]-1]
 		}
 
-		fmt.Println("排序之前的牌",tcs.Cards)
+		//fmt.Println("排序之前的牌",tcs.Cards)
 		var cs CardsList = tcs.Cards
 		sort.Sort(cs)
-		fmt.Println("排序之后的牌",tcs.Cards)
+		//fmt.Println("排序之后的牌",tcs.Cards)
 		tcs.OnInit()	//初始化德州
-		fmt.Println("排序之后的类型",*tcs.ThType)
-
+		//fmt.Println("排序之后的类型",*tcs.ThType)
 
 		//fmt.Println("")
 
