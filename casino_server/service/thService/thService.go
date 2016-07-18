@@ -148,9 +148,13 @@ func getIntoRoom(m *bbproto.ThRoom, a gate.Agent) error {
  */
 func getOutRoom(m *bbproto.ThRoom, a gate.Agent) error {
 	//1,判断参数是否正确
+	userId := m.GetHeader().GetUserId()
 	//2,找到用户所在的房间
+	desk := room.ThGameRoomIns.GetDeskByUserId(userId)
 	//3,退出房间
+	desk.RmThuser(userId)
 	//4,修改德州房间的状态
+
 	//5,修改gameRoom的状态
 	return nil
 }
