@@ -19,6 +19,7 @@ import (
 //config
 var THROOM_SEAT_COUNT int32 = 8               //玩德州扑克,每个房间最多多少人
 var GAME_THROOM_MAX_COUNT int32 = 500         //一个游戏大厅最多有多少桌德州扑克
+var TH_TIMEOUT_DURATION = time.Second*5	      //德州出牌的超时时间
 
 //测试的时候 修改喂多人才可以游戏
 var TH_DESK_LEAST_START_USER int32 = 5        //最少多少人可以开始游戏
@@ -90,6 +91,7 @@ func (r *ThGameRoom) Run() {
 
 //增加一个thRoom
 func (r *ThGameRoom) AddThRoom(index int, throom *ThDesk) error {
+	*throom.Id = uint32(index)
 	r.ThDeskBuf[index] = throom
 	return nil
 }
@@ -197,30 +199,42 @@ func (t *ThUser) trans2bbprotoThuser() *bbproto.THUser {
 
 func (t *ThUser) wait() error{
 	ticker := time.NewTicker(time.Second * 1)
-	t.waiTime = time.Now()
+	t.waiTime =  time.Now().Add(TH_TIMEOUT_DURATION)
 	uuid,_ := uuid.NewV4()
 	t.waitUUID = uuid.String()		//设置出牌等待的标志
 	go func() {
 		for timeNow := range ticker.C {
 			//表示已经过期了
-			t.TimeOut(timeNow)
+			bool,err := t.TimeOut(timeNow)
+			if err != nil {
+				log.E("处理超时的逻辑出现错误")
+				return
+			}
 
+			//判断是否已经超时
+			if bool {
+				log.E("user[%v]已经超市,结束等待任务",*t.userId)
+				return
+			}
 		}
-
 	}()
+
+	return nil
+
 }
 
 //返回自己所在的桌子
 func (t *ThUser) GetDesk() *ThDesk{
-	desk := ThGameRoomIns.GetDeskById(t.deskId)
+	desk := ThGameRoomIns.GetDeskById(*t.deskId)
 	return desk
 
 }
 //用户超市,做处理
-func (t *ThUser) TimeOut(timeNow time.Time) error{
+func (t *ThUser) TimeOut(timeNow time.Time) (bool,error){
 	t.Lock()
 	defer t.Unlock()
 	if t.waiTime.Before(timeNow) && t.waitUUID != ""{
+		log.T("玩家[%v]超时,现在做超时的处理",*t.userId)
 		//表示已经超时了
 		t.waitUUID = ""
 		//给玩家发送超时的广播
@@ -228,16 +242,19 @@ func (t *ThUser) TimeOut(timeNow time.Time) error{
 		//玩家自动押注弃牌,这里需要模拟数据
 		m := &bbproto.THBet{}
 		m.Header = protoUtils.GetSuccHeaderwithUserid(t.userId)
-		m.BetType = TH_DESK_BET_TYPE_FOLD
-		
+		m.BetType = &TH_DESK_BET_TYPE_FOLD
+
 		a := t.agent
 		desk := t.GetDesk()
 		err := desk.Bet(m,a)
 		//给其他玩家广播
-		return err
+		log.T("玩家[%v]超时,现在做超时的处理,处理完毕",*t.userId)
+		return true,err
+	}else{
+		log.T("玩家[%v]出牌中还没有超时",*t.userId)
+		return false,nil
 	}
 
-	return nil
 }
 
 func NewThUser() *ThUser {
@@ -289,6 +306,7 @@ func (t *ThDesk) AddThUser(userId uint32, a gate.Agent) error {
 	*thUser.userId = userId
 	thUser.agent = a
 	*thUser.status = TH_USER_STATUS_WAITSEAT        //刚进房间的玩家
+	thUser.deskId = t.Id		//桌子的id
 
 	//添加thuser
 	for i := 0; i < len(t.users); i++ {
@@ -352,6 +370,7 @@ func (t *ThDesk) Run() error {
 	res.Header = protoUtils.GetSuccHeader()
 	res.SmallBlind = t.GetResUserModelById(*t.SmallBlind)
 	res.BigBlind = t.GetResUserModelById(*t.BigBlind)
+	res.BetUserNow =  t.BetUserNow
 	err = t.THBroadcastProto(res, 0)
 	if err != nil {
 		log.E("广播开始消息的时候出错")
@@ -560,6 +579,10 @@ func (t *ThDesk) OinitBegin() error {
 	t.BetUserRaiseUserId = t.BetUserNow        //第一个加注的人
 	t.RoundCount = &TH_DESK_ROUND1
 
+	//本次押注的热开始等待
+	waitUser := t.users[t.GetUserIndex(*t.BetUserNow)]
+	waitUser.wait()
+
 	log.T("初始化游戏之后,庄家[%v]", *t.Dealer)
 	log.T("初始化游戏之后,小盲注[%v]", *t.SmallBlind)
 	log.T("初始化游戏之后,大盲注[%v]", *t.BigBlind)
@@ -708,6 +731,8 @@ func (t *ThDesk) BetUserCall(userId uint32, coin int32) error {
 
 //用户弃牌
 func (t *ThDesk) BetUserFold(userId uint32) error {
+	index := t.GetUserIndex(userId)
+	t.users[index].status = &TH_USER_STATUS_FOLDED
 	return nil
 }
 
