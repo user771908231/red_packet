@@ -84,8 +84,8 @@ func getIntoRoom(m *bbproto.ThRoom, a gate.Agent) error {
 			if room.ThGameRoomIns.ThDeskBuf[deskIndex] !=nil {
 				mydesk = room.ThGameRoomIns.ThDeskBuf[deskIndex]        //通过roomId找到德州的room
 				mydesk.LogString()
-				log.T("每个desk限制的最大人数是[%v]",*room.ThGameRoomIns.ThRoomSeatMax)
-				if *mydesk.SeatedCount < *room.ThGameRoomIns.ThRoomSeatMax {
+				log.T("每个desk限制的最大人数是[%v]",room.ThGameRoomIns.ThRoomSeatMax)
+				if mydesk.SeatedCount < room.ThGameRoomIns.ThRoomSeatMax {
 					log.T("room.index[%v]有空的座位,", deskIndex)
 					break;
 				}
@@ -120,7 +120,7 @@ func getIntoRoom(m *bbproto.ThRoom, a gate.Agent) error {
 	log.T("开始给客户端返回信息")
 	result := &bbproto.ThRoom{}
 	result.Header = protoUtils.GetSuccHeaderwithUserid(m.GetHeader().UserId)
-	result.DeskStatus = mydesk.Status		//当前桌子的状态
+	result.DeskStatus = &(mydesk.Status)		//当前桌子的状态
 	result.PublicPais = mydesk.PublicPai		//公共牌
 	result.Users = mydesk.GetResUserModelClieSeq(userId)
 
@@ -133,7 +133,7 @@ func getIntoRoom(m *bbproto.ThRoom, a gate.Agent) error {
 
 	//6,最后:确定是否开始游戏, 上了牌桌之后,如果玩家人数大于1,并且游戏处于stop的状态,则直接开始游戏
 	//这是游戏刚开始,的处理方式
-	if *mydesk.SeatedCount >= room.TH_DESK_LEAST_START_USER  && *mydesk.Status == room.TH_DESK_STATUS_STOP{
+	if mydesk.SeatedCount >= room.TH_DESK_LEAST_START_USER  && mydesk.Status == room.TH_DESK_STATUS_STOP{
 		err = mydesk.Run()
 		if err != nil {
 			log.E("开始德州扑克游戏的时候失败")
@@ -172,7 +172,7 @@ func HandlerTHBet(m *bbproto.THBet, a gate.Agent) error {
 	//开始进行押注
 	err := desk.Bet(m,a)
 	if err != nil {
-		log.E("用户[%v]在桌子[%v]押注的时候出错errMsg[%v]",m.GetHeader().GetUserId(),*desk.Id,err.Error())
+		log.E("用户[%v]在桌子[%v]押注的时候出错errMsg[%v]",m.GetHeader().GetUserId(),desk.Id,err.Error())
 	}
 
 	//返回错误信息

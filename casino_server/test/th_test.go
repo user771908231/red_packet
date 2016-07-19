@@ -7,6 +7,7 @@ import (
 	"casino_server/utils/test"
 	"net"
 	"casino_server/service/room"
+
 )
 
 func TestTh(t *testing.T){
@@ -14,7 +15,7 @@ func TestTh(t *testing.T){
 	intoRoom(10008)
 	intoRoom(10009)
 	intoRoom(10010)
-	//intoRoom(10011)
+	intoRoom(10011)
 	//bet()
 }
 

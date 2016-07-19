@@ -148,7 +148,6 @@ func GetRedisUserKey(id uint32) string {
  */
 func GetUserById(id uint32) *bbproto.User {
 	//1,首先在 redis中去的数据
-	log.T("在redis中查询user[%v]是否存在.", id)
 	conn := data.Data{}
 	conn.Open(casinoConf.REDIS_DB_NAME)
 	defer conn.Close()
@@ -171,6 +170,7 @@ func GetUserById(id uint32) *bbproto.User {
 		tuser := &mode.T_user{}
 		s.DB(casinoConf.DB_NAME).C(casinoConf.DBT_T_USER).Find(bson.M{"id": id}).One(tuser)
 		if tuser.Id < casinoConf.MIN_USER_ID {
+			log.T("在mongo中没有查询到user[%v].", id)
 			result = nil
 		}else{
 			//把从数据获得的结果填充到redis的model中
@@ -311,6 +311,14 @@ func IncreasUserCoin(userId uint32,coin int32) error{
 }
 
 func DecreaseUserCoin(userId uint32,coin int32) error{
+	lock := UserLockPools.GetUserLockByUserId(userId)
+	lock.Lock()
+	defer lock.Unlock()
+
+	//开是减少用户的金币
+	user := GetUserById(userId)
+	*user.Coin += coin
+	SaveUser2Redis(user)
 	return nil
 
 }

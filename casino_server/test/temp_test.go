@@ -6,14 +6,10 @@ import (
 )
 
 func TestTemp(t *testing.T) {
-	var a *int32
-	var b int32 = 999;
-	a = &b
-	fmt.Println("b:",b)
-	fmt.Println("a:",a)
-	fmt.Println("*a:",*a)
-	*a ++
-	fmt.Println("*a ++:",*a)
-	fmt.Println("a ++:",a)
+	var a []int = nil
+	a = append(a,1)
+
+	fmt.Print("值",a)
+
 }
 

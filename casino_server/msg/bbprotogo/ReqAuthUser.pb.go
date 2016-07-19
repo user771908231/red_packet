@@ -41,11 +41,12 @@ It has these top-level messages:
 	TestP1
 	ThRoom
 	THRoomAddUserBroadcast
-	THPork
+	THPoker
 	THBet
 	THBetBegin
 	THBetBroadcast
 	THUser
+	THLottery
 	User
 	ZjhRoom
 	ZjhBet
