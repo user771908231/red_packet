@@ -20,7 +20,6 @@ func HandlerThRoom(m *bbproto.ThRoom, a gate.Agent) error {
 	room.ThGameRoomIns.Lock()
 	defer room.ThGameRoomIns.Unlock()
 
-
 	var err error
 	//result := *&bbproto.ThRoom{}
 	reqType := m.GetReqType()
@@ -80,7 +79,7 @@ func getIntoRoom(m *bbproto.ThRoom, a gate.Agent) error {
 
 	//6,最后:确定是否开始游戏, 上了牌桌之后,如果玩家人数大于1,并且游戏处于stop的状态,则直接开始游戏
 	//这是游戏刚开始,的处理方式
-	if mydesk.SeatedCount >= room.TH_DESK_LEAST_START_USER  && mydesk.Status == room.TH_DESK_STATUS_STOP{
+	if mydesk.userCount >= room.TH_DESK_LEAST_START_USER  && mydesk.Status == room.TH_DESK_STATUS_STOP{
 		err = mydesk.Run()
 		if err != nil {
 			log.E("开始德州扑克游戏的时候失败")
@@ -100,7 +99,12 @@ func getOutRoom(m *bbproto.ThRoom, a gate.Agent) error {
 	desk := room.ThGameRoomIns.GetDeskByUserId(userId)
 	//3,退出房间
 	desk.RmThuser(userId)
-
+	//4,修改thgame的值
+	if desk.UserCount == 0 {
+		//表示这个房间已经没有人了
+		room.ThGameRoomIns.RmThroom(desk.Number)
+	}
+	
 	return nil
 }
 

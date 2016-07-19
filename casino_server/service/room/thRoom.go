@@ -104,7 +104,25 @@ func (r *ThGameRoom) AddThRoom(index int, throom *ThDesk) error {
 }
 
 //删除一个throom
-func (r *ThGameRoom) RmThroom(index int) error {
+func (r *ThGameRoom) RmThroom(number int32) error {
+
+	//第一步找到index
+	var index int = -1
+	for i := 0; i<len(r.ThDeskBuf);	i++  {
+		desk := r.ThDeskBuf[i]
+		if desk != nil && desk.Number == number{
+			index = i
+			break
+		}
+	}
+
+	//判断是否找到对应的desk
+	if index == -1 {
+		log.E("没有找到对应desk.number[%v]的桌子",number)
+		return errors.New("没有找到对应的desk")
+	}
+
+	//删除对应的desk
 	r.ThDeskBuf = append(r.ThDeskBuf[:index], r.ThDeskBuf[index + 1:]...)
 	return nil
 }
@@ -192,7 +210,7 @@ func (r *ThGameRoom) AddUser(userId uint32, a gate.Agent) (*ThDesk, error) {
 				mydesk = r.ThDeskBuf[deskIndex]        //通过roomId找到德州的room
 				mydesk.LogString()
 				log.T("每个desk限制的最大人数是[%v]", r.ThRoomSeatMax)
-				if mydesk.SeatedCount < r.ThRoomSeatMax {
+				if mydesk.UserCount < r.ThRoomSeatMax {
 					log.T("room.index[%v]有空的r座位,", deskIndex)
 					break;
 				}
@@ -341,16 +359,16 @@ func NewThUser() *ThUser {
  */
 type ThDesk struct {
 	sync.Mutex
-	Id                 uint32                       //roomid
-	number 		   int32			//桌子的编号
-	Dealer             uint32                       //庄家
-	PublicPai          []*bbproto.Pai               //公共牌的部分
-	SeatedCount        int32                        //已经坐下的人数
-	users              []*ThUser                    //坐下的人
-	Status             int32                        //牌桌的状态
-	BigBlind           uint32                       //大盲注
-	SmallBlind         uint32                       //小盲注
-	NewRoundBetUser    uint32                       //新一轮,开始押注的第一个人//第一轮默认是小盲注,但是当小盲注弃牌之后,这个人要滑倒下一家去
+	Id              uint32                          //roomid
+	Number          int32                           //桌子的编号
+	Dealer          uint32                          //庄家
+	PublicPai       []*bbproto.Pai                  //公共牌的部分
+	UserCount       int32                           //已经坐下的人数
+	users           []*ThUser                       //坐下的人
+	Status          int32                           //牌桌的状态
+	BigBlind        uint32                          //大盲注
+	SmallBlind      uint32                          //小盲注
+	NewRoundBetUser uint32                          //新一轮,开始押注的第一个人//第一轮默认是小盲注,但是当小盲注弃牌之后,这个人要滑倒下一家去
 	BetUserRaiseUserId uint32                       //加注的人的Id
 	BetUserNow         uint32                       //当前押注人的Id
 	RemainTime         int32                        //剩余投资的时间  多少秒
@@ -371,7 +389,7 @@ func (t *ThDesk) LogString() {
 			log.T("当前desk[%v]的user[%v]的状态status[%v],牌的信息[%v]", t.Id, u.userId, u.status, u.cards)
 		}
 	}
-	log.T("当前desk[%v]的信息的状态,总人数SeatedCount[%v]", t.Id, t.SeatedCount)
+	log.T("当前desk[%v]的信息的状态,总人数SeatedCount[%v]", t.Id, t.UserCount)
 	log.T("当前desk[%v]的信息的状态,小盲注[%v]", t.Id, t.SmallBlind)
 	log.T("当前desk[%v]的信息的状态,大盲注[%v]", t.Id, t.BigBlind)
 	log.T("当前desk[%v]的信息的状态,压注人[%v]", t.Id, t.BetUserNow)
@@ -406,7 +424,7 @@ func (t *ThDesk) AddThUser(userId uint32, a gate.Agent) error {
 	}
 
 	//等待的用户加1
-	t.SeatedCount = t.SeatedCount + 1
+	t.UserCount = t.UserCount + 1
 	log.T("玩家加入桌子的结果[%v]", t.users)
 	return nil
 }
@@ -421,7 +439,8 @@ func (t *ThDesk) RmThuser(userId uint32) error {
 	t.users[index] = nil                        //设置为nil
 
 	//设置在线的人数 减1
-	t.SeatedCount --
+	t.UserCount --
+
 	return nil
 
 }
@@ -653,7 +672,7 @@ func (t *ThDesk) OinitBegin() error {
 		}
 	}
 
-	if t.SeatedCount == int32(2) {
+	if t.UserCount == int32(2) {
 		//如果只有两个人,当前押注的人是小盲注
 		t.BetUserNow = t.SmallBlind
 	} else {
@@ -1232,7 +1251,7 @@ type ThSeat struct {
 func NewThDesk() *ThDesk {
 	result := new(ThDesk)
 	result.Id = 0
-	result.SeatedCount = 0
+	result.UserCount = 0
 	//result.Dealer = new(uint32)		//不需要创建  默认就是为空
 	result.Status = TH_DESK_STATUS_STOP
 	result.BetUserNow = 0
@@ -1244,7 +1263,7 @@ func NewThDesk() *ThDesk {
 	result.RoundCount = 0
 	result.NewRoundBetUser = 0
 	result.bianJackpot = 0
-	result.number = ThGameRoomIns.RandDeskNumber()
+	result.Number = ThGameRoomIns.RandDeskNumber()
 	return result
 
 }
