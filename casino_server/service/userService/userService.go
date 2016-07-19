@@ -311,6 +311,14 @@ func IncreasUserCoin(userId uint32,coin int32) error{
 }
 
 func DecreaseUserCoin(userId uint32,coin int32) error{
+	lock := UserLockPools.GetUserLockByUserId(userId)
+	lock.Lock()
+	defer lock.Unlock()
+
+	//开是减少用户的金币
+	user := GetUserById(userId)
+	*user.Coin += coin
+	SaveUser2Redis(user)
 	return nil
 
 }

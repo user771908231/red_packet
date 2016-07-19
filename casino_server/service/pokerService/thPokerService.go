@@ -9,7 +9,6 @@ import (
 
 //德州扑克的纸牌
 
-
 /**
 	德州扑克判断牌的大小
 	1,手牌加上公共牌中选5张需要对比的牌
@@ -507,4 +506,39 @@ func   Com(n,k int,allCards []*bbproto.Pai) ThCardsList{
 		}
 	}
 	return result
+}
+
+
+type AllInJackpotList []*AllInJackpot
+
+//每一次all in 都会生成
+type AllInJackpot struct {
+	UserId       uint32 //
+	Jackpopt     int32  //奖金池子
+	ThroundCount int32  //押注轮次
+	AllInAmount  int32  //allIn的值
+}
+
+func (list AllInJackpotList) Len() int{
+	return len(list)
+}
+
+//由大到小的排序
+func ( list AllInJackpotList) Less(i,j int) bool{
+	if list[i].ThroundCount < list[j].ThroundCount{	//比较类型
+		return true
+	}else if list[i].AllInAmount < list[j].AllInAmount{
+		return true
+	}else{
+		return false
+	}
+	return true
+}
+
+
+//交换函数
+func ( list AllInJackpotList) Swap(i,j int){
+	var temp *AllInJackpot = list[i]
+	list[i] = list[j]
+	list[j] = temp
 }
