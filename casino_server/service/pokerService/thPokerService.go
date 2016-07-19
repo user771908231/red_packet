@@ -41,43 +41,43 @@ type  ThCardsList 	[]*ThCards	//需要比较的牌
 type  CardsList		[]*bbproto.Pai	//对牌进行排序
 
 type ThCards struct {
-	ThType		*int32
+	ThType		int32
 	KeyValue	[]int32
 	Cards	[]*bbproto.Pai
-	DuiziCount	*int32
-	SanTiaoCount	*int32
-	SiTiaoCount     *int32		//四条
+	DuiziCount	int32
+	SanTiaoCount	int32
+	SiTiaoCount     int32		//四条
 	CardsStatistics  []int32
-	IsShunzi	*bool		//是否是顺子
-	IsTongHua	*bool		//是否是同花
-	IsSiTiao	*bool		//是否是四条
-	IsSanTiao	*bool		//是否是三条
-	IsHulu		*bool		//是否是葫芦
-	IsGaoPai	*bool		//是否是高牌
-	IsDuiZi		*bool		//是否是对子
-	IsLiangDui	*bool		//是否是两队
-	IsWin		*bool
+	IsShunzi	bool		//是否是顺子
+	IsTongHua	bool		//是否是同花
+	IsSiTiao	bool		//是否是四条
+	IsSanTiao	bool		//是否是三条
+	IsHulu		bool		//是否是葫芦
+	IsGaoPai	bool		//是否是高牌
+	IsDuiZi		bool		//是否是对子
+	IsLiangDui	bool		//是否是两队
+	IsWin		bool
 }
 
 //创建一个德州的牌面,并且对属性做0值初始化
 func NewThCards() *ThCards{
 
 	result := &ThCards{}
-	result.ThType = new(int32)
+	result.ThType = 0
 	result.KeyValue = make([]int32,5)
-	result.DuiziCount = new(int32)
-	result.SanTiaoCount = new(int32)
-	result.SiTiaoCount = new(int32)
+	result.DuiziCount = 0
+	result.SanTiaoCount = 0
+	result.SiTiaoCount = 0
 	result.CardsStatistics = make([]int32,14)
-	result.IsShunzi = new(bool)
-	result.IsTongHua = new(bool)
-	result.IsSiTiao = new(bool)
-	result.IsSanTiao = new(bool)
-	result.IsHulu = new(bool)
-	result.IsGaoPai = new(bool)
-	result.IsDuiZi = new(bool)
-	result.IsLiangDui = new(bool)
-	result.IsWin = new(bool)
+	result.IsShunzi = false
+	result.IsTongHua = false
+	result.IsSiTiao = false
+	result.IsSanTiao = false
+	result.IsHulu = false
+	result.IsGaoPai = false
+	result.IsDuiZi = false
+	result.IsLiangDui = false
+	result.IsWin = false
 	return result
 }
 
@@ -102,7 +102,7 @@ func ( t *ThCards) OnInitTongHuaStatus(){
 			break
 		}
 	}
-	t.IsTongHua = & result
+	t.IsTongHua = result
 
 
 }
@@ -117,14 +117,14 @@ func ( t *ThCards) OnInitShunZiStatus(){
 			break
 		}
 	}
-	t.IsShunzi = &result
+	t.IsShunzi = result
 }
 
 
 //检测是否是四条
 func ( t *ThCards) OnInitSiTiaoStatus() {
-	if *t.SiTiaoCount == 1 {
-		(*t.IsSiTiao) = true
+	if t.SiTiaoCount == 1 {
+		(t.IsSiTiao) = true
 		//四条的规则,先比较四条再比较单张,
 		s := t.CardsStatistics
 		for i := 0; i < len(s); i++ {
@@ -139,8 +139,8 @@ func ( t *ThCards) OnInitSiTiaoStatus() {
 
 //检测是否是三条
 func ( t *ThCards) OnInitSantiaoStatus() {
-	if *t.SanTiaoCount == 1 && *t.DuiziCount == 0 {
-		*(t.IsSanTiao) = true
+	if t.SanTiaoCount == 1 && t.DuiziCount == 0 {
+		t.IsSanTiao = true
 
 		//四条的规则,先比较四条再比较单张,
 		s := t.CardsStatistics
@@ -168,8 +168,8 @@ func ( t *ThCards) OnInitSantiaoStatus() {
 
 //检测是否是两队
 func ( t *ThCards) OnInitLiangDuiStatus(){
-	if *t.DuiziCount == 2 {
-		*t.IsLiangDui = true
+	if t.DuiziCount == 2 {
+		t.IsLiangDui = true
 
 		s := t.CardsStatistics
 		//初始化比较值
@@ -198,9 +198,9 @@ func ( t *ThCards) OnInitLiangDuiStatus(){
 
 //初始化一对
 func ( t *ThCards) OnInitYiDuiStatus() {
-	if *t.DuiziCount == 1 && *t.SanTiaoCount == 0 {
+	if t.DuiziCount == 1 && t.SanTiaoCount == 0 {
 		//只有一个对子,且三条的个数为0
-		*t.IsSanTiao = true
+		t.IsSanTiao = true
 		//初始化比较值
 		s := t.CardsStatistics
 		for i := 0; i < len(s); i++ {
@@ -226,8 +226,8 @@ func ( t *ThCards) OnInitYiDuiStatus() {
 
 //初始化葫芦
 func (t *ThCards) OnInitHuLuStatus(){
-	if *t.SanTiaoCount == 1 && *t.DuiziCount == 1 {
-		*t.ThType = THPOKER_TYPE_HULU
+	if t.SanTiaoCount == 1 && t.DuiziCount == 1 {
+		t.ThType = THPOKER_TYPE_HULU
 		//初始化比较值
 		s := t.CardsStatistics
 		for i := 0; i < len(s); i++ {
@@ -257,13 +257,13 @@ func (c *ThCards) OnInitStatisticsCard() error{
 
 		if c.CardsStatistics[i] == 2  {
 			//fmt.Println("检测到的对子是:",c.CardsStatistics[i])
-			*c.DuiziCount ++
+			c.DuiziCount ++
 		}else if c.CardsStatistics[i] == 3 {
 			//fmt.Println("检测到的三条是:",c.CardsStatistics[i])
-			*c.SanTiaoCount ++
+			c.SanTiaoCount ++
 		}else if c.CardsStatistics[i] == 4 {
 			//fmt.Println("检测到的四条是:",c.CardsStatistics[i])
-			*c.SiTiaoCount ++
+			c.SiTiaoCount ++
 		}
 	}
 
@@ -312,34 +312,34 @@ func (c *ThCards) OnInit() error{
 
 
 	//解析牌的keyValue值,属性
-	if *c.IsTongHua {
-		if *c.IsShunzi {
+	if c.IsTongHua {
+		if c.IsShunzi {
 			if *cdList[0].Value == 14 {
 				//如果值是A(14),表示这个牌是皇家同花顺
-				c.ThType = &THPOKER_TYPE_HUANGJIATONGHUASHUN
+				c.ThType = THPOKER_TYPE_HUANGJIATONGHUASHUN
 			}else{
 				//同花顺
-				c.ThType = &THPOKER_TYPE_TONGHUASHUN
+				c.ThType = THPOKER_TYPE_TONGHUASHUN
 			}
 		}else{
 			//同花
-			c.ThType = &THPOKER_TYPE_TONGHUA
+			c.ThType = THPOKER_TYPE_TONGHUA
 		}
 	}else{
-		if *c.IsShunzi {
-			c.ThType = &THPOKER_TYPE_SHUNZI
-		}else if *c.IsLiangDui {
-			c.ThType = &THPOKER_TYPE_LIANGDUI
-		}else if *c.IsHulu{
-			c.ThType = &THPOKER_TYPE_HULU
-		}else if *c.IsDuiZi{
-			c.ThType = &THPOKER_TYPE_YIDUI
-		}else if *c.IsSanTiao{
-			c.ThType = &THPOKER_TYPE_SANTIAO
-		}else if *c.IsSiTiao{
-			c.ThType = &THPOKER_TYPE_SITIAO
+		if c.IsShunzi {
+			c.ThType = THPOKER_TYPE_SHUNZI
+		}else if c.IsLiangDui {
+			c.ThType = THPOKER_TYPE_LIANGDUI
+		}else if c.IsHulu{
+			c.ThType = THPOKER_TYPE_HULU
+		}else if c.IsDuiZi{
+			c.ThType = THPOKER_TYPE_YIDUI
+		}else if c.IsSanTiao{
+			c.ThType = THPOKER_TYPE_SANTIAO
+		}else if c.IsSiTiao{
+			c.ThType = THPOKER_TYPE_SITIAO
 		}else {
-			c.ThType = &THPOKER_TYPE_GAOPAI
+			c.ThType = THPOKER_TYPE_GAOPAI
 		}
 	}
 
@@ -394,9 +394,9 @@ func (list ThCardsList) Len() int{
 
 //判断是否大于
 func (list ThCardsList) Less(i,j int) bool{
-	if *(list[i].ThType) > *(list[j].ThType) {
+	if list[i].ThType > list[j].ThType {
 		return true
-	}else if *(list[i].ThType) == *(list[j].ThType){
+	}else if list[i].ThType == list[j].ThType{
 		flag := true
 		for m := 0; m < len(list[i].KeyValue) ; m++ {
 			if list[i].KeyValue[m] < list[j].KeyValue[m] {
@@ -418,9 +418,9 @@ func (list ThCardsList) Swap(i,j int){
 
 //比较两幅德州扑克牌的大小t1是否大于t2
 func ThCompare(t1,t2 *ThCards) int{
-	if *(t1.ThType) > *(t2.ThType) {
+	if t1.ThType > t2.ThType {
 		return THPOKER_COMPARE_BIG	//返回大于
-	}else if *(t1.ThType) == *(t2.ThType){
+	}else if t1.ThType == t2.ThType{
 		flag := THPOKER_COMPARE_EQUALS
 		for m := 0; m < len(t1.KeyValue) ; m++ {
 			if t1.KeyValue[m] < t2.KeyValue[m] {

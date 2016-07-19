@@ -7,7 +7,6 @@ import (
 )
 
 func TestThPoker(t *testing.T){
-
 	fmt.Println("")
 	var total = 21
 	totalCards := pokerService.RandomTHPorkCards(total)        //得到牌
@@ -21,5 +20,5 @@ func TestThPoker(t *testing.T){
 	fmt.Println("手牌%v",hand)
 
 	thpoker :=  pokerService.GetTHPoker(hand,public,5)
-	fmt.Println("德州牌%v,牌的类型%v",thpoker.Cards,*thpoker.ThType)
+	fmt.Println("德州牌%v,牌的类型%v",thpoker.Cards,thpoker.ThType)
 }
