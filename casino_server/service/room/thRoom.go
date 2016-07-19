@@ -28,11 +28,14 @@ var TH_LOTTERY_DURATION = time.Second * 5              //德州开奖的时间
 var TH_DESK_LEAST_START_USER int32 = 5        //最少多少人可以开始游戏
 
 //德州扑克 玩家的状态
-var TH_USER_STATUS_WAITSEAT int32 = 1        //刚上桌子 等待开始的玩家
+var TH_USER_STATUS_WAITSEAT int32 = 1      //刚上桌子 等待开始的玩家
 var TH_USER_STATUS_SEATED int32 = 2        //刚上桌子 游戏中的玩家
 var TH_USER_STATUS_BETING int32 = 3        //押注中
-var TH_USER_STATUS_ALLINING int32 = 4        //allIn
+var TH_USER_STATUS_ALLINING int32 = 4      //allIn
 var TH_USER_STATUS_FOLDED int32 = 5        //弃牌
+var TH_USER_STATUS_WAIT_CLOSED int32 = 5   //等待结算
+var TH_USER_STATUS_CLOSED int32 = 6           //已经结算
+
 
 
 //德州扑克,牌桌的状态
@@ -189,6 +192,7 @@ type ThUser struct {
 	deskId   *uint32               //用户所在的桌子的编号
 	roundBet *int32                //单轮押注的金额
 	totalBet *int32			//押注总额
+	winAmount *int32		//总共赢了多少钱
 }
 
 //
@@ -274,6 +278,7 @@ func NewThUser() *ThUser {
 	result.status = new(int32)
 	result.roundBet = new(int32)
 	result.totalBet = new(int32)
+	result.winAmount = new(int32)
 	return result
 }
 
@@ -654,17 +659,118 @@ func (t *ThDesk) Tiem2Lottery() bool {
 
 	return false
 }
+
+
+
+//计算牌面是否赢
+func (t *ThDesk) CalcThcardsWin() error{
+	userWin := t.users[0]		//最大的牌的userId
+	for i := 1; i < len(t.users); i++  {
+		if t.Less(userWin,t.users[i]) {
+			userWin = t.users[i]
+		}
+	}
+
+	if userWin == nil {
+		log.E("服务器出错,没有找到赢牌的人...")
+		return errors.New("没有找到赢牌的人")
+	}
+
+	//赢牌的人依次置为1
+	for i := 0; i < len(t.users); i++ {
+		u:= t.users[i]
+		if u!=nil &&
+		*u.status == TH_USER_STATUS_WAIT_CLOSED  &&
+		pokerService.ThCompare(userWin.thCards,u.thCards) == pokerService.THPOKER_COMPARE_EQUALS{
+			*u.thCards.IsWin = true
+		}
+	}
+
+	return nil
+}
+
+//
+func (t *ThDesk) Less(u1,u2 *ThUser) bool{
+
+	if u1 == nil || *u1.status != TH_USER_STATUS_WAIT_CLOSED {
+		return true
+	}
+
+	if u2 == nil || *u2.status != TH_USER_STATUS_WAIT_CLOSED{
+		return false
+	}
+
+	//必将两个人的牌,u1的牌是否大于u2的牌
+	ret := pokerService.ThCompare(u1.thCards,u2.thCards)
+	if ret == pokerService.THPOKER_COMPARE_BIG{
+		return false
+	}else{
+		return true
+	}
+}
+
+
 //开奖
 /**
 	开奖的规则
 	1,判断是谁赢了
  */
+
 func (t *ThDesk) Lottery() error {
 	log.T("开奖的规则还没有完成,等待完成....")
+
+	//需要计算本局allin的奖金池
+	t.CalcAllInJackpot(*t.RoundCount)
+
 	//设置desk的状态
 	t.Status = &TH_DESK_STATUS_LOTTERY
 
-	//做每个用户做结算
+	/**
+		todo 做结算是按照奖池来做,还是按照人员来做...
+	 */
+	//测试按照每个奖池来做计算
+	for i := 0; i< len(t.AllInJackpot); i++  {
+		a := t.AllInJackpot[i]
+		if  a != nil{
+			//对这个奖池做计算
+			/**
+				1,几个人的牌是赢牌
+				2,user的状态必须是没有结算的状态
+			 */
+			var winCount int = t.GetWinCount()
+			bonus := a.Jackpopt / int32(winCount)	//每个人赢的奖金
+			//这里吧奖金发放给每个人之后,需要把这局allin的人排除掉,再来计算剩下的人的将近
+			//牌的方式只需要把这个人的状态设置为已经结清就行了
+			for j:=0;j<len(t.users) ;j++ {
+				//todo 这里的将近可以选择使用一个数组存醋,方面clien制作动画
+				//todo 目前只是计算总的金额
+				u :=t.users[i]
+				if  u != nil && *u.status == TH_USER_STATUS_WAIT_CLOSED && *u.thCards.IsWin{
+					//可以发送奖金
+					log.T("用户在allin.index[%v]活的奖金[%v]",i,bonus)
+					*u.winAmount +=bonus
+				}
+
+				//如果用户是这个奖金池all in的用户,则此用户设置喂已经结清的状态
+				if *u.userId == a.UserId {
+					u.status = &TH_USER_STATUS_CLOSED
+				}
+			}
+		}
+	}
+
+	//计算边池的奖金	t.bianJackpot,同样需要看是几个人赢,然后评分将近
+
+	bwinCount := t.GetWinCount()
+	bbonus := *t.bianJackpot / int32(bwinCount)
+	for i := 0; i < len(t.users); i++ {
+		u := t.users[i]
+		if u != nil && *u.status == TH_USER_STATUS_WAIT_CLOSED {
+			//对这个用户做结算...
+			*u.winAmount +=bbonus
+
+		}
+	}
 
 	//返回结果
 	result := &bbproto.THLottery{}
@@ -678,6 +784,21 @@ func (t *ThDesk) Lottery() error {
 	return nil
 }
 
+//得到这句胜利的人有几个
+func (t *ThDesk) GetWinCount() int{
+	t.CalcThcardsWin()	//先计算牌的局面
+
+	var result int = 0
+	for i := 0; i < len(t.users); i++ {
+		u := t.users[i]
+		if u != nil && *u.status ==  TH_USER_STATUS_WAIT_CLOSED && *u.thCards.IsWin{
+			//如果用户不为空,并且状态是等待结算,牌的信息现实的是win 那么,表示一个赢的人
+			result ++
+		}
+	}
+	log.T("本局总共有[%v]人是赢牌,",result)
+	return result
+}
 
 /**
 	押注,押注其实也是桌子在负责
@@ -1012,9 +1133,9 @@ func (t *ThDesk) CalcAllInJackpot(r int32) error {
 				}
 				*t.bianJackpot -= all.Jackpopt
 				log.T("开始给allIn[%v]计算all in 时的池子金额---------------------------------end---------------",i)
+				log.T("目前t.bianJackPot 的剩余值是[%v]",*t.bianJackpot)
 			}
 		}
-
 	}
 
 	return nil

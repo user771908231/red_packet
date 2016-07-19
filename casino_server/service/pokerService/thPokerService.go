@@ -15,6 +15,10 @@ import (
 	2,选出来的牌再和其他人的牌来比大小
  */
 
+//比较两幅德州牌的大小Big
+var THPOKER_COMPARE_BIG = 1
+var THPOKER_COMPARE_SMALL = 2
+var THPOKER_COMPARE_EQUALS = 3
 
 
 //const
@@ -52,6 +56,7 @@ type ThCards struct {
 	IsGaoPai	*bool		//是否是高牌
 	IsDuiZi		*bool		//是否是对子
 	IsLiangDui	*bool		//是否是两队
+	IsWin		*bool
 }
 
 //创建一个德州的牌面,并且对属性做0值初始化
@@ -72,6 +77,7 @@ func NewThCards() *ThCards{
 	result.IsGaoPai = new(bool)
 	result.IsDuiZi = new(bool)
 	result.IsLiangDui = new(bool)
+	result.IsWin = new(bool)
 	return result
 }
 
@@ -409,6 +415,30 @@ func (list ThCardsList) Swap(i,j int){
 	list[i] = list[j]
 	list[j] = temp
 }
+
+//比较两幅德州扑克牌的大小t1是否大于t2
+func ThCompare(t1,t2 *ThCards) int{
+	if *(t1.ThType) > *(t2.ThType) {
+		return THPOKER_COMPARE_BIG	//返回大于
+	}else if *(t1.ThType) == *(t2.ThType){
+		flag := THPOKER_COMPARE_EQUALS
+		for m := 0; m < len(t1.KeyValue) ; m++ {
+			if t1.KeyValue[m] < t2.KeyValue[m] {
+				flag = THPOKER_COMPARE_SMALL
+				break
+			}else if t1.KeyValue[m] > t2.KeyValue[m]{
+				flag = THPOKER_COMPARE_BIG
+				break
+			}
+		}
+		return flag
+	}else {
+		return THPOKER_COMPARE_SMALL
+	}
+}
+
+//判断两幅德州的牌的带大小
+
 
 
 
