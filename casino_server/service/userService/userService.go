@@ -209,6 +209,13 @@ func SaveUser2RedisAndMongo(u *bbproto.User){
 }
 
 
+//把redis中的数据刷新到数据库
+func FlashUser2Mongo(userId uint32) error{
+	u := GetUserById(userId)
+	UpsertUser2Mongo(u)
+	return nil
+}
+
 
 func UpsertUser2Mongo(u *bbproto.User){
 	//得到数据库连接池

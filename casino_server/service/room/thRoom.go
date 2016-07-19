@@ -13,6 +13,11 @@ import (
 	"time"
 	"github.com/nu7hatch/gouuid"
 	"sort"
+	"casino_server/conf/casinoConf"
+	"github.com/name5566/leaf/db/mongodb"
+	"fmt"
+	"casino_server/mode"
+	"gopkg.in/mgo.v2/bson"
 )
 
 
@@ -915,6 +920,19 @@ func (t *ThDesk) Lottery() error {
 
 //保存数据到数据库
 func (t *ThDesk)  SaveLotteryData() error{
+
+	//得到连接
+	c, err := mongodb.Dial(casinoConf.DB_IP, casinoConf.DB_PORT)
+	if err != nil {
+		fmt.Println(err)
+		return err
+	}
+	defer c.Close()
+
+	// 获取回话 session
+	s := c.Ref()
+	defer c.UnRef(s)
+
 	//循环对每个人做处理
 	for i:=0;i<len(t.users) ;i++ {
 		u := t.users[i]
@@ -922,10 +940,18 @@ func (t *ThDesk)  SaveLotteryData() error{
 			//开始处理用户数据
 			if u.status == TH_USER_STATUS_CLOSED {
 				//1,修改user在redis中的数据
-				userService.IncreasUserCoin(u.userId,u.winAmount)
+				userService.IncreasUserCoin(u.userId,u.winAmount)	//更新redis中的数据
+				userService.FlashUser2Mongo(u.userId)			//刷新redis中的数据到mongo
 				//2,保存游戏相关的数据
 				//todo  游戏相关的数据结构 还没有建立
-
+				thData := &mode.T_th{}
+				thData.Mid = bson.NewObjectId()
+				thData.BetAmount = u.totalBet
+				thData.UserId = u.userId
+				thData.DeskId = u.deskId
+				thData.WinAmount = u.winAmount
+				thData.Blance = *(userService.GetUserById(u.userId).Coin)
+				s.DB(casinoConf.DB_NAME).C(casinoConf.DBT_T_TH).Insert(thData)
 			}
 		}
 	}
@@ -1049,6 +1075,7 @@ func (t *ThDesk) BetUserFold(userId uint32) error {
 
 	//设置用户的状态为弃牌
 	t.users[index].status = TH_USER_STATUS_FOLDED
+
 
 	return nil
 }
@@ -1301,6 +1328,4 @@ func (t *ThDesk) ClearUserRoundBet() error {
 	}
 	return nil
 }
-
-
 
