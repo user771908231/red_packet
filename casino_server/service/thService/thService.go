@@ -104,7 +104,7 @@ func getOutRoom(m *bbproto.ThRoom, a gate.Agent) error {
 		//表示这个房间已经没有人了
 		room.ThGameRoomIns.RmThroom(desk.Number)
 	}
-	
+
 	return nil
 }
 

@@ -307,9 +307,11 @@ func CheckUserIdRightful(userId uint32) bool{
 
 //增加用户的coin
 func IncreasUserCoin(userId uint32,coin int32) error{
+	DecreaseUserCoin(userId,(0-coin))
 	return nil
 }
 
+//减少用户的余额
 func DecreaseUserCoin(userId uint32,coin int32) error{
 	lock := UserLockPools.GetUserLockByUserId(userId)
 	lock.Lock()
@@ -317,7 +319,7 @@ func DecreaseUserCoin(userId uint32,coin int32) error{
 
 	//开是减少用户的金币
 	user := GetUserById(userId)
-	*user.Coin += coin
+	*user.Coin -= coin
 	SaveUser2Redis(user)
 	return nil
 

@@ -380,6 +380,30 @@ type ThDesk struct {
 	AllInJackpot       []*pokerService.AllInJackpot //allin的标记
 }
 
+
+/**
+	新生成一个德州的桌子
+ */
+func NewThDesk() *ThDesk {
+	result := new(ThDesk)
+	result.Id = 0
+	result.UserCount = 0
+	result.Dealer = 0		//不需要创建  默认就是为空
+	result.Status = TH_DESK_STATUS_STOP
+	result.BetUserNow = 0
+	result.BigBlind = 0
+	result.SmallBlind = 0
+	result.users = make([]*ThUser, THROOM_SEAT_COUNT)
+	result.RemainTime = 0
+	result.BetUserRaiseUserId = 0
+	result.RoundCount = 0
+	result.NewRoundBetUser = 0
+	result.bianJackpot = 0
+	result.Number = ThGameRoomIns.RandDeskNumber()
+	return result
+
+}
+
 func (t *ThDesk) LogString() {
 	log.T("当前desk[%v]的信息:-----------------------------------begin----------------------------------", t.Id)
 	log.T("当前desk[%v]的信息的状态status[%v]", t.Id, t.Status)
@@ -788,6 +812,30 @@ func (t *ThDesk) Less(u1, u2 *ThUser) bool {
 	}
 }
 
+//设置用户的状态喂等待开奖
+func (t *ThDesk) SetStatusWaitClose() error{
+
+	//设置用户的状态为等待开奖
+	for i := 0; i < len(t.users); i++ {
+		u := t.users[i]
+		if u != nil {
+			if u.status == TH_USER_STATUS_ALLINING || u.status == TH_USER_STATUS_BETING {
+				//如果用户当前的状态是押注中,或者all in,那么设置用户的状态喂等待结算
+				u.status = TH_USER_STATUS_WAIT_CLOSED
+			}else if u.status == TH_USER_STATUS_FOLDED {
+				//如果用户当前的状态是弃牌,那么设置用户的状态喂已经结清
+				u.status = TH_USER_STATUS_CLOSED
+			}
+		}
+	}
+
+	//设置桌子的状态为开奖中
+	t.Status = TH_DESK_STATUS_LOTTERY
+
+	return nil
+
+}
+
 
 //开奖
 /**
@@ -798,15 +846,14 @@ func (t *ThDesk) Less(u1, u2 *ThUser) bool {
 func (t *ThDesk) Lottery() error {
 	log.T("开奖的规则还没有完成,等待完成....")
 
+	//设置用户的状态都为的等待开奖
+	t.SetStatusWaitClose()
+
 	//需要计算本局allin的奖金池
 	t.CalcAllInJackpot(t.RoundCount)
 
-	//设置desk的状态
-	t.Status = TH_DESK_STATUS_LOTTERY
 
-	/**
-		todo 做结算是按照奖池来做,还是按照人员来做...
-	 */
+	//todo 做结算是按照奖池来做,还是按照人员来做...
 	//测试按照每个奖池来做计算
 	for i := 0; i < len(t.AllInJackpot); i++ {
 		a := t.AllInJackpot[i]
@@ -839,7 +886,6 @@ func (t *ThDesk) Lottery() error {
 	}
 
 	//计算边池的奖金	t.bianJackpot,同样需要看是几个人赢,然后评分将近
-
 	bwinCount := t.GetWinCount()
 	bbonus := t.bianJackpot / int32(bwinCount)
 	for i := 0; i < len(t.users); i++ {
@@ -851,6 +897,9 @@ func (t *ThDesk) Lottery() error {
 		}
 	}
 
+	//保存数据到数据库
+	t.SaveLotteryData()
+
 	//返回结果
 	result := &bbproto.THLottery{}
 	result.Header = protoUtils.GetSuccHeader()
@@ -860,6 +909,27 @@ func (t *ThDesk) Lottery() error {
 	//开奖完成之后,需要重新开始下一局,调用t.Run表示重新下一句
 	time.Sleep(TH_LOTTERY_DURATION)
 	t.Run()
+	return nil
+}
+
+
+//保存数据到数据库
+func (t *ThDesk)  SaveLotteryData() error{
+	//循环对每个人做处理
+	for i:=0;i<len(t.users) ;i++ {
+		u := t.users[i]
+		if u != nil {
+			//开始处理用户数据
+			if u.status == TH_USER_STATUS_CLOSED {
+				//1,修改user在redis中的数据
+				userService.IncreasUserCoin(u.userId,u.winAmount)
+				//2,保存游戏相关的数据
+				//todo  游戏相关的数据结构 还没有建立
+
+			}
+		}
+	}
+
 	return nil
 }
 
@@ -1221,7 +1291,6 @@ func (t *ThDesk) CalcAllInJackpot(r int32) error {
 
 }
 
-
 //清楚用户本轮押注的信息
 func (t *ThDesk) ClearUserRoundBet() error {
 	for i := 0; i < len(t.users); i++ {
@@ -1234,36 +1303,4 @@ func (t *ThDesk) ClearUserRoundBet() error {
 }
 
 
-/**
-	一个德州扑克的座位,座位包含一下信息:
-	人
-	牌
- */
-type ThSeat struct {
-	User     *bbproto.User    //座位上的人
-	HandPais []*bbproto.Pai   //手牌
-	THPork   *bbproto.THPoker //德州的牌
-}
 
-/**
-	新生成一个德州的桌子
- */
-func NewThDesk() *ThDesk {
-	result := new(ThDesk)
-	result.Id = 0
-	result.UserCount = 0
-	//result.Dealer = new(uint32)		//不需要创建  默认就是为空
-	result.Status = TH_DESK_STATUS_STOP
-	result.BetUserNow = 0
-	result.BigBlind = 0
-	result.SmallBlind = 0
-	result.users = make([]*ThUser, THROOM_SEAT_COUNT)
-	result.RemainTime = 0
-	result.BetUserRaiseUserId = 0
-	result.RoundCount = 0
-	result.NewRoundBetUser = 0
-	result.bianJackpot = 0
-	result.Number = ThGameRoomIns.RandDeskNumber()
-	return result
-
-}
