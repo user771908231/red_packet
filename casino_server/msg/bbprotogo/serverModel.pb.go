@@ -53,7 +53,7 @@ type TBetRecord struct {
 func (m *TBetRecord) Reset()                    { *m = TBetRecord{} }
 func (m *TBetRecord) String() string            { return proto.CompactTextString(m) }
 func (*TBetRecord) ProtoMessage()               {}
-func (*TBetRecord) Descriptor() ([]byte, []int) { return fileDescriptor7, []int{0} }
+func (*TBetRecord) Descriptor() ([]byte, []int) { return fileDescriptor10, []int{0} }
 
 func (m *TBetRecord) GetUserId() uint32 {
 	if m != nil && m.UserId != nil {
@@ -101,7 +101,7 @@ type TZjhRound struct {
 func (m *TZjhRound) Reset()                    { *m = TZjhRound{} }
 func (m *TZjhRound) String() string            { return proto.CompactTextString(m) }
 func (*TZjhRound) ProtoMessage()               {}
-func (*TZjhRound) Descriptor() ([]byte, []int) { return fileDescriptor7, []int{1} }
+func (*TZjhRound) Descriptor() ([]byte, []int) { return fileDescriptor10, []int{1} }
 
 func (m *TZjhRound) GetId() uint32 {
 	if m != nil && m.Id != nil {
@@ -178,7 +178,7 @@ func init() {
 	proto.RegisterType((*TZjhRound)(nil), "bbproto.TZjhRound")
 }
 
-var fileDescriptor7 = []byte{
+var fileDescriptor10 = []byte{
 	// 279 bytes of a gzipped FileDescriptorProto
 	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x09, 0x6e, 0x88, 0x02, 0xff, 0x3c, 0x90, 0xcf, 0x4e, 0x83, 0x40,
 	0x10, 0x87, 0xa5, 0x94, 0x22, 0x53, 0x5b, 0xd2, 0xf5, 0x4f, 0x48, 0x4f, 0x4d, 0xbd, 0x70, 0xe2,

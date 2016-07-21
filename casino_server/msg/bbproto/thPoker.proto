@@ -37,12 +37,13 @@ message ThRoom {
     repeated THUser         users                    = 4;    //已经坐下的玩家的信息
     optional int32          betTime                  = 5;    //押注结束时间
     optional int32          deskStatus               = 6;    //桌子状态
-    repeated Pai            publicPais               = 7;    //公共牌
-    optional uint32         betUserId                = 8;   //押注的玩家Id
-    optional uint32         bigBlind                 = 9;   //大盲注
-    optional uint32         smallBlind               = 10;   //大盲注
-    optional uint32         butten                   = 11;   //庄家
-    optional int32          betRemainTime            = 12;   //剩余下注的时间
+    optional int32          deskNumber               = 7;    //桌子编号
+    repeated Pai            publicPais               = 8;    //公共牌
+    optional uint32         betUserId                = 9;    //押注的玩家Id
+    optional uint32         bigBlind                 = 10;   //大盲注
+    optional uint32         smallBlind               = 11;   //大盲注
+    optional uint32         butten                   = 12;   //庄家
+    optional int32          betRemainTime            = 13;   //剩余下注的时间
 }
 
 //刚进来的人

@@ -23,6 +23,9 @@ func handleMsg(m interface{}, h interface{}) {
 func init() {
 	handleMsg(&bbproto.Reg{},handleProtHello)
 	handleMsg(&bbproto.ReqAuthUser{},handleReqAuthUser)
+	handleMsg(&bbproto.REQQuickConn{},HandlerREQQuickConn)
+	handleMsg(&bbproto.NullMsg{},handlerNullMsg)
+
 
 }
 
@@ -95,5 +98,55 @@ func handleReqAuthUser(args []interface{}){
 
 	//把数据返回给客户端
 	a.WriteMsg(resReqUser)
+}
+
+
+func HandlerREQQuickConn(args []interface{}){
+	log.Debug("进入login.handler.HandlerREQQuickConn()")
+	m := args[0].(*bbproto.REQQuickConn)
+	log.T("m:【%v】",m)
+	a := args[1].(gate.Agent)
+
+	var ip string = "192.168.199.120"
+	var port string = "3563"
+	ogRoomInfo := &bbproto.OGRoomInfo{}
+	ogRoomInfo.RoomIp = &ip
+	ogRoomInfo.RoomPort =&port
+
+	thranSjjInfo := &bbproto.ThranJSSInfo{}
+	thranSjjInfo.RoomIP = &ip
+	thranSjjInfo.RoomPort = &port
+
+
+	oglist := make([]*bbproto.OGRoomInfo,1)
+	oglist[0] = ogRoomInfo
+
+	tslist := make([]*bbproto.ThranJSSInfo,1)
+	tslist[0] = thranSjjInfo
+
+	result := &bbproto.ACKQuickConn{}
+	result.JssList = tslist
+	result.MatchSvrList = oglist
+
+
+	var coin int64 = 999888
+	result.CoinCnt = &coin
+	log.T("回复的消息:[%v]",result)
+	a.WriteMsg(result)
+
+}
+
+
+func handlerNullMsg(args []interface{}){
+	log.T("收到一条空消息")
+	//a := args[1].(gate.Agent)
+	//retData := &bbproto.MatchList_SendMatchlistSvrInfo{}
+	//sinfo := bbproto.MatchList_SvrInfo{}
+	//var ip string = "192.168.199.120"
+	//var port string = "3563"
+	//sinfo.IP =
+	//retData.SvrInfo.
+	//
+	//a.WriteMsg(retData)
 
 }

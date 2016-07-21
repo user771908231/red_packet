@@ -12,7 +12,7 @@ import (
 
 
 func TestM(t *testing.T){
-	//_TestSave(t)
+	_TestSave(t)
 	//saveWithSub(t)
 	//update(t)
 	//_select(t)

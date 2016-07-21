@@ -41,4 +41,13 @@ func init() {
 	msg.PortoProcessor.SetRouter(&bbproto.ThRoom{},game.ChanRPC)		//处理德州扑克房间
 	msg.PortoProcessor.SetRouter(&bbproto.THBet{},game.ChanRPC)		//处理德州扑克押注
 
+
+
+	///联众游戏
+	msg.PortoProcessor.SetRouter(&bbproto.REQQuickConn{},login.ChanRPC)
+	msg.PortoProcessor.SetRouter(&bbproto.NullMsg{},login.ChanRPC)
+	msg.PortoProcessor.SetRouter(&bbproto.MatchList_ReqMobileMatchList{},game.ChanRPC)	//快速开始
+	msg.PortoProcessor.SetRouter(&bbproto.Game_LoginGame{},game.ChanRPC)	//登陆游戏
+
+
 }

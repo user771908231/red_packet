@@ -2,63 +2,6 @@
 // source: ReqAuthUser.proto
 // DO NOT EDIT!
 
-/*
-Package bbproto is a generated protocol buffer package.
-
-It is generated from these files:
-	ReqAuthUser.proto
-	base.proto
-	bonus.proto
-	getRewards.proto
-	heartbeat.proto
-	reg.proto
-	roomMsg.proto
-	serverModel.proto
-	shuiguoji.proto
-	testp1.proto
-	thPoker.proto
-	user.proto
-	zhajinhua.proto
-
-It has these top-level messages:
-	ReqAuthUser
-	ProtoHeader
-	TerminalInfo
-	LoginTurntableBonus
-	LoginSignInBonus
-	OlineBonus
-	TimingBonus
-	GetRewards
-	HeatBeat
-	Reg
-	RoomMsg
-	TBetRecord
-	TZjhRound
-	Shuiguoji
-	ShuiguojiHilomp
-	ShuiguojiRes
-	GetIntoRoom
-	TestP1
-	ThRoom
-	THRoomAddUserBroadcast
-	THPoker
-	THBet
-	THBetBegin
-	THBetBroadcast
-	THUser
-	THLottery
-	User
-	ZjhRoom
-	ZjhBet
-	ZjhLottery
-	BroadcastBet
-	ZjhPai
-	Pai
-	ZjhQueryNoSeatUser
-	ZjhReqSeat
-	ZjhMsg
-	ZjhBroadcastBeginBet
-*/
 package bbproto
 
 import proto "github.com/golang/protobuf/proto"
@@ -69,12 +12,6 @@ import math "math"
 var _ = proto.Marshal
 var _ = fmt.Errorf
 var _ = math.Inf
-
-// This is a compile-time assertion to ensure that this generated file
-// is compatible with the proto package it is being compiled against.
-// A compilation error at this line likely means your copy of the
-// proto package needs to be updated.
-const _ = proto.ProtoPackageIsVersion2 // please upgrade the proto package
 
 // Ignoring public import of ProtoHeader from base.proto
 
@@ -94,7 +31,7 @@ type ReqAuthUser struct {
 func (m *ReqAuthUser) Reset()                    { *m = ReqAuthUser{} }
 func (m *ReqAuthUser) String() string            { return proto.CompactTextString(m) }
 func (*ReqAuthUser) ProtoMessage()               {}
-func (*ReqAuthUser) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{0} }
+func (*ReqAuthUser) Descriptor() ([]byte, []int) { return fileDescriptor2, []int{0} }
 
 func (m *ReqAuthUser) GetHeader() *ProtoHeader {
 	if m != nil {
@@ -135,7 +72,7 @@ func init() {
 	proto.RegisterType((*ReqAuthUser)(nil), "bbproto.ReqAuthUser")
 }
 
-var fileDescriptor0 = []byte{
+var fileDescriptor2 = []byte{
 	// 168 bytes of a gzipped FileDescriptorProto
 	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x09, 0x6e, 0x88, 0x02, 0xff, 0xe2, 0x12, 0x0c, 0x4a, 0x2d, 0x74,
 	0x2c, 0x2d, 0xc9, 0x08, 0x2d, 0x4e, 0x2d, 0xd2, 0x2b, 0x28, 0xca, 0x2f, 0xc9, 0x17, 0x62, 0x4f,
