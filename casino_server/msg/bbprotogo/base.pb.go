@@ -121,7 +121,7 @@ func (x *EProtoId) UnmarshalJSON(data []byte) error {
 	*x = EProtoId(value)
 	return nil
 }
-func (EProtoId) EnumDescriptor() ([]byte, []int) { return fileDescriptor1, []int{0} }
+func (EProtoId) EnumDescriptor() ([]byte, []int) { return fileDescriptor3, []int{0} }
 
 // general response protocol
 type ProtoHeader struct {
@@ -138,7 +138,7 @@ type ProtoHeader struct {
 func (m *ProtoHeader) Reset()                    { *m = ProtoHeader{} }
 func (m *ProtoHeader) String() string            { return proto.CompactTextString(m) }
 func (*ProtoHeader) ProtoMessage()               {}
-func (*ProtoHeader) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{0} }
+func (*ProtoHeader) Descriptor() ([]byte, []int) { return fileDescriptor3, []int{0} }
 
 func (m *ProtoHeader) GetApiVer() string {
 	if m != nil && m.ApiVer != nil {
@@ -200,7 +200,7 @@ type TerminalInfo struct {
 func (m *TerminalInfo) Reset()                    { *m = TerminalInfo{} }
 func (m *TerminalInfo) String() string            { return proto.CompactTextString(m) }
 func (*TerminalInfo) ProtoMessage()               {}
-func (*TerminalInfo) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{1} }
+func (*TerminalInfo) Descriptor() ([]byte, []int) { return fileDescriptor3, []int{1} }
 
 func (m *TerminalInfo) GetChannel() string {
 	if m != nil && m.Channel != nil {
@@ -236,7 +236,7 @@ func init() {
 	proto.RegisterEnum("bbproto.EProtoId", EProtoId_name, EProtoId_value)
 }
 
-var fileDescriptor1 = []byte{
+var fileDescriptor3 = []byte{
 	// 480 bytes of a gzipped FileDescriptorProto
 	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x09, 0x6e, 0x88, 0x02, 0xff, 0x44, 0x51, 0x4d, 0x8f, 0xd3, 0x30,
 	0x10, 0xa5, 0xdb, 0x8f, 0x34, 0xd3, 0x2f, 0xaf, 0x5b, 0xba, 0x61, 0x4f, 0x68, 0x4f, 0x88, 0x03,

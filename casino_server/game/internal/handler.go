@@ -38,6 +38,11 @@ func init() {
 	handler(&bbproto.THBet{},handlerThBet)		//押注的协议
 
 
+	//联众的德州扑克
+	handler(&bbproto.Game_LoginGame{},handlerGameLoginGame)	//登陆游戏
+	handler(&bbproto.Game_EnterMatch{},handlerGameEnterMatch)//进入房间
+
+
 
 }
 
@@ -256,4 +261,23 @@ func handlerThBet(args []interface{}){
 		log.E("请求进入或者退出德州扑克房间的时候出错了[%v]",err.Error())
 	}
 
+}
+
+func handlerGameLoginGame(args []interface{}){
+	log.T("快速登陆德州扑克游戏")
+	a := args[1].(gate.Agent)
+	result := &bbproto.Game_LoginGame{}
+	result.Result = new(int32)		//默认是0表示成功
+	a.WriteMsg(result)
+}
+
+/**
+ enterMatch.set_matchid(MatchID);
+  enterMatch.set_tableid(Tableid);
+ */
+func  handlerGameEnterMatch(args []interface{}){
+	a := args[1].(gate.Agent)
+	result := &bbproto.Game_AckEnterMatch{}
+	result.Result = new(int32)
+	a.WriteMsg(result)
 }

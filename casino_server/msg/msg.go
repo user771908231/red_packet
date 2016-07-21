@@ -45,7 +45,15 @@ func init() {
 	PortoProcessor.Register(&bbproto.THBet{})		//22	德州扑克押注
 	PortoProcessor.Register(&bbproto.THBetBegin{})		//23	开始德州扑克的广播
 	PortoProcessor.Register(&bbproto.THBetBroadcast{})	//24	德州扑克,押注之后的广播
-	PortoProcessor.Register(&bbproto.THRoomAddUserBroadcast{})	//	房间增加一个玩家
+	PortoProcessor.Register(&bbproto.THRoomAddUserBroadcast{})	//25	房间增加一个玩家
 
 
+	//联众游戏
+	PortoProcessor.Register(&bbproto.REQQuickConn{})	//26	//登陆
+	PortoProcessor.Register(&bbproto.ACKQuickConn{})	//27	登陆回复
+	PortoProcessor.Register(&bbproto.NullMsg{})		//28	空消息
+	PortoProcessor.Register(&bbproto.MatchList_ReqMobileMatchList{})	//29	快速开始游戏
+	PortoProcessor.Register(&bbproto.Game_LoginGame{})	//30	登陆游戏
+	PortoProcessor.Register(&bbproto.Game_EnterMatch{})	//31	进入房间
+	PortoProcessor.Register(&bbproto.Game_AckEnterMatch{})	//32
 }

@@ -1,0 +1,389 @@
+package bbproto;
+//***************************************************************//
+
+// 消息号
+// THRANID_SVR_LOGINCONN = 0x00001001;//登录消息
+// THRANID_SVR_EXIT = 0x00001002;//退出消息
+// THRANID_SVR_REG = 0x00001003;//注册消息
+// THRANID_SVR_REG = 0x00001004;//OpenId登录消息
+// THRANID_SVR_SHORTCERT = 0x00001005;//短证书登录消息
+// THRANID_SVR_QUICKCONN = 0x00001006;//快速登录消息
+
+// THRANID_SVR_VERSION = 0x00003001;//索蓝游戏版本消息
+// THRANID_SVR_FINDPWD = 0x00003002;//找回密码功能
+// THRANID_SVR_VERIFY = 0x00003003;//获取验证码信息
+// THRANID_SVR_WEIBO = 0x00003005;//发送微博
+// THRANID_SVR_HEART = 0x00003006;//thran的心跳
+// THRANID_SVR_SINAGAME = 0x00003007;//新浪微游戏相关
+
+//***************************************************************//
+//option java_package = "com.thran.protocol";
+//option java_outer_classname = "ThranConn";
+
+option optimize_for = LITE_RUNTIME;
+
+// 注册
+// THRANID_SVR_REG = 0x00001003;//注册消息
+message REQThranReg {
+    optional string UserName = 1; //用户名 5-19位 字母，数字，下划线组成
+    optional string Pwd = 2; //密码	8-15位 下划线，特殊字符，不区分大小写
+    optional int32 VerifyId = 3; //验证id，匹配使用
+    optional string VerifyStr = 4; //验证码
+    optional string SecureID = 5; //机器标识 目前使用 mac 地址
+    optional int32 ComeFromID = 6; //终端种类ID android "1"  iphone "2" ipad "3"
+    optional string ChannelID = 7; //渠道号
+    optional int32 GameId = 8; //登录游戏ID
+    optional string token = 9; //证书 客户端与服务端匹配正确才进行操作 暂用 md5 加密来制作 格式 secureID+iGAMEID+ChannelID
+    optional bytes UserNameApl = 10; //苹果用户名
+    optional int32 RoomAdapte = 11 [default = 0]; //分配房间。 0:默认房间;1:指定房间;2:指定房间...  modify at 20120104 根据不同的值获取相应的MatchRoomList
+    optional int32 Sex = 12 [default = 0]; //性别联众帐号  1男,0女。角色帐号性别 1男  2女
+}
+message ACKThranReg {
+    optional int32 AckResult = 1; //注册结果 "0"成功 "1"错误
+    optional string ErrorStr = 2; //错误提示
+    optional bytes cert = 3; //证书数据
+    optional string RoleName = 4; //角色名
+    repeated OGRoomInfo RoomList = 5; //用户能够进入的房间列表
+    optional int32 LoginId = 6; //登录id
+    repeated OGRoomInfo MatchRoomList = 7; //比赛房间列表
+    optional bytes CertNoRole = 8; //不含角色的证书数据
+}
+
+// 登录THRAN服务器
+// THRANID_SVR_LOGINCONN = 0x00001001;//登录消息
+message REQThranConn {
+    optional string UserName = 1; //用户名 18位以内 且以"thran_ddz_x~"开头 x为来源ID
+    optional string NickName = 2; //昵称 最大长度为8字符
+    optional string Pwd = 3; //密码	8-15位
+    optional int32 Sex = 4; //性别
+    optional string SecureID = 5; //机器标识
+    optional int32 ComeFromID = 6; //终端种类ID android "1"  iphone "2" ipad "3"
+    optional string ChannelID = 7; //渠道号
+    optional int32 GameId = 8; //游戏ID
+    optional string token = 9; //证书 客户端与服务端匹配正确才进行操作 暂用 md5 加密来制作 格式 secureID+iGAMEID+ChannelID
+    optional bytes UserNameApl = 10; //苹果用户名
+    optional int32 VerifyId = 11; //OpenId时使用，数据库中记录了获取OpenId的联众帐号所存储的ticket的id值
+    optional string Ticket = 12; //OpenId时使用，标识了此次登陆中的ticket
+    optional int32 RoomAdapte = 13 [default = 0]; //分配房间。 0:默认房间;1:指定房间;2:指定房间... modify at 20120104 根据不同的值获取相应的MatchRoomList
+    optional int32 LoginType = 14 [default = 0]; //登录类型。 0默认的类型;1为接入平台2.0。 modify at 20120217 酒吧骰子用
+    optional int32 GroupID = 15; //请求特定的groupid下的Game Server    modify at 20120217 酒吧骰子用
+}
+message ACKThranConn {
+    optional int32 AckResult = 1; //登录结果 "0"成功 "1"错误
+    optional bytes cert = 2; //证书数据
+    optional string UserName = 3; //用户名
+    optional string RoleName = 4; //角色名
+    optional string PassWord = 5; //用户密码
+    optional int32 YuanBaoCnt = 6; //元宝数量
+    optional int64 CoinCnt = 7; //金币数量
+    repeated OGRoomInfo RoomList = 8; //用户能够进入的房间列表
+    optional int32 LoginId = 9; //登录id
+    repeated OGRoomInfo MatchRoomList = 10; //比赛房间列表
+    optional bytes CertNoRole = 11; //不含角色的证书数据
+    repeated ThranRoomInfo ThranRoomItems = 12; //下发的房间服务器列表。 modify at 20120217  索蓝酒吧骰子用
+}
+
+// 获取短证书  modify at 20120109  获取短证书
+// THRANID_SVR_SHORTCERT = 0x00001005;//登录消息
+message REQThranShortCert {
+    optional string UserName = 1; //用户名 18位以内 且以"thran_ddz_x~"开头 x为来源ID
+    optional string NickName = 2; //昵称 最大长度为8字符
+    optional string Pwd = 3; //密码	8-15位
+    optional int32 Sex = 4; //性别
+    optional string SecureID = 5; //机器标识
+    optional int32 ComeFromID = 6; //终端种类ID android "1"  iphone "2" ipad "3"
+    optional string ChannelID = 7; //渠道号
+    optional int32 GameId = 8; //游戏ID
+    optional string token = 9; //证书 客户端与服务端匹配正确才进行操作 暂用 md5 加密来制作 格式 secureID+iGAMEID+ChannelID
+    optional bytes UserNameApl = 10; //苹果用户名
+    optional int32 VerifyId = 11; //OpenId时使用，数据库中记录了获取OpenId的联众帐号所存储的ticket的id值
+    optional string Ticket = 12; //OpenId时使用，标识了此次登陆中的ticket
+    optional int32 RoomAdapte = 13 [default = 0]; //分配房间。 0:默认房间;1:指定房间;2:指定房间... modify at 20120104 根据不同的值获取相应的MatchRoomList
+}
+
+message ACKThranShortCert {
+    optional int32 AckResult = 1; //登录结果 "0"成功 "1"错误
+    optional bytes ShortCert = 2; //证书数据
+    optional string UserName = 3; //用户名
+    repeated OGRoomInfo RoomList = 4; //用户能够进入的房间列表
+    repeated OGRoomInfo MatchRoomList = 5; //比赛房间列表
+
+}
+
+// 登录THRAN服务OpenId
+// THRANID_SVR_REG = 0x00001004;//OpenId登录消息
+message REQThranOpenId {
+    optional bytes UserName = 1; //第三方的用户名 | 新浪微游戏中此项为 用户的游戏名
+    optional string Pwd = 2; //第三方的密码 | 新浪微游戏中此项为 用户的数字ID
+    optional string type = 3; //第三方类别 人人网'renren' 新浪‘sina’
+    optional string SecureID = 4; //机器标识
+    optional int32 ComeFromID = 5; //终端种类ID android "1"  iphone "2" ipad "3"
+    optional string ChannelID = 6; //渠道号
+    optional int32 GameId = 7; //游戏ID
+    optional int32 VerifyId = 8; //OpenId时使用，数据库中记录了获取OpenId的联众帐号所存储的ticket的id值
+    optional string Ticket = 9; //OpenId时使用，标识了此次登陆中的ticket
+    optional string token = 10; //证书 客户端与服务端匹配正确才进行操作 暂用 md5 加密来制作 格式 secureID+iGAMEID+ChannelID
+    optional string Thirdkey = 11; // 第三方下发客户端的session key
+    optional int32 RoomAdapte = 12 [default = 0]; //分配房间。 0:默认房间;1:指定房间;2:指定房间...   modify at 20120104 根据不同的值获取相应的MatchRoomList
+    optional string ThirdAppId = 13; //申请的第三方的AppId，modify at 20120227  解决多个APPID 接入同一个OPENID的问题。
+}
+message ACKThranOpenId {
+    optional int32 AckResult = 1; //登录结果 "0"成功 "1"错误
+    optional bytes cert = 2; //证书数据
+    optional bytes UserName = 3; //用户名
+    optional bytes RoleName = 4; //角色名
+    optional int32 YuanBaoCnt = 5; //元宝数量
+    optional int64 CoinCnt = 6; //金币数量
+    repeated OGRoomInfo RoomList = 7; //用户能够进入的房间列表
+    repeated OGRoomInfo MatchRoomList = 8; //比赛房间列表
+    optional int32 LoginId = 9; //登录id
+    optional bytes CertNoRole = 10; //不含角色的证书数据
+    repeated int32 AchvId = 11; //用户已有的成就
+}
+
+// 新浪微游戏操作
+// THRANID_SVR_SINAGAME = 0x00003007;//新浪微游戏相关
+message REQSinaGame {
+    optional string Thirdkey = 1; // 第三方下发客户端的session key
+    repeated SinaApiInfo InfoList = 2; // 发送信息队列
+    optional string SecureID = 4; // 机器标识
+    optional int32 ComeFromID = 5; // 终端种类ID android "1"  iphone "2" ipad "3"
+    optional string ChannelID = 6; // 渠道号
+    optional int32 GameId = 7; // 游戏ID
+}
+message ACKSinaGame {
+    optional int32 AckResult = 1; //消息结果 "0"成功 "1"错误
+    repeated SinaApiRet RetList = 2; //操作结果
+}
+
+// 发送新浪微博
+// THRANID_SVR_WEIBO = 0x00003005;//发送微博
+message REQWeiBo {
+    optional bytes UserName = 1; //微博用户名
+    optional string Pwd = 2; //微博的密码
+    optional string type = 3; //第三方类别 ddz sina
+    optional string SecureID = 4; //机器标识
+    optional int32 ComeFromID = 5; //终端种类ID android "1"  iphone "2" ipad "3"
+    optional string ChannelID = 6; //渠道号
+    optional int32 GameId = 7; //游戏ID
+    optional string token = 8; //证书 客户端与服务端匹配正确才进行操作 暂用 md5 加密来制作 格式 secureID+iGAMEID+ChannelID
+    optional bytes wbMsg = 9; //微博内容
+    optional bytes wbPic = 10; //微博图片
+}
+message ACKWeiBo {
+    optional int32 AckResult = 1; //"0"成功 "1"失败
+}
+
+// 退出
+// THRANID_SVR_EXIT = 0x00001002;//退出消息
+message REQThranExit {
+    optional int32 LoginId = 1; //登录id
+    optional int32 ExitType = 2; //退出信息类型 0正常退出  1异常退出
+    optional string ExitMsg = 3; //退出信息
+}
+
+// 获取游戏版本信息
+// THRANID_SVR_VERSION = 0x00003001;//索蓝游戏版本消息
+message REQThranGameVersion {
+    optional int32 CurVersion = 1; //当前版本号
+    optional int32 GameId = 2; //游戏ID
+    optional int32 ComeFromID = 3; //终端种类ID android "1"  iphone "2" ipad "3"
+    optional string ResolutionID = 4; //分辨率ID "800480" "854480" "1024768"
+    optional string ChannelID = 5; //渠道ID "thran"索兰 "apple"苹果
+    optional string LanguageID = 6; //语言ID "cn"简体  "twhk"繁体
+    optional int32 smallVersion = 7; //当前版本小号
+    optional string ClientType = 8; //客户端类型  "sina"新浪专版
+    optional string ScreenSize = 9; //屏幕真实尺寸  "800480" "854x480" "1024x768"
+    optional int32 RoomAdapte = 10 [default = 0]; //分配房间。 0:默认房间;1:指定房间;2:指定房间...   modify at 20120104 根据不同的值获取相应的MatchRoomList
+}
+message ACKThranGameVersion {
+    optional int32 AckResult = 1; //登录结果  "-1"错误 不为-1表示为当前最新版本号
+    optional string PlayEnable = 2; //不更新是否能继续游戏 "y"可以游戏 "n"不可以，必须更新
+    optional string DownloadUrl = 3; //下载地址
+    optional string GameServerIp = 4; //索蓝游戏服务器地址
+    optional string GameServerPort = 5; //索蓝游戏服务器端口
+    optional string GameRankEnable = 6; //是否从thran服务器读取 游戏等级设置 "y"是 "n"不是
+    optional string GameRankDef = 7; //游戏等级设置 格式：最小金币数/最大金币数/最少盘数/是否开放_最小金币数/最大金币数/最少盘数/是否开放；多个等级以"_"分隔；是否开放 “0”不开放 “1”开放
+    optional string IfPreserve = 8; //当前是否停服维护 "y"停服维护中 "n"没有维护
+    optional string PreserveMsg = 9; //系统提示消息（维护状态中，为维护信息；其余时间为系统公告）
+    repeated OGThranMatchInfo MatchInfoList = 10; //比赛列表信息
+    optional int32 DownloadReasion = 11; //下载原因：0 版本不对;1屏幕不对
+    optional int32 GameId = 12; //游戏ID               modify at 20120104 根据服务器配置获取相应的GameId下发给游戏客户端(暂时是德州扑克用)
+    optional int32 gameSort = 13; //游戏ID对应的排序规则。0无排序。其余数字为游戏自定义排序规则  modify at 20120104 根据服务器配置获取Sort下发给客户端 (暂时是德州扑克用)
+    repeated OGRoomInfo MatchRoomList = 14; //比赛房间列表        modify at 20120104 加入了MatchRoomList(主要是德州扑克用)
+    repeated ThranJSSInfo JssList = 15; // jss服务器，小商城的代理服务器。 modify at 20120321
+    optional string IfSearch = 16; //是否显示搜索（斗地主用）"y"显示 "n"不显示。 modify at 20120413
+    repeated OGBulletinInfo BulletinList = 17; //显示公告
+}
+
+// 获取验证码
+// THRANID_SVR_VERIFY = 0x00003003;//获取验证码信息
+message REQThranNewVerify {
+    optional string SecureID = 1; //机器标识 目前使用 mac 地址
+    optional int32 ComeFromID = 2; //终端种类ID android "1"  iphone "2" ipad "3"
+    optional string ChannelID = 3; //渠道号
+    optional int32 GameId = 4; //登录游戏ID
+}
+message ACKThranNewVerify {
+    optional int32 AckResult = 1; //注册结果 "0"成功 "1"错误 "2"不需要验证码
+    optional string ErrorStr = 2; //错误提示
+    optional bytes Verify = 3; //认证码流
+    optional int32 VerifyId = 4; //验证id，匹配使用
+}
+
+// 找回密码功能
+// THRANID_SVR_FINDPWD = 0x00003002;//找回密码功能
+// 新设置的密码未设置，表示只发送密码而不重置
+// 新设置的密码不未空时，表示需要用户点击邮箱中的链接才能重置成功，且更新用户状态为已激活
+message REQThranFindPwd {
+    optional string Email = 1; //用户注册时填写的邮箱
+    optional string NewPwd = 2; //新设置的密码
+}
+message ACKThranFindPwd {
+    optional int32 AckResult = 1; //"0"已发邮件 "1"错误
+}
+
+// Thran心跳
+// THRANID_SVR_HEART = 0x00003006;//thran的心跳
+// REQ只有消息头，没有消息体
+message ACKThranHeart {
+    optional string ServTime = 1; //服务器当前时间 格式 "yyyy-MM-dd HH:mm:ss" 由于服务器时间可能与本地时间不符，所以只做成功响应。如果消息解析发生错误，则返回"-1"
+}
+
+//***************************************************************//
+
+//相关的结构
+//新浪微游戏结构
+message SinaApiInfo {
+    optional int32 ApiType = 1; // 类型  发送成就‘1’ 发送金币排行‘2’ 发送比赛排行‘3’
+    optional string RetValue = 2; // 发送的值
+    optional string UserId = 3; // 用户数字id
+}
+//新浪微游戏结果返回结构
+message SinaApiRet {
+    optional int32 RetResult = 1; // 成功"0"  错误"1"
+    optional int32 ApiType = 2; // 类型 发送成就‘1’ 发送金币排行‘2’ 发送比赛排行‘3’
+    optional string RetValue = 3; // 值 成功时表示传递过来的值，失败时表示错误代码及原因
+}
+
+//游戏房间结构
+message OGRoomInfo {
+    optional string RoomId = 1; //房间id
+    optional string RoomRank = 2; //房间等级 1新手 2高手 3至尊
+    optional string RoomIp = 3; //房间ip
+    optional string RoomPort = 4; //房间port
+    optional string RoomStatus = 5; //0开启 1关闭
+    optional string RoomMinGold = 6; //最少金币
+    optional string RoomMaxGold = 7; //最大金币
+    optional string RoomMinPlay = 8; //最少局数
+    optional string RoomType = 9; //房间类型  0普通，1比赛
+    optional string ServerType = 10; //服务器类型 0无  7新浪专服
+    optional string Description = 11; //房间描述,包括准入条件等内容
+    optional string RoomName = 12; //房间名称
+}
+
+//比赛信息结构
+message OGThranMatchInfo {
+    optional int32 MatchID = 1; //比赛ID ID
+    optional string MatchName = 2; //比赛名称 NAME
+    //以下参数在斗地主比赛中应用
+    optional string AwardName = 3; //奖品名称
+    optional int32 AwardSum = 4; //奖品数量
+    optional string MatchTerm = 5; //报名条件 Condition
+    optional int32 HumanLimit = 6; //人数限制 PlayerMin
+    optional int32 MatchHumanSum = 7; //比赛人数
+    optional int32 MatchType = 8; //比赛类型 0-免费 1-火爆 2-全新
+    optional int32 MatchInterval = 9; //比赛时间间隔 区分定时和非定时
+    optional string MatchPrize = 10; //奖项设置  Prize
+    optional string MatchProcess = 11; //赛制流程 Detail
+    optional string MatchDate = 12; //开赛时间说明
+    optional string MatchFee = 13; //报名费用
+    optional int32 MatchArea = 14; //新浪比赛区域 7 新浪独服8是南赛区9是北赛区
+    optional string Description = 15; //比赛描述,包括奖金等内容
+}
+
+//索蓝服务器的房间基本信息 modify at 20120217  索蓝酒吧骰子用
+message ThranRoomInfo {
+    optional int32 GameID = 1; //游戏ID
+    optional int32 GroupID = 2; //组ID 场ID 每个游戏内的组ID不能相同
+    optional bytes RoomID = 3; //每个游戏内的房间ID不能相同
+    optional int32 MaxPlayer = 4; //房间的最大游戏人数
+    optional string RoomIP = 5; //房间IP
+    optional int32 RoomPort = 6; //
+    optional bytes Context = 7; //自定义数据,用于存储房间准入等信息建议使用XML
+    optional int32 CurPlayer = 8; //当前房间人数
+    optional int32 RoomState = 9; //房间当前状态，0 未启动，1 启动（正常）3 故障（超时无心跳）
+    optional int32 IsLock = 10 [default = 0]; //0是不锁，1锁
+    repeated ThranRoomInfo ThranRoomItems = 11; //组下配置的场(或场下配置的组)
+}
+
+//索蓝服务器配置的jss服务器  modify at 20120321
+message ThranJSSInfo {
+    optional string RoomIP = 1; //服务器IP
+    optional string RoomPort = 2; // 服务器端口
+    optional string Remark = 3; //服务器标注
+}
+
+//游戏公告
+message OGBulletinInfo {
+    optional bytes Title = 1; //标题
+    optional bytes Content = 2; //内容
+}
+//***************************************************************//
+//modify at 20120516
+//快速登录
+//THRANID_SVR_QUICKCONN = 0x00001006;//快速登录
+message REQQuickConn {
+    optional bytes UserName = 1; //用户名  (第三方接入必填，为用户原始帐号或数字id),
+    optional string Pwd = 2; //密码	8-15位
+    optional string SecureID = 3; //机器标识
+    optional int32 ComeFromID = 4; //终端种类ID android "1"  iphone "2" ipad "3"
+    optional string ChannelID = 5; //渠道号
+    optional int32 GameId = 6; //游戏ID
+    optional string token = 7; //证书 客户端与服务端匹配正确才进行操作 暂用 md5 加密来制作 格式 secureID+iGAMEID+ChannelID
+    optional int32 RoomAdapte = 8 [default = 0]; //分配房间。 0:默认房间;根据不同的值获取相应的MatchRoomList
+    optional int32 LoginType = 9 [default = 0]; //登录类型。 0默认的MAC地址登录类型;1为用户名+密码方式;104为新浪登录;105为人人网;256机锋网;260为91网,276小米网
+    optional int32 CurVersion = 10; //当前版本号
+    optional int32 smallVersion = 11; //当前版本小号
+    optional string ResolutionID = 12; //分辨率ID "800480" "854480" "1024768"
+    optional string LanguageID = 13; //语言ID "cn"简体  "twhk"繁体
+    optional string ScreenSize = 14; //屏幕真实尺寸  "800480" "854x480" "1024x768"
+    optional string ThirdDigitalName = 15; //第三方的用户数字ID等 (第三方接入必填，第三方数字id)
+    optional string Thirdkey = 16; // 第三方下发客户端的session key  (第三方接入必填，用于校验合法性)
+    optional string ThirdAppId = 17; //申请的第三方的AppId,解决多个APPID 接入同一个OPENID的问题。  (第三方接入必填)
+    optional string Package = 18; //包名
+
+}
+message ACKQuickConn {
+    optional int32 AckResult = 1; //登录结果 "0"成功 "1"错误
+    optional string UserName = 2; //用户名
+    optional string RoleName = 3; //角色名
+    optional int32 YuanBaoCnt = 4; //元宝数量
+    optional int64 CoinCnt = 5; //金币数量
+    repeated OGRoomInfo RoomList = 6; //房间列表  ，斗地主游戏存入所有的room列表，二人麻将里存入与该用户金币相应的room。
+    repeated OGThranMatchInfo MatchRoomList = 7; //比赛房间信息
+    optional bytes Cert = 8; //含角色的证书数据
+    optional bytes CertNoCert = 9; //含角色的证书数据
+    optional int32 CurVersion = 10; //服务器的当前最新版本号
+    optional string PlayEnable = 11; //不更新是否能继续游戏 "y"可以游戏 "n"不可以，必须更新
+    optional string DownloadUrl = 12; //下载地址
+    optional string IfPreserve = 13; //斗地主是否停服维护 "y"停服维护中 "n"没有维护，达人麻将相反。
+    optional string PreserveMsg = 14; //系统提示消息（维护状态中，为维护信息）
+    optional int32 DownloadReasion = 15; //下载原因：0 版本不对;1屏幕不对
+    optional int32 GameId = 16; //游戏ID
+    repeated ThranJSSInfo JssList = 17; // jss服务器，小商城的代理服务器。 modify at 20120321
+    optional string IfSearch = 18; //是否显示搜索（斗地主用）"y"显示 "n"不显示。 modify at 20120413
+    repeated OGBulletinInfo BulletinList = 19; //显示公告
+    optional string VersionInfo = 20; //版本信息（更新原因）
+    repeated OGRoomInfo MatchSvrList = 21; //所有的比赛服务器列表
+    optional int32 Sex = 22; //性别
+    repeated OGRoomInfo RoomSvrList = 23; //所有的房间列表，把所有的的房间都放入列表 。 modify at 20120606  解决二人麻将切换room。
+    optional int32 DdzActive = 24 [default = 0]; //是否为斗地主活动(签到，抽奖等),0否，1是
+    optional string MsgUrl = 25; //用户消息的URL  ,请求访问url参数type=1 统计未读消息，type=2 显示所有消息。
+    optional int32 ErrorCode = 26 [default = 0]; //0为无错误；1 用户名密码错误，其它为系统级别错误，待定。
+}
+
+message NullMsg{
+
+}
+

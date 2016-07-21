@@ -1,0 +1,755 @@
+package bbproto;
+
+option optimize_for = LITE_RUNTIME;
+
+message game_ACKConfirmConnect {
+    optional int32 result = 1;
+}
+
+message game_LoginGame {
+    optional bytes Letter = 1;
+    optional int32 result = 2;
+}
+
+//客户端请求进入match
+message game_EnterMatch {
+    optional bytes MatchID = 1;
+    optional int32 Tableid = 2;
+    optional bytes PassWord = 3; //密码(朋友桌新增)
+    optional bytes sCFUserName = 4; //该渠道特有昵称（现在专指360）
+}
+
+message game_AckEnterMatch {
+    optional int32 result = 1;
+    optional bytes Matchid = 2;
+    optional int32 Tableid = 3;
+    optional int32 nReason = 4; //原因,1为进入游戏场数大于限制数,2为输入密码失败(朋友桌添加),3为不允许游客进入(朋友桌添加)
+}
+
+message game_AddHandCoin {
+    optional bytes Matchid = 1;
+    optional int32 Tableid = 2;
+    optional int32 seat = 3;
+    optional int64 Coin = 4;
+}
+
+message game_CardInfo {
+    optional int32 color = 1;
+    optional int32 value = 2;
+}
+message game_InitCard {
+    optional bytes Matchid = 1;
+    optional int32 Tableid = 2;
+    optional int32 seat = 3;
+    optional int32 NextUser = 4;
+    repeated game_CardInfo HandCard = 5;
+    repeated game_CardInfo PublicCard = 6;
+    optional int64 MinRaise = 7;
+    optional int32 ActionTime = 8;
+    optional int32 DelayTime = 9;
+}
+
+message game_RaiseBet {
+    optional bytes Matchid = 1;
+    optional int32 Tableid = 2;
+    optional int32 Seat = 3;
+    optional int64 Coin = 4;
+}
+
+message game_AckRaiseBet {
+    optional bytes Matchid = 1;
+    optional int32 Tableid = 2;
+    optional int32 Seat = 3;
+    optional int64 Coin = 4;
+    optional int64 HandCoin = 5;
+    optional int32 NextSeat = 6;
+    optional int64 pool = 7;
+    optional int64 MinRaise = 8;
+    optional int32 CanRaise = 9;
+}
+
+message game_FollowBet {
+    optional bytes Matchid = 1;
+    optional int32 Tableid = 2;
+    optional int32 Seat = 3;
+}
+
+message game_AckFollowBet {
+    optional bytes Matchid = 1;
+    optional int32 Tableid = 2;
+    optional int32 Seat = 3;
+    optional int32 NextSeat = 4;
+    optional int64 Coin = 5;
+    optional int64 HandCoin = 6;
+    optional int64 pool = 7;
+    optional int64 MinRaise = 8;
+    optional int32 CanRaise = 9;
+}
+
+message game_FoldBet {
+    optional bytes Matchid = 1;
+    optional int32 Tableid = 2;
+    optional int32 Seat = 3;
+}
+
+message game_AckFoldBet {
+    optional bytes Matchid = 1;
+    optional int32 Tableid = 2;
+    optional int32 Seat = 3;
+    optional int32 NextSeat = 4;
+    optional int64 Coin = 5;
+    optional int64 HandCoin = 6;
+    optional int64 pool = 7;
+    optional int64 MinRaise = 8;
+    optional int32 CanRaise = 9;
+}
+
+message game_CheckBet {
+    optional bytes Matchid = 1;
+    optional int32 Tableid = 2;
+    optional int32 Seat = 3;
+}
+
+message game_AckCheckBet {
+    optional bytes Matchid = 1;
+    optional int32 Tableid = 2;
+    optional int32 Seat = 3;
+    optional int32 NextSeat = 4;
+    optional int64 Coin = 5;
+    optional int64 HandCoin = 6;
+    optional int64 pool = 8;
+    optional int64 MinRaise = 9;
+    optional int32 CanRaise = 10;
+}
+
+message game_SendFlopCard {
+    optional bytes Matchid = 1;
+    optional int32 Tableid = 2;
+    optional game_CardInfo card0 = 3;
+    optional game_CardInfo card1 = 4;
+    optional game_CardInfo card2 = 5;
+}
+
+message game_SendTurnCard {
+    optional bytes Matchid = 1;
+    optional int32 Tableid = 2;
+    optional game_CardInfo card = 3;
+
+}
+
+message game_SendRiverCard {
+    optional bytes Matchid = 1;
+    optional int32 Tableid = 2;
+    optional game_CardInfo card = 3;
+}
+
+message game_SendOverTurn {
+    optional bytes Matchid = 1;
+    optional int32 Tableid = 2;
+    optional int64 Pool = 3;
+    repeated int64 SecondPool = 4;
+    optional int32 NextSeat = 5;
+    repeated int64 handcoin = 6;
+    repeated int64 coin = 7;
+    optional int64 MinRaise = 8;
+}
+
+message game_CardType {
+    optional int32 card1 = 1;
+    optional int32 card2 = 2;
+    optional int32 card3 = 3;
+    optional int32 card4 = 4;
+    optional int32 card5 = 5;
+    optional int32 cardtype = 6;
+}
+
+message game_WinCoin {
+    optional int32 Seat = 1;
+    optional int32 poolIndex = 2;
+    optional int64 coin = 3;
+    optional int32 card1 = 4;
+    optional int32 card2 = 5;
+    optional int32 card3 = 6;
+    optional int32 card4 = 7;
+    optional int32 card5 = 8;
+    optional int32 cardtype = 9;
+    optional bytes rolename = 10;
+}
+
+message game_TestResult {
+    optional bytes Matchid = 1;
+    optional int32 Tableid = 2;
+    repeated game_CardInfo handcard = 3;
+    repeated int32 bShowCard = 4;
+    repeated int32 bCanShowCard = 5;
+    repeated game_WinCoin WinCoinInfo = 6;
+    repeated int64 HandCoin = 7;
+}
+
+message game_LeaveMatch {
+    optional bytes Matchid = 1;
+    optional int32 Tableid = 2;
+    optional int32 Seat = 3;
+}
+
+message game_UserInfo {
+    optional bytes UserName = 1;
+    optional int32 Seat = 2;
+    optional bytes sCFUserName = 3; //该渠道特有昵称（现在专指360）
+}
+
+message game_SendUserInfo {
+    repeated game_UserInfo UserInfo = 1;
+    optional bytes Matchid = 2;
+    optional int32 Tableid = 3;
+}
+
+message game_SendRank {
+    optional bytes Matchid = 1; //比赛Id
+    optional int32 Tableid = 2; //桌子号
+    optional bytes UserName = 3; //角色名
+    optional int32 Rank = 4; //比赛名次
+    optional int32 eRewardType = 5; //单个奖金类型
+    optional int64 nRewardCount = 6; //用户得到的实际奖金数
+    optional int64 nTotalCoin = 7;
+    optional int64 nNowelterCoin = 8; //没有被防沉迷时的奖金数
+    optional int32 nNowelterType = 9; //防沉迷的类型,0为未知,1为奖金全发,2为奖金发一半,3为奖金为0
+    optional int64 nScore = 10; //成绩
+    optional bytes RewardName = 11; //奖金描述
+    optional int32 nSeat = 12; //玩家座位号
+}
+
+message game_RestMatch {
+    optional bytes Matchid = 1;
+    optional int32 Tableid = 2;
+}
+
+message game_ChangeTable {
+    optional bytes Matchid = 1;
+    optional int32 NewTableid = 2;
+    optional int32 Tableid = 3;
+    optional bytes UserName = 4;
+    optional int32 Seat = 5;
+    optional bytes sCFUserName = 6; //该渠道特有昵称（现在专指360）
+}
+
+message game_SendGameInfo {
+    optional bytes Matchid = 1;
+    optional int32 Tableid = 2;
+    optional int32 GameStatus = 3;
+    optional int32 ChipSeat = 4;
+    optional int64 pool = 5;
+    optional int32 TablePlayer = 6;
+    optional int32 BankSeat = 7;
+    repeated game_CardInfo publiccard = 8;
+    repeated game_CardInfo handcard = 9;
+    repeated int64 HandCoin = 10;
+    repeated int64 TurnCoin = 11;
+    optional int32 ActionTime = 12; //当前操作时间
+    repeated int32 bEnable = 13; //bEnable=0表示该用户当局不能操作,//bEnable=1表示可操作
+    optional int64 MinRaise = 14;
+    repeated int32 bFold = 15;
+    repeated int32 bAllIn = 16;
+    repeated int32 bBreak = 17;
+    repeated int32 bLeave = 18;
+    optional int32 DelayTime = 19; //当前延时时间
+    optional int32 nRebuyCount = 20; //REBUY / ADDON次数
+    optional int32 nAddonCount = 21;
+    optional int32 bFinalAddon = 22; //是否已完成最终ADDON 1：已完成 0：未完成
+    optional int32 nInitActionTime = 23; //初始操作时间
+    optional int32 nInitDelayTime = 24; //初始延时时间
+}
+
+message game_ShowCard {
+    optional bytes matchid = 1;
+    optional int32 table = 2;
+    optional int32 bShow = 3; //1表示亮牌，0表示盖牌
+    optional int32 Seat = 4; //座位号
+}
+
+message game_AckShowCard {
+    optional bytes matchid = 1;
+    optional int32 table = 2;
+    repeated game_CardInfo HandCard = 3;
+}
+
+message game_TestLogin {
+    optional bytes UserName = 1;
+}
+
+
+message game_AckTestLogin {
+    optional int32 result = 1;
+    optional bytes Matchid = 2;
+    optional int32 Tableid = 3;
+}
+
+message game_TestStartMatch {
+    optional bytes Matchid = 1;
+}
+
+message game_ReportPlayer {
+    optional int32 ip = 1;
+    optional int32 port = 2;
+    optional int32 type = 3; //0表示MATCHSERVER，1表示GAMESERVER
+    optional int32 player = 4;
+}
+
+message game_UseDelayTime {
+    optional bytes matchid = 1;
+    optional int32 tableid = 2;
+    optional int32 Seat = 3;
+    optional int32 delaytime = 4;
+}
+
+//离座消息
+message game_LeaveSeat {
+    optional bytes matchid = 1;
+    optional int32 tableid = 2;
+    optional int32 Seat = 3;
+    optional int32 bLeave = 4; //0表示回到座位，1表示离开座位
+    optional int32 bWaitBling = 5; //是否等待大盲 0为不等待，1为等待（只有在现金桌才能用到）
+}
+
+message game_MatchChip {
+    optional bytes matchid = 1;
+    optional int32 tableid = 2;
+    optional int64 MaxChip = 3;
+    optional int64 MinChip = 4;
+    optional int64 AveChip = 5;
+}
+
+message game_SendUserRank {
+    optional bytes matchid = 1;
+    optional int32 tableid = 2;
+    optional int32 Rank = 3;
+    optional int32 ResPlayer = 4;
+    optional bytes username = 5;
+}
+//盲注变化消息
+message game_BlindChange {
+    optional bytes matchid = 1;
+    optional int32 tableid = 2;
+    optional int64 SmallBlind = 3;
+    optional int64 BigBlind = 4;
+}
+//下一级盲注信息
+message game_NextBlindInfo {
+    optional bytes matchid = 1;
+    optional int32 tableid = 2;
+    optional int64 NextSmallBlind = 3;
+    optional int64 NextBigBlind = 4;
+    optional int32 NextBlindTime = 5;
+    optional int32 RestTime = 6;
+    optional int32 BlindClass = 7;
+}
+
+//提示休息多长时间
+message game_SendRestTime {
+    optional bytes matchid = 1;
+    optional int32 tableid = 2;
+    optional int32 resttime = 3; //休息时长
+    optional int32 type = 4; //type=0表示开赛前的准备时间，1表示中场休息的时间
+    optional int32 restIndex = 5; //第几次休息 为最终ADDON准备
+}
+
+//离桌消息，当用户离开桌子时，给该桌用户发送该消息
+message game_LeaveTable {
+    enum Reason {
+        quit_mormal = 0; //离开成功
+        quit_friendKick = 1; //朋友桌强行踢出
+        quit_adjustTable = 2; //调整桌子
+        quit_friendTableDelete = 3; //朋友被删除
+    }
+    optional bytes matchid = 1;
+    optional int32 tableid = 2;
+    optional int32 seat = 3;
+    optional bytes username = 4;
+    optional Reason reason = 5;
+}
+
+//前注消息
+message game_PreCoin {
+    optional bytes matchid = 1;
+    optional int32 tableid = 2;
+    repeated int64 precoin = 3; //前注数
+    repeated int64 coin = 4; //手中豆子数
+    optional int64 pool = 5; //底池数
+}
+
+//盲注消息
+message game_BlindCoin {
+    optional bytes matchid = 1;
+    optional int32 tableid = 2;
+    optional int32 banker = 3; //庄位
+    repeated int64 handcoin = 4; //每个人下的豆子数
+    repeated int64 coin = 5; //每个人手中豆子数
+    optional int64 pool = 6; //底池数
+    optional int32 smallblindseat = 7; //小盲位
+    optional int32 bigblindseat = 8; //大盲位
+    optional int64 smallblind = 9; //小盲数
+    optional int64 bigblind = 10; //大盲数
+}
+
+//防沉迷消息
+message game_NowelterInfo {
+    optional bytes reusername = 1; //用户名
+    optional int32 nType = 2; //4为一小时8为二小时12为三小时14为三个半小时16为四小时18为四个半小时20为5个小时
+    optional int32 nReason = 3; //1为未成年人，   2为注册信息不全，   -1为不是防沉迷用户
+}
+
+//现金桌的消息定义
+//请求坐下
+message OGReqSitdownSeat {
+    optional bytes MatchID = 1; //桌子号
+    optional bytes sUserName = 2; //角色名
+    optional int32 nSeatID = 3; //座位号
+    optional int32 nField = 4; //区号：1:新手区、2：初级、3：中级、4：高级
+    optional bytes sCFUserName = 5; //该渠道特有昵称（现在专指360）
+}
+message OGAckSitdownSeat {
+    optional int32 Result = 1; //结果,1为成功,0为失败
+    optional int32 reason = 2; //失败原因,0 进入成功,1 不成功,原因未知,2没有足够的金币带入筹码,3这个位置有人,4该matchID不存在
+    optional bytes MatchID = 3; //桌子号
+    optional bytes sUserName = 4; //角色名
+    optional int32 nSeatID = 5; //座位号
+    optional int32 bForceBuy = 6; //是否强制带入
+    optional int64 nForceMinChip = 7; //强制带入的最小筹码
+    optional bytes sCFUserName = 8; //该渠道特有昵称（现在专指360）
+}
+//带入
+message OGReqBuyChip {
+    optional bytes MatchID = 1; //桌子号
+    optional bytes sUserName = 2; //角色名
+    optional int32 nSeatID = 3; //座位号
+    optional int64 nBuyChip = 4; //要带入的筹码数
+    optional int64 nCurChip = 5; //当前筹码数
+}
+message OGAckBuyChip {
+    optional int32 Result = 1; //结果,1为成功,0为失败
+    optional int32 reason = 2; //失败原因,0带入成功,1不成功,原因未知,2记录入库失败,3读用户金币失败4写用户金币失败,5没有足够的金币,6没有该用户,
+    //7没有该比赛,8数据库操作失败,9不符合强制带入条件,10不在最大最小带入范围内,11游戏中不能带人
+    optional bytes MatchID = 3; //桌子号
+    optional bytes sUserName = 4; //角色名
+    optional int64 nBuyChip = 5; //成功带入的金币
+    optional int64 nTotalCoin = 6; //用户剩余总金币数
+    optional int32 bWaitBling = 7; //是否等待大盲 0为不等待，1为等待（只有在现金桌才能用到）
+}
+
+//由于筹码不够，需要向客户端发送带入的消息
+message OGNeetBugChip {
+    optional bytes MatchID = 1; //桌子号
+    optional bytes sUserName = 2; //角色名
+}
+//请求离座
+message OGReqLeave {
+    optional bytes MatchID = 1; //桌子号
+    optional bytes sUserName = 2; //角色名
+    optional int32 nSeatID = 3; //座位号
+    optional uint32 nUserIP = 4; //本地IP
+}
+
+message OGAckLeave {
+    optional int32 Result = 1; //结果,1为成功,0为失败
+    optional int32 reason = 2; //失败原因,0离开成功,1不成功原因未知,2更新金币失败,3记录入库失败
+    optional bytes MatchID = 3; //桌子号
+    optional bytes sUserName = 4; //角色名
+    optional int64 nlCoin = 5; //金币数
+}
+
+//带入规则
+message OGGameRule {
+    optional bytes MatchID = 1; //桌子号
+    optional bytes sUserName = 2; //角色名
+    optional int32 nSeatID = 3; //座位号
+    optional int64 MaxChip = 4; //最大代入筹码
+    optional int64 MinChip = 5; //最小代入筹码
+}
+
+//等待大盲
+message OGWaitBigBling {
+    optional bytes MatchID = 1; //桌子号
+    optional bytes sUserName = 2; //角色名
+    optional int32 nSeatID = 3; //座位号
+    optional int32 IsWait = 4; //是否等待大盲的标志 0为不等待，1为等待
+}
+
+//下一个大盲旁观
+message OGNextBiglingWatch {
+    optional bytes MatchID = 1; //桌子号
+    optional bytes sUserName = 2; //角色名
+    optional int32 nSeatID = 3; //座位号
+    optional int32 IsWatcher = 4; //下一个大盲旁观 0为不旁观，1为旁观
+}
+
+//聊天消息
+message OGChatMsg {
+    optional bytes MatchID = 1; //桌子号
+    optional bytes sUserName = 2; //角色名
+    optional int32 nSeatID = 3; //座位号
+    optional bytes szChat = 4; //聊天内容
+    optional int32 result = 5; //结果(由服务器端填写) 0,为失败（含有禁用字），1为成功
+}
+
+//建议消息
+message OGProposalMsg {
+    optional bytes sName = 1; //姓名
+    optional bytes sUserName = 2; //角色名
+    optional bytes sTelephone = 3; //联系方式
+    optional bytes sContent = 4; //内容
+}
+//付费消息
+message OGReqPayMsg {
+    optional bytes sUserName = 1; //角色名
+    optional bytes szTxt = 2; //内容
+    optional bytes MatchID = 3; //比赛ID
+    optional int32 nTableNo = 4; //桌子号
+}
+message OGAckPayMsg {
+    enum Reason {
+        HORN_NOTHING = 0; //成功
+        HORN_NOCOIN = 1; //失败 金币不够
+        HORN_GETCOIN = 2; //失败 不能获取金币信息
+        HORN_UPDATECOIN = 3; //失败 更新金币失败
+        HORN_ENABLETXT = 4; //失败 含有禁止文字
+    }
+    optional bytes sUserName = 1; //角色名
+    optional bytes MatchID = 2; //比赛ID
+    optional int32 nTableNo = 3; //桌子号
+    optional bytes szTxt = 4; //内容
+    optional int32 result = 5; //结果 0,为失败，1为成功
+    optional Reason eReason = 6; //原因
+    optional int32 nType = 7; //1为付费消息，2为系统消息，3礼物消息，4比赛通知
+    optional int32 remaincount = 8; //小喇叭道具的剩余数量
+    optional int64 reduceCoin = 9; //扣掉的金币数
+    optional bytes sCFUserName = 10; //该渠道特有昵称（现在专指360）
+}
+
+//======================以下为朋友桌新增消息======================
+// 请求兑换活跃度
+//#define OGID_TEXASPOKER_EXCHANGEHYD (OGID_MSGBASE_TEXASPOKER_GAMEBASE + 0x00000073)
+message OGReqExChangeHYD {
+    optional bytes MatchID = 1; //比赛ID
+    optional bytes sUserName = 2; //角色名
+    optional int64 nExHYDCount = 3; //计划兑换的活跃度的数量
+}
+
+message OGAckExChangeHYD {
+    optional int32 nResult = 1; //结果,0为失败,1为成功
+    optional bytes MatchID = 2; //比赛ID
+    optional bytes sUserName = 3; //角色名
+    optional int64 nExHYDCount = 4; //已经兑换的活跃度的数量
+    optional int64 nCurHYDCount = 5; //当前剩余的活跃度的数量
+    optional int64 nExCoin = 6; //兑换到的金币数量
+    optional int64 nTotalCoin = 7; //兑换之后的金币总量
+}
+
+// 通知活跃度变化
+// #define OGID_TEXASPOKER_CHANGEHYD  (OGID_MSGBASE_TEXASPOKER_GAMEBASE + 0x00000074)
+message OGNtfChangeHYD {
+    optional bytes MatchID = 1; //比赛ID
+    optional bytes sUserName = 2; //角色名
+    optional int64 nHYDTotal = 3; //累加活跃度
+    optional int64 nHYDCur = 4; //当前活跃度
+}
+
+// 请求赠送金币
+// #define OGID_TEXASPOKER_PRESENTCOINS (OGID_MSGBASE_TEXASPOKER_GAMEBASE + 0x00000075)
+message OGReqPresentCoins {
+    optional bytes MatchID = 1; //比赛ID
+    optional bytes sSender = 2; //赠送者
+    optional bytes sRecver = 3; //接受者
+    optional int64 nCoin = 4; //赠送的数量
+    optional uint32 nIPSender = 5; //赠送者的IP
+    optional uint32 nIPRecver = 6; //接受者的IP
+}
+message OGAckPresentCoins {
+    enum Reason {
+        PC_NOTHING = 0; //成功
+        PC_UNKNOWN = 1; //未知
+        PC_CONNECTDB = 2; //连接数据库失败
+        PC_DB = 3; //数据库操作失败
+        PC_SENDERINFO = 4; //不能获取发送者信息
+        PC_SENDERCOIN = 5; //发送者没有足够的金币
+        PC_CONFIG = 6; //缺少赠送规则配置
+        PC_CLOSE = 7; //此功能未开启
+        PC_AMOUNT = 8; //超过单次赠送数量
+        PC_TIMESUSER = 9; //超过对单一用户的赠送次数
+        PC_TIMESDAY = 10; //超过每天的最大赠送次数
+        PC_SUBTRACT = 11; //扣除赠送者金币失败
+        PC_ADD = 12; //增加接收者金币失败
+    }
+    optional bytes MatchID = 1; //比赛ID
+    optional int32 nResult = 2; //结果,0为失败,1为成功
+    optional bytes sSender = 3; //赠送者
+    optional bytes sRecver = 4; //接受者
+    optional int64 nPresentCoin = 5; //成功赠送的数量
+    optional Reason eReason = 6; //原因
+}
+
+//私聊消息
+//#define OGID_TEXASPOKER_PRIVATECHAT (OGID_MSGBASE_TEXASPOKER_GAMEBASE + 0x00000076)
+message OGReqPrivateChatMsg {
+    optional bytes MatchID = 1; //比赛ID
+    optional bytes sSender = 2; //发送者
+    optional bytes sRecver = 3; //接收者
+    optional bytes szChat = 4; //聊天内容
+}
+
+message OGAckPrivateChatMsg {
+    optional bytes MatchID = 1; //比赛ID
+    optional bytes sSender = 2; //发送者
+    optional bytes sRecver = 3; //接收者
+    optional bytes szChat = 4; //聊天内容
+    optional int32 result = 5; //结果 0,为失败（含有禁用字），1为成功
+}
+
+//禁言和解除禁言
+//#define OGID_TEXASPOKER_ABLEORUNABLECHAT (OGID_MSGBASE_TEXASPOKER_GAMEBASE + 0x00000077)
+message OGReqAbleOrUnableChat {
+    optional bytes MatchID = 1; //比赛ID
+    optional bytes sCreater = 2; //房间创建者
+    optional bytes sChatUser = 3; //聊天者
+    optional int32 nAbleFlag = 4; //标志(0为不允许聊天,1为允许聊天)
+}
+message OGAckAbleOrUnableChat {
+    optional bytes MatchID = 1; //比赛ID
+    optional bytes sCreater = 2; //房间创建者
+    optional bytes sChatUser = 3; //聊天者
+    optional int32 nAbleFlag = 4; //标志(0为不允许聊天,1为允许聊天)
+    optional int32 nResult = 5; //结果(0为不成功,1为成功)
+}
+
+//踢人
+//#define OGID_TEXASPOKER_KICK            (OGID_MSGBASE_TEXASPOKER_GAMEBASE + 0x00000078)
+message OGReqKick {
+    optional bytes MatchID = 1; //比赛ID
+    optional bytes sCreater = 2; //房间创建者
+    optional bytes sKickered = 3; //被踢者角色名
+    optional int64 nClinetId = 4; //被踢者的CientId
+}
+message OGAckKick {
+    optional bytes MatchID = 1; //比赛ID
+    optional bytes sCreater = 2; //房间创建者
+    optional bytes sKickered = 3; //被踢者角色名
+    optional int32 nResult = 4; //结果(0为不成功,1为成功)
+}
+
+//玩家列表,包含旁观者和游戏者 ,为了以后踢人用
+//#define OGID_TEXASPOKER_USERLIST         (OGID_MSGBASE_TEXASPOKER_GAMEBASE + 0x00000079)
+message OGUserInfos {
+    optional bytes sUserName = 1; //角色名
+    optional int64 nClinetId = 2; //CientId
+    optional int32 nIp = 3; //IP地址
+    optional bytes sCFUserName = 4; //该渠道特有昵称（现在专指360）
+}
+message OGUserList {
+    optional bytes MatchID = 1; //比赛ID
+    repeated OGUserInfos userlist = 2; //用户列表
+    optional bytes sCreater = 3; //房间创建者
+
+}
+//修改配置
+//#define OGID_TEXASPOKER_MODIFYCONFIG      (OGID_MSGBASE_TEXASPOKER_GAMEBASE + 0x00000080)
+message OGModifyConfig {
+    optional bytes MatchID = 1; //比赛ID
+    optional bytes sTableName = 2; //常规桌的名字
+    optional int64 nCGZ_MaxChip = 3; //最大代入筹码
+    optional int64 nCGZ_MinChip = 4; //最小代入筹码
+}
+
+//向玩家发送禁言者的列表
+//#define OGID_TEXASPOKER_UNABLECHATLIST    (OGID_MSGBASE_TEXASPOKER_GAMEBASE + 0x00000081)
+message OGUnAbleChatList {
+    optional bytes MatchID = 1; //比赛ID
+    repeated bytes szUserName = 2; //被禁言者的姓名
+}
+
+//随机显示图片
+//#define OGID_TEXASPOKER_SHOWPICTRUE       (OGID_MSGBASE_TEXASPOKER_GAMEBASE + 0x00000082)
+message OGShowPictrue {
+    optional bytes MatchID = 1; //比赛ID
+    optional int32 nTableId = 2; //桌子号
+    optional bytes szUserName = 3; //用户名
+}
+
+//新玩家加入玩家列表
+//#define OGID_TEXASPOKER_ADDUSER           (OGID_MSGBASE_TEXASPOKER_GAMEBASE + 0x00000083)
+message OGAddUserToList {
+    optional bytes MatchID = 1; //比赛ID
+    optional bytes sUserName = 2; //角色名
+    optional int64 nClinetId = 3; //CientId
+    optional int32 nIp = 4; //IP地址
+    optional bytes sCFUserName = 5; //该渠道特有昵称（现在专指360）
+}
+
+//玩家从列表中删除
+//#define OGID_TEXASPOKER_DELETEUSER        (OGID_MSGBASE_TEXASPOKER_GAMEBASE + 0x00000084)
+message OGDeleteUserFromList {
+    optional bytes MatchID = 1; //比赛ID
+    optional bytes sUserName = 2; //角色名
+}
+
+//当否玩家进入牌桌坐下后，向本桌内的其他玩家广播此玩家的礼品状态 和 标志
+//#define OGID_BROADCAST_PLAYER_GIFT_STATUS       (OGID_MSGBASE_TEXASPOKER_GAMEBASE + 0x00000085)
+message OGBroadCastPlayerGiftStatus {
+    optional bytes roleName = 1; //被广播人
+    optional bytes gift = 2; //礼品ID
+    optional bytes nbcard = 3; //NB卡ID
+}
+
+//赠送礼品(客户端接到此消息后应仅作播放动画操作)
+//#define OGID_GIVEGIFT       (OGID_MSGBASE_TEXASPOKER_GAMEBASE + 0x00000086)
+message OGGiveGift {
+    optional bytes customerName = 1; //礼物买主
+    optional bytes giftId = 2; //礼物ID
+    repeated bytes receivers = 3; //接受者的角色名
+}
+
+//赠送道具(客户端接收到此消息后重新发送查询玩家礼品状态消息,这样贵族卡才能及时更新)
+//#define OGID_GIVEITEM       (OGID_MSGBASE_TEXASPOKER_GAMEBASE + 0x00000089)
+message OGGiveItem {
+    optional bytes customerName = 1; //道具买主
+    optional bytes item = 2; //道具ID
+    optional bytes receivers = 3; //接受者的角色名
+}
+
+//广播表情
+//#define OGID_BROADCAST_FACE (OGID_MSGBASE_TEXASPOKER_GAMEBASE + 0x00000087)
+message OGBroadCastFace {
+    optional bytes roleName = 1; //表情使用者
+    optional uint32 faceType = 2; //表情类别
+    optional bytes faceContent = 3; //表情内容
+    optional uint32 seat = 4; //座位号
+}
+
+message OGReqRebuy {
+    optional bytes roleName = 1; //REBUY的用户
+    optional bytes matchid = 2; //REBUY的比赛ID
+    optional int32 tableid = 3; //REBUY的桌号
+    optional int32 type = 4; //REBUY类型,1表示REBUY，2表示ADDON, 3表示最终addon
+    optional int32 moneyType = 5; //1:金币 2:门票
+}
+
+message OGAckRebuy {
+    optional int32 result = 1; //REBUY结果,0表示成功，非0表示失败
+    optional int32 reson = 2; //失败原因
+    optional bytes roleName = 3; //REBUY的用户
+    optional bytes matchid = 4; //比赛ID
+    optional int32 tableid = 5; //桌号
+    optional int32 nTicketCount = 6; //用户当前门票数
+    optional int32 type = 7; //操作类型1表示REBUY，2表示ADDON, 3表示最终addon
+    optional int32 nCount = 8; //剩余次数
+    optional int64 nResultChip = 9; //rebuy成功后的筹码数
+}
+
+//广播比赛名次，奖励
+//#define OGID_BROADCAST_MATCHRANK        (OGID_MSGBASE_TEXASPOKER_GAMEBASE + 0x0000008A)
+message OGBroadCastMatchRank {
+    optional bytes roleName = 1; //角色名
+    optional bytes matchName = 2; //比赛名称
+    optional int32 nRank = 3; //名次
+    optional int32 nRewardType = 4; //奖品类型（1=入场卷;2=元宝;3=金币;4=积分;5=实物奖）
+    optional int64 nRewardCount = 5; //奖品数量
+    optional bytes RewardName = 6; //奖品描述
+}
