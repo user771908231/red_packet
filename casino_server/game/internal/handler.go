@@ -278,6 +278,7 @@ func handlerGameLoginGame(args []interface{}){
 func  handlerGameEnterMatch(args []interface{}){
 	a := args[1].(gate.Agent)
 	result := &bbproto.Game_AckEnterMatch{}
+	result.Tableid = new(int32)
 	result.Result = new(int32)
 	a.WriteMsg(result)
 }

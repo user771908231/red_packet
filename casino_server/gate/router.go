@@ -48,6 +48,7 @@ func init() {
 	msg.PortoProcessor.SetRouter(&bbproto.NullMsg{},login.ChanRPC)
 	msg.PortoProcessor.SetRouter(&bbproto.MatchList_ReqMobileMatchList{},game.ChanRPC)	//快速开始
 	msg.PortoProcessor.SetRouter(&bbproto.Game_LoginGame{},game.ChanRPC)	//登陆游戏
+	msg.PortoProcessor.SetRouter(&bbproto.Game_EnterMatch{},game.ChanRPC)	//进入游戏
 
 
 }
