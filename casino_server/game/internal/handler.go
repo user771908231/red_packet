@@ -276,6 +276,9 @@ func handlerGameLoginGame(args []interface{}){
   enterMatch.set_tableid(Tableid);
  */
 func  handlerGameEnterMatch(args []interface{}){
+	log.T("handlerGameEnterMatch")
+	m := args[0].(*bbproto.Game_EnterMatch)
+	log.T("收到的数据[%v]",m)
 	a := args[1].(gate.Agent)
 	result := &bbproto.Game_AckEnterMatch{}
 	result.Tableid = new(int32)
