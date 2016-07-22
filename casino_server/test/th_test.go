@@ -41,7 +41,7 @@ func intoRoom(userId uint32){
 	h2.UserId = &userid
 	data2.Header = h2
 	data2.ReqType =&reqType
-	m2 := test.AssembleData(uint16(ide2), data2)
+	m2 := test.AssembleDataNomd5(uint16(ide2), data2)
 	conn.Write(m2)
 
 	result := test.Read(conn).(*bbproto.ThRoom)

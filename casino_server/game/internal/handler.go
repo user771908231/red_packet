@@ -11,6 +11,7 @@ import (
 	"casino_server/conf/intCons"
 	"casino_server/service/room"
 	"casino_server/service/thService"
+	"casino_server/service/OGservice"
 )
 
 func init() {
@@ -41,9 +42,6 @@ func init() {
 	//联众的德州扑克
 	handler(&bbproto.Game_LoginGame{},handlerGameLoginGame)	//登陆游戏
 	handler(&bbproto.Game_EnterMatch{},handlerGameEnterMatch)//进入房间
-
-
-
 }
 
 func handler(m interface{}, h interface{}) {
@@ -265,6 +263,9 @@ func handlerThBet(args []interface{}){
 
 func handlerGameLoginGame(args []interface{}){
 	log.T("快速登陆德州扑克游戏")
+	m := args[0].(*bbproto.Game_LoginGame)
+	log.T("收到的数据[%v]",m)
+
 	a := args[1].(gate.Agent)
 	result := &bbproto.Game_LoginGame{}
 	result.Result = new(int32)		//默认是0表示成功
@@ -276,9 +277,16 @@ func handlerGameLoginGame(args []interface{}){
   enterMatch.set_tableid(Tableid);
  */
 func  handlerGameEnterMatch(args []interface{}){
+	log.T("handlerGameEnterMatch")
+	m := args[0].(*bbproto.Game_EnterMatch)
+	log.T("收到的数据[%v]",m)
 	a := args[1].(gate.Agent)
-	result := &bbproto.Game_AckEnterMatch{}
-	result.Tableid = new(int32)
-	result.Result = new(int32)
-	a.WriteMsg(result)
+
+	//result := &bbproto.Game_AckEnterMatch{}
+	//result.Tableid = new(int32)
+	//result.Result = new(int32)
+
+	//返回房间的信息
+	OGservice.HandlerGameEnterMatch(m,a)
+
 }

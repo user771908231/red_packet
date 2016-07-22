@@ -233,6 +233,7 @@ message game_ChangeTable {
     optional bytes sCFUserName = 6; //该渠道特有昵称（现在专指360）
 }
 
+//发送游戏信息
 message game_SendGameInfo {
     optional bytes Matchid = 1;
     optional int32 Tableid = 2;
