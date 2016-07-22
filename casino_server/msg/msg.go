@@ -56,4 +56,6 @@ func init() {
 	PortoProcessor.Register(&bbproto.Game_LoginGame{})	//30	登陆游戏
 	PortoProcessor.Register(&bbproto.Game_EnterMatch{})	//31	进入房间
 	PortoProcessor.Register(&bbproto.Game_AckEnterMatch{})	//32
+	PortoProcessor.Register(&bbproto.Game_SendGameInfo{})	//33
+
 }
