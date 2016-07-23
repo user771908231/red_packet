@@ -44,6 +44,7 @@ func (u *UserLockPool) GetUserLockByUserId(userId uint32) *UserLock{
  */
 func (u *UserLockPool) AddUserLockByUserId(userId uint32) (*UserLock,error){
 	//首先判断pool中是否已经存在,如果存在返回保存失败,如果不存在则从新生成并且返回结果
+	log.T("为用户[%v]添加用户锁...",userId)
 	result := &UserLock{}
 	result.userId = userId
 	if u.pool == nil {

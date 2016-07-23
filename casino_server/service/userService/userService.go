@@ -23,7 +23,6 @@ var(
 	//更新的方式,是只更新到redis 还是redis和mongo都需要更新
 	UPDATE_TYPE_ONLY_REDIS	int  = 1
 	UPDATE_TYPE_REAIS_MONGO int  = 2
-
 )
 
 
@@ -329,5 +328,4 @@ func DecreaseUserCoin(userId uint32,coin int32) error{
 	*user.Coin -= coin
 	SaveUser2Redis(user)
 	return nil
-
 }

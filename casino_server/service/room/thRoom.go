@@ -18,18 +18,19 @@ import (
 	"fmt"
 	"casino_server/mode"
 	"gopkg.in/mgo.v2/bson"
+	"casino_server/gamedata"
 )
 
 
 //config
 var THROOM_SEAT_COUNT int32 = 8               //玩德州扑克,每个房间最多多少人
 var GAME_THROOM_MAX_COUNT int32 = 500         //一个游戏大厅最多有多少桌德州扑克
-var TH_TIMEOUT_DURATION = time.Second * 5              //德州出牌的超时时间
+var TH_TIMEOUT_DURATION = time.Second * 5000              //德州出牌的超时时间
 var TH_LOTTERY_DURATION = time.Second * 5              //德州开奖的时间
 
 
 //测试的时候 修改喂多人才可以游戏
-var TH_DESK_LEAST_START_USER int32 = 5        //最少多少人可以开始游戏
+var TH_DESK_LEAST_START_USER int32 = 2       //最少多少人可以开始游戏
 
 //德州扑克 玩家的状态
 var TH_USER_STATUS_WAITSEAT int32 = 1      //刚上桌子 等待开始的玩家
@@ -190,6 +191,11 @@ func (r *ThGameRoom) AddUser(userId uint32, a gate.Agent) (*ThDesk, error) {
 
 	log.T("userid【%v】进入德州扑克的房间", userId)
 
+	//测试代码
+	userAgentData := &gamedata.AgentUserData{}
+	userAgentData.UserId = userId
+	a.SetUserData(userAgentData)
+
 	//1,判断参数是否正确
 	//1.1 判断userId 是否合法
 	userCheck := userService.CheckUserIdRightful(userId)
@@ -272,6 +278,7 @@ type ThUser struct {
 	totalBet  int32                 //押注总额
 	winAmount int32                 //总共赢了多少钱
 	HandCoin  int32                 //用户的余额
+	NickName  string		//用户昵称
 }
 
 //
@@ -385,7 +392,7 @@ type ThDesk struct {
 	Jackpot            int32                        //奖金池
 	bianJackpot        int32                        //边池
 	AllInJackpot       []*pokerService.AllInJackpot //allin的标记
-	MinRaise           int32                        //最低加注金额
+	MinRaise           int64                        //最低加注金额
 }
 
 
@@ -436,12 +443,14 @@ func (t *ThDesk) LogString() {
  */
 func (t *ThDesk) AddThUser(userId uint32, a gate.Agent) error {
 
+	//redisUser := userService.GetUserById(userId)
 	//通过userId 和agent 够做一个thuser
 	thUser := NewThUser()
 	thUser.userId = userId
 	thUser.agent = a
 	thUser.Status = TH_USER_STATUS_WAITSEAT        //刚进房间的玩家
 	thUser.deskId = t.Id                //桌子的id
+	//thUser.NickName = *redisUser.NickName
 
 	//添加thuser
 	for i := 0; i < len(t.Users); i++ {
@@ -477,8 +486,7 @@ func (t *ThDesk) RmThuser(userId uint32) error {
 
 }
 
-func (t *ThDesk) Run() error{
-	t.Run()
+func (t *ThDesk) RunTh() error{
 	//广播消息
 	res := &bbproto.THBetBegin{}
 	res.Header = protoUtils.GetSuccHeader()
@@ -499,7 +507,7 @@ func (t *ThDesk) Run() error{
 	1,初始化庄
 	2,初始化
  */
-func (t *ThDesk) RunTh() error {
+func (t *ThDesk) Run() error {
 	//把正在等待的用户设置可以游戏
 	err := t.UserWait2Seat()
 	if err != nil {
@@ -516,16 +524,6 @@ func (t *ThDesk) RunTh() error {
 	//设置房间状态
 	t.OinitBegin()
 	//设置第一个押注的人
-	return nil
-}
-
-//run 德州扑克
-func (t *ThDesk) RunOgth() error{
-	t.Run()
-
-	//todo 给联众德州发送广播消息发送广播消息
-
-
 	return nil
 }
 
@@ -596,7 +594,7 @@ func (t *ThDesk) THBroadcastProto(p proto.Message, ignoreUserId uint32) error {
 func (t *ThDesk) THBroadcastAddUser(newUserId, ignoreUserId uint32) error {
 	for i := 0; i < len(t.Users); i++ {
 		if t.Users[i] != nil && t.Users[i].userId != ignoreUserId {
-			users := t.GetResUserModelClieSeq(t.Users[i].userId)
+			users := t.GetResUserModelClieSeq(t.Users[i].userId)		//v1 需要更具当前用户进行排序
 			broadUsers := &bbproto.THRoomAddUserBroadcast{}
 			broadUsers.Header = protoUtils.GetSuccHeaderwithUserid(&(t.Users[i].userId))
 			for i := 0; i < len(users); i++ {
@@ -612,7 +610,29 @@ func (t *ThDesk) THBroadcastAddUser(newUserId, ignoreUserId uint32) error {
 		}
 	}
 	return nil
+}
 
+/**
+当有新用户进入房间的时候,为其他人广播新过来的人的信息
+ */
+func (t *ThDesk) OGTHBroadcastAddUser(newUserId, ignoreUserId uint32) error {
+	for i := 0; i < len(t.Users); i++ {
+		if t.Users[i] != nil && t.Users[i].userId != ignoreUserId {
+			users := t.GetResUserModel()				//不需要排序
+			broadUsers := &bbproto.THRoomAddUserBroadcast{}
+			broadUsers.Header = protoUtils.GetSuccHeaderwithUserid(&(t.Users[i].userId))
+			for i := 0; i < len(users); i++ {
+				if users[i] != nil && users[i].User.GetId() == newUserId {
+					broadUsers.User = users[i]
+					break
+				}
+			}
+			a := t.Users[i].agent
+			log.Normal("给userId[%v]发送消息:[%v]", t.Users[i].userId, broadUsers)
+			a.WriteMsg(broadUsers)
+		}
+	}
+	return nil
 }
 
 
@@ -626,6 +646,7 @@ func (t *ThDesk) GetResUserModel() []*bbproto.THUser {
 	for i := 0; i < len(t.Users); i++ {
 		if t.Users[i] != nil {
 			result[i] = t.Users[i].trans2bbprotoThuser()
+			*result[i].SeatNumber = int32(i)
 		} else {
 			result[i] = &bbproto.THUser{}
 			result[i].SeatNumber = new(int32)        //设置为0
@@ -928,7 +949,7 @@ func (t *ThDesk) Lottery() error {
 
 	//开奖完成之后,需要重新开始下一局,调用t.Run表示重新下一句
 	time.Sleep(TH_LOTTERY_DURATION)
-	t.RunTh()
+	t.Run()
 	return nil
 }
 
@@ -1187,8 +1208,13 @@ func (t *ThDesk) GetUserIndex(userId uint32) int {
 			break
 		}
 	}
-
 	return result
+}
+
+//通过UserId找到User
+func (t *ThDesk) GetUserByUserId(userId uint32) *ThUser{
+	index := t.GetUserIndex(userId)
+	return t.Users[index]
 }
 
 

@@ -69,7 +69,7 @@ func Read(conn net.Conn) proto.Message{
 	msgLen := uint32(binary.BigEndian.Uint16(lenBuf))
 	msgData := make([]byte, msgLen)
 	conn.Read(msgData[0:])
-	temp, _ := msg.PortoProcessor.Unmarshal(msgData)
+	temp, _ := msg.ProtoProcessor.Unmarshal(msgData)
 	fmt.Println("读取信息完毕:",temp)
 	return temp.(proto.Message)
 }
