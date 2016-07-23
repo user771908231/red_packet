@@ -372,3 +372,9 @@ func  run(mydesk *room.ThDesk)error{
 	return nil
 
 }
+
+//处理押注的请求
+func HandlerFollowBet(m  *bbproto.Game_FollowBet,a gate.Agent) error{
+	log.T("处理用户押注的请求")
+	return nil
+}

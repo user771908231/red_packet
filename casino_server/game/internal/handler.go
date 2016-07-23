@@ -42,6 +42,7 @@ func init() {
 	//联众的德州扑克
 	handler(&bbproto.Game_LoginGame{},handlerGameLoginGame)	//登陆游戏
 	handler(&bbproto.Game_EnterMatch{},handlerGameEnterMatch)//进入房间
+	handler(&bbproto.Game_FollowBet{},handlerFollowBet)	//处理押注的请求
 }
 
 func handler(m interface{}, h interface{}) {
@@ -281,5 +282,11 @@ func  handlerGameEnterMatch(args []interface{}){
 
 	//返回房间的信息
 	OGservice.HandlerGameEnterMatch(m,a)
+}
 
+//处理押注的请求
+func handlerFollowBet(args []interface{}){
+	m := args[0].(*bbproto.Game_FollowBet)
+	a := args[1].(gate.Agent)
+	OGservice.HandlerFollowBet(m,a)
 }
