@@ -9,7 +9,11 @@ import (
 )
 
 func TestOg(t *testing.T) {
-	game_EnterMatch()
+	game_EnterMatch(10006)
+	//game_EnterMatch(10008)
+	//game_EnterMatch(10009)
+	//game_EnterMatch(10010)
+	//game_EnterMatch(10011)
 	//gamelogingame(1111)
 }
 
@@ -33,7 +37,7 @@ func gamelogingame(userId uint32) {
 }
 
 
-func game_EnterMatch(){
+func game_EnterMatch(userId int32){
 	conn, err := net.Dial(TCP, url)
 	if err != nil {
 		panic(err)
@@ -43,7 +47,8 @@ func game_EnterMatch(){
 
 	fmt.Println("proto 得到的id ", ide2)
 	data2 := &bbproto.Game_EnterMatch{}
+	data2.Tableid = &userId
 	m2 := test.AssembleDataNomd5(uint16(ide2), data2)
 	conn.Write(m2)
-	test.Read(conn).(*bbproto.Game_SendGameInfo)
+	_ = test.Read(conn).(*bbproto.Game_SendGameInfo)
 }

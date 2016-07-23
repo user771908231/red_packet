@@ -272,19 +272,12 @@ func handlerGameLoginGame(args []interface{}){
 	a.WriteMsg(result)
 }
 
-/**
- enterMatch.set_matchid(MatchID);
-  enterMatch.set_tableid(Tableid);
- */
+// 处理请求进入游戏房间
 func  handlerGameEnterMatch(args []interface{}){
-	log.T("handlerGameEnterMatch")
+	log.T("进入到-handlerGameEnterMatch()")
 	m := args[0].(*bbproto.Game_EnterMatch)
-	log.T("收到的数据[%v]",m)
 	a := args[1].(gate.Agent)
-
-	//result := &bbproto.Game_AckEnterMatch{}
-	//result.Tableid = new(int32)
-	//result.Result = new(int32)
+	log.T("收到的数据-handlerGameEnterMatch()--[%v]",m)
 
 	//返回房间的信息
 	OGservice.HandlerGameEnterMatch(m,a)

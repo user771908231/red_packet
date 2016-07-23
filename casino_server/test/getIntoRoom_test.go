@@ -44,7 +44,7 @@ func fun1(t *testing.T) {
 		}
 		fmt.Println("读取到广播消息",res)
 
-		msg2, err := msg.PortoProcessor.Unmarshal(res[2:count])
+		msg2, err := msg.ProtoProcessor.Unmarshal(res[2:count])
 		if err != nil {
 		}
 		m5 :=  msg2.(*bbproto.RoomMsg)

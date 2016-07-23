@@ -31,7 +31,7 @@ func (m *Module) OnInit() {
 		LenMsgLen:       conf.LenMsgLen,
 		LittleEndian:    conf.LittleEndian,
 		//Processor:       msg.Processor,
-		Processor:       msg.PortoProcessor,
+		Processor:       msg.ProtoProcessor,
 		AgentChanRPC:    game.ChanRPC,
 	}
 }

@@ -259,6 +259,9 @@ message game_SendGameInfo {
     optional int32 bFinalAddon = 22; //是否已完成最终ADDON 1：已完成 0：未完成
     optional int32 nInitActionTime = 23; //初始操作时间
     optional int32 nInitDelayTime = 24; //初始延时时间
+    repeated string nickName    =25;    //昵称
+    repeated int32 seatId   =26;        //座位号
+
 }
 
 message game_ShowCard {

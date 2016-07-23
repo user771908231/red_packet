@@ -6,40 +6,35 @@ import (
 	"casino_server/msg/bbprotogo"
 	"casino_server/utils/test"
 	"fmt"
+	"casino_server/msg/bbprotoFuncs"
 )
 
 func TestLogin(t *testing.T) {
-	login2()
-	//login1()
-	for ; ; {
+	//login2()
+	login1(10007)
+	//login1(10008)
+	//login1(10009)
+	//login1(10010)
+	//login1(10011)
 
-	}
 }
 
 
-//指定id登陆
-func login1() {
+//指定id登陆--
+func login1(userId uint32) {
 	conn, err := net.Dial(TCP, url)
 	if err != nil {
 		panic(err)
 	}
 	defer conn.Close()
-
 	var id uint16 = 2
-	var uId uint32 = 10005
-	var h *bbproto.ProtoHeader = &bbproto.ProtoHeader{
-		UserId:&uId,
-	}
-	var data bbproto.ReqAuthUser
-	data.Header = h
-	m := test.AssembleData(id, &data)
+
+	data := &bbproto.ReqAuthUser{}
+	data.Header = protoUtils.GetSuccHeaderwithUserid(&userId)
+	m := test.AssembleData(id, data)
 	conn.Write(m)
 
 	result := test.Read(conn).(*bbproto.ReqAuthUser)
-	fmt.Println("读取的结果header:", result.GetHeader())
-	fmt.Println("读取的结果code:", result.GetHeader().GetCode())
-	fmt.Println("读取的结果error:", result.GetHeader().GetError())
-
 	fmt.Println("读取的结果:", result)
 
 }
