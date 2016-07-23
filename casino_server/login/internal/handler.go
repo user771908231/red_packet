@@ -107,7 +107,7 @@ func HandlerREQQuickConn(args []interface{}){
 	log.T("m:【%v】",m)
 	a := args[1].(gate.Agent)
 
-	var ip string = "192.168.199.120"
+	var ip string = "182.92.179.230"
 	var port string = "3563"
 	ogRoomInfo := &bbproto.OGRoomInfo{}
 	ogRoomInfo.RoomIp = &ip
