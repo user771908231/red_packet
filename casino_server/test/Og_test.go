@@ -12,11 +12,12 @@ import (
 
 func TestOg(t *testing.T) {
 	//game_EnterMatch(10006)
-	game_EnterMatch(10008)
-	game_EnterMatch(10009)
+	//game_EnterMatch(10008)
+	//game_EnterMatch(10009)
 	//game_EnterMatch(10010)
 	//game_EnterMatch(10011)
 	//gamelogingame(1111)
+	ogbet(1,20)
 }
 
 func gamelogingame(userId uint32) {
@@ -63,7 +64,7 @@ func ogbet(seatId int32,coin int64){
 		panic(err)
 	}
 	defer conn.Close()
-	ide2 := int32(31)
+	ide2 := int32(bbproto.EProtoId_GAME_FOLLOWBET)
 
 	fmt.Println("proto 得到的id ", ide2)
 	followData := &bbproto.Game_FollowBet{}

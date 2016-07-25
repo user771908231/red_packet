@@ -47,5 +47,10 @@ func init() {
 	msg.ProtoProcessor.SetRouter(&bbproto.MatchList_ReqMobileMatchList{},game.ChanRPC)	//快速开始
 	msg.ProtoProcessor.SetRouter(&bbproto.Game_LoginGame{},game.ChanRPC)	//登陆游戏
 	msg.ProtoProcessor.SetRouter(&bbproto.Game_EnterMatch{},game.ChanRPC)	//进入游戏
+	msg.ProtoProcessor.SetRouter(&bbproto.Game_FollowBet{},game.ChanRPC)	//押注的请求
+	msg.ProtoProcessor.SetRouter(&bbproto.Game_RaiseBet{},game.ChanRPC)		//加注的请求
+	msg.ProtoProcessor.SetRouter(&bbproto.Game_FoldBet{},game.ChanRPC)	//弃牌的请求
+	msg.ProtoProcessor.SetRouter(&bbproto.Game_CheckBet{},game.ChanRPC)	//让牌的请求
+
 
 }
