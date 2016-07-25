@@ -136,6 +136,8 @@ func initGameSendgameInfoByDesk(mydesk *room.ThDesk, result *bbproto.Game_SendGa
 	*result.NInitActionTime = int32(room.TH_TIMEOUT_DURATION)
 	*result.NInitDelayTime = int32(room.TH_TIMEOUT_DURATION)
 	result.Handcard = getHandCard(mydesk)		//用户手牌
+	result.HandCoin = getHandCoin(mydesk)	//下注的金额
+	result.TurnCoin = getTurnCoin(mydesk)
 
 	//循环User来处理
 	for i := 0; i < len(mydesk.Users); i++ {
@@ -147,11 +149,6 @@ func initGameSendgameInfoByDesk(mydesk *room.ThDesk, result *bbproto.Game_SendGa
 			result.BLeave = append(result.BLeave, isLeave(u))
 			result.BEnable = append(result.BEnable, isEnable(u))                        //用户是否可以操作,0表示不能操作,1表示可以操作
 			result.BFold = append(result.BFold, isFold(u))        //是否弃牌
-
-			//用户的余额
-			result.TurnCoin = append(result.HandCoin, int64(u.HandCoin))
-			result.HandCoin = append(result.HandCoin, int64(u.RoundBet))
-
 			//nickName			//seatId
 			result.NickName = append(result.NickName, u.NickName)
 			result.SeatId = append(result.SeatId, int32(i))
@@ -159,7 +156,6 @@ func initGameSendgameInfoByDesk(mydesk *room.ThDesk, result *bbproto.Game_SendGa
 		} else {
 
 		}
-
 	}
 
 	return nil
@@ -242,6 +238,38 @@ func getHandCard(mydesk *room.ThDesk) []*bbproto.Game_CardInfo {
 	}
 	return handCard
 }
+
+
+//解析每个人下注的金额
+func getHandCoin(mydesk *room.ThDesk) []int64{
+	result := make([]int64,len(mydesk.Users))
+	for i := 0; i < len(mydesk.Users); i++ {
+		u := mydesk.Users[i]
+		if u != nil {
+			//用户手牌
+			result[i] = int64(u.RoundBet)
+		} else {
+			result[i]= int64(0)
+		}
+	}
+	return result
+}
+
+//解析TurnCoin
+func getTurnCoin(mydesk *room.ThDesk) []int64{
+	result := make([]int64,len(mydesk.Users))
+	for i := 0; i < len(mydesk.Users); i++ {
+		u := mydesk.Users[i]
+		if u != nil {
+			//用户手牌
+			result[i] = int64(u.Coin)
+		} else {
+			result[i]= int64(0)
+		}
+	}
+	return result
+}
+
 
 //th的牌转换成OG的牌
 func thCard2OGCard(pai *bbproto.Pai) *bbproto.Game_CardInfo {
@@ -341,28 +369,32 @@ func deskStatus2OG(desk *room.ThDesk) int32 {
 func  run(mydesk *room.ThDesk)error{
 	mydesk.Run()
 
-	//2,发送盲注的广播
+	//2,------------------------------------发送盲注的广播------------------------------------
 	log.T("开始广播盲注的信息")
 	blindB := &bbproto.Game_BlindCoin{}
-	//blindB.Tableid	//deskid
-	//blindB.Matchid  //roomId
-	//blindB.Banker	//庄
-	//blindB.Bigblind	//大盲注
-	//blindB.Bigblindseat	//大盲注座位号
-	//
-	//blindB.Smallblind
-	//blindB.Smallblindseat
-	//
-	//blindB.Coin	//
-	//blindB.Pool
-	log.T("广播盲注的信息完毕")
 
+	//初始化指针地址
+	blindB.Banker = new(int32)
+	blindB.Bigblindseat = new(int32)
+	blindB.Smallblindseat = new(int32)
+
+	//初始化默认值
+	blindB.Tableid = &mydesk.Id	//deskid
+	//blindB.Matchid = &room.ThGameRoomIns.Id //roomId
+	*blindB.Banker = int32(mydesk.GetUserIndex(mydesk.Dealer))	//庄
+	blindB.Bigblind = &mydesk.BigBlindCoin	//大盲注
+	blindB.Smallblind = &mydesk.SmallBlindCoin	//小盲注
+	*blindB.Bigblindseat = int32(mydesk.GetUserIndex(mydesk.BigBlind))	//大盲注座位号
+	*blindB.Smallblindseat = int32(mydesk.GetUserIndex(mydesk.SmallBlind))	//小盲注座位号
+	blindB.Coin	= getTurnCoin(mydesk)	//每个人手中的coin
+	blindB.Handcoin = getHandCoin(mydesk)	//每个人下注的coin
+	blindB.Pool	= &mydesk.Jackpot	//奖池
 
 	mydesk.THBroadcastProto(blindB,0)
+	log.T("广播盲注的信息完毕")
 
-	//3,发送手牌的广播
+	//3,------------------------------------发送手牌的广播------------------------------------
 	log.T("广播initCard的信息")
-
 	initCardB := &bbproto.Game_InitCard{}
 
 	//设置默认值

@@ -225,13 +225,17 @@ func UpsertUser2Mongo(u *bbproto.User){
 	}
 	defer c.Close()
 
-	// 获取回话 session
 	s := c.Ref()
 	defer c.UnRef(s)
 
 	//把bbproto.User转化为  model.User
 	tuser,_:=Ruser2Tuser(u)	//
-	s.DB(casinoConf.DB_NAME).C(casinoConf.DBT_T_USER).UpsertId(bson.M{"_id": tuser.Mid},tuser)
+	log.T("把user[%v]保存到数据库]",tuser)
+	if tuser.Mid == ""{
+		s.DB(casinoConf.DB_NAME).C(casinoConf.DBT_T_USER).Insert(tuser)
+	}else{
+		s.DB(casinoConf.DB_NAME).C(casinoConf.DBT_T_USER).Update(bson.M{"_id": tuser.Mid},tuser)
+	}
 
 }
 /**
