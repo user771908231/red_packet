@@ -174,6 +174,9 @@ func GetUserById(id uint32) *bbproto.User {
 		}else{
 			//把从数据获得的结果填充到redis的model中
 			result,_ = Tuser2Ruser(tuser)
+			if result!=nil {
+				SaveUser2Redis(result)
+			}
 		}
 	}
 
@@ -181,7 +184,6 @@ func GetUserById(id uint32) *bbproto.User {
 	if result == nil {
 		return nil
 	}else{
-		SaveUser2Redis(result)
 		result.OninitLoginTurntableState()	//初始化登录转盘之后的奖励
 		return result
 	}

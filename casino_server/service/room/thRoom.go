@@ -465,6 +465,7 @@ func (t *ThDesk) AddThUser(userId uint32, a gate.Agent) error {
 	thUser.deskId = t.Id                //桌子的id
 	thUser.NickName = *redisUser.NickName
 	thUser.Coin = *redisUser.Coin
+	log.T("初始化thuser的时候coin[%v]:",thUser.Coin)
 
 	//添加thuser
 	for i := 0; i < len(t.Users); i++ {
@@ -550,6 +551,8 @@ func (t *ThDesk) BlindBet() error {
 	smallUse.HandCoin = t.SmallBlindCoin
 	smallUse.Coin = *smallReduser.Coin
 	smallUse.TurnCoin += t.SmallBlindCoin
+	smallUse.TotalBet += t.SmallBlindCoin
+
 
 	//大盲注押注
 	userService.DecreaseUserCoin(t.BigBlind, t.BigBlindCoin)
@@ -558,6 +561,7 @@ func (t *ThDesk) BlindBet() error {
 	bigUser.HandCoin = t.BigBlindCoin
 	bigUser.Coin = *bigRedUser.Coin
 	bigUser.TurnCoin += t.BigBlindCoin
+	bigUser.TotalBet += t.BigBlindCoin
 
 	return nil
 }
