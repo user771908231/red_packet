@@ -393,6 +393,7 @@ type ThDesk struct {
 	bianJackpot        int64                        //边池
 	AllInJackpot       []*pokerService.AllInJackpot //allin的标记
 	MinRaise           int64                        //最低加注金额
+	CanRaise	   int32				//是否能加注
 }
 
 /**

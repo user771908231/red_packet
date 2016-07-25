@@ -327,3 +327,5 @@ func DecreaseUserCoin(userId uint32,coin int64) error{
 	SaveUser2Redis(user)
 	return nil
 }
+
+

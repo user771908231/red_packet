@@ -249,15 +249,17 @@ func thCard2OGCard(pai *bbproto.Pai) *bbproto.Game_CardInfo {
 	result.Value = new(int32)
 	result.Color = new(int32)
 
+	log.T("初始化牌的花色:*pai.flower[%v]",*pai.Flower)
+
 	//初始化花色
 	switch *pai.Flower {
-	case "HEART" :
+	case "heart" :
 		*result.Color = POKER_COLOR_HEARTS
-	case "DIAMOND" :
+	case "diamond" :
 		*result.Color = POKER_COLOR_DIAMOND
-	case "CLUB" :
+	case "club" :
 		*result.Color = POKER_COLOR_CLUB
-	case "SPADE" :
+	case "spade" :
 		*result.Color = POKER_COLOR_SPADE
 	}
 
@@ -340,6 +342,7 @@ func  run(mydesk *room.ThDesk)error{
 	mydesk.Run()
 
 	//2,发送盲注的广播
+	log.T("开始广播盲注的信息")
 	blindB := &bbproto.Game_BlindCoin{}
 	//blindB.Tableid	//deskid
 	//blindB.Matchid  //roomId
@@ -352,17 +355,23 @@ func  run(mydesk *room.ThDesk)error{
 	//
 	//blindB.Coin	//
 	//blindB.Pool
+	log.T("广播盲注的信息完毕")
+
 
 	mydesk.THBroadcastProto(blindB,0)
 
 	//3,发送手牌的广播
+	log.T("广播initCard的信息")
+
 	initCardB := &bbproto.Game_InitCard{}
 
+	//设置默认值
 	initCardB.Tableid = new(int32)
-	*initCardB.Tableid = int32(mydesk.Id)
-
 	initCardB.ActionTime = new(int32)
 	initCardB.DelayTime  = new(int32)
+
+	//设置初始化值
+	*initCardB.Tableid = int32(mydesk.Id)
 	initCardB.HandCard = getHandCard(mydesk)
 	initCardB.PublicCard = thPublicCard2OGC(mydesk)
 	initCardB.MinRaise = &mydesk.MinRaise
@@ -370,8 +379,8 @@ func  run(mydesk *room.ThDesk)error{
 	initCardB.Seat = &mydesk.UserCount
 	mydesk.THBroadcastProto(initCardB,0)
 
+	log.T("广播initCard的信息完毕")
 	return nil
-
 }
 
 //处理押注的请求
@@ -408,7 +417,6 @@ func getUserIdByAgent( a gate.Agent) uint32{
 	if ad == nil {
 		log.E("agent中的userData为nil")
 		return uint32(0)
-
 	}
 
 	userData := ad.(*gamedata.AgentUserData)
