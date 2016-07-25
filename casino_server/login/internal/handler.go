@@ -14,6 +14,7 @@ import (
 	"fmt"
 	"casino_server/msg/bbprotoFuncs"
 	"casino_server/gamedata"
+	"casino_server/conf"
 )
 
 func handleMsg(m interface{}, h interface{}) {
@@ -25,8 +26,6 @@ func init() {
 	handleMsg(&bbproto.ReqAuthUser{},handleReqAuthUser)
 	handleMsg(&bbproto.REQQuickConn{},HandlerREQQuickConn)
 	handleMsg(&bbproto.NullMsg{},handlerNullMsg)
-
-
 }
 
 /**
@@ -107,8 +106,10 @@ func HandlerREQQuickConn(args []interface{}){
 	log.T("m:【%v】",m)
 	a := args[1].(gate.Agent)
 
-	var ip string = "182.92.179.230"
-	var port string = "3563"
+	arrs := strings.Split(conf.Server.TCPAddr,":")
+	var ip string = arrs[0]
+	var port string = arrs[1]
+
 	ogRoomInfo := &bbproto.OGRoomInfo{}
 	ogRoomInfo.RoomIp = &ip
 	ogRoomInfo.RoomPort =&port
@@ -116,7 +117,6 @@ func HandlerREQQuickConn(args []interface{}){
 	thranSjjInfo := &bbproto.ThranJSSInfo{}
 	thranSjjInfo.RoomIP = &ip
 	thranSjjInfo.RoomPort = &port
-
 
 	oglist := make([]*bbproto.OGRoomInfo,1)
 	oglist[0] = ogRoomInfo
@@ -128,12 +128,10 @@ func HandlerREQQuickConn(args []interface{}){
 	result.JssList = tslist
 	result.MatchSvrList = oglist
 
-
 	var coin int64 = 999888
 	result.CoinCnt = &coin
 	log.T("回复的消息:[%v]",result)
 	a.WriteMsg(result)
-
 }
 
 

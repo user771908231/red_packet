@@ -104,7 +104,7 @@ func (r *ThGameRoom) Run() {
 
 //增加一个thRoom
 func (r *ThGameRoom) AddThRoom(index int, throom *ThDesk) error {
-	throom.Id = uint32(index)
+	throom.Id = int32(index)
 	//r.ThDeskBuf[index] = throom
 	r.ThDeskBuf = append(r.ThDeskBuf, throom)
 	return nil
@@ -135,7 +135,7 @@ func (r *ThGameRoom) RmThroom(number int32) error {
 }
 
 //通过Id找到对应的桌子
-func (r *ThGameRoom) GetDeskById(id uint32) *ThDesk {
+func (r *ThGameRoom) GetDeskById(id int32) *ThDesk {
 	var result *ThDesk = nil
 	for i := 0; i < len(r.ThDeskBuf); i++ {
 		if r.ThDeskBuf[i] != nil && r.ThDeskBuf[i].Id == id {
@@ -273,11 +273,11 @@ type ThUser struct {
 	thCards   *pokerService.ThCards //手牌加公共牌取出来的值,这个值可以实在结算的时候来取
 	waiTime   time.Time             //等待时间
 	waitUUID  string                //等待标志
-	deskId    uint32                //用户所在的桌子的编号
-	RoundBet  int32                 //单轮押注的金额
-	totalBet  int32                 //押注总额
-	winAmount int32                 //总共赢了多少钱
-	HandCoin  int32                 //用户的余额
+	deskId    int32                //用户所在的桌子的编号
+	RoundBet  int64                 //单轮押注的金额
+	totalBet  int64                 //押注总额
+	winAmount int64                 //总共赢了多少钱
+	HandCoin  int64                 //用户的余额
 	NickName  string		//用户昵称
 }
 
@@ -373,7 +373,7 @@ func NewThUser() *ThUser {
  */
 type ThDesk struct {
 	sync.Mutex
-	Id                 uint32                       //roomid
+	Id                 int32                       //roomid
 	Number             int32                        //桌子的编号
 	Dealer             uint32                       //庄家
 	PublicPai          []*bbproto.Pai               //公共牌的部分
@@ -386,15 +386,14 @@ type ThDesk struct {
 	BetUserRaiseUserId uint32                       //加注的人的Id
 	BetUserNow         uint32                       //当前押注人的Id
 	RemainTime         int32                        //剩余投资的时间  多少秒
-	BetAmountNow       int32                        //挡墙的押注金额是多少
+	BetAmountNow       int64                        //当前的押注金额是多少
 	RoundCount         int32                        //低几轮
 	CheckUserFirst     uint32                       //第一个人让牌的人
-	Jackpot            int32                        //奖金池
-	bianJackpot        int32                        //边池
+	Jackpot            int64                        //奖金池
+	bianJackpot        int64                        //边池
 	AllInJackpot       []*pokerService.AllInJackpot //allin的标记
 	MinRaise           int64                        //最低加注金额
 }
-
 
 /**
 	新生成一个德州的桌子
@@ -905,7 +904,7 @@ func (t *ThDesk) Lottery() error {
 				2,user的状态必须是没有结算的状态
 			 */
 			var winCount int = t.GetWinCount()
-			bonus := a.Jackpopt / int32(winCount)        //每个人赢的奖金
+			bonus := a.Jackpopt / int64(winCount)        //每个人赢的奖金
 			//这里吧奖金发放给每个人之后,需要把这局allin的人排除掉,再来计算剩下的人的将近
 			//牌的方式只需要把这个人的状态设置为已经结清就行了
 			for j := 0; j < len(t.Users); j++ {
@@ -928,7 +927,7 @@ func (t *ThDesk) Lottery() error {
 
 	//计算边池的奖金	t.bianJackpot,同样需要看是几个人赢,然后评分将近
 	bwinCount := t.GetWinCount()
-	bbonus := t.bianJackpot / int32(bwinCount)
+	var bbonus  int64= t.bianJackpot / int64(bwinCount)
 	for i := 0; i < len(t.Users); i++ {
 		u := t.Users[i]
 		if u != nil && u.Status == TH_USER_STATUS_WAIT_CLOSED {
@@ -1071,7 +1070,28 @@ func (t *ThDesk) Bet(m *bbproto.THBet, a gate.Agent) error {
 	if t.Tiem2Lottery() {
 		return t.Lottery()
 	} else {
-		t.NextBetUser(m, a)
+		err := t.NextBetUser()
+		if err != nil {
+			log.E("设置下一个押注的人的时候出错")
+		}
+
+		//4,押注完成之后返回信息,广播给其他玩家的信息玩家
+		result := &bbproto.THBetBroadcast{}
+		result.Header = protoUtils.GetSuccHeader()
+		result.BetType = m.BetType
+		result.BetAmount = m.BetAmount
+		result.User = t.GetResUserModelById(m.GetHeader().GetUserId())
+		result.NextBetUserId = &(t.BetUserNow)
+
+		t.THBroadcastProto(result, m.GetHeader().GetUserId())
+
+		//5,给押注的玩家返回押注结果
+		betResult := &bbproto.THBet{}
+		betResult.Header = protoUtils.GetSuccHeaderwithUserid(m.GetHeader().UserId)
+		betResult.BetAmount = m.BetAmount
+		betResult.BetType = m.BetType
+		betResult.NextBetUser = &(t.BetUserNow)
+		a.WriteMsg(betResult)
 	}
 
 	return nil
@@ -1079,10 +1099,8 @@ func (t *ThDesk) Bet(m *bbproto.THBet, a gate.Agent) error {
 
 
 //跟注:跟注的时候 不需要重新设置押注的人
-/**
-	只是跟注,需要减少用户的资产,增加奖池的金额
- */
-func (t *ThDesk) BetUserCall(userId uint32, coin int32) error {
+//只是跟注,需要减少用户的资产,增加奖池的金额
+func (t *ThDesk) BetUserCall(userId uint32, coin int64) error {
 	//1,增加奖池的金额
 	t.AddBetCoin(coin)
 	//增加用户本轮投注的金额
@@ -1093,7 +1111,7 @@ func (t *ThDesk) BetUserCall(userId uint32, coin int32) error {
 	return nil
 }
 
-func (t *ThDesk) AddBetCoin(coin int32) error {
+func (t *ThDesk) AddBetCoin(coin int64) error {
 	t.Jackpot += coin                        //底池 增加
 	t.bianJackpot += coin                        //边池 增加
 	return nil
@@ -1163,7 +1181,7 @@ func (t *ThDesk) BetUserCheck(userId uint32) error {
 }
 
 //用户加注
-func (t *ThDesk) BetUserRaise(userId uint32, coin int32) error {
+func (t *ThDesk) BetUserRaise(userId uint32, coin int64) error {
 	//1,增加奖池的金额
 	t.AddBetCoin(coin)
 
@@ -1178,7 +1196,7 @@ func (t *ThDesk) BetUserRaise(userId uint32, coin int32) error {
 }
 
 //用户AllIn
-func (t *ThDesk) BetUserAllIn(userId uint32, coin int32) error {
+func (t *ThDesk) BetUserAllIn(userId uint32, coin int64) error {
 	//1,增加奖池的金额
 	t.AddBetCoin(coin)
 
@@ -1227,7 +1245,7 @@ func (t *ThDesk) getUserById(userId  uint32) *ThUser {
 	return t.Users[index]
 }
 
-func (t *ThDesk) addUserRoundBet(userId uint32, coin int32) error {
+func (t *ThDesk) addUserRoundBet(userId uint32, coin int64) error {
 	user := t.getUserById(userId)
 	user.RoundBet += coin
 	user.totalBet += coin
@@ -1239,7 +1257,7 @@ func (t *ThDesk) addUserRoundBet(userId uint32, coin int32) error {
 	初始化下一个押注的人
 	初始化下一个人的时候需要一个超时的处理
  */
-func (t *ThDesk) NextBetUser(m *bbproto.THBet, a gate.Agent) error {
+func (t *ThDesk) NextBetUser() error {
 
 	log.T("当前押注的人是userId[%v]", t.BetUserNow)
 	index := t.GetUserIndex(t.BetUserNow)
@@ -1270,30 +1288,12 @@ func (t *ThDesk) NextBetUser(m *bbproto.THBet, a gate.Agent) error {
 	waitUser.wait()
 	log.T("重新计算出来的押注userId是[%v]", t.BetUserNow)
 
-
-	//4,押注完成之后返回信息,广播给其他玩家的信息玩家
-	result := &bbproto.THBetBroadcast{}
-	result.Header = protoUtils.GetSuccHeader()
-	result.BetType = m.BetType
-	result.BetAmount = m.BetAmount
-	result.User = t.GetResUserModelById(m.GetHeader().GetUserId())
-	result.NextBetUserId = &(t.BetUserNow)
-
-	t.THBroadcastProto(result, m.GetHeader().GetUserId())
-
-	//5,给押注的玩家返回押注结果
-	betResult := &bbproto.THBet{}
-	betResult.Header = protoUtils.GetSuccHeaderwithUserid(m.GetHeader().UserId)
-	betResult.BetAmount = m.BetAmount
-	betResult.BetType = m.BetType
-	betResult.NextBetUser = &(t.BetUserNow)
-	a.WriteMsg(betResult)
-
-
 	//打印测试消息
 	t.LogString()
 	return nil
 }
+
+
 
 //增加一个allIn
 func (t *ThDesk) AddAllInJackpot(a *pokerService.AllInJackpot) error {
@@ -1312,7 +1312,7 @@ func (t *ThDesk) CalcAllInJackpot(r int32) error {
 	//1,对allin 进行排序,排序之后,可以对奖金池做划分,得到当前未做处理的all和边池的值
 	var list pokerService.AllInJackpotList = t.AllInJackpot
 	sort.Sort(list)
-	var bianJackpot int32 = 0
+	var bianJackpot int64 = 0
 
 	for i := 0; i < len(t.AllInJackpot); i++ {
 		log.T("第[%v]次循环的时候,allinlist[%v]", i, t.AllInJackpot)

@@ -43,6 +43,9 @@ func init() {
 	handler(&bbproto.Game_LoginGame{},handlerGameLoginGame)	//登陆游戏
 	handler(&bbproto.Game_EnterMatch{},handlerGameEnterMatch)//进入房间
 	handler(&bbproto.Game_FollowBet{},handlerFollowBet)	//处理押注的请求
+	handler(&bbproto.Game_RaiseBet{},handlerRaise)		//处理加注的请求
+	handler(&bbproto.Game_FoldBet{},handlerFoldBet)		//处理弃牌的请求
+	handler(&bbproto.Game_CheckBet{},handlerCheckBet)	//处理让牌的请求
 }
 
 func handler(m interface{}, h interface{}) {
@@ -290,3 +293,27 @@ func handlerFollowBet(args []interface{}){
 	a := args[1].(gate.Agent)
 	OGservice.HandlerFollowBet(m,a)
 }
+
+
+// 处理加注
+func handlerRaise(args []interface{}){
+	m := args[0].(*bbproto.Game_RaiseBet)
+	a := args[1].(gate.Agent)
+	OGservice.HandlerRaiseBet(m,a)
+}
+
+// 处理弃牌
+func handlerFoldBet(args []interface{}){
+	m := args[0].(*bbproto.Game_FoldBet)
+	a := args[1].(gate.Agent)
+	OGservice.HandlerFoldBet(m,a)
+}
+
+// 处理弃牌
+func handlerCheckBet(args []interface{}){
+	m := args[0].(*bbproto.Game_CheckBet)
+	a := args[1].(gate.Agent)
+	OGservice.HandlerCheckBet(m,a)
+}
+
+

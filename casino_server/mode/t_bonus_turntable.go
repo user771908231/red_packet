@@ -11,7 +11,7 @@ import (
 type T_bonus_turntable  struct{
 	Mid		bson.ObjectId		`json:"mid" bson:"_id"`
 	Id		uint32		//id
-	Amount 		int32		//金额
+	Amount 		int64		//金额
 	Time		time.Time	//时间
 	UserId		uint32		//用户id
 }

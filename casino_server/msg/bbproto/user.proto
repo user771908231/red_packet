@@ -3,7 +3,7 @@ package bbproto;
 message User {
 	optional string				mid				= 1;	//mongdo Mid
 	optional string  			name 			= 2;  	// name
-	optional int32				coin			= 3;	//用户的金币
+	optional int64				coin			= 3;	//用户的金币
 	optional uint32				id				= 4;
 	optional string				nickName		= 5;	//用户的昵称
 	optional bool				loginTurntable	= 6;	//今日转盘奖励是否领取

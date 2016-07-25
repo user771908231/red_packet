@@ -27,7 +27,7 @@ var LoginTurntableCount  = 11		//转盘的格子最大数目
 
 
 //config 连续签到配置。
-var LoginSignBonus []int32 = []int32{0,100,500,1000,5000,6000,10000}	//连续签到
+var LoginSignBonus []int64 = []int64{0,100,500,1000,5000,6000,10000}	//连续签到
 
 
 /**
@@ -60,7 +60,7 @@ func HandleLoginTurntableBonus(m *bbproto.LoginTurntableBonus,a gate.Agent) erro
 			break
 		}
 	}
-	var ba int32 = int32(LoginTurntableBonus[si])
+	var ba int64 = int64(LoginTurntableBonus[si])
 
 	//计算奖励之后,保存到数据库
 	updateTurntableBonus(m.GetHeader().GetUserId(),ba)
@@ -105,7 +105,7 @@ func checkBonusAble(userId uint32) (error){
 /**
 	保存数据到数据库,并且更新用户的状态
  */
-func updateTurntableBonus(userId uint32,amount int32) error{
+func updateTurntableBonus(userId uint32,amount int64) error{
 	//1,对更新操作加锁,判断用户是否正确
 	lock := userService.UserLockPools.GetUserLockByUserId(userId)
 	lock.Lock()
@@ -189,13 +189,13 @@ func HandleLoginSignInBonus(m *bbproto.LoginSignInBonus,a gate.Agent) error{
 	user.LastSignTime = &lastSignTimeStr
 
 	//计算应该得到的奖励
-	var coinBonus int32 =0
+	var coinBonus int64 =0
 	if user.GetSignCount() >= int32(len(LoginSignBonus)) {
 		coinBonus =  LoginSignBonus[len(LoginSignBonus)-1]
 	}else{
 		coinBonus =  LoginSignBonus[user.GetSignCount()]
 	}
-	var coinTotal int32 = user.GetCoin() + coinBonus
+	var coinTotal int64 = user.GetCoin() + coinBonus
 	user.Coin = &coinTotal
 
 	userService.SaveUser2Redis(user)

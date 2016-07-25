@@ -5,6 +5,7 @@ import (
 	"github.com/name5566/leaf/gate"
 	"casino_server/service/room"
 	"casino_server/common/log"
+	"casino_server/gamedata"
 )
 
 //联众德州,桌子状态
@@ -376,5 +377,45 @@ func  run(mydesk *room.ThDesk)error{
 //处理押注的请求
 func HandlerFollowBet(m  *bbproto.Game_FollowBet,a gate.Agent) error{
 	log.T("处理用户押注的请求")
+	seatId := m.GetSeat()
+	desk := room.ThGameRoomIns.GetDeskById(m.GetTableid())
+	desk.OgFollowBet(seatId,a)
 	return nil
 }
+
+
+//处理加注
+func HandlerRaiseBet(m *bbproto.Game_RaiseBet,a gate.Agent) error{
+	return nil
+}
+
+//处理让牌
+func HandlerCheckBet(m *bbproto.Game_CheckBet,a gate.Agent) error{
+	return nil
+}
+
+
+//处理让牌
+func HandlerFoldBet(m *bbproto.Game_FoldBet,a gate.Agent) error{
+	return nil
+}
+
+
+//通过agent返回UserId
+func getUserIdByAgent( a gate.Agent) uint32{
+	//获取agent中的userData
+	ad := a.UserData()
+	if ad == nil {
+		log.E("agent中的userData为nil")
+		return uint32(0)
+
+	}
+
+	userData := ad.(*gamedata.AgentUserData)
+	log.T("得到的UserAgent中的userId是[%v]",userData.UserId)
+	//return userData.UserId
+
+	//测试代码,返回10006
+	return 10006
+}
+

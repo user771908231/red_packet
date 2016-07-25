@@ -61,7 +61,7 @@ message THPoker{
 message THBet{
     optional ProtoHeader	header				     = 1;
     optional int32          betType                  = 2;   //类型:弃牌,跟注,加注
-    optional int32          betAmount                = 3;   //押注的金额
+    optional int64          betAmount                = 3;   //押注的金额
     optional uint32         nextBetUser              = 4;   //返回结果时,返回下次押注的人
 }
 
@@ -77,7 +77,7 @@ message THBetBegin{
 message THBetBroadcast{
     optional ProtoHeader	header				     = 1;
     optional int32          betType                  = 2;   //类型:弃牌,跟注,加注
-    optional int32          betAmount                = 3;   //押注的金额
+    optional int64          betAmount                = 3;   //押注的金额
     optional THUser         user                     = 4;   //押注的玩家
     optional uint32         nextBetUserId            = 5;   //押注的玩家
 }

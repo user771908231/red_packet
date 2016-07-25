@@ -120,7 +120,7 @@ func newUserAndSave() (*bbproto.User, error) {
 	nuser.Mid = bson.NewObjectId()
 	nuser.Id = userId
 	nuser.NickName = Nickname
-	nuser.Coin = intCons.NUM_INT32_0
+	nuser.Coin = intCons.NUM_INT64_0
 	err = s.DB(casinoConf.DB_NAME).C(casinoConf.DBT_T_USER).Insert(nuser)
 	if err != nil {
 		log.E("保存用户的时候失败 error【%v】",err.Error())
@@ -237,7 +237,7 @@ func UpsertUser2Mongo(u *bbproto.User){
 /**
 	更新用用户余额的信息
  */
-func UpUserBalance(userId uint32, amount int32,utype int) error {
+func UpUserBalance(userId uint32, amount int64,utype int) error {
 
 	//1,获得锁
 	l := UserLockPools.GetUserLockByUserId(userId)
@@ -247,9 +247,7 @@ func UpUserBalance(userId uint32, amount int32,utype int) error {
 	//2,跟新redis中的值
 	//由于用户user相关的都会存在redis 中的,所以肯定会更新redis
 	user := GetUserById(userId)
-	var b int32 = user.GetCoin()
-	b += amount
-	user.Coin = &b
+	*user.Coin += amount
 	SaveUser2Redis(user)	//保存user
 
 	//3,更新mongo 中的值
@@ -312,13 +310,13 @@ func CheckUserIdRightful(userId uint32) bool{
 }
 
 //增加用户的coin
-func IncreasUserCoin(userId uint32,coin int32) error{
+func IncreasUserCoin(userId uint32,coin int64) error{
 	DecreaseUserCoin(userId,(0-coin))
 	return nil
 }
 
 //减少用户的余额
-func DecreaseUserCoin(userId uint32,coin int32) error{
+func DecreaseUserCoin(userId uint32,coin int64) error{
 	lock := UserLockPools.GetUserLockByUserId(userId)
 	lock.Lock()
 	defer lock.Unlock()
