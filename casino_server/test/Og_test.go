@@ -12,10 +12,10 @@ import (
 
 func TestOg(t *testing.T) {
 	//game_EnterMatch(10006)
-	//game_EnterMatch(10008)
+	game_EnterMatch(10008)
 	//game_EnterMatch(10009)
-	game_EnterMatch(10010)
-	game_EnterMatch(10011)
+	//game_EnterMatch(10010)
+	//game_EnterMatch(10011)
 	//gamelogingame(1111)
 }
 

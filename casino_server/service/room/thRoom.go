@@ -23,6 +23,8 @@ import (
 
 
 //config
+
+var TH_GAME_SMALL_BLIND int64 = 10		//小盲注的金额
 var THROOM_SEAT_COUNT int32 = 8               //玩德州扑克,每个房间最多多少人
 var GAME_THROOM_MAX_COUNT int32 = 500         //一个游戏大厅最多有多少桌德州扑克
 var TH_TIMEOUT_DURATION = time.Second * 5000              //德州出牌的超时时间
@@ -83,11 +85,12 @@ func init() {
 //游戏房间
 type ThGameRoom struct {
 	sync.Mutex
-	RoomStatus    int32 //游戏大厅的状态
-	ThDeskBuf     []*ThDesk
-	ThRoomSeatMax int32 //每个房间的座位数目
-	ThRoomCount   int32 //房间数目
-	Id            int32 //房间的id
+	RoomStatus     int32 //游戏大厅的状态
+	ThDeskBuf      []*ThDesk
+	ThRoomSeatMax  int32 //每个房间的座位数目
+	ThRoomCount    int32 //房间数目
+	Id             int32 //房间的id
+	SmallBlindCoin int64 //小盲注的金额
 }
 
 
@@ -96,6 +99,7 @@ func (r *ThGameRoom) OnInit() {
 	//r.ThDeskBuf = make([]*ThDesk, GAME_THROOM_MAX_COUNT)	//直接使用append方法来动态添加,不使用先创建一个池子的方式
 	r.ThRoomSeatMax = THROOM_SEAT_COUNT
 	r.Id = 0
+	r.SmallBlindCoin = TH_GAME_SMALL_BLIND;
 }
 
 //run游戏房间
@@ -193,10 +197,11 @@ func (r *ThGameRoom) AddUser(userId uint32, a gate.Agent) (*ThDesk, error) {
 
 	log.T("userid【%v】进入德州扑克的房间", userId)
 
-	//测试代码
+	//测试代码----begin
 	userAgentData := &gamedata.AgentUserData{}
 	userAgentData.UserId = userId
 	a.SetUserData(userAgentData)
+	//测试代码----end
 
 	//1,判断参数是否正确
 	//1.1 判断userId 是否合法
@@ -276,9 +281,9 @@ type ThUser struct {
 	waiTime   time.Time             //等待时间
 	waitUUID  string                //等待标志
 	deskId    int32                 //用户所在的桌子的编号
-	RoundBet  int64                 //单轮押注的金额
 	TotalBet  int64                 //押注总额
 	winAmount int64                 //总共赢了多少钱
+	TurnCoin  int64                 //单轮押注(总共四轮)的金额
 	HandCoin  int64                 //用户下注多少钱
 	Coin      int64                 //用户余额多少钱
 	NickName  string                //用户昵称
@@ -365,7 +370,7 @@ func NewThUser() *ThUser {
 	result := &ThUser{}
 	result.userId = 0
 	result.Status = 0
-	result.RoundBet = 0
+	result.TurnCoin = 0
 	result.TotalBet = 0
 	result.winAmount = 0
 	return result
@@ -420,6 +425,9 @@ func NewThDesk() *ThDesk {
 	result.NewRoundBetUser = 0
 	result.bianJackpot = 0
 	result.Number = ThGameRoomIns.RandDeskNumber()
+	result.SmallBlindCoin = ThGameRoomIns.SmallBlindCoin
+	result.BigBlindCoin = 2*ThGameRoomIns.SmallBlindCoin
+
 	return result
 
 }
@@ -448,14 +456,15 @@ func (t *ThDesk) LogString() {
  */
 func (t *ThDesk) AddThUser(userId uint32, a gate.Agent) error {
 
-	//redisUser := userService.GetUserById(userId)
+	redisUser := userService.GetUserById(userId)
 	//通过userId 和agent 够做一个thuser
 	thUser := NewThUser()
 	thUser.userId = userId
 	thUser.agent = a
 	thUser.Status = TH_USER_STATUS_WAITSEAT        //刚进房间的玩家
 	thUser.deskId = t.Id                //桌子的id
-	//thUser.NickName = *redisUser.NickName
+	thUser.NickName = *redisUser.NickName
+	thUser.Coin = *redisUser.Coin
 
 	//添加thuser
 	for i := 0; i < len(t.Users); i++ {
@@ -529,6 +538,27 @@ func (t *ThDesk) Run() error {
 	//设置房间状态
 	t.OinitBegin()
 	//设置第一个押注的人
+	return nil
+}
+
+// 盲注开始押注
+func (t *ThDesk) BlindBet() error {
+	//小盲注押注
+	userService.DecreaseUserCoin(t.SmallBlind, t.SmallBlindCoin)
+	smallReduser := userService.GetUserById(t.SmallBlind)
+	smallUse := t.getUserById(t.SmallBlind)
+	smallUse.HandCoin = t.SmallBlindCoin
+	smallUse.Coin = *smallReduser.Coin
+	smallUse.TurnCoin += t.SmallBlindCoin
+
+	//大盲注押注
+	userService.DecreaseUserCoin(t.BigBlind, t.BigBlindCoin)
+	bigRedUser := userService.GetUserById(t.BigBlind)
+	bigUser := t.getUserById(t.BigBlind)
+	bigUser.HandCoin = t.BigBlindCoin
+	bigUser.Coin = *bigRedUser.Coin
+	bigUser.TurnCoin += t.BigBlindCoin
+
 	return nil
 }
 
@@ -1252,7 +1282,7 @@ func (t *ThDesk) getUserById(userId  uint32) *ThUser {
 
 func (t *ThDesk) addUserRoundBet(userId uint32, coin int64) error {
 	user := t.getUserById(userId)
-	user.RoundBet += coin
+	user.TurnCoin += coin
 	user.TotalBet += coin
 	return nil
 }
@@ -1369,7 +1399,7 @@ func (t *ThDesk) ClearUserRoundBet() error {
 	for i := 0; i < len(t.Users); i++ {
 		u := t.Users[i]
 		if u != nil {
-			u.RoundBet = 0
+			u.TurnCoin = 0
 		}
 	}
 	return nil

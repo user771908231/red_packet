@@ -10,7 +10,10 @@ func TestUser(t *testing.T){
 	initSys()
 	fmt.Println("----------------------------分割线----------------------------")
 
-	addUserCoin(10007,1000)
+	addUserCoin(10010,87000)
+	addUserCoin(10011,989000)
+
+
 }
 
 

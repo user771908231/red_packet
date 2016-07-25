@@ -57,7 +57,7 @@ func (p *Processor) Register(msg proto.Message) {
 	i.msgType = msgType
 	p.msgInfo = append(p.msgInfo, i)
 	p.msgID[msgType] = uint16(len(p.msgInfo) - 1 )
-	log.Debug("注册: p.msgID[msgType]    %v ",p.msgID[msgType])
+	//log.Debug("注册: p.msgID[msgType]    %v ",p.msgID[msgType])
 }
 
 // It's dangerous to call the method on routing or marshaling (unmarshaling)

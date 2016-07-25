@@ -247,7 +247,7 @@ func getHandCoin(mydesk *room.ThDesk) []int64{
 		u := mydesk.Users[i]
 		if u != nil {
 			//用户手牌
-			result[i] = int64(u.RoundBet)
+			result[i] = int64(u.HandCoin)
 		} else {
 			result[i]= int64(0)
 		}
@@ -277,7 +277,7 @@ func thCard2OGCard(pai *bbproto.Pai) *bbproto.Game_CardInfo {
 	result.Value = new(int32)
 	result.Color = new(int32)
 
-	log.T("初始化牌的花色:*pai.flower[%v]",*pai.Flower)
+	//log.T("初始化牌的花色:*pai.flower[%v]",*pai.Flower)
 
 	//初始化花色
 	switch *pai.Flower {
@@ -367,9 +367,22 @@ func deskStatus2OG(desk *room.ThDesk) int32 {
 
 //开始游戏
 func  run(mydesk *room.ThDesk)error{
-	mydesk.Run()
 
-	//2,------------------------------------发送盲注的广播------------------------------------
+	//1,初始化默认信息
+	err := mydesk.Run()
+	if err != nil {
+		log.E("开始游戏的时候出错errMsg[%v]",err.Error())
+		return err
+	}
+
+	//2.1 盲注开始押注
+	err = mydesk.BlindBet()
+	if err != nil {
+		log.E("盲注下注的时候出错errMsg[%v]",err.Error())
+		return err
+	}
+
+	//2.2,------------------------------------发送盲注的广播------------------------------------
 	log.T("开始广播盲注的信息")
 	blindB := &bbproto.Game_BlindCoin{}
 
