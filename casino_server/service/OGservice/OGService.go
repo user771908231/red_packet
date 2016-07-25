@@ -49,7 +49,6 @@ var (
 )
 
 
-
 //处理登录游戏的协议
 func HandlerGameEnterMatch(m *bbproto.Game_EnterMatch, a gate.Agent) error {
 	//定义需要的参数
@@ -75,11 +74,11 @@ func HandlerGameEnterMatch(m *bbproto.Game_EnterMatch, a gate.Agent) error {
 	a.WriteMsg(result)
 
 	//3,进入房间的广播,告诉其他人有新的玩家进来了
-	mydesk.OGTHBroadcastAddUser(userId, userId)
+	//mydesk.OGTHBroadcastAddUser(userId, userId)
 
 	//4,最后:确定是否开始游戏, 上了牌桌之后,如果玩家人数大于1,并且游戏处于stop的状态,则直接开始游戏
 	//这是游戏刚开始,的处理方式
-	if mydesk.UserCount >= room.TH_DESK_LEAST_START_USER  && mydesk.Status == room.TH_DESK_STATUS_STOP {
+	if mydesk.UserCount == room.TH_DESK_LEAST_START_USER  && mydesk.Status == room.TH_DESK_STATUS_STOP {
 		err = run(mydesk)
 		if err != nil {
 			log.E("开始德州扑克游戏的时候失败")
@@ -124,7 +123,7 @@ func initGameSendgameInfoByDesk(mydesk *room.ThDesk, result *bbproto.Game_SendGa
 	*result.TablePlayer = mydesk.UserCount
 	*result.BankSeat = int32(mydesk.Dealer)        //庄家
 	*result.ChipSeat = int32(mydesk.GetUserIndex(mydesk.BetUserNow))//当前活动玩家
-	*result.ActionTime = int32(room.TH_TIMEOUT_DURATION)        //当前操作时间,服务器当前的时间
+	*result.ActionTime = int32(room.TH_TIMEOUT_DURATION_INT)        //当前操作时间,服务器当前的时间
 	*result.DelayTime = int32(0)        //当前延时时间
 	*result.GameStatus = deskStatus2OG(mydesk)
 	//result.NRebuyCount
@@ -132,10 +131,10 @@ func initGameSendgameInfoByDesk(mydesk *room.ThDesk, result *bbproto.Game_SendGa
 	*result.Pool = int64(mydesk.Jackpot)                //奖池
 	result.Publiccard = thPublicCard2OGC(mydesk)        //公共牌...
 	*result.MinRaise = int64(mydesk.MinRaise)        //最低加注金额
-	*result.NInitActionTime = int32(room.TH_TIMEOUT_DURATION)
+	*result.NInitActionTime = int32(room.TH_TIMEOUT_DURATION_INT)
 	*result.NInitDelayTime = int32(room.TH_TIMEOUT_DURATION)
 	result.Handcard = getHandCard(mydesk)		//用户手牌
-	result.HandCoin = getHandCoin(mydesk)	//下注的金额
+	result.HandCoin = getCoin(mydesk)	//下注的金额
 	result.TurnCoin = getTurnCoin(mydesk)
 
 	//循环User来处理
@@ -254,6 +253,20 @@ func getHandCoin(mydesk *room.ThDesk) []int64{
 	return result
 }
 
+func getCoin(mydesk *room.ThDesk) []int64{
+	result := make([]int64,len(mydesk.Users))
+	for i := 0; i < len(mydesk.Users); i++ {
+		u := mydesk.Users[i]
+		if u != nil {
+			//用户手牌
+			result[i] = int64(u.Coin)
+		} else {
+			result[i]= int64(0)
+		}
+	}
+	return result
+}
+
 //解析TurnCoin
 func getTurnCoin(mydesk *room.ThDesk) []int64{
 	result := make([]int64,len(mydesk.Users))
@@ -261,7 +274,7 @@ func getTurnCoin(mydesk *room.ThDesk) []int64{
 		u := mydesk.Users[i]
 		if u != nil {
 			//用户手牌
-			result[i] = int64(u.Coin)
+			result[i] = int64(u.TurnCoin)
 		} else {
 			result[i]= int64(0)
 		}
@@ -398,11 +411,12 @@ func  run(mydesk *room.ThDesk)error{
 	blindB.Smallblind = &mydesk.SmallBlindCoin	//小盲注
 	*blindB.Bigblindseat = int32(mydesk.GetUserIndex(mydesk.BigBlind))	//大盲注座位号
 	*blindB.Smallblindseat = int32(mydesk.GetUserIndex(mydesk.SmallBlind))	//小盲注座位号
-	blindB.Coin	= getTurnCoin(mydesk)	//每个人手中的coin
+	blindB.Coin	= getCoin(mydesk)	//每个人手中的coin
 	blindB.Handcoin = getHandCoin(mydesk)	//每个人下注的coin
 	blindB.Pool	= &mydesk.Jackpot	//奖池
 
 	mydesk.THBroadcastProto(blindB,0)
+	//mydesk.Testb(blindB)
 	log.T("广播盲注的信息完毕")
 
 	//3,------------------------------------发送手牌的广播------------------------------------
@@ -422,6 +436,7 @@ func  run(mydesk *room.ThDesk)error{
 	initCardB.NextUser = mydesk.GetResUserModelById(mydesk.BetUserNow).SeatNumber
 	initCardB.Seat = &mydesk.UserCount
 	mydesk.THBroadcastProto(initCardB,0)
+	//mydesk.Testb(initCardB)
 
 	log.T("广播initCard的信息完毕")
 	return nil

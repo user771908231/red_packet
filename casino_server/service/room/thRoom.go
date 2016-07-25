@@ -25,31 +25,33 @@ import (
 //config
 
 var TH_GAME_SMALL_BLIND int64 = 10		//小盲注的金额
-var THROOM_SEAT_COUNT int32 = 8               //玩德州扑克,每个房间最多多少人
-var GAME_THROOM_MAX_COUNT int32 = 500         //一个游戏大厅最多有多少桌德州扑克
-var TH_TIMEOUT_DURATION = time.Second * 5000              //德州出牌的超时时间
-var TH_LOTTERY_DURATION = time.Second * 5              //德州开奖的时间
+var THROOM_SEAT_COUNT int32 = 8               	//玩德州扑克,每个房间最多多少人
+var GAME_THROOM_MAX_COUNT int32 = 500         	//一个游戏大厅最多有多少桌德州扑克
+var TH_TIMEOUT_DURATION = time.Second * 5000   	//德州出牌的超时时间
+var TH_LOTTERY_DURATION = time.Second * 5       //德州开奖的时间
+var TH_TIMEOUT_DURATION_INT int32 =  500   	//德州出牌的超时时间
+
 
 
 //测试的时候 修改喂多人才可以游戏
-var TH_DESK_LEAST_START_USER int32 = 2       //最少多少人可以开始游戏
+var TH_DESK_LEAST_START_USER int32 = 4       //最少多少人可以开始游戏
 
 //德州扑克 玩家的状态
-var TH_USER_STATUS_WAITSEAT int32 = 1      //刚上桌子 等待开始的玩家
-var TH_USER_STATUS_SEATED int32 = 2        //刚上桌子 游戏中的玩家
-var TH_USER_STATUS_BETING int32 = 3        //押注中
-var TH_USER_STATUS_ALLINING int32 = 4      //allIn
-var TH_USER_STATUS_FOLDED int32 = 5        //弃牌
-var TH_USER_STATUS_WAIT_CLOSED int32 = 5   //等待结算
-var TH_USER_STATUS_CLOSED int32 = 6           //已经结算
-var TH_USER_STATUS_LEAVE int32 = 7          //已经结算
-var TH_USER_STATUS_BREAK int32 = 8           //已经结算
+var TH_USER_STATUS_WAITSEAT int32 	= 1      	//刚上桌子 等待开始的玩家
+var TH_USER_STATUS_SEATED int32 	= 2        	//刚上桌子 游戏中的玩家
+var TH_USER_STATUS_BETING int32 	= 3        	//押注中
+var TH_USER_STATUS_ALLINING int32 	= 4      	//allIn
+var TH_USER_STATUS_FOLDED int32 	= 5        	//弃牌
+var TH_USER_STATUS_WAIT_CLOSED int32 	= 5   		//等待结算
+var TH_USER_STATUS_CLOSED int32 	= 6           	//已经结算
+var TH_USER_STATUS_LEAVE int32 		= 7          	//已经结算
+var TH_USER_STATUS_BREAK int32 		= 8           	//已经结算
 
 
 //德州扑克,牌桌的状态
-var TH_DESK_STATUS_STOP int32 = 1         //没有开始的状态
-var TH_DESK_STATUS_SART int32 = 2         //已经开始的状态
-var TH_DESK_STATUS_LOTTERY int32 = 3        //已经开始的状态
+var TH_DESK_STATUS_STOP int32 = 1         	//没有开始的状态
+var TH_DESK_STATUS_SART int32 = 2         	//已经开始的状态
+var TH_DESK_STATUS_LOTTERY int32 = 3        	//已经开始的状态
 
 var TH_DESK_ROUND1 int32 = 1         //第一轮押注
 var TH_DESK_ROUND2 int32 = 2         //第二轮押注
@@ -246,6 +248,7 @@ func (r *ThGameRoom) AddUser(userId uint32, a gate.Agent) (*ThDesk, error) {
 	if len(r.ThDeskBuf) == 0 || mydesk == nil {
 		log.T("没有多余的desk可以用,重新创建一个desk")
 		mydesk = NewThDesk()
+		mydesk.Status = TH_DESK_STATUS_STOP	//游戏还没有开始的状态
 		r.AddThRoom(index, mydesk)
 	}
 
@@ -380,6 +383,7 @@ func NewThUser() *ThUser {
 	一个德州扑克的房间
  */
 type ThDesk struct {
+	AgentMap map[uint32] gate.Agent
 	sync.Mutex
 	Id                 int32                        //roomid
 	Number             int32                        //桌子的编号
@@ -411,6 +415,7 @@ type ThDesk struct {
  */
 func NewThDesk() *ThDesk {
 	result := new(ThDesk)
+	result.AgentMap = make(map[uint32]gate.Agent)
 	result.Id = 0
 	result.UserCount = 0
 	result.Dealer = 0                //不需要创建  默认就是为空
@@ -456,6 +461,7 @@ func (t *ThDesk) LogString() {
  */
 func (t *ThDesk) AddThUser(userId uint32, a gate.Agent) error {
 
+
 	redisUser := userService.GetUserById(userId)
 	//通过userId 和agent 够做一个thuser
 	thUser := NewThUser()
@@ -481,6 +487,7 @@ func (t *ThDesk) AddThUser(userId uint32, a gate.Agent) error {
 
 	//等待的用户加1
 	t.UserCount = t.UserCount + 1
+	t.AgentMap[userId] = a
 	log.T("玩家加入桌子的结果[%v]", t.Users)
 	return nil
 }
@@ -619,12 +626,26 @@ func (t *ThDesk) THBroadcastProto(p proto.Message, ignoreUserId uint32) error {
 	for i := 0; i < len(t.Users); i++ {
 		if t.Users[i] != nil && t.Users[i].userId != ignoreUserId {
 			//log.Normal("开始userId[%v]发送消息", *t.users[i].userId)
-			a := t.Users[i].agent
+			a := (*t.Users[i]).agent
+			//a := t.Users[i].agent
+			//a1 := t.Users[1]
+			//a := a1.agent
 			a.WriteMsg(p)
 			//log.Normal("给userId[%v]发送消息,发送完毕", *t.users[i].userId)
 		}
 	}
 	return nil
+}
+
+func (t *ThDesk) Testb(p proto.Message){
+	log.Normal("给每个房间发送proto 消息%v",p)
+	for key := range t.AgentMap {
+	log.Normal("开始给%v发送消息",key)
+	//首先判断连接是否有断开
+	a :=t.AgentMap[key]
+	a.WriteMsg(p)
+	log.Normal("给%v发送消息,发送完毕",key)
+	}
 }
 
 /**

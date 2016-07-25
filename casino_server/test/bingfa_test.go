@@ -2,43 +2,22 @@ package mongodb
 
 import (
 	"testing"
-	"fmt"
-	"sync"
+	"net"
+	"casino_server/msg/bbprotogo"
+	"casino_server/utils/test"
 )
 
 func TestBingfa(t *testing.T) {
-	chs := make([]chan int, 10)
-
-	for i := 0; i < 10; i++ {
-		u := bfuser{
-			userid : 1,
-		}
-		chs[i] = make(chan int)
-		go u.add1(chs[i])
+	conn, err := net.Dial(TCP, url)
+	if err != nil {
+		panic(err)
 	}
+	defer conn.Close()
 
-	for _, ch := range chs {
-		<-ch
-	}
-	fmt.Println("u1最终的结果-----", amount)
-
-}
-
-var amount int32 = 0;
-
-type bfuser struct {
-	sync.Mutex
-	userid     int32
-	userAmount int32
-}
-
-func (u *bfuser) add1(ch chan int) {
-	u.Lock()
-	defer u.Unlock()
-	u.userAmount = amount
-	fmt.Println("u1加之前,", u.userAmount)
-	u.userAmount += 1
-	amount = u.userAmount
-	fmt.Println("u1加之后,", u.userAmount, amount)
-	ch <- 1
+	var s string = "ll"
+	ide2 := int32(0)
+	data2 := &bbproto.TestP1{}
+	data2.Name2 = &s
+	m2 := test.AssembleDataNomd5(uint16(ide2), data2)
+	conn.Write(m2)
 }

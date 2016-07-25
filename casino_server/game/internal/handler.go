@@ -69,20 +69,19 @@ func handleProtHello(args []interface{}) {
 	a.WriteMsg(&data)
 }
 
-func handleTestP1(args[]interface{}) {
-	log.Debug("进入handleTestP1()")
-	// 收到的 Hello 消息
-	m := args[0].(*bbproto.TestP1)
-	// 消息的发送者
-	a := args[1].(gate.Agent)
 
-	// 输出收到的消息的内容
-	log.Debug("接收到的name %v", *m.Name2)
-	//给发送者回应一个 Hello 消息
-	var data bbproto.TestP1
-	var n string = "hi leaf testp2"
-	data.Name2 = &n
-	a.WriteMsg(&data)
+//测试是否接收到广播
+func handleTestP1(args[]interface{}) {
+	log.T("进入handleTestP1()")
+	var index int32 = 0
+	mydesk := room.ThGameRoomIns.GetDeskById(index)
+	//
+	blindB := &bbproto.Game_BlindCoin{}
+	//初始化指针地址
+	blindB.Banker = new(int32)
+	*blindB.Banker = int32(788)
+	mydesk.THBroadcastProto(blindB,0)
+	//mydesk.Testb(blindB)
 }
 
 

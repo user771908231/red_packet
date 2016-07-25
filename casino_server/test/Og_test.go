@@ -12,12 +12,17 @@ import (
 
 func TestOg(t *testing.T) {
 	//game_EnterMatch(10006)
-	//game_EnterMatch(10008)
-	//game_EnterMatch(10009)
+
+	go game_EnterMatch(10007)
+	go game_EnterMatch(10008)
+	go game_EnterMatch(10009)
 	//game_EnterMatch(10010)
 	//game_EnterMatch(10011)
 	//gamelogingame(1111)
-	ogbet(1,20)
+	//ogbet(1,20)
+	for ; ;  {
+		
+	}
 }
 
 func gamelogingame(userId uint32) {
@@ -54,7 +59,15 @@ func game_EnterMatch(userId int32){
 	m2 := test.AssembleDataNomd5(uint16(ide2), data2)
 	conn.Write(m2)
 	_ = test.Read(conn).(*bbproto.Game_SendGameInfo)
+	_ = test.Read(conn).(*bbproto.Game_BlindCoin)
+	_ = test.Read(conn).(*bbproto.Game_BlindCoin)
+	_ = test.Read(conn).(*bbproto.Game_BlindCoin)
+	_ = test.Read(conn).(*bbproto.Game_BlindCoin)
+	_ = test.Read(conn).(*bbproto.Game_BlindCoin)
+	_ = test.Read(conn).(*bbproto.Game_BlindCoin)
+
 }
+
 
 //押注
 func ogbet(seatId int32,coin int64){
@@ -74,3 +87,5 @@ func ogbet(seatId int32,coin int64){
 	conn.Write(m2)
 	_ = test.Read(conn).(*bbproto.Game_AckFollowBet)
 }
+
+
