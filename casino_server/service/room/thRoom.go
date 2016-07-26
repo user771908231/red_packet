@@ -196,14 +196,8 @@ func (r *ThGameRoom) GetDeskByUserId(userId uint32) *ThDesk {
 
 //游戏大厅增加一个玩家
 func (r *ThGameRoom) AddUser(userId uint32, a gate.Agent) (*ThDesk, error) {
-
 	log.T("userid【%v】进入德州扑克的房间", userId)
 
-	//测试代码----begin
-	userAgentData := &gamedata.AgentUserData{}
-	userAgentData.UserId = userId
-	a.SetUserData(userAgentData)
-	//测试代码----end
 
 	//1,判断参数是否正确
 	//1.1 判断userId 是否合法
@@ -220,6 +214,8 @@ func (r *ThGameRoom) AddUser(userId uint32, a gate.Agent) (*ThDesk, error) {
 		log.E("重复进入房间了")
 		return nil, errors.New("重复进入房间")
 	}
+
+
 
 	//2,查询哪个德州的房间缺人:循环每个德州的房间,然后查询哪个房间缺人
 	var mydesk *ThDesk = nil
@@ -258,6 +254,13 @@ func (r *ThGameRoom) AddUser(userId uint32, a gate.Agent) (*ThDesk, error) {
 		log.E("用户上德州扑克的桌子 失败...")
 		return nil, err
 	}
+
+
+	//4, 把用户的信息绑定到agent上
+	userAgentData := &gamedata.AgentUserData{}
+	userAgentData.UserId = userId
+	userAgentData.ThDeskId = mydesk.Id
+	a.SetUserData(userAgentData)
 
 	mydesk.LogString()        //答应当前房间的信息
 
@@ -460,7 +463,6 @@ func (t *ThDesk) LogString() {
 	为桌子增加一个人
  */
 func (t *ThDesk) AddThUser(userId uint32, a gate.Agent) error {
-
 
 	redisUser := userService.GetUserById(userId)
 	//通过userId 和agent 够做一个thuser
