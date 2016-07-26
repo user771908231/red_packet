@@ -50,6 +50,11 @@ var (
 
 
 //处理登录游戏的协议
+/**
+	1,判断用户是否已经登陆了游戏
+	2,如果已经登陆了游戏,替换现有的agent
+	3,如果没有登陆游戏,走正常的流程
+ */
 func HandlerGameEnterMatch(m *bbproto.Game_EnterMatch, a gate.Agent) error {
 	//定义需要的参数
 	result := newGame_SendGameInfo()                //需要返回的信息
@@ -445,7 +450,7 @@ func HandlerFollowBet(m  *bbproto.Game_FollowBet,a gate.Agent) error{
 	log.T("处理用户押注的请求")
 	seatId := m.GetSeat()
 	desk := room.ThGameRoomIns.GetDeskById(m.GetTableid())
-	desk.OgFollowBet(seatId,a)
+	desk.OgFollowBet(seatId)
 	return nil
 }
 

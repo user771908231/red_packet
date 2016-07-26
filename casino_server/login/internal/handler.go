@@ -103,7 +103,7 @@ func handleReqAuthUser(args []interface{}) {
 
 ///处理联众游戏,登陆的协议
 func HandlerREQQuickConn(args []interface{}){
-	log.Debug("进入login.handler.HandlerREQQuickConn()")
+	log.T("进入login.handler.HandlerREQQuickConn()")
 	m := args[0].(*bbproto.REQQuickConn)
 	log.T("联众游戏登陆的时候发送的请求的协议内容[%v]", m)
 	a := args[1].(gate.Agent)
