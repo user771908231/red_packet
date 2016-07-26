@@ -20,4 +20,8 @@ func TestBingfa(t *testing.T) {
 	data2.Name2 = &s
 	m2 := test.AssembleDataNomd5(uint16(ide2), data2)
 	conn.Write(m2)
+
+	for ; ;  {
+		
+	}
 }

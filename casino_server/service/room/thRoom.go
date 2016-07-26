@@ -626,10 +626,12 @@ func (t *ThDesk) THBroadcastProto(p proto.Message, ignoreUserId uint32) error {
 	for i := 0; i < len(t.Users); i++ {
 		if t.Users[i] != nil && t.Users[i].userId != ignoreUserId {
 			//log.Normal("开始userId[%v]发送消息", *t.users[i].userId)
-			a := (*t.Users[i]).agent
-			//a := t.Users[i].agent
-			//a1 := t.Users[1]
-			//a := a1.agent
+			a := t.Users[i].agent
+			//
+			log.T("测试取userData")
+			u := a.UserData().(*gamedata.AgentUserData)
+			log.T("取出来的agentUserDat[%v]a",u)
+
 			a.WriteMsg(p)
 			//log.Normal("给userId[%v]发送消息,发送完毕", *t.users[i].userId)
 		}

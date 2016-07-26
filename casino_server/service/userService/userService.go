@@ -52,7 +52,7 @@ func QuickLogin(user *bbproto.ReqAuthUser) (*bbproto.User, error) {
 		log.Error("登录的时候uuid 为空,无法登陆")
 	}
 	//2,为用户分配id
-	nuser, err := newUserAndSave()
+	nuser, err := NewUserAndSave()
 	if err != nil {
 		log.E(err.Error())
 		return nil, err
@@ -95,7 +95,7 @@ func Login(user *bbproto.ReqAuthUser) (*bbproto.User, error) {
 	2,保存mongo
 	3,缓存到redis
  */
-func newUserAndSave() (*bbproto.User, error) {
+func NewUserAndSave() (*bbproto.User, error) {
 	//1,获取数据库连接和回话
 	c, err := mongodb.Dial(casinoConf.DB_IP, casinoConf.DB_PORT)
 	if err != nil {

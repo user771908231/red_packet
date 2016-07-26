@@ -100,12 +100,21 @@ func handleReqAuthUser(args []interface{}){
 }
 
 
-func HandlerREQQuickConn(args []interface{}){
+
+
+
+///处理联众游戏,登陆的协议
+func HandlerREQQuickConn(args []interface{}) error{
 	log.Debug("进入login.handler.HandlerREQQuickConn()")
 	m := args[0].(*bbproto.REQQuickConn)
-	log.T("m:【%v】",m)
+	log.T("联众游戏登陆的时候发送的请求的协议内容[%v]",m)
 	a := args[1].(gate.Agent)
 
+
+	//需要返回的结果
+
+	//ip地址信息
+	result := &bbproto.ACKQuickConn{}
 	arrs := strings.Split(conf.Server.TCPAddr,":")
 	var ip string = arrs[0]
 	var port string = arrs[1]
@@ -123,15 +132,44 @@ func HandlerREQQuickConn(args []interface{}){
 
 	tslist := make([]*bbproto.ThranJSSInfo,1)
 	tslist[0] = thranSjjInfo
-
-	result := &bbproto.ACKQuickConn{}
 	result.JssList = tslist
 	result.MatchSvrList = oglist
 
-	var coin int64 = 999888
-	result.CoinCnt = &coin
-	log.T("回复的消息:[%v]",result)
-	a.WriteMsg(result)
+	// 通过userId来判断是登录还是注册
+	userId := 0
+	if userId == 0  {
+		//注册
+		//2,为用户分配id
+		nuser, err := userService.NewUserAndSave()
+		if err != nil {
+			log.E(err.Error())
+			result.AckResult = &intCons.ACK_RESULT_ERROR
+			a.WriteMsg(result)
+			return err
+		} else {
+			//注册成功并且返回数据
+			result.CoinCnt = nuser.Coin
+			result.AckResult = &intCons.ACK_RESULT_SUCC
+			a.WriteMsg(result)
+			return nil
+
+		}
+
+	}else{
+		//登录
+		//通过UserId去数据库中的user
+		userName := m.GetUserName()	//用户名
+		userPass := m.GetPwd()		//密码
+		user := userService.GetUserById(userId)
+		if *user.Name == userName && userPass == user.GetPwd() {
+			result.AckResult = &intCons.ACK_RESULT_SUCC
+			return  nil
+		}else{
+			result.AckResult = &intCons.ACK_RESULT_ERROR
+			return nil
+		}
+	}
+
 }
 
 

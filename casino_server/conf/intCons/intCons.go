@@ -119,3 +119,9 @@ var(
 	NUM_INT64_0  int64 = 0
 )
 
+//返回值
+var(
+	ACK_RESULT_ERROR	=	-1
+	ACK_RESULT_SUCC		=	0
+	ACK_RESULT_FAIL		=	-2
+)

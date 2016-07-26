@@ -16,7 +16,7 @@ func TestOg(t *testing.T) {
 	go game_EnterMatch(10007)
 	go game_EnterMatch(10008)
 	go game_EnterMatch(10009)
-	//game_EnterMatch(10010)
+	//go game_EnterMatch(10010)
 	//game_EnterMatch(10011)
 	//gamelogingame(1111)
 	//ogbet(1,20)
