@@ -121,7 +121,7 @@ var(
 
 //返回值
 var(
-	ACK_RESULT_ERROR	=	-1
-	ACK_RESULT_SUCC		=	0
-	ACK_RESULT_FAIL		=	-2
+	ACK_RESULT_ERROR	int32 =	-1
+	ACK_RESULT_SUCC		int32 =	0
+	ACK_RESULT_FAIL		int32 =	-2
 )
