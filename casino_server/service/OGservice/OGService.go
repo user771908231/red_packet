@@ -217,6 +217,7 @@ func isFold(u *room.ThUser) int32 {
 
 //解析手牌
 func getHandCard(mydesk *room.ThDesk) []*bbproto.Game_CardInfo {
+	log.T("把desk的手牌,转化为og的手牌")
 	var handCard []*bbproto.Game_CardInfo
 	for i := 0; i < len(mydesk.Users); i++ {
 		u := mydesk.Users[i]
@@ -228,7 +229,7 @@ func getHandCard(mydesk *room.ThDesk) []*bbproto.Game_CardInfo {
 				gc := thCard2OGCard(c)
 				result = append(result, gc)
 			}
-			handCard = append(handCard, )
+			handCard = append(handCard, result...)
 		} else {
 
 		}
@@ -427,13 +428,15 @@ func  run(mydesk *room.ThDesk)error{
 	initCardB.Tableid = new(int32)
 	initCardB.ActionTime = new(int32)
 	initCardB.DelayTime  = new(int32)
+	initCardB.NextUser = new(int32)
 
 	//设置初始化值
 	*initCardB.Tableid = int32(mydesk.Id)
 	initCardB.HandCard = getHandCard(mydesk)
 	initCardB.PublicCard = thPublicCard2OGC(mydesk)
 	initCardB.MinRaise = &mydesk.MinRaise
-	initCardB.NextUser = mydesk.GetResUserModelById(mydesk.BetUserNow).SeatNumber
+	//initCardB.NextUser = mydesk.GetResUserModelById(mydesk.BetUserNow).SeatNumber
+	*initCardB.NextUser = int32(mydesk.GetUserIndex(mydesk.BetUserNow))
 	initCardB.Seat = &mydesk.UserCount
 	mydesk.THBroadcastProto(initCardB,0)
 	//mydesk.Testb(initCardB)

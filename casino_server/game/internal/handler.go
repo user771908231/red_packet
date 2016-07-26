@@ -63,7 +63,6 @@ func handleProtHello(args []interface{}) {
 	log.Debug("接收到的name %v", *m.Name)
 	//给发送者回应一个 Hello 消息
 	var data bbproto.Reg
-	//var n string = "a"+ time.Now().String()
 	var n string = "hi leaf"
 	data.Name = &n
 	a.WriteMsg(&data)
