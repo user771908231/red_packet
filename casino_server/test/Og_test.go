@@ -13,17 +13,20 @@ func TestOg(t *testing.T) {
 	go game_EnterMatch(10007)
 	go game_EnterMatch(10008)
 	go game_EnterMatch(10009)
-	//go game_EnterMatch(10010)
+	////go game_EnterMatch(10010)
 	//game_EnterMatch(10011)
 	//gamelogingame(1111)
-	ogbet(3,20)
+	//ogbet(3,20)
+
+	//rEQQuickConn(10006)
+
 	for ; ;  {
 		
 	}
 
 }
 
-func game_EnterMatch(userId int32){
+func game_EnterMatch(userId uint32){
 	conn, err := net.Dial(TCP, url)
 	if err != nil {
 		panic(err)
@@ -33,7 +36,7 @@ func game_EnterMatch(userId int32){
 
 	fmt.Println("proto 得到的id ", ide2)
 	data2 := &bbproto.Game_EnterMatch{}
-	data2.Tableid = &userId
+	data2.UserId = &userId
 	m2 := test.AssembleDataNomd5(uint16(ide2), data2)
 	conn.Write(m2)
 	for ; ;  {
@@ -62,3 +65,21 @@ func ogbet(seatId int32,coin int64){
 }
 
 
+
+//用户登陆
+func rEQQuickConn(userId uint32){
+	conn, err := net.Dial(TCP, url)
+	if err != nil {
+		panic(err)
+	}
+	defer conn.Close()
+	ide2 := int32(bbproto.EProtoId_REQQUICKCONN)
+
+	fmt.Println("proto 得到的id ", ide2)
+	followData := &bbproto.REQQuickConn{}
+	followData.UserId = &userId
+	m2 := test.AssembleDataNomd5(uint16(ide2), followData)
+	conn.Write(m2)
+	_ = test.Read(conn).(*bbproto.ACKQuickConn)
+
+}

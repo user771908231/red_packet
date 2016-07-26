@@ -35,7 +35,7 @@ enum  EProtoId{
 	THBETBEGIN			=	23;		//23	开始德州扑克
 	THBETBROADCAST		=	24;		//23	押注之后的广播
 	THROOMADDUSERBROADCAST		=	25;	//25	新用户假如德州的游戏房间
-	THLOTTERY			=	26;		//26	开奖的公告
+	REQQUICKCONN 		=	26;		//26	开奖的公告
 
 	GAME_FOLLOWBET		=	41;		//41	押注的请求
 	GAME_ACKFOLLOWBET	=	42;		//42 	押注回复的协议

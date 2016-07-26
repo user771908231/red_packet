@@ -15,6 +15,7 @@ import (
 	"casino_server/msg/bbprotoFuncs"
 	"casino_server/gamedata"
 	"casino_server/conf"
+	"casino_server/utils/numUtils"
 )
 
 func handleMsg(m interface{}, h interface{}) {
@@ -110,6 +111,10 @@ func HandlerREQQuickConn(args []interface{}){
 
 	//ip地址信息
 	result := &bbproto.ACKQuickConn{}
+	result.CoinCnt = new(int64)
+	result.UserName = new(string)
+
+
 	arrs := strings.Split(conf.Server.TCPAddr, ":")
 	var ip string = arrs[0]
 	var port string = arrs[1]
@@ -156,15 +161,17 @@ func HandlerREQQuickConn(args []interface{}){
 
 		if user.GetPwd() == "" {
 			//快速登陆
+			log.T("游客登陆userId[%v]",m.GetUserId())
 			result.AckResult = &intCons.ACK_RESULT_SUCC
-			result.CoinCnt = user.GetCoin()
+			*result.CoinCnt = user.GetCoin()
+			*result.UserName,_ = numUtils.Uint2String(user.GetId())
 			a.WriteMsg(result)
 			return
 		}else{
 			//用户名密码登陆
 			if *user.Name == userName && userPass == user.GetPwd() {
 				result.AckResult = &intCons.ACK_RESULT_SUCC
-				result.CoinCnt = user.GetCoin()
+				*result.CoinCnt = user.GetCoin()
 				result.UserId = user.Id
 				a.WriteMsg(result)
 				return
