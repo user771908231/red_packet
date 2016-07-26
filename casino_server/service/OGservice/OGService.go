@@ -20,33 +20,6 @@ var (
 	GAME_STATUS_SHOW_RESULT int32 = 7        //完成
 )
 
-//牌的花色 和值
-var (
-	POKER_COLOR_DIAMOND int32 = 0    //方片
-	POKER_COLOR_CLUB int32 = 1    //梅花
-	POKER_COLOR_HEARTS int32 = 2    //红桃
-	POKER_COLOR_SPADE int32 = 3    //黑桃
-	POKER_COLOR_COUNT int32 = 4
-)
-
-var (
-	POKER_VALUE_A int32 = 0
-	POKER_VALUE_2 int32 = 1
-	POKER_VALUE_3 int32 = 2
-	POKER_VALUE_4 int32 = 3
-	POKER_VALUE_5 int32 = 4
-	POKER_VALUE_6 int32 = 5
-	POKER_VALUE_7 int32 = 6
-	POKER_VALUE_8 int32 = 7
-	POKER_VALUE_9 int32 = 8
-	POKER_VALUE_10 int32 = 9
-	POKER_VALUE_J int32 = 10
-	POKER_VALUE_Q int32 = 11
-	POKER_VALUE_K int32 = 12
-	POKER_VALUE_COUNT int32 = 13
-	POKER_VALUE_BACK int32 = 52    // 牌背
-	POKER_VALUE_EMPTY int32 = 53    // 没牌
-)
 
 
 //处理登录游戏的协议
@@ -59,7 +32,7 @@ func HandlerGameEnterMatch(m *bbproto.Game_EnterMatch, a gate.Agent) error {
 	//定义需要的参数
 	result := newGame_SendGameInfo()                //需要返回的信息
 
-	//1,进入房间,放回房间和错误信息
+	//1,进入房间,返回房间和错误信息
 	mydesk, err := room.ThGameRoomIns.AddUser(m.GetUserId(), a)
 	if err != nil || mydesk == nil {
 		errMsg := err.Error()
@@ -71,6 +44,7 @@ func HandlerGameEnterMatch(m *bbproto.Game_EnterMatch, a gate.Agent) error {
 
 	//2 构造信息并且返回
 	initGameSendgameInfoByDesk(mydesk, result,m.GetUserId())
+
 	log.T("给请求登陆房间的人回复信息[%v]",result)
 	a.WriteMsg(result)
 
@@ -133,7 +107,7 @@ func initGameSendgameInfoByDesk(mydesk *room.ThDesk, result *bbproto.Game_SendGa
 	*result.NInitActionTime = int32(room.TH_TIMEOUT_DURATION_INT)
 	*result.NInitDelayTime = int32(room.TH_TIMEOUT_DURATION)
 	result.Handcard = getHandCard(mydesk)		//用户手牌
-	result.HandCoin = getCoin(mydesk)	//下注的金额
+	result.HandCoin = mydesk.GetCoin()	//下注的金额
 	result.TurnCoin = getTurnCoin(mydesk)
 	*result.Seat	= int32(mydesk.GetUserIndex(myUserId))	//我
 
@@ -226,7 +200,7 @@ func getHandCard(mydesk *room.ThDesk) []*bbproto.Game_CardInfo {
 			result := make([]*bbproto.Game_CardInfo, 0)
 			for i := 0; i < len(u.Cards); i++ {
 				c := u.Cards[i]
-				gc := thCard2OGCard(c)
+				gc := room.ThCard2OGCard(c)
 				result = append(result, gc)
 			}
 			handCard = append(handCard, result...)
@@ -254,19 +228,6 @@ func getHandCoin(mydesk *room.ThDesk) []int64{
 	return result
 }
 
-func getCoin(mydesk *room.ThDesk) []int64{
-	result := make([]int64,len(mydesk.Users))
-	for i := 0; i < len(mydesk.Users); i++ {
-		u := mydesk.Users[i]
-		if u != nil {
-			//用户手牌
-			result[i] = int64(u.Coin)
-		} else {
-			result[i]= int64(0)
-		}
-	}
-	return result
-}
 
 //解析TurnCoin
 func getTurnCoin(mydesk *room.ThDesk) []int64{
@@ -284,65 +245,13 @@ func getTurnCoin(mydesk *room.ThDesk) []int64{
 }
 
 
-//th的牌转换成OG的牌
-func thCard2OGCard(pai *bbproto.Pai) *bbproto.Game_CardInfo {
-	result := &bbproto.Game_CardInfo{}
-	result.Value = new(int32)
-	result.Color = new(int32)
 
-	//log.T("初始化牌的花色:*pai.flower[%v]",*pai.Flower)
-
-	//初始化花色
-	switch *pai.Flower {
-	case "heart" :
-		*result.Color = POKER_COLOR_HEARTS
-	case "diamond" :
-		*result.Color = POKER_COLOR_DIAMOND
-	case "club" :
-		*result.Color = POKER_COLOR_CLUB
-	case "spade" :
-		*result.Color = POKER_COLOR_SPADE
-	}
-
-	//初始化值
-	switch *pai.Value {
-	case 2:
-		*result.Value = POKER_VALUE_2
-	case 3:
-		*result.Value = POKER_VALUE_3
-	case 4:
-		*result.Value = POKER_VALUE_4
-	case 5:
-		*result.Value = POKER_VALUE_5
-	case 6:
-		*result.Value = POKER_VALUE_6
-	case 7:
-		*result.Value = POKER_VALUE_7
-	case 8:
-		*result.Value = POKER_VALUE_8
-	case 9:
-		*result.Value = POKER_VALUE_9
-	case 10:
-		*result.Value = POKER_VALUE_10
-	case 11:                                //j
-		*result.Value = POKER_VALUE_J
-	case 12:                                //q
-		*result.Value = POKER_VALUE_Q
-	case 13:                                //k
-		*result.Value = POKER_VALUE_K
-	case 14:                                //a
-		*result.Value = POKER_VALUE_A
-
-	}
-
-	return result
-}
 
 //手牌转换为OG可以使用的牌
 func thPublicCard2OGC(desk *room.ThDesk) []*bbproto.Game_CardInfo {
 	result := make([]*bbproto.Game_CardInfo, len(desk.PublicPai))
 	for i := 0; i < len(desk.PublicPai); i++ {
-		result[i] = thCard2OGCard(desk.PublicPai[i])
+		result[i] = room.ThCard2OGCard(desk.PublicPai[i])
 	}
 	return result
 }
@@ -412,7 +321,7 @@ func  run(mydesk *room.ThDesk)error{
 	blindB.Smallblind = &mydesk.SmallBlindCoin	//小盲注
 	*blindB.Bigblindseat = int32(mydesk.GetUserIndex(mydesk.BigBlind))	//大盲注座位号
 	*blindB.Smallblindseat = int32(mydesk.GetUserIndex(mydesk.SmallBlind))	//小盲注座位号
-	blindB.Coin	= getCoin(mydesk)	//每个人手中的coin
+	blindB.Coin	= mydesk.GetCoin()	//每个人手中的coin
 	blindB.Handcoin = getHandCoin(mydesk)	//每个人下注的coin
 	blindB.Pool	= &mydesk.Jackpot	//奖池
 

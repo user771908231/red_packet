@@ -113,6 +113,9 @@ func HandlerREQQuickConn(args []interface{}){
 	result := &bbproto.ACKQuickConn{}
 	result.CoinCnt = new(int64)
 	result.UserName = new(string)
+	result.UserId = new(uint32)
+	//result.CurVersion = new(string,"sfs")
+	//result.PlayEnable = new(string,"")
 
 
 	arrs := strings.Split(conf.Server.TCPAddr, ":")
@@ -165,6 +168,8 @@ func HandlerREQQuickConn(args []interface{}){
 			result.AckResult = &intCons.ACK_RESULT_SUCC
 			*result.CoinCnt = user.GetCoin()
 			*result.UserName,_ = numUtils.Uint2String(user.GetId())
+			*result.UserId = user.GetId()
+			log.T("快速登录,有userId,没有密码时返回的信息:[%v]",result)
 			a.WriteMsg(result)
 			return
 		}else{
@@ -173,6 +178,7 @@ func HandlerREQQuickConn(args []interface{}){
 				result.AckResult = &intCons.ACK_RESULT_SUCC
 				*result.CoinCnt = user.GetCoin()
 				result.UserId = user.Id
+				log.T("快速登录,有userId,有密码时返回的信息:[%v]",result)
 				a.WriteMsg(result)
 				return
 			} else {

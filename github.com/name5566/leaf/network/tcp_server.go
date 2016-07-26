@@ -5,7 +5,7 @@ import (
 	"net"
 	"sync"
 	"time"
-	"runtime/debug"
+	//"runtime/debug"
 )
 
 type TCPServer struct {
@@ -66,9 +66,9 @@ func (server *TCPServer) run() {
 
 	var tempDelay time.Duration
 	for {
-		log.Debug("try Accept...")
+		//log.Debug("try Accept...")
 		conn, err := server.ln.Accept()
-		log.Debug("Accepted...      "+string(debug.Stack()))
+		//log.Debug("Accepted...      "+string(debug.Stack()))
 		if err != nil {
 			if ne, ok := err.(net.Error); ok && ne.Temporary() {
 				if tempDelay == 0 {

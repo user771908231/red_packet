@@ -10,19 +10,20 @@ import (
 
 func TestOg(t *testing.T) {
 	//game_EnterMatch(10006)
-	//go game_EnterMatch(10007)
-	//go game_EnterMatch(10008)
-	//go game_EnterMatch(10009)
-	//go game_EnterMatch(10010)
-	//game_EnterMatch(10011)
+	// game_EnterMatch(10007)
+	// game_EnterMatch(10008)
+	// game_EnterMatch(10009)
+	// game_EnterMatch(10010)
+	 //game_EnterMatch(10011)
 	//gamelogingame(1111)
+	//ogbet(0,20)
+	//ogbet(1,20)
 	ogbet(2,20)
+	//ogbet(3,20)
 
 	//rEQQuickConn(10006)
 	for ; ;  {
-		
 	}
-
 }
 
 func game_EnterMatch(userId uint32){
@@ -30,7 +31,6 @@ func game_EnterMatch(userId uint32){
 	if err != nil {
 		panic(err)
 	}
-	defer conn.Close()
 	ide2 := int32(31)
 
 	fmt.Println("proto 得到的id ", ide2)
@@ -38,9 +38,6 @@ func game_EnterMatch(userId uint32){
 	data2.UserId = &userId
 	m2 := test.AssembleDataNomd5(uint16(ide2), data2)
 	conn.Write(m2)
-	for ; ;  {
-
-	}
 }
 
 

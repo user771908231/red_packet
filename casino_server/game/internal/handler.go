@@ -39,7 +39,6 @@ func init() {
 	handler(&bbproto.ThRoom{},handlerThRoom)
 	handler(&bbproto.THBet{},handlerThBet)		//押注的协议
 
-
 	//联众的德州扑克
 	handler(&bbproto.Game_LoginGame{},handlerGameLoginGame)		//登陆游戏
 	handler(&bbproto.Game_EnterMatch{},handlerGameEnterMatch)	//进入房间
