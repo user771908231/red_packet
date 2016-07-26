@@ -8,13 +8,21 @@ import (
 	"testing"
 )
 
+
+
 func TestOg(t *testing.T) {
-	game_EnterMatch(10006)
-	//game_EnterMatch(10008)
-	//game_EnterMatch(10009)
-	//game_EnterMatch(10010)
+	//game_EnterMatch(10006)
+
+	go game_EnterMatch(10007)
+	go game_EnterMatch(10008)
+	go game_EnterMatch(10009)
+	//go game_EnterMatch(10010)
 	//game_EnterMatch(10011)
 	//gamelogingame(1111)
+	//ogbet(1,20)
+	for ; ;  {
+		
+	}
 }
 
 func gamelogingame(userId uint32) {
@@ -51,4 +59,33 @@ func game_EnterMatch(userId int32){
 	m2 := test.AssembleDataNomd5(uint16(ide2), data2)
 	conn.Write(m2)
 	_ = test.Read(conn).(*bbproto.Game_SendGameInfo)
+	_ = test.Read(conn).(*bbproto.Game_BlindCoin)
+	_ = test.Read(conn).(*bbproto.Game_BlindCoin)
+	_ = test.Read(conn).(*bbproto.Game_BlindCoin)
+	_ = test.Read(conn).(*bbproto.Game_BlindCoin)
+	_ = test.Read(conn).(*bbproto.Game_BlindCoin)
+	_ = test.Read(conn).(*bbproto.Game_BlindCoin)
+
 }
+
+
+//押注
+func ogbet(seatId int32,coin int64){
+	var tableId int32 = 0
+	conn, err := net.Dial(TCP, url)
+	if err != nil {
+		panic(err)
+	}
+	defer conn.Close()
+	ide2 := int32(bbproto.EProtoId_GAME_FOLLOWBET)
+
+	fmt.Println("proto 得到的id ", ide2)
+	followData := &bbproto.Game_FollowBet{}
+	followData.Tableid = &tableId
+	followData.Seat = &seatId
+	m2 := test.AssembleDataNomd5(uint16(ide2), followData)
+	conn.Write(m2)
+	_ = test.Read(conn).(*bbproto.Game_AckFollowBet)
+}
+
+

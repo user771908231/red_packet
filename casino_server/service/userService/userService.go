@@ -52,7 +52,7 @@ func QuickLogin(user *bbproto.ReqAuthUser) (*bbproto.User, error) {
 		log.Error("登录的时候uuid 为空,无法登陆")
 	}
 	//2,为用户分配id
-	nuser, err := newUserAndSave()
+	nuser, err := NewUserAndSave()
 	if err != nil {
 		log.E(err.Error())
 		return nil, err
@@ -95,7 +95,7 @@ func Login(user *bbproto.ReqAuthUser) (*bbproto.User, error) {
 	2,保存mongo
 	3,缓存到redis
  */
-func newUserAndSave() (*bbproto.User, error) {
+func NewUserAndSave() (*bbproto.User, error) {
 	//1,获取数据库连接和回话
 	c, err := mongodb.Dial(casinoConf.DB_IP, casinoConf.DB_PORT)
 	if err != nil {
@@ -120,7 +120,7 @@ func newUserAndSave() (*bbproto.User, error) {
 	nuser.Mid = bson.NewObjectId()
 	nuser.Id = userId
 	nuser.NickName = Nickname
-	nuser.Coin = intCons.NUM_INT32_0
+	nuser.Coin = intCons.NUM_INT64_0
 	err = s.DB(casinoConf.DB_NAME).C(casinoConf.DBT_T_USER).Insert(nuser)
 	if err != nil {
 		log.E("保存用户的时候失败 error【%v】",err.Error())
@@ -174,6 +174,9 @@ func GetUserById(id uint32) *bbproto.User {
 		}else{
 			//把从数据获得的结果填充到redis的model中
 			result,_ = Tuser2Ruser(tuser)
+			if result!=nil {
+				SaveUser2Redis(result)
+			}
 		}
 	}
 
@@ -181,7 +184,6 @@ func GetUserById(id uint32) *bbproto.User {
 	if result == nil {
 		return nil
 	}else{
-		SaveUser2Redis(result)
 		result.OninitLoginTurntableState()	//初始化登录转盘之后的奖励
 		return result
 	}
@@ -225,19 +227,23 @@ func UpsertUser2Mongo(u *bbproto.User){
 	}
 	defer c.Close()
 
-	// 获取回话 session
 	s := c.Ref()
 	defer c.UnRef(s)
 
 	//把bbproto.User转化为  model.User
 	tuser,_:=Ruser2Tuser(u)	//
-	s.DB(casinoConf.DB_NAME).C(casinoConf.DBT_T_USER).UpsertId(bson.M{"_id": tuser.Mid},tuser)
+	log.T("把user[%v]保存到数据库]",tuser)
+	if tuser.Mid == ""{
+		s.DB(casinoConf.DB_NAME).C(casinoConf.DBT_T_USER).Insert(tuser)
+	}else{
+		s.DB(casinoConf.DB_NAME).C(casinoConf.DBT_T_USER).Update(bson.M{"_id": tuser.Mid},tuser)
+	}
 
 }
 /**
 	更新用用户余额的信息
  */
-func UpUserBalance(userId uint32, amount int32,utype int) error {
+func UpUserBalance(userId uint32, amount int64,utype int) error {
 
 	//1,获得锁
 	l := UserLockPools.GetUserLockByUserId(userId)
@@ -247,9 +253,7 @@ func UpUserBalance(userId uint32, amount int32,utype int) error {
 	//2,跟新redis中的值
 	//由于用户user相关的都会存在redis 中的,所以肯定会更新redis
 	user := GetUserById(userId)
-	var b int32 = user.GetCoin()
-	b += amount
-	user.Coin = &b
+	*user.Coin += amount
 	SaveUser2Redis(user)	//保存user
 
 	//3,更新mongo 中的值
@@ -312,16 +316,16 @@ func CheckUserIdRightful(userId uint32) bool{
 }
 
 //增加用户的coin
-func IncreasUserCoin(userId uint32,coin int32) error{
+func IncreasUserCoin(userId uint32,coin int64) error{
 	DecreaseUserCoin(userId,(0-coin))
 	return nil
 }
 
 //减少用户的余额
-func DecreaseUserCoin(userId uint32,coin int32) error{
-	lock := UserLockPools.GetUserLockByUserId(userId)
-	lock.Lock()
-	defer lock.Unlock()
+func DecreaseUserCoin(userId uint32,coin int64) error{
+	//lock := UserLockPools.GetUserLockByUserId(userId)
+	//lock.Lock()
+	//defer lock.Unlock()
 
 	//开是减少用户的金币
 	user := GetUserById(userId)

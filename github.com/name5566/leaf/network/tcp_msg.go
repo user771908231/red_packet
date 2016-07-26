@@ -72,7 +72,7 @@ func (p *MsgParser) Read(conn *TCPConn) ([]byte, error) {
 		return nil, err
 	}
 
-	log.Debug("测试 打印读取的两个字节:[%v]",bufMsgLen)
+	//log.Debug("测试 打印读取的两个字节:[%v]",bufMsgLen)
 
 	// parse len
 	var msgLen uint32

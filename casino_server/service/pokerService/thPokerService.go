@@ -544,9 +544,9 @@ type AllInJackpotList []*AllInJackpot
 //每一次all in 都会生成
 type AllInJackpot struct {
 	UserId       uint32 //
-	Jackpopt     int32  //奖金池子
+	Jackpopt     int64  //奖金池子
 	ThroundCount int32  //押注轮次
-	AllInAmount  int32  //allIn的值
+	AllInAmount  int64  //allIn的值
 }
 
 func (list AllInJackpotList) Len() int{

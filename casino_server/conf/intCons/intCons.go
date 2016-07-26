@@ -116,5 +116,12 @@ func init(){
 // 常用的数字变量,方便取地址 1--10
 var(
 	NUM_INT32_0  int32 = 0
+	NUM_INT64_0  int64 = 0
 )
 
+//返回值
+var(
+	ACK_RESULT_ERROR	int32 =	-1
+	ACK_RESULT_SUCC		int32 =	0
+	ACK_RESULT_FAIL		int32 =	-2
+)

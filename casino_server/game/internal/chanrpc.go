@@ -29,10 +29,17 @@ func rpcCloseAgent(args []interface{}) {
 
 	//测试代码--------------------------------------begin-----------------------------------
 	//,如果UserId是10006的话,连接断开的时候,desk 删除user
-	userData := a.UserData().(*gamedata.AgentUserData)
-	if userData.UserId == 10006 {
-		desk := room.ThGameRoomIns.GetDeskByUserId(userData.UserId)
-		desk.RmThuser(userData.UserId)
+	agentData := a.UserData()
+	if agentData == nil {
+		log.T("通过agent[%v]取出来的userData 是nil",a)
+	}else{
+
+		log.T("开始出a[%v]连接断开的处理工作agentData[%v]",a,agentData)
+		userData := agentData.(*gamedata.AgentUserData)
+		if userData.UserId == 10006 {
+			desk := room.ThGameRoomIns.GetDeskByUserId(userData.UserId)
+			desk.RmThuser(userData.UserId)
+		}
 	}
 	//测试代码--------------------------------------end--------------------------------------
 

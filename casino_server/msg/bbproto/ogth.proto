@@ -351,38 +351,39 @@ message REQQuickConn {
     optional string ThirdDigitalName = 15; //第三方的用户数字ID等 (第三方接入必填，第三方数字id)
     optional string Thirdkey = 16; // 第三方下发客户端的session key  (第三方接入必填，用于校验合法性)
     optional string ThirdAppId = 17; //申请的第三方的AppId,解决多个APPID 接入同一个OPENID的问题。  (第三方接入必填)
+    optional uint32 userId = 18;    //用户Id
 }
 
 message ACKQuickConn {
     optional int32 AckResult = 1; //登录结果 "0"成功 "1"错误
-    optional string UserId = 2; //用户id
+    optional uint32 UserId = 2; //用户id
     optional string UserName = 3; //用户名
     optional string RoleName = 4; //角色名
     optional int32 YuanBaoCnt = 5; //元宝数量
     optional int64 CoinCnt = 6; //金币数量
     repeated OGRoomInfo RoomList = 7; //房间列表  ，斗地主游戏存入所有的room列表，二人麻将里存入与该用户金币相应的room。
     repeated OGThranMatchInfo MatchRoomList = 8; //比赛房间信息
-    optional bytes Cert = 8; //含角色的证书数据
-    optional bytes CertNoCert = 9; //含角色的证书数据
-    optional int32 CurVersion = 10; //服务器的当前最新版本号
-    optional string PlayEnable = 11; //不更新是否能继续游戏 "y"可以游戏 "n"不可以，必须更新
-    optional string DownloadUrl = 12; //下载地址
-    optional string IfPreserve = 13; //斗地主是否停服维护 "y"停服维护中 "n"没有维护，达人麻将相反。
-    optional string PreserveMsg = 14; //系统提示消息（维护状态中，为维护信息）
-    optional int32 GameId = 16; //游戏ID
-    repeated ThranJSSInfo JssList = 17; // jss服务器，小商城的代理服务器。 
-    optional string IfSearch = 18; //是否显示搜索（斗地主用）"y"显示 "n"不显示。
-    repeated OGBulletinInfo BulletinList = 19; //显示公告
-    optional string VersionInfo = 20; //版本信息（更新原因）
-    repeated OGRoomInfo MatchSvrList = 21; //所有的比赛服务器列表
-    optional int32 Sex = 22; //性别
-    repeated OGRoomInfo RoomSvrList = 23; //所有的房间列表，把所有的的房间都放入列表 。
-    optional int32 DdzActive = 24 [default = 0]; //是否为斗地主活动(签到，抽奖等),0否，1是
-    optional string MsgUrl = 25; //用户消息的URL  ,请求访问url参数type=1 统计未读消息，type=2 显示所有消息。
-    optional int32 ErrorCode = 26 [default = 0]; //0为无错误；1 用户名密码错误，其它为系统级别错误，待定。
+    optional bytes Cert = 9; //含角色的证书数据
+    optional bytes CertNoCert = 10; //含角色的证书数据
+    optional int32 CurVersion = 11; //服务器的当前最新版本号
+    optional string PlayEnable = 12; //不更新是否能继续游戏 "y"可以游戏 "n"不可以，必须更新
+    optional string DownloadUrl = 13; //下载地址
+    optional string IfPreserve = 14; //斗地主是否停服维护 "y"停服维护中 "n"没有维护，达人麻将相反。
+    optional string PreserveMsg = 16; //系统提示消息（维护状态中，为维护信息）
+    optional int32 GameId = 17; //游戏ID
+    repeated ThranJSSInfo JssList = 18; // jss服务器，小商城的代理服务器。
+    optional string IfSearch = 19; //是否显示搜索（斗地主用）"y"显示 "n"不显示。
+    repeated OGBulletinInfo BulletinList = 20; //显示公告
+    optional string VersionInfo = 21; //版本信息（更新原因）
+    repeated OGRoomInfo MatchSvrList = 22; //所有的比赛服务器列表
+    optional int32 Sex = 23; //性别
+    repeated OGRoomInfo RoomSvrList = 24; //所有的房间列表，把所有的的房间都放入列表 。
+    optional int32 DdzActive = 25 [default = 0]; //是否为斗地主活动(签到，抽奖等),0否，1是
+    optional string MsgUrl = 26; //用户消息的URL  ,请求访问url参数type=1 统计未读消息，type=2 显示所有消息。
+    optional int32 ErrorCode = 27 [default = 0]; //0为无错误；1 用户名密码错误，其它为系统级别错误，待定。
 }
 
-message NullMsg{
+message NullMsg {
 
 }
 

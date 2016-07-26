@@ -12,6 +12,7 @@ import (
 	"casino_server/service/room"
 	"casino_server/service/thService"
 	"casino_server/service/OGservice"
+	"casino_server/gamedata"
 )
 
 func init() {
@@ -40,8 +41,12 @@ func init() {
 
 
 	//联众的德州扑克
-	handler(&bbproto.Game_LoginGame{},handlerGameLoginGame)	//登陆游戏
-	handler(&bbproto.Game_EnterMatch{},handlerGameEnterMatch)//进入房间
+	handler(&bbproto.Game_LoginGame{},handlerGameLoginGame)		//登陆游戏
+	handler(&bbproto.Game_EnterMatch{},handlerGameEnterMatch)	//进入房间
+	handler(&bbproto.Game_FollowBet{},handlerFollowBet)		//处理押注的请求
+	handler(&bbproto.Game_RaiseBet{},handlerRaise)			//处理加注的请求
+	handler(&bbproto.Game_FoldBet{},handlerFoldBet)			//处理弃牌的请求
+	handler(&bbproto.Game_CheckBet{},handlerCheckBet)		//处理让牌的请求
 }
 
 func handler(m interface{}, h interface{}) {
@@ -59,26 +64,35 @@ func handleProtHello(args []interface{}) {
 	log.Debug("接收到的name %v", *m.Name)
 	//给发送者回应一个 Hello 消息
 	var data bbproto.Reg
-	//var n string = "a"+ time.Now().String()
 	var n string = "hi leaf"
 	data.Name = &n
 	a.WriteMsg(&data)
 }
 
-func handleTestP1(args[]interface{}) {
-	log.Debug("进入handleTestP1()")
-	// 收到的 Hello 消息
-	m := args[0].(*bbproto.TestP1)
-	// 消息的发送者
-	a := args[1].(gate.Agent)
 
-	// 输出收到的消息的内容
-	log.Debug("接收到的name %v", *m.Name2)
-	//给发送者回应一个 Hello 消息
-	var data bbproto.TestP1
-	var n string = "hi leaf testp2"
-	data.Name2 = &n
-	a.WriteMsg(&data)
+//测试是否接收到广播
+func handleTestP1(args[]interface{}) {
+	log.T("进入handleTestP1()")
+	//var index int32 = 0
+	//mydesk := room.ThGameRoomIns.GetDeskById(index)
+	////
+	//blindB := &bbproto.Game_BlindCoin{}
+	////初始化指针地址
+	//blindB.Banker = new(int32)
+	//*blindB.Banker = int32(788)
+	//mydesk.THBroadcastProto(blindB,0)
+	//mydesk.Testb(blindB)
+
+	//测试关闭的时候,a 是否一样
+	a := args[1].(gate.Agent)
+	u := &gamedata.AgentUserData{}
+	u.UserId = 99090
+	log.T("&u[%x]",u)
+	a.SetUserData(u)
+	log.T("测试取出来的userData")
+	u2 := a.UserData().(*gamedata.AgentUserData)
+	log.T("取出来的结果:【%v】",u2)
+	log.T("testp agent",a)
 }
 
 
@@ -277,9 +291,35 @@ func  handlerGameEnterMatch(args []interface{}){
 	log.T("进入到-handlerGameEnterMatch()")
 	m := args[0].(*bbproto.Game_EnterMatch)
 	a := args[1].(gate.Agent)
-	log.T("收到的数据-handlerGameEnterMatch()--[%v]",m)
-
+	log.T("收到的数据-handlerGameEnterMatch()--[%v],agent[%v]",m,&a)
 	//返回房间的信息
 	OGservice.HandlerGameEnterMatch(m,a)
+}
 
+//处理押注的请求
+func handlerFollowBet(args []interface{}){
+	m := args[0].(*bbproto.Game_FollowBet)
+	a := args[1].(gate.Agent)
+	OGservice.HandlerFollowBet(m,a)
+}
+
+// 处理加注
+func handlerRaise(args []interface{}){
+	m := args[0].(*bbproto.Game_RaiseBet)
+	a := args[1].(gate.Agent)
+	OGservice.HandlerRaiseBet(m,a)
+}
+
+// 处理弃牌
+func handlerFoldBet(args []interface{}){
+	m := args[0].(*bbproto.Game_FoldBet)
+	a := args[1].(gate.Agent)
+	OGservice.HandlerFoldBet(m,a)
+}
+
+// 处理弃牌
+func handlerCheckBet(args []interface{}){
+	m := args[0].(*bbproto.Game_CheckBet)
+	a := args[1].(gate.Agent)
+	OGservice.HandlerCheckBet(m,a)
 }

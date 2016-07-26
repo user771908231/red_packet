@@ -56,7 +56,7 @@ func intoRoom(userId uint32){
 
 }
 
-func  bet(userId uint32,betType int32,amount int32){
+func  bet(userId uint32,betType int32,amount int64){
 	//获得连接
 	conn, err := net.Dial(TCP, url)
 	if err != nil {
