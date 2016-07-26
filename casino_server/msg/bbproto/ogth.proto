@@ -339,29 +339,29 @@ message REQQuickConn {
     optional string SecureID = 3; //机器标识
     optional int32 ComeFromID = 4; //终端种类ID android "1"  iphone "2" ipad "3"
     optional string ChannelID = 5; //渠道号
-    optional int32 GameId = 6; //游戏ID
+    optional int32 GameId = 6; //游戏ID: 1德州、2斗地主、3麻将、4捕鱼...
     optional string token = 7; //证书 客户端与服务端匹配正确才进行操作 暂用 md5 加密来制作 格式 secureID+iGAMEID+ChannelID
     optional int32 RoomAdapte = 8 [default = 0]; //分配房间。 0:默认房间;根据不同的值获取相应的MatchRoomList
-    optional int32 LoginType = 9 [default = 0]; //登录类型。 0默认的MAC地址登录类型;1为用户名+密码方式;104为新浪登录;105为人人网;256机锋网;260为91网,276小米网
+    optional int32 LoginType = 9 [default = 0]; //登录类型。 0默认的MAC地址登录类型;1为用户名+密码方式;2为微信登录;
     optional int32 CurVersion = 10; //当前版本号
     optional int32 smallVersion = 11; //当前版本小号
     optional string ResolutionID = 12; //分辨率ID "800480" "854480" "1024768"
-    optional string LanguageID = 13; //语言ID "cn"简体  "twhk"繁体
+    optional string LanguageID = 13; //语言ID "cn"简体  "zh"繁体 "en"英文
     optional string ScreenSize = 14; //屏幕真实尺寸  "800480" "854x480" "1024x768"
     optional string ThirdDigitalName = 15; //第三方的用户数字ID等 (第三方接入必填，第三方数字id)
     optional string Thirdkey = 16; // 第三方下发客户端的session key  (第三方接入必填，用于校验合法性)
     optional string ThirdAppId = 17; //申请的第三方的AppId,解决多个APPID 接入同一个OPENID的问题。  (第三方接入必填)
-    optional string Package = 18; //包名
-
 }
+
 message ACKQuickConn {
     optional int32 AckResult = 1; //登录结果 "0"成功 "1"错误
-    optional string UserName = 2; //用户名
-    optional string RoleName = 3; //角色名
-    optional int32 YuanBaoCnt = 4; //元宝数量
-    optional int64 CoinCnt = 5; //金币数量
-    repeated OGRoomInfo RoomList = 6; //房间列表  ，斗地主游戏存入所有的room列表，二人麻将里存入与该用户金币相应的room。
-    repeated OGThranMatchInfo MatchRoomList = 7; //比赛房间信息
+    optional string UserId = 2; //用户id
+    optional string UserName = 3; //用户名
+    optional string RoleName = 4; //角色名
+    optional int32 YuanBaoCnt = 5; //元宝数量
+    optional int64 CoinCnt = 6; //金币数量
+    repeated OGRoomInfo RoomList = 7; //房间列表  ，斗地主游戏存入所有的room列表，二人麻将里存入与该用户金币相应的room。
+    repeated OGThranMatchInfo MatchRoomList = 8; //比赛房间信息
     optional bytes Cert = 8; //含角色的证书数据
     optional bytes CertNoCert = 9; //含角色的证书数据
     optional int32 CurVersion = 10; //服务器的当前最新版本号
@@ -369,15 +369,14 @@ message ACKQuickConn {
     optional string DownloadUrl = 12; //下载地址
     optional string IfPreserve = 13; //斗地主是否停服维护 "y"停服维护中 "n"没有维护，达人麻将相反。
     optional string PreserveMsg = 14; //系统提示消息（维护状态中，为维护信息）
-    optional int32 DownloadReasion = 15; //下载原因：0 版本不对;1屏幕不对
     optional int32 GameId = 16; //游戏ID
-    repeated ThranJSSInfo JssList = 17; // jss服务器，小商城的代理服务器。 modify at 20120321
-    optional string IfSearch = 18; //是否显示搜索（斗地主用）"y"显示 "n"不显示。 modify at 20120413
+    repeated ThranJSSInfo JssList = 17; // jss服务器，小商城的代理服务器。 
+    optional string IfSearch = 18; //是否显示搜索（斗地主用）"y"显示 "n"不显示。
     repeated OGBulletinInfo BulletinList = 19; //显示公告
     optional string VersionInfo = 20; //版本信息（更新原因）
     repeated OGRoomInfo MatchSvrList = 21; //所有的比赛服务器列表
     optional int32 Sex = 22; //性别
-    repeated OGRoomInfo RoomSvrList = 23; //所有的房间列表，把所有的的房间都放入列表 。 modify at 20120606  解决二人麻将切换room。
+    repeated OGRoomInfo RoomSvrList = 23; //所有的房间列表，把所有的的房间都放入列表 。
     optional int32 DdzActive = 24 [default = 0]; //是否为斗地主活动(签到，抽奖等),0否，1是
     optional string MsgUrl = 25; //用户消息的URL  ,请求访问url参数type=1 统计未读消息，type=2 显示所有消息。
     optional int32 ErrorCode = 26 [default = 0]; //0为无错误；1 用户名密码错误，其它为系统级别错误，待定。
