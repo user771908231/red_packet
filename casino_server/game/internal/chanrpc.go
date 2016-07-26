@@ -37,6 +37,7 @@ func rpcCloseAgent(args []interface{}) {
 		log.T("开始出a[%v]连接断开的处理工作agentData[%v]",a,agentData)
 		userData := agentData.(*gamedata.AgentUserData)
 		if userData.UserId == 10006 {
+			log.T("因为用户的10006,所以退出的时候,游戏也跟着退出去....")
 			desk := room.ThGameRoomIns.GetDeskByUserId(userData.UserId)
 			desk.RmThuser(userData.UserId)
 		}

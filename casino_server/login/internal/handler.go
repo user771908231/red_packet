@@ -41,6 +41,7 @@ func handleProtHello(args []interface{}) {
 	a.WriteMsg(&data)
 }
 
+
 func GoID() int {
 	var buf [64]byte
 	n := runtime.Stack(buf[:], false)
@@ -99,18 +100,12 @@ func handleReqAuthUser(args []interface{}) {
 	a.WriteMsg(resReqUser)
 }
 
-
-
-
-
 ///处理联众游戏,登陆的协议
-func HandlerREQQuickConn(args []interface{}) error {
+func HandlerREQQuickConn(args []interface{}){
 	log.Debug("进入login.handler.HandlerREQQuickConn()")
 	m := args[0].(*bbproto.REQQuickConn)
 	log.T("联众游戏登陆的时候发送的请求的协议内容[%v]", m)
 	a := args[1].(gate.Agent)
-
-
 	//需要返回的结果
 
 	//ip地址信息
@@ -144,33 +139,43 @@ func HandlerREQQuickConn(args []interface{}) error {
 			log.E(err.Error())
 			result.AckResult = &intCons.ACK_RESULT_ERROR
 			a.WriteMsg(result)
-			return err
 		} else {
 			//注册成功并且返回数据
 			result.CoinCnt = nuser.Coin
 			result.AckResult = &intCons.ACK_RESULT_SUCC
 			result.UserId	= nuser.Id
 			a.WriteMsg(result)
-			return nil
-
 		}
 
 	} else {
-		//登录
+		//登录,如果数据库的pass喂空,表示游客能录,否则 用户名,密码登陆
 		//通过UserId去数据库中的user
-		userName := m.GetUserName()        //用户名
+		userName := string(m.GetUserName())        //用户名
 		userPass := m.GetPwd()                //密码
 		user := userService.GetUserById(m.GetUserId())
-		if *user.Name == userName && userPass == user.GetPwd() {
-			result.AckResult = &intCons.ACK_RESULT_SUCC
-			result.UserId = user.Id
-			return nil
-		} else {
-			result.AckResult = &intCons.ACK_RESULT_ERROR
-			return nil
-		}
-	}
 
+		if user.GetPwd() == "" {
+			//快速登陆
+			result.AckResult = &intCons.ACK_RESULT_SUCC
+			result.CoinCnt = user.GetCoin()
+			a.WriteMsg(result)
+			return
+		}else{
+			//用户名密码登陆
+			if *user.Name == userName && userPass == user.GetPwd() {
+				result.AckResult = &intCons.ACK_RESULT_SUCC
+				result.CoinCnt = user.GetCoin()
+				result.UserId = user.Id
+				a.WriteMsg(result)
+				return
+			} else {
+				result.AckResult = &intCons.ACK_RESULT_ERROR
+				a.WriteMsg(result)
+				return
+			}
+		}
+
+	}
 }
 
 func handlerNullMsg(args []interface{}) {

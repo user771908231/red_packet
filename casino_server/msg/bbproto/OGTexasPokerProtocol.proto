@@ -17,6 +17,7 @@ message game_EnterMatch {
     optional int32 Tableid = 2;
     optional bytes PassWord = 3; //密码(朋友桌新增)
     optional bytes sCFUserName = 4; //该渠道特有昵称（现在专指360）
+    optional uint32 userId = 5 ;    //请求的userId
 }
 
 message game_AckEnterMatch {
@@ -259,9 +260,9 @@ message game_SendGameInfo {
     optional int32 bFinalAddon = 22; //是否已完成最终ADDON 1：已完成 0：未完成
     optional int32 nInitActionTime = 23; //初始操作时间
     optional int32 nInitDelayTime = 24; //初始延时时间
-    repeated string nickName    =25;    //昵称
-    repeated int32 seatId   =26;        //座位号
-
+    repeated string nickName = 25; //昵称
+    repeated int32 seatId = 26; //座位号
+    optional int32 seat = 27;   //我的座位号
 }
 
 message game_ShowCard {

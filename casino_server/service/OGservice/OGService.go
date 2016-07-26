@@ -52,14 +52,10 @@ var (
 //处理登录游戏的协议
 func HandlerGameEnterMatch(m *bbproto.Game_EnterMatch, a gate.Agent) error {
 	//定义需要的参数
-	var userId uint32 = uint32(m.GetTableid())                             //获取到用户的userId
-	if userId == 0 {
-		userId = 10006
-	}
 	result := newGame_SendGameInfo()                //需要返回的信息
 
 	//1,进入房间,放回房间和错误信息
-	mydesk, err := room.ThGameRoomIns.AddUser(userId, a)
+	mydesk, err := room.ThGameRoomIns.AddUser(m.GetUserId(), a)
 	if err != nil || mydesk == nil {
 		errMsg := err.Error()
 		log.E("进入房间失败,errMsg[%v]", errMsg)
@@ -69,7 +65,7 @@ func HandlerGameEnterMatch(m *bbproto.Game_EnterMatch, a gate.Agent) error {
 	}
 
 	//2 构造信息并且返回
-	initGameSendgameInfoByDesk(mydesk, result)
+	initGameSendgameInfoByDesk(mydesk, result,m.GetUserId())
 	log.T("给请求登陆房间的人回复信息[%v]",result)
 	a.WriteMsg(result)
 
@@ -116,9 +112,8 @@ func newGame_SendGameInfo() *bbproto.Game_SendGameInfo {
 }
 
 //返回房间的信息 todo 登陆成功的处理,给请求登陆的玩家返回登陆结果的消息
-func initGameSendgameInfoByDesk(mydesk *room.ThDesk, result *bbproto.Game_SendGameInfo) error {
+func initGameSendgameInfoByDesk(mydesk *room.ThDesk, result *bbproto.Game_SendGameInfo,myUserId uint32) error {
 	//初始化桌子相关的信息
-	//*result.Matchid		= 0
 	*result.Tableid = int32(mydesk.Id)        //桌子的Id
 	*result.TablePlayer = mydesk.UserCount
 	*result.BankSeat = int32(mydesk.Dealer)        //庄家
@@ -126,8 +121,6 @@ func initGameSendgameInfoByDesk(mydesk *room.ThDesk, result *bbproto.Game_SendGa
 	*result.ActionTime = int32(room.TH_TIMEOUT_DURATION_INT)        //当前操作时间,服务器当前的时间
 	*result.DelayTime = int32(0)        //当前延时时间
 	*result.GameStatus = deskStatus2OG(mydesk)
-	//result.NRebuyCount
-	//result.NAddonCount
 	*result.Pool = int64(mydesk.Jackpot)                //奖池
 	result.Publiccard = thPublicCard2OGC(mydesk)        //公共牌...
 	*result.MinRaise = int64(mydesk.MinRaise)        //最低加注金额
@@ -136,6 +129,7 @@ func initGameSendgameInfoByDesk(mydesk *room.ThDesk, result *bbproto.Game_SendGa
 	result.Handcard = getHandCard(mydesk)		//用户手牌
 	result.HandCoin = getCoin(mydesk)	//下注的金额
 	result.TurnCoin = getTurnCoin(mydesk)
+	result.Seat	= mydesk.GetUserIndex(myUserId)	//我
 
 	//循环User来处理
 	for i := 0; i < len(mydesk.Users); i++ {
