@@ -27,10 +27,9 @@ import (
 var TH_GAME_SMALL_BLIND int64 = 10		//小盲注的金额
 var THROOM_SEAT_COUNT int32 = 8               	//玩德州扑克,每个房间最多多少人
 var GAME_THROOM_MAX_COUNT int32 = 500         	//一个游戏大厅最多有多少桌德州扑克
-var TH_TIMEOUT_DURATION = time.Second * 5000   	//德州出牌的超时时间
+var TH_TIMEOUT_DURATION = time.Second * 20   	//德州出牌的超时时间
 var TH_LOTTERY_DURATION = time.Second * 5       //德州开奖的时间
 var TH_TIMEOUT_DURATION_INT int32 =  500   	//德州出牌的超时时间
-
 
 
 //测试的时候 修改喂多人才可以游戏
@@ -629,11 +628,6 @@ func (t *ThDesk) THBroadcastProto(p proto.Message, ignoreUserId uint32) error {
 		if t.Users[i] != nil && t.Users[i].userId != ignoreUserId {
 			//log.Normal("开始userId[%v]发送消息", *t.users[i].userId)
 			a := t.Users[i].agent
-			//
-			log.T("测试取userData")
-			u := a.UserData().(*gamedata.AgentUserData)
-			log.T("取出来的agentUserDat[%v]a",u)
-
 			a.WriteMsg(p)
 			//log.Normal("给userId[%v]发送消息,发送完毕", *t.users[i].userId)
 		}

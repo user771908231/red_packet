@@ -100,10 +100,6 @@ func handleReqAuthUser(args []interface{}) {
 	a.WriteMsg(resReqUser)
 }
 
-
-
-
-
 ///处理联众游戏,登陆的协议
 func HandlerREQQuickConn(args []interface{}){
 	log.Debug("进入login.handler.HandlerREQQuickConn()")
@@ -152,17 +148,33 @@ func HandlerREQQuickConn(args []interface{}){
 		}
 
 	} else {
-		//登录
+		//登录,如果数据库的pass喂空,表示游客能录,否则 用户名,密码登陆
 		//通过UserId去数据库中的user
 		userName := string(m.GetUserName())        //用户名
 		userPass := m.GetPwd()                //密码
 		user := userService.GetUserById(m.GetUserId())
-		if *user.Name == userName && userPass == user.GetPwd() {
+
+		if user.GetPwd() == "" {
+			//快速登陆
 			result.AckResult = &intCons.ACK_RESULT_SUCC
-			result.UserId = user.Id
-		} else {
-			result.AckResult = &intCons.ACK_RESULT_ERROR
+			result.CoinCnt = user.GetCoin()
+			a.WriteMsg(result)
+			return
+		}else{
+			//用户名密码登陆
+			if *user.Name == userName && userPass == user.GetPwd() {
+				result.AckResult = &intCons.ACK_RESULT_SUCC
+				result.CoinCnt = user.GetCoin()
+				result.UserId = user.Id
+				a.WriteMsg(result)
+				return
+			} else {
+				result.AckResult = &intCons.ACK_RESULT_ERROR
+				a.WriteMsg(result)
+				return
+			}
 		}
+
 	}
 }
 
