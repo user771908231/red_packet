@@ -74,5 +74,6 @@ func init() {
 	ProtoProcessor.Register(&bbproto.Game_CheckBet{})	//45	让牌
 	ProtoProcessor.Register(&bbproto.Game_AckCheckBet{})	//46	让牌回复
 	ProtoProcessor.Register(&bbproto.Game_SendOverTurn{})	//47	下一轮
+	ProtoProcessor.Register(&bbproto.Game_SendAddUser{})	//48	新增用户
 
 }

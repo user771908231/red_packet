@@ -22,8 +22,8 @@ func TestOg(t *testing.T) {
 	ogbet(3,20)
 
 	//rEQQuickConn(10006)
-	for ; ;  {
-	}
+	//for ; ;  {
+	//}
 }
 
 func game_EnterMatch(userId uint32){

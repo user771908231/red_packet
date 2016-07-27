@@ -213,10 +213,11 @@ func (r *ThGameRoom) AddUser(userId uint32, a gate.Agent) (*ThDesk, error) {
 		log.E("重复进入房间了")
 		//通过userId 找到桌子和room
 		desk := r.GetDeskByUserId(userId)
-		u := desk.getUserById(userId)
+		u := desk.GetUserByUserId(userId)
 
 		//替换User的agent
 		u.agent = a
+		u.Status = TH_USER_STATUS_BETING        //设置为可以跟注的情况
 		//绑定参数
 		userAgentData := &gamedata.AgentUserData{}
 		userAgentData.UserId = userId
@@ -394,11 +395,11 @@ func (t *ThUser) IsWaiting() bool {
 
 
 //操作押注时的waiting 状态
-func (t *ThUser) CheckBetWaitStatus() error{
+func (t *ThUser) CheckBetWaitStatus() error {
 	if t.IsWaiting() {
 		t.InitWait()
 		return nil
-	}else {
+	} else {
 		return errors.New("用户状态错误")
 	}
 }
@@ -543,7 +544,7 @@ func (t *ThDesk) RmThuser(userId uint32) error {
 //设置用户喂掉线的状态
 func (t *ThDesk) SetOfflineStatus(userId uint32) error {
 
-	u := t.getUserById(userId)
+	u := t.GetUserByUserId(userId)
 	//1,设置状态为断线
 	u.Status = TH_USER_STATUS_BREAK
 	return nil
@@ -596,21 +597,23 @@ func (t *ThDesk) BlindBet() error {
 	//小盲注押注
 	userService.DecreaseUserCoin(t.SmallBlind, t.SmallBlindCoin)
 	smallReduser := userService.GetUserById(t.SmallBlind)
-	smallUse := t.getUserById(t.SmallBlind)
+	smallUse := t.GetUserByUserId(t.SmallBlind)
 	smallUse.HandCoin = t.SmallBlindCoin
 	smallUse.Coin = *smallReduser.Coin
 	smallUse.TurnCoin += t.SmallBlindCoin
 	smallUse.TotalBet += t.SmallBlindCoin
+	t.Jackpot += t.SmallBlindCoin
 
 
 	//大盲注押注
 	userService.DecreaseUserCoin(t.BigBlind, t.BigBlindCoin)
 	bigRedUser := userService.GetUserById(t.BigBlind)
-	bigUser := t.getUserById(t.BigBlind)
+	bigUser := t.GetUserByUserId(t.BigBlind)
 	bigUser.HandCoin = t.BigBlindCoin
 	bigUser.Coin = *bigRedUser.Coin
 	bigUser.TurnCoin += t.BigBlindCoin
 	bigUser.TotalBet += t.BigBlindCoin
+	t.Jackpot += t.BigBlindCoin
 
 	return nil
 }
@@ -827,6 +830,7 @@ func (t *ThDesk) OinitBegin() error {
 	t.NewRoundBetUser = t.SmallBlind           //新一轮开始默认第一个押注的人,第一轮默认是小盲注
 	t.RoundCount = TH_DESK_ROUND1
 	t.BetAmountNow = t.BigBlindCoin                   //设置第一次跟住时的跟注金额应该是多少
+	t.MinRaise = t.BigBlindCoin
 	//本次押注的热开始等待
 	waitUser := t.Users[t.GetUserIndex(t.BetUserNow)]
 	waitUser.wait()
@@ -1119,7 +1123,7 @@ func (t *ThDesk) Bet(m *bbproto.THBet, a gate.Agent) error {
 	//押注:大盲注之后的第一个人,这个类型不会使用到
 
 	case TH_DESK_BET_TYPE_CALL:
-		t.BetUserCall(userId, m.GetBetAmount())
+		t.BetUserCall(userId)
 
 	case TH_DESK_BET_TYPE_FOLD:
 		t.BetUserFold(userId)
@@ -1171,12 +1175,13 @@ func (t *ThDesk) Bet(m *bbproto.THBet, a gate.Agent) error {
 
 //跟注:跟注的时候 不需要重新设置押注的人
 //只是跟注,需要减少用户的资产,增加奖池的金额
-func (t *ThDesk) BetUserCall(userId uint32, coin int64) error {
+func (t *ThDesk) BetUserCall(userId uint32) error {
+	coin := t.BetAmountNow - t.GetUserByUserId(userId).HandCoin
 	log.T("用户[%v]押注coin[%v]", userId, coin)
 	//1,增加奖池的金额
 	t.AddBetCoin(coin)
 	//增加用户本轮投注的金额
-	t.addUserRoundBet(userId, coin)
+	t.caclUserCoin(userId, coin)
 	//3,减少用户的金额
 	userService.DecreaseUserCoin(userId, coin)
 	return nil
@@ -1251,12 +1256,13 @@ func (t *ThDesk) BetUserCheck(userId uint32) error {
 
 //用户加注
 func (t *ThDesk) BetUserRaise(userId uint32, coin int64) error {
+	t.BetAmountNow += coin
+	betCoin := t.BetAmountNow - t.GetUserByUserId(userId).HandCoin
 	//1,增加奖池的金额
-	t.AddBetCoin(coin)
-
+	t.AddBetCoin(betCoin)                                //desk-coin
 	//2,减少用户的金额
-	t.addUserRoundBet(userId, coin)
-	userService.DecreaseUserCoin(userId, coin)
+	t.caclUserCoin(userId, betCoin)                        //thuser
+	userService.DecreaseUserCoin(userId, betCoin)        //redis-user
 
 	//3,设置状态
 	t.BetUserRaiseUserId = userId
@@ -1270,7 +1276,7 @@ func (t *ThDesk) BetUserAllIn(userId uint32, coin int64) error {
 	t.AddBetCoin(coin)
 
 	//2,减少用户的金额
-	t.addUserRoundBet(userId, coin)
+	t.caclUserCoin(userId, coin)
 	userService.DecreaseUserCoin(userId, coin)
 
 	//3,增加all in的状态
@@ -1278,7 +1284,7 @@ func (t *ThDesk) BetUserAllIn(userId uint32, coin int64) error {
 	allinpot.UserId = userId
 	allinpot.Jackpopt = 0
 	allinpot.ThroundCount = t.RoundCount
-	allinpot.AllInAmount = t.getUserById(userId).TotalBet
+	allinpot.AllInAmount = t.GetUserByUserId(userId).TotalBet
 	t.AddAllInJackpot(allinpot)
 	log.T("用户[%v] all in 的时候,allin的值是[%v]", allinpot.UserId, allinpot.AllInAmount)
 	return nil
@@ -1304,20 +1310,12 @@ func (t *ThDesk) GetUserByUserId(userId uint32) *ThUser {
 	return t.Users[index]
 }
 
-
-/**
-	通过userId找到
- */
-
-func (t *ThDesk) getUserById(userId  uint32) *ThUser {
-	index := t.GetUserIndex(userId)
-	return t.Users[index]
-}
-
-func (t *ThDesk) addUserRoundBet(userId uint32, coin int64) error {
-	user := t.getUserById(userId)
+func (t *ThDesk) caclUserCoin(userId uint32, coin int64) error {
+	user := t.GetUserByUserId(userId)
 	user.TurnCoin += coin
+	user.HandCoin += coin
 	user.TotalBet += coin
+	user.Coin -= coin
 	return nil
 }
 
@@ -1364,16 +1362,24 @@ func (t *ThDesk) nextRoundInfo() {
 	t.RoundCount ++
 
 	log.T("本次设置的押注人和之前的是同一个人,所以开始第[%v]轮的游戏", t.RoundCount)
-
 	//一轮完之后需要发送完成的消息
 	sendData := NewGame_SendOverTurn()
 	*sendData.Tableid = t.Id
 	*sendData.MinRaise = t.MinRaise
 	*sendData.NextSeat = int32(t.GetUserIndex(t.BetUserNow))
-	sendData.Handcoin = t.GetCoin()
+	sendData.Handcoin = t.GetHandCoin()
 	sendData.Coin = t.GetCoin()
 	*sendData.Pool = t.Jackpot
 	sendData.SecondPool = t.GetSecondPool()
+	t.THBroadcastProto(sendData, 0)
+
+	//清空每个人的handCoin
+	for i := 0; i < len(t.Users); i++ {
+		u := t.Users[i]
+		if u != nil {
+			u.HandCoin = 0
+		}
+	}
 
 	switch t.RoundCount {
 	case TH_DESK_ROUND2:
@@ -1497,7 +1503,7 @@ func (t *ThDesk) CalcAllInJackpot(r int32) error {
 			}
 		}
 	}
-
+	log.T("计算出来的allIn:【%v】", t.AllInJackpot)
 	log.T("开始计算allin将近池子end")
 	return nil
 
@@ -1514,25 +1520,25 @@ func (t *ThDesk) ClearUserRoundBet() error {
 	return nil
 }
 
-func (t *ThDesk) CheckBetUserBySeat(seatId uint32) bool {
+func (t *ThDesk) CheckBetUserBySeat(seatId int32) bool {
 	//1,通过座位号得到user
 	user := t.getUserBySeat(seatId)
 
 	//2,判断押注的用户是否是当前的用户
-	if t.BetUserNow != user.UserId  {
+	if t.BetUserNow != user.UserId {
 		return false
 	}
 
 	//3, 判断用户的状态是否正确
-	if !user.CheckBetWaitStatus() {
+	err := user.CheckBetWaitStatus()
+	if err != nil {
 		return false
 	}
+
 	//用户合法,设置等待状态
 	user.InitWait()
 	return true
 }
-
-
 
 //是不是可以开始游戏了
 func (t *ThDesk) IsTime2begin() bool {

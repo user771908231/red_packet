@@ -4,8 +4,6 @@ import (
 	"casino_server/common/log"
 	"casino_server/msg/bbprotogo"
 	"errors"
-	"os/user"
-	"github.com/gpmgo/gopm/modules/setting"
 )
 
 //牌的花色 和值
@@ -50,6 +48,7 @@ func (t *ThDesk) OgFollowBet(seatId int32) error {
 	log.T("开始处理seat[%v]跟注的逻辑,t,OgFollowBet()...",seatId)
 	t.Lock()
 	defer t.Unlock()
+	user := t.getUserBySeat(seatId)
 
 	//1,得到跟注的用户
 	if !t.CheckBetUserBySeat(seatId) {
@@ -57,8 +56,11 @@ func (t *ThDesk) OgFollowBet(seatId int32) error {
 		return errors.New("押注人的状态不正确")
 	}
 
+	log.T("用户[%v]开始押注:本次押注t.BetAmountNow[%v]",user.UserId,t.BetAmountNow)
+	log.T("用户[%v]开始押注:已经押注HandCoin[%v]",user.UserId,user.HandCoin)
+
 	//2,开始押注
-	err := t.BetUserCall(t.getUserBySeat(seatId).UserId, t.BetAmountNow)
+	err := t.BetUserCall(user.UserId)
 	if err != nil {
 		log.E("跟注的时候出错了.errMsg[%v],", err.Error())
 	}
@@ -75,12 +77,23 @@ func (t *ThDesk) OgFollowBet(seatId int32) error {
 	//4,押注成功返回要住成功的消息
 	result := &bbproto.Game_AckFollowBet{}
 	result.NextSeat = new(int32)
+	result.Coin = new(int64)
+	result.Seat = new(int32)
+	result.Tableid =new(int32)
+	result.CanRaise = new(int32)
+	result.MinRaise = new(int64)
+	result.Pool = new(int64)
+	result.HandCoin = new(int64)
 
-	result.Coin = &t.BetAmountNow        			//本轮压了多少钱
-	result.Seat = &seatId                			//座位id
-	result.Tableid = &t.Id
-	result.CanRaise	= &t.CanRaise		     		//是否能加注
-	*result.NextSeat = int32(t.GetUserIndex(t.BetUserNow))		//下一个押注的人
+	*result.Coin		= user.Coin        			//本轮压了多少钱
+	*result.Seat		= seatId                			//座位id
+	*result.Tableid		= t.Id
+	*result.CanRaise	= t.CanRaise		     		//是否能加注
+	*result.MinRaise	= t.MinRaise
+	*result.Pool		= t.Jackpot
+	*result.NextSeat	= int32(t.GetUserIndex(t.BetUserNow))		//下一个押注的人
+	*result.HandCoin 	= user.HandCoin
+
 	//a.WriteMsg(result)
 
 	//给所有人广播信息
@@ -144,13 +157,14 @@ func (t *ThDesk) OGRaiseBet(seatId int32,coin int64) error{
 	user := t.getUserBySeat(seatId)
 
 	//1,得到跟注的用户
-	if !t.CheckBetUserBySeat(seatId) {
+	err := t.BetUserRaise(user.UserId,coin)
+	if err != nil {
 		log.E("加注人的状态不正确")
 		return errors.New("加注人的状态不正确")
 	}
 
 	//2,开始处理加注
-	err := t.BetUserRaise(user.UserId,coin)
+	err = t.BetUserRaise(user.UserId,coin)
 	if err != nil {
 		log.E("跟注的时候出错了.errMsg[%v],", err.Error())
 	}
@@ -279,18 +293,30 @@ func ThCard2OGCard(pai *bbproto.Pai) *bbproto.Game_CardInfo {
 }
 
 func (mydesk *ThDesk) GetCoin() []int64{
-	result := make([]int64,len(mydesk.Users))
+	var result []int64
 	for i := 0; i < len(mydesk.Users); i++ {
 		u := mydesk.Users[i]
 		if u != nil {
-			//用户手牌
-			result[i] = int64(u.Coin)
-		} else {
-			result[i]= int64(0)
+			result = append(result,int64(u.Coin))
 		}
 	}
 	return result
 }
+
+
+//解析每个人下注的金额
+func (mydesk *ThDesk) GetHandCoin() []int64{
+	var result []int64
+	for i := 0; i < len(mydesk.Users); i++ {
+		u := mydesk.Users[i]
+		if u != nil {
+			//用户手牌
+			result = append(result,int64(u.HandCoin))
+		}
+	}
+	return result
+}
+
 
 //
 func NewGame_SendOverTurn() *bbproto.Game_SendOverTurn{
@@ -311,13 +337,15 @@ func (t *ThDesk) GetSecondPool() []int64{
 			ret = append(ret,a.Jackpopt)
 		}
 	}
+
+	log.T("下一句开始,返回的secondPool【%v】",ret)
 	return ret
 }
 
 
 //发送新增玩家的广播
 func (t *ThDesk) OGTHBroadAddUser(newUserId uint32) error{
-	newUser := t.getUserById(newUserId)
+	newUser := t.GetUserByUserId(newUserId)
 
 	//生成广播的信息
 	broadUser := &bbproto.Game_SendAddUser{}

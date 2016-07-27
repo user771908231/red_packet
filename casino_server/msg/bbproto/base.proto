@@ -57,7 +57,7 @@ enum  EProtoId{
 	PID_GAME_CHECKBET		=	45;		//让牌
 	PID_GAME_ACKCHECKBET	=	46;		//让牌回复
 	PID_GAME_SENDOVERTURN	=	47;		//下一轮
-
+	PID_GAME_SENDADDUSER	=	48;
 }
 
 //general response protocol

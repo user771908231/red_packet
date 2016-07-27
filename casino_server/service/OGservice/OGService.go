@@ -96,7 +96,7 @@ func initGameSendgameInfoByDesk(mydesk *room.ThDesk, result *bbproto.Game_SendGa
 	//初始化桌子相关的信息
 	*result.Tableid = int32(mydesk.Id)        //桌子的Id
 	*result.TablePlayer = mydesk.UserCount
-	*result.BankSeat = int32(mydesk.Dealer)        //庄家
+	*result.BankSeat = int32(mydesk.GetUserIndex(mydesk.Dealer))        //庄家
 	*result.ChipSeat = int32(mydesk.GetUserIndex(mydesk.BetUserNow))//当前活动玩家
 	*result.ActionTime = int32(room.TH_TIMEOUT_DURATION_INT)        //当前操作时间,服务器当前的时间
 	*result.DelayTime = int32(0)        //当前延时时间
@@ -213,32 +213,14 @@ func getHandCard(mydesk *room.ThDesk) []*bbproto.Game_CardInfo {
 }
 
 
-//解析每个人下注的金额
-func getHandCoin(mydesk *room.ThDesk) []int64{
-	result := make([]int64,len(mydesk.Users))
-	for i := 0; i < len(mydesk.Users); i++ {
-		u := mydesk.Users[i]
-		if u != nil {
-			//用户手牌
-			result[i] = int64(u.HandCoin)
-		} else {
-			result[i]= int64(0)
-		}
-	}
-	return result
-}
-
-
 //解析TurnCoin
 func getTurnCoin(mydesk *room.ThDesk) []int64{
-	result := make([]int64,len(mydesk.Users))
+	var result []int64
 	for i := 0; i < len(mydesk.Users); i++ {
 		u := mydesk.Users[i]
 		if u != nil {
 			//用户手牌
-			result[i] = int64(u.TurnCoin)
-		} else {
-			result[i]= int64(0)
+			result = append(result,int64(u.TurnCoin))
 		}
 	}
 	return result
@@ -290,6 +272,8 @@ func deskStatus2OG(desk *room.ThDesk) int32 {
 //开始游戏
 func  run(mydesk *room.ThDesk)error{
 
+	mydesk.Lock()
+	defer mydesk.Unlock()
 	//1,初始化默认信息
 	err := mydesk.Run()
 	if err != nil {
@@ -322,7 +306,7 @@ func  run(mydesk *room.ThDesk)error{
 	*blindB.Bigblindseat = int32(mydesk.GetUserIndex(mydesk.BigBlind))	//大盲注座位号
 	*blindB.Smallblindseat = int32(mydesk.GetUserIndex(mydesk.SmallBlind))	//小盲注座位号
 	blindB.Coin	= mydesk.GetCoin()	//每个人手中的coin
-	blindB.Handcoin = getHandCoin(mydesk)	//每个人下注的coin
+	blindB.Handcoin = mydesk.GetHandCoin()	//每个人下注的coin
 	blindB.Pool	= &mydesk.Jackpot	//奖池
 
 	mydesk.THBroadcastProto(blindB,0)
@@ -346,7 +330,7 @@ func  run(mydesk *room.ThDesk)error{
 	initCardB.MinRaise = &mydesk.MinRaise
 	//initCardB.NextUser = mydesk.GetResUserModelById(mydesk.BetUserNow).SeatNumber
 	*initCardB.NextUser = int32(mydesk.GetUserIndex(mydesk.BetUserNow))
-	initCardB.Seat = &mydesk.UserCount
+	//initCardB.Seat = &mydesk.UserCount
 	mydesk.THBroadcastProto(initCardB,0)
 	//mydesk.Testb(initCardB)
 
