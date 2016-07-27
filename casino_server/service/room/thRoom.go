@@ -839,7 +839,7 @@ func (t *ThDesk) OinitBegin() error {
 	t.BetUserRaiseUserId = t.BetUserNow        //第一个加注的人
 	t.NewRoundBetUser = t.SmallBlind           //新一轮开始默认第一个押注的人,第一轮默认是小盲注
 	t.RoundCount = TH_DESK_ROUND1
-
+	t.BetAmountNow = t.BigBlindCoin		   //设置第一次跟住时的跟注金额应该是多少
 	//本次押注的热开始等待
 	waitUser := t.Users[t.GetUserIndex(t.BetUserNow)]
 	waitUser.wait()
@@ -852,7 +852,6 @@ func (t *ThDesk) OinitBegin() error {
 	log.T("初始化游戏之后,当前轮数Id[%v]", t.RoundCount)
 	return nil
 }
-
 
 
 //判断是否是开奖的时刻
@@ -1186,6 +1185,7 @@ func (t *ThDesk) Bet(m *bbproto.THBet, a gate.Agent) error {
 //跟注:跟注的时候 不需要重新设置押注的人
 //只是跟注,需要减少用户的资产,增加奖池的金额
 func (t *ThDesk) BetUserCall(userId uint32, coin int64) error {
+	log.T("用户[%v]押注coin[%v]",userId,coin)
 	//1,增加奖池的金额
 	t.AddBetCoin(coin)
 	//增加用户本轮投注的金额
