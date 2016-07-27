@@ -12,7 +12,7 @@ import (
 	"casino_server/service/room"
 	"casino_server/service/thService"
 	"casino_server/service/OGservice"
-	"casino_server/gamedata"
+	"casino_server/service/testService"
 )
 
 func init() {
@@ -38,7 +38,6 @@ func init() {
 	//德州扑克相关的业务
 	handler(&bbproto.ThRoom{},handlerThRoom)
 	handler(&bbproto.THBet{},handlerThBet)		//押注的协议
-
 
 	//联众的德州扑克
 	handler(&bbproto.Game_LoginGame{},handlerGameLoginGame)		//登陆游戏
@@ -73,26 +72,8 @@ func handleProtHello(args []interface{}) {
 //测试是否接收到广播
 func handleTestP1(args[]interface{}) {
 	log.T("进入handleTestP1()")
-	//var index int32 = 0
-	//mydesk := room.ThGameRoomIns.GetDeskById(index)
-	////
-	//blindB := &bbproto.Game_BlindCoin{}
-	////初始化指针地址
-	//blindB.Banker = new(int32)
-	//*blindB.Banker = int32(788)
-	//mydesk.THBroadcastProto(blindB,0)
-	//mydesk.Testb(blindB)
-
-	//测试关闭的时候,a 是否一样
-	a := args[1].(gate.Agent)
-	u := &gamedata.AgentUserData{}
-	u.UserId = 99090
-	log.T("&u[%x]",u)
-	a.SetUserData(u)
-	log.T("测试取出来的userData")
-	u2 := a.UserData().(*gamedata.AgentUserData)
-	log.T("取出来的结果:【%v】",u2)
-	log.T("testp agent",a)
+	m := args[0].(*bbproto.TestP1)
+	testService.Handlertestp(m)
 }
 
 

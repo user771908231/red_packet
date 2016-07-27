@@ -121,6 +121,7 @@ func NewUserAndSave() (*bbproto.User, error) {
 	nuser.Id = userId
 	nuser.NickName = Nickname
 	nuser.Coin = intCons.NUM_INT64_0
+
 	err = s.DB(casinoConf.DB_NAME).C(casinoConf.DBT_T_USER).Insert(nuser)
 	if err != nil {
 		log.E("保存用户的时候失败 error【%v】",err.Error())

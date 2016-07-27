@@ -234,6 +234,7 @@ It has these top-level messages:
 	REQQuickConn
 	ACKQuickConn
 	NullMsg
+	Game_SendAddUser
 	Reg
 	RoomMsg
 	TBetRecord

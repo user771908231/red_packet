@@ -27,21 +27,18 @@ func rpcCloseAgent(args []interface{}) {
 	//1,保存游戏数据
 	//2,删除连接中管理的agent
 
-	//测试代码--------------------------------------begin-----------------------------------
+	//用户掉线的处理--------------------------------------begin-----------------------------------
 	//,如果UserId是10006的话,连接断开的时候,desk 删除user
 	agentData := a.UserData()
 	if agentData == nil {
 		log.T("通过agent[%v]取出来的userData 是nil",a)
 	}else{
-
-		log.T("开始出a[%v]连接断开的处理工作agentData[%v]",a,agentData)
+		//用户数据还在,设置用户为掉线的状态
 		userData := agentData.(*gamedata.AgentUserData)
-		if userData.UserId == 10006 {
-			log.T("因为用户的10006,所以退出的时候,游戏也跟着退出去....")
-			desk := room.ThGameRoomIns.GetDeskByUserId(userData.UserId)
-			desk.RmThuser(userData.UserId)
-		}
+		log.T("用户[%v]现在掉线了,现在设置用户为掉线的状态",userData.UserId)
+		desk := room.ThGameRoomIns.GetDeskByUserId(userData.UserId)
+		desk.SetOfflineStatus(userData.UserId)
 	}
-	//测试代码--------------------------------------end--------------------------------------
+	//用户掉线的处理--------------------------------------end--------------------------------------
 
 }

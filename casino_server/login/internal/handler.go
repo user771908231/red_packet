@@ -15,6 +15,7 @@ import (
 	"casino_server/msg/bbprotoFuncs"
 	"casino_server/gamedata"
 	"casino_server/conf"
+	"casino_server/utils/numUtils"
 )
 
 func handleMsg(m interface{}, h interface{}) {
@@ -102,7 +103,7 @@ func handleReqAuthUser(args []interface{}) {
 
 ///处理联众游戏,登陆的协议
 func HandlerREQQuickConn(args []interface{}){
-	log.Debug("进入login.handler.HandlerREQQuickConn()")
+	log.T("进入login.handler.HandlerREQQuickConn()")
 	m := args[0].(*bbproto.REQQuickConn)
 	log.T("联众游戏登陆的时候发送的请求的协议内容[%v]", m)
 	a := args[1].(gate.Agent)
@@ -110,6 +111,13 @@ func HandlerREQQuickConn(args []interface{}){
 
 	//ip地址信息
 	result := &bbproto.ACKQuickConn{}
+	result.CoinCnt = new(int64)
+	result.UserName = new(string)
+	result.UserId = new(uint32)
+	//result.CurVersion = new(string,"sfs")
+	//result.PlayEnable = new(string,"")
+
+
 	arrs := strings.Split(conf.Server.TCPAddr, ":")
 	var ip string = arrs[0]
 	var port string = arrs[1]
@@ -144,6 +152,7 @@ func HandlerREQQuickConn(args []interface{}){
 			result.CoinCnt = nuser.Coin
 			result.AckResult = &intCons.ACK_RESULT_SUCC
 			result.UserId	= nuser.Id
+			//result.
 			a.WriteMsg(result)
 		}
 
@@ -156,16 +165,21 @@ func HandlerREQQuickConn(args []interface{}){
 
 		if user.GetPwd() == "" {
 			//快速登陆
+			log.T("游客登陆userId[%v]",m.GetUserId())
 			result.AckResult = &intCons.ACK_RESULT_SUCC
-			result.CoinCnt = user.GetCoin()
+			*result.CoinCnt = user.GetCoin()
+			*result.UserName,_ = numUtils.Uint2String(user.GetId())
+			*result.UserId = user.GetId()
+			log.T("快速登录,有userId,没有密码时返回的信息:[%v]",result)
 			a.WriteMsg(result)
 			return
 		}else{
 			//用户名密码登陆
 			if *user.Name == userName && userPass == user.GetPwd() {
 				result.AckResult = &intCons.ACK_RESULT_SUCC
-				result.CoinCnt = user.GetCoin()
+				*result.CoinCnt = user.GetCoin()
 				result.UserId = user.Id
+				log.T("快速登录,有userId,有密码时返回的信息:[%v]",result)
 				a.WriteMsg(result)
 				return
 			} else {
