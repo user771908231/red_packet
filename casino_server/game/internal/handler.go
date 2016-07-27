@@ -269,10 +269,8 @@ func handlerGameLoginGame(args []interface{}){
 
 // 处理请求进入游戏房间
 func  handlerGameEnterMatch(args []interface{}){
-	log.T("进入到-handlerGameEnterMatch()")
 	m := args[0].(*bbproto.Game_EnterMatch)
 	a := args[1].(gate.Agent)
-	log.T("收到的数据-handlerGameEnterMatch()--[%v],agent[%v]",m,&a)
 	//返回房间的信息
 	OGservice.HandlerGameEnterMatch(m,a)
 }

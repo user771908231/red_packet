@@ -29,6 +29,7 @@ var (
 	3,如果没有登陆游戏,走正常的流程
  */
 func HandlerGameEnterMatch(m *bbproto.Game_EnterMatch, a gate.Agent) error {
+	log.T("用户请求进入德州扑克的游戏房间,m[%v]",m)
 
 	userId := m.GetUserId()
 	//定义需要的参数

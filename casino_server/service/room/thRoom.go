@@ -387,6 +387,22 @@ func (t *ThUser) InitWait() {
 	t.waitUUID = ""
 }
 
+//判断用户是否正在等待出牌
+func (t *ThUser) IsWaiting() bool {
+	return t.waitUUID != ""
+}
+
+
+//操作押注时的waiting 状态
+func (t *ThUser) CheckBetWaitStatus() error{
+	if t.IsWaiting() {
+		t.InitWait()
+		return nil
+	}else {
+		return errors.New("用户状态错误")
+	}
+}
+
 func NewThUser() *ThUser {
 	result := &ThUser{}
 	result.UserId = 0
@@ -810,7 +826,7 @@ func (t *ThDesk) OinitBegin() error {
 	t.BetUserRaiseUserId = t.BetUserNow        //第一个加注的人
 	t.NewRoundBetUser = t.SmallBlind           //新一轮开始默认第一个押注的人,第一轮默认是小盲注
 	t.RoundCount = TH_DESK_ROUND1
-	t.BetAmountNow = t.BigBlindCoin		   //设置第一次跟住时的跟注金额应该是多少
+	t.BetAmountNow = t.BigBlindCoin                   //设置第一次跟住时的跟注金额应该是多少
 	//本次押注的热开始等待
 	waitUser := t.Users[t.GetUserIndex(t.BetUserNow)]
 	waitUser.wait()
@@ -1156,7 +1172,7 @@ func (t *ThDesk) Bet(m *bbproto.THBet, a gate.Agent) error {
 //跟注:跟注的时候 不需要重新设置押注的人
 //只是跟注,需要减少用户的资产,增加奖池的金额
 func (t *ThDesk) BetUserCall(userId uint32, coin int64) error {
-	log.T("用户[%v]押注coin[%v]",userId,coin)
+	log.T("用户[%v]押注coin[%v]", userId, coin)
 	//1,增加奖池的金额
 	t.AddBetCoin(coin)
 	//增加用户本轮投注的金额
@@ -1341,14 +1357,13 @@ func (t *ThDesk) NextBetUser() error {
 	return nil
 }
 
-
-func (t *ThDesk) nextRoundInfo(){
+func (t *ThDesk) nextRoundInfo() {
 	t.CalcAllInJackpot(t.RoundCount)
 	t.BetUserRaiseUserId = t.NewRoundBetUser
 	t.BetUserNow = t.NewRoundBetUser
 	t.RoundCount ++
 
-	log.T("本次设置的押注人和之前的是同一个人,所以开始第[%v]轮的游戏",t.RoundCount)
+	log.T("本次设置的押注人和之前的是同一个人,所以开始第[%v]轮的游戏", t.RoundCount)
 
 	//一轮完之后需要发送完成的消息
 	sendData := NewGame_SendOverTurn()
@@ -1385,7 +1400,7 @@ func (t *ThDesk) sendFlopCard() error {
 	result.Card2 = ThCard2OGCard(t.PublicPai[2])
 
 	//广播消息
-	t.THBroadcastProto(result,0)
+	t.THBroadcastProto(result, 0)
 	log.T("发送三张公共牌end")
 
 	return nil
@@ -1393,30 +1408,29 @@ func (t *ThDesk) sendFlopCard() error {
 
 
 //发送第四张牌
-func (t *ThDesk) sendTurnCard() error{
+func (t *ThDesk) sendTurnCard() error {
 	log.T("发送第四张公共牌begin")
 
 	result := &bbproto.Game_SendTurnCard{}
 	result.Tableid = &t.Id
 	result.Card = ThCard2OGCard(t.PublicPai[3])
 
-	t.THBroadcastProto(result,0)
+	t.THBroadcastProto(result, 0)
 	log.T("发送第四张公共牌end")
 
 	return nil
 }
 
 //发送低五张牌
-func (t *ThDesk) sendRiverCard() error{
+func (t *ThDesk) sendRiverCard() error {
 	log.T("发送第五张公共牌begin")
 
 	result := &bbproto.Game_SendRiverCard{}
 	result.Tableid = &t.Id
 	result.Card = ThCard2OGCard(t.PublicPai[4])
 
-	t.THBroadcastProto(result,0)
+	t.THBroadcastProto(result, 0)
 	log.T("发送第五张公共牌end")
-
 
 	return nil
 }
@@ -1500,25 +1514,35 @@ func (t *ThDesk) ClearUserRoundBet() error {
 	return nil
 }
 
-//检查押注的用户是否是当前的用户
-func (t *ThDesk) CheckBetUser(userId uint32) bool {
-	if t.BetUserNow == userId {
-		return true
-	} else {
+func (t *ThDesk) CheckBetUserBySeat(seatId uint32) bool {
+	//1,通过座位号得到user
+	user := t.getUserBySeat(seatId)
+
+	//2,判断押注的用户是否是当前的用户
+	if t.BetUserNow != user.UserId  {
 		return false
 	}
+
+	//3, 判断用户的状态是否正确
+	if !user.CheckBetWaitStatus() {
+		return false
+	}
+	//用户合法,设置等待状态
+	user.InitWait()
+	return true
 }
 
 
+
 //是不是可以开始游戏了
-func (t *ThDesk) IsTime2begin() bool{
+func (t *ThDesk) IsTime2begin() bool {
 
 	//可以开始游戏的要求
 	//1,用户的人数达到了最低可玩人数
 	//2,当前的状态是游戏停止的状态
 	if t.UserCount == TH_DESK_LEAST_START_USER   && t.Status == TH_DESK_STATUS_STOP {
 		return true
-	}else {
+	} else {
 		return false
 	}
 }
