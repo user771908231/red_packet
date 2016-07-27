@@ -152,6 +152,7 @@ func HandlerREQQuickConn(args []interface{}){
 			result.CoinCnt = nuser.Coin
 			result.AckResult = &intCons.ACK_RESULT_SUCC
 			result.UserId	= nuser.Id
+			//result.
 			a.WriteMsg(result)
 		}
 

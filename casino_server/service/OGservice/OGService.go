@@ -366,17 +366,26 @@ func HandlerFollowBet(m  *bbproto.Game_FollowBet,a gate.Agent) error{
 
 //处理加注
 func HandlerRaiseBet(m *bbproto.Game_RaiseBet,a gate.Agent) error{
+	seatId := m.GetSeat()
+	desk := room.ThGameRoomIns.GetDeskById(m.GetTableid())
+	desk.OGRaiseBet(seatId,m.GetCoin())
 	return nil
 }
 
 //处理让牌
 func HandlerCheckBet(m *bbproto.Game_CheckBet,a gate.Agent) error{
+	seatId := m.GetSeat()
+	desk := room.ThGameRoomIns.GetDeskById(m.GetTableid())
+	desk.OGCheckBet(seatId)
 	return nil
 }
 
 
 //处理让牌
 func HandlerFoldBet(m *bbproto.Game_FoldBet,a gate.Agent) error{
+	seatId := m.GetSeat()
+	desk := room.ThGameRoomIns.GetDeskById(m.GetTableid())
+	desk.OgFoldBet(seatId)
 	return nil
 }
 

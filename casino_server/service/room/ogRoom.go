@@ -127,6 +127,84 @@ func (t *ThDesk) OgFoldBet(seatId int32) error {
 
 
 
+//联众德州 加注
+func (t *ThDesk) OGRaiseBet(seatId int32,coin int64) error{
+	log.T("开始处理seat[%v]弃牌的逻辑,t,OgFollowBet()...",seatId)
+	t.Lock()
+	defer t.Unlock()
+
+	user := t.getUserBySeat(seatId)
+	user.InitWait()
+	user.waitUUID = ""
+	err := t.BetUserRaise(user.UserId,coin)
+	if err != nil {
+		log.E("跟注的时候出错了.errMsg[%v],", err.Error())
+	}
+
+	//判断是否属于开奖的时候,如果是,那么开奖,如果不是,设置下一个押注的人
+	if t.Tiem2Lottery() {
+		return t.Lottery()
+	} else {
+		t.NextBetUser()
+		log.T("准备给其他人发送弃牌的广播")
+	}
+
+	//押注成功返回要住成功的消息
+	//初始化
+	result := &bbproto.Game_AckRaiseBet{}
+	result.NextSeat = new(int32)
+	result.Coin = &t.BetAmountNow        			//本轮压了多少钱
+	result.Seat = &seatId                			//座位id
+	result.Tableid = &t.Id
+	result.CanRaise	= &t.CanRaise		     		//是否能加注
+	*result.NextSeat =int32(t.GetUserIndex(t.BetUserNow))		//下一个押注的人
+	//给所有人广播信息
+	t.THBroadcastProto(result,0)
+	log.T("开始处理seat[%v]弃牌的逻辑,t,OgFollowBet()...end",seatId)
+	return nil
+
+}
+
+
+//联众德州 让牌
+func (t *ThDesk) OGCheckBet(seatId int32) error{
+	log.T("开始处理seat[%v]弃牌的逻辑,t,OgFollowBet()...",seatId)
+	t.Lock()
+	defer t.Unlock()
+
+	user := t.getUserBySeat(seatId)
+	user.InitWait()
+	user.waitUUID = ""
+	err := t.BetUserCheck(user.UserId)
+	if err != nil {
+		log.E("跟注的时候出错了.errMsg[%v],", err.Error())
+	}
+
+	//判断是否属于开奖的时候,如果是,那么开奖,如果不是,设置下一个押注的人
+	if t.Tiem2Lottery() {
+		return t.Lottery()
+	} else {
+		t.NextBetUser()
+		log.T("准备给其他人发送弃牌的广播")
+	}
+
+	//押注成功返回要住成功的消息
+	//初始化
+	result := &bbproto.Game_AckCheckBet{}
+	result.NextSeat = new(int32)
+	result.Coin = &t.BetAmountNow        			//本轮压了多少钱
+	result.Seat = &seatId                			//座位id
+	result.Tableid = &t.Id
+	result.CanRaise	= &t.CanRaise		     		//是否能加注
+	*result.NextSeat =int32(t.GetUserIndex(t.BetUserNow))		//下一个押注的人
+	//给所有人广播信息
+	t.THBroadcastProto(result,0)
+	log.T("开始处理seat[%v]弃牌的逻辑,t,OgFollowBet()...end",seatId)
+	return nil
+}
+
+
+
 //th的牌转换成OG的牌
 func ThCard2OGCard(pai *bbproto.Pai) *bbproto.Game_CardInfo {
 	result := &bbproto.Game_CardInfo{}

@@ -40,7 +40,6 @@ func game_EnterMatch(userId uint32){
 	conn.Write(m2)
 }
 
-
 //押注
 func ogbet(seatId int32,coin int64){
 	var tableId int32 = 0
@@ -49,7 +48,7 @@ func ogbet(seatId int32,coin int64){
 		panic(err)
 	}
 	defer conn.Close()
-	ide2 := int32(bbproto.EProtoId_GAME_FOLLOWBET)
+	ide2 := int32(bbproto.EProtoId_PID_GAME_FOLLOWBET)
 
 	fmt.Println("proto 得到的id ", ide2)
 	followData := &bbproto.Game_FollowBet{}

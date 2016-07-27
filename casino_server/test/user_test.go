@@ -13,11 +13,15 @@ func TestUser(t *testing.T){
 	//addUserCoin(10010,87000)
 	//addUserCoin(10011,989000)
 
-	getUser(10007)
-	getUser(10008)
-	getUser(10009)
-	getUser(10010)
-	getUser(10011)
+	for i:=10010; i< 10024; i++ {
+		addUserCoin(uint32(i),99999)
+	}
+
+	//getUser(10007)
+	//getUser(10008)
+	//getUser(10009)
+	//getUser(10010)
+	//getUser(10011)
 }
 
 

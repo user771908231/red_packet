@@ -352,6 +352,8 @@ message REQQuickConn {
     optional string Thirdkey = 16; // 第三方下发客户端的session key  (第三方接入必填，用于校验合法性)
     optional string ThirdAppId = 17; //申请的第三方的AppId,解决多个APPID 接入同一个OPENID的问题。  (第三方接入必填)
     optional uint32 userId = 18;    //用户Id
+    optional string NickName    =   19; //昵称
+
 }
 
 message ACKQuickConn {
@@ -385,5 +387,14 @@ message ACKQuickConn {
 
 message NullMsg {
 
+}
+
+//新增用户的时候,发送广播
+message game_SendAddUser{
+    optional bytes Matchid = 1;
+    optional int32 Tableid = 2;
+    optional string NickName    =3 ;//昵称
+    optional int64  Coin    =  4;   //用户的经济
+    optional int32  seat    =  5;   //用户的座位号
 }
 
