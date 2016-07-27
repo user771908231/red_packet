@@ -120,7 +120,7 @@ func NewUserAndSave() (*bbproto.User, error) {
 	nuser.Mid = bson.NewObjectId()
 	nuser.Id = userId
 	nuser.NickName = Nickname
-	nuser.Coin = intCons.NUM_INT64_0
+	nuser.Coin = int64(10000)
 
 	err = s.DB(casinoConf.DB_NAME).C(casinoConf.DBT_T_USER).Insert(nuser)
 	if err != nil {
@@ -274,7 +274,7 @@ func Tuser2Ruser(tu *mode.T_user)(*bbproto.User,error){
 	if tu.Mid.Hex() != "" {
 		hesStr := tu.Mid.Hex()
 		result.Mid = &hesStr
-		log.T("获得t_user.mid %v",hesStr)
+		//log.T("获得t_user.mid %v",hesStr)
 	}
 
 	result.Name = &tu.Name

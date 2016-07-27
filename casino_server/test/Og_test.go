@@ -18,8 +18,8 @@ func TestOg(t *testing.T) {
 	//gamelogingame(1111)
 	//ogbet(0,20)
 	//ogbet(1,20)
-	ogbet(2,20)
-	//ogbet(3,20)
+	//ogbet(2,20)
+	ogbet(3,20)
 
 	//rEQQuickConn(10006)
 	for ; ;  {

@@ -103,9 +103,8 @@ func handleReqAuthUser(args []interface{}) {
 
 ///处理联众游戏,登陆的协议
 func HandlerREQQuickConn(args []interface{}){
-	log.T("进入login.handler.HandlerREQQuickConn()")
 	m := args[0].(*bbproto.REQQuickConn)
-	log.T("联众游戏登陆的时候发送的请求的协议内容[%v]", m)
+	log.T("联众游戏登陆的时候发送的请求的协议内容login.handler.HandlerREQQuickConn()[%v]", m)
 	a := args[1].(gate.Agent)
 	//需要返回的结果
 
@@ -114,9 +113,11 @@ func HandlerREQQuickConn(args []interface{}){
 	result.CoinCnt = new(int64)
 	result.UserName = new(string)
 	result.UserId = new(uint32)
-	//result.CurVersion = new(string,"sfs")
-	//result.PlayEnable = new(string,"")
+	result.NickName = new(string)
+	result.AckResult = new(int32)
 
+
+	var resultUser *bbproto.User
 
 	arrs := strings.Split(conf.Server.TCPAddr, ":")
 	var ip string = arrs[0]
@@ -138,70 +139,33 @@ func HandlerREQQuickConn(args []interface{}){
 	result.JssList = tslist
 	result.MatchSvrList = oglist
 
-	// 通过userId来判断是登录还是注册
+	// 通过userId来判断是登录还是注册,如果userId ==0 ,重新注册一个,如果userId !=0 从数据库查询
 	if m.GetUserId() == 0 {
-		//注册
-		//2,为用户分配id
-		nuser, err := userService.NewUserAndSave()
-		if err != nil {
-			log.E(err.Error())
-			result.AckResult = &intCons.ACK_RESULT_ERROR
-			a.WriteMsg(result)
-		} else {
-			//注册成功并且返回数据
-			result.CoinCnt = nuser.Coin
-			result.AckResult = &intCons.ACK_RESULT_SUCC
-			result.UserId	= nuser.Id
-			//result.
-			a.WriteMsg(result)
-		}
-
+		resultUser,_ = userService.NewUserAndSave()
 	} else {
-		//登录,如果数据库的pass喂空,表示游客能录,否则 用户名,密码登陆
-		//通过UserId去数据库中的user
-		userName := string(m.GetUserName())        //用户名
-		userPass := m.GetPwd()                //密码
-		user := userService.GetUserById(m.GetUserId())
+		resultUser = userService.GetUserById(m.GetUserId())
+	}
 
-		if user.GetPwd() == "" {
-			//快速登陆
-			log.T("游客登陆userId[%v]",m.GetUserId())
-			result.AckResult = &intCons.ACK_RESULT_SUCC
-			*result.CoinCnt = user.GetCoin()
-			*result.UserName,_ = numUtils.Uint2String(user.GetId())
-			*result.UserId = user.GetId()
-			log.T("快速登录,有userId,没有密码时返回的信息:[%v]",result)
-			a.WriteMsg(result)
-			return
-		}else{
-			//用户名密码登陆
-			if *user.Name == userName && userPass == user.GetPwd() {
-				result.AckResult = &intCons.ACK_RESULT_SUCC
-				*result.CoinCnt = user.GetCoin()
-				result.UserId = user.Id
-				log.T("快速登录,有userId,有密码时返回的信息:[%v]",result)
-				a.WriteMsg(result)
-				return
-			} else {
-				result.AckResult = &intCons.ACK_RESULT_ERROR
-				a.WriteMsg(result)
-				return
-			}
-		}
 
+	//如果得到的user ==nil 或者 用密码登陆的时候密码不正确
+	if resultUser == nil ||(resultUser.GetPwd() != "" && m.GetPwd() != resultUser.GetPwd()){
+		log.E("没有找到用户,返回登陆失败...")
+		*result.AckResult = intCons.ACK_RESULT_ERROR
+		a.WriteMsg(result)
+		return
+	}else{
+		*result.AckResult	=	intCons.ACK_RESULT_SUCC				//返回结果
+		*result.CoinCnt		=	resultUser.GetCoin()				//用户金币
+		*result.UserName,_	=	numUtils.Uint2String(resultUser.GetId())	//
+		*result.UserId		=	resultUser.GetId()
+		*result.NickName	=	resultUser.GetNickName()
+		log.T("快速登录,有userId,没有密码时返回的信息:[%v]",result)
+		a.WriteMsg(result)
 	}
 }
 
+
+//空协议
 func handlerNullMsg(args []interface{}) {
 	log.T("收到一条空消息")
-	//a := args[1].(gate.Agent)
-	//retData := &bbproto.MatchList_SendMatchlistSvrInfo{}
-	//sinfo := bbproto.MatchList_SvrInfo{}
-	//var ip string = "192.168.199.120"
-	//var port string = "3563"
-	//sinfo.IP =
-	//retData.SvrInfo.
-	//
-	//a.WriteMsg(retData)
-
 }
