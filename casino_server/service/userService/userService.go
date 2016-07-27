@@ -120,7 +120,7 @@ func NewUserAndSave() (*bbproto.User, error) {
 	nuser.Mid = bson.NewObjectId()
 	nuser.Id = userId
 	nuser.NickName = Nickname
-	nuser.Coin = intCons.NUM_INT64_0
+	nuser.Coin = int64(10000)
 
 	err = s.DB(casinoConf.DB_NAME).C(casinoConf.DBT_T_USER).Insert(nuser)
 	if err != nil {

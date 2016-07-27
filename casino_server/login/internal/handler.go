@@ -114,6 +114,7 @@ func HandlerREQQuickConn(args []interface{}){
 	result.CoinCnt = new(int64)
 	result.UserName = new(string)
 	result.UserId = new(uint32)
+	result.NickName = new(string)
 	//result.CurVersion = new(string,"sfs")
 	//result.PlayEnable = new(string,"")
 
@@ -151,8 +152,8 @@ func HandlerREQQuickConn(args []interface{}){
 			//注册成功并且返回数据
 			result.CoinCnt = nuser.Coin
 			result.AckResult = &intCons.ACK_RESULT_SUCC
-			result.UserId	= nuser.Id
-			//result.
+			result.UserId	 = nuser.Id
+			*result.NickName = nuser.GetNickName()
 			a.WriteMsg(result)
 		}
 
@@ -170,6 +171,7 @@ func HandlerREQQuickConn(args []interface{}){
 			*result.CoinCnt = user.GetCoin()
 			*result.UserName,_ = numUtils.Uint2String(user.GetId())
 			*result.UserId = user.GetId()
+			*result.NickName = user.GetNickName()
 			log.T("快速登录,有userId,没有密码时返回的信息:[%v]",result)
 			a.WriteMsg(result)
 			return
@@ -179,6 +181,7 @@ func HandlerREQQuickConn(args []interface{}){
 				result.AckResult = &intCons.ACK_RESULT_SUCC
 				*result.CoinCnt = user.GetCoin()
 				result.UserId = user.Id
+				*result.NickName = user.GetNickName()
 				log.T("快速登录,有userId,有密码时返回的信息:[%v]",result)
 				a.WriteMsg(result)
 				return
