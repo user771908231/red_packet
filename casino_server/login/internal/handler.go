@@ -16,7 +16,6 @@ import (
 	"casino_server/gamedata"
 	"casino_server/conf"
 	"casino_server/utils/numUtils"
-	"os/user"
 )
 
 func handleMsg(m interface{}, h interface{}) {
@@ -142,7 +141,7 @@ func HandlerREQQuickConn(args []interface{}){
 
 	// 通过userId来判断是登录还是注册,如果userId ==0 ,重新注册一个,如果userId !=0 从数据库查询
 	if m.GetUserId() == 0 {
-		resultUser = userService.NewUserAndSave()
+		resultUser,_ = userService.NewUserAndSave()
 	} else {
 		resultUser = userService.GetUserById(m.GetUserId())
 	}
