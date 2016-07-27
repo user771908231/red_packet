@@ -153,18 +153,16 @@ func (t *ThDesk) OGRaiseBet(seatId int32,coin int64) error{
 	log.T("开始处理seat[%v]弃牌的逻辑,t,OgFollowBet()...",seatId)
 	t.Lock()
 	defer t.Unlock()
+	//1,得到跟注的用户,检测用户
 
 	user := t.getUserBySeat(seatId)
-
-	//1,得到跟注的用户
-	err := t.BetUserRaise(user.UserId,coin)
-	if err != nil {
-		log.E("加注人的状态不正确")
-		return errors.New("加注人的状态不正确")
+	if !t.CheckBetUserBySeat(seatId) {
+		log.E("押注人的状态不正确")
+		return errors.New("押注人的状态不正确")
 	}
 
 	//2,开始处理加注
-	err = t.BetUserRaise(user.UserId,coin)
+	err := t.BetUserRaise(user.UserId,coin)
 	if err != nil {
 		log.E("跟注的时候出错了.errMsg[%v],", err.Error())
 	}
