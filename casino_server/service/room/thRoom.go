@@ -264,7 +264,6 @@ func (r *ThGameRoom) AddUser(userId uint32, a gate.Agent) (*ThDesk, error) {
 		return nil, err
 	}
 
-
 	//4, 把用户的信息绑定到agent上
 	userAgentData := &gamedata.AgentUserData{}
 	userAgentData.UserId = userId
@@ -644,18 +643,13 @@ func (t *ThDesk) OnInitCards() error {
 
 }
 
-
-/**
-	德州扑克广播消息
- */
+//广播porto消息的通用方法
 func (t *ThDesk) THBroadcastProto(p proto.Message, ignoreUserId uint32) error {
-	log.Normal("给每个房间发送proto 消息%v", p)
+	log.Normal("开始广播proto消息【%v】", p)
 	for i := 0; i < len(t.Users); i++ {
 		if t.Users[i] != nil && t.Users[i].UserId != ignoreUserId {
-			//log.Normal("开始userId[%v]发送消息", *t.users[i].userId)
 			a := t.Users[i].agent
 			a.WriteMsg(p)
-			//log.Normal("给userId[%v]发送消息,发送完毕", *t.users[i].userId)
 		}
 	}
 	return nil
@@ -688,29 +682,6 @@ func (t *ThDesk) THBroadcastAddUser(newUserId, ignoreUserId uint32) error {
 				}
 			}
 
-			a := t.Users[i].agent
-			log.Normal("给userId[%v]发送消息:[%v]", t.Users[i].UserId, broadUsers)
-			a.WriteMsg(broadUsers)
-		}
-	}
-	return nil
-}
-
-/**
-当有新用户进入房间的时候,为其他人广播新过来的人的信息
- */
-func (t *ThDesk) OGTHBroadcastAddUser(newUserId, ignoreUserId uint32) error {
-	for i := 0; i < len(t.Users); i++ {
-		if t.Users[i] != nil && t.Users[i].UserId != ignoreUserId {
-			users := t.GetResUserModel()                                //不需要排序
-			broadUsers := &bbproto.THRoomAddUserBroadcast{}
-			broadUsers.Header = protoUtils.GetSuccHeaderwithUserid(&(t.Users[i].UserId))
-			for i := 0; i < len(users); i++ {
-				if users[i] != nil && users[i].User.GetId() == newUserId {
-					broadUsers.User = users[i]
-					break
-				}
-			}
 			a := t.Users[i].agent
 			log.Normal("给userId[%v]发送消息:[%v]", t.Users[i].UserId, broadUsers)
 			a.WriteMsg(broadUsers)
@@ -1538,5 +1509,18 @@ func (t *ThDesk) CheckBetUser(userId uint32) bool {
 	}
 }
 
+
+//是不是可以开始游戏了
+func (t *ThDesk) IsTime2begin() bool{
+
+	//可以开始游戏的要求
+	//1,用户的人数达到了最低可玩人数
+	//2,当前的状态是游戏停止的状态
+	if t.UserCount == TH_DESK_LEAST_START_USER   && t.Status == TH_DESK_STATUS_STOP {
+		return true
+	}else {
+		return false
+	}
+}
 
 

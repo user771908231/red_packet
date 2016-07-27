@@ -29,34 +29,33 @@ var (
 	3,如果没有登陆游戏,走正常的流程
  */
 func HandlerGameEnterMatch(m *bbproto.Game_EnterMatch, a gate.Agent) error {
+
+	userId := m.GetUserId()
 	//定义需要的参数
 	result := newGame_SendGameInfo()                //需要返回的信息
 
 	//1,进入房间,返回房间和错误信息
-	mydesk, err := room.ThGameRoomIns.AddUser(m.GetUserId(), a)
+	mydesk, err := room.ThGameRoomIns.AddUser(userId, a)
 	if err != nil || mydesk == nil {
 		errMsg := err.Error()
-		log.E("进入房间失败,errMsg[%v]", errMsg)
-		//这里需要给客户端返回失败的信息
+		log.E("用户[%v]进入房间失败,errMsg[%v]",userId,errMsg)
 		a.WriteMsg(result)
 		return err
 	}
 
 	//2 构造信息并且返回
-	initGameSendgameInfoByDesk(mydesk, result,m.GetUserId())
-
-	log.T("给请求登陆房间的人回复信息[%v]",result)
+	initGameSendgameInfoByDesk(mydesk, result,userId)
+	log.T("给请求登陆房间的人[%v]回复信息[%v]",userId,result)
 	a.WriteMsg(result)
 
-	//3,进入房间的广播,告诉其他人有新的玩家进来了
-	//mydesk.OGTHBroadcastAddUser(userId, userId)
+	//3 发送进入游戏房间的广播
+	mydesk.OGTHBroadAddUser(userId)
 
 	//4,最后:确定是否开始游戏, 上了牌桌之后,如果玩家人数大于1,并且游戏处于stop的状态,则直接开始游戏
-	//这是游戏刚开始,的处理方式
-	if mydesk.UserCount == room.TH_DESK_LEAST_START_USER  && mydesk.Status == room.TH_DESK_STATUS_STOP {
+	if mydesk.IsTime2begin() {
 		err = run(mydesk)
 		if err != nil {
-			log.E("开始德州扑克游戏的时候失败")
+			log.E("开始德州扑克游戏的时候失败!")
 			return nil
 		}
 	}
@@ -191,7 +190,7 @@ func isFold(u *room.ThUser) int32 {
 
 //解析手牌
 func getHandCard(mydesk *room.ThDesk) []*bbproto.Game_CardInfo {
-	log.T("把desk的手牌,转化为og的手牌")
+	//log.T("把desk的手牌,转化为og的手牌")
 	var handCard []*bbproto.Game_CardInfo
 	for i := 0; i < len(mydesk.Users); i++ {
 		u := mydesk.Users[i]

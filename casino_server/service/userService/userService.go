@@ -274,7 +274,7 @@ func Tuser2Ruser(tu *mode.T_user)(*bbproto.User,error){
 	if tu.Mid.Hex() != "" {
 		hesStr := tu.Mid.Hex()
 		result.Mid = &hesStr
-		log.T("获得t_user.mid %v",hesStr)
+		//log.T("获得t_user.mid %v",hesStr)
 	}
 
 	result.Name = &tu.Name

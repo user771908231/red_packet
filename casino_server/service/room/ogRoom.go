@@ -294,3 +294,25 @@ func (t *ThDesk) GetSecondPool() []int64{
 	}
 	return ret
 }
+
+
+//发送新增玩家的广播
+func (t *ThDesk) OGTHBroadAddUser(newUserId uint32) error{
+	newUser := t.getUserById(newUserId)
+
+	//生成广播的信息
+	broadUser := &bbproto.Game_SendAddUser{}
+	broadUser.Coin = new(int64)
+	broadUser.Seat = new(int32)
+	broadUser.Tableid = new(int32)
+	broadUser.NickName= new(string)
+
+	*broadUser.Coin = newUser.Coin
+	*broadUser.Seat = newUser.Seat
+	*broadUser.NickName = newUser.NickName
+	*broadUser.Tableid = t.Id
+
+	log.T("开始广播新增用户的proto消息[%v]",broadUser)
+	t.THBroadcastProto(broadUser,newUserId)
+	return nil
+}

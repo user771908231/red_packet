@@ -103,10 +103,10 @@ func (server *TCPServer) run() {
 		tcpConn := newTCPConn(conn, server.PendingWriteNum, server.msgParser)
 		agent := server.NewAgent(tcpConn)
 		go func() {
-			log.Debug("=========== begin agent.Run ========")
+			//log.Debug("=========== begin agent.Run ========")
 			agent.Run()
 
-			log.Debug("=========== after agent.Run ========")
+			//log.Debug("=========== after agent.Run ========")
 			// cleanup
 			tcpConn.Close()
 			server.mutexConns.Lock()
