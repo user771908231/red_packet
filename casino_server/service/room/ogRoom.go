@@ -56,7 +56,7 @@ func (t *ThDesk) OgFollowBet(seatId int32) error {
 		return errors.New("押注人的状态不正确")
 	}
 
-	log.T("用户[%v]开始押注:本次押注t.BetAmountNow[%v]",user.UserId,t.BetAmountNow)
+	log.T("用户[%v]开始押注:本次跟住t.BetAmountNow[%v]",user.UserId,t.BetAmountNow)
 	log.T("用户[%v]开始押注:已经押注HandCoin[%v]",user.UserId,user.HandCoin)
 
 	//2,开始押注
@@ -335,6 +335,9 @@ func (t *ThDesk) GetSecondPool() []int64{
 			ret = append(ret,a.Jackpopt)
 		}
 	}
+
+	//边池
+	ret = append(ret,t.bianJackpot)
 
 	log.T("下一句开始,返回的secondPool【%v】",ret)
 	return ret

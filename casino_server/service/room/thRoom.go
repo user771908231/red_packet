@@ -487,6 +487,9 @@ func (t *ThDesk) LogString() {
 	log.T("当前desk[%v]的信息的状态,压注人[%v]", t.Id, t.BetUserNow)
 	log.T("当前desk[%v]的信息的状态,压注轮次[%v]", t.Id, t.RoundCount)
 	log.T("当前desk[%v]的信息的状态,NewRoundBetUser[%v]", t.Id, t.NewRoundBetUser)
+	log.T("当前desk[%v]的信息的状态,总共押注Jackpot[%v]", t.Id, t.Jackpot)
+	log.T("当前desk[%v]的信息的状态,边池bianJackpot[%v]", t.Id, t.bianJackpot)
+	log.T("当前desk[%v]的信息的状态,当前加注的人BetUserRaiseUserId[%v]", t.Id, t.BetUserRaiseUserId)
 
 	log.T("当前desk[%v]的信息:-----------------------------------end----------------------------------", t.Id)
 }
@@ -602,7 +605,7 @@ func (t *ThDesk) BlindBet() error {
 	smallUse.Coin = *smallReduser.Coin
 	smallUse.TurnCoin += t.SmallBlindCoin
 	smallUse.TotalBet += t.SmallBlindCoin
-	t.Jackpot += t.SmallBlindCoin
+	t.AddBetCoin(t.SmallBlindCoin)
 
 
 	//大盲注押注
@@ -613,7 +616,7 @@ func (t *ThDesk) BlindBet() error {
 	bigUser.Coin = *bigRedUser.Coin
 	bigUser.TurnCoin += t.BigBlindCoin
 	bigUser.TotalBet += t.BigBlindCoin
-	t.Jackpot += t.BigBlindCoin
+	t.AddBetCoin(t.BigBlindCoin)
 
 	return nil
 }
@@ -1177,7 +1180,7 @@ func (t *ThDesk) Bet(m *bbproto.THBet, a gate.Agent) error {
 //只是跟注,需要减少用户的资产,增加奖池的金额
 func (t *ThDesk) BetUserCall(userId uint32) error {
 	coin := t.BetAmountNow - t.GetUserByUserId(userId).HandCoin
-	log.T("用户[%v]押注coin[%v]", userId, coin)
+	//log.T("用户[%v]押注coin[%v]", userId, coin)
 	//1,增加奖池的金额
 	t.AddBetCoin(coin)
 	//增加用户本轮投注的金额
@@ -1264,7 +1267,7 @@ func (t *ThDesk) BetUserRaise(userId uint32, coin int64) error {
 	t.caclUserCoin(userId, betCoin)                        //thuser
 	userService.DecreaseUserCoin(userId, betCoin)        //redis-user
 
-	//3,设置状态
+	//3,设置状态:设置为第一个加注的人,如果后边所有人都是跟注,可由这个人判断一轮是否结束
 	t.BetUserRaiseUserId = userId
 
 	return nil
@@ -1355,6 +1358,7 @@ func (t *ThDesk) NextBetUser() error {
 	return nil
 }
 
+//下一轮
 func (t *ThDesk) nextRoundInfo() {
 	t.CalcAllInJackpot(t.RoundCount)
 	t.BetUserRaiseUserId = t.NewRoundBetUser
