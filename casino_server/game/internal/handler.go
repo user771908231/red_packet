@@ -302,3 +302,4 @@ func handlerCheckBet(args []interface{}){
 	a := args[1].(gate.Agent)
 	OGservice.HandlerCheckBet(m,a)
 }
+

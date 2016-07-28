@@ -31,8 +31,7 @@ var (
 func HandlerGameEnterMatch(m *bbproto.Game_EnterMatch, a gate.Agent) error {
 	log.T("用户请求进入德州扑克的游戏房间,m[%v]",m)
 
-	userId := m.GetUserId()
-	//定义需要的参数
+	userId := m.GetUserId()				//进入游戏房间的user
 	result := newGame_SendGameInfo()                //需要返回的信息
 
 	//1,进入房间,返回房间和错误信息
@@ -108,6 +107,7 @@ func initGameSendgameInfoByDesk(mydesk *room.ThDesk, result *bbproto.Game_SendGa
 	*result.NInitDelayTime = int32(room.TH_TIMEOUT_DURATION)
 	result.Handcard = getHandCard(mydesk)		//用户手牌
 	result.HandCoin = mydesk.GetCoin()	//下注的金额
+	//result.HandCoin = mydesk.GetHandCoin()	//下注的金额
 	result.TurnCoin = getTurnCoin(mydesk)
 	*result.Seat	= int32(mydesk.GetUserIndex(myUserId))	//我
 
@@ -196,11 +196,24 @@ func getHandCard(mydesk *room.ThDesk) []*bbproto.Game_CardInfo {
 	for i := 0; i < len(mydesk.Users); i++ {
 		u := mydesk.Users[i]
 		if u != nil {
-			//用户手牌
+			log.T("开始给玩家[%v]解析手牌",u.UserId)
 			result := make([]*bbproto.Game_CardInfo, 0)
-			for i := 0; i < len(u.Cards); i++ {
-				c := u.Cards[i]
-				gc := room.ThCard2OGCard(c)
+			//用户手牌
+			if len(u.Cards) == 2 {
+				for i := 0; i < len(u.Cards); i++ {
+					c := u.Cards[i]
+					gc := room.ThCard2OGCard(c)
+					//增加到数组中
+					result = append(result, gc)
+				}
+			}else{
+				log.T("玩家[%v]刚刚进房间,等待别人完成游戏,所以手牌为空",u.UserId)
+				gc := &bbproto.Game_CardInfo{}
+				gc.Color = new(int32)
+				gc.Value = new(int32)
+				*gc.Color = room.POKER_COLOR_COUNT
+				*gc.Value = room.POKER_VALUE_EMPTY
+				result = append(result, gc)
 				result = append(result, gc)
 			}
 			handCard = append(handCard, result...)
@@ -328,17 +341,17 @@ func  run(mydesk *room.ThDesk)error{
 	initCardB.HandCard = getHandCard(mydesk)
 	initCardB.PublicCard = thPublicCard2OGC(mydesk)
 	initCardB.MinRaise = &mydesk.MinRaise
-	//initCardB.NextUser = mydesk.GetResUserModelById(mydesk.BetUserNow).SeatNumber
 	*initCardB.NextUser = int32(mydesk.GetUserIndex(mydesk.BetUserNow))
+	*initCardB.ActionTime = room.TH_TIMEOUT_DURATION_INT
 	//initCardB.Seat = &mydesk.UserCount
 	mydesk.THBroadcastProto(initCardB,0)
-	//mydesk.Testb(initCardB)
 
 	log.T("广播initCard的信息完毕")
 	return nil
 }
 
 //处理押注的请求
+//todo 这里需要判断用户是否是allin
 func HandlerFollowBet(m  *bbproto.Game_FollowBet,a gate.Agent) error{
 	log.T("处理用户押注的请求")
 	seatId := m.GetSeat()
@@ -365,7 +378,7 @@ func HandlerCheckBet(m *bbproto.Game_CheckBet,a gate.Agent) error{
 }
 
 
-//处理让牌
+//处理弃牌
 func HandlerFoldBet(m *bbproto.Game_FoldBet,a gate.Agent) error{
 	seatId := m.GetSeat()
 	desk := room.ThGameRoomIns.GetDeskById(m.GetTableid())

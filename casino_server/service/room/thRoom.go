@@ -195,6 +195,12 @@ func (r *ThGameRoom) GetDeskByUserId(userId uint32) *ThDesk {
 
 //游戏大厅增加一个玩家
 func (r *ThGameRoom) AddUser(userId uint32, a gate.Agent) (*ThDesk, error) {
+
+	//进入房间的操作需要加锁
+	r.Lock()
+	defer r.Unlock()
+
+
 	log.T("userid【%v】进入德州扑克的房间", userId)
 
 
@@ -210,7 +216,7 @@ func (r *ThGameRoom) AddUser(userId uint32, a gate.Agent) (*ThDesk, error) {
 	//1.2 判断用户是否已经在房间里了,如果是在房间里,那么替换现有的agent,
 	isRepeat := r.IsRepeatIntoRoom(userId)
 	if isRepeat {
-		log.E("重复进入房间了")
+		log.T("用户[%v]重复进入房间了",userId)
 		//通过userId 找到桌子和room
 		desk := r.GetDeskByUserId(userId)
 		u := desk.GetUserByUserId(userId)
@@ -254,7 +260,6 @@ func (r *ThGameRoom) AddUser(userId uint32, a gate.Agent) (*ThDesk, error) {
 	if len(r.ThDeskBuf) == 0 || mydesk == nil {
 		log.T("没有多余的desk可以用,重新创建一个desk")
 		mydesk = NewThDesk()
-		mydesk.Status = TH_DESK_STATUS_STOP        //游戏还没有开始的状态
 		r.AddThRoom(index, mydesk)
 	}
 
@@ -467,9 +472,9 @@ func NewThDesk() *ThDesk {
 	result.Number = ThGameRoomIns.RandDeskNumber()
 	result.SmallBlindCoin = ThGameRoomIns.SmallBlindCoin
 	result.BigBlindCoin = 2 * ThGameRoomIns.SmallBlindCoin
-
+	result.Status = TH_DESK_STATUS_STOP        //游戏还没有开始的状态
+	result.CanRaise = 1
 	return result
-
 }
 
 func (t *ThDesk) LogString() {
@@ -1363,7 +1368,10 @@ func (t *ThDesk) nextRoundInfo() {
 	t.CalcAllInJackpot(t.RoundCount)
 	t.BetUserRaiseUserId = t.NewRoundBetUser
 	t.BetUserNow = t.NewRoundBetUser
+	t.BetAmountNow = 0	//下一句重新开始的时候,设置当前押注的人为0
 	t.RoundCount ++
+
+	//todo 清空handCoin 的时间是什么时候
 
 	log.T("本次设置的押注人和之前的是同一个人,所以开始第[%v]轮的游戏", t.RoundCount)
 	//一轮完之后需要发送完成的消息

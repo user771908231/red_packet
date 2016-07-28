@@ -85,15 +85,17 @@ func (t *ThDesk) OgFollowBet(seatId int32) error {
 	result.Pool = new(int64)
 	result.HandCoin = new(int64)
 
-	*result.Coin		= user.Coin        			//本轮压了多少钱
-	*result.Seat		= seatId                			//座位id
+	*result.Coin		= user.Coin
+	*result.Seat		= seatId                		//座位id
 	*result.Tableid		= t.Id
-	*result.CanRaise	= t.CanRaise		     		//是否能加注
+	//*result.CanRaise	= t.CanRaise		     		//是否能加注
+
+	*result.CanRaise	= int32(1)		     		//是否能加注
+
 	*result.MinRaise	= t.MinRaise
 	*result.Pool		= t.Jackpot
 	*result.NextSeat	= int32(t.GetUserIndex(t.BetUserNow))		//下一个押注的人
 	*result.HandCoin 	= user.HandCoin
-
 	//a.WriteMsg(result)
 
 	//给所有人广播信息
@@ -150,7 +152,7 @@ func (t *ThDesk) OgFoldBet(seatId int32) error {
 
 //联众德州 加注
 func (t *ThDesk) OGRaiseBet(seatId int32,coin int64) error{
-	log.T("开始处理seat[%v]弃牌的逻辑,t,OgFollowBet()...",seatId)
+	log.T("开始处理seat[%v]加注的逻辑,t,OgFollowBet()...",seatId)
 	t.Lock()
 	defer t.Unlock()
 	//1,得到跟注的用户,检测用户
@@ -172,11 +174,10 @@ func (t *ThDesk) OGRaiseBet(seatId int32,coin int64) error{
 		return t.Lottery()
 	} else {
 		t.NextBetUser()
-		log.T("准备给其他人发送弃牌的广播")
 	}
 
+	log.T("准备给其他人发送加注的广播")
 	//押注成功返回要住成功的消息
-	//初始化
 	result := &bbproto.Game_AckRaiseBet{}
 	result.NextSeat = new(int32)
 	result.Coin = &t.BetAmountNow        			//本轮压了多少钱
@@ -184,17 +185,18 @@ func (t *ThDesk) OGRaiseBet(seatId int32,coin int64) error{
 	result.Tableid = &t.Id
 	result.CanRaise	= &t.CanRaise		     		//是否能加注
 	*result.NextSeat =int32(t.GetUserIndex(t.BetUserNow))		//下一个押注的人
+	result.HandCoin = &user.HandCoin			//表示需要加注多少
+
 	//给所有人广播信息
 	t.THBroadcastProto(result,0)
-	log.T("开始处理seat[%v]弃牌的逻辑,t,OgFollowBet()...end",seatId)
+	log.T("开始处理seat[%v]加注的逻辑,t,OgFollowBet()...end",seatId)
 	return nil
-
 }
 
 
 //联众德州 让牌
 func (t *ThDesk) OGCheckBet(seatId int32) error{
-	log.T("开始处理seat[%v]弃牌的逻辑,t,OgFollowBet()...",seatId)
+	log.T("开始处理seat[%v]让牌的逻辑,t,OgFollowBet()...",seatId)
 	t.Lock()
 	defer t.Unlock()
 
@@ -230,7 +232,7 @@ func (t *ThDesk) OGCheckBet(seatId int32) error{
 	*result.NextSeat =int32(t.GetUserIndex(t.BetUserNow))		//下一个押注的人
 	t.THBroadcastProto(result,0)
 
-	log.T("开始处理seat[%v]弃牌的逻辑,t,OgFollowBet()...end",seatId)
+	log.T("开始处理seat[%v]让牌的逻辑,t,OgFollowBet()...end",seatId)
 	return nil
 }
 
