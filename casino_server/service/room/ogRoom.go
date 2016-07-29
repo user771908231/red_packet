@@ -43,6 +43,8 @@ func (t *ThDesk) getUserBySeat(seatId int32) *ThUser {
 	return t.Users[seatId]
 }
 
+
+//押注的通用接口
 func (t *ThDesk) OGBet(seatId int32,betType int32,coin int64) error{
 	t.Lock()
 	defer t.Unlock()
@@ -77,28 +79,27 @@ func (t *ThDesk) OGBet(seatId int32,betType int32,coin int64) error{
 
 	}
 
-	t.nextRoundInfo()
-	t.Lottery()//
-
+	t.nextRoundInfo()	//广播新一局的信息
+	t.Lottery()		//开奖
 	return nil
 }
 
 
 //这里只处理逻辑
 func (t *ThDesk) OgFollowBet(user *ThUser) error {
-	log.T("开始处理seat[%v]跟注的逻辑,t,OgFollowBet()...",user.Seat)
 
-	//2,开始押注
+	//1,押注
+	log.T("用户[%v]开始押注",user.UserId)
 	err := t.BetUserCall(user.UserId)
 	if err != nil {
 		log.E("跟注的时候出错了.errMsg[%v],", err.Error())
 	}
 
-	//3,判断是否属于开奖的时候,如果是,那么开奖,如果不是,设置下一个押注的人
-
+	//2,初始化下一个押注的人
 	t.NextBetUser()
 
-	//4,押注成功返回要住成功的消息
+	//3,返回信息
+	log.T("返回用户[%v]押注的结果:",user.UserId)
 	result := &bbproto.Game_AckFollowBet{}
 	result.NextSeat = new(int32)
 	result.Coin = new(int64)
@@ -113,50 +114,43 @@ func (t *ThDesk) OgFollowBet(user *ThUser) error {
 	*result.Seat		= user.Seat                		//座位id
 	*result.Tableid		= t.Id
 	//*result.CanRaise	= t.CanRaise		     		//是否能加注
-
 	*result.CanRaise	= int32(1)		     		//是否能加注
-
 	*result.MinRaise	= t.MinRaise
 	*result.Pool		= t.Jackpot
 	*result.NextSeat	= int32(t.GetUserIndex(t.BetUserNow))		//下一个押注的人
 	*result.HandCoin 	= user.HandCoin
 
-	//给所有人广播信息
 	t.THBroadcastProto(result,0)
-	log.T("开始处理seat{%v}跟注的逻辑,t,OgFollowBet()...end",user.Seat)
 	return nil
 }
 
 //这里只处理逻辑
 func (t *ThDesk) OgFoldBet(user  *ThUser) error {
 
-	//2,开始弃牌
+	//1,弃牌
+	log.T("用户[%v]开始弃牌",user.UserId)
 	err := t.BetUserFold(user.UserId)
 	if err != nil {
 		log.E("弃牌的时候出错了.errMsg[%v],", err.Error())
 		return err
 	}
 
-	//3,判断是否属于开奖的时候,如果是,那么开奖,如果不是,设置下一个押注的人
-	if t.Tiem2Lottery() {
-		return t.Lottery()
-	} else {
-		t.NextBetUser()
-		log.T("准备给其他人发送弃牌的广播")
-	}
+	//2,初始化下一个押注的人
+	t.NextBetUser()
 
-	//押注成功返回要住成功的消息
+
+	//3,返回信息
+	log.T("返回用户[%v]弃牌的结果:",user.UserId)
 	result := &bbproto.Game_AckFoldBet{}
 	result.NextSeat = new(int32)
+
 
 	result.Coin = &t.BetAmountNow        			//本轮压了多少钱
 	result.Seat = &user.Seat                			//座位id
 	result.Tableid = &t.Id
 	result.CanRaise	= &t.CanRaise		     		//是否能加注
 	*result.NextSeat =int32(t.GetUserIndex(t.BetUserNow))		//下一个押注的人
-	//给所有人广播信息
 	t.THBroadcastProto(result,0)
-	log.T("开始处理seat[%v]弃牌的逻辑,t,OgFollowBet()...end",user.Seat)
 	return nil
 }
 
@@ -173,11 +167,7 @@ func (t *ThDesk) OGRaiseBet(user *ThUser,coin int64) error{
 	}
 
 	//判断是否属于开奖的时候,如果是,那么开奖,如果不是,设置下一个押注的人
-	if t.Tiem2Lottery() {
-		return t.Lottery()
-	} else {
-		t.NextBetUser()
-	}
+	t.NextBetUser()
 
 	log.T("准备给其他人发送加注的广播")
 	//押注成功返回要住成功的消息
@@ -206,13 +196,7 @@ func (t *ThDesk) OGCheckBet(user *ThUser) error{
 		log.E("跟注的时候出错了.errMsg[%v],", err.Error())
 	}
 
-	//3,判断是否属于开奖的时候,如果是,那么开奖,如果不是,设置下一个押注的人
-	if t.Tiem2Lottery() {
-		return t.Lottery()
-	} else {
-		t.NextBetUser()
-		log.T("准备给其他人发送弃牌的广播")
-	}
+	t.NextBetUser()
 
 	//4押注成功返回要住成功的消息
 	result := &bbproto.Game_AckCheckBet{}

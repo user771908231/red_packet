@@ -262,31 +262,35 @@ func  handlerGameEnterMatch(args []interface{}){
 
 //处理押注的请求
 func handlerFollowBet(args []interface{}){
+	log.T("处理用户押注的请求")
 	m := args[0].(*bbproto.Game_FollowBet)
-	a := args[1].(gate.Agent)
-	OGservice.HandlerFollowBet(m,a)
+	seatId := m.GetSeat()
+	desk := room.ThGameRoomIns.GetDeskById(m.GetTableid())
+	desk.OGBet(seatId,room.TH_DESK_BET_TYPE_CALL,0)
 }
 
 // 处理加注
 func handlerRaise(args []interface{}){
 	m := args[0].(*bbproto.Game_RaiseBet)
-	a := args[1].(gate.Agent)
-	OGservice.HandlerRaiseBet(m,a)
+	seatId := m.GetSeat()
+	coin   := m.GetCoin()
+	desk := room.ThGameRoomIns.GetDeskById(m.GetTableid())
+	desk.OGBet(seatId,room.TH_DESK_BET_TYPE_RAISE,coin)
 }
 
 // 处理弃牌
 func handlerFoldBet(args []interface{}){
 	m := args[0].(*bbproto.Game_FoldBet)
-	a := args[1].(gate.Agent)
-	OGservice.HandlerFoldBet(m,a)
-
-
+	seatId := m.GetSeat()
+	desk := room.ThGameRoomIns.GetDeskById(m.GetTableid())
+	desk.OGBet(seatId,room.TH_DESK_BET_TYPE_FOLD,0)
 }
 
 // 处理弃牌
 func handlerCheckBet(args []interface{}){
 	m := args[0].(*bbproto.Game_CheckBet)
-	a := args[1].(gate.Agent)
-	OGservice.HandlerCheckBet(m,a)
+	seatId := m.GetSeat()
+	desk := room.ThGameRoomIns.GetDeskById(m.GetTableid())
+	desk.OGBet(seatId,room.TH_DESK_BET_TYPE_CHECK,0)
 }
 
