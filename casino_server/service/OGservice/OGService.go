@@ -105,7 +105,7 @@ func initGameSendgameInfoByDesk(mydesk *room.ThDesk, result *bbproto.Game_SendGa
 	*result.MinRaise = int64(mydesk.MinRaise)        //最低加注金额
 	*result.NInitActionTime = int32(room.TH_TIMEOUT_DURATION_INT)
 	*result.NInitDelayTime = int32(room.TH_TIMEOUT_DURATION)
-	result.Handcard = getHandCard(mydesk)		//用户手牌
+	result.Handcard = mydesk.GetHandCard()		//用户手牌
 	result.HandCoin = mydesk.GetCoin()	//下注的金额
 	//result.HandCoin = mydesk.GetHandCoin()	//下注的金额
 	result.TurnCoin = getTurnCoin(mydesk)
@@ -186,45 +186,6 @@ func isFold(u *room.ThUser) int32 {
 		return 0
 	}
 }
-
-
-
-//解析手牌
-func getHandCard(mydesk *room.ThDesk) []*bbproto.Game_CardInfo {
-	//log.T("把desk的手牌,转化为og的手牌")
-	var handCard []*bbproto.Game_CardInfo
-	for i := 0; i < len(mydesk.Users); i++ {
-		u := mydesk.Users[i]
-		if u != nil {
-			log.T("开始给玩家[%v]解析手牌",u.UserId)
-			result := make([]*bbproto.Game_CardInfo, 0)
-			//用户手牌
-			if len(u.Cards) == 2 {
-				for i := 0; i < len(u.Cards); i++ {
-					c := u.Cards[i]
-					gc := room.ThCard2OGCard(c)
-					//增加到数组中
-					result = append(result, gc)
-				}
-			}else{
-				log.T("玩家[%v]刚刚进房间,等待别人完成游戏,所以手牌为空",u.UserId)
-				gc := &bbproto.Game_CardInfo{}
-				gc.Color = new(int32)
-				gc.Value = new(int32)
-				*gc.Color = room.POKER_COLOR_COUNT
-				*gc.Value = room.POKER_VALUE_EMPTY
-				result = append(result, gc)
-				result = append(result, gc)
-			}
-			handCard = append(handCard, result...)
-		} else {
-
-		}
-
-	}
-	return handCard
-}
-
 
 //解析TurnCoin
 func getTurnCoin(mydesk *room.ThDesk) []int64{
@@ -338,7 +299,7 @@ func  run(mydesk *room.ThDesk)error{
 
 	//设置初始化值
 	*initCardB.Tableid = int32(mydesk.Id)
-	initCardB.HandCard = getHandCard(mydesk)
+	initCardB.HandCard = mydesk.GetHandCard()
 	initCardB.PublicCard = thPublicCard2OGC(mydesk)
 	initCardB.MinRaise = &mydesk.MinRaise
 	*initCardB.NextUser = int32(mydesk.GetUserIndex(mydesk.BetUserNow))

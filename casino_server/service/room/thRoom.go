@@ -56,6 +56,8 @@ var TH_DESK_ROUND1 int32 = 1         //第一轮押注
 var TH_DESK_ROUND2 int32 = 2         //第二轮押注
 var TH_DESK_ROUND3 int32 = 3         //第三轮押注
 var TH_DESK_ROUND4 int32 = 4         //第四轮押注
+var TH_DESK_ROUND_END int32 = 5      //完成押注
+
 
 
 //押注的类型
@@ -518,6 +520,7 @@ func (t *ThDesk) AddThUser(userId uint32, a gate.Agent) error {
 	//添加thuser
 	for i := 0; i < len(t.Users); i++ {
 		if t.Users[i] == nil {
+			thUser.Seat = int32(i)		//给用户设置位置编号
 			t.Users[i] = thUser
 			break
 		}
@@ -530,7 +533,6 @@ func (t *ThDesk) AddThUser(userId uint32, a gate.Agent) error {
 	//等待的用户加1
 	t.UserCount = t.UserCount + 1
 	t.AgentMap[userId] = a
-	log.T("玩家加入桌子的结果[%v]", t.Users)
 	return nil
 }
 
@@ -877,7 +879,8 @@ func (t *ThDesk) Tiem2Lottery() bool {
 	}
 
 	//第四轮,并且计算出来的押注人和start是同一个人
-	if t.RoundCount == TH_DESK_ROUND4  && t.BetUserNow == t.BetUserRaiseUserId {
+	if t.RoundCount == TH_DESK_ROUND_END {
+		log.T("现在处于第[%v]轮押注,所以可以直接开奖",t.RoundCount)
 		return true
 	}
 
@@ -975,7 +978,6 @@ func (t *ThDesk) Lottery() error {
 	//需要计算本局allin的奖金池
 	t.CalcAllInJackpot(t.RoundCount)
 
-
 	//todo 做结算是按照奖池来做,还是按照人员来做...
 	//测试按照每个奖池来做计算
 	for i := 0; i < len(t.AllInJackpot); i++ {
@@ -1023,11 +1025,16 @@ func (t *ThDesk) Lottery() error {
 	//保存数据到数据库
 	t.SaveLotteryData()
 
-	//返回结果
-	result := &bbproto.THLottery{}
-	result.Header = protoUtils.GetSuccHeader()
-	result.Users = t.GetResUserModel()
-	t.THBroadcastProto(result, 0)        //给每个人发送开奖公告
+	// 新的开奖协议
+	result := &bbproto.Game_TestResult{}
+	//result.Matchid				//游戏
+	result.Tableid = &t.Id				//桌子
+	//result.BCanShowCard				//
+	//result.BShowCard				//亮牌
+	result.Handcard = t.GetHandCard()		//手牌
+	result.WinCoinInfo = t.getWinCoinInfo()
+	result.HandCoin	= t.GetHandCoin()
+	t.THBroadcastProto(result,0)
 
 	//开奖完成之后,需要重新开始下一局,调用t.Run表示重新下一句
 	time.Sleep(TH_LOTTERY_DURATION)
@@ -1520,6 +1527,7 @@ func (t *ThDesk) CalcAllInJackpot(r int32) error {
 	return nil
 
 }
+
 
 //清楚用户本轮押注的信息
 func (t *ThDesk) ClearUserRoundBet() error {

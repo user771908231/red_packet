@@ -366,3 +366,88 @@ func (t *ThDesk) OGTHBroadAddUser(newUserId uint32) error{
 	t.THBroadcastProto(broadUser,newUserId)
 	return nil
 }
+
+
+//解析手牌
+func (mydesk *ThDesk ) GetHandCard() []*bbproto.Game_CardInfo {
+	//log.T("把desk的手牌,转化为og的手牌")
+	var handCard []*bbproto.Game_CardInfo
+	for i := 0; i < len(mydesk.Users); i++ {
+		u := mydesk.Users[i]
+		if u != nil {
+			log.T("开始给玩家[%v]解析手牌",u.UserId)
+			result := make([]*bbproto.Game_CardInfo, 0)
+			//用户手牌
+			if len(u.Cards) == 2 {
+				for i := 0; i < len(u.Cards); i++ {
+					c := u.Cards[i]
+					gc := ThCard2OGCard(c)
+					//增加到数组中
+					result = append(result, gc)
+				}
+			}else{
+				log.T("玩家[%v]刚刚进房间,等待别人完成游戏,所以手牌为空",u.UserId)
+				gc := &bbproto.Game_CardInfo{}
+				gc.Color = new(int32)
+				gc.Value = new(int32)
+				*gc.Color = POKER_COLOR_COUNT
+				*gc.Value = POKER_VALUE_EMPTY
+				result = append(result, gc)
+				result = append(result, gc)
+			}
+			handCard = append(handCard, result...)
+		} else {
+
+		}
+
+	}
+	return handCard
+}
+
+
+func NewGame_WinCoin() *bbproto.Game_WinCoin{
+	gwc := &bbproto.Game_WinCoin{}
+	gwc.Card1 = new(int32)
+	gwc.Card2 = new(int32)
+	gwc.Card3 = new(int32)
+	gwc.Card4 = new(int32)
+	gwc.Card5 = new(int32)
+	gwc.Cardtype = new(int32)
+	gwc.Coin = new(int64)
+	gwc.Seat = new(int32)
+	gwc.PoolIndex = new(int32)
+	//gwc.Rolename = new(int32)
+
+	return gwc
+
+}
+
+//
+func (t *ThDesk) getWinCoinInfo() []*bbproto.Game_WinCoin{
+	var ret []*bbproto.Game_WinCoin
+
+	//对每个人做计算
+	for i := 0; i < len(t.Users); i++ {
+		u := t.Users[i]
+		if u != nil {
+			//开是对这个人计算
+			gwc := NewGame_WinCoin()
+			*gwc.Card1 = GetOGCardIndex(u.thCards.Cards[0])
+			*gwc.Card2 = GetOGCardIndex(u.thCards.Cards[1])
+			*gwc.Card3 = GetOGCardIndex(u.thCards.Cards[2])
+			*gwc.Card4 = GetOGCardIndex(u.thCards.Cards[3])
+			*gwc.Card5 = GetOGCardIndex(u.thCards.Cards[4])
+			*gwc.Cardtype = u.thCards.GetOGCardType()
+			*gwc.Coin = u.winAmount
+			*gwc.Seat = u.Seat
+			*gwc.PoolIndex = int32(0)
+			//gwc.Rolename
+		}
+	}
+	return ret
+}
+
+//通过牌的信息返回index
+func GetOGCardIndex(p *bbproto.Pai) int32{
+	return p.GetMapKey()
+}

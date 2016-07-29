@@ -58,6 +58,9 @@ enum  EProtoId{
 	PID_GAME_ACKCHECKBET	=	46;		//让牌回复
 	PID_GAME_SENDOVERTURN	=	47;		//下一轮
 	PID_GAME_SENDADDUSER	=	48;
+	PID_GAME_GAME_SHOWCARD		=	49;	//49	请求开牌
+	PID_GAME_GAME_ACKSHOWCARD 	=	50;		//	回复 亮自己的手牌
+	PID_GAME_GAME_TESTRESULT	=	51;	//一局结束之后,返回结果
 }
 
 //general response protocol
