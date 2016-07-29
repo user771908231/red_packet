@@ -317,7 +317,7 @@ func HandlerFollowBet(m  *bbproto.Game_FollowBet,a gate.Agent) error{
 	log.T("处理用户押注的请求")
 	seatId := m.GetSeat()
 	desk := room.ThGameRoomIns.GetDeskById(m.GetTableid())
-	desk.OgFollowBet(seatId)
+	desk.OGBet(seatId,room.TH_DESK_BET_TYPE_CALL,0)
 	return nil
 }
 
@@ -325,8 +325,9 @@ func HandlerFollowBet(m  *bbproto.Game_FollowBet,a gate.Agent) error{
 //处理加注
 func HandlerRaiseBet(m *bbproto.Game_RaiseBet,a gate.Agent) error{
 	seatId := m.GetSeat()
+	coin   := m.GetCoin()
 	desk := room.ThGameRoomIns.GetDeskById(m.GetTableid())
-	desk.OGRaiseBet(seatId,m.GetCoin())
+	desk.OGBet(seatId,room.TH_DESK_BET_TYPE_RAISE,coin)
 	return nil
 }
 
@@ -334,7 +335,7 @@ func HandlerRaiseBet(m *bbproto.Game_RaiseBet,a gate.Agent) error{
 func HandlerCheckBet(m *bbproto.Game_CheckBet,a gate.Agent) error{
 	seatId := m.GetSeat()
 	desk := room.ThGameRoomIns.GetDeskById(m.GetTableid())
-	desk.OGCheckBet(seatId)
+	desk.OGBet(seatId,room.TH_DESK_BET_TYPE_CHECK,0)
 	return nil
 }
 
@@ -343,7 +344,7 @@ func HandlerCheckBet(m *bbproto.Game_CheckBet,a gate.Agent) error{
 func HandlerFoldBet(m *bbproto.Game_FoldBet,a gate.Agent) error{
 	seatId := m.GetSeat()
 	desk := room.ThGameRoomIns.GetDeskById(m.GetTableid())
-	desk.OgFoldBet(seatId)
+	desk.OGBet(seatId,room.TH_DESK_BET_TYPE_FOLD,0)
 	return nil
 }
 

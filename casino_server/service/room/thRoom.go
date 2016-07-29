@@ -377,7 +377,7 @@ func (t *ThUser) TimeOut(timeNow time.Time) (bool, error) {
 		//表示已经超时了
 		//给玩家发送超时的广播
 		desk := t.GetDesk()
-		err := desk.OgFoldBet(t.Seat)
+		err := desk.OgFoldBet(t)
 		if err != nil {
 			log.E("用户[%v]弃牌失败", t.UserId)
 		}
@@ -970,6 +970,11 @@ func (t *ThDesk) SetStatusWaitClose() error {
  */
 
 func (t *ThDesk) Lottery() error {
+
+	if !t.Tiem2Lottery(){
+		return nil
+	}
+
 	log.T("开奖的规则还没有完成,等待完成....")
 
 	//设置用户的状态都为的等待开奖
@@ -1355,7 +1360,12 @@ func (t *ThDesk) NextBetUser() error {
 	//如果不是第四局,并且下次押注的人指向同一个人,那么设置下次押注的人是小盲注
 	if t.BetUserRaiseUserId == t.BetUserNow {
 		//处理allin 奖金池分割的问题
-		t.nextRoundInfo()
+		t.CalcAllInJackpot(t.RoundCount)
+		t.BetUserRaiseUserId = t.NewRoundBetUser
+		t.BetUserNow = t.NewRoundBetUser
+		t.BetAmountNow = 0	//下一句重新开始的时候,设置当前押注的人为0
+		t.RoundCount ++
+
 		log.T("设置下次押注的人是小盲注,下轮次[%v]", t.RoundCount)
 	}
 
@@ -1372,11 +1382,10 @@ func (t *ThDesk) NextBetUser() error {
 
 //下一轮
 func (t *ThDesk) nextRoundInfo() {
-	t.CalcAllInJackpot(t.RoundCount)
-	t.BetUserRaiseUserId = t.NewRoundBetUser
-	t.BetUserNow = t.NewRoundBetUser
-	t.BetAmountNow = 0	//下一句重新开始的时候,设置当前押注的人为0
-	t.RoundCount ++
+
+	if !t.isNewRound(){
+		return
+	}
 
 	//todo 清空handCoin 的时间是什么时候
 
@@ -1411,6 +1420,15 @@ func (t *ThDesk) nextRoundInfo() {
 		t.sendRiverCard()
 	//发第五章牌
 	}
+}
+
+func (t *ThDesk) isNewRound() bool{
+	if t.BetUserNow == t.NewRoundBetUser{
+		return true
+	}else{
+		return false
+	}
+
 }
 
 
@@ -1540,10 +1558,7 @@ func (t *ThDesk) ClearUserRoundBet() error {
 	return nil
 }
 
-func (t *ThDesk) CheckBetUserBySeat(seatId int32) bool {
-	//1,通过座位号得到user
-	user := t.getUserBySeat(seatId)
-
+func (t *ThDesk) CheckBetUserBySeat(user *ThUser) bool {
 	//2,判断押注的用户是否是当前的用户
 	if t.BetUserNow != user.UserId {
 		return false
