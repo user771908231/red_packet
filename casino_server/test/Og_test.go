@@ -9,21 +9,25 @@ import (
 )
 
 func TestOg(t *testing.T) {
-	//game_EnterMatch(10006)
-	 game_EnterMatch(10007)
-	 game_EnterMatch(10008)
-	// game_EnterMatch(10009)
-	// game_EnterMatch(10010)
-	 //game_EnterMatch(10011)
+	 //game_EnterMatch(10007)
+	 //game_EnterMatch(10008)
+	 game_EnterMatch(10009)
+	 game_EnterMatch(10010)
+	 game_EnterMatch(10011)
 	//gamelogingame(1111)
 	//ogbet(0,20)
 	//ogbet(1,20)
 	//ogbet(2,20)
 	//ogbet(3,20)
 
+	//ogRaise(0,20)
+	//ogRaise(1,20)
+	//ogRaise(2,20)
+	//ogRaise(3,20)
+
 	//rEQQuickConn(10006)
-	//for ; ;  {
-	//}
+	for ; ;  {
+	}
 }
 
 func game_EnterMatch(userId uint32){
@@ -77,4 +81,24 @@ func rEQQuickConn(userId uint32){
 	conn.Write(m2)
 	_ = test.Read(conn).(*bbproto.ACKQuickConn)
 
+}
+
+
+func ogRaise(seatId int32,coin int64){
+	var tableId int32 = 0
+	conn, err := net.Dial(TCP, url)
+	if err != nil {
+		panic(err)
+	}
+	defer conn.Close()
+	ide2 := int32(bbproto.EProtoId_PID_GAME_RAISEBET)
+
+	fmt.Println("proto 得到的id ", ide2)
+	raiseData := &bbproto.Game_RaiseBet{}
+	raiseData.Tableid = &tableId
+	raiseData.Seat = &seatId
+	raiseData.Coin = &coin
+	m2 := test.AssembleDataNomd5(uint16(ide2), raiseData)
+	conn.Write(m2)
+	_ = test.Read(conn).(*bbproto.Game_AckRaiseBet)
 }
