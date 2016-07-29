@@ -349,9 +349,8 @@ func (c *ThCards) OnInit() error{
 
 //返回Og牌的类型
 func ( t *ThCards) GetOGCardType() int32{
-	return 0
+	return t.ThType-1
 }
-
 
 
 //对牌进行排序

@@ -1029,11 +1029,11 @@ func (t *ThDesk) Lottery() error {
 	result := &bbproto.Game_TestResult{}
 	//result.Matchid				//游戏
 	result.Tableid = &t.Id				//桌子
-	//result.BCanShowCard				//
-	//result.BShowCard				//亮牌
-	result.Handcard = t.GetHandCard()		//手牌
-	result.WinCoinInfo = t.getWinCoinInfo()
-	result.HandCoin	= t.GetHandCoin()
+	result.BCanShowCard = t.GetBshowCard()		//
+	result.BShowCard    = t.GetBshowCard()		//亮牌
+	result.Handcard     = t.GetHandCard()		//手牌
+	result.WinCoinInfo  = t.getWinCoinInfo()
+	result.HandCoin	    = t.GetHandCoin()
 	t.THBroadcastProto(result,0)
 
 	//开奖完成之后,需要重新开始下一局,调用t.Run表示重新下一句

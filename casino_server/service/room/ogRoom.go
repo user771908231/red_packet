@@ -441,9 +441,21 @@ func (t *ThDesk) getWinCoinInfo() []*bbproto.Game_WinCoin{
 			*gwc.Coin = u.winAmount
 			*gwc.Seat = u.Seat
 			*gwc.PoolIndex = int32(0)
-			//gwc.Rolename
+			ret = append(ret,gwc)
 		}
 	}
+	return ret
+}
+
+func (t *ThDesk) GetBshowCard() []int32{
+	var ret []int32
+	for i := 0; i < len(t.Users); i++ {
+		u := t.Users[i]
+		if u != nil {
+			ret = append(ret,int32(1))
+		}
+	}
+
 	return ret
 }
 
