@@ -11,12 +11,12 @@ import (
 func TestOg(t *testing.T) {
 	 //game_EnterMatch(10007)
 	 //game_EnterMatch(10008)
-	 //game_EnterMatch(10009)
-	 //game_EnterMatch(10010)
-	 //game_EnterMatch(10011)
+	 game_EnterMatch(10009)
+	 game_EnterMatch(10010)
+	 game_EnterMatch(10011)
 	//gamelogingame(1111)
 	//ogbet(0,20)
-	ogbet(1,20)
+	//ogbet(1,20)
 	//ogbet(2,20)
 	//ogbet(3,20)
 
@@ -26,8 +26,8 @@ func TestOg(t *testing.T) {
 	//ogRaise(3,20)
 
 	//rEQQuickConn(10006)
-	//for ; ;  {
-	//}
+	for ; ;  {
+	}
 }
 
 func game_EnterMatch(userId uint32){

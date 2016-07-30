@@ -46,8 +46,10 @@ func (t *ThDesk) getUserBySeat(seatId int32) *ThUser {
 
 //押注的通用接口
 func (t *ThDesk) OGBet(seatId int32,betType int32,coin int64) error{
+	log.T("开始IGBet,这里是取得锁之前,seatId[%v],betType[%v],coin,",seatId,betType,coin)
 	t.Lock()
 	defer t.Unlock()
+	log.T("开始IGBet,这里是取得锁之后,seatId[%v],betType[%v],coin,",seatId,betType,coin)
 
 	user := t.getUserBySeat(seatId)
 	//1,得到跟注的用户
@@ -127,13 +129,15 @@ func (t *ThDesk) OgFollowBet(user *ThUser) error {
 //这里只处理逻辑
 func (t *ThDesk) OgFoldBet(user  *ThUser) error {
 
-	//1,弃牌
 	log.T("用户[%v]开始弃牌",user.UserId)
-	err := t.BetUserFold(user.UserId)
-	if err != nil {
-		log.E("弃牌的时候出错了.errMsg[%v],", err.Error())
-		return err
+
+	//1,弃牌
+	//如果弃牌的人是 t.NewRoundBetUser ,需要重新设置值
+	if t.NewRoundBetUser == user.UserId {
+		t.NextNewRoundBetUser()
 	}
+	user.Status = TH_USER_STATUS_FOLDED
+
 
 	//2,初始化下一个押注的人
 	t.NextBetUser()

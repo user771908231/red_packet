@@ -27,9 +27,10 @@ import (
 var TH_GAME_SMALL_BLIND int64 = 10                //小盲注的金额
 var THROOM_SEAT_COUNT int32 = 8                //玩德州扑克,每个房间最多多少人
 var GAME_THROOM_MAX_COUNT int32 = 500                //一个游戏大厅最多有多少桌德州扑克
-var TH_TIMEOUT_DURATION = time.Second * 20000        //德州出牌的超时时间
+var TH_TIMEOUT_DURATION = time.Second * 15       //德州出牌的超时时间
+var TH_TIMEOUT_DURATION_INT int32 = 15       //德州出牌的超时时间
+
 var TH_LOTTERY_DURATION = time.Second * 5       //德州开奖的时间
-var TH_TIMEOUT_DURATION_INT int32 = 500        //德州出牌的超时时间
 
 
 //测试的时候 修改喂多人才可以游戏
@@ -50,7 +51,7 @@ var TH_USER_STATUS_BREAK int32 = 8                //已经结算
 //德州扑克,牌桌的状态
 var TH_DESK_STATUS_STOP int32 = 1                //没有开始的状态
 var TH_DESK_STATUS_SART int32 = 2                //已经开始的状态
-var TH_DESK_STATUS_LOTTERY int32 = 3                //已经开始的状态
+var TH_DESK_STATUS_LOTTERY int32 = 3             //已经开始的状态
 
 var TH_DESK_ROUND1 int32 = 1         //第一轮押注
 var TH_DESK_ROUND2 int32 = 2         //第二轮押注
@@ -205,7 +206,6 @@ func (r *ThGameRoom) AddUser(userId uint32, a gate.Agent) (*ThDesk, error) {
 
 	log.T("userid【%v】进入德州扑克的房间", userId)
 
-
 	//1,判断参数是否正确
 	//1.1 判断userId 是否合法
 	userCheck := userService.CheckUserIdRightful(userId)
@@ -214,11 +214,10 @@ func (r *ThGameRoom) AddUser(userId uint32, a gate.Agent) (*ThDesk, error) {
 		return nil, errors.New("用户Id不合法")
 	}
 
-
 	//1.2 判断用户是否已经在房间里了,如果是在房间里,那么替换现有的agent,
 	isRepeat := r.IsRepeatIntoRoom(userId)
 	if isRepeat {
-		log.T("用户[%v]重复进入房间了",userId)
+		log.T("用户[%v]重新进入房间了",userId)
 		//通过userId 找到桌子和room
 		desk := r.GetDeskByUserId(userId)
 		u := desk.GetUserByUserId(userId)
@@ -577,7 +576,7 @@ func (t *ThDesk) RunTh() error {
 }
 
 // 盲注开始押注
-func (t *ThDesk) BlindBet() error {
+func (t *ThDesk) InitBlindBet() error {
 	//小盲注押注
 	userService.DecreaseUserCoin(t.SmallBlind, t.SmallBlindCoin)
 	smallReduser := userService.GetUserById(t.SmallBlind)
@@ -598,22 +597,44 @@ func (t *ThDesk) BlindBet() error {
 	bigUser.TotalBet += t.BigBlindCoin
 	t.AddBetCoin(t.BigBlindCoin)
 
+
+	//发送盲注的信息
+	log.T("开始广播盲注的信息")
+	blindB := &bbproto.Game_BlindCoin{}
+	blindB.Banker = new(int32)
+	blindB.Bigblindseat = new(int32)
+	blindB.Smallblindseat = new(int32)
+
+	//初始化默认值
+	blindB.Tableid = &t.Id	//deskid
+	//blindB.Matchid = &room.ThGameRoomIns.Id //roomId
+	*blindB.Banker = int32(t.GetUserIndex(t.Dealer))	//庄
+	blindB.Bigblind = &t.BigBlindCoin	//大盲注
+	blindB.Smallblind = &t.SmallBlindCoin	//小盲注
+	*blindB.Bigblindseat = int32(t.GetUserIndex(t.BigBlind))	//大盲注座位号
+	*blindB.Smallblindseat = int32(t.GetUserIndex(t.SmallBlind))	//小盲注座位号
+	blindB.Coin	= t.GetCoin()	//每个人手中的coin
+	blindB.Handcoin = t.GetHandCoin()	//每个人下注的coin
+	blindB.Pool	= &t.Jackpot	//奖池
+	t.THBroadcastProto(blindB,0)
+	log.T("广播盲注的信息完毕")
+
 	return nil
 }
 
 /**
 	把正在等待的用户安置在座位上
  */
-func (t *ThDesk) UserWait2Seat() error {
-	//打印移动之前的信息
-	//log.T("UserWait2Seat 之前,t.users,[%v]",t.users)
+func (t *ThDesk) InitUserBeginStatus() error {
 	for i := 0; i < len(t.Users); i++ {
-		if t.Users[i] != nil {
-			t.Users[i].Status = TH_USER_STATUS_BETING
+		u := t.Users[i]
+		if u != nil {
+			u.Status = TH_USER_STATUS_BETING
+			u.HandCoin = 0
+			u.TurnCoin = 0
+			u.winAmount = 0
 		}
 	}
-	//打印测试消息
-	//log.T("UserWait2Seat 之后,t.users,[%v]",t.users)
 	return nil
 }
 
@@ -630,7 +651,6 @@ func (t *ThDesk) OnInitCards() error {
 
 	//给每个人分配手牌
 	for i := 0; i < len(t.Users); i++ {
-
 		if t.Users[i] != nil {
 			begin := i * 2 + 5
 			end := i * 2 + 5 + 2
@@ -913,7 +933,6 @@ func (t *ThDesk) Less(u1, u2 *ThUser) bool {
 
 //设置用户的状态喂等待开奖
 func (t *ThDesk) SetStatusWaitClose() error {
-
 	//设置用户的状态为等待开奖
 	for i := 0; i < len(t.Users); i++ {
 		u := t.Users[i]
@@ -1012,6 +1031,8 @@ func (t *ThDesk) Lottery() error {
 	result.HandCoin	    = t.GetHandCoin()
 	t.THBroadcastProto(result,0)
 
+	//开奖之后,设置状态为 没有开始游戏
+	t.Status = TH_DESK_STATUS_STOP	//设置喂没有开始开始游戏
 	//开奖完成之后,需要重新开始下一局,调用t.Run表示重新下一句
 	time.Sleep(TH_LOTTERY_DURATION)
 	t.OGRun()
@@ -1097,22 +1118,6 @@ func (t *ThDesk) AddBetCoin(coin int64) error {
 	t.bianJackpot += coin                        //边池 增加
 	return nil
 }
-//用户弃牌
-func (t *ThDesk) BetUserFold(userId uint32) error {
-	//取到弃牌人的index
-	index := t.GetUserIndex(userId)
-
-	//如果弃牌的人是 t.NewRoundBetUser ,需要重新设置值
-	if t.NewRoundBetUser == userId {
-		t.NextNewRoundBetUser()
-	}
-
-	//设置用户的状态为弃牌
-	t.Users[index].Status = TH_USER_STATUS_FOLDED
-
-	return nil
-}
-
 
 
 //如果弃牌的人是 t.NewRoundBetUser ,需要重新设置值
@@ -1303,8 +1308,11 @@ func (t *ThDesk) nextRoundInfo() {
 	}
 }
 
+
+//判断是否是新的一局
 func (t *ThDesk) isNewRound() bool{
-	if t.BetUserNow == t.NewRoundBetUser{
+	if t.BetUserRaiseUserId == t.BetUserNow{
+		log.T("t.BetUserRaiseUserId[%v] == t.BetUserNow[%v],新的一局开始",t.BetUserRaiseUserId,t.BetUserNow)
 		return true
 	}else{
 		return false
@@ -1458,11 +1466,11 @@ func (t *ThDesk) CheckBetUserBySeat(user *ThUser) bool {
 
 //是不是可以开始游戏了
 func (t *ThDesk) IsTime2begin() bool {
-
 	//可以开始游戏的要求
 	//1,用户的人数达到了最低可玩人数
 	//2,当前的状态是游戏停止的状态
-	if t.UserCount == TH_DESK_LEAST_START_USER   && t.Status == TH_DESK_STATUS_STOP {
+	if t.UserCount == TH_DESK_LEAST_START_USER  && t.Status == TH_DESK_STATUS_STOP {
+		log.T("当前玩家的数量是[%v],当前desk的状态是[%v],1未开始,2游戏中,3,开奖中",t.UserCount,t.Status)
 		return true
 	} else {
 		return false
@@ -1472,69 +1480,43 @@ func (t *ThDesk) IsTime2begin() bool {
 
 //开始游戏
 func  (mydesk *ThDesk) OGRun() error{
+	//mydesk.Lock()
+	//defer mydesk.Unlock()
 
-	mydesk.Lock()
-	defer mydesk.Unlock()
-
+	//1,判断是否可以开始游戏
 	if !mydesk.IsTime2begin() {
 		return nil
 	}
 
-	//1,初始化默认信息
-
-	//把正在等待的用户设置可以游戏
-	err := mydesk.UserWait2Seat()
+	//2,初始化玩家的信息
+	err := mydesk.InitUserBeginStatus()
 	if err != nil {
 		log.E("开始游戏失败,errMsg[%v]", err.Error())
 		return err
 	}
 
-	//初始化牌的信息
+	//2,初始化牌的信息
 	err = mydesk.OnInitCards()
 	if err != nil {
 		log.E("开始德州扑克游戏,初始化扑克牌的时候出错")
+		return err
 	}
 
-	//设置房间状态
+	//3,初始化游戏房间的状态
 	mydesk.OinitBegin()
-	//设置第一个押注的人
-	return nil
+	if err != nil {
+		log.E("开始德州扑克游戏,初始化房间的状态的时候报错")
+		return err
+	}
 
 
-
-	//2.1 盲注开始押注
-	err = mydesk.BlindBet()
+	//3 初始化盲注开始押注
+	err = mydesk.InitBlindBet()
 	if err != nil {
 		log.E("盲注下注的时候出错errMsg[%v]",err.Error())
 		return err
 	}
 
-	//2.2,------------------------------------发送盲注的广播------------------------------------
-	log.T("开始广播盲注的信息")
-	blindB := &bbproto.Game_BlindCoin{}
-
-	//初始化指针地址
-	blindB.Banker = new(int32)
-	blindB.Bigblindseat = new(int32)
-	blindB.Smallblindseat = new(int32)
-
-	//初始化默认值
-	blindB.Tableid = &mydesk.Id	//deskid
-	//blindB.Matchid = &room.ThGameRoomIns.Id //roomId
-	*blindB.Banker = int32(mydesk.GetUserIndex(mydesk.Dealer))	//庄
-	blindB.Bigblind = &mydesk.BigBlindCoin	//大盲注
-	blindB.Smallblind = &mydesk.SmallBlindCoin	//小盲注
-	*blindB.Bigblindseat = int32(mydesk.GetUserIndex(mydesk.BigBlind))	//大盲注座位号
-	*blindB.Smallblindseat = int32(mydesk.GetUserIndex(mydesk.SmallBlind))	//小盲注座位号
-	blindB.Coin	= mydesk.GetCoin()	//每个人手中的coin
-	blindB.Handcoin = mydesk.GetHandCoin()	//每个人下注的coin
-	blindB.Pool	= &mydesk.Jackpot	//奖池
-
-	mydesk.THBroadcastProto(blindB,0)
-	//mydesk.Testb(blindB)
-	log.T("广播盲注的信息完毕")
-
-	//3,------------------------------------发送手牌的广播------------------------------------
 	log.T("广播initCard的信息")
 	initCardB := &bbproto.Game_InitCard{}
 

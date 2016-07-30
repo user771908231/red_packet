@@ -108,6 +108,7 @@ func (p *MsgParser) Read(conn *TCPConn) ([]byte, error) {
 		log.Debug("err: %v",err.Error())
 		return nil, err
 	}
+	log.Debug("解析之后,得到的数据: %v",msgData)
 	return msgData, nil
 }
 

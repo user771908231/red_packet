@@ -97,7 +97,7 @@ func initGameSendgameInfoByDesk(mydesk *room.ThDesk, result *bbproto.Game_SendGa
 	result.Publiccard = mydesk.ThPublicCard2OGC()        //公共牌...
 	*result.MinRaise = int64(mydesk.MinRaise)        //最低加注金额
 	*result.NInitActionTime = int32(room.TH_TIMEOUT_DURATION_INT)
-	*result.NInitDelayTime = int32(room.TH_TIMEOUT_DURATION)
+	*result.NInitDelayTime = int32(room.TH_TIMEOUT_DURATION_INT)
 	result.Handcard = mydesk.GetHandCard()		//用户手牌
 	result.HandCoin = mydesk.GetCoin()	//下注的金额
 	//result.HandCoin = mydesk.GetHandCoin()	//下注的金额
