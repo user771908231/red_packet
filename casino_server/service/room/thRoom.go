@@ -203,7 +203,6 @@ func (r *ThGameRoom) AddUser(userId uint32, a gate.Agent) (*ThDesk, error) {
 	r.Lock()
 	defer r.Unlock()
 
-
 	log.T("userid【%v】进入德州扑克的房间", userId)
 
 	//1,判断参数是否正确
@@ -657,7 +656,7 @@ func (t *ThDesk) OnInitCards() error {
 			t.Users[i].Cards = totalCards[begin:end]
 			log.T("用户[%v]的手牌[%v]", t.Users[i].UserId, t.Users[i].Cards)
 			t.Users[i].thCards = pokerService.GetTHPoker(t.Users[i].Cards, t.PublicPai, 5)
-			log.T("用户[%v]的所有牌[%v]", t.Users[i].UserId, t.Users[i].thCards.Cards)
+			log.T("用户[%v]的:拍类型,所有牌[%v],th[%v]", t.Users[i].UserId,t.Users[i].thCards.ThType, t.Users[i].thCards.Cards,t.Users[i].thCards)
 		}
 	}
 
@@ -886,6 +885,34 @@ func (t *ThDesk) Tiem2Lottery() bool {
 
 //计算牌面是否赢
 func (t *ThDesk) CalcThcardsWin() error {
+	log.T("开始计算谁的牌是赢牌:")
+
+	log.T("打印每个人牌的信息:")
+	for i := 0; i < len(t.Users); i++ {
+		u := t.Users[i]
+		if u != nil {
+			log.T("玩家[%v]的牌的信息:牌类型[%v],所有牌[%v]",u.UserId,u.thCards.ThType,u.thCards.Cards)
+		}
+	}
+
+	//1去牌最大的user,需要满足条件1,牌最大,2,状态是等待开奖
+	//var userWin *ThUser
+	//
+	////1.1, 去第一个状态是等待开奖的那个人
+	//for i := 1; i < len(t.Users); i++ {
+	//	if t.Users[i].Status == TH_USER_STATUS_WAIT_CLOSED {
+	//		userWin = t.Users[i]
+	//		break;
+	//	}
+	//}
+	//
+	////1.2 比较得到牌是最大的,并且状态是等待开奖的那个人
+	//for i := 1; i < len(t.Users); i++ {
+	//	if t.Less(userWin, t.Users[i]) && t.Users[0].Status == TH_USER_STATUS_WAIT_CLOSED {
+	//		userWin = t.Users[i]
+	//	}
+	//}
+
 	userWin := t.Users[0]                //最大的牌的userId
 	for i := 1; i < len(t.Users); i++ {
 		if t.Less(userWin, t.Users[i]) {
@@ -893,12 +920,15 @@ func (t *ThDesk) CalcThcardsWin() error {
 		}
 	}
 
+	//1.3打印得到那个人的信息
 	if userWin == nil {
 		log.E("服务器出错,没有找到赢牌的人...")
 		return errors.New("没有找到赢牌的人")
+	}else{
+		log.T("得到的牌最大的user[%v]的信息[%v]",userWin.UserId,userWin)
 	}
 
-	//赢牌的人依次置为1
+	//赢牌的人依次置为1,每个用户的牌都需要和最大的用户的牌来想比较
 	for i := 0; i < len(t.Users); i++ {
 		u := t.Users[i]
 		if u != nil &&
@@ -908,10 +938,19 @@ func (t *ThDesk) CalcThcardsWin() error {
 		}
 	}
 
+	//------------------------------------------------打印测试信息
+	log.T("开始计算谁的牌是赢牌,计算出来的结果:")
+	for i := 0; i < len(t.Users); i++ {
+		u := t.Users[i]
+		if u != nil {
+			log.T("user[%v]的牌 isWin[%v]",u.UserId,u.thCards.IsWin)
+		}
+	}
+
 	return nil
 }
 
-//
+//比较两张牌的大小
 func (t *ThDesk) Less(u1, u2 *ThUser) bool {
 
 	if u1 == nil || u1.Status != TH_USER_STATUS_WAIT_CLOSED {
@@ -966,7 +1005,8 @@ func (t *ThDesk) Lottery() error {
 		return nil
 	}
 
-	log.T("开奖的规则还没有完成,等待完成....")
+	log.T("现在开始开奖,并且发放奖励....")
+	log.T("现在开始开奖,计算奖励之前t.getWinCoinInfo()[%v]", t.getWinCoinInfo())
 
 	//设置用户的状态都为的等待开奖
 	t.SetStatusWaitClose()
@@ -977,6 +1017,7 @@ func (t *ThDesk) Lottery() error {
 	//todo 做结算是按照奖池来做,还是按照人员来做...
 	//测试按照每个奖池来做计算
 	for i := 0; i < len(t.AllInJackpot); i++ {
+		log.T("现在开始开奖,计算allInJackpot[%v]的奖励....",i)
 		a := t.AllInJackpot[i]
 		if a != nil {
 			//对这个奖池做计算
@@ -1007,16 +1048,19 @@ func (t *ThDesk) Lottery() error {
 	}
 
 	//计算边池的奖金	t.bianJackpot,同样需要看是几个人赢,然后评分将近
+	log.T("现在开始开奖,计算边池的奖励....")
 	bwinCount := t.GetWinCount()
 	var bbonus int64 = t.bianJackpot / int64(bwinCount)
 	for i := 0; i < len(t.Users); i++ {
 		u := t.Users[i]
-		if u != nil && u.Status == TH_USER_STATUS_WAIT_CLOSED {
+		if u != nil && u.Status == TH_USER_STATUS_WAIT_CLOSED && u.thCards.IsWin {//
 			//对这个用户做结算...
+			log.T("现在开始开奖,计算边池的奖励,user[%v]得到[%v]....",u.UserId,bbonus)
 			u.winAmount += bbonus
-
 		}
 	}
+	log.T("现在开始开奖,计算奖励之后t.getWinCoinInfo()[%v]", t.getWinCoinInfo())
+
 
 	//保存数据到数据库
 	t.SaveLotteryData()

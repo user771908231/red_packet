@@ -61,7 +61,6 @@ type ThCards struct {
 
 //创建一个德州的牌面,并且对属性做0值初始化
 func NewThCards() *ThCards{
-
 	result := &ThCards{}
 	result.ThType = 0
 	result.KeyValue = make([]int32,5)
@@ -142,7 +141,7 @@ func ( t *ThCards) OnInitSantiaoStatus() {
 	if t.SanTiaoCount == 1 && t.DuiziCount == 0 {
 		t.IsSanTiao = true
 
-		//四条的规则,先比较四条再比较单张,
+		//三条的规则,先比较四条再比较单张,
 		s := t.CardsStatistics
 		for i := 0; i < len(s); i++ {
 			if s[i] == 3 {
@@ -200,21 +199,20 @@ func ( t *ThCards) OnInitLiangDuiStatus(){
 func ( t *ThCards) OnInitYiDuiStatus() {
 	if t.DuiziCount == 1 && t.SanTiaoCount == 0 {
 		//只有一个对子,且三条的个数为0
-		t.IsSanTiao = true
+		t.IsDuiZi = true
 		//初始化比较值
 		s := t.CardsStatistics
 		for i := 0; i < len(s); i++ {
-			if s[i] == 3 {
+			if s[i] == 2 {
 				t.KeyValue[0] = int32(i)
 			}
 		}
 
 		s2 := s
 		for i := 1; i < 5; i++ {
-			for j := 0; j < len(s2); j++ {
+			for j := len(s2)-1; j >= 0; j-- {
 				if s2[j] == 1 {
 					t.KeyValue[i] = int32(j)
-					s2[j] = 0
 				}
 			}
 		}
@@ -252,6 +250,7 @@ func (c *ThCards) OnInitStatisticsCard() error{
 	}
 
 	//fmt.Println("统计出来的牌数量:s",c.CardsStatistics)
+	log.T("统计出来的牌数量1:s",c.CardsStatistics)
 	for i := 0; i < len(c.CardsStatistics); i++ {
 		//fmt.Println("开始检测:",c.CardsStatistics[i])
 
@@ -271,7 +270,6 @@ func (c *ThCards) OnInitStatisticsCard() error{
 	for i := 0; i < len(c.Cards); i++ {
 		c.KeyValue[i]= *(c.Cards[i].Value)
 	}
-
 
 	//log.T("统计之后的牌面值")
 
@@ -392,6 +390,12 @@ func RandomTHPorkCards(total int ) []*bbproto.Pai{
 
 
 //--------------------------------------------------------------实现德州牌的排序---------------------------------------
+func (list ThCardsList) ToString(){
+	for i := 0; i < len(list); i++ {
+		log.T("[%v],type[%v],统计[%v],牌[%v]",i,list[i].ThType,list[i].CardsStatistics,list[i].Cards)
+	}
+}
+
 
 func (list ThCardsList) Len() int{
 	return len(list)
@@ -478,9 +482,12 @@ func GetTHPoker(hand,public []*bbproto.Pai,count int) *ThCards{
 	copy(allCards[0:2],hand)
 	copy(allCards[2:],public)
 	tcsList := Com(7,count, allCards)
+	log.T("排序之前的牌:")
+	tcsList.ToString()
 	sort.Sort(tcsList)
+	log.T("排序之后的牌:")
+	tcsList.ToString()
 	return tcsList[0]
-
 }
 
 
@@ -518,13 +525,7 @@ func   Com(n,k int,allCards []*bbproto.Pai) ThCardsList{
 		//fmt.Println("排序之后的类型",*tcs.ThType)
 
 		//fmt.Println("")
-
-		if result ==nil {
-			result = make([]*ThCards,1)
-			result[0] = tcs
-		}else{
-			result = append(result,tcs)
-		}
+		result = append(result,tcs)
 
 		if a[1] == (n - k + 1) {
 			break

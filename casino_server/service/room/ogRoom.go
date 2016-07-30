@@ -194,15 +194,19 @@ func (t *ThDesk) OGRaiseBet(user *ThUser,coin int64) error{
 //联众德州 让牌
 func (t *ThDesk) OGCheckBet(user *ThUser) error{
 
-	//2,开始弃牌
+	//1,让牌
 	err := t.BetUserCheck(user.UserId)
 	if err != nil {
 		log.E("跟注的时候出错了.errMsg[%v],", err.Error())
 	}
 
+
+	//2,计算洗一个押注的人
 	t.NextBetUser()
 
-	//4押注成功返回要住成功的消息
+
+	//3押注成功返回要住成功的消息
+	log.T("打印user[%v]让牌的结果:",user.UserId)
 	result := &bbproto.Game_AckCheckBet{}
 	result.NextSeat = new(int32)
 	result.Coin = &t.BetAmountNow        			//本轮压了多少钱
@@ -212,7 +216,6 @@ func (t *ThDesk) OGCheckBet(user *ThUser) error{
 	*result.NextSeat =int32(t.GetUserIndex(t.BetUserNow))		//下一个押注的人
 	t.THBroadcastProto(result,0)
 
-	log.T("开始处理seat[%v]让牌的逻辑,t,OgFollowBet()...end",user.Seat)
 	return nil
 }
 
@@ -409,7 +412,7 @@ func (t *ThDesk) getWinCoinInfo() []*bbproto.Game_WinCoin{
 	//对每个人做计算
 	for i := 0; i < len(t.Users); i++ {
 		u := t.Users[i]
-		if u != nil {
+		if u != nil && u.winAmount > 0{
 			//开是对这个人计算
 			gwc := NewGame_WinCoin()
 			*gwc.Card1 = GetOGCardIndex(u.thCards.Cards[0])
