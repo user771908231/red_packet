@@ -27,14 +27,14 @@ import (
 var TH_GAME_SMALL_BLIND int64 = 10                //小盲注的金额
 var THROOM_SEAT_COUNT int32 = 8                //玩德州扑克,每个房间最多多少人
 var GAME_THROOM_MAX_COUNT int32 = 500                //一个游戏大厅最多有多少桌德州扑克
-var TH_TIMEOUT_DURATION = time.Second * 15       //德州出牌的超时时间
-var TH_TIMEOUT_DURATION_INT int32 = 15       //德州出牌的超时时间
+var TH_TIMEOUT_DURATION = time.Second * 100       //德州出牌的超时时间
+var TH_TIMEOUT_DURATION_INT int32 = 100       //德州出牌的超时时间
 
 var TH_LOTTERY_DURATION = time.Second * 5       //德州开奖的时间
 
 
 //测试的时候 修改喂多人才可以游戏
-var TH_DESK_LEAST_START_USER int32 = 4       //最少多少人可以开始游戏
+var TH_DESK_LEAST_START_USER int32 = 2       //最少多少人可以开始游戏
 
 //德州扑克 玩家的状态
 var TH_USER_STATUS_WAITSEAT int32 = 1        //刚上桌子 等待开始的玩家
@@ -890,7 +890,7 @@ func (t *ThDesk) CalcThcardsWin() error {
 	log.T("打印每个人牌的信息:")
 	for i := 0; i < len(t.Users); i++ {
 		u := t.Users[i]
-		if u != nil {
+		if u != nil && u.Status == TH_USER_STATUS_WAIT_CLOSED{
 			log.T("玩家[%v]的牌的信息:牌类型[%v],所有牌[%v]",u.UserId,u.thCards.ThType,u.thCards.Cards)
 		}
 	}
@@ -942,7 +942,7 @@ func (t *ThDesk) CalcThcardsWin() error {
 	log.T("开始计算谁的牌是赢牌,计算出来的结果:")
 	for i := 0; i < len(t.Users); i++ {
 		u := t.Users[i]
-		if u != nil {
+		if u != nil && u.Status == TH_USER_STATUS_WAIT_CLOSED{
 			log.T("user[%v]的牌 isWin[%v]",u.UserId,u.thCards.IsWin)
 		}
 	}
@@ -976,16 +976,17 @@ func (t *ThDesk) SetStatusWaitClose() error {
 	for i := 0; i < len(t.Users); i++ {
 		u := t.Users[i]
 		if u != nil {
+
+			u.InitWait()	//不再等待
+
 			if u.Status == TH_USER_STATUS_ALLINING || u.Status == TH_USER_STATUS_BETING {
 				//如果用户当前的状态是押注中,或者all in,那么设置用户的状态喂等待结算
 				u.Status = TH_USER_STATUS_WAIT_CLOSED
-			} else if u.Status == TH_USER_STATUS_FOLDED {
-				//如果用户当前的状态是弃牌,那么设置用户的状态喂已经结清
+			} else {
 				u.Status = TH_USER_STATUS_CLOSED
 			}
 		}
 	}
-
 	//设置桌子的状态为开奖中
 	t.Status = TH_DESK_STATUS_LOTTERY
 
@@ -1077,10 +1078,8 @@ func (t *ThDesk) Lottery() error {
 
 	//开奖之后,设置状态为 没有开始游戏
 	t.Status = TH_DESK_STATUS_STOP	//设置喂没有开始开始游戏
-	//开奖完成之后,需要重新开始下一局,调用t.Run表示重新下一句
-	time.Sleep(TH_LOTTERY_DURATION)
-	t.OGRun()
 
+	go t.OGRun()
 	return nil
 }
 
@@ -1513,7 +1512,7 @@ func (t *ThDesk) IsTime2begin() bool {
 	//可以开始游戏的要求
 	//1,用户的人数达到了最低可玩人数
 	//2,当前的状态是游戏停止的状态
-	if t.UserCount == TH_DESK_LEAST_START_USER  && t.Status == TH_DESK_STATUS_STOP {
+	if t.UserCount >= TH_DESK_LEAST_START_USER  && t.Status == TH_DESK_STATUS_STOP {
 		log.T("当前玩家的数量是[%v],当前desk的状态是[%v],1未开始,2游戏中,3,开奖中",t.UserCount,t.Status)
 		return true
 	} else {
@@ -1524,11 +1523,12 @@ func (t *ThDesk) IsTime2begin() bool {
 
 //开始游戏
 func  (mydesk *ThDesk) OGRun() error{
-	//mydesk.Lock()
-	//defer mydesk.Unlock()
+	time.Sleep(TH_LOTTERY_DURATION)
 
+	log.T("开始一局游戏")
 	//1,判断是否可以开始游戏
 	if !mydesk.IsTime2begin() {
+		log.T("游戏还不到开始的时候")
 		return nil
 	}
 

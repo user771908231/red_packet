@@ -50,7 +50,7 @@ func HandlerGameEnterMatch(m *bbproto.Game_EnterMatch, a gate.Agent) error {
 	mydesk.OGTHBroadAddUser(userId)
 
 	//4,最后:确定是否开始游戏, 上了牌桌之后,如果玩家人数大于1,并且游戏处于stop的状态,则直接开始游戏
-	mydesk.OGRun()
+	go mydesk.OGRun()
 
 	return nil
 }

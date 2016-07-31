@@ -250,7 +250,7 @@ func (c *ThCards) OnInitStatisticsCard() error{
 	}
 
 	//fmt.Println("统计出来的牌数量:s",c.CardsStatistics)
-	log.T("统计出来的牌数量1:s",c.CardsStatistics)
+	//log.T("统计出来的牌数量1:s",c.CardsStatistics)
 	for i := 0; i < len(c.CardsStatistics); i++ {
 		//fmt.Println("开始检测:",c.CardsStatistics[i])
 
@@ -482,11 +482,11 @@ func GetTHPoker(hand,public []*bbproto.Pai,count int) *ThCards{
 	copy(allCards[0:2],hand)
 	copy(allCards[2:],public)
 	tcsList := Com(7,count, allCards)
-	log.T("排序之前的牌:")
-	tcsList.ToString()
+	//log.T("排序之前的牌:")
+	//tcsList.ToString()
 	sort.Sort(tcsList)
-	log.T("排序之后的牌:")
-	tcsList.ToString()
+	//log.T("排序之后的牌:")
+	//tcsList.ToString()
 	return tcsList[0]
 }
 
