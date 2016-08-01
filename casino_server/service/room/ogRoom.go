@@ -147,13 +147,19 @@ func (t *ThDesk) OgFoldBet(user  *ThUser) error {
 	log.T("返回用户[%v]弃牌的结果:",user.UserId)
 	result := &bbproto.Game_AckFoldBet{}
 	result.NextSeat = new(int32)
+	result.Pool = new(int64)
+	result.MinRaise = new(int64)
+	result.HandCoin = new(int64)
 
-
+	*result.Pool = t.Jackpot
+	*result.HandCoin = user.HandCoin
 	result.Coin = &t.BetAmountNow        			//本轮压了多少钱
 	result.Seat = &user.Seat                			//座位id
 	result.Tableid = &t.Id
+	*result.MinRaise = t.MinRaise
 	result.CanRaise	= &t.CanRaise		     		//是否能加注
 	*result.NextSeat =int32(t.GetUserIndex(t.BetUserNow))		//下一个押注的人
+
 	t.THBroadcastProto(result,0)
 	return nil
 }

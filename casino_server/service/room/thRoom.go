@@ -1546,7 +1546,6 @@ func  (mydesk *ThDesk) OGRun() error{
 	mydesk.Lock()
 	mydesk.Unlock()
 
-	time.Sleep(TH_LOTTERY_DURATION)//开奖的延时
 
 	log.T("开始一局游戏")
 	//1,判断是否可以开始游戏
@@ -1554,6 +1553,9 @@ func  (mydesk *ThDesk) OGRun() error{
 		log.T("游戏还不到开始的时候")
 		return nil
 	}
+	time.Sleep(TH_LOTTERY_DURATION)//开奖的延时
+
+
 
 	//2,初始化玩家的信息
 	err := mydesk.InitUserBeginStatus()
