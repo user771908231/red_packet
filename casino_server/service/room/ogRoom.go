@@ -37,7 +37,6 @@ var (
 
 
 
-
 //通过座位号来找到user
 func (t *ThDesk) getUserBySeat(seatId int32) *ThUser {
 	return t.Users[seatId]

@@ -103,6 +103,14 @@ func ( t *ThCards) OnInitTongHuaStatus(){
 	}
 	t.IsTongHua = result
 
+	//如果是同花,那么键值按顺序排列
+	if result {
+		//如果是同花,排序之后的牌就是比较值的值
+		for i := 0; i < len(t.Cards); i++ {
+			t.KeyValue[i]= *(t.Cards[i].Value)
+		}
+	}
+
 
 }
 
@@ -117,6 +125,9 @@ func ( t *ThCards) OnInitShunZiStatus(){
 		}
 	}
 	t.IsShunzi = result
+	if result {
+		t.KeyValue[0] = t.Cards[0].Value
+	}
 }
 
 
@@ -149,17 +160,21 @@ func ( t *ThCards) OnInitSantiaoStatus() {
 			}
 		}
 
-		for i := 0; i < len(s); i++ {
+		for i := len(s)-1; i >=0; i-- {
 			if s[i] == 1 {
 				t.KeyValue[1] = int32(i)
+				break
 			}
 		}
 
 		for i := 0; i < len(s); i++ {
-			if s[i] == 1 &&  t.KeyValue[1] != int32(i) {
+			if s[i] == 1 {
 				t.KeyValue[2] = int32(i)
+				break
 			}
 		}
+
+
 	}
 
 }
@@ -171,16 +186,18 @@ func ( t *ThCards) OnInitLiangDuiStatus(){
 		t.IsLiangDui = true
 
 		s := t.CardsStatistics
-		//初始化比较值
-		for i := 0; i < len(s); i++ {
+		//初始化比较值,大的一对
+		for i := len(s)-1; i >=0; i-- {
 			if s[i] == 2 {
 				t.KeyValue[0] = int32(i)
+				break
 			}
 		}
 
 		for i := 0; i < len(s); i++ {
-			if s[i] == 1 &&  t.KeyValue[0] != int32(i) {
+			if s[i] == 2{
 				t.KeyValue[1] = int32(i)
+				break
 			}
 		}
 
@@ -190,7 +207,6 @@ func ( t *ThCards) OnInitLiangDuiStatus(){
 			}
 		}
 
-		
 	}
 }
 
@@ -266,13 +282,9 @@ func (c *ThCards) OnInitStatisticsCard() error{
 		}
 	}
 
-	//如果是同花,排序之后的牌就是比较值的值
-	for i := 0; i < len(c.Cards); i++ {
-		c.KeyValue[i]= *(c.Cards[i].Value)
-	}
+
 
 	//log.T("统计之后的牌面值")
-
 	c.OnInitTongHuaStatus()
 	c.OnInitShunZiStatus()
 	c.OnInitSiTiaoStatus()
