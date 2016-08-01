@@ -126,7 +126,7 @@ func ( t *ThCards) OnInitShunZiStatus(){
 	}
 	t.IsShunzi = result
 	if result {
-		t.KeyValue[0] = t.Cards[0].Value
+		t.KeyValue[0] = *t.Cards[0].Value
 	}
 }
 
@@ -292,6 +292,13 @@ func (c *ThCards) OnInitStatisticsCard() error{
 	c.OnInitSantiaoStatus()
 	c.OnInitLiangDuiStatus()
 	c.OnInitYiDuiStatus()
+
+	//处理散牌
+	if c.KeyValue[1] == 0 {
+		for i := 0; i < len(c.Cards); i++ {
+			c.KeyValue[i]= *(c.Cards[i].Value)
+		}
+	}
 
 	return nil
 }
