@@ -6,6 +6,8 @@ import (
 	"casino_server/service/room"
 	"casino_server/common/log"
 	"casino_server/gamedata"
+	"casino_server/service/userService"
+	"errors"
 )
 
 //联众德州,桌子状态
@@ -32,6 +34,13 @@ func HandlerGameEnterMatch(m *bbproto.Game_EnterMatch, a gate.Agent) error {
 	userId := m.GetUserId()				//进入游戏房间的user
 	result := newGame_SendGameInfo()                //需要返回的信息
 
+	//1.1 检测参数是否正确,判断userId 是否合法
+	userCheck := userService.CheckUserIdRightful(userId)
+	if userCheck == false {
+		log.E("进入德州扑克的房间的时候,userId[%v]不合法。", userId)
+		return errors.New("用户Id不合法")
+	}
+
 	//1,进入房间,返回房间和错误信息
 	mydesk, err := room.ThGameRoomIns.AddUser(userId, a)
 	if err != nil || mydesk == nil {
@@ -44,11 +53,16 @@ func HandlerGameEnterMatch(m *bbproto.Game_EnterMatch, a gate.Agent) error {
 	//2 构造信息并且返回
 	initGameSendgameInfoByDesk(mydesk, result,userId)
 	log.T("给请求登陆房间的人[%v]回复信息[%v]",userId,result)
-	a.WriteMsg(result)
+	//a.WriteMsg(result)
 
 	//3 发送进入游戏房间的广播
-	mydesk.OGTHBroadAddUser(userId)
+	//mydesk.OGTHBroadAddUser(userId)
 
+	mydesk.OGTHBroadAddUser2(result)
+	//
+	//测试就是发送gameInfo
+	//mydesk.THBroadcastProtoAll(result)
+	//
 	//4,最后:确定是否开始游戏, 上了牌桌之后,如果玩家人数大于1,并且游戏处于stop的状态,则直接开始游戏
 	go mydesk.OGRun()
 

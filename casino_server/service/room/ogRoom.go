@@ -350,6 +350,18 @@ func (t *ThDesk) OGTHBroadAddUser(newUserId uint32) error{
 	return nil
 }
 
+//发送新增用户的广播
+func (t *ThDesk) OGTHBroadAddUser2(msg *bbproto.Game_SendGameInfo){
+	for i := 0; i < len(t.Users); i++ {
+		if t.Users[i] != nil {
+			a := t.Users[i].agent
+			*msg.Seat = t.Users[i].Seat
+			a.WriteMsg(msg)
+		}
+	}
+}
+
+
 
 //解析手牌
 func (mydesk *ThDesk ) GetHandCard() []*bbproto.Game_CardInfo {
@@ -446,3 +458,6 @@ func (t *ThDesk) GetBshowCard() []int32{
 func GetOGCardIndex(p *bbproto.Pai) int32{
 	return p.GetMapKey()
 }
+
+
+

@@ -198,20 +198,10 @@ func (r *ThGameRoom) GetDeskByUserId(userId uint32) *ThDesk {
 
 //游戏大厅增加一个玩家
 func (r *ThGameRoom) AddUser(userId uint32, a gate.Agent) (*ThDesk, error) {
-
 	//进入房间的操作需要加锁
 	r.Lock()
 	defer r.Unlock()
-
 	log.T("userid【%v】进入德州扑克的房间", userId)
-
-	//1,判断参数是否正确
-	//1.1 判断userId 是否合法
-	userCheck := userService.CheckUserIdRightful(userId)
-	if userCheck == false {
-		log.E("进入德州扑克的房间的时候,userId[%v]不合法。", userId)
-		return nil, errors.New("用户Id不合法")
-	}
 
 	//1.2 判断用户是否已经在房间里了,如果是在房间里,那么替换现有的agent,
 	isRepeat := r.IsRepeatIntoRoom(userId)
@@ -304,6 +294,7 @@ type ThUser struct {
 	deskId    int32                 //用户所在的桌子的编号
 	TotalBet  int64                 //押注总额
 	winAmount int64                 //总共赢了多少钱
+	winAmountDetail	[]int64		//赢钱的详细
 	TurnCoin  int64                 //单轮押注(总共四轮)的金额
 	HandCoin  int64                 //用户下注多少钱
 	Coin      int64                 //用户余额多少钱
@@ -498,6 +489,19 @@ func (t *ThDesk) LogString() {
 	log.T("当前desk[%v]的信息:-----------------------------------end----------------------------------", t.Id)
 }
 
+//打印测试信息用
+func (t *ThDesk) LogStirngWinCoin(){
+	for i := 0; i < len(t.Users); i++ {
+		u := t.Users[i]
+		if u != nil {
+			log.T("用户[%v]的wincoin[%v],detail[%v]",u.UserId,u.winAmount,u.winAmountDetail)
+		}
+	}
+}
+
+
+
+
 /**
 	为桌子增加一个人
  */
@@ -632,6 +636,7 @@ func (t *ThDesk) InitUserBeginStatus() error {
 			u.HandCoin = 0
 			u.TurnCoin = 0
 			u.winAmount = 0
+			u.winAmountDetail = nil
 		}
 	}
 	return nil
@@ -675,6 +680,13 @@ func (t *ThDesk) THBroadcastProto(p proto.Message, ignoreUserId uint32) error {
 	}
 	return nil
 }
+
+//给全部人发送广播
+func (t *ThDesk) THBroadcastProtoAll(p proto.Message) error {
+	return t.THBroadcastProto(p,0)
+}
+
+
 
 func (t *ThDesk) Testb(p proto.Message) {
 	log.Normal("给每个房间发送proto 消息%v", p)
@@ -891,7 +903,9 @@ func (t *ThDesk) CalcThcardsWin() error {
 	for i := 0; i < len(t.Users); i++ {
 		u := t.Users[i]
 		if u != nil && u.Status == TH_USER_STATUS_WAIT_CLOSED{
-			log.T("玩家[%v]的牌的信息:牌类型[%v],所有牌[%v]",u.UserId,u.thCards.ThType,u.thCards.Cards)
+			log.T("玩家[%v] ",u.UserId)
+			log.T("牌的信息:牌类型[%v],",u.thCards.ThType)
+			log.T("所有牌[%v]",u.thCards.Cards)
 		}
 	}
 
@@ -1038,6 +1052,7 @@ func (t *ThDesk) Lottery() error {
 					//可以发送奖金
 					log.T("用户在allin.index[%v]活的奖金[%v]", i, bonus)
 					u.winAmount += bonus
+					u.winAmountDetail = append(u.winAmountDetail,bonus)
 				}
 
 				//如果用户是这个奖金池all in的用户,则此用户设置喂已经结清的状态
@@ -1058,10 +1073,13 @@ func (t *ThDesk) Lottery() error {
 			//对这个用户做结算...
 			log.T("现在开始开奖,计算边池的奖励,user[%v]得到[%v]....",u.UserId,bbonus)
 			u.winAmount += bbonus
+			u.winAmountDetail = append(u.winAmountDetail,bbonus)	//详细的奖励(边池主池分开)
 		}
 	}
 	log.T("现在开始开奖,计算奖励之后t.getWinCoinInfo()[%v]", t.getWinCoinInfo())
 
+	//todo 这里需要删除 打印测试信息的代码
+	t.LogStirngWinCoin()
 
 	//保存数据到数据库
 	t.SaveLotteryData()
@@ -1316,6 +1334,9 @@ func (t *ThDesk) nextRoundInfo() {
 	if !t.isNewRound(){
 		return
 	}
+
+	//todo test 发送下一轮的时候,先延时1秒
+	time.Sleep(time.Second*1)
 	//todo 清空handCoin 的时间是什么时候
 
 	log.T("本次设置的押注人和之前的是同一个人,所以开始第[%v]轮的游戏", t.RoundCount)
@@ -1520,10 +1541,12 @@ func (t *ThDesk) IsTime2begin() bool {
 	}
 }
 
-
 //开始游戏
 func  (mydesk *ThDesk) OGRun() error{
-	time.Sleep(TH_LOTTERY_DURATION)
+	mydesk.Lock()
+	mydesk.Unlock()
+
+	time.Sleep(TH_LOTTERY_DURATION)//开奖的延时
 
 	log.T("开始一局游戏")
 	//1,判断是否可以开始游戏
