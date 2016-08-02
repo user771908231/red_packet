@@ -1027,7 +1027,7 @@ func (t *ThDesk) Lottery() error {
 	}
 
 	log.T("现在开始开奖,并且发放奖励....")
-	log.T("现在开始开奖,计算奖励之前t.getWinCoinInfo()[%v]", t.getWinCoinInfo())
+	//log.T("现在开始开奖,计算奖励之前t.getWinCoinInfo()[%v]", t.getWinCoinInfo())
 
 	//设置用户的状态都为的等待开奖
 	t.SetStatusWaitClose()
@@ -1091,7 +1091,7 @@ func (t *ThDesk) Lottery() error {
 		}
 
 	}
-	log.T("现在开始开奖,计算奖励之后t.getWinCoinInfo()[%v]", t.getWinCoinInfo())
+	//log.T("现在开始开奖,计算奖励之后t.getWinCoinInfo()[%v]", t.getWinCoinInfo())
 
 	//todo 这里需要删除 打印测试信息的代码
 	t.LogStirngWinCoin()

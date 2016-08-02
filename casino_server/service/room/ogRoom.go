@@ -4,6 +4,7 @@ import (
 	"casino_server/common/log"
 	"casino_server/msg/bbprotogo"
 	"errors"
+	"casino_server/service/pokerService"
 )
 
 //牌的花色 和值
@@ -432,11 +433,15 @@ func (t *ThDesk) getWinCoinInfo() []*bbproto.Game_WinCoin{
 		if u != nil && u.winAmount > 0{
 			//开是对这个人计算
 			gwc := NewGame_WinCoin()
-			*gwc.Card1 = GetOGCardIndex(u.thCards.Cards[0])
-			*gwc.Card2 = GetOGCardIndex(u.thCards.Cards[1])
-			*gwc.Card3 = GetOGCardIndex(u.thCards.Cards[2])
-			*gwc.Card4 = GetOGCardIndex(u.thCards.Cards[3])
-			*gwc.Card5 = GetOGCardIndex(u.thCards.Cards[4])
+
+			//这里需要先对牌进行排序
+			paicards := OGTHCardPaixu(u.thCards)
+
+			*gwc.Card1 = paicards[0].GetMapKey()
+			*gwc.Card2 = paicards[1].GetMapKey()
+			*gwc.Card3 = paicards[2].GetMapKey()
+			*gwc.Card4 = paicards[3].GetMapKey()
+			*gwc.Card5 = paicards[4].GetMapKey()
 			*gwc.Cardtype = u.thCards.GetOGCardType()
 			*gwc.Coin = u.winAmount
 			*gwc.Seat = u.Seat
@@ -459,7 +464,125 @@ func (t *ThDesk) GetBshowCard() []int32{
 	return ret
 }
 
-//通过牌的信息返回index
-func GetOGCardIndex(p *bbproto.Pai) int32{
-	return p.GetMapKey()
+//把结果牌 针对og来排序
+func OGTHCardPaixu(s *pokerService.ThCards) []*bbproto.Pai{
+	lensCards := len(s.Cards)
+	ret := make([]*bbproto.Pai,lensCards)
+
+	for i := 0; i <lensCards;i++  {
+		log.T("og 排序之前[%v]----[%v]:",i,s.Cards[i].GetValue())
+	}
+
+	if s.ThType == pokerService.THPOKER_TYPE_SITIAO {
+		//如果是四条的话,前四张是四条
+		if s.KeyValue[0] == s.Cards[0].GetValue() {
+			copy(ret,s.Cards)
+		}else{
+			copy(ret[0:4], s.Cards[1:5])
+			copy(ret[4:5], s.Cards[0:1])
+		}
+	}else if s.ThType == pokerService.THPOKER_TYPE_HULU{
+		//如果是葫芦的话,前三张是三条
+		if s.KeyValue[0] == s.Cards[0].GetValue() {
+			copy(ret,s.Cards)
+		}else{
+			copy(ret[0:3], s.Cards[2:5])
+			copy(ret[3:5], s.Cards[0:2])
+		}
+	}else if s.ThType == pokerService.THPOKER_TYPE_SANTIAO{
+		//如果是三条的话,前三张是三条
+		santiaoIndex := 0
+		for i := 0; i < lensCards; i++ {
+			if s.Cards[i].GetValue() == s.KeyValue[0] {
+				santiaoIndex = i
+				break
+			}
+		}
+		ret[0] = s.Cards[santiaoIndex]
+		ret[1] = s.Cards[santiaoIndex +1]
+		ret[2] = s.Cards[santiaoIndex +2]
+
+		log.T("排序葫芦1:[%v]",ret)
+		tempS := make([]*bbproto.Pai,lensCards)
+		copy(tempS,s.Cards)
+		for i := 3; i < 5; i++ {
+			for j := 0; j < lensCards; j++ {
+				ts := tempS[j]
+				if ts!=nil && ts.GetValue() != ret[0].GetValue() {
+					ret[i] = ts
+					log.T("排序葫芦[%v]:[%v]",i,ret[i])
+					tempS[j] = nil
+					break
+				}
+			}
+		}
+	}else if s.ThType == pokerService.THPOKER_TYPE_LIANGDUI{
+		//如果是两队的话,
+
+		yiduiIndex,liangduiIndex,danpai := 0,0,0
+
+		for i := 0; i < lensCards; i++ {
+			if s.Cards[i].GetValue() == s.KeyValue[0] {
+				yiduiIndex = i
+				break
+			}
+		}
+
+		for i := 0; i < lensCards; i++ {
+			if s.Cards[i].GetValue() == s.KeyValue[1] {
+				liangduiIndex = i
+				break
+			}
+		}
+
+		for i := 0; i < lensCards; i++ {
+			if s.Cards[i].GetValue() == s.KeyValue[2] {
+				danpai = i
+				break
+			}
+		}
+
+		copy(ret[0:2],s.Cards[yiduiIndex:yiduiIndex+2])
+		copy(ret[2:4],s.Cards[liangduiIndex:liangduiIndex+2])
+		copy(ret[4:lensCards],s.Cards[danpai:danpai+1])
+
+	}else if s.ThType == pokerService.THPOKER_TYPE_YIDUI{
+		//如果是一对的话,
+		//1,找到一对的坐标
+		tempS := make([]*bbproto.Pai,lensCards)
+		copy(tempS,s.Cards)
+		log.T("temps:[%v]",tempS)
+
+		yiduiIndex := 0
+		for i := 0; i < lensCards; i++ {
+			if s.Cards[i].GetValue() == s.KeyValue[0] {
+				yiduiIndex = i
+				break
+			}
+		}
+		ret[0] = tempS[yiduiIndex]
+		tempS[yiduiIndex] = nil
+		ret[1] = tempS[yiduiIndex+1]
+		tempS[yiduiIndex+1] = nil
+
+		for i := 2; i < 5; i++ {
+			for j := 0; j < lensCards; j++ {
+				ts := tempS[j]
+				if ts!=nil {
+					ret[i] = ts
+					tempS[j] = nil
+					log.T("排序一对[%v],[%v]",i,ret[i])
+					break
+				}
+			}
+		}
+
+	}else{
+		copy(ret,s.Cards)
+	}
+
+	for i := 0; i <lensCards;i++  {
+		log.T("og 排序之后[%v]----[%v]:",i,ret[i].GetValue())
+	}
+	return ret
 }
