@@ -33,7 +33,7 @@ func HandlerGameEnterMatch(m *bbproto.Game_EnterMatch, a gate.Agent) error {
 
 	userId := m.GetUserId()				//进入游戏房间的user
 	result := newGame_SendGameInfo()                //需要返回的信息
-
+	roomCoin := int64(0)
 	//1.1 检测参数是否正确,判断userId 是否合法
 	userCheck := userService.CheckUserIdRightful(userId)
 	if userCheck == false {
@@ -42,7 +42,8 @@ func HandlerGameEnterMatch(m *bbproto.Game_EnterMatch, a gate.Agent) error {
 	}
 
 	//1,进入房间,返回房间和错误信息
-	mydesk, err := room.ThGameRoomIns.AddUser(userId, a)
+
+	mydesk, err := room.ThGameRoomIns.AddUser(userId,roomCoin, a)
 	if err != nil || mydesk == nil {
 		errMsg := err.Error()
 		log.E("用户[%v]进入房间失败,errMsg[%v]",userId,errMsg)

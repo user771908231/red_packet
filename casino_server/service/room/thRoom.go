@@ -197,7 +197,7 @@ func (r *ThGameRoom) GetDeskByUserId(userId uint32) *ThDesk {
 }
 
 //游戏大厅增加一个玩家
-func (r *ThGameRoom) AddUser(userId uint32, a gate.Agent) (*ThDesk, error) {
+func (r *ThGameRoom) AddUser(userId uint32,roomCoin int64, a gate.Agent) (*ThDesk, error) {
 	//进入房间的操作需要加锁
 	r.Lock()
 	defer r.Unlock()
@@ -254,7 +254,7 @@ func (r *ThGameRoom) AddUser(userId uint32, a gate.Agent) (*ThDesk, error) {
 	}
 
 	//3,进入房间
-	err := mydesk.AddThUser(userId, a)
+	err := mydesk.AddThUser(userId,roomCoin, a)
 	if err != nil {
 		log.E("用户上德州扑克的桌子 失败...")
 		return nil, err
@@ -296,8 +296,9 @@ type ThUser struct {
 	winAmount int64                 //总共赢了多少钱
 	winAmountDetail	[]int64		//赢钱的详细
 	TurnCoin  int64                 //单轮押注(总共四轮)的金额
-	HandCoin  int64                 //用户下注多少钱
+	HandCoin  int64                 //用户下注多少钱、指单局
 	Coin      int64                 //用户余额多少钱
+	RoomCoin  int64			//用户上分的金额
 	NickName  string                //用户昵称
 }
 
@@ -505,7 +506,7 @@ func (t *ThDesk) LogStirngWinCoin(){
 /**
 	为桌子增加一个人
  */
-func (t *ThDesk) AddThUser(userId uint32, a gate.Agent) error {
+func (t *ThDesk) AddThUser(userId uint32,roomCoin int64, a gate.Agent) error {
 
 	redisUser := userService.GetUserById(userId)
 	//通过userId 和agent 够做一个thuser
@@ -516,6 +517,7 @@ func (t *ThDesk) AddThUser(userId uint32, a gate.Agent) error {
 	thUser.deskId = t.Id                //桌子的id
 	thUser.NickName = *redisUser.NickName
 	thUser.Coin = *redisUser.Coin
+
 	log.T("初始化thuser的时候coin[%v]:", thUser.Coin)
 
 	//添加thuser
@@ -581,25 +583,12 @@ func (t *ThDesk) RunTh() error {
 // 盲注开始押注
 func (t *ThDesk) InitBlindBet() error {
 	//小盲注押注
-	userService.DecreaseUserCoin(t.SmallBlind, t.SmallBlindCoin)
-	smallReduser := userService.GetUserById(t.SmallBlind)
-	smallUse := t.GetUserByUserId(t.SmallBlind)
-	smallUse.HandCoin = t.SmallBlindCoin
-	smallUse.Coin = *smallReduser.Coin
-	smallUse.TurnCoin += t.SmallBlindCoin
-	smallUse.TotalBet += t.SmallBlindCoin
 	t.AddBetCoin(t.SmallBlindCoin)
+	t.caclUserCoin(t.SmallBlind,  t.SmallBlindCoin)
 
 	//大盲注押注
-	userService.DecreaseUserCoin(t.BigBlind, t.BigBlindCoin)
-	bigRedUser := userService.GetUserById(t.BigBlind)
-	bigUser := t.GetUserByUserId(t.BigBlind)
-	bigUser.HandCoin = t.BigBlindCoin
-	bigUser.Coin = *bigRedUser.Coin
-	bigUser.TurnCoin += t.BigBlindCoin
-	bigUser.TotalBet += t.BigBlindCoin
 	t.AddBetCoin(t.BigBlindCoin)
-
+	t.caclUserCoin(t.BigBlind,  t.BigBlindCoin)
 
 	//发送盲注的信息
 	log.T("开始广播盲注的信息")
@@ -1033,7 +1022,7 @@ func (t *ThDesk) Lottery() error {
 	t.SetStatusWaitClose()
 
 	//需要计算本局allin的奖金池
-	t.CalcAllInJackpot(t.RoundCount)
+	t.CalcAllInJackpot()
 
 	//todo 做结算是按照奖池来做,还是按照人员来做...
 	//测试按照每个奖池来做计算
@@ -1059,6 +1048,7 @@ func (t *ThDesk) Lottery() error {
 					log.T("用户在allin.index[%v]活的奖金[%v]", i, bonus)
 					u.winAmount += bonus
 					u.Coin	    += bonus
+					u.RoomCoin  += bonus
 					u.winAmountDetail = append(u.winAmountDetail,bonus)
 				}
 
@@ -1082,6 +1072,7 @@ func (t *ThDesk) Lottery() error {
 			log.T("现在开始开奖,计算边池的奖励,user[%v]得到[%v]....",u.UserId,bbonus)
 			u.winAmount += bbonus
 			u.Coin      += bbonus
+			u.RoomCoin  += bbonus
 			u.winAmountDetail = append(u.winAmountDetail,bbonus)	//详细的奖励(边池主池分开)
 		}
 
@@ -1189,8 +1180,6 @@ func (t *ThDesk) BetUserCall(userId uint32) error {
 	t.AddBetCoin(coin)
 	//增加用户本轮投注的金额
 	t.caclUserCoin(userId, coin)
-	//3,减少用户的金额
-	userService.DecreaseUserCoin(userId, coin)
 	return nil
 }
 
@@ -1199,7 +1188,6 @@ func (t *ThDesk) AddBetCoin(coin int64) error {
 	t.bianJackpot += coin                        //边池 增加
 	return nil
 }
-
 
 //如果弃牌的人是 t.NewRoundBetUser ,需要重新设置值
 func (t *ThDesk) NextNewRoundBetUser() error {
@@ -1268,7 +1256,6 @@ func (t *ThDesk) BetUserAllIn(userId uint32, coin int64) error {
 
 	//2,减少用户的金额
 	t.caclUserCoin(userId, coin)
-	userService.DecreaseUserCoin(userId, coin)
 
 	//3,增加all in的状态
 	allinpot := &pokerService.AllInJackpot{}
@@ -1276,7 +1263,7 @@ func (t *ThDesk) BetUserAllIn(userId uint32, coin int64) error {
 	allinpot.Jackpopt = 0
 	allinpot.ThroundCount = t.RoundCount
 	allinpot.AllInAmount = t.GetUserByUserId(userId).TotalBet
-	t.AddAllInJackpot(allinpot)
+	t.AllInJackpot = append(t.AllInJackpot,allinpot)	//增加一个池子
 	log.T("用户[%v] all in 的时候,allin的值是[%v]", allinpot.UserId, allinpot.AllInAmount)
 	return nil
 }
@@ -1307,6 +1294,8 @@ func (t *ThDesk) caclUserCoin(userId uint32, coin int64) error {
 	user.HandCoin += coin
 	user.TotalBet += coin
 	user.Coin -= coin
+	user.RoomCoin -= coin
+	userService.DecreaseUserCoin(userId, coin)
 	return nil
 }
 
@@ -1331,7 +1320,7 @@ func (t *ThDesk) NextBetUser() error {
 	//设置新一轮
 	if t.BetUserRaiseUserId == t.BetUserNow {
 		//处理allin 奖金池分割的问题
-		t.CalcAllInJackpot(t.RoundCount)
+		t.CalcAllInJackpot()
 		t.BetUserRaiseUserId = t.NewRoundBetUser
 		t.BetUserNow = t.NewRoundBetUser
 		t.BetAmountNow = 0	//下一句重新开始的时候,设置当前押注的人为0
@@ -1461,67 +1450,52 @@ func (t *ThDesk) sendRiverCard() error {
 	return nil
 }
 
-
-
-//增加一个allIn
-func (t *ThDesk) AddAllInJackpot(a *pokerService.AllInJackpot) error {
-	if t.AllInJackpot == nil {
-		t.AllInJackpot = make([]*pokerService.AllInJackpot, 1)
-		t.AllInJackpot[0] = a
-	} else {
-		t.AllInJackpot = append(t.AllInJackpot, a)
-	}
-
-	return nil
-}
-
 //计算奖金池的划分的问题
-func (t *ThDesk) CalcAllInJackpot(r int32) error {
+func (t *ThDesk) CalcAllInJackpot() error {
 	log.T("开始计算allin将近池子begin")
 	//1,对allin 进行排序,排序之后,可以对奖金池做划分,得到当前未做处理的all和边池的值
 	var list pokerService.AllInJackpotList = t.AllInJackpot
 	sort.Sort(list)
-	var bianJackpot int64 = 0
 
 	for i := 0; i < len(t.AllInJackpot); i++ {
 		log.T("第[%v]次循环的时候,allinlist[%v]", i, t.AllInJackpot)
 		all := t.AllInJackpot[i]
-		if all != nil {
-			if all.ThroundCount != r {
-				bianJackpot += all.Jackpopt
-			} else {
-				log.T("开始计算用户[%v]allIn.index[%v] allin.amount[%v]计算all in 时的池子金额", all.UserId, i, all.AllInAmount)
-				//每个allin计算金额
-				for n := 0; n < len(t.Users); n++ {
-					u := t.Users[n]
-					if u != nil {
-						log.T("用户[%v]押注的总金额是[%v]")
-						if u.TotalBet > all.AllInAmount {
-							all.Jackpopt += all.AllInAmount
-							u.TotalBet -= all.AllInAmount
-							log.T("用户[%v]押注加入all的金额是[%v]", u.UserId, all.AllInAmount)
-						} else {
-							all.Jackpopt += u.TotalBet
-							//*u.roundBet = 0
-							log.T("用户[%v]押注加入all的金额是[%v]", u.UserId, u.TotalBet)
-						}
 
-					}
-				}
-				log.T("计算出来用户[%v]allIn.index[%v] allin.amount[%v]计算all in 的池子总金额", all.UserId, i, all.Jackpopt)
+		//如果这个池子为nil ,则跳过这个循环,如果这个allIn 不是本轮的,则把之前的allin 的jackpot 累加起来
+		if all ==nil || all.ThroundCount != t.RoundCount{
+			continue
+		}
 
-				//之后的allinamount - 当前allin
-				for k := i; k < len(t.AllInJackpot); k++ {
-					allk := t.AllInJackpot[k]
-					if allk != nil {
-						allk.AllInAmount -= all.AllInAmount
-					}
+		log.T("开始计算用户[%v]allIn.index[%v] allin.amount[%v]计算all in 时的池子金额", all.UserId, i, all.AllInAmount)
+		//每个allin计算金额
+		for n := 0; n < len(t.Users); n++ {
+			u := t.Users[n]
+			if u != nil {
+				log.T("用户[%v]押注的总金额是[%v]")
+				if u.TotalBet > all.AllInAmount {
+					all.Jackpopt += all.AllInAmount
+					u.TotalBet -= all.AllInAmount
+					log.T("用户[%v]押注加入all的金额是[%v]", u.UserId, all.AllInAmount)
+				} else {
+					all.Jackpopt += u.TotalBet
+					//*u.roundBet = 0
+					log.T("用户[%v]押注加入all的金额是[%v]", u.UserId, u.TotalBet)
 				}
-				t.bianJackpot -= all.Jackpopt
-				log.T("开始给allIn[%v]计算all in 时的池子金额---------------------------------end---------------", i)
-				log.T("目前t.bianJackPot 的剩余值是[%v]", t.bianJackpot)
+
 			}
 		}
+		log.T("计算出来用户[%v]allIn.index[%v] allin.amount[%v]计算all in 的池子总金额", all.UserId, i, all.Jackpopt)
+
+		//之后的allinamount - 当前allin
+		for k := i; k < len(t.AllInJackpot); k++ {
+			allk := t.AllInJackpot[k]
+			if allk != nil {
+				allk.AllInAmount -= all.AllInAmount
+			}
+		}
+		t.bianJackpot -= all.Jackpopt
+		log.T("开始给allIn[%v]计算all in 时的池子金额---------------------------------end---------------", i)
+		log.T("目前t.bianJackPot 的剩余值是[%v]", t.bianJackpot)
 	}
 	log.T("计算出来的allIn:【%v】", t.AllInJackpot)
 	log.T("开始计算allin将近池子end")
@@ -1582,7 +1556,8 @@ func  (mydesk *ThDesk) OGRun() error{
 		log.T("游戏还不到开始的时候")
 		return nil
 	}
-	time.Sleep(TH_LOTTERY_DURATION)//开奖的延时
+
+	//time.Sleep(TH_LOTTERY_DURATION)//开奖的延时
 
 	//2,初始化玩家的信息
 	err := mydesk.InitUserBeginStatus()
