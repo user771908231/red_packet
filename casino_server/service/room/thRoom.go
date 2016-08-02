@@ -27,8 +27,8 @@ import (
 var TH_GAME_SMALL_BLIND int64 = 10                //小盲注的金额
 var THROOM_SEAT_COUNT int32 = 8                //玩德州扑克,每个房间最多多少人
 var GAME_THROOM_MAX_COUNT int32 = 500                //一个游戏大厅最多有多少桌德州扑克
-var TH_TIMEOUT_DURATION = time.Second * 100       //德州出牌的超时时间
-var TH_TIMEOUT_DURATION_INT int32 = 100       //德州出牌的超时时间
+var TH_TIMEOUT_DURATION = time.Second * 1000       //德州出牌的超时时间
+var TH_TIMEOUT_DURATION_INT int32 = 1000       //德州出牌的超时时间
 
 var TH_LOTTERY_DURATION = time.Second * 5       //德州开奖的时间
 
@@ -1052,6 +1052,7 @@ func (t *ThDesk) Lottery() error {
 					//可以发送奖金
 					log.T("用户在allin.index[%v]活的奖金[%v]", i, bonus)
 					u.winAmount += bonus
+					u.Coin	    += bonus
 					u.winAmountDetail = append(u.winAmountDetail,bonus)
 				}
 
@@ -1073,6 +1074,7 @@ func (t *ThDesk) Lottery() error {
 			//对这个用户做结算...
 			log.T("现在开始开奖,计算边池的奖励,user[%v]得到[%v]....",u.UserId,bbonus)
 			u.winAmount += bbonus
+			u.Coin      += bbonus
 			u.winAmountDetail = append(u.winAmountDetail,bbonus)	//详细的奖励(边池主池分开)
 		}
 	}
@@ -1098,6 +1100,7 @@ func (t *ThDesk) Lottery() error {
 	t.Status = TH_DESK_STATUS_STOP	//设置喂没有开始开始游戏
 
 	go t.OGRun()
+
 	return nil
 }
 
@@ -1120,24 +1123,28 @@ func (t *ThDesk)  SaveLotteryData() error {
 	//循环对每个人做处理
 	for i := 0; i < len(t.Users); i++ {
 		u := t.Users[i]
-		if u != nil {
-			//开始处理用户数据
-			if u.Status == TH_USER_STATUS_CLOSED {
-				//1,修改user在redis中的数据
-				userService.IncreasUserCoin(u.UserId, u.winAmount)        //更新redis中的数据
-				userService.FlashUser2Mongo(u.UserId)                        //刷新redis中的数据到mongo
-				//2,保存游戏相关的数据
-				//todo  游戏相关的数据结构 还没有建立
-				thData := &mode.T_th{}
-				thData.Mid = bson.NewObjectId()
-				thData.BetAmount = u.TotalBet
-				thData.UserId = u.UserId
-				thData.DeskId = u.deskId
-				thData.WinAmount = u.winAmount
-				thData.Blance = *(userService.GetUserById(u.UserId).Coin)
-				s.DB(casinoConf.DB_NAME).C(casinoConf.DBT_T_TH).Insert(thData)
-			}
+		if u == nil {
+			continue
 		}
+
+		if u.Status != TH_USER_STATUS_CLOSED {
+			log.E("保存用户[%v]信息到数据库的时候出错,状态[%v]不正确",u.UserId,u.Status)
+			continue
+		}
+
+		//1,修改user在redis中的数据
+		userService.IncreasUserCoin(u.UserId, u.winAmount)        //更新redis中的数据
+		userService.FlashUser2Mongo(u.UserId)                        //刷新redis中的数据到mongo
+		//2,保存游戏相关的数据
+		//todo  游戏相关的数据结构 还没有建立
+		thData := &mode.T_th{}
+		thData.Mid = bson.NewObjectId()
+		thData.BetAmount = u.TotalBet
+		thData.UserId = u.UserId
+		thData.DeskId = u.deskId
+		thData.WinAmount = u.winAmount
+		thData.Blance = *(userService.GetUserById(u.UserId).Coin)
+		s.DB(casinoConf.DB_NAME).C(casinoConf.DBT_T_TH).Insert(thData)
 	}
 
 	return nil
@@ -1367,10 +1374,20 @@ func (t *ThDesk) nextRoundInfo() {
 		//发第四章牌
 		t.sendTurnCard()
 	case TH_DESK_ROUND4:
+		//发第五章牌
 		t.sendRiverCard()
-	//发第五章牌
 	}
+
+	//做redis的持久化
+	/**
+		需要持久化的数据
+		1,当前桌子的状态
+		2,当鸭玩家的状态
+	 */
+
 }
+
+
 
 
 //判断是否是新的一局
@@ -1546,7 +1563,6 @@ func  (mydesk *ThDesk) OGRun() error{
 	mydesk.Lock()
 	mydesk.Unlock()
 
-
 	log.T("开始一局游戏")
 	//1,判断是否可以开始游戏
 	if !mydesk.IsTime2begin() {
@@ -1554,8 +1570,6 @@ func  (mydesk *ThDesk) OGRun() error{
 		return nil
 	}
 	time.Sleep(TH_LOTTERY_DURATION)//开奖的延时
-
-
 
 	//2,初始化玩家的信息
 	err := mydesk.InitUserBeginStatus()

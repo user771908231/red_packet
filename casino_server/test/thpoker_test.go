@@ -34,7 +34,7 @@ func testCompare() {
 
 
 	//th2index := []int32{23,49,11,50,43}
-	th2index := []int32{37,45,44,43,25} 
+	th2index := []int32{37,45,44,43,25}
 	th2 := pokerService.NewThCards()
 	th2.Cards = make([]*bbproto.Pai, 5)
 	for i := 0; i < 5; i++ {
