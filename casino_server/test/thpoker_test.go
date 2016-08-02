@@ -22,7 +22,7 @@ func testCompare() {
 
 	fmt.Println()
 	//th1index := []int32{23,49,9,48,43}
-	th1index := []int32{39,49,14,20,6}
+	th1index := []int32{26,36,34,47,44}
 
 	th1 := pokerService.NewThCards()
 	th1.Cards = make([]*bbproto.Pai, 5)
@@ -32,9 +32,8 @@ func testCompare() {
 	th1.OnInit()
 	fmt.Println("th1的牌型[%v],key值[%v],牌:[%v]", th1.ThType,th1.KeyValue, th1.Cards)
 
-
 	//th2index := []int32{23,49,11,50,43}
-	th2index := []int32{37,45,44,43,25}
+	th2index := []int32{25,50,36,34,47}
 	th2 := pokerService.NewThCards()
 	th2.Cards = make([]*bbproto.Pai, 5)
 	for i := 0; i < 5; i++ {
@@ -46,5 +45,4 @@ func testCompare() {
 
 	ret1 := pokerService.ThCompare(th1, th2)
 	fmt.Println("比较的结果:[%v] //1大,2小,3相等:--", ret1)
-
 }

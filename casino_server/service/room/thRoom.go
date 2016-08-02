@@ -1076,14 +1076,20 @@ func (t *ThDesk) Lottery() error {
 	var bbonus int64 = t.bianJackpot / int64(bwinCount)
 	for i := 0; i < len(t.Users); i++ {
 		u := t.Users[i]
+
 		if u != nil && u.Status == TH_USER_STATUS_WAIT_CLOSED && u.thCards.IsWin {//
 			//对这个用户做结算...
 			log.T("现在开始开奖,计算边池的奖励,user[%v]得到[%v]....",u.UserId,bbonus)
 			u.winAmount += bbonus
 			u.Coin      += bbonus
 			u.winAmountDetail = append(u.winAmountDetail,bbonus)	//详细的奖励(边池主池分开)
+		}
+
+		//设置为结算完了的状态
+		if u != nil {
 			u.Status = TH_USER_STATUS_CLOSED	//结算完了之后需要,设置用户的状态为已经结算
 		}
+
 	}
 	log.T("现在开始开奖,计算奖励之后t.getWinCoinInfo()[%v]", t.getWinCoinInfo())
 

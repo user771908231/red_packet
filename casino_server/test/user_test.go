@@ -14,7 +14,7 @@ func TestUser(t *testing.T){
 	//addUserCoin(10011,989000)
 	//getUser(10084)
 	getUser(10087)
-	getUser(10090)
+	getUser(10084)
 }
 
 

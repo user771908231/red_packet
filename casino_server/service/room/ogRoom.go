@@ -463,6 +463,3 @@ func (t *ThDesk) GetBshowCard() []int32{
 func GetOGCardIndex(p *bbproto.Pai) int32{
 	return p.GetMapKey()
 }
-
-
-

@@ -5,6 +5,7 @@ import (
 	"casino_server/msg/bbprotogo"
 	"casino_server/common/log"
 	"sort"
+	"fmt"
 )
 
 //德州扑克的纸牌
@@ -224,18 +225,27 @@ func ( t *ThCards) OnInitYiDuiStatus() {
 		s := t.CardsStatistics
 		for i := 0; i < len(s); i++ {
 			if s[i] == 2 {
+				//fmt.Println("对子最大的值是:",i)
 				t.KeyValue[0] = int32(i)
 			}
 		}
+		//fmt.Println("keyvalue:",t.KeyValue)
 
-		s2 := s
+		var s2 []int32 = make([]int32,len(s))
+		copy(s2,s)
+
 		for i := 1; i < 5; i++ {
 			for j := len(s2) - 1; j >= 0; j-- {
 				if s2[j] == 1 {
 					t.KeyValue[i] = int32(j)
+					//fmt.Println("keyvalue[%v]j[%v]:",i,j)
+					s2[j] = 0
+					break
 				}
 			}
 		}
+
+		//fmt.Println("keyvalue2:",t.KeyValue)
 
 	}
 }
@@ -276,7 +286,7 @@ func (c *ThCards) OnInitStatisticsCard() error {
 		c.CardsStatistics[*list[i].Value] ++
 	}
 
-	//fmt.Println("统计出来的牌数量:s",c.CardsStatistics)
+	fmt.Println("统计出来的牌数量:s",c.CardsStatistics)
 	//log.T("统计出来的牌数量1:s",c.CardsStatistics)
 	for i := 0; i < len(c.CardsStatistics); i++ {
 		//fmt.Println("开始检测:",c.CardsStatistics[i])
