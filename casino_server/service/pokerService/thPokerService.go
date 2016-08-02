@@ -132,6 +132,7 @@ func ( t *ThCards) OnInitShunZiStatus() {
 	t.OnInitWheelStatus()			//如果是轮子,也认为是顺子
 	if t.IsWheel {
 		t.IsShunzi = true
+		t.KeyValue[0] = 5		//轮子的特殊性质,所以 顺子第一位是5
 	}
 }
 
