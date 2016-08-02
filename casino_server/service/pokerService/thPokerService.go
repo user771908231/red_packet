@@ -136,7 +136,6 @@ func ( t *ThCards) OnInitShunZiStatus() {
 	}
 }
 
-
 //检测是否是四条
 func ( t *ThCards) OnInitSiTiaoStatus() {
 	if t.SiTiaoCount == 1 {
@@ -244,7 +243,7 @@ func ( t *ThCards) OnInitYiDuiStatus() {
 
 //判断是否是轮子
 func (t *ThCards) OnInitWheelStatus() {
-	if t.Cards[0].Value == 14 && t.Cards[1].Value == 5 && t.Cards[2].Value == 4 && t.Cards[1].Value == 3 && t.Cards[0].Value == 2{
+	if t.Cards[0].GetValue()== 14 && t.Cards[1].GetValue() == 5 && t.Cards[2].GetValue() == 4 && t.Cards[1].GetValue() == 3 && t.Cards[0].GetValue() == 2{
 		t.IsWheel = true
 	}
 }

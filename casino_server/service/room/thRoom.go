@@ -637,6 +637,7 @@ func (t *ThDesk) InitUserBeginStatus() error {
 			u.TurnCoin = 0
 			u.winAmount = 0
 			u.winAmountDetail = nil
+			u.Coin = userService.GetUserById(u.UserId).GetCoin()	//去redis中的数据
 		}
 	}
 	return nil
@@ -845,6 +846,9 @@ func (t *ThDesk) OinitBegin() error {
 	t.RoundCount = TH_DESK_ROUND1
 	t.BetAmountNow = t.BigBlindCoin                   //设置第一次跟住时的跟注金额应该是多少
 	t.MinRaise = t.BigBlindCoin
+	t.Jackpot = 0
+	t.bianJackpot = 0
+
 	//本次押注的热开始等待
 	waitUser := t.Users[t.GetUserIndex(t.BetUserNow)]
 	waitUser.wait()
@@ -855,6 +859,8 @@ func (t *ThDesk) OinitBegin() error {
 	log.T("初始化游戏之后,当前押注Id[%v]", t.BetUserNow)
 	log.T("初始化游戏之后,第一个加注的人Id[%v]", t.BetUserRaiseUserId)
 	log.T("初始化游戏之后,当前轮数Id[%v]", t.RoundCount)
+	log.T("初始化游戏之后,当前jackpot[%v]", t.Jackpot)
+	log.T("初始化游戏之后,当前bianJackpot[%v]", t.bianJackpot)
 	return nil
 }
 
@@ -1076,6 +1082,7 @@ func (t *ThDesk) Lottery() error {
 			u.winAmount += bbonus
 			u.Coin      += bbonus
 			u.winAmountDetail = append(u.winAmountDetail,bbonus)	//详细的奖励(边池主池分开)
+			u.Status = TH_USER_STATUS_CLOSED	//结算完了之后需要,设置用户的状态为已经结算
 		}
 	}
 	log.T("现在开始开奖,计算奖励之后t.getWinCoinInfo()[%v]", t.getWinCoinInfo())
