@@ -190,7 +190,7 @@ func (t *ThDesk) OGRaiseBet(user *ThUser,coin int64) error{
 
 	//给所有人广播信息
 	t.THBroadcastProto(result,0)
-	log.T("开始处理seat[%v]加注的逻辑,t,OgFollowBet()...end",user.Seat)
+	log.T("开始处理seat[%v]加注的逻辑,t,OGRaiseBet()...end",user.Seat)
 	return nil
 }
 
@@ -201,7 +201,7 @@ func (t *ThDesk) OGCheckBet(user *ThUser) error{
 	//1,让牌
 	err := t.BetUserCheck(user.UserId)
 	if err != nil {
-		log.E("跟注的时候出错了.errMsg[%v],", err.Error())
+		log.E("用户[%v]让牌的时候出错了.errMsg[%v],", user.UserId,err.Error())
 	}
 
 

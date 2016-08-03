@@ -27,8 +27,8 @@ import (
 var TH_GAME_SMALL_BLIND int64 = 10                //小盲注的金额
 var THROOM_SEAT_COUNT int32 = 8                //玩德州扑克,每个房间最多多少人
 var GAME_THROOM_MAX_COUNT int32 = 500                //一个游戏大厅最多有多少桌德州扑克
-var TH_TIMEOUT_DURATION = time.Second * 1000       //德州出牌的超时时间
-var TH_TIMEOUT_DURATION_INT int32 = 1000       //德州出牌的超时时间
+var TH_TIMEOUT_DURATION = time.Second * 15       //德州出牌的超时时间
+var TH_TIMEOUT_DURATION_INT int32 = 15       //德州出牌的超时时间
 
 var TH_LOTTERY_DURATION = time.Second * 5       //德州开奖的时间
 
@@ -863,6 +863,27 @@ func (t *ThDesk) OinitBegin() error {
  */
 func (t *ThDesk) Tiem2Lottery() bool {
 	//如果处于押注状态的人只有一个人了,那么是开奖的时刻
+	//
+
+	/**
+	//var TH_USER_STATUS_WAITSEAT int32 = 1        //刚上桌子 等待开始的玩家
+	//var TH_USER_STATUS_SEATED int32 = 2                //刚上桌子 游戏中的玩家
+	//var TH_USER_STATUS_BETING int32 = 3                //押注中
+	//var TH_USER_STATUS_ALLINING int32 = 4        //allIn
+	//var TH_USER_STATUS_FOLDED int32 = 5                //弃牌
+	//var TH_USER_STATUS_WAIT_CLOSED int32 = 5                //等待结算
+	//var TH_USER_STATUS_CLOSED int32 = 6                //已经结算
+	//var TH_USER_STATUS_LEAVE int32 = 7                //
+	//var TH_USER_STATUS_BREAK int32 = 8                //已经结算
+	 */
+	log.T("判断是否应该开奖,打印每个人的信息:")
+	for i := 0; i < len(t.Users); i++ {
+		u := t.Users[i]
+		if u != nil {
+			log.T("[%v]判断是否应该开奖,打印user[%v]的状态[%v]:",i,u.UserId,u.Status)
+		}
+	}
+
 	var betingCount int = 0
 	for i := 0; i < len(t.Users); i++ {
 		if t.Users[i] != nil && t.Users[i].Status == TH_USER_STATUS_BETING {
@@ -872,7 +893,7 @@ func (t *ThDesk) Tiem2Lottery() bool {
 
 	log.T("当前处于押注中的人数是[%v]", betingCount)
 	//如果押注的人只有一个人了,那么是开奖的时刻
-	if betingCount == 1 {
+	if betingCount <= 1 {
 		log.T("现在处于押注中(beting)状态的人,只剩下一个了,所以直接开奖")
 		return true
 	}
@@ -1102,6 +1123,8 @@ func (t *ThDesk) Lottery() error {
 	t.THBroadcastProto(result, 0)
 
 	//开奖之后,设置状态为 没有开始游戏
+	//
+	log.T("开奖结束,设置desk的状态为stop")
 	t.Status = TH_DESK_STATUS_STOP        //设置喂没有开始开始游戏
 
 	go t.OGRun()
@@ -1538,8 +1561,8 @@ func (t *ThDesk) IsTime2begin() bool {
 	//可以开始游戏的要求
 	//1,用户的人数达到了最低可玩人数
 	//2,当前的状态是游戏停止的状态
+	log.T("当前玩家的数量是[%v],当前desk的状态是[%v],1未开始,2游戏中,3,开奖中", t.UserCount, t.Status)
 	if t.UserCount >= TH_DESK_LEAST_START_USER  && t.Status == TH_DESK_STATUS_STOP {
-		log.T("当前玩家的数量是[%v],当前desk的状态是[%v],1未开始,2游戏中,3,开奖中", t.UserCount, t.Status)
 		return true
 	} else {
 		return false
