@@ -602,11 +602,11 @@ func (t *ThDesk) InitBlindBet() error {
 	//初始化默认值
 	blindB.Tableid = &t.Id        //deskid
 	//blindB.Matchid = &room.ThGameRoomIns.Id //roomId
-	*blindB.Banker = int32(t.GetUserIndex(t.Dealer))        //庄
+	*blindB.Banker = t.GetUserByUserId(t.Dealer).Seat	//int32(t.GetUserIndex(t.Dealer))        //庄
 	blindB.Bigblind = &t.BigBlindCoin        //大盲注
 	blindB.Smallblind = &t.SmallBlindCoin        //小盲注
-	*blindB.Bigblindseat = int32(t.GetUserIndex(t.BigBlind))        //大盲注座位号
-	*blindB.Smallblindseat = int32(t.GetUserIndex(t.SmallBlind))        //小盲注座位号
+	*blindB.Bigblindseat = 	t.GetUserByUserId(t.BigBlind).Seat	//	int32(t.GetUserIndex(t.BigBlind))        //大盲注座位号
+	*blindB.Smallblindseat = t.GetUserByUserId(t.SmallBlind).Seat	//int32(t.GetUserIndex(t.SmallBlind))        //小盲注座位号
 	blindB.Coin = t.GetCoin()        //每个人手中的coin
 	blindB.Handcoin = t.GetHandCoin()        //每个人下注的coin
 	blindB.Pool = &t.Jackpot        //奖池
@@ -839,7 +839,7 @@ func (t *ThDesk) OinitBegin() error {
 	t.bianJackpot = 0
 
 	//本次押注的热开始等待
-	waitUser := t.Users[t.GetUserIndex(t.BetUserNow)]
+	waitUser := t.GetUserByUserId(t.BetUserNow)
 	waitUser.wait()
 
 	log.T("初始化游戏之后,庄家[%v]", t.Dealer)
@@ -1330,7 +1330,7 @@ func (t *ThDesk) NextBetUser() error {
 	}
 
 	//用户开始等待,如果超时,需要做超时的处理
-	waitUser := t.Users[t.GetUserIndex(t.BetUserNow)]
+	waitUser := t.GetUserByUserId(t.BetUserNow)
 	waitUser.wait()
 
 	//打印测试信息
@@ -1354,7 +1354,7 @@ func (t *ThDesk) nextRoundInfo() {
 	sendData := NewGame_SendOverTurn()
 	*sendData.Tableid = t.Id
 	*sendData.MinRaise = t.MinRaise
-	*sendData.NextSeat = int32(t.GetUserIndex(t.BetUserNow))
+	*sendData.NextSeat = t.GetUserByUserId(t.BetUserNow).Seat	//int32(t.GetUserIndex(t.BetUserNow))
 	sendData.Handcoin = t.GetHandCoin()
 	sendData.Coin = t.GetCoin()
 	*sendData.Pool = t.Jackpot
@@ -1601,7 +1601,7 @@ func (mydesk *ThDesk) OGRun() error {
 	initCardB.HandCard = mydesk.GetHandCard()
 	initCardB.PublicCard = mydesk.ThPublicCard2OGC()
 	initCardB.MinRaise = &mydesk.MinRaise
-	*initCardB.NextUser = int32(mydesk.GetUserIndex(mydesk.BetUserNow))
+	*initCardB.NextUser = mydesk.GetUserByUserId(mydesk.BetUserNow).Seat		//	int32(mydesk.GetUserIndex(mydesk.BetUserNow))
 	*initCardB.ActionTime = TH_TIMEOUT_DURATION_INT
 	//initCardB.Seat = &mydesk.UserCount
 	mydesk.THBroadcastProto(initCardB, 0)

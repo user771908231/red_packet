@@ -101,8 +101,8 @@ func initGameSendgameInfoByDesk(mydesk *room.ThDesk, result *bbproto.Game_SendGa
 	//初始化桌子相关的信息
 	*result.Tableid = int32(mydesk.Id)        //桌子的Id
 	*result.TablePlayer = mydesk.UserCount
-	*result.BankSeat = int32(mydesk.GetUserIndex(mydesk.Dealer))        //庄家
-	*result.ChipSeat = int32(mydesk.GetUserIndex(mydesk.BetUserNow))//当前活动玩家
+	*result.BankSeat =  mydesk.GetUserByUserId(mydesk.Dealer).Seat //int32(mydesk.GetUserIndex(mydesk.Dealer))        //庄家
+	*result.ChipSeat =  mydesk.GetUserByUserId(mydesk.BetUserNow).Seat //int32(mydesk.GetUserIndex(mydesk.BetUserNow))//当前活动玩家
 	*result.ActionTime = int32(room.TH_TIMEOUT_DURATION_INT)        //当前操作时间,服务器当前的时间
 	*result.DelayTime = int32(0)        //当前延时时间
 	*result.GameStatus = deskStatus2OG(mydesk)
@@ -115,7 +115,7 @@ func initGameSendgameInfoByDesk(mydesk *room.ThDesk, result *bbproto.Game_SendGa
 	result.HandCoin = mydesk.GetCoin()	//下注的金额
 	//result.HandCoin = mydesk.GetHandCoin()	//下注的金额
 	result.TurnCoin = getTurnCoin(mydesk)
-	*result.Seat	= int32(mydesk.GetUserIndex(myUserId))	//我
+	*result.Seat	= mydesk.GetUserByUserId(myUserId).Seat	//int32(mydesk.GetUserIndex(myUserId))	//我
 
 	//循环User来处理
 	for i := 0; i < len(mydesk.Users); i++ {
