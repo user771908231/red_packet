@@ -5,7 +5,6 @@ import (
 	"casino_server/msg/bbprotogo"
 	"casino_server/common/log"
 	"sort"
-	"fmt"
 )
 
 //德州扑克的纸牌
@@ -286,7 +285,7 @@ func (c *ThCards) OnInitStatisticsCard() error {
 		c.CardsStatistics[*list[i].Value] ++
 	}
 
-	fmt.Println("统计出来的牌数量:s",c.CardsStatistics)
+	//fmt.Println("统计出来的牌数量:s",c.CardsStatistics)
 	//log.T("统计出来的牌数量1:s",c.CardsStatistics)
 	for i := 0; i < len(c.CardsStatistics); i++ {
 		//fmt.Println("开始检测:",c.CardsStatistics[i])

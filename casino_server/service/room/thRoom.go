@@ -1346,7 +1346,7 @@ func (t *ThDesk) nextRoundInfo() {
 	}
 
 	//todo test 发送下一轮的时候,先延时1秒
-	time.Sleep(time.Second * 1)
+	//time.Sleep(time.Second * 1)
 	//todo 清空handCoin 的时间是什么时候
 
 	log.T("本次设置的押注人和之前的是同一个人,所以开始第[%v]轮的游戏", t.RoundCount)
@@ -1557,8 +1557,6 @@ func (mydesk *ThDesk) OGRun() error {
 		log.T("游戏还不到开始的时候")
 		return nil
 	}
-
-	//time.Sleep(TH_LOTTERY_DURATION)//开奖的延时
 
 	//2,初始化玩家的信息
 	err := mydesk.InitUserBeginStatus()

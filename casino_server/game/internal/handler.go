@@ -241,6 +241,7 @@ func handlerThRoom(args []interface{}){
 func handlerThBet(args []interface{}){
 }
 
+//登录游戏
 func handlerGameLoginGame(args []interface{}){
 	log.T("快速登陆德州扑克游戏")
 	m := args[0].(*bbproto.Game_LoginGame)
@@ -260,7 +261,7 @@ func  handlerGameEnterMatch(args []interface{}){
 	OGservice.HandlerGameEnterMatch(m,a)
 }
 
-//处理押注的请求
+//处理跟注
 func handlerFollowBet(args []interface{}){
 	log.T("处理用户押注的请求")
 	m := args[0].(*bbproto.Game_FollowBet)
@@ -286,7 +287,7 @@ func handlerFoldBet(args []interface{}){
 	desk.OGBet(seatId,room.TH_DESK_BET_TYPE_FOLD,0)
 }
 
-// 处理弃牌
+// 处理让牌
 func handlerCheckBet(args []interface{}){
 	m := args[0].(*bbproto.Game_CheckBet)
 	seatId := m.GetSeat()

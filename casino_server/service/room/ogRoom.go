@@ -46,10 +46,8 @@ func (t *ThDesk) getUserBySeat(seatId int32) *ThUser {
 
 //押注的通用接口
 func (t *ThDesk) OGBet(seatId int32,betType int32,coin int64) error{
-	log.T("开始IGBet,这里是取得锁之前,seatId[%v],betType[%v],coin,",seatId,betType,coin)
 	t.Lock()
 	defer t.Unlock()
-	log.T("开始IGBet,这里是取得锁之后,seatId[%v],betType[%v],coin,",seatId,betType,coin)
 
 	user := t.getUserBySeat(seatId)
 	//1,得到跟注的用户
@@ -215,12 +213,16 @@ func (t *ThDesk) OGCheckBet(user *ThUser) error{
 	log.T("打印user[%v]让牌的结果:",user.UserId)
 	result := &bbproto.Game_AckCheckBet{}
 	result.NextSeat = new(int32)
+	result.MinRaise = new(int64)
+	result.CanRaise = new(int32)
+
 	result.Coin = &t.BetAmountNow        			//本轮压了多少钱
 	result.Seat = &user.Seat                			//座位id
 	result.Tableid = &t.Id
-	result.CanRaise	= &t.CanRaise		     		//是否能加注
+	*result.CanRaise = t.CanRaise		     		//是否能加注
+	*result.MinRaise = t.MinRaise				//最低加注金额
 	*result.NextSeat =int32(t.GetUserIndex(t.BetUserNow))		//下一个押注的人
-	t.THBroadcastProto(result,0)
+	t.THBroadcastProtoAll(result)
 
 	return nil
 }
@@ -334,32 +336,12 @@ func (t *ThDesk) GetSecondPool() []int64{
 	return ret
 }
 
-
-//发送新增玩家的广播
-func (t *ThDesk) OGTHBroadAddUser(newUserId uint32) error{
-	newUser := t.GetUserByUserId(newUserId)
-
-	//生成广播的信息
-	broadUser := &bbproto.Game_SendAddUser{}
-	broadUser.Coin = new(int64)
-	broadUser.Seat = new(int32)
-	broadUser.Tableid = new(int32)
-	broadUser.NickName= new(string)
-
-	*broadUser.Coin = newUser.Coin
-	*broadUser.Seat = newUser.Seat
-	*broadUser.NickName = newUser.NickName
-	*broadUser.Tableid = t.Id
-
-	log.T("开始广播新增用户的proto消息[%v]",broadUser)
-	t.THBroadcastProto(broadUser,newUserId)
-	return nil
-}
-
 //发送新增用户的广播
-func (t *ThDesk) OGTHBroadAddUser2(msg *bbproto.Game_SendGameInfo){
+func (t *ThDesk) OGTHBroadAddUser(msg *bbproto.Game_SendGameInfo){
 	for i := 0; i < len(t.Users); i++ {
 		if t.Users[i] != nil {
+
+			//给用户发送广播的时候需要判断自己的座位号是多少
 			a := t.Users[i].agent
 			*msg.Seat = t.Users[i].Seat
 			a.WriteMsg(msg)

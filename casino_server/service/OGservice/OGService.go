@@ -33,6 +33,7 @@ func HandlerGameEnterMatch(m *bbproto.Game_EnterMatch, a gate.Agent) error {
 
 	userId := m.GetUserId()				//进入游戏房间的user
 	result := newGame_SendGameInfo()                //需要返回的信息
+
 	roomCoin := int64(0)
 	//1.1 检测参数是否正确,判断userId 是否合法
 	userCheck := userService.CheckUserIdRightful(userId)
@@ -42,7 +43,6 @@ func HandlerGameEnterMatch(m *bbproto.Game_EnterMatch, a gate.Agent) error {
 	}
 
 	//1,进入房间,返回房间和错误信息
-
 	mydesk, err := room.ThGameRoomIns.AddUser(userId,roomCoin, a)
 	if err != nil || mydesk == nil {
 		errMsg := err.Error()
@@ -54,17 +54,13 @@ func HandlerGameEnterMatch(m *bbproto.Game_EnterMatch, a gate.Agent) error {
 	//2 构造信息并且返回
 	initGameSendgameInfoByDesk(mydesk, result,userId)
 	log.T("给请求登陆房间的人[%v]回复信息[%v]",userId,result)
-	//a.WriteMsg(result)
 
 	//3 发送进入游戏房间的广播
-	//mydesk.OGTHBroadAddUser(userId)
+	mydesk.OGTHBroadAddUser(result)
 
-	mydesk.OGTHBroadAddUser2(result)
-	//
-	//测试就是发送gameInfo
-	//mydesk.THBroadcastProtoAll(result)
-	//
 	//4,最后:确定是否开始游戏, 上了牌桌之后,如果玩家人数大于1,并且游戏处于stop的状态,则直接开始游戏
+
+	//如果是朋友桌的话,需要房主点击开始才能开始...
 	go mydesk.OGRun()
 
 	return nil
