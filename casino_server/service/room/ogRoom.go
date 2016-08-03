@@ -4,6 +4,7 @@ import (
 	"casino_server/common/log"
 	"casino_server/msg/bbprotogo"
 	"errors"
+	"casino_server/service/pokerService"
 )
 
 //牌的花色 和值
@@ -37,44 +38,68 @@ var (
 
 
 
-
 //通过座位号来找到user
 func (t *ThDesk) getUserBySeat(seatId int32) *ThUser {
 	return t.Users[seatId]
 }
 
-//这里只处理逻辑
-func (t *ThDesk) OgFollowBet(seatId int32) error {
-	log.T("开始处理seat[%v]跟注的逻辑,t,OgFollowBet()...",seatId)
+
+//押注的通用接口
+func (t *ThDesk) OGBet(seatId int32,betType int32,coin int64) error{
 	t.Lock()
 	defer t.Unlock()
-	user := t.getUserBySeat(seatId)
 
+	user := t.getUserBySeat(seatId)
 	//1,得到跟注的用户
-	if !t.CheckBetUserBySeat(seatId) {
+	if !t.CheckBetUserBySeat(user) {
 		log.E("押注人的状态不正确")
 		return errors.New("押注人的状态不正确")
 	}
 
-	log.T("用户[%v]开始押注:本次跟住t.BetAmountNow[%v]",user.UserId,t.BetAmountNow)
-	log.T("用户[%v]开始押注:已经押注HandCoin[%v]",user.UserId,user.HandCoin)
 
-	//2,开始押注
+	switch betType {
+	case TH_DESK_BET_TYPE_BET:
+	//押注:大盲注之后的第一个人,这个类型不会使用到
+
+	case TH_DESK_BET_TYPE_CALL:
+		t.OgFollowBet(user)
+
+	case TH_DESK_BET_TYPE_FOLD:
+		t.OgFoldBet(user)
+
+	case TH_DESK_BET_TYPE_CHECK:        //让牌
+		t.OGCheckBet(user)
+
+	case TH_DESK_BET_TYPE_RAISE:        //加注
+		t.OGRaiseBet(user,coin)
+
+	case TH_DESK_BET_TYPE_RERRAISE:        //再加注
+
+	case TH_DESK_BET_TYPE_ALLIN:        //全部
+
+	}
+
+	t.nextRoundInfo()	//广播新一局的信息
+	t.Lottery()		//开奖
+	return nil
+}
+
+
+//这里只处理逻辑
+func (t *ThDesk) OgFollowBet(user *ThUser) error {
+
+	//1,押注
+	log.T("用户[%v]开始押注",user.UserId)
 	err := t.BetUserCall(user.UserId)
 	if err != nil {
 		log.E("跟注的时候出错了.errMsg[%v],", err.Error())
 	}
 
-	//3,判断是否属于开奖的时候,如果是,那么开奖,如果不是,设置下一个押注的人
-	if t.Tiem2Lottery() {
-		return t.Lottery()
-	} else {
-		t.NextBetUser()
-		log.T("准备给其他人发送押注的广播")
-		//广播给下一个人押注
-	}
+	//2,初始化下一个押注的人
+	t.NextBetUser()
 
-	//4,押注成功返回要住成功的消息
+	//3,返回信息
+	log.T("返回用户[%v]押注的结果:",user.UserId)
 	result := &bbproto.Game_AckFollowBet{}
 	result.NextSeat = new(int32)
 	result.Coin = new(int64)
@@ -86,82 +111,62 @@ func (t *ThDesk) OgFollowBet(seatId int32) error {
 	result.HandCoin = new(int64)
 
 	*result.Coin		= user.Coin
-	*result.Seat		= seatId                		//座位id
+	*result.Seat		= user.Seat                		//座位id
 	*result.Tableid		= t.Id
 	//*result.CanRaise	= t.CanRaise		     		//是否能加注
-
 	*result.CanRaise	= int32(1)		     		//是否能加注
-
 	*result.MinRaise	= t.MinRaise
 	*result.Pool		= t.Jackpot
 	*result.NextSeat	= int32(t.GetUserIndex(t.BetUserNow))		//下一个押注的人
 	*result.HandCoin 	= user.HandCoin
-	//a.WriteMsg(result)
 
-	//给所有人广播信息
-	t.THBroadcastProto(result,0)
-	log.T("开始处理seat{%v}跟注的逻辑,t,OgFollowBet()...end",seatId)
+	t.THBroadcastProtoAll(result)
 	return nil
 }
 
 //这里只处理逻辑
-func (t *ThDesk) OgFoldBet(seatId int32) error {
-	log.T("开始处理seat[%v]弃牌的逻辑,t,OgFollowBet()...",seatId)
-	t.Lock()
-	defer t.Unlock()
+func (t *ThDesk) OgFoldBet(user  *ThUser) error {
 
-	//1,得到跟注的用户
-	if !t.CheckBetUserBySeat(seatId) {
-		log.E("弃牌人的状态不正确")
-		return errors.New("弃牌人的状态不正确")
+	log.T("用户[%v]开始弃牌",user.UserId)
+
+	//1,弃牌
+	//如果弃牌的人是 t.NewRoundBetUser ,需要重新设置值
+	if t.NewRoundBetUser == user.UserId {
+		t.NextNewRoundBetUser()
 	}
+	user.Status = TH_USER_STATUS_FOLDED
 
 
-	//2,开始弃牌
-	user := t.getUserBySeat(seatId)
-	err := t.BetUserFold(user.UserId)
-	if err != nil {
-		log.E("弃牌的时候出错了.errMsg[%v],", err.Error())
-		return err
-	}
+	//2,初始化下一个押注的人
+	t.NextBetUser()
 
-	//3,判断是否属于开奖的时候,如果是,那么开奖,如果不是,设置下一个押注的人
-	if t.Tiem2Lottery() {
-		return t.Lottery()
-	} else {
-		t.NextBetUser()
-		log.T("准备给其他人发送弃牌的广播")
-	}
 
-	//押注成功返回要住成功的消息
+	//3,返回信息
+	log.T("返回用户[%v]弃牌的结果:",user.UserId)
 	result := &bbproto.Game_AckFoldBet{}
 	result.NextSeat = new(int32)
+	result.Pool = new(int64)
+	result.MinRaise = new(int64)
+	result.HandCoin = new(int64)
 
+	*result.Pool = t.Jackpot
+	*result.HandCoin = user.HandCoin
 	result.Coin = &t.BetAmountNow        			//本轮压了多少钱
-	result.Seat = &seatId                			//座位id
+	result.Seat = &user.Seat                			//座位id
 	result.Tableid = &t.Id
+	*result.MinRaise = t.MinRaise
 	result.CanRaise	= &t.CanRaise		     		//是否能加注
 	*result.NextSeat =int32(t.GetUserIndex(t.BetUserNow))		//下一个押注的人
-	//给所有人广播信息
+
 	t.THBroadcastProto(result,0)
-	log.T("开始处理seat[%v]弃牌的逻辑,t,OgFollowBet()...end",seatId)
 	return nil
 }
 
 
 
 //联众德州 加注
-func (t *ThDesk) OGRaiseBet(seatId int32,coin int64) error{
-	log.T("开始处理seat[%v]加注的逻辑,t,OgFollowBet()...",seatId)
-	t.Lock()
-	defer t.Unlock()
+func (t *ThDesk) OGRaiseBet(user *ThUser,coin int64) error{
 	//1,得到跟注的用户,检测用户
-
-	user := t.getUserBySeat(seatId)
-	if !t.CheckBetUserBySeat(seatId) {
-		log.E("押注人的状态不正确")
-		return errors.New("押注人的状态不正确")
-	}
 
 	//2,开始处理加注
 	err := t.BetUserRaise(user.UserId,coin)
@@ -170,18 +175,14 @@ func (t *ThDesk) OGRaiseBet(seatId int32,coin int64) error{
 	}
 
 	//判断是否属于开奖的时候,如果是,那么开奖,如果不是,设置下一个押注的人
-	if t.Tiem2Lottery() {
-		return t.Lottery()
-	} else {
-		t.NextBetUser()
-	}
+	t.NextBetUser()
 
 	log.T("准备给其他人发送加注的广播")
 	//押注成功返回要住成功的消息
 	result := &bbproto.Game_AckRaiseBet{}
 	result.NextSeat = new(int32)
 	result.Coin = &t.BetAmountNow        			//本轮压了多少钱
-	result.Seat = &seatId                			//座位id
+	result.Seat = &user.Seat                			//座位id
 	result.Tableid = &t.Id
 	result.CanRaise	= &t.CanRaise		     		//是否能加注
 	*result.NextSeat =int32(t.GetUserIndex(t.BetUserNow))		//下一个押注的人
@@ -189,50 +190,40 @@ func (t *ThDesk) OGRaiseBet(seatId int32,coin int64) error{
 
 	//给所有人广播信息
 	t.THBroadcastProto(result,0)
-	log.T("开始处理seat[%v]加注的逻辑,t,OgFollowBet()...end",seatId)
+	log.T("开始处理seat[%v]加注的逻辑,t,OgFollowBet()...end",user.Seat)
 	return nil
 }
 
 
 //联众德州 让牌
-func (t *ThDesk) OGCheckBet(seatId int32) error{
-	log.T("开始处理seat[%v]让牌的逻辑,t,OgFollowBet()...",seatId)
-	t.Lock()
-	defer t.Unlock()
+func (t *ThDesk) OGCheckBet(user *ThUser) error{
 
-	user := t.getUserBySeat(seatId)
-	//1,得到跟注的用户
-	if !t.CheckBetUserBySeat(seatId) {
-		log.E("弃牌人的状态不正确")
-		return errors.New("弃牌人的状态不正确")
-	}
-
-
-	//2,开始弃牌
+	//1,让牌
 	err := t.BetUserCheck(user.UserId)
 	if err != nil {
 		log.E("跟注的时候出错了.errMsg[%v],", err.Error())
 	}
 
-	//3,判断是否属于开奖的时候,如果是,那么开奖,如果不是,设置下一个押注的人
-	if t.Tiem2Lottery() {
-		return t.Lottery()
-	} else {
-		t.NextBetUser()
-		log.T("准备给其他人发送弃牌的广播")
-	}
 
-	//4押注成功返回要住成功的消息
+	//2,计算洗一个押注的人
+	t.NextBetUser()
+
+
+	//3押注成功返回要住成功的消息
+	log.T("打印user[%v]让牌的结果:",user.UserId)
 	result := &bbproto.Game_AckCheckBet{}
 	result.NextSeat = new(int32)
-	result.Coin = &t.BetAmountNow        			//本轮压了多少钱
-	result.Seat = &seatId                			//座位id
-	result.Tableid = &t.Id
-	result.CanRaise	= &t.CanRaise		     		//是否能加注
-	*result.NextSeat =int32(t.GetUserIndex(t.BetUserNow))		//下一个押注的人
-	t.THBroadcastProto(result,0)
+	result.MinRaise = new(int64)
+	result.CanRaise = new(int32)
 
-	log.T("开始处理seat[%v]让牌的逻辑,t,OgFollowBet()...end",seatId)
+	result.Coin = &t.BetAmountNow        			//本轮压了多少钱
+	result.Seat = &user.Seat                			//座位id
+	result.Tableid = &t.Id
+	*result.CanRaise = t.CanRaise		     		//是否能加注
+	*result.MinRaise = t.MinRaise				//最低加注金额
+	*result.NextSeat =int32(t.GetUserIndex(t.BetUserNow))		//下一个押注的人
+	t.THBroadcastProtoAll(result)
+
 	return nil
 }
 
@@ -345,27 +336,19 @@ func (t *ThDesk) GetSecondPool() []int64{
 	return ret
 }
 
+//发送新增用户的广播
+func (t *ThDesk) OGTHBroadAddUser(msg *bbproto.Game_SendGameInfo){
+	for i := 0; i < len(t.Users); i++ {
+		if t.Users[i] != nil {
 
-//发送新增玩家的广播
-func (t *ThDesk) OGTHBroadAddUser(newUserId uint32) error{
-	newUser := t.GetUserByUserId(newUserId)
-
-	//生成广播的信息
-	broadUser := &bbproto.Game_SendAddUser{}
-	broadUser.Coin = new(int64)
-	broadUser.Seat = new(int32)
-	broadUser.Tableid = new(int32)
-	broadUser.NickName= new(string)
-
-	*broadUser.Coin = newUser.Coin
-	*broadUser.Seat = newUser.Seat
-	*broadUser.NickName = newUser.NickName
-	*broadUser.Tableid = t.Id
-
-	log.T("开始广播新增用户的proto消息[%v]",broadUser)
-	t.THBroadcastProto(broadUser,newUserId)
-	return nil
+			//给用户发送广播的时候需要判断自己的座位号是多少
+			a := t.Users[i].agent
+			*msg.Seat = t.Users[i].Seat
+			a.WriteMsg(msg)
+		}
+	}
 }
+
 
 
 //解析手牌
@@ -429,25 +412,159 @@ func (t *ThDesk) getWinCoinInfo() []*bbproto.Game_WinCoin{
 	//对每个人做计算
 	for i := 0; i < len(t.Users); i++ {
 		u := t.Users[i]
-		if u != nil {
+		if u != nil && u.winAmount > 0{
 			//开是对这个人计算
 			gwc := NewGame_WinCoin()
-			*gwc.Card1 = GetOGCardIndex(u.thCards.Cards[0])
-			*gwc.Card2 = GetOGCardIndex(u.thCards.Cards[1])
-			*gwc.Card3 = GetOGCardIndex(u.thCards.Cards[2])
-			*gwc.Card4 = GetOGCardIndex(u.thCards.Cards[3])
-			*gwc.Card5 = GetOGCardIndex(u.thCards.Cards[4])
+
+			//这里需要先对牌进行排序
+			paicards := OGTHCardPaixu(u.thCards)
+
+			*gwc.Card1 = paicards[0].GetMapKey()
+			*gwc.Card2 = paicards[1].GetMapKey()
+			*gwc.Card3 = paicards[2].GetMapKey()
+			*gwc.Card4 = paicards[3].GetMapKey()
+			*gwc.Card5 = paicards[4].GetMapKey()
 			*gwc.Cardtype = u.thCards.GetOGCardType()
 			*gwc.Coin = u.winAmount
 			*gwc.Seat = u.Seat
 			*gwc.PoolIndex = int32(0)
-			//gwc.Rolename
+			ret = append(ret,gwc)
 		}
 	}
 	return ret
 }
 
-//通过牌的信息返回index
-func GetOGCardIndex(p *bbproto.Pai) int32{
-	return p.GetMapKey()
+func (t *ThDesk) GetBshowCard() []int32{
+	var ret []int32
+	for i := 0; i < len(t.Users); i++ {
+		u := t.Users[i]
+		if u != nil {
+			ret = append(ret,int32(1))
+		}
+	}
+
+	return ret
+}
+
+//把结果牌 针对og来排序
+func OGTHCardPaixu(s *pokerService.ThCards) []*bbproto.Pai{
+	lensCards := len(s.Cards)
+	ret := make([]*bbproto.Pai,lensCards)
+
+	for i := 0; i <lensCards;i++  {
+		log.T("og 排序之前[%v]----[%v]:",i,s.Cards[i].GetValue())
+	}
+
+	if s.ThType == pokerService.THPOKER_TYPE_SITIAO {
+		//如果是四条的话,前四张是四条
+		if s.KeyValue[0] == s.Cards[0].GetValue() {
+			copy(ret,s.Cards)
+		}else{
+			copy(ret[0:4], s.Cards[1:5])
+			copy(ret[4:5], s.Cards[0:1])
+		}
+	}else if s.ThType == pokerService.THPOKER_TYPE_HULU{
+		//如果是葫芦的话,前三张是三条
+		if s.KeyValue[0] == s.Cards[0].GetValue() {
+			copy(ret,s.Cards)
+		}else{
+			copy(ret[0:3], s.Cards[2:5])
+			copy(ret[3:5], s.Cards[0:2])
+		}
+	}else if s.ThType == pokerService.THPOKER_TYPE_SANTIAO{
+		//如果是三条的话,前三张是三条
+		santiaoIndex := 0
+		for i := 0; i < lensCards; i++ {
+			if s.Cards[i].GetValue() == s.KeyValue[0] {
+				santiaoIndex = i
+				break
+			}
+		}
+		ret[0] = s.Cards[santiaoIndex]
+		ret[1] = s.Cards[santiaoIndex +1]
+		ret[2] = s.Cards[santiaoIndex +2]
+
+		log.T("排序葫芦1:[%v]",ret)
+		tempS := make([]*bbproto.Pai,lensCards)
+		copy(tempS,s.Cards)
+		for i := 3; i < 5; i++ {
+			for j := 0; j < lensCards; j++ {
+				ts := tempS[j]
+				if ts!=nil && ts.GetValue() != ret[0].GetValue() {
+					ret[i] = ts
+					log.T("排序葫芦[%v]:[%v]",i,ret[i])
+					tempS[j] = nil
+					break
+				}
+			}
+		}
+	}else if s.ThType == pokerService.THPOKER_TYPE_LIANGDUI{
+		//如果是两队的话,
+
+		yiduiIndex,liangduiIndex,danpai := 0,0,0
+
+		for i := 0; i < lensCards; i++ {
+			if s.Cards[i].GetValue() == s.KeyValue[0] {
+				yiduiIndex = i
+				break
+			}
+		}
+
+		for i := 0; i < lensCards; i++ {
+			if s.Cards[i].GetValue() == s.KeyValue[1] {
+				liangduiIndex = i
+				break
+			}
+		}
+
+		for i := 0; i < lensCards; i++ {
+			if s.Cards[i].GetValue() == s.KeyValue[2] {
+				danpai = i
+				break
+			}
+		}
+
+		copy(ret[0:2],s.Cards[yiduiIndex:yiduiIndex+2])
+		copy(ret[2:4],s.Cards[liangduiIndex:liangduiIndex+2])
+		copy(ret[4:lensCards],s.Cards[danpai:danpai+1])
+
+	}else if s.ThType == pokerService.THPOKER_TYPE_YIDUI{
+		//如果是一对的话,
+		//1,找到一对的坐标
+		tempS := make([]*bbproto.Pai,lensCards)
+		copy(tempS,s.Cards)
+		log.T("temps:[%v]",tempS)
+
+		yiduiIndex := 0
+		for i := 0; i < lensCards; i++ {
+			if s.Cards[i].GetValue() == s.KeyValue[0] {
+				yiduiIndex = i
+				break
+			}
+		}
+		ret[0] = tempS[yiduiIndex]
+		tempS[yiduiIndex] = nil
+		ret[1] = tempS[yiduiIndex+1]
+		tempS[yiduiIndex+1] = nil
+
+		for i := 2; i < 5; i++ {
+			for j := 0; j < lensCards; j++ {
+				ts := tempS[j]
+				if ts!=nil {
+					ret[i] = ts
+					tempS[j] = nil
+					log.T("排序一对[%v],[%v]",i,ret[i])
+					break
+				}
+			}
+		}
+
+	}else{
+		copy(ret,s.Cards)
+	}
+
+	for i := 0; i <lensCards;i++  {
+		log.T("og 排序之后[%v]----[%v]:",i,ret[i].GetValue())
+	}
+	return ret
 }

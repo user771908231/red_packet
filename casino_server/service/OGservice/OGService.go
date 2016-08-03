@@ -6,6 +6,8 @@ import (
 	"casino_server/service/room"
 	"casino_server/common/log"
 	"casino_server/gamedata"
+	"casino_server/service/userService"
+	"errors"
 )
 
 //联众德州,桌子状态
@@ -20,8 +22,6 @@ var (
 	GAME_STATUS_SHOW_RESULT int32 = 7        //完成
 )
 
-
-
 //处理登录游戏的协议
 /**
 	1,判断用户是否已经登陆了游戏
@@ -34,8 +34,16 @@ func HandlerGameEnterMatch(m *bbproto.Game_EnterMatch, a gate.Agent) error {
 	userId := m.GetUserId()				//进入游戏房间的user
 	result := newGame_SendGameInfo()                //需要返回的信息
 
+	roomCoin := int64(0)
+	//1.1 检测参数是否正确,判断userId 是否合法
+	userCheck := userService.CheckUserIdRightful(userId)
+	if userCheck == false {
+		log.E("进入德州扑克的房间的时候,userId[%v]不合法。", userId)
+		return errors.New("用户Id不合法")
+	}
+
 	//1,进入房间,返回房间和错误信息
-	mydesk, err := room.ThGameRoomIns.AddUser(userId, a)
+	mydesk, err := room.ThGameRoomIns.AddUser(userId,roomCoin, a)
 	if err != nil || mydesk == nil {
 		errMsg := err.Error()
 		log.E("用户[%v]进入房间失败,errMsg[%v]",userId,errMsg)
@@ -46,21 +54,19 @@ func HandlerGameEnterMatch(m *bbproto.Game_EnterMatch, a gate.Agent) error {
 	//2 构造信息并且返回
 	initGameSendgameInfoByDesk(mydesk, result,userId)
 	log.T("给请求登陆房间的人[%v]回复信息[%v]",userId,result)
-	a.WriteMsg(result)
 
 	//3 发送进入游戏房间的广播
-	mydesk.OGTHBroadAddUser(userId)
+	mydesk.OGTHBroadAddUser(result)
 
 	//4,最后:确定是否开始游戏, 上了牌桌之后,如果玩家人数大于1,并且游戏处于stop的状态,则直接开始游戏
-	if mydesk.IsTime2begin() {
-		err = run(mydesk)
-		if err != nil {
-			log.E("开始德州扑克游戏的时候失败!")
-			return nil
-		}
-	}
+
+	//如果是朋友桌的话,需要房主点击开始才能开始...
+	go mydesk.OGRun()
+
 	return nil
 }
+
+
 
 
 //初始化一个Game_SendGameInfo
@@ -101,10 +107,10 @@ func initGameSendgameInfoByDesk(mydesk *room.ThDesk, result *bbproto.Game_SendGa
 	*result.DelayTime = int32(0)        //当前延时时间
 	*result.GameStatus = deskStatus2OG(mydesk)
 	*result.Pool = int64(mydesk.Jackpot)                //奖池
-	result.Publiccard = thPublicCard2OGC(mydesk)        //公共牌...
+	result.Publiccard = mydesk.ThPublicCard2OGC()        //公共牌...
 	*result.MinRaise = int64(mydesk.MinRaise)        //最低加注金额
 	*result.NInitActionTime = int32(room.TH_TIMEOUT_DURATION_INT)
-	*result.NInitDelayTime = int32(room.TH_TIMEOUT_DURATION)
+	*result.NInitDelayTime = int32(room.TH_TIMEOUT_DURATION_INT)
 	result.Handcard = mydesk.GetHandCard()		//用户手牌
 	result.HandCoin = mydesk.GetCoin()	//下注的金额
 	//result.HandCoin = mydesk.GetHandCoin()	//下注的金额
@@ -203,15 +209,6 @@ func getTurnCoin(mydesk *room.ThDesk) []int64{
 
 
 
-//手牌转换为OG可以使用的牌
-func thPublicCard2OGC(desk *room.ThDesk) []*bbproto.Game_CardInfo {
-	result := make([]*bbproto.Game_CardInfo, len(desk.PublicPai))
-	for i := 0; i < len(desk.PublicPai); i++ {
-		result[i] = room.ThCard2OGCard(desk.PublicPai[i])
-	}
-	return result
-}
-
 
 //游戏状态的转换
 func deskStatus2OG(desk *room.ThDesk) int32 {
@@ -243,109 +240,7 @@ func deskStatus2OG(desk *room.ThDesk) int32 {
 }
 
 
-//开始游戏
-func  run(mydesk *room.ThDesk)error{
 
-	mydesk.Lock()
-	defer mydesk.Unlock()
-	//1,初始化默认信息
-	err := mydesk.Run()
-	if err != nil {
-		log.E("开始游戏的时候出错errMsg[%v]",err.Error())
-		return err
-	}
-
-	//2.1 盲注开始押注
-	err = mydesk.BlindBet()
-	if err != nil {
-		log.E("盲注下注的时候出错errMsg[%v]",err.Error())
-		return err
-	}
-
-	//2.2,------------------------------------发送盲注的广播------------------------------------
-	log.T("开始广播盲注的信息")
-	blindB := &bbproto.Game_BlindCoin{}
-
-	//初始化指针地址
-	blindB.Banker = new(int32)
-	blindB.Bigblindseat = new(int32)
-	blindB.Smallblindseat = new(int32)
-
-	//初始化默认值
-	blindB.Tableid = &mydesk.Id	//deskid
-	//blindB.Matchid = &room.ThGameRoomIns.Id //roomId
-	*blindB.Banker = int32(mydesk.GetUserIndex(mydesk.Dealer))	//庄
-	blindB.Bigblind = &mydesk.BigBlindCoin	//大盲注
-	blindB.Smallblind = &mydesk.SmallBlindCoin	//小盲注
-	*blindB.Bigblindseat = int32(mydesk.GetUserIndex(mydesk.BigBlind))	//大盲注座位号
-	*blindB.Smallblindseat = int32(mydesk.GetUserIndex(mydesk.SmallBlind))	//小盲注座位号
-	blindB.Coin	= mydesk.GetCoin()	//每个人手中的coin
-	blindB.Handcoin = mydesk.GetHandCoin()	//每个人下注的coin
-	blindB.Pool	= &mydesk.Jackpot	//奖池
-
-	mydesk.THBroadcastProto(blindB,0)
-	//mydesk.Testb(blindB)
-	log.T("广播盲注的信息完毕")
-
-	//3,------------------------------------发送手牌的广播------------------------------------
-	log.T("广播initCard的信息")
-	initCardB := &bbproto.Game_InitCard{}
-
-	//设置默认值
-	initCardB.Tableid = new(int32)
-	initCardB.ActionTime = new(int32)
-	initCardB.DelayTime  = new(int32)
-	initCardB.NextUser = new(int32)
-
-	//设置初始化值
-	*initCardB.Tableid = int32(mydesk.Id)
-	initCardB.HandCard = mydesk.GetHandCard()
-	initCardB.PublicCard = thPublicCard2OGC(mydesk)
-	initCardB.MinRaise = &mydesk.MinRaise
-	*initCardB.NextUser = int32(mydesk.GetUserIndex(mydesk.BetUserNow))
-	*initCardB.ActionTime = room.TH_TIMEOUT_DURATION_INT
-	//initCardB.Seat = &mydesk.UserCount
-	mydesk.THBroadcastProto(initCardB,0)
-
-	log.T("广播initCard的信息完毕")
-	return nil
-}
-
-//处理押注的请求
-//todo 这里需要判断用户是否是allin
-func HandlerFollowBet(m  *bbproto.Game_FollowBet,a gate.Agent) error{
-	log.T("处理用户押注的请求")
-	seatId := m.GetSeat()
-	desk := room.ThGameRoomIns.GetDeskById(m.GetTableid())
-	desk.OgFollowBet(seatId)
-	return nil
-}
-
-
-//处理加注
-func HandlerRaiseBet(m *bbproto.Game_RaiseBet,a gate.Agent) error{
-	seatId := m.GetSeat()
-	desk := room.ThGameRoomIns.GetDeskById(m.GetTableid())
-	desk.OGRaiseBet(seatId,m.GetCoin())
-	return nil
-}
-
-//处理让牌
-func HandlerCheckBet(m *bbproto.Game_CheckBet,a gate.Agent) error{
-	seatId := m.GetSeat()
-	desk := room.ThGameRoomIns.GetDeskById(m.GetTableid())
-	desk.OGCheckBet(seatId)
-	return nil
-}
-
-
-//处理弃牌
-func HandlerFoldBet(m *bbproto.Game_FoldBet,a gate.Agent) error{
-	seatId := m.GetSeat()
-	desk := room.ThGameRoomIns.GetDeskById(m.GetTableid())
-	desk.OgFoldBet(seatId)
-	return nil
-}
 
 
 //通过agent返回UserId

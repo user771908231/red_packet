@@ -11,10 +11,9 @@ import (
 func TestOg(t *testing.T) {
 	 //game_EnterMatch(10007)
 	 //game_EnterMatch(10008)
-	 game_EnterMatch(10009)
-	 game_EnterMatch(10010)
+	 //game_EnterMatch(10009)
+	 //game_EnterMatch(10010)
 	 game_EnterMatch(10011)
-	//gamelogingame(1111)
 	//ogbet(0,20)
 	//ogbet(1,20)
 	//ogbet(2,20)
@@ -60,7 +59,7 @@ func ogbet(seatId int32,coin int64){
 	followData.Seat = &seatId
 	m2 := test.AssembleDataNomd5(uint16(ide2), followData)
 	conn.Write(m2)
-	_ = test.Read(conn).(*bbproto.Game_AckFollowBet)
+	//_ = test.Read(conn).(*bbproto.Game_AckFollowBet)
 }
 
 
@@ -100,5 +99,5 @@ func ogRaise(seatId int32,coin int64){
 	raiseData.Coin = &coin
 	m2 := test.AssembleDataNomd5(uint16(ide2), raiseData)
 	conn.Write(m2)
-	_ = test.Read(conn).(*bbproto.Game_AckRaiseBet)
+	//_ = test.Read(conn).(*bbproto.Game_AckRaiseBet)
 }

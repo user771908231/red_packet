@@ -75,6 +75,7 @@ func init(){
 	//porkMap[53] = "POKER_RED_JOKER"
 	//porkMap[54] = "POKER_BLACK_JOKER"
 
+	porkMap[0] = "POKER_diamond_14_A"
 	porkMap[1]  = "POKER_diamond_2_2"
 	porkMap[2]  = "POKER_diamond_3_3"
 	porkMap[3]  = "POKER_diamond_4_4"
@@ -87,8 +88,8 @@ func init(){
 	porkMap[10] = "POKER_diamond_11_J"
 	porkMap[11] = "POKER_diamond_12_Q"
 	porkMap[12] = "POKER_diamond_13_K"
-	porkMap[13] = "POKER_diamond_14_A"
 
+	porkMap[13] = "POKER_club_14_A"
 	porkMap[14] = "POKER_club_2_2"
 	porkMap[15] = "POKER_club_3_3"
 	porkMap[16] = "POKER_club_4_4"
@@ -101,9 +102,9 @@ func init(){
 	porkMap[23] = "POKER_club_11_J	"
 	porkMap[24] = "POKER_club_12_Q"
 	porkMap[25] = "POKER_club_13_K"
-	porkMap[26] = "POKER_club_14_A"
 
 
+	porkMap[26] = "POKER_heart_14_A"
 	porkMap[27] = "POKER_heart_2_2"
 	porkMap[28] = "POKER_heart_3_3"
 	porkMap[29] = "POKER_heart_4_4"
@@ -116,9 +117,9 @@ func init(){
 	porkMap[36] = "POKER_heart_11_J"
 	porkMap[37] = "POKER_heart_12_Q"
 	porkMap[38] = "POKER_heart_13_K"
-	porkMap[39] = "POKER_heart_14_A"
 
 
+	porkMap[39] = "POKER_spade_14_A"
 	porkMap[40] = "POKER_spade_2_2"
 	porkMap[41] = "POKER_spade_3_3"
 	porkMap[42] = "POKER_spade_4_4"
@@ -131,7 +132,6 @@ func init(){
 	porkMap[49] = "POKER_spade_11_J"
 	porkMap[50] = "POKER_spade_12_Q"
 	porkMap[51] = "POKER_spade_13_K"
-	porkMap[52] = "POKER_spade_14_A"
 
 	porkMap[53] = "POKER_RED_JOKER"
 	porkMap[54] = "POKER_BLACK_JOKER"
@@ -368,7 +368,7 @@ func checkShunzi(a,b,c int32) bool{
 
 func CreateZjhList() ZjhPaiList{
 	result := ZjhPaiList{}
-	indexs := RandomPorkIndex(1,53)	//5组扎金花牌 总共15张牌
+	indexs := RandomPorkIndex(0,52)	//5组扎金花牌 总共15张牌
 	log.T("找到的索引%v",indexs)
 	//fmt.Println("找到的索引%v",indexs)
 	for i := int32(0);i < PLAYER_COUNT;i++ {

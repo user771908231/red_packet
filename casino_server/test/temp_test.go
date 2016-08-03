@@ -6,8 +6,8 @@ import (
 )
 
 func TestTemp(t *testing.T) {
-	var s *string = nil
-	fmt.Println(s)
-	fmt.Println(*s)
+	for i := 2; i < 5; i++ {
+		fmt.Println("i",i)
+	}
 
 }
