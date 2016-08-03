@@ -71,6 +71,8 @@ func HandlerGameEnterMatch(m *bbproto.Game_EnterMatch, a gate.Agent) error {
 }
 
 
+
+
 //初始化一个Game_SendGameInfo
 func newGame_SendGameInfo() *bbproto.Game_SendGameInfo {
 	result := &bbproto.Game_SendGameInfo{}

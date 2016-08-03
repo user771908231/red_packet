@@ -122,7 +122,7 @@ func (t *ThDesk) OgFollowBet(user *ThUser) error {
 	*result.NextSeat	= int32(t.GetUserIndex(t.BetUserNow))		//下一个押注的人
 	*result.HandCoin 	= user.HandCoin
 
-	t.THBroadcastProto(result,0)
+	t.THBroadcastProtoAll(result)
 	return nil
 }
 
