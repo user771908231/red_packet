@@ -627,6 +627,22 @@ func (t *ThDesk) RunTh() error {
 	return nil
 }
 
+
+//初始化前注的信息
+func (t *ThDesk) OinitAnte() error{
+	log.T("开始一局新的游戏,现在开始初始化前注的信息")
+
+	ret := &bbproto.Game_PreCoin{}
+	ret.Pool = new(int64)
+
+	ret.Coin = t.GetCoin()
+	*ret.Pool = 0
+	//ret.Precoin
+	t.THBroadcastProtoAll(ret)
+	log.T("开始一局新的游戏,现在开始初始化前注的信息完毕....")
+	return nil
+}
+
 // 盲注开始押注
 func (t *ThDesk) InitBlindBet() error {
 	log.T("开始一局新的游戏,现在开始初始化盲注的信息")
@@ -822,7 +838,7 @@ func (t *ThDesk) GetResUserModelClieSeq(userId uint32) []*bbproto.THUser {
 
 
 // 	初始化第一个押注的人,当前押注的人
-func (t *ThDesk) OinitThDeskBeginStatus() error {
+func (t *ThDesk) OninitThDeskBeginStatus() error {
 	log.T("开始一局游戏,现在初始化desk的信息")
 	//设置德州desk状态//设置状态为开始游戏
 	t.Status = TH_DESK_STATUS_SART
@@ -1650,14 +1666,22 @@ func (mydesk *ThDesk) OGRun() error {
 	}
 
 	//3,初始化游戏房间的状态
-	mydesk.OinitThDeskBeginStatus()
+	err = mydesk.OninitThDeskBeginStatus()
 	if err != nil {
 		log.E("开始德州扑克游戏,初始化房间的状态的时候报错")
 		return err
 	}
 
 
-	//3 初始化盲注开始押注
+	//3, 初始化前注的信息
+	err = mydesk.OinitAnte()
+	if err != nil {
+		log.E("开始德州扑克游戏,初始化房间的状态的时候报错")
+		return err
+	}
+
+
+	//4 初始化盲注开始押注
 	err = mydesk.InitBlindBet()
 	if err != nil {
 		log.E("盲注下注的时候出错errMsg[%v]", err.Error())
