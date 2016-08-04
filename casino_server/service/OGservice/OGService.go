@@ -67,8 +67,6 @@ func HandlerGameEnterMatch(m *bbproto.Game_EnterMatch, a gate.Agent) error {
 }
 
 
-
-
 //初始化一个Game_SendGameInfo
 func newGame_SendGameInfo() *bbproto.Game_SendGameInfo {
 	result := &bbproto.Game_SendGameInfo{}
@@ -100,11 +98,11 @@ func newGame_SendGameInfo() *bbproto.Game_SendGameInfo {
 func initGameSendgameInfoByDesk(mydesk *room.ThDesk, result *bbproto.Game_SendGameInfo,myUserId uint32) error {
 	//初始化桌子相关的信息
 	*result.Tableid = int32(mydesk.Id)        //桌子的Id
-	*result.TablePlayer = mydesk.UserCount
+	*result.TablePlayer = mydesk.UserCount	  //玩家总人数
 	*result.BankSeat =  mydesk.GetUserByUserId(mydesk.Dealer).Seat //int32(mydesk.GetUserIndex(mydesk.Dealer))        //庄家
 	*result.ChipSeat =  mydesk.GetUserByUserId(mydesk.BetUserNow).Seat //int32(mydesk.GetUserIndex(mydesk.BetUserNow))//当前活动玩家
 	*result.ActionTime = int32(room.TH_TIMEOUT_DURATION_INT)        //当前操作时间,服务器当前的时间
-	*result.DelayTime = int32(0)        //当前延时时间
+	*result.DelayTime = int32(1000)        //当前延时时间
 	*result.GameStatus = deskStatus2OG(mydesk)
 	*result.Pool = int64(mydesk.Jackpot)                //奖池
 	result.Publiccard = mydesk.ThPublicCard2OGC()        //公共牌...

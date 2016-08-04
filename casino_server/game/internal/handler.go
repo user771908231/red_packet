@@ -253,6 +253,16 @@ func handlerGameLoginGame(args []interface{}){
 	a.WriteMsg(result)
 }
 
+
+
+//用户创建一个房间
+func handlerCreateDesk(args []interface{}){
+	//userId := uint32(0)
+	//diamond := int64(0)		//房卡就是钻石...
+}
+
+
+
 // 处理请求进入游戏房间
 func  handlerGameEnterMatch(args []interface{}){
 	m := args[0].(*bbproto.Game_EnterMatch)
