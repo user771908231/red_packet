@@ -99,7 +99,6 @@ type ThGameRoom struct {
 
 //初始化游戏房间
 func (r *ThGameRoom) OnInit() {
-	//r.ThDeskBuf = make([]*ThDesk, GAME_THROOM_MAX_COUNT)	//直接使用append方法来动态添加,不使用先创建一个池子的方式
 	r.ThRoomSeatMax = TH_DESK_MAX_START_USER
 	r.Id = 0
 	r.SmallBlindCoin = TH_GAME_SMALL_BLIND;
@@ -111,13 +110,37 @@ func (r *ThGameRoom) Run() {
 }
 
 
+//判断roomkey是否已经存在了
+func (r *ThGameRoom) IsRoomKeyExist(roomkey string) bool {
+	ret := false
+	for i := 0; i < len(r.ThDeskBuf); i++ {
+		d := r.ThDeskBuf[i]
+		if d != nil && d.RoomKey == roomkey {
+			ret = true
+			break
+		}
+	}
+	return ret
+}
+
+//创建一个房间
+func (r *ThGameRoom) CreateDeskByUserIdAndRoomKey(userId uint32, diamond int64, roomkey string) *ThDesk {
+	desk := NewThDesk()
+	desk.RoomKey = roomkey
+	desk.deskOwner = userId
+	r.AddThRoom(desk)
+	return desk
+}
+
+
+
+
 //增加一个thRoom
-func (r *ThGameRoom) AddThRoom(index int, throom *ThDesk) error {
-	throom.Id = int32(index)
-	//r.ThDeskBuf[index] = throom
+func (r *ThGameRoom) AddThRoom(throom *ThDesk) error {
 	r.ThDeskBuf = append(r.ThDeskBuf, throom)
 	return nil
 }
+
 
 //删除一个throom
 func (r *ThGameRoom) RmThroom(number int32) error {
@@ -198,7 +221,7 @@ func (r *ThGameRoom) GetDeskByUserId(userId uint32) *ThDesk {
 }
 
 //游戏大厅增加一个玩家
-func (r *ThGameRoom) AddUser(userId uint32, roomCoin int64, a gate.Agent) (*ThDesk, error) {
+func (r *ThGameRoom) AddUser(userId uint32, roomCoin int64, roomKey string, a gate.Agent) (*ThDesk, error) {
 	//进入房间的操作需要加锁
 	r.Lock()
 	defer r.Unlock()
@@ -215,6 +238,7 @@ func (r *ThGameRoom) AddUser(userId uint32, roomCoin int64, a gate.Agent) (*ThDe
 		//替换User的agent
 		u.agent = a
 		u.Status = TH_USER_STATUS_BETING        //设置为可以跟注的情况
+		desk.UserCountOnline ++
 		//绑定参数
 		userAgentData := &gamedata.AgentUserData{}
 		userAgentData.UserId = userId
@@ -226,32 +250,26 @@ func (r *ThGameRoom) AddUser(userId uint32, roomCoin int64, a gate.Agent) (*ThDe
 
 	//2,查询哪个德州的房间缺人:循环每个德州的房间,然后查询哪个房间缺人
 	var mydesk *ThDesk = nil
-	var index int = 0
-	if len(r.ThDeskBuf) > 0 {
-		//log.T("当前拥有的ThDesk 的数量[%v]",len(room.ThGameRoomIns.ThDeskBuf))
-		for deskIndex := 0; deskIndex < len(r.ThDeskBuf); deskIndex++ {
-			if r.ThDeskBuf[deskIndex] != nil {
-				mydesk = r.ThDeskBuf[deskIndex]        //通过roomId找到德州的room
-				mydesk.LogString()
-				//log.T("每个desk限制的最大人数是[%v]", r.ThRoomSeatMax)
-				if mydesk.UserCount < r.ThRoomSeatMax {
-					//log.T("room.index[%v]有空的座位,", deskIndex)
-					break;
-				}
-			} else {
-				mydesk = nil
-				index = deskIndex
-				log.T("deskId[%v]为nil,直接返回.", deskIndex)
-				break
-			}
+
+	//log.T("当前拥有的ThDesk 的数量[%v]",len(room.ThGameRoomIns.ThDeskBuf))
+	for deskIndex := 0; deskIndex < len(r.ThDeskBuf); deskIndex++ {
+		tempDesk := r.ThDeskBuf[deskIndex]
+		if tempDesk == nil {
+			log.E("找到房间为nil,出错")
+			break
+		}
+		if tempDesk.UserCount < r.ThRoomSeatMax && tempDesk.RoomKey == roomKey {
+			mydesk = tempDesk        //通过roomId找到德州的room
+			break;
 		}
 	}
+
 
 	//如果没有可以使用的桌子,那么重新创建一个,并且放进游戏大厅
 	if len(r.ThDeskBuf) == 0 || mydesk == nil {
 		log.T("没有多余的desk可以用,重新创建一个desk")
 		mydesk = NewThDesk()
-		r.AddThRoom(index, mydesk)
+		r.AddThRoom(mydesk)
 	}
 
 	//3,进入房间
@@ -448,6 +466,8 @@ type ThDesk struct {
 	AllInJackpot       []*pokerService.AllInJackpot //allin的标记
 	MinRaise           int64                        //最低加注金额
 	CanRaise           int32                        //是否能加注
+	deskOwner          uint32                       //房主的id
+	RoomKey            string                       //room 自定义房间的钥匙
 }
 
 /**
@@ -456,7 +476,7 @@ type ThDesk struct {
 func NewThDesk() *ThDesk {
 	result := new(ThDesk)
 	result.AgentMap = make(map[uint32]gate.Agent)
-	result.Id = 0
+	result.Id = newThDeskId()
 	result.UserCount = 0
 	result.UserCountOnline = 0
 	result.Dealer = 0                //不需要创建  默认就是为空
@@ -476,6 +496,25 @@ func NewThDesk() *ThDesk {
 	result.Status = TH_DESK_STATUS_STOP        //游戏还没有开始的状态
 	result.CanRaise = 1
 	return result
+}
+
+
+//获取数据库的id
+func newThDeskId() int32 {
+	// 获取连接 connection
+	c, err := mongodb.Dial(casinoConf.DB_IP, casinoConf.DB_PORT)
+	if err != nil {
+		fmt.Println(err)
+		return 0
+	}
+	defer c.Close()
+
+	// 获取回话 session
+	s := c.Ref()
+	defer c.UnRef(s)
+
+	id, _ := c.NextSeq(casinoConf.DB_NAME, casinoConf.DBT_T_TH_DESK, casinoConf.DB_ENSURECOUNTER_KEY)
+	return int32(id)
 }
 
 func (t *ThDesk) LogString() {

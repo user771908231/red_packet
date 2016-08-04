@@ -257,11 +257,11 @@ func handlerGameLoginGame(args []interface{}){
 
 //用户创建一个房间
 func handlerCreateDesk(args []interface{}){
-	//userId := uint32(0)
-	//diamond := int64(0)		//房卡就是钻石...
+	userId := uint32(0)
+	diamond := int64(0)		//房卡就是钻石...
+	roomKey :=  ""
+	OGservice.HandlerCreateDesk(userId,diamond,roomKey)
 }
-
-
 
 // 处理请求进入游戏房间
 func  handlerGameEnterMatch(args []interface{}){

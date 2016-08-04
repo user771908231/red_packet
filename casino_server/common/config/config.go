@@ -148,6 +148,12 @@ func InitMongoDb() error{
 		return err
 	}
 
+	//为德州桌子 thdesk
+	err = c.EnsureCounter(casinoConf.DB_NAME, casinoConf.DBT_T_DESK, casinoConf.DB_ENSURECOUNTER_KEY)
+	if err != nil {
+		return err
+	}
+
 	return nil
 }
 

@@ -22,6 +22,28 @@ var (
 	GAME_STATUS_SHOW_RESULT int32 = 7        //完成
 )
 
+
+/**
+	用户通过钻石创建游戏房间
+ */
+
+func HandlerCreateDesk(userId uint32,diamond int64,roomKey string) error{
+
+	//1,判断roomKey是否已经存在
+	if room.ThGameRoomIns.IsRoomKeyExist(roomKey) {
+		log.E("房间密钥[%v]已经存在,创建房间失败",roomKey)
+		return errors.New("房间密钥已经存在,创建房间失败")
+	}
+
+	//2,开始创建房间
+	desk := room.ThGameRoomIns.CreateDeskByUserIdAndRoomKey(userId,diamond,roomKey);
+	log.T("",desk)
+	//3,根据返回的desk返回创建房间的信息
+	return nil
+
+}
+
+
 //处理登录游戏的协议
 /**
 	1,判断用户是否已经登陆了游戏
@@ -43,7 +65,7 @@ func HandlerGameEnterMatch(m *bbproto.Game_EnterMatch, a gate.Agent) error {
 	}
 
 	//1,进入房间,返回房间和错误信息
-	mydesk, err := room.ThGameRoomIns.AddUser(userId,roomCoin, a)
+	mydesk, err := room.ThGameRoomIns.AddUser(userId,roomCoin,"", a)
 	if err != nil || mydesk == nil {
 		errMsg := err.Error()
 		log.E("用户[%v]进入房间失败,errMsg[%v]",userId,errMsg)
