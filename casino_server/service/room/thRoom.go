@@ -233,9 +233,9 @@ func (r *ThGameRoom) AddUser(userId uint32, roomCoin int64, a gate.Agent) (*ThDe
 			if r.ThDeskBuf[deskIndex] != nil {
 				mydesk = r.ThDeskBuf[deskIndex]        //通过roomId找到德州的room
 				mydesk.LogString()
-				log.T("每个desk限制的最大人数是[%v]", r.ThRoomSeatMax)
+				//log.T("每个desk限制的最大人数是[%v]", r.ThRoomSeatMax)
 				if mydesk.UserCount < r.ThRoomSeatMax {
-					log.T("room.index[%v]有空的r座位,", deskIndex)
+					//log.T("room.index[%v]有空的座位,", deskIndex)
 					break;
 				}
 			} else {
@@ -784,7 +784,7 @@ func (t *ThDesk) GetResUserModelClieSeq(userId uint32) []*bbproto.THUser {
 
 // 	初始化第一个押注的人,当前押注的人
 func (t *ThDesk) OinitThDeskBeginStatus() error {
-	log.T("开始一句游戏,现在初始化desk的信息")
+	log.T("开始一局游戏,现在初始化desk的信息")
 	//设置德州desk状态//设置状态为开始游戏
 	t.Status = TH_DESK_STATUS_SART
 
@@ -865,7 +865,10 @@ func (t *ThDesk) OinitThDeskBeginStatus() error {
 	log.T("初始化游戏之后,当前轮数Id[%v]", t.RoundCount)
 	log.T("初始化游戏之后,当前jackpot[%v]", t.Jackpot)
 	log.T("初始化游戏之后,当前bianJackpot[%v]", t.bianJackpot)
-	log.T("开始一句游戏,现在初始化desk的信息完毕...")
+	log.T("初始化游戏之后,当前总人数[%v]", t.UserCount)
+	log.T("初始化游戏之后,当前在线人数[%v]", t.UserCountOnline)
+
+	log.T("开始一局游戏,现在初始化desk的信息完毕...")
 
 	return nil
 }
@@ -1139,7 +1142,7 @@ func (t *ThDesk) Lottery() error {
 	t.Status = TH_DESK_STATUS_STOP        //设置喂没有开始开始游戏
 
 	//开奖时间是在5秒之后开奖
-	time.Sleep(time.Second * 5)
+	time.Sleep(TH_LOTTERY_DURATION)
 	go t.OGRun()
 
 	return nil
@@ -1565,7 +1568,7 @@ func (t *ThDesk) CheckBetUserBySeat(user *ThUser) bool {
 
 //是不是可以开始游戏了
 func (t *ThDesk) IsTime2begin() bool {
-
+	log.T("判断是否可以开始一局新的游戏")
 	/**
 		开始游戏的要求:
 		1,[在线]用户的人数达到了最低可玩人数
@@ -1587,7 +1590,7 @@ func (mydesk *ThDesk) OGRun() error {
 	mydesk.Lock()
 	mydesk.Unlock()
 
-	log.T("重新开始一局游戏")
+	log.T("\n\n开始一局新的游戏\n\n")
 	//1,判断是否可以开始游戏
 	if !mydesk.IsTime2begin() {
 		return nil
@@ -1641,6 +1644,8 @@ func (mydesk *ThDesk) OGRun() error {
 	//initCardB.Seat = &mydesk.UserCount
 	mydesk.THBroadcastProto(initCardB, 0)
 	log.T("广播Game_InitCard的信息完毕")
+
+	log.T("\n\n开始一局新的游戏,初始化完毕\n\n")
 	return nil
 }
 

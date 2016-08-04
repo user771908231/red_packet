@@ -380,7 +380,7 @@ func (mydesk *ThDesk ) GetHandCard() []*bbproto.Game_CardInfo {
 					result = append(result, gc)
 				}
 			}else{
-				log.T("玩家[%v]刚刚进房间,等待别人完成游戏,所以手牌为空",u.UserId)
+				log.T("玩家[%v]的手牌为空",u.UserId)
 				gc := &bbproto.Game_CardInfo{}
 				gc.Color = new(int32)
 				gc.Value = new(int32)
