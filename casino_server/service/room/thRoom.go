@@ -1588,7 +1588,7 @@ func (t *ThDesk) IsTime2begin() bool {
 //开始游戏
 func (mydesk *ThDesk) OGRun() error {
 	mydesk.Lock()
-	mydesk.Unlock()
+	defer mydesk.Unlock()
 
 	log.T("\n\n开始一局新的游戏\n\n")
 	//1,判断是否可以开始游戏
