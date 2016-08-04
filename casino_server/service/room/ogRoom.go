@@ -189,10 +189,13 @@ func (t *ThDesk) OGRaiseBet(user *ThUser,coin int64) error{
 	//押注成功返回要住成功的消息
 	result := &bbproto.Game_AckRaiseBet{}
 	result.NextSeat = new(int32)
+	result.MinRaise = new(int64)
+
 	result.Coin = &t.BetAmountNow        			//本轮压了多少钱
 	result.Seat = &user.Seat                			//座位id
 	result.Tableid = &t.Id
 	result.CanRaise	= &t.CanRaise		     		//是否能加注
+	*result.MinRaise = t.MinRaise
 	*result.NextSeat = t.GetUserByUserId(t.BetUserNow).Seat	//int32(t.GetUserIndex(t.BetUserNow))		//下一个押注的人
 	result.HandCoin = &user.HandCoin			//表示需要加注多少
 
