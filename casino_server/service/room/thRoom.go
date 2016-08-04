@@ -27,8 +27,8 @@ import (
 var TH_GAME_SMALL_BLIND int64 = 10                //小盲注的金额
 var THROOM_SEAT_COUNT int32 = 8                //玩德州扑克,每个房间最多多少人
 var GAME_THROOM_MAX_COUNT int32 = 500                //一个游戏大厅最多有多少桌德州扑克
-var TH_TIMEOUT_DURATION = time.Second * 15       //德州出牌的超时时间
-var TH_TIMEOUT_DURATION_INT int32 = 15       //德州出牌的超时时间
+var TH_TIMEOUT_DURATION = time.Second * 150       //德州出牌的超时时间
+var TH_TIMEOUT_DURATION_INT int32 = 150       //德州出牌的超时时间
 
 var TH_LOTTERY_DURATION = time.Second * 5       //德州开奖的时间
 
@@ -42,10 +42,10 @@ var TH_USER_STATUS_SEATED int32 = 2                //刚上桌子 游戏中的�
 var TH_USER_STATUS_BETING int32 = 3                //押注中
 var TH_USER_STATUS_ALLINING int32 = 4        //allIn
 var TH_USER_STATUS_FOLDED int32 = 5                //弃牌
-var TH_USER_STATUS_WAIT_CLOSED int32 = 5                //等待结算
-var TH_USER_STATUS_CLOSED int32 = 6                //已经结算
-var TH_USER_STATUS_LEAVE int32 = 7                //
-var TH_USER_STATUS_BREAK int32 = 8                //已经结算
+var TH_USER_STATUS_WAIT_CLOSED int32 = 6                //等待结算
+var TH_USER_STATUS_CLOSED int32 = 7                //已经结算
+var TH_USER_STATUS_LEAVE int32 = 8                //
+var TH_USER_STATUS_BREAK int32 = 9                //已经结算
 
 
 //德州扑克,牌桌的状态
@@ -871,12 +871,12 @@ func (t *ThDesk) Tiem2Lottery() bool {
 	//var TH_USER_STATUS_BETING int32 = 3                //押注中
 	//var TH_USER_STATUS_ALLINING int32 = 4        //allIn
 	//var TH_USER_STATUS_FOLDED int32 = 5                //弃牌
-	//var TH_USER_STATUS_WAIT_CLOSED int32 = 5                //等待结算
-	//var TH_USER_STATUS_CLOSED int32 = 6                //已经结算
-	//var TH_USER_STATUS_LEAVE int32 = 7                //
-	//var TH_USER_STATUS_BREAK int32 = 8                //已经结算
+	//var TH_USER_STATUS_WAIT_CLOSED int32 = 6                //等待结算
+	//var TH_USER_STATUS_CLOSED int32 = 7                //已经结算
+	//var TH_USER_STATUS_LEAVE int32 = 8                //
+	//var TH_USER_STATUS_BREAK int32 = 9                //已经结算
 	 */
-	log.T("判断是否应该开奖,打印每个人的信息:")
+	log.T("判断是否应该开奖,打印每个人的信息://1,刚上桌子,2,坐下,3押注中,4,allin,5,弃牌,6,等待结算,7,已经结算,8,离线,9断线")
 	for i := 0; i < len(t.Users); i++ {
 		u := t.Users[i]
 		if u != nil {
@@ -1032,12 +1032,9 @@ func (t *ThDesk) SetStatusWaitClose() error {
  */
 
 func (t *ThDesk) Lottery() error {
-	if !t.Tiem2Lottery() {
-		return nil
-	}
-
 	log.T("现在开始开奖,并且发放奖励....")
-	//log.T("现在开始开奖,计算奖励之前t.getWinCoinInfo()[%v]", t.getWinCoinInfo())
+
+	//todo 开奖之前 是否需要把剩下的牌 全部发完
 
 	//设置用户的状态都为的等待开奖
 	t.SetStatusWaitClose()
@@ -1127,6 +1124,8 @@ func (t *ThDesk) Lottery() error {
 	log.T("开奖结束,设置desk的状态为stop")
 	t.Status = TH_DESK_STATUS_STOP        //设置喂没有开始开始游戏
 
+	//开奖时间是在5秒之后开奖
+	time.Sleep(time.Second*5)
 	go t.OGRun()
 
 	return nil
@@ -1352,13 +1351,10 @@ func (t *ThDesk) NextBetUser() error {
 		log.T("设置下次押注的人是小盲注,下轮次[%v]", t.RoundCount)
 	}
 
-	//用户开始等待,如果超时,需要做超时的处理
-	waitUser := t.GetUserByUserId(t.BetUserNow)
-	waitUser.wait()
-
-	//打印测试信息
+	//打印当前桌子的信息
 	t.LogString()
 	return nil
+
 }
 
 //下一轮
@@ -1367,10 +1363,6 @@ func (t *ThDesk) nextRoundInfo() {
 	if !t.isNewRound() {
 		return
 	}
-
-	//todo test 发送下一轮的时候,先延时1秒
-	//time.Sleep(time.Second * 1)
-	//todo 清空handCoin 的时间是什么时候
 
 	log.T("本次设置的押注人和之前的是同一个人,所以开始第[%v]轮的游戏", t.RoundCount)
 	//一轮完之后需要发送完成的消息
@@ -1418,7 +1410,9 @@ func (t *ThDesk) nextRoundInfo() {
 
 //判断是否是新的一局
 func (t *ThDesk) isNewRound() bool {
-	if t.BetUserRaiseUserId == t.BetUserNow {
+	//
+	log.T("判断是否是新的一轮t.BetUserRaiseUserId[%v],t.BetUserNow(%v),t.status[%v].//status:1,stop,2,start,3,lottery",t.BetUserRaiseUserId,t.BetUserNow,t.Status)
+	if t.BetUserRaiseUserId == t.BetUserNow &&  t.Status == TH_DESK_STATUS_SART{
 		log.T("t.BetUserRaiseUserId[%v] == t.BetUserNow[%v],新的一局开始", t.BetUserRaiseUserId, t.BetUserNow)
 		return true
 	} else {

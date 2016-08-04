@@ -80,7 +80,15 @@ func (t *ThDesk) OGBet(seatId int32,betType int32,coin int64) error{
 	}
 
 	t.nextRoundInfo()	//广播新一局的信息
-	t.Lottery()		//开奖
+
+	if t.Tiem2Lottery() {
+		log.T("现在可以开奖了:")
+		return t.Lottery()
+	}else{
+		//用户开始等待,如果超时,需要做超时的处理
+		t.GetUserByUserId(t.BetUserNow).wait()		//当前押注的人开始等待
+		return nil
+	}		//开奖
 	return nil
 }
 
