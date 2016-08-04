@@ -570,7 +570,11 @@ func OGTHCardPaixu(s *pokerService.ThCards) []*bbproto.Pai{
 			}
 		}
 
-	}else{
+	}else if s.ThType == pokerService.THPOKER_TYPE_SHUNZI && s.IsWheel{
+		copy(ret[0:4], s.Cards[1:5])
+		copy(ret[4:5], s.Cards[0:1])
+
+	} else{
 		copy(ret,s.Cards)
 	}
 
