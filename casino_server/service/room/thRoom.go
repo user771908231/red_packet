@@ -631,10 +631,8 @@ func (t *ThDesk) RunTh() error {
 //初始化前注的信息
 func (t *ThDesk) OinitAnte() error{
 	log.T("开始一局新的游戏,现在开始初始化前注的信息")
-
 	ret := &bbproto.Game_PreCoin{}
 	ret.Pool = new(int64)
-
 	ret.Coin = t.GetCoin()
 	*ret.Pool = 0
 	//ret.Precoin
@@ -710,16 +708,16 @@ func (t *ThDesk) OnInitCards() error {
 
 	//得到所有的牌,前五张为公共牌,后边的每两张为手牌
 	t.PublicPai = totalCards[0:5]
-
+	log.T("初始化得到的公共牌的信息:")
 	//给每个人分配手牌
 	for i := 0; i < len(t.Users); i++ {
 		if t.Users[i] != nil {
 			begin := i * 2 + 5
 			end := i * 2 + 5 + 2
 			t.Users[i].Cards = totalCards[begin:end]
-			//log.T("用户[%v]的手牌[%v]", t.Users[i].UserId, t.Users[i].Cards)
+			log.T("用户[%v]的手牌[%v]", t.Users[i].UserId, t.Users[i].Cards)
 			t.Users[i].thCards = pokerService.GetTHPoker(t.Users[i].Cards, t.PublicPai, 5)
-			//log.T("用户[%v]的:拍类型,所有牌[%v],th[%v]", t.Users[i].UserId, t.Users[i].thCards.ThType, t.Users[i].thCards.Cards, t.Users[i].thCards)
+			log.T("用户[%v]的:拍类型,所有牌[%v],th[%v]", t.Users[i].UserId, t.Users[i].thCards.ThType, t.Users[i].thCards.Cards, t.Users[i].thCards)
 		}
 	}
 	log.T("开始一局新的游戏,初始化牌的信息完毕...")
