@@ -51,13 +51,15 @@ func testCompare() {
 
 func initCardTest() {
 	//轮子13 2 17 3 41 1 20 35 24 29 40 33 47 27 18 39 37 36 51 4 16
-	wheel := []int32{13, 2, 17, 3, 41, 1, 20, 35, 24, 29, 40, 33, 47, 27, 18, 39, 37, 36, 51, 4, 16}
-	testRandomCards(wheel)
+	//wheel := []int32{13, 2, 17, 3, 41, 1, 20, 35, 24, 29, 40, 33, 47, 27, 18, 39, 37, 36, 51, 4, 16}
+
+	//葫芦
+	hulu   :=   []int32{25, 20, 33,7, 3, 41,51,  35, 17, 24, 29, 40, 47, 27, 18, 39, 37, 36, 4, 16,37}//检测葫芦是否验证成功
+	testRandomCards(hulu)
 
 }
 
 func testRandomCards(randomIndex []int32) {
-
 	var total = 21; //人数*手牌+5张公共牌
 	totalCards := pokerService.RandomTHPorkCards(total)        //得到牌
 	//得到所有的牌,前五张为公共牌,后边的每两张为手牌

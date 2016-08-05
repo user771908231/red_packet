@@ -1628,6 +1628,14 @@ func (t *ThDesk) IsTime2begin() bool {
 		2,当前的状态是游戏停止的状态
 	 */
 
+	log.T("当前玩家的状态://")
+	for i := 0; i < len(t.Users); i++ {
+		u := t.Users[i]
+		if u != nil {
+			log.T("用户[%v].seat[]的状态是[%v]",u.UserId,u.Seat,u.Status)
+		}
+	}
+
 	log.T("当前在线玩家的数量是[%v],当前desk的状态是[%v],1未开始,2游戏中,3,开奖中", t.UserCountOnline, t.Status)
 	if t.UserCountOnline >= TH_DESK_LEAST_START_USER  && t.Status == TH_DESK_STATUS_STOP {
 		log.T("游戏到了开始的时候----begin----")

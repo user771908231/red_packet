@@ -263,6 +263,7 @@ func (t *ThCards) OnInitWheelStatus() {
 //初始化葫芦
 func (t *ThCards) OnInitHuLuStatus() {
 	if t.SanTiaoCount == 1 && t.DuiziCount == 1 {
+		t.IsHulu = true
 		t.ThType = THPOKER_TYPE_HULU
 		//初始化比较值
 		s := t.CardsStatistics
@@ -517,6 +518,8 @@ func RandomTHPorkIndex(min, max, total int) []int32 {
 		}
 	}
 	//result = []int32{13, 2, 17, 3, 41, 1, 20, 35, 24, 29, 40, 33, 47, 27, 18, 39, 37, 36, 51, 4, 16}	//检测轮子是否验证成功的代码
+	result =   []int32{25, 20, 33,7, 3, 41,51,  35, 17, 24, 29, 40, 47, 27, 18, 39, 37, 36, 4, 16,37}        //检测葫芦是否验证成功
+
 	return result;
 }
 
