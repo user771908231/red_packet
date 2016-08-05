@@ -323,9 +323,19 @@ type ThUser struct {
 	winAmountDetail []int64               //赢钱的详细
 	TurnCoin        int64                 //单轮押注(总共四轮)的金额
 	HandCoin        int64                 //用户下注多少钱、指单局
-	Coin            int64                 //用户余额多少钱
+	//Coin            int64                 //用户余额多少钱,总余额  ///*****暂时不用这个字段,用户的余额都从redis取出来
 	RoomCoin        int64                 //用户上分的金额
 	NickName        string                //用户昵称
+}
+
+
+func (t *ThUser) GetCoin() int64{
+	redu := userService.GetUserById(t.UserId)
+	if redu == nil {
+		return -1
+	}else{
+		return redu.GetCoin()
+	}
 }
 
 //
@@ -557,6 +567,7 @@ func (t *ThDesk) LogStirngWinCoin() {
  */
 func (t *ThDesk) AddThUser(userId uint32, roomCoin int64, a gate.Agent) error {
 
+	//从redis得到redisUser
 	redisUser := userService.GetUserById(userId)
 	//通过userId 和agent 够做一个thuser
 	thUser := NewThUser()
@@ -565,9 +576,8 @@ func (t *ThDesk) AddThUser(userId uint32, roomCoin int64, a gate.Agent) error {
 	thUser.Status = TH_USER_STATUS_WAITSEAT        //刚进房间的玩家
 	thUser.deskId = t.Id                //桌子的id
 	thUser.NickName = *redisUser.NickName
-	thUser.Coin = *redisUser.Coin
 
-	log.T("初始化thuser的时候coin[%v]:", thUser.Coin)
+	log.T("初始化thuser的时候coin[%v]:", thUser.GetCoin())
 
 	//添加thuser
 	for i := 0; i < len(t.Users); i++ {
@@ -690,7 +700,6 @@ func (t *ThDesk) InitUserBeginStatus() error {
 			u.TurnCoin = 0
 			u.winAmount = 0
 			u.winAmountDetail = nil
-			u.Coin = userService.GetUserById(u.UserId).GetCoin()        //去redis中的数据
 		}
 	}
 
@@ -1135,9 +1144,9 @@ func (t *ThDesk) Lottery() error {
 					//可以发送奖金
 					log.T("用户在allin.index[%v]活的奖金[%v]", i, bonus)
 					u.winAmount += bonus
-					u.Coin += bonus
 					u.RoomCoin += bonus
 					u.winAmountDetail = append(u.winAmountDetail, bonus)
+					userService.IncreasUserCoin(u.UserId,bonus)
 				}
 
 				//如果用户是这个奖金池all in的用户,则此用户设置喂已经结清的状态
@@ -1160,9 +1169,9 @@ func (t *ThDesk) Lottery() error {
 			//对这个用户做结算...
 			log.T("现在开始开奖,计算边池的奖励,user[%v]得到[%v]....", u.UserId, bbonus)
 			u.winAmount += bbonus
-			u.Coin += bbonus
 			u.RoomCoin += bbonus
 			u.winAmountDetail = append(u.winAmountDetail, bbonus)        //详细的奖励(边池主池分开)
+			userService.IncreasUserCoin(u.UserId,bbonus)
 		}
 
 		//设置为结算完了的状态
@@ -1386,7 +1395,6 @@ func (t *ThDesk) caclUserCoin(userId uint32, coin int64) error {
 	user.TurnCoin += coin
 	user.HandCoin += coin
 	user.TotalBet += coin
-	user.Coin -= coin
 	user.RoomCoin -= coin
 	userService.DecreaseUserCoin(userId, coin)
 	return nil

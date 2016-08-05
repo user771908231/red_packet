@@ -44,7 +44,7 @@ func printGameinfo(){
 				}else{
 					log.T("-----------打印desk[%v]的用户[%v]的id[%v]--------" ,i,j,u.UserId)
 					log.T("-----------打印desk[%v]的用户[%v]的HandCoin[%v]--------" ,i,j,u.HandCoin)
-					log.T("-----------打印desk[%v]的用户[%v]Coin[%v]--------" ,i,j,u.Coin)
+					log.T("-----------打印desk[%v]的用户[%v]Coin[%v]--------" ,i,j,u.GetCoin())
 					log.T("-----------打印desk[%v]的用户[%v]cards[%v]--------" ,i,j,u.Cards)
 					log.T("-----------打印desk[%v]的用户[%v]iStatus[%v]--------" ,i,j,u.Status)
 					log.T("-----------打印desk[%v]的用户[%v]TotalBet[%v]--------" ,i,j,u.TotalBet)

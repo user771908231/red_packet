@@ -118,7 +118,7 @@ func (t *ThDesk) OgFollowBet(user *ThUser) error {
 	result.Pool = new(int64)
 	result.HandCoin = new(int64)
 
-	*result.Coin		= user.Coin
+	*result.Coin		= user.GetCoin()
 	*result.Seat		= user.Seat                		//座位id
 	*result.Tableid		= t.Id
 	//*result.CanRaise	= t.CanRaise		     		//是否能加注
@@ -299,7 +299,7 @@ func (mydesk *ThDesk) GetCoin() []int64{
 	for i := 0; i < len(mydesk.Users); i++ {
 		u := mydesk.Users[i]
 		if u != nil {
-			result = append(result,int64(u.Coin))
+			result = append(result,int64(u.GetCoin()))
 		}
 	}
 	return result
