@@ -55,8 +55,7 @@ func HandlerGameEnterMatch(m *bbproto.Game_EnterMatch, a gate.Agent) error {
 
 	userId := m.GetUserId()				//进入游戏房间的user
 	result := newGame_SendGameInfo()                //需要返回的信息
-
-	roomCoin := int64(0)
+	roomCoin := int64(1000)				//to do 暂时设置为1000
 	//1.1 检测参数是否正确,判断userId 是否合法
 	userCheck := userService.CheckUserIdRightful(userId)
 	if userCheck == false {
@@ -132,8 +131,8 @@ func initGameSendgameInfoByDesk(mydesk *room.ThDesk, result *bbproto.Game_SendGa
 	*result.NInitActionTime = int32(room.TH_TIMEOUT_DURATION_INT)
 	*result.NInitDelayTime = int32(room.TH_TIMEOUT_DURATION_INT)
 	result.Handcard = mydesk.GetHandCard()		//用户手牌
-	result.HandCoin = mydesk.GetCoin()	//下注的金额
-	//result.HandCoin = mydesk.GetHandCoin()	//下注的金额
+	//result.HandCoin = mydesk.GetCoin()	//下注的金额
+	result.HandCoin = mydesk.GetRoomCoin()	//带入金额
 	result.TurnCoin = getTurnCoin(mydesk)
 	*result.Seat	= mydesk.GetUserByUserId(myUserId).Seat	//int32(mydesk.GetUserIndex(myUserId))	//我
 

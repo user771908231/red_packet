@@ -53,6 +53,8 @@ func (t *ThDesk) OGBet(seatId int32,betType int32,coin int64) error{
 	//1,得到跟注的用户
 	if !t.CheckBetUserBySeat(user) {
 		log.E("押注人的状态不正确")
+		//当状态不正确的时候 直接弃牌
+		t.OgFoldBet(user)
 		return errors.New("押注人的状态不正确")
 	}
 
@@ -311,6 +313,20 @@ func (mydesk *ThDesk) GetCoin() []int64{
 	}
 	return result
 }
+
+
+//得到roomCoin
+func (mydesk *ThDesk) GetRoomCoin() []int64{
+	var result []int64
+	for i := 0; i < len(mydesk.Users); i++ {
+		u := mydesk.Users[i]
+		if u != nil {
+			result = append(result,int64(u.GetRoomCoin()))
+		}
+	}
+	return result
+}
+
 
 
 //解析每个人下注的金额

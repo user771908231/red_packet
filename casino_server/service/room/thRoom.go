@@ -338,6 +338,10 @@ func (t *ThUser) GetCoin() int64{
 	}
 }
 
+func (t *ThUser) GetRoomCoin() int64{
+	return t.RoomCoin
+}
+
 //
 func (t *ThUser) trans2bbprotoThuser() *bbproto.THUser {
 
@@ -443,6 +447,7 @@ func NewThUser() *ThUser {
 	result.TurnCoin = 0
 	result.TotalBet = 0
 	result.winAmount = 0
+	result.RoomCoin = 0
 	return result
 }
 
@@ -576,7 +581,7 @@ func (t *ThDesk) AddThUser(userId uint32, roomCoin int64, a gate.Agent) error {
 	thUser.Status = TH_USER_STATUS_WAITSEAT        //刚进房间的玩家
 	thUser.deskId = t.Id                //桌子的id
 	thUser.NickName = *redisUser.NickName
-
+	thUser.RoomCoin = roomCoin
 	log.T("初始化thuser的时候coin[%v]:", thUser.GetCoin())
 
 	//添加thuser
@@ -643,7 +648,8 @@ func (t *ThDesk) OinitAnte() error{
 	log.T("开始一局新的游戏,现在开始初始化前注的信息")
 	ret := &bbproto.Game_PreCoin{}
 	ret.Pool = new(int64)
-	ret.Coin = t.GetCoin()
+	//ret.Coin = t.GetCoin()
+	ret.Coin  = t.GetRoomCoin()
 	*ret.Pool = 0
 	//ret.Precoin
 	t.THBroadcastProtoAll(ret)
@@ -677,7 +683,8 @@ func (t *ThDesk) InitBlindBet() error {
 	blindB.Smallblind = &t.SmallBlindCoin        //小盲注
 	*blindB.Bigblindseat = t.GetUserByUserId(t.BigBlind).Seat        //	int32(t.GetUserIndex(t.BigBlind))        //大盲注座位号
 	*blindB.Smallblindseat = t.GetUserByUserId(t.SmallBlind).Seat        //int32(t.GetUserIndex(t.SmallBlind))        //小盲注座位号
-	blindB.Coin = t.GetCoin()        //每个人手中的coin
+	//blindB.Coin = t.GetCoin()        //每个人手中的coin
+	blindB.Coin = t.GetRoomCoin()
 	blindB.Handcoin = t.GetHandCoin()        //每个人下注的coin
 	blindB.Pool = &t.Jackpot        //奖池
 	t.THBroadcastProto(blindB, 0)
@@ -914,6 +921,7 @@ func (t *ThDesk) OninitThDeskBeginStatus() error {
 	t.MinRaise = t.BigBlindCoin
 	t.Jackpot = 0
 	t.bianJackpot = 0
+	t.AllInJackpot = nil			  // 初始化allInJackpot 为空
 
 	//本次押注的热开始等待
 	waitUser := t.GetUserByUserId(t.BetUserNow)
@@ -1458,7 +1466,8 @@ func (t *ThDesk) nextRoundInfo() {
 	*sendData.MinRaise = t.MinRaise
 	*sendData.NextSeat = t.GetUserByUserId(t.BetUserNow).Seat        //int32(t.GetUserIndex(t.BetUserNow))
 	sendData.Handcoin = t.GetHandCoin()
-	sendData.Coin = t.GetCoin()
+	//sendData.Coin = t.GetCoin()
+	sendData.Coin = t.GetRoomCoin()
 	*sendData.Pool = t.Jackpot
 	sendData.SecondPool = t.GetSecondPool()
 	t.THBroadcastProto(sendData, 0)
@@ -1631,6 +1640,11 @@ func (t *ThDesk) CheckBetUserBySeat(user *ThUser) bool {
 		return false
 	}
 
+	if user.RoomCoin <= 0 {
+		log.E("用户的带入金额小于0,所以不能押注或者投注了")
+		return false
+	}
+
 	//用户合法,设置等待状态
 	user.InitWait()
 	return true
@@ -1645,11 +1659,12 @@ func (t *ThDesk) IsTime2begin() bool {
 		2,当前的状态是游戏停止的状态
 	 */
 
-	log.T("当前玩家的状态://")
+
+	log.T("当前玩家的状态://1,等待开始,2,游戏中,3,押注中,4,allin,5,弃牌,6,等待结算,7,已经结算,8,裂开,9,掉线")
 	for i := 0; i < len(t.Users); i++ {
 		u := t.Users[i]
 		if u != nil {
-			log.T("用户[%v].seat[]的状态是[%v]",u.UserId,u.Seat,u.Status)
+			log.T("用户[%v].seat[%v]的状态是[%v]",u.UserId,u.Seat,u.Status)
 		}
 	}
 
