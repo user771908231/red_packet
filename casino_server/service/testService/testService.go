@@ -55,8 +55,6 @@ func printGameinfo(){
 				log.T("-----------打印desk[%v]的用户[%v]的信息,end----------" ,i,j)
 			}
 			log.T("-----------打印desk[%v]的用户的信息,end----------" ,i)
-
-
 		}else{
 			log.T("-----------desk[%v]==nil--------" ,i)
 		}

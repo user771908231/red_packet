@@ -98,7 +98,10 @@ func (t *ThDesk) OgFollowBet(user *ThUser) error {
 
 	//1,押注
 	log.T("用户[%v]开始押注",user.UserId)
-	err := t.BetUserCall(user.UserId)
+
+	//这里需要判断是跟住还是全下
+	err := t.BetUserCall(user)
+
 	if err != nil {
 		log.E("跟注的时候出错了.errMsg[%v],", err.Error())
 	}
@@ -177,7 +180,11 @@ func (t *ThDesk) OGRaiseBet(user *ThUser,coin int64) error{
 	//1,得到跟注的用户,检测用户
 
 	//2,开始处理加注
-	err := t.BetUserRaise(user.UserId,coin)
+
+	//这里需要判断加注是否是all in
+
+
+	err := t.BetUserRaise(user,coin)
 	if err != nil {
 		log.E("跟注的时候出错了.errMsg[%v],", err.Error())
 	}

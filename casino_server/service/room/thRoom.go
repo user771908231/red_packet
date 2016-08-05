@@ -1275,13 +1275,18 @@ func (t *ThDesk) GetWinCount() int {
 
 //跟注:跟注的时候 不需要重新设置押注的人
 //只是跟注,需要减少用户的资产,增加奖池的金额
-func (t *ThDesk) BetUserCall(userId uint32) error {
-	coin := t.BetAmountNow - t.GetUserByUserId(userId).HandCoin
+func (t *ThDesk) BetUserCall(user  *ThUser) error {
 	//log.T("用户[%v]押注coin[%v]", userId, coin)
-	//1,增加奖池的金额
-	t.AddBetCoin(coin)
-	//增加用户本轮投注的金额
-	t.caclUserCoin(userId, coin)
+	followCoin := t.BetAmountNow - user.HandCoin
+	if user.RoomCoin <= followCoin{
+		//allin
+		t.BetUserAllIn(user.UserId,followCoin)
+	}else {
+		//1,增加奖池的金额
+		t.AddBetCoin(followCoin)
+		//2,增加用户本轮投注的金额
+		t.caclUserCoin(user.UserId, followCoin)
+	}
 	return nil
 }
 
@@ -1336,18 +1341,22 @@ func (t *ThDesk) BetUserCheck(userId uint32) error {
 }
 
 //用户加注
-func (t *ThDesk) BetUserRaise(userId uint32, coin int64) error {
+func (t *ThDesk) BetUserRaise(user *ThUser, coin int64) error {
 	t.BetAmountNow += coin
-	betCoin := t.BetAmountNow - t.GetUserByUserId(userId).HandCoin
-	//1,增加奖池的金额
-	t.AddBetCoin(betCoin)                                //desk-coin
-	//2,减少用户的金额
-	t.caclUserCoin(userId, betCoin)                        //thuser
-	userService.DecreaseUserCoin(userId, betCoin)        //redis-user
+	betCoin := t.BetAmountNow - user.HandCoin
 
-	//3,设置状态:设置为第一个加注的人,如果后边所有人都是跟注,可由这个人判断一轮是否结束
-	t.BetUserRaiseUserId = userId
-
+	if betCoin == user.RoomCoin {
+		// allin
+		t.BetUserAllIn(user.UserId,betCoin)
+	}else {
+		//1,增加奖池的金额
+		t.AddBetCoin(betCoin)                                //desk-coin
+		//2,减少用户的金额
+		t.caclUserCoin(user.UserId, betCoin)                        //thuser
+		userService.DecreaseUserCoin(user.UserId, betCoin)        //redis-user
+		//3,设置状态:设置为第一个加注的人,如果后边所有人都是跟注,可由这个人判断一轮是否结束
+		t.BetUserRaiseUserId = user.UserId
+	}
 	return nil
 }
 

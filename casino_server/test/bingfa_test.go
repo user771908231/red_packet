@@ -14,8 +14,8 @@ func TestBingfa(t *testing.T) {
 	}
 	defer conn.Close()
 
-	var s string = "ll"
-	ide2 := int32(15972)
+	var s string = "ogg"
+	ide2 := int32(0)
 	data2 := &bbproto.TestP1{}
 	data2.Name2 = &s
 	m2 := test.AssembleDataNomd5(uint16(ide2), data2)
