@@ -53,11 +53,8 @@ func (t *ThDesk) OGBet(seatId int32,betType int32,coin int64) error{
 	//1,得到跟注的用户
 	if !t.CheckBetUserBySeat(user) {
 		log.E("押注人的状态不正确")
-		//当状态不正确的时候 直接弃牌
-		t.OgFoldBet(user)
 		return errors.New("押注人的状态不正确")
 	}
-
 
 	switch betType {
 	case TH_DESK_BET_TYPE_BET:
@@ -123,7 +120,7 @@ func (t *ThDesk) OgFollowBet(user *ThUser) error {
 	result.Pool = new(int64)
 	result.HandCoin = new(int64)
 
-	*result.Coin		= user.GetCoin()
+	*result.Coin		= user.GetRoomCoin()
 	*result.Seat		= user.Seat                		//座位id
 	*result.Tableid		= t.Id
 	//*result.CanRaise	= t.CanRaise		     		//是否能加注
@@ -148,7 +145,7 @@ func (t *ThDesk) OgFoldBet(user  *ThUser) error {
 		t.NextNewRoundBetUser()
 	}
 	user.Status = TH_USER_STATUS_FOLDED
-
+	user.BreakStatus = TH_USER_STATUS_FOLDED	//把断线之前的状态设置为弃牌
 
 	//2,初始化下一个押注的人
 	t.NextBetUser()

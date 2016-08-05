@@ -273,7 +273,6 @@ func  handlerGameEnterMatch(args []interface{}){
 
 //处理跟注
 func handlerFollowBet(args []interface{}){
-	log.T("处理用户押注的请求")
 	m := args[0].(*bbproto.Game_FollowBet)
 	seatId := m.GetSeat()
 	desk := room.ThGameRoomIns.GetDeskById(m.GetTableid())

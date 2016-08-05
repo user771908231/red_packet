@@ -34,12 +34,16 @@ func init() {
 	rand.Seed(s)
 }
 
-
-
 func main() {
 	log.T("main start...")
-	lconf.LogLevel = conf.Server.LogLevel	//通过 conf/server.json 去初始化conf.Server
-	lconf.LogPath = conf.Server.LogPath	//conf.Server.LogPath
+	lconf.LogLevel = conf.Server.LogLevel        //通过 conf/server.json 去初始化conf.Server
+	lconf.LogPath = conf.Server.LogPath        //conf.Server.LogPath
+
+	//后台管理
+	go func() {
+		log.T("web start...")
+		//casinoWeb.InitCms()
+	}()
 
 	//初始化三个模块,主函数入口
 	leaf.Run(

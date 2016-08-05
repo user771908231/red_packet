@@ -41,9 +41,9 @@ var TH_USER_STATUS_WAITSEAT int32 = 1        //刚上桌子 等待开始的玩�
 var TH_USER_STATUS_SEATED int32 = 2                //刚上桌子 游戏中的玩家
 var TH_USER_STATUS_BETING int32 = 3                //押注中
 var TH_USER_STATUS_ALLINING int32 = 4        //allIn
-var TH_USER_STATUS_FOLDED int32 = 5                //弃牌
-var TH_USER_STATUS_WAIT_CLOSED int32 = 6                //等待结算
-var TH_USER_STATUS_CLOSED int32 = 7                //已经结算
+var TH_USER_STATUS_FOLDED int32 = 5               //弃牌
+var TH_USER_STATUS_WAIT_CLOSED int32 = 6          //等待结算
+var TH_USER_STATUS_CLOSED int32 = 7               //已经结算
 var TH_USER_STATUS_LEAVE int32 = 8                //
 var TH_USER_STATUS_BREAK int32 = 9                //已经结算
 
@@ -237,7 +237,7 @@ func (r *ThGameRoom) AddUser(userId uint32, roomCoin int64, roomKey string, a ga
 
 		//替换User的agent
 		u.agent = a
-		u.Status = TH_USER_STATUS_BETING        //设置为可以跟注的情况
+		u.Status = u.BreakStatus        //设置为可以跟注的情况
 		desk.UserCountOnline ++
 		//绑定参数
 		userAgentData := &gamedata.AgentUserData{}
@@ -264,9 +264,8 @@ func (r *ThGameRoom) AddUser(userId uint32, roomCoin int64, roomKey string, a ga
 		}
 	}
 
-
 	//如果没有可以使用的桌子,那么重新创建一个,并且放进游戏大厅
-	if len(r.ThDeskBuf) == 0 || mydesk == nil {
+	if mydesk == nil {
 		log.T("没有多余的desk可以用,重新创建一个desk")
 		mydesk = NewThDesk()
 		r.AddThRoom(mydesk)
@@ -278,12 +277,6 @@ func (r *ThGameRoom) AddUser(userId uint32, roomCoin int64, roomKey string, a ga
 		log.E("用户上德州扑克的桌子 失败...")
 		return nil, err
 	}
-
-	//4, 把用户的信息绑定到agent上
-	userAgentData := &gamedata.AgentUserData{}
-	userAgentData.UserId = userId
-	userAgentData.ThDeskId = mydesk.Id
-	a.SetUserData(userAgentData)
 
 	mydesk.LogString()        //答应当前房间的信息
 
@@ -313,6 +306,7 @@ type ThUser struct {
 	Seat            int32                 //用户的座位号
 	agent           gate.Agent            //agent
 	Status          int32                 //当前的状态
+	BreakStatus	int32		      //离线前的状态,当重新连接的时候,需要回复之前的状态
 	Cards           []*bbproto.Pai        //手牌
 	thCards         *pokerService.ThCards //手牌加公共牌取出来的值,这个值可以实在结算的时候来取
 	waiTime         time.Time             //等待时间
@@ -411,6 +405,7 @@ func (t *ThUser) TimeOut(timeNow time.Time) (bool, error) {
 		if err != nil {
 			log.E("用户[%v]弃牌失败", t.UserId)
 		}
+		//这里需要设置为弃牌的状态
 		log.T("玩家[%v]超时,现在做超时的处理,处理完毕", t.UserId)
 		return true, err
 	} else {
@@ -572,9 +567,9 @@ func (t *ThDesk) LogStirngWinCoin() {
  */
 func (t *ThDesk) AddThUser(userId uint32, roomCoin int64, a gate.Agent) error {
 
-	//从redis得到redisUser
+	//1,从redis得到redisUser
 	redisUser := userService.GetUserById(userId)
-	//通过userId 和agent 够做一个thuser
+	//2,通过userId 和agent 够做一个thuser
 	thUser := NewThUser()
 	thUser.UserId = userId
 	thUser.agent = a
@@ -582,9 +577,9 @@ func (t *ThDesk) AddThUser(userId uint32, roomCoin int64, a gate.Agent) error {
 	thUser.deskId = t.Id                //桌子的id
 	thUser.NickName = *redisUser.NickName
 	thUser.RoomCoin = roomCoin
-	log.T("初始化thuser的时候coin[%v]:", thUser.GetCoin())
+	log.T("初始化thuser的时候coin[%v]:,roomCoin[%v]", thUser.GetCoin(),thUser.GetRoomCoin())
 
-	//添加thuser
+	//3,添加thuser
 	for i := 0; i < len(t.Users); i++ {
 		if t.Users[i] == nil {
 			thUser.Seat = int32(i)                //给用户设置位置编号
@@ -597,7 +592,14 @@ func (t *ThDesk) AddThUser(userId uint32, roomCoin int64, a gate.Agent) error {
 		}
 	}
 
-	//等待的用户加1
+	//4, 把用户的信息绑定到agent上
+	userAgentData := &gamedata.AgentUserData{}
+	userAgentData.UserId = userId
+	userAgentData.ThDeskId = t.Id
+	a.SetUserData(userAgentData)
+
+
+	//5,等待的用户加1
 	t.UserCount ++
 	t.UserCountOnline ++
 	t.AgentMap[userId] = a
@@ -620,6 +622,9 @@ func (t *ThDesk) SetOfflineStatus(userId uint32) error {
 
 	u := t.GetUserByUserId(userId)
 	//1,设置状态为断线
+
+	//这里需要保存掉线钱的状态
+	u.BreakStatus = u.Status
 	u.Status = TH_USER_STATUS_BREAK
 	t.UserCountOnline --
 	return nil
@@ -1412,7 +1417,7 @@ func (t *ThDesk) caclUserCoin(userId uint32, coin int64) error {
 	user.TurnCoin += coin
 	user.HandCoin += coin
 	user.TotalBet += coin
-	user.RoomCoin -= coin
+	user.RoomCoin -= coin		//这里暂时不处理roomCoin,roomCoin是在每一轮结束的时候来结算
 	userService.DecreaseUserCoin(userId, coin)
 	return nil
 }
@@ -1443,6 +1448,7 @@ func (t *ThDesk) NextBetUser() error {
 		t.BetUserNow = t.NewRoundBetUser
 		t.BetAmountNow = 0        //下一句重新开始的时候,设置当前押注的人为0
 		t.RoundCount ++
+
 		log.T("设置下次押注的人是小盲注,下轮次[%v]", t.RoundCount)
 	}
 
@@ -1477,6 +1483,7 @@ func (t *ThDesk) nextRoundInfo() {
 		u := t.Users[i]
 		if u != nil {
 			u.HandCoin = 0
+			u.TurnCoin = 0
 		}
 	}
 
@@ -1615,19 +1622,6 @@ func (t *ThDesk) CalcAllInJackpot() error {
 	return nil
 
 }
-
-
-//清楚用户本轮押注的信息
-func (t *ThDesk) ClearUserRoundBet() error {
-	for i := 0; i < len(t.Users); i++ {
-		u := t.Users[i]
-		if u != nil {
-			u.TurnCoin = 0
-		}
-	}
-	return nil
-}
-
 func (t *ThDesk) CheckBetUserBySeat(user *ThUser) bool {
 	//2,判断押注的用户是否是当前的用户
 	if t.BetUserNow != user.UserId {
