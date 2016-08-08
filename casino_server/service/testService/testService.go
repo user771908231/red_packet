@@ -24,7 +24,6 @@ func printGameinfo(){
 	//循环desk打印信息
 	log.T("-----------打印游戏信息--------")
 
-
 	for i := 0; i < len(game.ThDeskBuf); i++ {
 		d := game.ThDeskBuf[i]
 		log.T("-----------打印desk[%v]的信息,begin--------" ,i)

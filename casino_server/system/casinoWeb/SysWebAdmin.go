@@ -23,3 +23,4 @@ func gameInfo(w http.ResponseWriter,r *http.Request) {
 	p := room.ThGameRoomIns.ThDeskBuf[0]
 	t.Execute(w,p)
 }
+

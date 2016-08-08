@@ -53,6 +53,59 @@ func HandlerCreateDesk(userId uint32,diamond int64,roomKey string) error{
 func HandlerGameEnterMatch(m *bbproto.Game_EnterMatch, a gate.Agent) error {
 	log.T("用户请求进入德州扑克的游戏房间,m[%v]",m)
 
+	var err error					//错误信息
+	var mydesk *room.ThDesk				//用户需要进入的房间
+	userId := m.GetUserId()				//进入游戏房间的user
+	result := newGame_SendGameInfo()                //需要返回的信息
+	roomCoin := int64(1000)				//to do 暂时设置为1000
+	roomKey := string(m.GetPassWord())		//房间的roomkey
+
+	//1.1 检测参数是否正确,判断userId 是否合法
+	userCheck := userService.CheckUserIdRightful(userId)
+	if userCheck == false {
+		log.E("进入德州扑克的房间的时候,userId[%v]不合法。", userId)
+		return errors.New("用户Id不合法")
+	}
+
+
+	//1,进入房间,返回房间和错误信息
+	if roomKey == "" {
+		mydesk, err = room.ThGameRoomIns.AddUser(userId,roomCoin, a)
+	}else {
+		mydesk, err = room.ThGameRoomIns.AddUserWithRoomKey(userId,roomCoin,roomKey, a)
+	}
+
+	if err != nil || mydesk == nil {
+		errMsg := err.Error()
+		log.E("用户[%v]进入房间失败,errMsg[%v]",userId,errMsg)
+		a.WriteMsg(result)
+		return err
+	}
+
+	//2 构造信息并且返回
+	initGameSendgameInfoByDesk(mydesk, result,userId)
+	log.T("给请求登陆房间的人[%v]回复信息[%v]",userId,result)
+
+	//3 发送进入游戏房间的广播
+	mydesk.OGTHBroadAddUser(result)
+
+	//4,最后:确定是否开始游戏, 上了牌桌之后,如果玩家人数大于1,并且游戏处于stop的状态,则直接开始游戏
+
+	//如果是朋友桌的话,需要房主点击开始才能开始...
+	go mydesk.OGRun()
+
+	return nil
+}
+
+//处理登录游戏的协议
+/**
+	1,判断用户是否已经登陆了游戏
+	2,如果已经登陆了游戏,替换现有的agent
+	3,如果没有登陆游戏,走正常的流程
+ */
+func HandlerGameEnterMatchWithRoomKey(m *bbproto.Game_EnterMatch, a gate.Agent) error {
+	log.T("用户请求进入德州扑克的游戏房间,m[%v]",m)
+
 	userId := m.GetUserId()				//进入游戏房间的user
 	result := newGame_SendGameInfo()                //需要返回的信息
 	roomCoin := int64(1000)				//to do 暂时设置为1000
@@ -169,9 +222,9 @@ func isAllIn(u *room.ThUser) int32 {
 }
 
 
-//判断是否allIn
+//判断是否是掉线
 func isBreak(u *room.ThUser) int32 {
-	if u.Status == room.TH_USER_STATUS_BREAK {
+	if u.BreakStatus == room.TH_USER_BREAK_STATUS_TRUE {
 		return 1
 	} else {
 		return 0

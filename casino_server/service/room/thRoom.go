@@ -19,6 +19,7 @@ import (
 	"casino_server/mode"
 	"gopkg.in/mgo.v2/bson"
 	"casino_server/gamedata"
+	"client/a"
 )
 
 
@@ -45,7 +46,9 @@ var TH_USER_STATUS_FOLDED int32 = 5               //弃牌
 var TH_USER_STATUS_WAIT_CLOSED int32 = 6          //等待结算
 var TH_USER_STATUS_CLOSED int32 = 7               //已经结算
 var TH_USER_STATUS_LEAVE int32 = 8                //
-var TH_USER_STATUS_BREAK int32 = 9                //已经结算
+
+var TH_USER_BREAK_STATUS_TRUE = 1                //已经断线
+var TH_USER_BREAK_STATUS_FALSE = 0                //没有断线
 
 
 //德州扑克,牌桌的状态
@@ -179,15 +182,23 @@ func (r *ThGameRoom) GetDeskById(id int32) *ThDesk {
 }
 
 //通过UserId判断是不是重复进入房间
-func (r *ThGameRoom) IsRepeatIntoRoom(userId uint32) bool {
-	//todo 是否可以考虑把桌子的id放进agent的userdata中,这样查询方便一些
+func (r *ThGameRoom) IsRepeatIntoRoom(userId uint32,a gate.Agent) *ThDesk {
 	//新的判断的代码
-	result := r.GetDeskByUserId(userId)
-	if result == nil {
-		return false
-	} else {
-		return true
+	desk := r.GetDeskByUserId(userId)
+	if result != nil {
+		log.T("用户[%v]重新进入房间了", userId)
+		u := desk.GetUserByUserId(userId)
+		//替换User的agent
+		u.agent = a
+		u.BreakStatus = TH_USER_BREAK_STATUS_FALSE        //设置没有掉线的情况
+		desk.UserCountOnline ++
+		//绑定参数
+		userAgentData := &gamedata.AgentUserData{}
+		userAgentData.UserId = userId
+		userAgentData.ThDeskId = desk.Id
+		a.SetUserData(userAgentData)
 	}
+	return desk
 }
 
 /**
@@ -220,45 +231,80 @@ func (r *ThGameRoom) GetDeskByUserId(userId uint32) *ThDesk {
 	return result
 }
 
+/**
+	通过roomKey 找到desk
+ */
+func (r *ThGameRoom) GetDeskByRoomKey(roomKey string) *ThDesk {
+	var result *ThDesk
+	desks := ThGameRoomIns.ThDeskBuf
+	for i := 0; i < len(desks); i++ {
+		desk := desks[i]
+		if desk != nil {
+			desk.RoomKey == roomKey
+			result = desk
+			break
+		}
+	}
+	return result
+}
+
+
+/**
+	给指定的房间增加用户
+ */
+func (r *ThGameRoom) AddUserWithRoomKey(userId uint32, roomCoin int64, roomKey string, a gate.Agent) (*ThDesk, error) {
+	//1,首先判断roomKey 是否喂空
+	if roomKey == "" {
+		return nil, errors.New("房间密码不应该为空")
+	}
+
+	//2,如果roomKey 不是为""
+	mydesk := r.GetDeskByRoomKey(roomKey)
+	if mydesk == nil {
+		return nil, errors.New("没有找到对应的房间")
+	}
+
+	//3,判断用户是否是掉线重连
+	isRepeat := mydesk.IsrepeatIntoWithRoomKey(userId, a)
+	if isRepeat {
+		return mydesk,nil
+	}
+
+	//4,进入房间
+	err := mydesk.AddThUser(userId, roomCoin, a)
+	if err != nil {
+		log.E("用户上德州扑克的桌子 失败...")
+		return nil, err
+	}
+
+	mydesk.LogString()        //答应当前房间的信息
+
+	return mydesk, nil
+
+}
 //游戏大厅增加一个玩家
-func (r *ThGameRoom) AddUser(userId uint32, roomCoin int64, roomKey string, a gate.Agent) (*ThDesk, error) {
+func (r *ThGameRoom) AddUser(userId uint32, roomCoin int64, a gate.Agent) (*ThDesk, error) {
 	//进入房间的操作需要加锁
 	r.Lock()
 	defer r.Unlock()
 	log.T("userid【%v】进入德州扑克的房间", userId)
 
-	//1.2 判断用户是否已经在房间里了,如果是在房间里,那么替换现有的agent,
-	isRepeat := r.IsRepeatIntoRoom(userId)
-	if isRepeat {
-		log.T("用户[%v]重新进入房间了", userId)
-		//通过userId 找到桌子和room
-		desk := r.GetDeskByUserId(userId)
-		u := desk.GetUserByUserId(userId)
+	var mydesk *ThDesk = nil                //为用户找到的desk
 
-		//替换User的agent
-		u.agent = a
-		u.Status = u.BreakStatus        //设置为可以跟注的情况
-		desk.UserCountOnline ++
-		//绑定参数
-		userAgentData := &gamedata.AgentUserData{}
-		userAgentData.UserId = userId
-		userAgentData.ThDeskId = desk.Id
-		a.SetUserData(userAgentData)
-		return desk, nil
+	//1,判断用户是否已经在房间里了,如果是在房间里,那么替换现有的agent,
+	mydesk = r.IsRepeatIntoRoom(userId,a)
+	if mydesk != nil {
+		return mydesk, nil
 	}
 
-
 	//2,查询哪个德州的房间缺人:循环每个德州的房间,然后查询哪个房间缺人
-	var mydesk *ThDesk = nil
-
-	//log.T("当前拥有的ThDesk 的数量[%v]",len(room.ThGameRoomIns.ThDeskBuf))
 	for deskIndex := 0; deskIndex < len(r.ThDeskBuf); deskIndex++ {
 		tempDesk := r.ThDeskBuf[deskIndex]
 		if tempDesk == nil {
 			log.E("找到房间为nil,出错")
 			break
 		}
-		if tempDesk.UserCount < r.ThRoomSeatMax && tempDesk.RoomKey == roomKey {
+		if tempDesk.UserCount < r.ThRoomSeatMax {
 			mydesk = tempDesk        //通过roomId找到德州的room
 			break;
 		}
@@ -306,7 +352,7 @@ type ThUser struct {
 	Seat            int32                 //用户的座位号
 	agent           gate.Agent            //agent
 	Status          int32                 //当前的状态
-	BreakStatus	int32		      //离线前的状态,当重新连接的时候,需要回复之前的状态
+	BreakStatus     int32                 //离线前的状态,当重新连接的时候,需要回复之前的状态
 	Cards           []*bbproto.Pai        //手牌
 	thCards         *pokerService.ThCards //手牌加公共牌取出来的值,这个值可以实在结算的时候来取
 	waiTime         time.Time             //等待时间
@@ -317,22 +363,21 @@ type ThUser struct {
 	winAmountDetail []int64               //赢钱的详细
 	TurnCoin        int64                 //单轮押注(总共四轮)的金额
 	HandCoin        int64                 //用户下注多少钱、指单局
-	//Coin            int64                 //用户余额多少钱,总余额  ///*****暂时不用这个字段,用户的余额都从redis取出来
+					      //Coin            int64                 //用户余额多少钱,总余额  ///*****暂时不用这个字段,用户的余额都从redis取出来
 	RoomCoin        int64                 //用户上分的金额
 	NickName        string                //用户昵称
 }
 
-
-func (t *ThUser) GetCoin() int64{
+func (t *ThUser) GetCoin() int64 {
 	redu := userService.GetUserById(t.UserId)
 	if redu == nil {
 		return -1
-	}else{
+	} else {
 		return redu.GetCoin()
 	}
 }
 
-func (t *ThUser) GetRoomCoin() int64{
+func (t *ThUser) GetRoomCoin() int64 {
 	return t.RoomCoin
 }
 
@@ -560,7 +605,20 @@ func (t *ThDesk) LogStirngWinCoin() {
 }
 
 
-
+//判断是否重新进入
+func (t *ThDesk) IsrepeatIntoWithRoomKey(userId uint32, a gate.Agent) bool {
+	//1,先判断用户是否已经在房间了
+	for i := 0; i < len(t.Users); i ++ {
+		u := t.Users[i]
+		if u != nil && u.UserId == userId {
+			//如果u!=nil 那么
+			u.agent = a						//设置用户的连接
+			u.BreakStatus = TH_USER_BREAK_STATUS_FALSE		//设置用户的离线状态
+			return true
+		}
+	}
+	return false
+}
 
 /**
 	为桌子增加一个人
@@ -577,7 +635,7 @@ func (t *ThDesk) AddThUser(userId uint32, roomCoin int64, a gate.Agent) error {
 	thUser.deskId = t.Id                //桌子的id
 	thUser.NickName = *redisUser.NickName
 	thUser.RoomCoin = roomCoin
-	log.T("初始化thuser的时候coin[%v]:,roomCoin[%v]", thUser.GetCoin(),thUser.GetRoomCoin())
+	log.T("初始化thuser的时候coin[%v]:,roomCoin[%v]", thUser.GetCoin(), thUser.GetRoomCoin())
 
 	//3,添加thuser
 	for i := 0; i < len(t.Users); i++ {
@@ -624,8 +682,7 @@ func (t *ThDesk) SetOfflineStatus(userId uint32) error {
 	//1,设置状态为断线
 
 	//这里需要保存掉线钱的状态
-	u.BreakStatus = u.Status
-	u.Status = TH_USER_STATUS_BREAK
+	u.BreakStatus = TH_USER_BREAK_STATUS_TRUE        //设置为掉线的状态
 	t.UserCountOnline --
 	return nil
 
@@ -649,12 +706,12 @@ func (t *ThDesk) RunTh() error {
 
 
 //初始化前注的信息
-func (t *ThDesk) OinitAnte() error{
+func (t *ThDesk) OinitAnte() error {
 	log.T("开始一局新的游戏,现在开始初始化前注的信息")
 	ret := &bbproto.Game_PreCoin{}
 	ret.Pool = new(int64)
 	//ret.Coin = t.GetCoin()
-	ret.Coin  = t.GetRoomCoin()
+	ret.Coin = t.GetRoomCoin()
 	*ret.Pool = 0
 	//ret.Precoin
 	t.THBroadcastProtoAll(ret)
@@ -926,7 +983,7 @@ func (t *ThDesk) OninitThDeskBeginStatus() error {
 	t.MinRaise = t.BigBlindCoin
 	t.Jackpot = 0
 	t.bianJackpot = 0
-	t.AllInJackpot = nil			  // 初始化allInJackpot 为空
+	t.AllInJackpot = nil                          // 初始化allInJackpot 为空
 
 	//本次押注的热开始等待
 	waitUser := t.GetUserByUserId(t.BetUserNow)
@@ -1159,7 +1216,7 @@ func (t *ThDesk) Lottery() error {
 					u.winAmount += bonus
 					u.RoomCoin += bonus
 					u.winAmountDetail = append(u.winAmountDetail, bonus)
-					userService.IncreasUserCoin(u.UserId,bonus)
+					userService.IncreasUserCoin(u.UserId, bonus)
 				}
 
 				//如果用户是这个奖金池all in的用户,则此用户设置喂已经结清的状态
@@ -1173,27 +1230,33 @@ func (t *ThDesk) Lottery() error {
 	//计算边池的奖金	t.bianJackpot,同样需要看是几个人赢,然后评分将近
 	log.T("现在开始开奖,计算边池的奖励....")
 	bwinCount := t.GetWinCount()
-	var bbonus int64 = t.bianJackpot / int64(bwinCount)
-	for i := 0; i < len(t.Users); i++ {
-		u := t.Users[i]
 
-		if u != nil && u.Status == TH_USER_STATUS_WAIT_CLOSED && u.thCards.IsWin {
-			//
-			//对这个用户做结算...
-			log.T("现在开始开奖,计算边池的奖励,user[%v]得到[%v]....", u.UserId, bbonus)
-			u.winAmount += bbonus
-			u.RoomCoin += bbonus
-			u.winAmountDetail = append(u.winAmountDetail, bbonus)        //详细的奖励(边池主池分开)
-			userService.IncreasUserCoin(u.UserId,bbonus)
-		}
+	log.T("获奖的人数:[%v]", bwinCount)
+	if bwinCount != 0 {
 
-		//设置为结算完了的状态
-		if u != nil {
-			u.Status = TH_USER_STATUS_CLOSED        //结算完了之后需要,设置用户的状态为已经结算
+		var bbonus int64 = t.bianJackpot / int64(bwinCount)
+		for i := 0; i < len(t.Users); i++ {
+			u := t.Users[i]
+
+			if u != nil && u.Status == TH_USER_STATUS_WAIT_CLOSED && u.thCards.IsWin {
+				//
+				//对这个用户做结算...
+				log.T("现在开始开奖,计算边池的奖励,user[%v]得到[%v]....", u.UserId, bbonus)
+				u.winAmount += bbonus
+				u.RoomCoin += bbonus
+				u.winAmountDetail = append(u.winAmountDetail, bbonus)        //详细的奖励(边池主池分开)
+				userService.IncreasUserCoin(u.UserId, bbonus)
+			}
+
+			//设置为结算完了的状态
+			if u != nil {
+				u.Status = TH_USER_STATUS_CLOSED        //结算完了之后需要,设置用户的状态为已经结算
+			}
+
 		}
+		//log.T	("现在开始开奖,计算奖励之后t.getWinCoinInfo()[%v]", t.getWinCoinInfo())
 
 	}
-	//log.T("现在开始开奖,计算奖励之后t.getWinCoinInfo()[%v]", t.getWinCoinInfo())
 
 	//todo 这里需要删除 打印测试信息的代码
 	t.LogStirngWinCoin()
@@ -1291,10 +1354,10 @@ func (t *ThDesk) GetWinCount() int {
 func (t *ThDesk) BetUserCall(user  *ThUser) error {
 	//log.T("用户[%v]押注coin[%v]", userId, coin)
 	followCoin := t.BetAmountNow - user.HandCoin
-	if user.RoomCoin <= followCoin{
+	if user.RoomCoin <= followCoin {
 		//allin
-		t.BetUserAllIn(user.UserId,followCoin)
-	}else {
+		t.BetUserAllIn(user.UserId, followCoin)
+	} else {
 		//1,增加奖池的金额
 		t.AddBetCoin(followCoin)
 		//2,增加用户本轮投注的金额
@@ -1360,8 +1423,8 @@ func (t *ThDesk) BetUserRaise(user *ThUser, coin int64) error {
 
 	if betCoin == user.RoomCoin {
 		// allin
-		t.BetUserAllIn(user.UserId,betCoin)
-	}else {
+		t.BetUserAllIn(user.UserId, betCoin)
+	} else {
 		//1,增加奖池的金额
 		t.AddBetCoin(betCoin)                                //desk-coin
 		//2,减少用户的金额
@@ -1417,7 +1480,7 @@ func (t *ThDesk) caclUserCoin(userId uint32, coin int64) error {
 	user.TurnCoin += coin
 	user.HandCoin += coin
 	user.TotalBet += coin
-	user.RoomCoin -= coin		//这里暂时不处理roomCoin,roomCoin是在每一轮结束的时候来结算
+	user.RoomCoin -= coin                //这里暂时不处理roomCoin,roomCoin是在每一轮结束的时候来结算
 	userService.DecreaseUserCoin(userId, coin)
 	return nil
 }
@@ -1658,7 +1721,7 @@ func (t *ThDesk) IsTime2begin() bool {
 	for i := 0; i < len(t.Users); i++ {
 		u := t.Users[i]
 		if u != nil {
-			log.T("用户[%v].seat[%v]的状态是[%v]",u.UserId,u.Seat,u.Status)
+			log.T("用户[%v].seat[%v]的状态是[%v]", u.UserId, u.Seat, u.Status)
 		}
 	}
 

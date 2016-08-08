@@ -239,6 +239,7 @@ It has these top-level messages:
 	RoomMsg
 	TBetRecord
 	TZjhRound
+	TNotice
 	Shuiguoji
 	ShuiguojiHilomp
 	ShuiguojiRes
