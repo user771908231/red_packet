@@ -61,7 +61,11 @@ enum  EProtoId{
 	PID_GAME_GAME_SHOWCARD		=	49;	//49	请求开牌
 	PID_GAME_GAME_ACKSHOWCARD 	=	50;		//	回复 亮自己的手牌
 	PID_GAME_GAME_TESTRESULT	=	51;	//一局结束之后,返回结果
+	PID_GAME_PRECOIN		=	52;		//前注
+	PID_GAME_GAMENOTICE		=	53;		//请求公告
+	PID_GAME_GAME_ACKNOTICE	=	54;		//回复公告
 }
+
 
 //general response protocol
 message ProtoHeader {

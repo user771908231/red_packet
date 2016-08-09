@@ -253,6 +253,15 @@ func handlerGameLoginGame(args []interface{}){
 	a.WriteMsg(result)
 }
 
+
+//用户创建一个房间
+func handlerCreateDesk(args []interface{}){
+	userId := uint32(0)
+	diamond := int64(0)		//房卡就是钻石...
+	roomKey :=  ""
+	OGservice.HandlerCreateDesk(userId,diamond,roomKey)
+}
+
 // 处理请求进入游戏房间
 func  handlerGameEnterMatch(args []interface{}){
 	m := args[0].(*bbproto.Game_EnterMatch)
@@ -263,7 +272,6 @@ func  handlerGameEnterMatch(args []interface{}){
 
 //处理跟注
 func handlerFollowBet(args []interface{}){
-	log.T("处理用户押注的请求")
 	m := args[0].(*bbproto.Game_FollowBet)
 	seatId := m.GetSeat()
 	desk := room.ThGameRoomIns.GetDeskById(m.GetTableid())

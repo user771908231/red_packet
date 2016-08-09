@@ -27,3 +27,11 @@ message TZjhRound{
 	repeated 	ZjhPai	ZjhPaiList  	=	9;	//本轮游戏的纸牌
 	optional	string	Number 		=	10;	//本局游戏的编号
 }
+
+message TNotice{
+	optional int32 		id 			= 1;	//公告的id
+	optional int32		noticeType  = 2;	//公告的类型
+	optional string 	noticeTitle = 3;	//公告的标题
+	optional string		noticeContent =4;	//公告的内容
+	optional string		noticeMemo	= 5;    //公告的备注
+}

@@ -24,7 +24,6 @@ func printGameinfo(){
 	//循环desk打印信息
 	log.T("-----------打印游戏信息--------")
 
-
 	for i := 0; i < len(game.ThDeskBuf); i++ {
 		d := game.ThDeskBuf[i]
 		log.T("-----------打印desk[%v]的信息,begin--------" ,i)
@@ -44,7 +43,7 @@ func printGameinfo(){
 				}else{
 					log.T("-----------打印desk[%v]的用户[%v]的id[%v]--------" ,i,j,u.UserId)
 					log.T("-----------打印desk[%v]的用户[%v]的HandCoin[%v]--------" ,i,j,u.HandCoin)
-					log.T("-----------打印desk[%v]的用户[%v]Coin[%v]--------" ,i,j,u.Coin)
+					log.T("-----------打印desk[%v]的用户[%v]Coin[%v],roomCoin[%v]--------" ,i,j,u.GetCoin(),u.GetRoomCoin())
 					log.T("-----------打印desk[%v]的用户[%v]cards[%v]--------" ,i,j,u.Cards)
 					log.T("-----------打印desk[%v]的用户[%v]iStatus[%v]--------" ,i,j,u.Status)
 					log.T("-----------打印desk[%v]的用户[%v]TotalBet[%v]--------" ,i,j,u.TotalBet)
@@ -55,8 +54,6 @@ func printGameinfo(){
 				log.T("-----------打印desk[%v]的用户[%v]的信息,end----------" ,i,j)
 			}
 			log.T("-----------打印desk[%v]的用户的信息,end----------" ,i)
-
-
 		}else{
 			log.T("-----------desk[%v]==nil--------" ,i)
 		}

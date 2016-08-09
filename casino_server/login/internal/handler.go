@@ -16,6 +16,7 @@ import (
 	"casino_server/gamedata"
 	"casino_server/conf"
 	"casino_server/utils/numUtils"
+	"casino_server/service/noticeServer"
 )
 
 func handleMsg(m interface{}, h interface{}) {
@@ -27,6 +28,7 @@ func init() {
 	handleMsg(&bbproto.ReqAuthUser{}, handleReqAuthUser)
 	handleMsg(&bbproto.REQQuickConn{}, HandlerREQQuickConn)
 	handleMsg(&bbproto.NullMsg{}, handlerNullMsg)
+	handleMsg(&bbproto.GameNotice{}, handlerNotice)
 }
 
 /**
@@ -41,7 +43,6 @@ func handleProtHello(args []interface{}) {
 	data.Name = &n
 	a.WriteMsg(&data)
 }
-
 
 func GoID() int {
 	var buf [64]byte
@@ -102,7 +103,7 @@ func handleReqAuthUser(args []interface{}) {
 }
 
 ///处理联众游戏,登陆的协议
-func HandlerREQQuickConn(args []interface{}){
+func HandlerREQQuickConn(args []interface{}) {
 	m := args[0].(*bbproto.REQQuickConn)
 	log.T("联众游戏登陆的时候发送的请求的协议内容login.handler.HandlerREQQuickConn()[%v]", m)
 	a := args[1].(gate.Agent)
@@ -115,7 +116,6 @@ func HandlerREQQuickConn(args []interface{}){
 	result.UserId = new(uint32)
 	result.NickName = new(string)
 	result.AckResult = new(int32)
-
 
 	var resultUser *bbproto.User
 
@@ -141,25 +141,25 @@ func HandlerREQQuickConn(args []interface{}){
 
 	// 通过userId来判断是登录还是注册,如果userId ==0 ,重新注册一个,如果userId !=0 从数据库查询
 	if m.GetUserId() == 0 {
-		resultUser,_ = userService.NewUserAndSave()
+		resultUser, _ = userService.NewUserAndSave()
 	} else {
 		resultUser = userService.GetUserById(m.GetUserId())
 	}
 
 
 	//如果得到的user ==nil 或者 用密码登陆的时候密码不正确
-	if resultUser == nil ||(resultUser.GetPwd() != "" && m.GetPwd() != resultUser.GetPwd()){
+	if resultUser == nil || (resultUser.GetPwd() != "" && m.GetPwd() != resultUser.GetPwd()) {
 		log.E("没有找到用户,返回登陆失败...")
 		*result.AckResult = intCons.ACK_RESULT_ERROR
 		a.WriteMsg(result)
 		return
-	}else{
-		*result.AckResult	=	intCons.ACK_RESULT_SUCC				//返回结果
-		*result.CoinCnt		=	resultUser.GetCoin()				//用户金币
-		*result.UserName,_	=	numUtils.Uint2String(resultUser.GetId())	//
-		*result.UserId		=	resultUser.GetId()
-		*result.NickName	=	resultUser.GetNickName()
-		log.T("快速登录,有userId,没有密码时返回的信息:[%v]",result)
+	} else {
+		*result.AckResult = intCons.ACK_RESULT_SUCC                                //返回结果
+		*result.CoinCnt = resultUser.GetCoin()                                //用户金币
+		*result.UserName, _ = numUtils.Uint2String(resultUser.GetId())        //
+		*result.UserId = resultUser.GetId()
+		*result.NickName = resultUser.GetNickName()
+		log.T("快速登录,有userId,没有密码时返回的信息:[%v]", result)
 		a.WriteMsg(result)
 	}
 }
@@ -168,4 +168,13 @@ func HandlerREQQuickConn(args []interface{}){
 //空协议
 func handlerNullMsg(args []interface{}) {
 	log.T("收到一条空消息")
+}
+
+
+//请求当前的公告
+func handlerNotice(args []interface{}) {
+	m :=  args[0].(*bbproto.GameNotice)
+	a :=  args[1].(gate.Agent)
+	tnotice := noticeServer.GetNoticeByType(m.GetNoticeType())
+	a.WriteMsg(tnotice)
 }

@@ -235,10 +235,13 @@ It has these top-level messages:
 	ACKQuickConn
 	NullMsg
 	Game_SendAddUser
+	GameNotice
+	Game_AckNotice
 	Reg
 	RoomMsg
 	TBetRecord
 	TZjhRound
+	TNotice
 	Shuiguoji
 	ShuiguojiHilomp
 	ShuiguojiRes

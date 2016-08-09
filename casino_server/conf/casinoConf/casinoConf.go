@@ -14,6 +14,8 @@ const (
 	DBT_T_ZJH_ROUND		= "t_zjh_round"		//每局炸扎金花的数据
 	DBT_T_BONUS_TURNTABLE	= "t_bonus_turntable"	//转盘奖励的表
 	DBT_T_TH		= "t_th"		//德州扑克
+	DBT_T_TH_DESK		= "t_th_desk"		//德州桌子
+	DBT_T_TH_NOTICE		= "t_th_notice"
 
 
 	//数据库的常用设置

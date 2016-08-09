@@ -26,6 +26,7 @@ type T_user struct {
 	Mobile   string
 
 	Coin     int64    //金币
+	Diamond	 int64		//钻石
 	Scores   int32    //积分
 
 	Viplevel string   //vip的等级

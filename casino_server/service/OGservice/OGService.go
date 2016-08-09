@@ -22,6 +22,28 @@ var (
 	GAME_STATUS_SHOW_RESULT int32 = 7        //完成
 )
 
+
+/**
+	用户通过钻石创建游戏房间
+ */
+
+func HandlerCreateDesk(userId uint32,diamond int64,roomKey string) error{
+
+	//1,判断roomKey是否已经存在
+	if room.ThGameRoomIns.IsRoomKeyExist(roomKey) {
+		log.E("房间密钥[%v]已经存在,创建房间失败",roomKey)
+		return errors.New("房间密钥已经存在,创建房间失败")
+	}
+
+	//2,开始创建房间
+	desk := room.ThGameRoomIns.CreateDeskByUserIdAndRoomKey(userId,diamond,roomKey);
+	log.T("",desk)
+	//3,根据返回的desk返回创建房间的信息
+	return nil
+
+}
+
+
 //处理登录游戏的协议
 /**
 	1,判断用户是否已经登陆了游戏
@@ -31,10 +53,62 @@ var (
 func HandlerGameEnterMatch(m *bbproto.Game_EnterMatch, a gate.Agent) error {
 	log.T("用户请求进入德州扑克的游戏房间,m[%v]",m)
 
+	var err error					//错误信息
+	var mydesk *room.ThDesk				//用户需要进入的房间
 	userId := m.GetUserId()				//进入游戏房间的user
 	result := newGame_SendGameInfo()                //需要返回的信息
+	roomCoin := int64(1000)				//to do 暂时设置为1000
+	roomKey := string(m.GetPassWord())		//房间的roomkey
 
-	roomCoin := int64(0)
+	//1.1 检测参数是否正确,判断userId 是否合法
+	userCheck := userService.CheckUserIdRightful(userId)
+	if userCheck == false {
+		log.E("进入德州扑克的房间的时候,userId[%v]不合法。", userId)
+		return errors.New("用户Id不合法")
+	}
+
+
+	//1,进入房间,返回房间和错误信息
+	if roomKey == "" {
+		mydesk, err = room.ThGameRoomIns.AddUser(userId,roomCoin, a)
+	}else {
+		mydesk, err = room.ThGameRoomIns.AddUserWithRoomKey(userId,roomCoin,roomKey, a)
+	}
+
+	if err != nil || mydesk == nil {
+		errMsg := err.Error()
+		log.E("用户[%v]进入房间失败,errMsg[%v]",userId,errMsg)
+		a.WriteMsg(result)
+		return err
+	}
+
+	//2 构造信息并且返回
+	initGameSendgameInfoByDesk(mydesk, result,userId)
+	log.T("给请求登陆房间的人[%v]回复信息[%v]",userId,result)
+
+	//3 发送进入游戏房间的广播
+	mydesk.OGTHBroadAddUser(result)
+
+	//4,最后:确定是否开始游戏, 上了牌桌之后,如果玩家人数大于1,并且游戏处于stop的状态,则直接开始游戏
+
+	//如果是朋友桌的话,需要房主点击开始才能开始...
+	go mydesk.OGRun()
+
+	return nil
+}
+
+//处理登录游戏的协议
+/**
+	1,判断用户是否已经登陆了游戏
+	2,如果已经登陆了游戏,替换现有的agent
+	3,如果没有登陆游戏,走正常的流程
+ */
+func HandlerGameEnterMatchWithRoomKey(m *bbproto.Game_EnterMatch, a gate.Agent) error {
+	log.T("用户请求进入德州扑克的游戏房间,m[%v]",m)
+
+	userId := m.GetUserId()				//进入游戏房间的user
+	result := newGame_SendGameInfo()                //需要返回的信息
+	roomCoin := int64(1000)				//to do 暂时设置为1000
 	//1.1 检测参数是否正确,判断userId 是否合法
 	userCheck := userService.CheckUserIdRightful(userId)
 	if userCheck == false {
@@ -65,8 +139,6 @@ func HandlerGameEnterMatch(m *bbproto.Game_EnterMatch, a gate.Agent) error {
 
 	return nil
 }
-
-
 
 
 //初始化一个Game_SendGameInfo
@@ -100,11 +172,11 @@ func newGame_SendGameInfo() *bbproto.Game_SendGameInfo {
 func initGameSendgameInfoByDesk(mydesk *room.ThDesk, result *bbproto.Game_SendGameInfo,myUserId uint32) error {
 	//初始化桌子相关的信息
 	*result.Tableid = int32(mydesk.Id)        //桌子的Id
-	*result.TablePlayer = mydesk.UserCount
-	*result.BankSeat = int32(mydesk.GetUserIndex(mydesk.Dealer))        //庄家
-	*result.ChipSeat = int32(mydesk.GetUserIndex(mydesk.BetUserNow))//当前活动玩家
+	*result.TablePlayer = mydesk.UserCount	  //玩家总人数
+	*result.BankSeat =  mydesk.GetUserByUserId(mydesk.Dealer).Seat //int32(mydesk.GetUserIndex(mydesk.Dealer))        //庄家
+	*result.ChipSeat =  mydesk.GetUserByUserId(mydesk.BetUserNow).Seat //int32(mydesk.GetUserIndex(mydesk.BetUserNow))//当前活动玩家
 	*result.ActionTime = int32(room.TH_TIMEOUT_DURATION_INT)        //当前操作时间,服务器当前的时间
-	*result.DelayTime = int32(0)        //当前延时时间
+	*result.DelayTime = int32(1000)        //当前延时时间
 	*result.GameStatus = deskStatus2OG(mydesk)
 	*result.Pool = int64(mydesk.Jackpot)                //奖池
 	result.Publiccard = mydesk.ThPublicCard2OGC()        //公共牌...
@@ -112,10 +184,10 @@ func initGameSendgameInfoByDesk(mydesk *room.ThDesk, result *bbproto.Game_SendGa
 	*result.NInitActionTime = int32(room.TH_TIMEOUT_DURATION_INT)
 	*result.NInitDelayTime = int32(room.TH_TIMEOUT_DURATION_INT)
 	result.Handcard = mydesk.GetHandCard()		//用户手牌
-	result.HandCoin = mydesk.GetCoin()	//下注的金额
-	//result.HandCoin = mydesk.GetHandCoin()	//下注的金额
+	//result.HandCoin = mydesk.GetCoin()	//下注的金额
+	result.HandCoin = mydesk.GetRoomCoin()	//带入金额
 	result.TurnCoin = getTurnCoin(mydesk)
-	*result.Seat	= int32(mydesk.GetUserIndex(myUserId))	//我
+	*result.Seat	= mydesk.GetUserByUserId(myUserId).Seat	//int32(mydesk.GetUserIndex(myUserId))	//我
 
 	//循环User来处理
 	for i := 0; i < len(mydesk.Users); i++ {
@@ -150,9 +222,9 @@ func isAllIn(u *room.ThUser) int32 {
 }
 
 
-//判断是否allIn
+//判断是否是掉线
 func isBreak(u *room.ThUser) int32 {
-	if u.Status == room.TH_USER_STATUS_BREAK {
+	if u.BreakStatus == room.TH_USER_BREAK_STATUS_TRUE {
 		return 1
 	} else {
 		return 0

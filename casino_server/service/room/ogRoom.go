@@ -56,7 +56,6 @@ func (t *ThDesk) OGBet(seatId int32,betType int32,coin int64) error{
 		return errors.New("押注人的状态不正确")
 	}
 
-
 	switch betType {
 	case TH_DESK_BET_TYPE_BET:
 	//押注:大盲注之后的第一个人,这个类型不会使用到
@@ -80,7 +79,15 @@ func (t *ThDesk) OGBet(seatId int32,betType int32,coin int64) error{
 	}
 
 	t.nextRoundInfo()	//广播新一局的信息
-	t.Lottery()		//开奖
+
+	if t.Tiem2Lottery() {
+		log.T("现在可以开奖了:")
+		return t.Lottery()
+	}else{
+		//用户开始等待,如果超时,需要做超时的处理
+		t.GetUserByUserId(t.BetUserNow).wait()		//当前押注的人开始等待
+		return nil
+	}		//开奖
 	return nil
 }
 
@@ -90,7 +97,10 @@ func (t *ThDesk) OgFollowBet(user *ThUser) error {
 
 	//1,押注
 	log.T("用户[%v]开始押注",user.UserId)
-	err := t.BetUserCall(user.UserId)
+
+	//这里需要判断是跟住还是全下
+	err := t.BetUserCall(user)
+
 	if err != nil {
 		log.E("跟注的时候出错了.errMsg[%v],", err.Error())
 	}
@@ -110,14 +120,14 @@ func (t *ThDesk) OgFollowBet(user *ThUser) error {
 	result.Pool = new(int64)
 	result.HandCoin = new(int64)
 
-	*result.Coin		= user.Coin
+	*result.Coin		= user.GetRoomCoin()
 	*result.Seat		= user.Seat                		//座位id
 	*result.Tableid		= t.Id
 	//*result.CanRaise	= t.CanRaise		     		//是否能加注
 	*result.CanRaise	= int32(1)		     		//是否能加注
 	*result.MinRaise	= t.MinRaise
 	*result.Pool		= t.Jackpot
-	*result.NextSeat	= int32(t.GetUserIndex(t.BetUserNow))		//下一个押注的人
+	*result.NextSeat	= t.GetUserByUserId(t.BetUserNow).Seat //int32(t.GetUserIndex(t.BetUserNow))		//下一个押注的人
 	*result.HandCoin 	= user.HandCoin
 
 	t.THBroadcastProtoAll(result)
@@ -135,7 +145,7 @@ func (t *ThDesk) OgFoldBet(user  *ThUser) error {
 		t.NextNewRoundBetUser()
 	}
 	user.Status = TH_USER_STATUS_FOLDED
-
+	user.BreakStatus = TH_USER_STATUS_FOLDED	//把断线之前的状态设置为弃牌
 
 	//2,初始化下一个押注的人
 	t.NextBetUser()
@@ -156,7 +166,7 @@ func (t *ThDesk) OgFoldBet(user  *ThUser) error {
 	result.Tableid = &t.Id
 	*result.MinRaise = t.MinRaise
 	result.CanRaise	= &t.CanRaise		     		//是否能加注
-	*result.NextSeat =int32(t.GetUserIndex(t.BetUserNow))		//下一个押注的人
+	*result.NextSeat = t.GetUserByUserId(t.BetUserNow).Seat	//int32(t.GetUserIndex(t.BetUserNow))		//下一个押注的人
 
 	t.THBroadcastProto(result,0)
 	return nil
@@ -169,7 +179,11 @@ func (t *ThDesk) OGRaiseBet(user *ThUser,coin int64) error{
 	//1,得到跟注的用户,检测用户
 
 	//2,开始处理加注
-	err := t.BetUserRaise(user.UserId,coin)
+
+	//这里需要判断加注是否是all in
+
+
+	err := t.BetUserRaise(user,coin)
 	if err != nil {
 		log.E("跟注的时候出错了.errMsg[%v],", err.Error())
 	}
@@ -181,16 +195,19 @@ func (t *ThDesk) OGRaiseBet(user *ThUser,coin int64) error{
 	//押注成功返回要住成功的消息
 	result := &bbproto.Game_AckRaiseBet{}
 	result.NextSeat = new(int32)
+	result.MinRaise = new(int64)
+
 	result.Coin = &t.BetAmountNow        			//本轮压了多少钱
 	result.Seat = &user.Seat                			//座位id
 	result.Tableid = &t.Id
 	result.CanRaise	= &t.CanRaise		     		//是否能加注
-	*result.NextSeat =int32(t.GetUserIndex(t.BetUserNow))		//下一个押注的人
+	*result.MinRaise = t.MinRaise
+	*result.NextSeat = t.GetUserByUserId(t.BetUserNow).Seat	//int32(t.GetUserIndex(t.BetUserNow))		//下一个押注的人
 	result.HandCoin = &user.HandCoin			//表示需要加注多少
 
 	//给所有人广播信息
 	t.THBroadcastProto(result,0)
-	log.T("开始处理seat[%v]加注的逻辑,t,OgFollowBet()...end",user.Seat)
+	log.T("开始处理seat[%v]加注的逻辑,t,OGRaiseBet()...end",user.Seat)
 	return nil
 }
 
@@ -201,7 +218,7 @@ func (t *ThDesk) OGCheckBet(user *ThUser) error{
 	//1,让牌
 	err := t.BetUserCheck(user.UserId)
 	if err != nil {
-		log.E("跟注的时候出错了.errMsg[%v],", err.Error())
+		log.E("用户[%v]让牌的时候出错了.errMsg[%v],", user.UserId,err.Error())
 	}
 
 
@@ -221,7 +238,7 @@ func (t *ThDesk) OGCheckBet(user *ThUser) error{
 	result.Tableid = &t.Id
 	*result.CanRaise = t.CanRaise		     		//是否能加注
 	*result.MinRaise = t.MinRaise				//最低加注金额
-	*result.NextSeat =int32(t.GetUserIndex(t.BetUserNow))		//下一个押注的人
+	*result.NextSeat = t.GetUserByUserId(t.BetUserNow).Seat	//int32(t.GetUserIndex(t.BetUserNow))		//下一个押注的人
 	t.THBroadcastProtoAll(result)
 
 	return nil
@@ -288,11 +305,25 @@ func (mydesk *ThDesk) GetCoin() []int64{
 	for i := 0; i < len(mydesk.Users); i++ {
 		u := mydesk.Users[i]
 		if u != nil {
-			result = append(result,int64(u.Coin))
+			result = append(result,int64(u.GetCoin()))
 		}
 	}
 	return result
 }
+
+
+//得到roomCoin
+func (mydesk *ThDesk) GetRoomCoin() []int64{
+	var result []int64
+	for i := 0; i < len(mydesk.Users); i++ {
+		u := mydesk.Users[i]
+		if u != nil {
+			result = append(result,int64(u.GetRoomCoin()))
+		}
+	}
+	return result
+}
+
 
 
 //解析每个人下注的金额
@@ -369,7 +400,7 @@ func (mydesk *ThDesk ) GetHandCard() []*bbproto.Game_CardInfo {
 					result = append(result, gc)
 				}
 			}else{
-				log.T("玩家[%v]刚刚进房间,等待别人完成游戏,所以手牌为空",u.UserId)
+				log.T("玩家[%v]的手牌为空",u.UserId)
 				gc := &bbproto.Game_CardInfo{}
 				gc.Color = new(int32)
 				gc.Value = new(int32)
@@ -559,7 +590,11 @@ func OGTHCardPaixu(s *pokerService.ThCards) []*bbproto.Pai{
 			}
 		}
 
-	}else{
+	}else if s.ThType == pokerService.THPOKER_TYPE_SHUNZI && s.IsWheel{
+		copy(ret[0:4], s.Cards[1:5])
+		copy(ret[4:5], s.Cards[0:1])
+
+	} else{
 		copy(ret,s.Cards)
 	}
 

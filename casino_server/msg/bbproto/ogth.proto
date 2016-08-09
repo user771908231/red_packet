@@ -400,3 +400,22 @@ message game_SendAddUser{
     optional int32  seat    =  5;   //用户的座位号
 }
 
+
+message Game_notice{
+    optional int32  noticeType      =   1;  //公告的类型
+}
+
+
+//公告的内容
+message Game_AckNotice{
+    optional int32  noticeType      =   1;  //公告的类型:1,滚动信息,2,充值信息,3,公告信息
+    optional string noticeTitle     =   2;  //公告的标题
+    optional string noticeContent   =   3;  //公告的内容
+    optional string noticeMemo      =   4;  //公告的备注
+    optional int32  id              =   5;  //公告的id
+}
+
+
+
+
+

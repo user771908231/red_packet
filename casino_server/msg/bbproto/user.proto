@@ -12,5 +12,7 @@ message User {
 	optional int32				scores				= 9;	//积分
 	optional string				lastSignTime		= 10;	//最后一次签到的时间
 	optional int32				signCount			= 11;	//连续签到的次数
+	optional int64				Diamond				= 12;	//通过钻石开房间
+
 
 }

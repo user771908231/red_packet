@@ -56,7 +56,7 @@ type ThCards struct {
 	IsGaoPai        bool  //是否是高牌
 	IsDuiZi         bool  //是否是对子
 	IsLiangDui      bool  //是否是两队
-	IsWheel		bool  //是否是轮子
+	IsWheel         bool  //是否是轮子
 	IsWin           bool
 }
 
@@ -129,10 +129,10 @@ func ( t *ThCards) OnInitShunZiStatus() {
 		t.KeyValue[0] = *t.Cards[0].Value
 	}
 
-	t.OnInitWheelStatus()			//如果是轮子,也认为是顺子
+	t.OnInitWheelStatus()                        //如果是轮子,也认为是顺子
 	if t.IsWheel {
 		t.IsShunzi = true
-		t.KeyValue[0] = 5		//轮子的特殊性质,所以 顺子第一位是5
+		t.KeyValue[0] = 5                //轮子的特殊性质,所以 顺子第一位是5
 	}
 }
 
@@ -230,8 +230,8 @@ func ( t *ThCards) OnInitYiDuiStatus() {
 		}
 		//fmt.Println("keyvalue:",t.KeyValue)
 
-		var s2 []int32 = make([]int32,len(s))
-		copy(s2,s)
+		var s2 []int32 = make([]int32, len(s))
+		copy(s2, s)
 
 		for i := 1; i < 5; i++ {
 			for j := len(s2) - 1; j >= 0; j-- {
@@ -252,7 +252,9 @@ func ( t *ThCards) OnInitYiDuiStatus() {
 
 //判断是否是轮子
 func (t *ThCards) OnInitWheelStatus() {
-	if t.Cards[0].GetValue()== 14 && t.Cards[1].GetValue() == 5 && t.Cards[2].GetValue() == 4 && t.Cards[1].GetValue() == 3 && t.Cards[0].GetValue() == 2{
+	//log.T("判断是不是轮子")
+	if t.Cards[0].GetValue() == 14 && t.Cards[1].GetValue() == 5 && t.Cards[2].GetValue() == 4 && t.Cards[3].GetValue() == 3 && t.Cards[4].GetValue() == 2 {
+		//log.T("isWheel:true")
 		t.IsWheel = true
 	}
 }
@@ -261,6 +263,7 @@ func (t *ThCards) OnInitWheelStatus() {
 //初始化葫芦
 func (t *ThCards) OnInitHuLuStatus() {
 	if t.SanTiaoCount == 1 && t.DuiziCount == 1 {
+		t.IsHulu = true
 		t.ThType = THPOKER_TYPE_HULU
 		//初始化比较值
 		s := t.CardsStatistics
@@ -287,6 +290,7 @@ func (c *ThCards) OnInitStatisticsCard() error {
 
 	//fmt.Println("统计出来的牌数量:s",c.CardsStatistics)
 	//log.T("统计出来的牌数量1:s",c.CardsStatistics)
+
 	for i := 0; i < len(c.CardsStatistics); i++ {
 		//fmt.Println("开始检测:",c.CardsStatistics[i])
 
@@ -420,11 +424,16 @@ func ( list CardsList) Swap(i, j int) {
 func RandomTHPorkCards(total int) []*bbproto.Pai {
 	result := make([]*bbproto.Pai, total)        //返回值
 	indexs := RandomTHPorkIndex(0, 52, total)
+
+	//******这里得到坐标
+	log.T("初始化牌的做标,这个数据可以保存,用作测试数据,哈哈哈哈哈哈[%v]", indexs)
 	for i := 0; i < total; i++ {
 		result[i] = bbproto.CreatePorkByIndex(indexs[i])
 	}
 	return result
 }
+
+
 //----------------------------------------------------------实现扑克牌的排序结束----------------------------------------
 
 
@@ -508,6 +517,9 @@ func RandomTHPorkIndex(min, max, total int) []int32 {
 			count++;
 		}
 	}
+	//result = []int32{13, 2, 17, 3, 41, 1, 20, 35, 24, 29, 40, 33, 47, 27, 18, 39, 37, 36, 51, 4, 16}	//检测轮子是否验证成功的代码
+	//result =   []int32{25, 20, 33,7, 3, 41,51,  35, 17, 24, 29, 40, 47, 27, 18, 39, 37, 36, 4, 16,37}        //检测葫芦是否验证成功
+
 	return result;
 }
 
