@@ -19,14 +19,16 @@ func getRedisKey(id int32) string{
 	return strings.Join([]string{keyPre,idStr},"_")
 }
 
-func GetNoticeById(id int32) *mode.T_th_notice{
+
+//通过notice的type 来查找notice
+func GetNoticeByType(noticeType int32) *mode.T_th_notice{
 	//1,先从redis中获取notice
 	rediConn := data.Data{}
 	rediConn.Open(casinoConf.REDIS_DB_NAME)
 	defer rediConn.Close()
 
-	key := getRedisKey(id)
-	result := &bbproto.TNotice{}
+	key := getRedisKey(noticeType)
+	result := &bbproto.Game_AckNotice{}
 	rediConn.GetObj(key, result)
 	if result == nil ||  result.Id == nil {
 		//2,如果notice 不存在则从数据库中获取,并且保存在redis中
@@ -42,9 +44,9 @@ func GetNoticeById(id int32) *mode.T_th_notice{
 
 		//从数据库中查询user
 		notice := &mode.T_th_notice{}
-		s.DB(casinoConf.DB_NAME).C(casinoConf.DBT_T_TH_NOTICE).Find(bson.M{"id": id}).One(notice)
+		s.DB(casinoConf.DB_NAME).C(casinoConf.DBT_T_TH_NOTICE).Find(bson.M{"NoticeType": noticeType}).One(notice)
 		if notice.Id == 0 {
-			log.T("在mongo中没有查询到user[%v].", id)
+			log.T("在mongo中没有查询到user[%v].", noticeType)
 			result = nil
 		}else{
 			//把从数据获得的结果填充到redis的model中
@@ -54,7 +56,6 @@ func GetNoticeById(id int32) *mode.T_th_notice{
 			}
 		}
 	}
-
 	//3,返回数据
 	return result
 }

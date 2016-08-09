@@ -19,7 +19,6 @@ import (
 	"casino_server/mode"
 	"gopkg.in/mgo.v2/bson"
 	"casino_server/gamedata"
-	"client/a"
 )
 
 
@@ -47,8 +46,8 @@ var TH_USER_STATUS_WAIT_CLOSED int32 = 6          //等待结算
 var TH_USER_STATUS_CLOSED int32 = 7               //已经结算
 var TH_USER_STATUS_LEAVE int32 = 8                //
 
-var TH_USER_BREAK_STATUS_TRUE = 1                //已经断线
-var TH_USER_BREAK_STATUS_FALSE = 0                //没有断线
+var TH_USER_BREAK_STATUS_TRUE 	int32	= 1                //已经断线
+var TH_USER_BREAK_STATUS_FALSE 	int32	= 0                //没有断线
 
 
 //德州扑克,牌桌的状态
@@ -185,7 +184,7 @@ func (r *ThGameRoom) GetDeskById(id int32) *ThDesk {
 func (r *ThGameRoom) IsRepeatIntoRoom(userId uint32,a gate.Agent) *ThDesk {
 	//新的判断的代码
 	desk := r.GetDeskByUserId(userId)
-	if result != nil {
+	if desk != nil {
 		log.T("用户[%v]重新进入房间了", userId)
 		u := desk.GetUserByUserId(userId)
 		//替换User的agent
@@ -239,8 +238,7 @@ func (r *ThGameRoom) GetDeskByRoomKey(roomKey string) *ThDesk {
 	desks := ThGameRoomIns.ThDeskBuf
 	for i := 0; i < len(desks); i++ {
 		desk := desks[i]
-		if desk != nil {
-			desk.RoomKey == roomKey
+		if desk != nil && desk.RoomKey == roomKey{
 			result = desk
 			break
 		}
@@ -499,6 +497,7 @@ type ThDesk struct {
 	sync.Mutex
 	Id                 int32                        //roomid
 	Number             int32                        //桌子的编号
+	DeskType 	   int32	 		//桌子的类型,1,表示自定义房间,2表示锦标赛的
 	Dealer             uint32                       //庄家
 	PublicPai          []*bbproto.Pai               //公共牌的部分
 	UserCount          int32                        //玩游戏的总人数
@@ -550,6 +549,7 @@ func NewThDesk() *ThDesk {
 	result.BigBlindCoin = 2 * ThGameRoomIns.SmallBlindCoin
 	result.Status = TH_DESK_STATUS_STOP        //游戏还没有开始的状态
 	result.CanRaise = 1
+	result.DeskType = 0			   //游戏桌子的类型
 	return result
 }
 
@@ -763,7 +763,7 @@ func (t *ThDesk) InitUserBeginStatus() error {
 	log.T("开始一局新的游戏,开始初始化用户的状态")
 	for i := 0; i < len(t.Users); i++ {
 		u := t.Users[i]
-		if u != nil {
+		if u != nil && u.BreakStatus == TH_USER_BREAK_STATUS_FALSE{
 			u.Status = TH_USER_STATUS_BETING
 			u.HandCoin = 0
 			u.TurnCoin = 0
@@ -1709,6 +1709,9 @@ func (t *ThDesk) CheckBetUserBySeat(user *ThUser) bool {
 
 //是不是可以开始游戏了
 func (t *ThDesk) IsTime2begin() bool {
+
+	//todo 这里需要增加锦标赛的逻辑
+
 	log.T("判断是否可以开始一局新的游戏")
 	/**
 		开始游戏的要求:

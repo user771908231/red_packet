@@ -12,7 +12,6 @@ import (
 	"casino_server/service/room"
 	"casino_server/service/OGservice"
 	"casino_server/service/testService"
-	"strings"
 )
 
 func init() {
@@ -253,7 +252,6 @@ func handlerGameLoginGame(args []interface{}){
 	result.Result = new(int32)		//默认是0表示成功
 	a.WriteMsg(result)
 }
-
 
 
 //用户创建一个房间

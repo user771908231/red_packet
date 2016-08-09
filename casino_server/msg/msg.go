@@ -79,4 +79,7 @@ func init() {
 	ProtoProcessor.Register(&bbproto.Game_AckShowCard{})	//50	回复 亮自己的手牌
 	ProtoProcessor.Register(&bbproto.Game_TestResult{})	//51	一局结束之后,返回结果
 	ProtoProcessor.Register(&bbproto.Game_PreCoin{})	//52	前注的协议号码
+	ProtoProcessor.Register(&bbproto.GameNotice{})		//53	请求公告
+	ProtoProcessor.Register(&bbproto.Game_AckNotice{})	//54	回复请求的公告的协议
+
 }

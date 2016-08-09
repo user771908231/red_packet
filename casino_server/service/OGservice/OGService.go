@@ -117,7 +117,7 @@ func HandlerGameEnterMatchWithRoomKey(m *bbproto.Game_EnterMatch, a gate.Agent) 
 	}
 
 	//1,进入房间,返回房间和错误信息
-	mydesk, err := room.ThGameRoomIns.AddUser(userId,roomCoin,"", a)
+	mydesk, err := room.ThGameRoomIns.AddUser(userId,roomCoin, a)
 	if err != nil || mydesk == nil {
 		errMsg := err.Error()
 		log.E("用户[%v]进入房间失败,errMsg[%v]",userId,errMsg)
