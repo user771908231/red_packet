@@ -413,7 +413,9 @@ message Game_AckNotice{
     optional string noticeContent   =   3;  //公告的内容
     optional string noticeMemo      =   4;  //公告的备注
     optional int32  id              =   5;  //公告的id
+    repeated string fileds          =   6;  //公告的字段,目前子还是给充值的协议使用
 }
+
 
 //创建房间
 message Game_CreateDesk{

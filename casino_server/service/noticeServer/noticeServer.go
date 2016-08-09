@@ -10,8 +10,13 @@ import (
 	"github.com/name5566/leaf/db/mongodb"
 	"gopkg.in/mgo.v2/bson"
 	"casino_server/common/log"
+	"errors"
 )
 
+
+var NOTICE_TYPE_GUNDONG  int32  = 1	//滚动
+var NOTICE_TYPE_CHONGZHI int32  = 2	//充值信息
+var NOTICE_TYPE_GONGGAO  int32  = 3	//公告信息
 
 func getRedisKey(id int32) string{
 	keyPre := "public_notice_key"
@@ -45,15 +50,15 @@ func GetNoticeByType(noticeType int32) *bbproto.Game_AckNotice{
 
 		//从数据库中查询user
 		notice := &mode.T_th_notice{}
-		s.DB(casinoConf.DB_NAME).C(casinoConf.DBT_T_TH_NOTICE).Find(bson.M{"NoticeType": noticeType}).One(notice)
+		s.DB(casinoConf.DB_NAME).C(casinoConf.DBT_T_TH_NOTICE).Find(bson.M{"noticetype": noticeType}).One(notice)
 		if notice.Id == 0 {
-			log.T("在mongo中没有查询到user[%v].", noticeType)
+			log.T("在mongo中没有查询到notice[%v].", noticeType)
 			result = nil
 		}else{
 			//把从数据获得的结果填充到redis的model中
 			result = tnotice2Rnotice(notice)
 			if result!=nil {
-				saveNotice2Redis(result)
+				SaveNotice2Redis(result)
 			}
 		}
 	}
@@ -74,13 +79,14 @@ func tnotice2Rnotice(notice *mode.T_th_notice) *bbproto.Game_AckNotice{
 	*result.NoticeTitle = notice.NoticeTitle
 	*result.NoticeMemo = notice.NoticeMemo
 	*result.NoticeType = notice.NoticeType
+	result.Fileds  = notice.NoticeFileds
 
 	return result
 }
 
 
 //把公告的数据保存到redis中
-func saveNotice2Redis(notice *bbproto.Game_AckNotice) error {
+func SaveNotice2Redis(notice *bbproto.Game_AckNotice) error {
 	rediConn := data.Data{}
 	rediConn.Open(casinoConf.REDIS_DB_NAME)
 	defer rediConn.Close()
@@ -88,3 +94,32 @@ func saveNotice2Redis(notice *bbproto.Game_AckNotice) error {
 	rediConn.SetObj(key,notice)
 	return nil
 }
+
+//把公告的数据保存到redis中
+func SaveNotice(tnotice *mode.T_th_notice) error {
+	saveNotice2mongos(tnotice)	//保存到mongo
+	rnotice := tnotice2Rnotice(tnotice)
+	SaveNotice2Redis(rnotice)
+	return nil
+}
+
+//保存公告到mongo数据库
+func saveNotice2mongos(tnotice *mode.T_th_notice) error{
+	log.T("开始保存公告信息到mogno,notice[%v]",tnotice)
+	//从数据库中获取值
+	c, err := mongodb.Dial(casinoConf.DB_IP, casinoConf.DB_PORT)
+	if err != nil {
+		return errors.New("连接数据库失败")
+	}
+	defer c.Close()
+	s := c.Ref()
+	defer c.UnRef(s)
+
+	//从数据库中查询user
+	s.DB(casinoConf.DB_NAME).C(casinoConf.DBT_T_TH_NOTICE).Insert(tnotice)
+	return nil
+}
+
+
+
+
