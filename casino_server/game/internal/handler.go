@@ -45,6 +45,8 @@ func init() {
 	handler(&bbproto.Game_RaiseBet{},handlerRaise)			//处理加注的请求
 	handler(&bbproto.Game_FoldBet{},handlerFoldBet)			//处理弃牌的请求
 	handler(&bbproto.Game_CheckBet{},handlerCheckBet)		//处理让牌的请求
+
+	handler(&bbproto.Game_CreateDesk{},handlerCreateDesk)
 }
 
 func handler(m interface{}, h interface{}) {
@@ -256,10 +258,16 @@ func handlerGameLoginGame(args []interface{}){
 
 //用户创建一个房间
 func handlerCreateDesk(args []interface{}){
-	userId := uint32(0)
-	diamond := int64(0)		//房卡就是钻石...
-	roomKey :=  ""
-	OGservice.HandlerCreateDesk(userId,diamond,roomKey)
+	m := args[0].(*bbproto.Game_CreateDesk)
+	userId := m.GetUserId()
+	initCoin := m.GetInitCoin()	//房卡就是钻石...
+	roomKey :=  m.GetPassword()
+	smallBlind := m.GetSmallBlind()
+	bigBlind   := m.GetBigBlind()
+	juCount	   := m.GetInitCount()
+
+	//开始创建房间
+	OGservice.HandlerCreateDesk(userId,initCoin,roomKey,smallBlind,bigBlind,juCount)
 }
 
 // 处理请求进入游戏房间

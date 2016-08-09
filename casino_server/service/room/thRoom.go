@@ -46,8 +46,8 @@ var TH_USER_STATUS_WAIT_CLOSED int32 = 6          //等待结算
 var TH_USER_STATUS_CLOSED int32 = 7               //已经结算
 var TH_USER_STATUS_LEAVE int32 = 8                //
 
-var TH_USER_BREAK_STATUS_TRUE 	int32	= 1                //已经断线
-var TH_USER_BREAK_STATUS_FALSE 	int32	= 0                //没有断线
+var TH_USER_BREAK_STATUS_TRUE int32 = 1                //已经断线
+var TH_USER_BREAK_STATUS_FALSE int32 = 0                //没有断线
 
 
 //德州扑克,牌桌的状态
@@ -126,10 +126,13 @@ func (r *ThGameRoom) IsRoomKeyExist(roomkey string) bool {
 }
 
 //创建一个房间
-func (r *ThGameRoom) CreateDeskByUserIdAndRoomKey(userId uint32, diamond int64, roomkey string) *ThDesk {
+func (r *ThGameRoom) CreateDeskByUserIdAndRoomKey(userId uint32, diamond int64, roomkey string, smallBlind int64, bigBlind int64, jucount int32) *ThDesk {
 	desk := NewThDesk()
 	desk.RoomKey = roomkey
 	desk.deskOwner = userId
+	desk.SmallBlind = smallBlind
+	desk.BigBlind = bigBlind
+	desk.JuCount = jucount
 	r.AddThRoom(desk)
 	return desk
 }
@@ -181,7 +184,7 @@ func (r *ThGameRoom) GetDeskById(id int32) *ThDesk {
 }
 
 //通过UserId判断是不是重复进入房间
-func (r *ThGameRoom) IsRepeatIntoRoom(userId uint32,a gate.Agent) *ThDesk {
+func (r *ThGameRoom) IsRepeatIntoRoom(userId uint32, a gate.Agent) *ThDesk {
 	//新的判断的代码
 	desk := r.GetDeskByUserId(userId)
 	if desk != nil {
@@ -238,7 +241,7 @@ func (r *ThGameRoom) GetDeskByRoomKey(roomKey string) *ThDesk {
 	desks := ThGameRoomIns.ThDeskBuf
 	for i := 0; i < len(desks); i++ {
 		desk := desks[i]
-		if desk != nil && desk.RoomKey == roomKey{
+		if desk != nil && desk.RoomKey == roomKey {
 			result = desk
 			break
 		}
@@ -265,7 +268,7 @@ func (r *ThGameRoom) AddUserWithRoomKey(userId uint32, roomCoin int64, roomKey s
 	//3,判断用户是否是掉线重连
 	isRepeat := mydesk.IsrepeatIntoWithRoomKey(userId, a)
 	if isRepeat {
-		return mydesk,nil
+		return mydesk, nil
 	}
 
 	//4,进入房间
@@ -290,7 +293,7 @@ func (r *ThGameRoom) AddUser(userId uint32, roomCoin int64, a gate.Agent) (*ThDe
 	var mydesk *ThDesk = nil                //为用户找到的desk
 
 	//1,判断用户是否已经在房间里了,如果是在房间里,那么替换现有的agent,
-	mydesk = r.IsRepeatIntoRoom(userId,a)
+	mydesk = r.IsRepeatIntoRoom(userId, a)
 	if mydesk != nil {
 		return mydesk, nil
 	}
@@ -497,7 +500,7 @@ type ThDesk struct {
 	sync.Mutex
 	Id                 int32                        //roomid
 	Number             int32                        //桌子的编号
-	DeskType 	   int32	 		//桌子的类型,1,表示自定义房间,2表示锦标赛的
+	DeskType           int32                        //桌子的类型,1,表示自定义房间,2表示锦标赛的
 	Dealer             uint32                       //庄家
 	PublicPai          []*bbproto.Pai               //公共牌的部分
 	UserCount          int32                        //玩游戏的总人数
@@ -522,6 +525,7 @@ type ThDesk struct {
 	CanRaise           int32                        //是否能加注
 	deskOwner          uint32                       //房主的id
 	RoomKey            string                       //room 自定义房间的钥匙
+	JuCount            int32                        //这个桌子最多能打多少局
 }
 
 /**
@@ -549,7 +553,8 @@ func NewThDesk() *ThDesk {
 	result.BigBlindCoin = 2 * ThGameRoomIns.SmallBlindCoin
 	result.Status = TH_DESK_STATUS_STOP        //游戏还没有开始的状态
 	result.CanRaise = 1
-	result.DeskType = 0			   //游戏桌子的类型
+	result.DeskType = 0                           //游戏桌子的类型
+	result.JuCount = 0
 	return result
 }
 
@@ -612,8 +617,8 @@ func (t *ThDesk) IsrepeatIntoWithRoomKey(userId uint32, a gate.Agent) bool {
 		u := t.Users[i]
 		if u != nil && u.UserId == userId {
 			//如果u!=nil 那么
-			u.agent = a						//设置用户的连接
-			u.BreakStatus = TH_USER_BREAK_STATUS_FALSE		//设置用户的离线状态
+			u.agent = a                                                //设置用户的连接
+			u.BreakStatus = TH_USER_BREAK_STATUS_FALSE                //设置用户的离线状态
 			return true
 		}
 	}
@@ -763,7 +768,7 @@ func (t *ThDesk) InitUserBeginStatus() error {
 	log.T("开始一局新的游戏,开始初始化用户的状态")
 	for i := 0; i < len(t.Users); i++ {
 		u := t.Users[i]
-		if u != nil && u.BreakStatus == TH_USER_BREAK_STATUS_FALSE{
+		if u != nil && u.BreakStatus == TH_USER_BREAK_STATUS_FALSE {
 			u.Status = TH_USER_STATUS_BETING
 			u.HandCoin = 0
 			u.TurnCoin = 0
@@ -1777,7 +1782,6 @@ func (mydesk *ThDesk) OGRun() error {
 		log.E("开始德州扑克游戏,初始化房间的状态的时候报错")
 		return err
 	}
-
 
 	//4 初始化盲注开始押注
 	err = mydesk.InitBlindBet()
