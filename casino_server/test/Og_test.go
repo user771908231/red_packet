@@ -13,7 +13,7 @@ func TestOg(t *testing.T) {
 	 //game_EnterMatch(10008)
 	 //game_EnterMatch(10009)
 	 //game_EnterMatch(10010)
-	 game_EnterMatch(10011)
+	 //game_EnterMatch(10011)
 	//ogbet(0,20)
 	//ogbet(1,20)
 	//ogbet(2,20)
@@ -25,6 +25,8 @@ func TestOg(t *testing.T) {
 	//ogRaise(3,20)
 
 	//rEQQuickConn(10006)
+
+
 	for ; ;  {
 	}
 }
@@ -100,4 +102,10 @@ func ogRaise(seatId int32,coin int64){
 	m2 := test.AssembleDataNomd5(uint16(ide2), raiseData)
 	conn.Write(m2)
 	//_ = test.Read(conn).(*bbproto.Game_AckRaiseBet)
+}
+
+
+//创建一个房间
+func createDesk(userId uint32,roomKey string){
+
 }

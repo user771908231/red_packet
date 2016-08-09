@@ -36,9 +36,18 @@ func HandlerCreateDesk(userId uint32,roomCoin int64,roomKey string,smallBlind in
 	}
 
 	//2,开始创建房间
-	desk := room.ThGameRoomIns.CreateDeskByUserIdAndRoomKey(userId,roomCoin,roomKey,smallBlind ,bigBlind ,jucount );
-	log.T("",desk)
-	//3,根据返回的desk返回创建房间的信息
+	desk,err := room.ThGameRoomIns.CreateDeskByUserIdAndRoomKey(userId,roomCoin,roomKey,smallBlind ,bigBlind ,jucount );
+	if err != nil {
+		log.E("用户创建房间失败errMsg[%v]",err.Error())
+		return err
+	}
+	//3,根据返回的desk返回创建房间的信息, todo 用户进入房间
+	result := newGame_SendGameInfo()                //需要返回的信息
+	initGameSendgameInfoByDesk(desk, result,userId)
+	log.T("给请求登陆房间的人[%v]回复信息[%v]",userId,result)
+
+	//4 发送进入游戏房间的广播
+	desk.OGTHBroadAddUser(result)
 	return nil
 
 }

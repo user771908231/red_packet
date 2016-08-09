@@ -124,7 +124,7 @@ func (r *ThGameRoom) IsRoomKeyExist(roomkey string) bool {
 }
 
 //创建一个房间
-func (r *ThGameRoom) CreateDeskByUserIdAndRoomKey(userId uint32, roomCoin int64, roomkey string, smallBlind int64, bigBlind int64, jucount int32) *ThDesk {
+func (r *ThGameRoom) CreateDeskByUserIdAndRoomKey(userId uint32, roomCoin int64, roomkey string, smallBlind int64, bigBlind int64, jucount int32) (*ThDesk,error){
 
 	//1,创建房间
 	desk := NewThDesk()
@@ -144,9 +144,10 @@ func (r *ThGameRoom) CreateDeskByUserIdAndRoomKey(userId uint32, roomCoin int64,
 	err := userService.CreateDiamonDetail(userId,mode.T_USER_DIAMOND_DETAILS_TYPE_CREATEDESK,upDianmond,remainDiamond,"创建房间消耗钻石");
 	if err != nil {
 		log.E("创建用户的钻石交易记录失败")
-		return err
+		return nil,err
 	}
-	return desk
+	return desk,nil
+
 }
 
 //增加一个thRoom

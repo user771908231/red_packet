@@ -353,7 +353,7 @@ func UpdateUserDiamond(userId uint32,diamond int64) int64{
 	SaveUser2RedisAndMongo(user)
 
 	//3,返回数据
-	return user.Diamond
+	return user.GetDiamond()
 }
 
 func CreateDiamonDetail(userId uint32,detailsType int32,diamond int64,remainDiamond int64,memo string) error{
@@ -372,7 +372,7 @@ func CreateDiamonDetail(userId uint32,detailsType int32,diamond int64,remainDiam
 	//2,活的交易记录自增主键
 	id, err := c.NextSeq(casinoConf.DB_NAME, casinoConf.DBT_T_USER_DIAMOND_DETAILS, casinoConf.DB_ENSURECOUNTER_KEY)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
 	//构造交易记录
