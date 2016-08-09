@@ -25,9 +25,10 @@ var (
 
 /**
 	用户通过钻石创建游戏房间
+	ateDesk(userId,initCoin,roomKey,smallBlind,bigBlind,juCount)
  */
 
-func HandlerCreateDesk(userId uint32,diamond int64,roomKey string) error{
+func HandlerCreateDesk(userId uint32,diamond int64,roomKey string,smallBlind int64,bigBlind int64,jucount int32) error{
 
 	//1,判断roomKey是否已经存在
 	if room.ThGameRoomIns.IsRoomKeyExist(roomKey) {
@@ -36,7 +37,7 @@ func HandlerCreateDesk(userId uint32,diamond int64,roomKey string) error{
 	}
 
 	//2,开始创建房间
-	desk := room.ThGameRoomIns.CreateDeskByUserIdAndRoomKey(userId,diamond,roomKey);
+	desk := room.ThGameRoomIns.CreateDeskByUserIdAndRoomKey(userId,diamond,roomKey,smallBlind ,bigBlind ,jucount );
 	log.T("",desk)
 	//3,根据返回的desk返回创建房间的信息
 	return nil

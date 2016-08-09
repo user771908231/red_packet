@@ -415,6 +415,15 @@ message Game_AckNotice{
     optional int32  id              =   5;  //公告的id
 }
 
+//创建房间
+message Game_CreateDesk{
+    optional uint32 userId          =   1;  //用户id
+    optional string password        =   2;  //房间密码
+    optional int64  smallBlind      =   3;  //小盲注
+    optional int64  bigBlind        =   4;  //大盲注
+    optional int64  initCoin        =   5;  //出事筹码
+    optional int32  initCount       =   6;  //初始的局数
+}
 
 
 

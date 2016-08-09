@@ -237,6 +237,7 @@ It has these top-level messages:
 	Game_SendAddUser
 	GameNotice
 	Game_AckNotice
+	Game_CreateDesk
 	Reg
 	RoomMsg
 	TBetRecord
