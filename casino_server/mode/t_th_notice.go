@@ -7,4 +7,5 @@ type T_th_notice struct {
 	NoticeTitle	string			//公告标题
 	NoticeContent	string			//公告内容
 	NoticeMemo	string			//公告备注
+	NoticeFileds	[]string		//公告的字段
 }

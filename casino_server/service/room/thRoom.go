@@ -137,9 +137,6 @@ func (r *ThGameRoom) CreateDeskByUserIdAndRoomKey(userId uint32, diamond int64, 
 	return desk
 }
 
-
-
-
 //增加一个thRoom
 func (r *ThGameRoom) AddThRoom(throom *ThDesk) error {
 	r.ThDeskBuf = append(r.ThDeskBuf, throom)
