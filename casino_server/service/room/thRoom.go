@@ -130,8 +130,8 @@ func (r *ThGameRoom) CreateDeskByUserIdAndRoomKey(userId uint32, diamond int64, 
 	desk := NewThDesk()
 	desk.RoomKey = roomkey
 	desk.deskOwner = userId
-	desk.SmallBlind = smallBlind
-	desk.BigBlind = bigBlind
+	desk.SmallBlindCoin = smallBlind
+	desk.BigBlindCoin = bigBlind
 	desk.JuCount = jucount
 	r.AddThRoom(desk)
 	return desk
