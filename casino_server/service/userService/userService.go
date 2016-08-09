@@ -15,6 +15,7 @@ import (
 	"casino_server/utils/numUtils"
 	"strings"
 	"casino_server/mode"
+	"time"
 )
 
 
@@ -337,3 +338,59 @@ func DecreaseUserCoin(userId uint32,coin int64) error{
 	SaveUser2Redis(user)
 	return nil
 }
+
+
+//更新用户的钻石之后,在放回用户当前的余额,更新用户钻石需要同事更新redis和mongo的数据
+func UpdateUserDiamond(userId uint32,diamond int64) int64{
+	//1,获取锁
+	lock := UserLockPools.GetUserLockByUserId(userId)
+	lock.Lock()
+	defer lock.Unlock()
+
+	//2,修改用户redis和mongo中的数据
+	user := GetUserById(userId)
+	*user.Diamond += diamond
+	SaveUser2RedisAndMongo(user)
+
+	//3,返回数据
+	return user.Diamond
+}
+
+func CreateDiamonDetail(userId uint32,detailsType int32,diamond int64,remainDiamond int64,memo string) error{
+
+	//1,获取数据库连接
+	c, err := mongodb.Dial(casinoConf.DB_IP, casinoConf.DB_PORT)
+	if err != nil {
+		fmt.Println(err)
+		panic(err)
+	}
+	defer c.Close()
+
+	s := c.Ref()
+	defer c.UnRef(s)
+
+	//2,活的交易记录自增主键
+	id, err := c.NextSeq(casinoConf.DB_NAME, casinoConf.DBT_T_USER_DIAMOND_DETAILS, casinoConf.DB_ENSURECOUNTER_KEY)
+	if err != nil {
+		return nil, err
+	}
+
+	//构造交易记录
+	detail := &mode.T_user_diamond_details{}
+	detail.Id = uint32(id)
+	detail.UserId = userId
+	detail.Diamond = diamond
+	detail.ReaminDiamond = remainDiamond
+	detail.DetailsType = detailsType
+	detail.DetailTime = time.Now()
+	detail.Memo = memo
+
+	err = s.DB(casinoConf.DB_NAME).C(casinoConf.DBT_T_USER_DIAMOND_DETAILS).Insert(detail)
+	if err != nil {
+		log.E("保存用户交易记录的时候失败 error【%v】",err.Error())
+		return err
+	}
+	return  nil
+}
+
+

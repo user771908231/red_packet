@@ -16,6 +16,7 @@ const (
 	DBT_T_TH		= "t_th"		//德州扑克
 	DBT_T_TH_DESK		= "t_th_desk"		//德州桌子
 	DBT_T_TH_NOTICE		= "t_th_notice"
+	DBT_T_USER_DIAMOND_DETAILS = "t_user_diamond_details"	//用户钻石的交易记录
 
 
 	//数据库的常用设置

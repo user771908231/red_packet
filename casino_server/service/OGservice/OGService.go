@@ -22,13 +22,12 @@ var (
 	GAME_STATUS_SHOW_RESULT int32 = 7        //完成
 )
 
-
 /**
 	用户通过钻石创建游戏房间
 	ateDesk(userId,initCoin,roomKey,smallBlind,bigBlind,juCount)
  */
 
-func HandlerCreateDesk(userId uint32,diamond int64,roomKey string,smallBlind int64,bigBlind int64,jucount int32) error{
+func HandlerCreateDesk(userId uint32,roomCoin int64,roomKey string,smallBlind int64,bigBlind int64,jucount int32) error{
 
 	//1,判断roomKey是否已经存在
 	if room.ThGameRoomIns.IsRoomKeyExist(roomKey) {
@@ -37,7 +36,7 @@ func HandlerCreateDesk(userId uint32,diamond int64,roomKey string,smallBlind int
 	}
 
 	//2,开始创建房间
-	desk := room.ThGameRoomIns.CreateDeskByUserIdAndRoomKey(userId,diamond,roomKey,smallBlind ,bigBlind ,jucount );
+	desk := room.ThGameRoomIns.CreateDeskByUserIdAndRoomKey(userId,roomCoin,roomKey,smallBlind ,bigBlind ,jucount );
 	log.T("",desk)
 	//3,根据返回的desk返回创建房间的信息
 	return nil
@@ -57,9 +56,10 @@ func HandlerGameEnterMatch(m *bbproto.Game_EnterMatch, a gate.Agent) error {
 	var err error					//错误信息
 	var mydesk *room.ThDesk				//用户需要进入的房间
 	userId := m.GetUserId()				//进入游戏房间的user
-	result := newGame_SendGameInfo()                //需要返回的信息
 	roomCoin := int64(1000)				//to do 暂时设置为1000
 	roomKey := string(m.GetPassWord())		//房间的roomkey
+	result := newGame_SendGameInfo()                //需要返回的信息
+
 
 	//1.1 检测参数是否正确,判断userId 是否合法
 	userCheck := userService.CheckUserIdRightful(userId)
@@ -73,6 +73,7 @@ func HandlerGameEnterMatch(m *bbproto.Game_EnterMatch, a gate.Agent) error {
 	if roomKey == "" {
 		mydesk, err = room.ThGameRoomIns.AddUser(userId,roomCoin, a)
 	}else {
+
 		mydesk, err = room.ThGameRoomIns.AddUserWithRoomKey(userId,roomCoin,roomKey, a)
 	}
 
@@ -107,9 +108,16 @@ func HandlerGameEnterMatch(m *bbproto.Game_EnterMatch, a gate.Agent) error {
 func HandlerGameEnterMatchWithRoomKey(m *bbproto.Game_EnterMatch, a gate.Agent) error {
 	log.T("用户请求进入德州扑克的游戏房间,m[%v]",m)
 
+	log.T("用户请求进入德州扑克的游戏房间,m[%v]",m)
+
+	var err error					//错误信息
+	var mydesk *room.ThDesk				//用户需要进入的房间
 	userId := m.GetUserId()				//进入游戏房间的user
-	result := newGame_SendGameInfo()                //需要返回的信息
 	roomCoin := int64(1000)				//to do 暂时设置为1000
+	roomKey := string(m.GetPassWord())		//房间的roomkey
+	result := newGame_SendGameInfo()                //需要返回的信息
+
+
 	//1.1 检测参数是否正确,判断userId 是否合法
 	userCheck := userService.CheckUserIdRightful(userId)
 	if userCheck == false {
@@ -117,8 +125,9 @@ func HandlerGameEnterMatchWithRoomKey(m *bbproto.Game_EnterMatch, a gate.Agent) 
 		return errors.New("用户Id不合法")
 	}
 
+
 	//1,进入房间,返回房间和错误信息
-	mydesk, err := room.ThGameRoomIns.AddUser(userId,roomCoin, a)
+	mydesk, err = room.ThGameRoomIns.AddUserWithRoomKey(userId,roomCoin,roomKey, a)
 	if err != nil || mydesk == nil {
 		errMsg := err.Error()
 		log.E("用户[%v]进入房间失败,errMsg[%v]",userId,errMsg)
@@ -136,7 +145,11 @@ func HandlerGameEnterMatchWithRoomKey(m *bbproto.Game_EnterMatch, a gate.Agent) 
 	//4,最后:确定是否开始游戏, 上了牌桌之后,如果玩家人数大于1,并且游戏处于stop的状态,则直接开始游戏
 
 	//如果是朋友桌的话,需要房主点击开始才能开始...
-	go mydesk.OGRun()
+	//这里需要特别处理
+
+
+	//go mydesk.OGRun()
+
 
 	return nil
 }
