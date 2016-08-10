@@ -19,7 +19,6 @@ import (
 	"casino_server/mode"
 	"gopkg.in/mgo.v2/bson"
 	"casino_server/gamedata"
-	"os/user"
 )
 //config
 
