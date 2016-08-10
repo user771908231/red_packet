@@ -177,5 +177,6 @@ func handlerNotice(args []interface{}) {
 	a :=  args[1].(gate.Agent)
 	log.T("查询公告type[%v]",m.GetNoticeType())
 	tnotice := noticeServer.GetNoticeByType(m.GetNoticeType())
+	log.T("查询到了notice[%v]",tnotice)
 	a.WriteMsg(tnotice)
 }
