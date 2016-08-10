@@ -53,6 +53,7 @@ func init() {
 	msg.ProtoProcessor.SetRouter(&bbproto.Game_CheckBet{},game.ChanRPC)	//让牌的请求
 
 	//公告
-	msg.ProtoProcessor.SetRouter(&bbproto.GameNotice{},login.ChanRPC)	//登陆的时候查看公告信息
+	msg.ProtoProcessor.SetRouter(&bbproto.Game_Notice{},login.ChanRPC)	//登陆的时候查看公告信息
+	msg.ProtoProcessor.SetRouter(&bbproto.Game_CreateDesk{},game.ChanRPC)
 
 }

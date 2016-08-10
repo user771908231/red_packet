@@ -295,7 +295,9 @@ func (r *zjhRoom) lottery(t time.Time) {
 
 			//更新用户的信息,保存用户信息到redis
 			SaveBetRecord(betRecode)
-			userService.UpUserBalance(key, int64(betRecode.GetWinAmount()), userService.UPDATE_TYPE_ONLY_REDIS)
+
+			//todo 不需要保存用户信息到数据库
+			//userService.UpUserBalance(key, int64(betRecode.GetWinAmount()), userService.UPDATE_TYPE_ONLY_REDIS)
 
 			//利用agent发送数据
 

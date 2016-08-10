@@ -154,6 +154,12 @@ func InitMongoDb() error{
 		return err
 	}
 
+	//为钻石交易记录创建自增键
+	err = c.EnsureCounter(casinoConf.DB_NAME, casinoConf.DBT_T_USER_DIAMOND_DETAILS, casinoConf.DB_ENSURECOUNTER_KEY)
+	if err != nil {
+		return err
+	}
+
 	return nil
 }
 

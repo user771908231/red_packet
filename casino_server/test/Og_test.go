@@ -13,7 +13,7 @@ func TestOg(t *testing.T) {
 	 //game_EnterMatch(10008)
 	 //game_EnterMatch(10009)
 	 //game_EnterMatch(10010)
-	 game_EnterMatch(10011)
+	 //game_EnterMatch(10011)
 	//ogbet(0,20)
 	//ogbet(1,20)
 	//ogbet(2,20)
@@ -25,6 +25,8 @@ func TestOg(t *testing.T) {
 	//ogRaise(3,20)
 
 	//rEQQuickConn(10006)
+
+	createDesk(10084,"roomkkkk")
 	for ; ;  {
 	}
 }
@@ -100,4 +102,37 @@ func ogRaise(seatId int32,coin int64){
 	m2 := test.AssembleDataNomd5(uint16(ide2), raiseData)
 	conn.Write(m2)
 	//_ = test.Read(conn).(*bbproto.Game_AckRaiseBet)
+}
+
+
+//创建一个房间
+func createDesk(userId uint32,roomKey string){
+	pid := int32(bbproto.EProtoId_PID_GAME_GAME_CREATEDESK)
+	reqData := &bbproto.Game_CreateDesk{}
+	reqData.BigBlind = new(int64)
+	reqData.SmallBlind = new(int64)
+	reqData.InitCount = new(int32)
+	reqData.InitCoin = new(int64)
+	reqData.UserId = new(uint32)
+	reqData.Password = new(string)
+
+	*reqData.BigBlind = 30
+	*reqData.SmallBlind = 15
+	*reqData.InitCount = 20
+	*reqData.InitCoin = 1000
+	*reqData.UserId = userId
+	*reqData.Password = roomKey
+
+	conn, err := net.Dial(TCP, url)
+	if err != nil {
+		panic(err)
+	}
+	defer conn.Close()
+
+	m2 := test.AssembleDataNomd5(uint16(pid), reqData)
+	conn.Write(m2)
+
+	//读取放回的信息
+	test.Read(conn)
+
 }

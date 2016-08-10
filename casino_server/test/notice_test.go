@@ -20,9 +20,7 @@ func TestNotice(t *testing.T) {
 	//getNoticeByType(noticeServer.NOTICE_TYPE_GONGGAO)		//type
 }
 
-
 func saveNotice(){
-
 
 	mongc, err := mongodb.Dial(db.DB_IP, db.DB_PORT)
 	if err != nil {

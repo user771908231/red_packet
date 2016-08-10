@@ -28,7 +28,7 @@ func init() {
 	handleMsg(&bbproto.ReqAuthUser{}, handleReqAuthUser)
 	handleMsg(&bbproto.REQQuickConn{}, HandlerREQQuickConn)
 	handleMsg(&bbproto.NullMsg{}, handlerNullMsg)
-	handleMsg(&bbproto.GameNotice{}, handlerNotice)
+	handleMsg(&bbproto.Game_Notice{}, handlerNotice)
 }
 
 /**
@@ -173,7 +173,7 @@ func handlerNullMsg(args []interface{}) {
 
 //请求当前的公告
 func handlerNotice(args []interface{}) {
-	m :=  args[0].(*bbproto.GameNotice)
+	m :=  args[0].(*bbproto.Game_Notice)
 	a :=  args[1].(gate.Agent)
 	tnotice := noticeServer.GetNoticeByType(m.GetNoticeType())
 	a.WriteMsg(tnotice)

@@ -58,9 +58,6 @@ func AssembleDataNomd5(idv uint16, data proto.Message) []byte {
 	return m2
 }
 
-
-
-
 func Read(conn net.Conn) proto.Message{
 	fmt.Println("开始读取信息:")
 	lenBuf := make([]byte, 2)
