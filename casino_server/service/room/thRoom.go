@@ -1450,6 +1450,7 @@ func (t *ThDesk) BetUserRaise(user *ThUser, coin int64) error {
 
 //用户AllIn
 func (t *ThDesk) BetUserAllIn(userId uint32, coin int64) error {
+	log.T("用户[%v]开始allin[%v]",userId,coin)
 	//1,增加奖池的金额
 	t.AddBetCoin(coin)
 
@@ -1521,7 +1522,7 @@ func (t *ThDesk) NextBetUser() error {
 		t.CalcAllInJackpot()
 		t.BetUserRaiseUserId = t.NewRoundBetUser
 		t.BetUserNow = t.NewRoundBetUser
-		t.BetAmountNow = 0        //下一句重新开始的时候,设置当前押注的人为0
+		t.BetAmountNow = 0        //下一局重新开始的时候,设置当前押注的人为0
 		t.RoundCount ++
 
 		log.T("设置下次押注的人是小盲注,下轮次[%v]", t.RoundCount)
