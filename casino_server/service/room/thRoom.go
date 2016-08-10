@@ -605,7 +605,7 @@ func (t *ThDesk) LogString() {
 	log.T("当前desk[%v]的信息的状态,大盲注[%v]", t.Id, t.BigBlind)
 	log.T("当前desk[%v]的信息的状态,压注人[%v]", t.Id, t.BetUserNow)
 	log.T("当前desk[%v]的信息的状态,压注轮次[%v]", t.Id, t.RoundCount)
-	log.T("当前desk[%v]的信息的状态,NewRoundBetUser[%v]", t.Id, t.NewRoundFirstBetUser)
+	log.T("当前desk[%v]的信息的状态,NewRoundFirstBetUser[%v]", t.Id, t.NewRoundFirstBetUser)
 	log.T("当前desk[%v]的信息的状态,总共押注Jackpot[%v]", t.Id, t.Jackpot)
 	log.T("当前desk[%v]的信息的状态,边池bianJackpot[%v]", t.Id, t.bianJackpot)
 	log.T("当前desk[%v]的信息的状态,当前加注的人BetUserRaiseUserId[%v]", t.Id, t.BetUserRaiseUserId)
@@ -780,6 +780,7 @@ func (t *ThDesk) InitUserBeginStatus() error {
 			u.TurnCoin = 0
 			u.winAmount = 0
 			u.winAmountDetail = nil
+			u.TotalBet = 0		//
 			continue
 		}
 
@@ -790,6 +791,7 @@ func (t *ThDesk) InitUserBeginStatus() error {
 			u.HandCoin = 0
 			u.TurnCoin = 0
 			u.winAmount = 0
+			u.TotalBet = 0
 			u.winAmountDetail = nil
 		}
 	}
@@ -953,17 +955,16 @@ func (t *ThDesk) OninitThDeskBeginStatus() error {
 		dealerIndex = t.GetUserIndex(t.Dealer)
 		for i := dealerIndex; i < len(t.Users); i++ {
 			u := t.Users[(i + 1) % len(t.Users)]
-			if u != nil {
+			if u != nil && u.Status == TH_USER_STATUS_BETING {
 				t.Dealer = u.UserId
 			}
 		}
 	}
 
-
 	//设置小盲注
 	for i := dealerIndex; i < len(userTemp) + dealerIndex; i++ {
 		u := userTemp[(i + 1) % len(userTemp)]
-		if u != nil {
+		if u != nil && u.Status == TH_USER_STATUS_BETING {
 			t.SmallBlind = u.UserId
 			userTemp[(i + 1) % len(userTemp)] = nil
 			break
@@ -973,7 +974,7 @@ func (t *ThDesk) OninitThDeskBeginStatus() error {
 	//设置大盲注
 	for i := dealerIndex; i < len(userTemp) + dealerIndex; i++ {
 		u := userTemp[(i + 1) % len(userTemp)]
-		if u != nil {
+		if u != nil && u.Status == TH_USER_STATUS_BETING{
 			t.BigBlind = u.UserId
 			userTemp[(i + 1) % len(userTemp)] = nil
 			break
@@ -981,7 +982,7 @@ func (t *ThDesk) OninitThDeskBeginStatus() error {
 	}
 
 	/**
-
+		设置第一个押注的人
 	 */
 
 	if t.UserCountOnline == int32(2) {
@@ -991,7 +992,7 @@ func (t *ThDesk) OninitThDeskBeginStatus() error {
 		//设置当前押注的人
 		for i := dealerIndex; i < len(userTemp) + dealerIndex; i++ {
 			u := userTemp[(i + 1) % len(userTemp)]
-			if u != nil {
+			if u != nil && u.Status == TH_USER_STATUS_BETING{
 				t.BetUserNow = u.UserId
 				userTemp[(i + 1) % len(userTemp)] = nil
 				break
@@ -1377,7 +1378,7 @@ func (t *ThDesk) GetWinCount() int {
 //跟注:跟注的时候 不需要重新设置押注的人
 //只是跟注,需要减少用户的资产,增加奖池的金额
 func (t *ThDesk) BetUserCall(user  *ThUser) error {
-	log.T("用户[%v],nikename[%v],t.BetAmountNow,user.HandCoin", user.UserId,user.NickName, t.BetAmountNow,user.HandCoin)
+	log.T("用户[%v],nikename[%v],t.BetAmountNow[%v],user.HandCoin[%v]", user.UserId,user.NickName, t.BetAmountNow,user.HandCoin)
 	followCoin := t.BetAmountNow - user.HandCoin
 	if user.RoomCoin <= followCoin {
 		//allin
@@ -1408,6 +1409,7 @@ func (t *ThDesk) NextNewRoundBetUser() error {
 		}
 		//如果没有找到,那么返回失败
 		if i == (len(t.Users) + index - 1) {
+			log.T("没有找到下一个默认开始押注的人")
 			return errors.New("没有找到下一个默认开始的押注的人")
 		}
 	}
@@ -1497,6 +1499,7 @@ func (t *ThDesk) BetUserAllIn(userId uint32, coin int64) error {
 	t.GetUserByUserId(userId).Status = TH_USER_STATUS_ALLINING	//设置用户的状态为all-in
 	if t.NewRoundFirstBetUser == userId {				//如果用户是第一个押注的人,all-in之后第一个押注的是往下滑
 		t.NextNewRoundBetUser()
+		log.T("重新设置了t.NewRoundFirstBetUser[%v]",t.NewRoundFirstBetUser)
 	}
 
 	//4,增加all in的状态
@@ -1560,7 +1563,7 @@ func (t *ThDesk) NextBetUser() error {
 		}
 	}
 
-	log.T("判断是否是下一轮,计算出来的t.BetUserNow[%v],t.BetUserRaiseUserId[%v]",t.BetUserNow,t.BetUserRaiseUserId)
+	log.T("判断是否是下一轮,计算出来的t.BetUserNow[%v],t.BetUserRaiseUserId[%v],t.NextNewRoundBetUser[%v]",t.BetUserNow,t.BetUserRaiseUserId,t.NewRoundFirstBetUser)
 	//设置新一轮
 	if t.BetUserNow == 0 || t.BetUserRaiseUserId == t.BetUserNow {
 		//处理allin 奖金池分割的问题
@@ -1569,6 +1572,15 @@ func (t *ThDesk) NextBetUser() error {
 		t.BetUserNow = t.NewRoundFirstBetUser
 		t.BetAmountNow = 0
 		t.RoundCount ++
+		t.MinRaise = t.BigBlindCoin	//第二轮开始的时候,最低加注金额设置喂大盲注
+
+		for i := 0; i < len(t.Users); i++ {
+			u := t.Users[i]
+			if u != nil {
+				u.HandCoin = 0
+			}
+		}
+
 		log.T("设置下次押注的人是小盲注,下轮次[%v]", t.RoundCount)
 	}
 
@@ -1580,7 +1592,6 @@ func (t *ThDesk) NextBetUser() error {
 
 //下一轮
 func (t *ThDesk) nextRoundInfo() {
-
 	if !t.isNewRound() {
 		return
 	}
@@ -1591,8 +1602,7 @@ func (t *ThDesk) nextRoundInfo() {
 	*sendData.Tableid = t.Id
 	*sendData.MinRaise = t.GetMinRaise()
 	*sendData.NextSeat = t.GetUserByUserId(t.BetUserNow).Seat        //int32(t.GetUserIndex(t.BetUserNow))
-	sendData.Handcoin = t.GetHandCoin()
-	//sendData.Coin = t.GetCoin()
+	//sendData.Handcoin = t.GetHandCoin()
 	sendData.Coin = t.GetRoomCoin()
 	*sendData.Pool = t.Jackpot
 	sendData.SecondPool = t.GetSecondPool()
@@ -1698,8 +1708,8 @@ func (t *ThDesk) CalcAllInJackpot() error {
 	sort.Sort(list)
 
 	for i := 0; i < len(t.AllInJackpot); i++ {
-		log.T("第[%v]次循环的时候,allinlist[%v]", i, t.AllInJackpot)
 		all := t.AllInJackpot[i]
+		log.T("第[%v]次循环的时候,allinlist[%v]", i, all)
 
 		//如果这个池子为nil ,则跳过这个循环,如果这个allIn 不是本轮的,则把之前的allin 的jackpot 累加起来
 		if all == nil || all.ThroundCount != t.RoundCount {
@@ -1711,20 +1721,20 @@ func (t *ThDesk) CalcAllInJackpot() error {
 		for n := 0; n < len(t.Users); n++ {
 			u := t.Users[n]
 			if u != nil {
-				log.T("用户[%v]押注的总金额是[%v]")
+				log.T("用户[%v]押注的总金额是[%v]",u.UserId,u.TotalBet)
 				if u.TotalBet > all.AllInAmount {
 					all.Jackpopt += all.AllInAmount
 					u.TotalBet -= all.AllInAmount
 					log.T("用户[%v]押注加入all的金额是[%v]", u.UserId, all.AllInAmount)
 				} else {
 					all.Jackpopt += u.TotalBet
-					//*u.roundBet = 0
+					u.TotalBet = 0
 					log.T("用户[%v]押注加入all的金额是[%v]", u.UserId, u.TotalBet)
 				}
 
 			}
 		}
-		log.T("计算出来用户[%v]allIn.index[%v] allin.amount[%v]计算all in 的池子总金额", all.UserId, i, all.Jackpopt)
+		log.T("计算出来用户[%v]allIn.index[%v] allin.amount[%v]计算all in 的池子总金额[]", all.UserId, i,all.AllInAmount, all.Jackpopt)
 
 		//之后的allinamount - 当前allin
 		for k := i; k < len(t.AllInJackpot); k++ {

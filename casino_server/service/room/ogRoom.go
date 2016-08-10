@@ -184,6 +184,7 @@ func (t *ThDesk) OGRaiseBet(user *ThUser,coin int64) error{
 
 	//这里需要判断加注是否是all in
 
+	log.T("用户[%v]开始加注",user.UserId)
 
 	err := t.BetUserRaise(user,coin)
 	if err != nil {
@@ -221,13 +222,22 @@ func (t *ThDesk) OGRaiseBet(user *ThUser,coin int64) error{
 func (t *ThDesk) GetMinRaise() int64{
 	//无限加注,上次加注额度的两倍,加上追平的金额
 	//return t.MinRaise*2+t.BetAmountNow-t.GetUserByUserId(t.BetUserNow).HandCoin
-	return t.MinRaise+t.BetAmountNow-t.GetUserByUserId(t.BetUserNow).HandCoin
+
+	log.T("获取用户[%v]的最低加注金额,handCoin[%v],t.MinRaise[%v],t.BetAmountNow[%v]",t.BetUserNow,t.GetUserByUserId(t.BetUserNow).HandCoin,t.MinRaise,t.BetAmountNow)
+	result := t.MinRaise+t.BetAmountNow-t.GetUserByUserId(t.BetUserNow).HandCoin
+	if result < 0 {
+		//现在处理的有可能是新的一局开始
+		result = t.BigBlindCoin
+	}
+
+	return result
 }
 
 
 //联众德州 让牌
 func (t *ThDesk) OGCheckBet(user *ThUser) error{
 
+	log.T("用户[%v]开始让牌",user.UserId)
 	//1,让牌
 	err := t.BetUserCheck(user.UserId)
 	if err != nil {
