@@ -1401,25 +1401,25 @@ func (t *ThDesk) NextNewRoundBetUser() error {
 
 //让牌:只有第一个人才可以让牌
 func (t *ThDesk) BetUserCheck(userId uint32) error {
-	if userId == t.BetUserRaiseUserId {
-		//第一个人的时候才可以让牌
-
-		//设置为第一个让牌的人
-		if t.CheckUserFirst == 0 {
-			t.CheckUserFirst = userId
-		}
-
-		//设置一个押注的人为下一个人
-		index := t.GetUserIndex(userId)
-		for i := index; i < len(t.Users) + index - 1; i++ {
-			u := t.Users[(i + 1) % len(t.Users)]
-			if u != nil && u.Status == TH_USER_STATUS_BETING && u.UserId != t.CheckUserFirst {
-				t.BetUserRaiseUserId = userId
-				break
-			}
-		}
-
-	}
+	//if userId == t.BetUserRaiseUserId {
+	//	//第一个人的时候才可以让牌
+	//
+	//	//设置为第一个让牌的人
+	//	if t.CheckUserFirst == 0 {
+	//		t.CheckUserFirst = userId
+	//	}
+	//
+	//	//设置一个押注的人为下一个人
+	//	index := t.GetUserIndex(userId)
+	//	for i := index; i < len(t.Users) + index - 1; i++ {
+	//		u := t.Users[(i + 1) % len(t.Users)]
+	//		if u != nil && u.Status == TH_USER_STATUS_BETING && u.UserId != t.CheckUserFirst {
+	//			t.BetUserRaiseUserId = userId
+	//			break
+	//		}
+	//	}
+	//
+	//}
 	return nil
 }
 
@@ -1506,6 +1506,7 @@ func (t *ThDesk) GetUserByUserId(userId uint32) *ThUser {
 	index := t.GetUserIndex(userId)
 	return t.Users[index]
 }
+
 
 func (t *ThDesk) caclUserCoin(userId uint32, coin int64) error {
 	user := t.GetUserByUserId(userId)

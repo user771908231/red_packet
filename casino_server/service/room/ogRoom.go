@@ -447,7 +447,6 @@ func NewGame_WinCoin() *bbproto.Game_WinCoin{
 //
 func (t *ThDesk) getWinCoinInfo() []*bbproto.Game_WinCoin{
 	var ret []*bbproto.Game_WinCoin
-
 	//对每个人做计算
 	for i := 0; i < len(t.Users); i++ {
 		u := t.Users[i]
