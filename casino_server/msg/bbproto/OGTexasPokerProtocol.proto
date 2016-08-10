@@ -263,6 +263,8 @@ message game_SendGameInfo {
     repeated string nickName = 25; //昵称
     repeated int32 seatId = 26; //座位号
     optional int32 seat = 27;   //我的座位号
+    repeated int64  secondPool = 28;    //池子
+    optional int64 turnMax = 29;    //返回最大的押注值
 }
 
 message game_ShowCard {

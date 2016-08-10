@@ -187,6 +187,7 @@ func newGame_SendGameInfo() *bbproto.Game_SendGameInfo {
 	result.BBreak = make([]int32, 0)
 	result.BLeave = make([]int32, 0)
 	result.Seat = new(int32)
+	result.TurnMax = new(int64)
 
 	return result
 }
@@ -211,6 +212,8 @@ func initGameSendgameInfoByDesk(mydesk *room.ThDesk, result *bbproto.Game_SendGa
 	result.HandCoin = mydesk.GetRoomCoin()	//带入金额
 	result.TurnCoin = getTurnCoin(mydesk)
 	*result.Seat	= mydesk.GetUserByUserId(myUserId).Seat	//int32(mydesk.GetUserIndex(myUserId))	//我
+	result.SecondPool = mydesk.GetSecondPool()
+	*result.TurnMax = mydesk.BetAmountNow
 
 	//循环User来处理
 	for i := 0; i < len(mydesk.Users); i++ {
