@@ -525,7 +525,7 @@ type ThDesk struct {
 	BigBlind           uint32                       //大盲注
 	SmallBlind         uint32                       //小盲注
 	NewRoundBetUser    uint32                       //新一轮,开始押注的第一个人//第一轮默认是小盲注,但是当小盲注弃牌之后,这个人要滑倒下一家去
-	BetUserRaiseUserId uint32                       //加注的人的Id
+	BetUserRaiseUserId uint32                       //加注的人的Id,一轮结束的判断需要按照这个人为准
 	BetUserNow         uint32                       //当前押注人的Id
 	RemainTime         int32                        //剩余投资的时间  多少秒
 	BetAmountNow       int64                        //当前的押注金额是多少
@@ -1404,9 +1404,8 @@ func (t *ThDesk) BetUserCheck(userId uint32) error {
 	if userId == t.BetUserRaiseUserId {
 		//第一个人的时候才可以让牌
 
-		//设置喂第一个让牌的人
+		//设置为第一个让牌的人
 		if t.CheckUserFirst == 0 {
-			t.CheckUserFirst = 0
 			t.CheckUserFirst = userId
 		}
 
@@ -1433,17 +1432,24 @@ func (t *ThDesk) BetUserRaise(user *ThUser, coin int64) error {
 		1,加注的金额coin 和受伤的余额一样多的情况	coin == user.RoomCoin
 	 */
 
+	if (coin > user.RoomCoin){
+		return errors.New("用户加注的金额,比自己手中的金额还要多,出错!")
+	}
+
 	//all-in的情况
 	if coin == user.RoomCoin{
 		//如果加注的金额和手上的余额一样大的话,all in
 		if(coin + user.HandCoin) < t.BetAmountNow{
 			//表示钱不够,被迫all-in,此时的betamountNow 不会改变
 		}else {
-			//设置下家需要跟注的金额
+			//主动设置下家需要跟注的金额
 			t.BetAmountNow = user.HandCoin + coin
+			t.BetUserRaiseUserId = user.UserId
 		}
 		//开始allin
 		t.BetUserAllIn(user.UserId, user.RoomCoin)
+		user.Status = TH_USER_STATUS_ALLINING	//设置用户的状态为all-in
+
 
 	}else{
 		//普通加注的情况
@@ -1520,6 +1526,7 @@ func (t *ThDesk) NextBetUser() error {
 
 	log.T("当前押注的人是userId[%v]", t.BetUserNow)
 	index := t.GetUserIndex(t.BetUserNow)
+	t.BetUserNow = 0	//这里设置为-1是为了方便判断找不到下一个人的时候,设置为新的一局
 	for i := index; i < len(t.Users) + index; i++ {
 		u := t.Users[(i + 1) % len(t.Users)]
 		if u != nil && u.Status == TH_USER_STATUS_BETING {
@@ -1529,8 +1536,9 @@ func (t *ThDesk) NextBetUser() error {
 		}
 	}
 
+	log.T("判断是否是下一轮,计算出来的t.BetUserNow[%v],t.BetUserRaiseUserId[%v]",t.BetUserNow,t.BetUserRaiseUserId)
 	//设置新一轮
-	if t.BetUserRaiseUserId == t.BetUserNow {
+	if t.BetUserNow == 0 || t.BetUserRaiseUserId == t.BetUserNow {
 		//处理allin 奖金池分割的问题
 		t.CalcAllInJackpot()
 		t.BetUserRaiseUserId = t.NewRoundBetUser

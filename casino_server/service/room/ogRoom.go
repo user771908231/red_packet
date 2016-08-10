@@ -158,10 +158,12 @@ func (t *ThDesk) OgFoldBet(user  *ThUser) error {
 	result.MinRaise = new(int64)
 	result.HandCoin = new(int64)
 	result.CanRaise = new(int32)
+	result.Coin = new(int64)
 
 	*result.Pool = t.Jackpot
 	*result.HandCoin = user.HandCoin
-	result.Coin = &t.BetAmountNow        			//本轮压了多少钱
+	*result.Coin = user.GetRoomCoin()       			//本轮压了多少钱
+
 	result.Seat = &user.Seat                			//座位id
 	result.Tableid = &t.Id
 	*result.MinRaise = t.MinRaise
@@ -197,14 +199,16 @@ func (t *ThDesk) OGRaiseBet(user *ThUser,coin int64) error{
 	result.NextSeat = new(int32)
 	result.MinRaise = new(int64)
 	result.CanRaise = new(int32)
+	result.HandCoin = new(int64)
+	result.Coin     = new(int64)
 
-	result.Coin = &t.BetAmountNow        			//本轮压了多少钱
-	result.Seat = &user.Seat                			//座位id
+	*result.Coin = user.GetRoomCoin()        			//本轮压了多少钱
+	result.Seat  = &user.Seat                		//座位id
 	result.Tableid 		= &t.Id
-	*result.CanRaise	= t.GetCanRise()		     		//是否能加注
+	*result.CanRaise	= t.GetCanRise()		//是否能加注
 	*result.MinRaise = t.MinRaise
 	*result.NextSeat = t.GetUserByUserId(t.BetUserNow).Seat	//int32(t.GetUserIndex(t.BetUserNow))		//下一个押注的人
-	result.HandCoin = &user.HandCoin			//表示需要加注多少
+	*result.HandCoin = user.HandCoin			//表示需要加注多少
 
 	//给所有人广播信息
 	t.THBroadcastProto(result,0)
@@ -226,20 +230,23 @@ func (t *ThDesk) OGCheckBet(user *ThUser) error{
 	//2,计算洗一个押注的人
 	t.NextBetUser()
 
-
 	//3押注成功返回要住成功的消息
 	log.T("打印user[%v]让牌的结果:",user.UserId)
 	result := &bbproto.Game_AckCheckBet{}
 	result.NextSeat = new(int32)
 	result.MinRaise = new(int64)
 	result.CanRaise = new(int32)
+	result.HandCoin = new(int64)
+	result.Coin = new(int64)
 
-	result.Coin = &t.BetAmountNow        			//本轮压了多少钱
+	*result.Coin = user.GetRoomCoin()        			//本轮压了多少钱
 	result.Seat = &user.Seat                			//座位id
 	result.Tableid = &t.Id
 	*result.CanRaise = t.GetCanRise()		     		//是否能加注
 	*result.MinRaise = t.MinRaise				//最低加注金额
 	*result.NextSeat = t.GetUserByUserId(t.BetUserNow).Seat	//int32(t.GetUserIndex(t.BetUserNow))		//下一个押注的人
+	*result.HandCoin = user.HandCoin
+
 	t.THBroadcastProtoAll(result)
 
 	return nil
