@@ -43,11 +43,11 @@ func (t *ThDesk) getUserBySeat(seatId int32) *ThUser {
 	return t.Users[seatId]
 }
 
-
 //押注的通用接口
 func (t *ThDesk) OGBet(seatId int32,betType int32,coin int64) error{
 	t.Lock()
 	defer t.Unlock()
+	log.T("用户seatId[%v]开始操作betType[%v]",seatId,betType)
 
 	user := t.getUserBySeat(seatId)
 	//1,得到跟注的用户
@@ -145,7 +145,6 @@ func (t *ThDesk) OgFoldBet(user  *ThUser) error {
 		t.NextNewRoundBetUser()
 	}
 	user.Status = TH_USER_STATUS_FOLDED
-	user.BreakStatus = TH_USER_STATUS_FOLDED	//把断线之前的状态设置为弃牌
 
 	//2,初始化下一个押注的人
 	t.NextBetUser()
@@ -158,6 +157,7 @@ func (t *ThDesk) OgFoldBet(user  *ThUser) error {
 	result.Pool = new(int64)
 	result.MinRaise = new(int64)
 	result.HandCoin = new(int64)
+	result.CanRaise = new(int32)
 
 	*result.Pool = t.Jackpot
 	*result.HandCoin = user.HandCoin
@@ -165,7 +165,7 @@ func (t *ThDesk) OgFoldBet(user  *ThUser) error {
 	result.Seat = &user.Seat                			//座位id
 	result.Tableid = &t.Id
 	*result.MinRaise = t.MinRaise
-	result.CanRaise	= &t.CanRaise		     		//是否能加注
+	*result.CanRaise = t.GetCanRise()		     		//是否能加注
 	*result.NextSeat = t.GetUserByUserId(t.BetUserNow).Seat	//int32(t.GetUserIndex(t.BetUserNow))		//下一个押注的人
 
 	t.THBroadcastProto(result,0)
@@ -196,11 +196,12 @@ func (t *ThDesk) OGRaiseBet(user *ThUser,coin int64) error{
 	result := &bbproto.Game_AckRaiseBet{}
 	result.NextSeat = new(int32)
 	result.MinRaise = new(int64)
+	result.CanRaise = new(int32)
 
 	result.Coin = &t.BetAmountNow        			//本轮压了多少钱
 	result.Seat = &user.Seat                			//座位id
-	result.Tableid = &t.Id
-	result.CanRaise	= &t.CanRaise		     		//是否能加注
+	result.Tableid 		= &t.Id
+	*result.CanRaise	= t.GetCanRise()		     		//是否能加注
 	*result.MinRaise = t.MinRaise
 	*result.NextSeat = t.GetUserByUserId(t.BetUserNow).Seat	//int32(t.GetUserIndex(t.BetUserNow))		//下一个押注的人
 	result.HandCoin = &user.HandCoin			//表示需要加注多少
@@ -236,7 +237,7 @@ func (t *ThDesk) OGCheckBet(user *ThUser) error{
 	result.Coin = &t.BetAmountNow        			//本轮压了多少钱
 	result.Seat = &user.Seat                			//座位id
 	result.Tableid = &t.Id
-	*result.CanRaise = t.CanRaise		     		//是否能加注
+	*result.CanRaise = t.GetCanRise()		     		//是否能加注
 	*result.MinRaise = t.MinRaise				//最低加注金额
 	*result.NextSeat = t.GetUserByUserId(t.BetUserNow).Seat	//int32(t.GetUserIndex(t.BetUserNow))		//下一个押注的人
 	t.THBroadcastProtoAll(result)

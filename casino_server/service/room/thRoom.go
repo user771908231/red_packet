@@ -406,6 +406,7 @@ func (t *ThUser) trans2bbprotoThuser() *bbproto.THUser {
 //等待用户出牌
 func (t *ThUser) wait() error {
 	//如果不是押注中的状态,不用wait任务
+	log.T("用户当前的状态[%v]",t.Status)
 	if t.Status != TH_USER_STATUS_BETING {
 		return nil
 	}
@@ -449,6 +450,7 @@ func (t *ThUser) TimeOut(timeNow time.Time) (bool, error) {
 	//没有超时标志,直接返回
 	if t.waitUUID == "" {
 		//不需要等待
+		log.T("用户[%v]的waitUUID==空,不用超时",t.UserId)
 		return true, nil
 	}
 
@@ -466,7 +468,7 @@ func (t *ThUser) TimeOut(timeNow time.Time) (bool, error) {
 		return true, err
 	} else {
 		//没有超时,继续等待
-		log.T("玩家[%v]出牌中还没有超时", t.UserId)
+		log.T("玩家[%v]nickname[%v]出牌中还没有超时", t.UserId,t.NickName)
 		return false, nil
 	}
 }
@@ -499,6 +501,7 @@ func NewThUser() *ThUser {
 	result.TotalBet = 0
 	result.winAmount = 0
 	result.RoomCoin = 0
+	result.BreakStatus = TH_USER_BREAK_STATUS_FALSE
 	return result
 }
 
@@ -762,7 +765,11 @@ func (t *ThDesk) InitUserBeginStatus() error {
 	log.T("开始一局新的游戏,开始初始化用户的状态")
 	for i := 0; i < len(t.Users); i++ {
 		u := t.Users[i]
+		if u != nil {
+			log.T("用户[%v]的status[%v],BreakStatus[%v],:",u.UserId,u.Status,u.BreakStatus)
+		}
 		if u != nil && u.BreakStatus == TH_USER_BREAK_STATUS_FALSE {
+			log.T("开始初始化用户[%v]的状态",u.UserId)
 			u.Status = TH_USER_STATUS_BETING
 			u.HandCoin = 0
 			u.TurnCoin = 0
@@ -986,6 +993,7 @@ func (t *ThDesk) OninitThDeskBeginStatus() error {
 
 	//本次押注的热开始等待
 	waitUser := t.GetUserByUserId(t.BetUserNow)
+	log.T("用户开始等待,等待之前桌子的状态[%v]:",t.Status)
 	waitUser.wait()
 
 	log.T("初始化游戏之后,庄家[%v]", t.Dealer)
@@ -1100,6 +1108,7 @@ func (t *ThDesk) CalcThcardsWin() error {
 			userWin = t.Users[i]
 		}
 	}
+
 
 	//1.3打印得到那个人的信息
 	if userWin == nil {
@@ -1351,7 +1360,7 @@ func (t *ThDesk) GetWinCount() int {
 //跟注:跟注的时候 不需要重新设置押注的人
 //只是跟注,需要减少用户的资产,增加奖池的金额
 func (t *ThDesk) BetUserCall(user  *ThUser) error {
-	//log.T("用户[%v]押注coin[%v]", userId, coin)
+	log.T("用户[%v],nikename[%v],t.BetAmountNow,user.HandCoin", user.UserId,user.NickName, t.BetAmountNow,user.HandCoin)
 	followCoin := t.BetAmountNow - user.HandCoin
 	if user.RoomCoin <= followCoin {
 		//allin
@@ -1417,21 +1426,25 @@ func (t *ThDesk) BetUserCheck(userId uint32) error {
 
 //用户加注
 func (t *ThDesk) BetUserRaise(user *ThUser, coin int64) error {
+	log.T("开始[%v],nickname[%v]操作用户加注[%v]的操作,user.handcoin[%v].t.BetAmountNow[%v]",user.UserId,user.NickName,coin,user.HandCoin,t.BetAmountNow)
+
+	//1,如果用户的钱不够了,那么就是all in
+	if t.BetAmountNow >= (user.HandCoin+user.RoomCoin) {
+		t.BetUserAllIn(user.UserId, user.RoomCoin)
+		return nil
+	}
+
+	//allin 之后的数据有问题
 	t.BetAmountNow += coin
 	betCoin := t.BetAmountNow - user.HandCoin
 
-	if betCoin == user.RoomCoin {
-		// allin
-		t.BetUserAllIn(user.UserId, betCoin)
-	} else {
-		//1,增加奖池的金额
-		t.AddBetCoin(betCoin)                                //desk-coin
-		//2,减少用户的金额
-		t.caclUserCoin(user.UserId, betCoin)                        //thuser
-		userService.DecreaseUserCoin(user.UserId, betCoin)        //redis-user
-		//3,设置状态:设置为第一个加注的人,如果后边所有人都是跟注,可由这个人判断一轮是否结束
-		t.BetUserRaiseUserId = user.UserId
-	}
+	//1,增加奖池的金额
+	t.AddBetCoin(betCoin)                                //desk-coin
+	//2,减少用户的金额
+	t.caclUserCoin(user.UserId, betCoin)                        //thuser
+	userService.DecreaseUserCoin(user.UserId, betCoin)        //redis-user
+	//3,设置状态:设置为第一个加注的人,如果后边所有人都是跟注,可由这个人判断一轮是否结束
+	t.BetUserRaiseUserId = user.UserId
 	return nil
 }
 
@@ -1697,7 +1710,7 @@ func (t *ThDesk) CheckBetUserBySeat(user *ThUser) bool {
 	}
 
 	if user.RoomCoin <= 0 {
-		log.E("用户的带入金额小于0,所以不能押注或者投注了")
+		log.E("用户userId[%v]name[%v]的带入金额小于0,所以不能押注或者投注了",user.UserId,user.NickName)
 		return false
 	}
 
@@ -1816,4 +1829,13 @@ func (t *ThDesk) ThPublicCard2OGC() []*bbproto.Game_CardInfo {
 		result[i] = ThCard2OGCard(t.PublicPai[i])
 	}
 	return result
+}
+
+//canrase
+func (t *ThDesk) GetCanRise() int32{
+	if t.Tiem2Lottery(){
+		return 0
+	}else {
+		return 1
+	}
 }

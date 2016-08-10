@@ -14,5 +14,4 @@ type T_th struct {
 	BetAmount	int64	//押注了多少钱
 	WinAmount	int64	//赢了多少钱
 	Blance		int64	//账户余额
-
 }

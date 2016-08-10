@@ -235,7 +235,7 @@ It has these top-level messages:
 	ACKQuickConn
 	NullMsg
 	Game_SendAddUser
-	GameNotice
+	Game_Notice
 	Game_AckNotice
 	Game_CreateDesk
 	Reg
@@ -243,6 +243,7 @@ It has these top-level messages:
 	TBetRecord
 	TZjhRound
 	TNotice
+	ThServerDesk
 	Shuiguoji
 	ShuiguojiHilomp
 	ShuiguojiRes

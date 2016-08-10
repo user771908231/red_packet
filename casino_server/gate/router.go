@@ -54,5 +54,6 @@ func init() {
 
 	//公告
 	msg.ProtoProcessor.SetRouter(&bbproto.GameNotice{},login.ChanRPC)	//登陆的时候查看公告信息
+	msg.ProtoProcessor.SetRouter(&bbproto.Game_CreateDesk{},game.ChanRPC)
 
 }
