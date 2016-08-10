@@ -3,7 +3,7 @@ package casinoConf
 const (
 
 	//------------------------------mongo-数据库相关--------------------------
-	DB_IP 			= "localhost"		//数据库ip
+	DB_IP 			= "182.92.179.230"	//数据库ip.
 	DB_PORT			= 51668			//数据库端口
 	DB_NAME 		= "test"		//数据库名字
 	DB_ENSURECOUNTER_KEY	= "id"			//自增键

@@ -125,7 +125,7 @@ func (t *ThDesk) OgFollowBet(user *ThUser) error {
 	*result.Tableid		= t.Id
 	//*result.CanRaise	= t.CanRaise		     		//是否能加注
 	*result.CanRaise	= int32(1)		     		//是否能加注
-	*result.MinRaise	= t.MinRaise
+	*result.MinRaise	= t.GetMinRaise()
 	*result.Pool		= t.Jackpot
 	*result.NextSeat	= t.GetUserByUserId(t.BetUserNow).Seat //int32(t.GetUserIndex(t.BetUserNow))		//下一个押注的人
 	*result.HandCoin 	= user.HandCoin
@@ -141,7 +141,7 @@ func (t *ThDesk) OgFoldBet(user  *ThUser) error {
 
 	//1,弃牌
 	//如果弃牌的人是 t.NewRoundBetUser ,需要重新设置值
-	if t.NewRoundBetUser == user.UserId {
+	if t.NewRoundFirstBetUser == user.UserId {
 		t.NextNewRoundBetUser()
 	}
 	user.Status = TH_USER_STATUS_FOLDED
@@ -158,13 +158,15 @@ func (t *ThDesk) OgFoldBet(user  *ThUser) error {
 	result.MinRaise = new(int64)
 	result.HandCoin = new(int64)
 	result.CanRaise = new(int32)
+	result.Coin = new(int64)
 
 	*result.Pool = t.Jackpot
 	*result.HandCoin = user.HandCoin
-	result.Coin = &t.BetAmountNow        			//本轮压了多少钱
+	*result.Coin = user.GetRoomCoin()       			//本轮压了多少钱
+
 	result.Seat = &user.Seat                			//座位id
 	result.Tableid = &t.Id
-	*result.MinRaise = t.MinRaise
+	*result.MinRaise = t.GetMinRaise()
 	*result.CanRaise = t.GetCanRise()		     		//是否能加注
 	*result.NextSeat = t.GetUserByUserId(t.BetUserNow).Seat	//int32(t.GetUserIndex(t.BetUserNow))		//下一个押注的人
 
@@ -182,6 +184,7 @@ func (t *ThDesk) OGRaiseBet(user *ThUser,coin int64) error{
 
 	//这里需要判断加注是否是all in
 
+	log.T("用户[%v]开始加注",user.UserId)
 
 	err := t.BetUserRaise(user,coin)
 	if err != nil {
@@ -197,14 +200,16 @@ func (t *ThDesk) OGRaiseBet(user *ThUser,coin int64) error{
 	result.NextSeat = new(int32)
 	result.MinRaise = new(int64)
 	result.CanRaise = new(int32)
+	result.HandCoin = new(int64)
+	result.Coin     = new(int64)
 
-	result.Coin = &t.BetAmountNow        			//本轮压了多少钱
-	result.Seat = &user.Seat                			//座位id
+	*result.Coin = user.GetRoomCoin()        			//本轮压了多少钱
+	result.Seat  = &user.Seat                		//座位id
 	result.Tableid 		= &t.Id
-	*result.CanRaise	= t.GetCanRise()		     		//是否能加注
-	*result.MinRaise = t.MinRaise
+	*result.CanRaise	= t.GetCanRise()		//是否能加注
+	*result.MinRaise = t.GetMinRaise()
 	*result.NextSeat = t.GetUserByUserId(t.BetUserNow).Seat	//int32(t.GetUserIndex(t.BetUserNow))		//下一个押注的人
-	result.HandCoin = &user.HandCoin			//表示需要加注多少
+	*result.HandCoin = user.HandCoin			//表示需要加注多少
 
 	//给所有人广播信息
 	t.THBroadcastProto(result,0)
@@ -213,9 +218,26 @@ func (t *ThDesk) OGRaiseBet(user *ThUser,coin int64) error{
 }
 
 
+//得到当前用户需要加注的金额
+func (t *ThDesk) GetMinRaise() int64{
+	//无限加注,上次加注额度的两倍,加上追平的金额
+	//return t.MinRaise*2+t.BetAmountNow-t.GetUserByUserId(t.BetUserNow).HandCoin
+
+	log.T("获取用户[%v]的最低加注金额,handCoin[%v],t.MinRaise[%v],t.BetAmountNow[%v]",t.BetUserNow,t.GetUserByUserId(t.BetUserNow).HandCoin,t.MinRaise,t.BetAmountNow)
+	result := t.MinRaise+t.BetAmountNow-t.GetUserByUserId(t.BetUserNow).HandCoin
+	if result < 0 {
+		//现在处理的有可能是新的一局开始
+		result = t.BigBlindCoin
+	}
+
+	return result
+}
+
+
 //联众德州 让牌
 func (t *ThDesk) OGCheckBet(user *ThUser) error{
 
+	log.T("用户[%v]开始让牌",user.UserId)
 	//1,让牌
 	err := t.BetUserCheck(user.UserId)
 	if err != nil {
@@ -226,20 +248,23 @@ func (t *ThDesk) OGCheckBet(user *ThUser) error{
 	//2,计算洗一个押注的人
 	t.NextBetUser()
 
-
 	//3押注成功返回要住成功的消息
 	log.T("打印user[%v]让牌的结果:",user.UserId)
 	result := &bbproto.Game_AckCheckBet{}
 	result.NextSeat = new(int32)
 	result.MinRaise = new(int64)
 	result.CanRaise = new(int32)
+	result.HandCoin = new(int64)
+	result.Coin = new(int64)
 
-	result.Coin = &t.BetAmountNow        			//本轮压了多少钱
+	*result.Coin = user.GetRoomCoin()        			//本轮压了多少钱
 	result.Seat = &user.Seat                			//座位id
 	result.Tableid = &t.Id
 	*result.CanRaise = t.GetCanRise()		     		//是否能加注
-	*result.MinRaise = t.MinRaise				//最低加注金额
+	*result.MinRaise = t.GetMinRaise()				//最低加注金额
 	*result.NextSeat = t.GetUserByUserId(t.BetUserNow).Seat	//int32(t.GetUserIndex(t.BetUserNow))		//下一个押注的人
+	*result.HandCoin = user.HandCoin
+
 	t.THBroadcastProtoAll(result)
 
 	return nil
@@ -440,7 +465,6 @@ func NewGame_WinCoin() *bbproto.Game_WinCoin{
 //
 func (t *ThDesk) getWinCoinInfo() []*bbproto.Game_WinCoin{
 	var ret []*bbproto.Game_WinCoin
-
 	//对每个人做计算
 	for i := 0; i < len(t.Users); i++ {
 		u := t.Users[i]
