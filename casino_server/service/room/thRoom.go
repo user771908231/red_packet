@@ -812,7 +812,7 @@ func (t *ThDesk) OnInitCards() error {
 	//给每个人分配手牌
 	for i := 0; i < len(t.Users); i++ {
 		//只有当用不为空,并且是在游戏中的状态的时候,才可以发牌
-		if t.Users[i] != nil && t.Users[i].Status = TH_USER_STATUS_BETING {
+		if t.Users[i] != nil && t.Users[i].Status == TH_USER_STATUS_BETING {
 			begin := i * 2 + 5
 			end := i * 2 + 5 + 2
 			t.Users[i].Cards = totalCards[begin:end]
