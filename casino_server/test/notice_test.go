@@ -15,8 +15,8 @@ import (
 func TestNotice(t *testing.T) {
 	initSys()
 	//saveNotice()
-	getNoticeByType(noticeServer.NOTICE_TYPE_GUNDONG)		//type
-	//getNoticeByType(noticeServer.NOTICE_TYPE_CHONGZHI)		//type
+	//getNoticeByType(noticeServer.NOTICE_TYPE_GUNDONG)		//type
+	getNoticeByType(noticeServer.NOTICE_TYPE_CHONGZHI)		//type
 	//getNoticeByType(noticeServer.NOTICE_TYPE_GONGGAO)		//type
 }
 
@@ -52,7 +52,7 @@ func getNoticeByType(noticeType int32){
 	defer conn.Close()
 
 	pid := int32(bbproto.EProtoId_PID_GAME_GAMENOTICE)
-	data2 := &bbproto.GameNotice{}
+	data2 := &bbproto.Game_Notice{}
 	data2.NoticeType = &noticeType
 	m2 := test.AssembleDataNomd5(uint16(pid), data2)
 	conn.Write(m2)

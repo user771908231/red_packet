@@ -19,6 +19,7 @@ import (
 	"casino_server/mode"
 	"gopkg.in/mgo.v2/bson"
 	"casino_server/gamedata"
+	"os/user"
 )
 //config
 
@@ -515,30 +516,30 @@ type ThDesk struct {
 	Number             int32                        //桌子的编号
 	DeskType           int32                        //桌子的类型,1,表示自定义房间,2表示锦标赛的
 	Dealer             uint32                       //庄家
-	PublicPai          []*bbproto.Pai               //公共牌的部分
-	UserCount          int32                        //玩游戏的总人数
-	UserCountOnline    int32                        //在先人数
-	Users              []*ThUser                    //坐下的人
-	Status             int32                        //牌桌的状态
-	BigBlindCoin       int64                        //大盲注的押注金额
-	SmallBlindCoin     int64                        //小盲注的押注金额
-	BigBlind           uint32                       //大盲注
-	SmallBlind         uint32                       //小盲注
-	NewRoundBetUser    uint32                       //新一轮,开始押注的第一个人//第一轮默认是小盲注,但是当小盲注弃牌之后,这个人要滑倒下一家去
-	BetUserRaiseUserId uint32                       //加注的人的Id,一轮结束的判断需要按照这个人为准
-	BetUserNow         uint32                       //当前押注人的Id
-	RemainTime         int32                        //剩余投资的时间  多少秒
-	BetAmountNow       int64                        //当前的押注金额是多少
-	RoundCount         int32                        //低几轮
-	CheckUserFirst     uint32                       //第一个人让牌的人
-	Jackpot            int64                        //奖金池
+	PublicPai            []*bbproto.Pai             //公共牌的部分
+	UserCount            int32                      //玩游戏的总人数
+	UserCountOnline      int32                      //在先人数
+	Users                []*ThUser                  //坐下的人
+	Status               int32                      //牌桌的状态
+	BigBlindCoin         int64                      //大盲注的押注金额
+	SmallBlindCoin       int64                      //小盲注的押注金额
+	BigBlind             uint32                     //大盲注
+	SmallBlind           uint32                     //小盲注
+	NewRoundFirstBetUser uint32                     //新一轮,开始押注的第一个人//第一轮默认是小盲注,但是当小盲注弃牌之后,这个人要滑倒下一家去
+	BetUserRaiseUserId   uint32                     //加注的人的Id,一轮结束的判断需要按照这个人为准
+	BetUserNow           uint32                     //当前押注人的Id
+	RemainTime           int32                      //剩余投资的时间  多少秒
+	BetAmountNow         int64                      //当前的押注金额是多少
+	RoundCount           int32                      //低几轮
+	CheckUserFirst       uint32                     //第一个人让牌的人
+	Jackpot              int64                      //奖金池
 	bianJackpot        int64                        //边池
 	AllInJackpot       []*pokerService.AllInJackpot //allin的标记
 	MinRaise           int64                        //最低加注金额
 	CanRaise           int32                        //是否能加注
 	deskOwner          uint32                       //房主的id
 	RoomKey            string                       //room 自定义房间的钥匙
-	InitRoomCoin       int64			//进入这个房间的roomCoin 带入金额标准是多少
+	InitRoomCoin       int64                        //进入这个房间的roomCoin 带入金额标准是多少
 	JuCount            int32                        //这个桌子最多能打多少局
 }
 
@@ -560,7 +561,7 @@ func NewThDesk() *ThDesk {
 	result.RemainTime = 0
 	result.BetUserRaiseUserId = 0
 	result.RoundCount = 0
-	result.NewRoundBetUser = 0
+	result.NewRoundFirstBetUser = 0
 	result.bianJackpot = 0
 	result.Number = ThGameRoomIns.RandDeskNumber()
 	result.SmallBlindCoin = ThGameRoomIns.SmallBlindCoin
@@ -605,7 +606,7 @@ func (t *ThDesk) LogString() {
 	log.T("当前desk[%v]的信息的状态,大盲注[%v]", t.Id, t.BigBlind)
 	log.T("当前desk[%v]的信息的状态,压注人[%v]", t.Id, t.BetUserNow)
 	log.T("当前desk[%v]的信息的状态,压注轮次[%v]", t.Id, t.RoundCount)
-	log.T("当前desk[%v]的信息的状态,NewRoundBetUser[%v]", t.Id, t.NewRoundBetUser)
+	log.T("当前desk[%v]的信息的状态,NewRoundBetUser[%v]", t.Id, t.NewRoundFirstBetUser)
 	log.T("当前desk[%v]的信息的状态,总共押注Jackpot[%v]", t.Id, t.Jackpot)
 	log.T("当前desk[%v]的信息的状态,边池bianJackpot[%v]", t.Id, t.bianJackpot)
 	log.T("当前desk[%v]的信息的状态,当前加注的人BetUserRaiseUserId[%v]", t.Id, t.BetUserRaiseUserId)
@@ -1000,7 +1001,7 @@ func (t *ThDesk) OninitThDeskBeginStatus() error {
 	}
 
 	t.BetUserRaiseUserId = t.BetUserNow        //第一个加注的人
-	t.NewRoundBetUser = t.SmallBlind           //新一轮开始默认第一个押注的人,第一轮默认是小盲注
+	t.NewRoundFirstBetUser = t.SmallBlind           //新一轮开始默认第一个押注的人,第一轮默认是小盲注
 	t.RoundCount = TH_DESK_ROUND1
 	t.BetAmountNow = t.BigBlindCoin                   //设置第一次跟住时的跟注金额应该是多少
 	t.MinRaise = t.BigBlindCoin
@@ -1381,7 +1382,7 @@ func (t *ThDesk) BetUserCall(user  *ThUser) error {
 	followCoin := t.BetAmountNow - user.HandCoin
 	if user.RoomCoin <= followCoin {
 		//allin
-		t.BetUserAllIn(user.UserId, followCoin)
+		t.BetUserAllIn(user.UserId, user.RoomCoin)
 	} else {
 		//1,增加奖池的金额
 		t.AddBetCoin(followCoin)
@@ -1399,11 +1400,11 @@ func (t *ThDesk) AddBetCoin(coin int64) error {
 
 //如果弃牌的人是 t.NewRoundBetUser ,需要重新设置值
 func (t *ThDesk) NextNewRoundBetUser() error {
-	index := t.GetUserIndex(t.NewRoundBetUser)
+	index := t.GetUserIndex(t.NewRoundFirstBetUser)
 	for i := index + 1; i < len(t.Users) + index; i++ {
 		u := t.Users[i % len(t.Users)]
 		if u != nil && u.Status == TH_USER_STATUS_BETING {
-			t.NewRoundBetUser = u.UserId
+			t.NewRoundFirstBetUser = u.UserId
 			break
 		}
 		//如果没有找到,那么返回失败
@@ -1466,7 +1467,6 @@ func (t *ThDesk) BetUserRaise(user *ThUser, coin int64) error {
 		}
 		//开始allin
 		t.BetUserAllIn(user.UserId, user.RoomCoin)
-		user.Status = TH_USER_STATUS_ALLINING	//设置用户的状态为all-in
 
 
 	}else{
@@ -1494,7 +1494,13 @@ func (t *ThDesk) BetUserAllIn(userId uint32, coin int64) error {
 	//2,减少用户的金额
 	t.caclUserCoin(userId, coin)
 
-	//3,增加all in的状态
+	//3,设置用户的状态
+	t.GetUserByUserId(userId).Status = TH_USER_STATUS_ALLINING	//设置用户的状态为all-in
+	if t.NewRoundFirstBetUser == userId {				//如果用户是第一个押注的人,all-in之后第一个押注的是往下滑
+		t.NextNewRoundBetUser()
+	}
+
+	//4,增加all in的状态
 	allinpot := &pokerService.AllInJackpot{}
 	allinpot.UserId = userId
 	allinpot.Jackpopt = 0
@@ -1560,8 +1566,8 @@ func (t *ThDesk) NextBetUser() error {
 	if t.BetUserNow == 0 || t.BetUserRaiseUserId == t.BetUserNow {
 		//处理allin 奖金池分割的问题
 		t.CalcAllInJackpot()
-		t.BetUserRaiseUserId = t.NewRoundBetUser
-		t.BetUserNow = t.NewRoundBetUser
+		t.BetUserRaiseUserId = t.NewRoundFirstBetUser
+		t.BetUserNow = t.NewRoundFirstBetUser
 		t.BetAmountNow = 0
 		t.RoundCount ++
 		log.T("设置下次押注的人是小盲注,下轮次[%v]", t.RoundCount)

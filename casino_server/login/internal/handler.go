@@ -175,6 +175,7 @@ func handlerNullMsg(args []interface{}) {
 func handlerNotice(args []interface{}) {
 	m :=  args[0].(*bbproto.Game_Notice)
 	a :=  args[1].(gate.Agent)
+	log.T("查询公告type[%v]",m.GetNoticeType())
 	tnotice := noticeServer.GetNoticeByType(m.GetNoticeType())
 	a.WriteMsg(tnotice)
 }

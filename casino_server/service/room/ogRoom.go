@@ -141,7 +141,7 @@ func (t *ThDesk) OgFoldBet(user  *ThUser) error {
 
 	//1,弃牌
 	//如果弃牌的人是 t.NewRoundBetUser ,需要重新设置值
-	if t.NewRoundBetUser == user.UserId {
+	if t.NewRoundFirstBetUser == user.UserId {
 		t.NextNewRoundBetUser()
 	}
 	user.Status = TH_USER_STATUS_FOLDED
@@ -220,7 +220,8 @@ func (t *ThDesk) OGRaiseBet(user *ThUser,coin int64) error{
 //得到当前用户需要加注的金额
 func (t *ThDesk) GetMinRaise() int64{
 	//无限加注,上次加注额度的两倍,加上追平的金额
-	return t.MinRaise*2+t.BetAmountNow-t.GetUserByUserId(t.BetUserNow).HandCoin
+	//return t.MinRaise*2+t.BetAmountNow-t.GetUserByUserId(t.BetUserNow).HandCoin
+	return t.MinRaise+t.BetAmountNow-t.GetUserByUserId(t.BetUserNow).HandCoin
 }
 
 
