@@ -1426,25 +1426,38 @@ func (t *ThDesk) BetUserCheck(userId uint32) error {
 
 //用户加注
 func (t *ThDesk) BetUserRaise(user *ThUser, coin int64) error {
-	log.T("开始[%v],nickname[%v]操作用户加注[%v]的操作,user.handcoin[%v].t.BetAmountNow[%v]",user.UserId,user.NickName,coin,user.HandCoin,t.BetAmountNow)
+	log.T("开始[%v],nickname[%v]操作用户加注[%v]的操作,user.RoomCoin[%v],user.handcoin[%v].t.BetAmountNow[%v]",user.UserId,user.NickName,coin,user.RoomCoin,user.HandCoin,t.BetAmountNow)
 
-	//1,如果用户的钱不够了,那么就是all in
-	if t.BetAmountNow >= (user.HandCoin+user.RoomCoin) {
+	/**
+		判断allin的条件
+		1,加注的金额coin 和受伤的余额一样多的情况	coin == user.RoomCoin
+	 */
+
+	//all-in的情况
+	if coin == user.RoomCoin{
+		//如果加注的金额和手上的余额一样大的话,all in
+		if(coin + user.HandCoin) < t.BetAmountNow{
+			//表示钱不够,被迫all-in,此时的betamountNow 不会改变
+		}else {
+			//设置下家需要跟注的金额
+			t.BetAmountNow = user.HandCoin + coin
+		}
+		//开始allin
 		t.BetUserAllIn(user.UserId, user.RoomCoin)
-		return nil
+
+	}else{
+		//普通加注的情况
+		t.BetAmountNow  = user.HandCoin + coin
+
+		//1,增加奖池的金额
+		t.AddBetCoin(coin)                                //desk-coin
+		//2,减少用户的金额
+		t.caclUserCoin(user.UserId, coin)                        //thuser
+		userService.DecreaseUserCoin(user.UserId, coin)        //redis-user
+		//3,设置状态:设置为第一个加注的人,如果后边所有人都是跟注,可由这个人判断一轮是否结束
+		t.BetUserRaiseUserId = user.UserId
 	}
 
-	//allin 之后的数据有问题
-	t.BetAmountNow += coin
-	betCoin := t.BetAmountNow - user.HandCoin
-
-	//1,增加奖池的金额
-	t.AddBetCoin(betCoin)                                //desk-coin
-	//2,减少用户的金额
-	t.caclUserCoin(user.UserId, betCoin)                        //thuser
-	userService.DecreaseUserCoin(user.UserId, betCoin)        //redis-user
-	//3,设置状态:设置为第一个加注的人,如果后边所有人都是跟注,可由这个人判断一轮是否结束
-	t.BetUserRaiseUserId = user.UserId
 	return nil
 }
 
