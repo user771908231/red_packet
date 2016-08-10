@@ -36,7 +36,7 @@ var TH_DESK_MAX_START_USER int32 = 8         //玩德州扑克,每个房间最�
 
 //德州扑克 玩家的状态
 var TH_USER_STATUS_WAITSEAT int32 = 1        //刚上桌子 等待开始的玩家
-var TH_USER_STATUS_SEATED int32 = 2          //刚上桌子 游戏中的玩家
+var TH_USER_STATUS_SEATED int32 = 2          //刚上桌子 但是没有在游戏中
 var TH_USER_STATUS_BETING int32 = 3          //押注中
 var TH_USER_STATUS_ALLINING int32 = 4        //allIn
 var TH_USER_STATUS_FOLDED int32 = 5          //弃牌
@@ -765,10 +765,26 @@ func (t *ThDesk) InitUserBeginStatus() error {
 	log.T("开始一局新的游戏,开始初始化用户的状态")
 	for i := 0; i < len(t.Users); i++ {
 		u := t.Users[i]
+
+		//判断用户是否为空
 		if u != nil {
 			log.T("用户[%v]的status[%v],BreakStatus[%v],:",u.UserId,u.Status,u.BreakStatus)
+		}else {
+			continue
 		}
-		if u != nil && u.BreakStatus == TH_USER_BREAK_STATUS_FALSE {
+
+		//判断余额是否足够
+		if u.RoomCoin <= t.BigBlindCoin {
+			u.Status = TH_USER_STATUS_SEATED	//只是坐下,没有游戏中
+			u.HandCoin = 0
+			u.TurnCoin = 0
+			u.winAmount = 0
+			u.winAmountDetail = nil
+			continue
+		}
+
+		//判断用户是否离线
+		if u.BreakStatus == TH_USER_BREAK_STATUS_FALSE {
 			log.T("开始初始化用户[%v]的状态",u.UserId)
 			u.Status = TH_USER_STATUS_BETING
 			u.HandCoin = 0
@@ -795,7 +811,8 @@ func (t *ThDesk) OnInitCards() error {
 	log.T("初始化得到的公共牌的信息:")
 	//给每个人分配手牌
 	for i := 0; i < len(t.Users); i++ {
-		if t.Users[i] != nil {
+		//只有当用不为空,并且是在游戏中的状态的时候,才可以发牌
+		if t.Users[i] != nil && t.Users[i].Status = TH_USER_STATUS_BETING {
 			begin := i * 2 + 5
 			end := i * 2 + 5 + 2
 			t.Users[i].Cards = totalCards[begin:end]
@@ -1443,6 +1460,7 @@ func (t *ThDesk) BetUserRaise(user *ThUser, coin int64) error {
 			//表示钱不够,被迫all-in,此时的betamountNow 不会改变
 		}else {
 			//主动设置下家需要跟注的金额
+			t.MinRaise = user.HandCoin+coin-t.BetAmountNow
 			t.BetAmountNow = user.HandCoin + coin
 			t.BetUserRaiseUserId = user.UserId
 		}
@@ -1452,9 +1470,9 @@ func (t *ThDesk) BetUserRaise(user *ThUser, coin int64) error {
 
 
 	}else{
+		t.MinRaise = user.HandCoin+coin-t.BetAmountNow
 		//普通加注的情况
 		t.BetAmountNow  = user.HandCoin + coin
-
 		//1,增加奖池的金额
 		t.AddBetCoin(coin)                                //desk-coin
 		//2,减少用户的金额
@@ -1546,7 +1564,6 @@ func (t *ThDesk) NextBetUser() error {
 		t.BetUserNow = t.NewRoundBetUser
 		t.BetAmountNow = 0
 		t.RoundCount ++
-
 		log.T("设置下次押注的人是小盲注,下轮次[%v]", t.RoundCount)
 	}
 
@@ -1567,7 +1584,7 @@ func (t *ThDesk) nextRoundInfo() {
 	//一轮完之后需要发送完成的消息
 	sendData := NewGame_SendOverTurn()
 	*sendData.Tableid = t.Id
-	*sendData.MinRaise = t.MinRaise
+	*sendData.MinRaise = t.GetMinRaise()
 	*sendData.NextSeat = t.GetUserByUserId(t.BetUserNow).Seat        //int32(t.GetUserIndex(t.BetUserNow))
 	sendData.Handcoin = t.GetHandCoin()
 	//sendData.Coin = t.GetCoin()
@@ -1828,12 +1845,13 @@ func (mydesk *ThDesk) OGRun() error {
 	initCardB.ActionTime = new(int32)
 	initCardB.DelayTime = new(int32)
 	initCardB.NextUser = new(int32)
+	initCardB.MinRaise = new(int64)
 
 	//设置初始化值
 	*initCardB.Tableid = int32(mydesk.Id)
 	initCardB.HandCard = mydesk.GetHandCard()
 	initCardB.PublicCard = mydesk.ThPublicCard2OGC()
-	initCardB.MinRaise = &mydesk.MinRaise
+	*initCardB.MinRaise = mydesk.GetMinRaise()
 	*initCardB.NextUser = mydesk.GetUserByUserId(mydesk.BetUserNow).Seat                //	int32(mydesk.GetUserIndex(mydesk.BetUserNow))
 	*initCardB.ActionTime = TH_TIMEOUT_DURATION_INT
 	//initCardB.Seat = &mydesk.UserCount

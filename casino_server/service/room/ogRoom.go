@@ -125,7 +125,7 @@ func (t *ThDesk) OgFollowBet(user *ThUser) error {
 	*result.Tableid		= t.Id
 	//*result.CanRaise	= t.CanRaise		     		//是否能加注
 	*result.CanRaise	= int32(1)		     		//是否能加注
-	*result.MinRaise	= t.MinRaise
+	*result.MinRaise	= t.GetMinRaise()
 	*result.Pool		= t.Jackpot
 	*result.NextSeat	= t.GetUserByUserId(t.BetUserNow).Seat //int32(t.GetUserIndex(t.BetUserNow))		//下一个押注的人
 	*result.HandCoin 	= user.HandCoin
@@ -166,7 +166,7 @@ func (t *ThDesk) OgFoldBet(user  *ThUser) error {
 
 	result.Seat = &user.Seat                			//座位id
 	result.Tableid = &t.Id
-	*result.MinRaise = t.MinRaise
+	*result.MinRaise = t.GetMinRaise()
 	*result.CanRaise = t.GetCanRise()		     		//是否能加注
 	*result.NextSeat = t.GetUserByUserId(t.BetUserNow).Seat	//int32(t.GetUserIndex(t.BetUserNow))		//下一个押注的人
 
@@ -206,7 +206,7 @@ func (t *ThDesk) OGRaiseBet(user *ThUser,coin int64) error{
 	result.Seat  = &user.Seat                		//座位id
 	result.Tableid 		= &t.Id
 	*result.CanRaise	= t.GetCanRise()		//是否能加注
-	*result.MinRaise = t.MinRaise
+	*result.MinRaise = t.GetMinRaise()
 	*result.NextSeat = t.GetUserByUserId(t.BetUserNow).Seat	//int32(t.GetUserIndex(t.BetUserNow))		//下一个押注的人
 	*result.HandCoin = user.HandCoin			//表示需要加注多少
 
@@ -214,6 +214,13 @@ func (t *ThDesk) OGRaiseBet(user *ThUser,coin int64) error{
 	t.THBroadcastProto(result,0)
 	log.T("开始处理seat[%v]加注的逻辑,t,OGRaiseBet()...end",user.Seat)
 	return nil
+}
+
+
+//得到当前用户需要加注的金额
+func (t *ThDesk) GetMinRaise() int64{
+	//无限加注,上次加注额度的两倍,加上追平的金额
+	return t.MinRaise*2+t.BetAmountNow-t.GetUserByUserId(t.BetUserNow).HandCoin
 }
 
 
@@ -243,7 +250,7 @@ func (t *ThDesk) OGCheckBet(user *ThUser) error{
 	result.Seat = &user.Seat                			//座位id
 	result.Tableid = &t.Id
 	*result.CanRaise = t.GetCanRise()		     		//是否能加注
-	*result.MinRaise = t.MinRaise				//最低加注金额
+	*result.MinRaise = t.GetMinRaise()				//最低加注金额
 	*result.NextSeat = t.GetUserByUserId(t.BetUserNow).Seat	//int32(t.GetUserIndex(t.BetUserNow))		//下一个押注的人
 	*result.HandCoin = user.HandCoin
 

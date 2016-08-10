@@ -203,7 +203,7 @@ func initGameSendgameInfoByDesk(mydesk *room.ThDesk, result *bbproto.Game_SendGa
 	*result.GameStatus = deskStatus2OG(mydesk)
 	*result.Pool = int64(mydesk.Jackpot)                //奖池
 	result.Publiccard = mydesk.ThPublicCard2OGC()        //公共牌...
-	*result.MinRaise = int64(mydesk.MinRaise)        //最低加注金额
+	*result.MinRaise = mydesk.GetMinRaise()        //最低加注金额
 	*result.NInitActionTime = int32(room.TH_TIMEOUT_DURATION_INT)
 	*result.NInitDelayTime = int32(room.TH_TIMEOUT_DURATION_INT)
 	result.Handcard = mydesk.GetHandCard()		//用户手牌
