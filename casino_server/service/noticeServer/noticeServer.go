@@ -3,7 +3,6 @@ package noticeServer
 import (
 	"casino_server/mode"
 	"strings"
-	"majiang/utils/numUtils"
 	"casino_server/conf/casinoConf"
 	"casino_server/msg/bbprotogo"
 	"casino_server/utils/redis"
@@ -11,6 +10,7 @@ import (
 	"gopkg.in/mgo.v2/bson"
 	"casino_server/common/log"
 	"errors"
+	"casino_server/utils/numUtils"
 )
 
 

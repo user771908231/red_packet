@@ -25,30 +25,24 @@ var (
 /**
 	用户通过钻石创建游戏房间
 	ateDesk(userId,initCoin,roomKey,smallBlind,bigBlind,juCount)
+
+	//新修改:创建房间的时候roomKey 系统指定,不需要用户输入
  */
 
-func HandlerCreateDesk(userId uint32,roomCoin int64,roomKey string,smallBlind int64,bigBlind int64,jucount int32) error{
+func HandlerCreateDesk(userId uint32,roomCoin int64,smallBlind int64,bigBlind int64,jucount int32) (*room.ThDesk,error){
 
-	//1,判断roomKey是否已经存在
-	if room.ThGameRoomIns.IsRoomKeyExist(roomKey) {
-		log.E("房间密钥[%v]已经存在,创建房间失败",roomKey)
-		return errors.New("房间密钥已经存在,创建房间失败")
-	}
+	//1,得到一个随机的密钥
+	roomKey := room.ThGameRoomIns.RandRoomKey()
 
 	//2,开始创建房间
 	desk,err := room.ThGameRoomIns.CreateDeskByUserIdAndRoomKey(userId,roomCoin,roomKey,smallBlind ,bigBlind ,jucount );
 	if err != nil {
 		log.E("用户创建房间失败errMsg[%v]",err.Error())
-		return err
+		return nil,err
 	}
-	//3,根据返回的desk返回创建房间的信息, todo 用户进入房间
-	result := newGame_SendGameInfo()                //需要返回的信息
-	initGameSendgameInfoByDesk(desk, result,userId)
-	log.T("给请求登陆房间的人[%v]回复信息[%v]",userId,result)
 
-	//4 发送进入游戏房间的广播
-	desk.OGTHBroadAddUser(result)
-	return nil
+	//new : 创建房间之后返回创建房间的结果,不用知己进入房间
+	return desk,nil
 
 }
 

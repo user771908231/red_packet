@@ -168,6 +168,8 @@ func HandlerREQQuickConn(args []interface{}) {
 //空协议
 func handlerNullMsg(args []interface{}) {
 	log.T("收到一条空消息")
+	a := args[1].(gate.Agent)
+	a.WriteMsg(&bbproto.NullMsg{})
 }
 
 
@@ -177,5 +179,6 @@ func handlerNotice(args []interface{}) {
 	a :=  args[1].(gate.Agent)
 	log.T("查询公告type[%v]",m.GetNoticeType())
 	tnotice := noticeServer.GetNoticeByType(m.GetNoticeType())
+	log.T("查询到了notice[%v]",tnotice)
 	a.WriteMsg(tnotice)
 }

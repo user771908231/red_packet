@@ -427,6 +427,17 @@ message Game_CreateDesk{
     optional int32  initCount       =   6;  //初始的局数
 }
 
+//创建房间回复的信息
+message Game_AckCreateDesk{
+    optional int32  result          =   1;  //返回的结果
+    optional int32 deskId          =   2;  //用户id
+    optional string password        =   3;  //房间密码
+
+}
+
+
+
+
 
 
 

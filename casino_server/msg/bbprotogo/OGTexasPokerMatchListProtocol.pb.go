@@ -238,6 +238,7 @@ It has these top-level messages:
 	Game_Notice
 	Game_AckNotice
 	Game_CreateDesk
+	Game_AckCreateDesk
 	Reg
 	RoomMsg
 	TBetRecord
