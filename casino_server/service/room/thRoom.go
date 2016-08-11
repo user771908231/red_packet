@@ -1630,12 +1630,14 @@ func (t *ThDesk) NextBetUser() error {
 		t.RoundCount ++
 		t.MinRaise = t.BigBlindCoin        //第二轮开始的时候,最低加注金额设置喂大盲注
 
-		//for i := 0; i < len(t.Users); i++ {
-		//	u := t.Users[i]
-		//	if u != nil {
-		//		u.HandCoin = 0
-		//	}
-		//}
+
+		////这里吧TurnCoin设置0 是为了是getMinRaise的值正确,目前turnCoin的作用只是在这里
+		for i := 0; i < len(t.Users); i++ {
+			u := t.Users[i]
+			if u != nil {
+				u.TurnCoin = 0
+			}
+		}
 
 		log.T("设置下次押注的人是小盲注,下轮次[%v]", t.RoundCount)
 	}

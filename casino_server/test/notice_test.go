@@ -16,8 +16,8 @@ func TestNotice(t *testing.T) {
 	initSys()
 	//saveNotice()
 	//getNoticeByType(noticeServer.NOTICE_TYPE_GUNDONG)		//type
-	//getNoticeByType(noticeServer.NOTICE_TYPE_CHONGZHI)		//type
-	getNoticeByType(noticeServer.NOTICE_TYPE_GONGGAO)		//type
+	getNoticeByType(noticeServer.NOTICE_TYPE_CHONGZHI)		//type
+	//getNoticeByType(noticeServer.NOTICE_TYPE_GONGGAO)		//type
 }
 
 func saveNotice(){

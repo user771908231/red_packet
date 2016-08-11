@@ -222,7 +222,7 @@ func (t *ThDesk) GetMinRaise() int64{
 	//return t.MinRaise*2+t.BetAmountNow-t.GetUserByUserId(t.BetUserNow).HandCoin
 
 	log.T("获取用户[%v]的最低加注金额,handCoin[%v],t.MinRaise[%v],t.BetAmountNow[%v]",t.BetUserNow,t.GetUserByUserId(t.BetUserNow).HandCoin,t.MinRaise,t.BetAmountNow)
-	result := t.MinRaise+t.BetAmountNow-t.GetUserByUserId(t.BetUserNow).HandCoin
+	result := t.MinRaise+t.BetAmountNow-t.GetUserByUserId(t.BetUserNow).TurnCoin
 	if result < 0 {
 		//现在处理的有可能是新的一局开始
 		result = t.BigBlindCoin
