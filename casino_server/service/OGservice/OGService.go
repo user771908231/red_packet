@@ -47,6 +47,22 @@ func HandlerCreateDesk(userId uint32,roomCoin int64,smallBlind int64,bigBlind in
 }
 
 
+//用户准备
+func HandlerReady(m *bbproto.Game_Ready,a gate.Agent) error{
+
+	//1,找到userId
+	userId := m.GetUserId()
+
+	//2,通过userId 找到桌子
+	desk := room.ThGameRoomIns.GetDeskByUserId(userId)
+
+	//3,用户开始准备
+	desk.Ready(userId)
+
+	//4,返回准备的结果
+	return nil
+}
+
 //处理登录游戏的协议
 /**
 	1,判断用户是否已经登陆了游戏
@@ -97,7 +113,9 @@ func HandlerGameEnterMatch(m *bbproto.Game_EnterMatch, a gate.Agent) error {
 	//4,最后:确定是否开始游戏, 上了牌桌之后,如果玩家人数大于1,并且游戏处于stop的状态,则直接开始游戏
 
 	//如果是朋友桌的话,需要房主点击开始才能开始...
-	go mydesk.OGRun()
+	if mydesk.DeskType == room.TH_DESK_TYPE_JINBIAOSAI {
+		go mydesk.OGRun()
+	}
 
 	return nil
 }

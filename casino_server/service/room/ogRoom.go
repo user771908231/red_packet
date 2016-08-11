@@ -16,7 +16,6 @@ var (
 	POKER_COLOR_COUNT int32 = 4
 )
 
-
 var (
 	POKER_VALUE_A int32 = 0
 	POKER_VALUE_2 int32 = 1
@@ -35,7 +34,6 @@ var (
 	POKER_VALUE_BACK int32 = 52    // 牌背
 	POKER_VALUE_EMPTY int32 = 53    // 没牌
 )
-
 
 
 //通过座位号来找到user

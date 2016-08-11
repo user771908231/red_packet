@@ -45,8 +45,10 @@ func init() {
 	handler(&bbproto.Game_RaiseBet{},handlerRaise)			//处理加注的请求
 	handler(&bbproto.Game_FoldBet{},handlerFoldBet)			//处理弃牌的请求
 	handler(&bbproto.Game_CheckBet{},handlerCheckBet)		//处理让牌的请求
+	handler(&bbproto.Game_CreateDesk{},handlerCreateDesk)		//创建房间
 
-	handler(&bbproto.Game_CreateDesk{},handlerCreateDesk)
+	handler(&bbproto.Game_Ready{},handlerReady)			//准备游戏
+	handler(&bbproto.Game_Begin{},handlerBegin)			//开始游戏
 }
 
 func handler(m interface{}, h interface{}) {
@@ -296,6 +298,26 @@ func  handlerGameEnterMatch(args []interface{}){
 	OGservice.HandlerGameEnterMatch(m,a)
 }
 
+
+//处理准备游戏
+func handlerReady(args []interface{}){
+
+	m := args[0].(*bbproto.Game_Ready)
+	a := args[1].(gate.Agent)
+	OGservice.HandlerReady(m,a)
+
+}
+
+
+//开始游戏的请求
+func handlerBegin(args []interface{}){
+
+
+}
+
+
+
+
 //处理跟注
 func handlerFollowBet(args []interface{}){
 	m := args[0].(*bbproto.Game_FollowBet)
@@ -328,4 +350,6 @@ func handlerCheckBet(args []interface{}){
 	desk := room.ThGameRoomIns.GetDeskById(m.GetTableid())
 	desk.OGBet(seatId,room.TH_DESK_BET_TYPE_CHECK,0)
 }
+
+
 

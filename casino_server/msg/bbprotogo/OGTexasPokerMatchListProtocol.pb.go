@@ -239,11 +239,15 @@ It has these top-level messages:
 	Game_AckNotice
 	Game_CreateDesk
 	Game_AckCreateDesk
+	Game_Ready
+	Game_AckReady
+	Game_Begin
 	Reg
 	RoomMsg
 	TBetRecord
 	TZjhRound
 	TNotice
+	ThServerUser
 	ThServerDesk
 	Shuiguoji
 	ShuiguojiHilomp
