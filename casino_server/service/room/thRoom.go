@@ -19,6 +19,7 @@ import (
 	"casino_server/mode"
 	"gopkg.in/mgo.v2/bson"
 	"casino_server/gamedata"
+	"casino_server/utils/numUtils"
 )
 //config
 
@@ -128,7 +129,7 @@ func (r *ThGameRoom) CreateDeskByUserIdAndRoomKey(userId uint32, roomCoin int64,
 
 	//1,创建房间
 	desk := NewThDesk()
-	desk.RoomKey = roomkey
+	desk.RoomKey,_ = numUtils.Int2String(desk.Id)
 	desk.InitRoomCoin = roomCoin
 	desk.deskOwner = userId
 	desk.SmallBlindCoin = smallBlind
@@ -1574,12 +1575,12 @@ func (t *ThDesk) NextBetUser() error {
 		t.RoundCount ++
 		t.MinRaise = t.BigBlindCoin	//第二轮开始的时候,最低加注金额设置喂大盲注
 
-		for i := 0; i < len(t.Users); i++ {
-			u := t.Users[i]
-			if u != nil {
-				u.HandCoin = 0
-			}
-		}
+		//for i := 0; i < len(t.Users); i++ {
+		//	u := t.Users[i]
+		//	if u != nil {
+		//		u.HandCoin = 0
+		//	}
+		//}
 
 		log.T("设置下次押注的人是小盲注,下轮次[%v]", t.RoundCount)
 	}
@@ -1602,7 +1603,7 @@ func (t *ThDesk) nextRoundInfo() {
 	*sendData.Tableid = t.Id
 	*sendData.MinRaise = t.GetMinRaise()
 	*sendData.NextSeat = t.GetUserByUserId(t.BetUserNow).Seat        //int32(t.GetUserIndex(t.BetUserNow))
-	//sendData.Handcoin = t.GetHandCoin()
+	sendData.Handcoin = t.GetHandCoin()
 	sendData.Coin = t.GetRoomCoin()
 	*sendData.Pool = t.Jackpot
 	sendData.SecondPool = t.GetSecondPool()

@@ -25,15 +25,17 @@ var (
 /**
 	用户通过钻石创建游戏房间
 	ateDesk(userId,initCoin,roomKey,smallBlind,bigBlind,juCount)
+
+	//新修改:创建房间的时候roomKey 系统指定,不需要用户输入
  */
 
 func HandlerCreateDesk(userId uint32,roomCoin int64,roomKey string,smallBlind int64,bigBlind int64,jucount int32) error{
 
 	//1,判断roomKey是否已经存在
-	if room.ThGameRoomIns.IsRoomKeyExist(roomKey) {
-		log.E("房间密钥[%v]已经存在,创建房间失败",roomKey)
-		return errors.New("房间密钥已经存在,创建房间失败")
-	}
+	//if room.ThGameRoomIns.IsRoomKeyExist(roomKey) {
+	//	log.E("房间密钥[%v]已经存在,创建房间失败",roomKey)
+	//	return errors.New("房间密钥已经存在,创建房间失败")
+	//}
 
 	//2,开始创建房间
 	desk,err := room.ThGameRoomIns.CreateDeskByUserIdAndRoomKey(userId,roomCoin,roomKey,smallBlind ,bigBlind ,jucount );
