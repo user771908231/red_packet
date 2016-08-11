@@ -20,6 +20,7 @@ import (
 	"gopkg.in/mgo.v2/bson"
 	"casino_server/gamedata"
 	"casino_server/utils/numUtils"
+	"casino_server/utils"
 )
 //config
 
@@ -110,6 +111,20 @@ func (r *ThGameRoom) Run() {
 
 }
 
+//随机生成6位数字
+func (r *ThGameRoom) RandRoomKey() string{
+	a :=  utils.Rand(100000,1000000)
+	roomKey,_ := numUtils.Int2String(a)
+	//1,判断roomKey是否已经存在
+	if r.IsRoomKeyExist(roomKey) {
+		log.E("房间密钥[%v]已经存在,创建房间失败,重新创建",roomKey)
+		return r.RandRoomKey()
+	}else{
+		log.T("最终得到的密钥是[%v]",roomKey)
+		return roomKey
+	}
+}
+
 
 //判断roomkey是否已经存在了
 func (r *ThGameRoom) IsRoomKeyExist(roomkey string) bool {
@@ -129,7 +144,7 @@ func (r *ThGameRoom) CreateDeskByUserIdAndRoomKey(userId uint32, roomCoin int64,
 
 	//1,创建房间
 	desk := NewThDesk()
-	desk.RoomKey,_ = numUtils.Int2String(desk.Id)
+	desk.RoomKey = roomkey
 	desk.InitRoomCoin = roomCoin
 	desk.deskOwner = userId
 	desk.SmallBlindCoin = smallBlind

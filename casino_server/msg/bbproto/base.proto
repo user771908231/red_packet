@@ -65,7 +65,7 @@ enum  EProtoId{
 	PID_GAME_GAMENOTICE		=	53;		//请求公告
 	PID_GAME_GAME_ACKNOTICE	=	54;		//回复公告
 	PID_GAME_GAME_CREATEDESK	=	55;	//创建房间的请求
-
+	PID_GAME_GAME_ACKCREATEDESK = 	56;	//回复创建房间的请求
 }
 
 

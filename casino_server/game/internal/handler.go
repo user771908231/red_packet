@@ -259,16 +259,34 @@ func handlerGameLoginGame(args []interface{}){
 //用户创建一个房间
 func handlerCreateDesk(args []interface{}){
 	m := args[0].(*bbproto.Game_CreateDesk)
+	a := args[1].(gate.Agent)
 	userId := m.GetUserId()
 	initCoin := m.GetInitCoin()	//房卡就是钻石...
-	roomKey :=  m.GetPassword()
 	smallBlind := m.GetSmallBlind()
 	bigBlind   := m.GetBigBlind()
 	juCount	   := m.GetInitCount()
 
+	//需要返回的信息
+	result := &bbproto.Game_AckCreateDesk{}
+	result.Result = new(int32)
+	result.Password = new(string)
+	result.DeskId = new(int32)
+
 	//开始创建房间
-	OGservice.HandlerCreateDesk(userId,initCoin,roomKey,smallBlind,bigBlind,juCount)
+	desk,err := OGservice.HandlerCreateDesk(userId,initCoin,smallBlind,bigBlind,juCount)
+	if err != nil {
+		log.E("创建房间失败 errmsg [%v]",err)
+		*result.Result = -1
+	}else{
+		*result.Result = 0
+		*result.DeskId = desk.Id
+		*result.Password = desk.RoomKey
+	}
+
+	//返回信息
+	a.WriteMsg(result)
 }
+
 
 // 处理请求进入游戏房间
 func  handlerGameEnterMatch(args []interface{}){

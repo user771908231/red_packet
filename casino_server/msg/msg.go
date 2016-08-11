@@ -82,5 +82,7 @@ func init() {
 	ProtoProcessor.Register(&bbproto.Game_Notice{})		//53	请求公告
 	ProtoProcessor.Register(&bbproto.Game_AckNotice{})	//54	回复请求的公告的协议
 	ProtoProcessor.Register(&bbproto.Game_CreateDesk{})	//55	创建德州的游戏房间
+	ProtoProcessor.Register(&bbproto.Game_AckCreateDesk{})	//56	创建德州的游戏房间
+
 
 }

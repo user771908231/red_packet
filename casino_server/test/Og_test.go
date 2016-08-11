@@ -27,6 +27,8 @@ func TestOg(t *testing.T) {
 	//rEQQuickConn(10006)
 
 	createDesk(10084,"roomkkkk")
+
+
 	for ; ;  {
 	}
 }
