@@ -15,9 +15,9 @@ import (
 func TestNotice(t *testing.T) {
 	initSys()
 	//saveNotice()
-	getNoticeByType(noticeServer.NOTICE_TYPE_GUNDONG)		//type
+	//getNoticeByType(noticeServer.NOTICE_TYPE_GUNDONG)		//type
 	//getNoticeByType(noticeServer.NOTICE_TYPE_CHONGZHI)		//type
-	//getNoticeByType(noticeServer.NOTICE_TYPE_GONGGAO)		//type
+	getNoticeByType(noticeServer.NOTICE_TYPE_GONGGAO)		//type
 }
 
 func saveNotice(){
@@ -36,9 +36,9 @@ func saveNotice(){
 	saveNotice :=  &mode.T_th_notice{}
 
 	saveNotice.Id = 1
-	saveNotice.NoticeType = noticeServer.NOTICE_TYPE_GUNDONG
-	saveNotice.NoticeContent = "测试滚动公告"
-	saveNotice.NoticeTitle	 = "测试滚动公告的标题"
+	saveNotice.NoticeType = noticeServer.NOTICE_TYPE_GONGGAO
+	saveNotice.NoticeContent = "测试公告333"
+	saveNotice.NoticeTitle	 = "测试公告的标题33333333"
 	noticeServer.SaveNotice(saveNotice)
 }
 
