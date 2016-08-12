@@ -12,87 +12,81 @@ func init() {
 	// 这里我们注册了一个 JSON 消息 Hello
 
 	//次处注册proto 的消息
-	ProtoProcessor.Register(&bbproto.TestP1{})		//0	测试用
-	ProtoProcessor.Register(&bbproto.Reg{})			//1	注册协议(已经废弃)
-	ProtoProcessor.Register(&bbproto.ReqAuthUser{})		//2	登陆、注册的协议
-	ProtoProcessor.Register(&bbproto.HeatBeat{})		//3	心跳协议,检测网络是否联通
-	ProtoProcessor.Register(&bbproto.GetIntoRoom{})		//4	进入房间时候的请求
-	ProtoProcessor.Register(&bbproto.RoomMsg{})		//5	给指定房间发送信息
-	ProtoProcessor.Register(&bbproto.GetRewards{})		//6	各种奖励
-	ProtoProcessor.Register(&bbproto.Shuiguoji{})		//7	水果机
-	ProtoProcessor.Register(&bbproto.ShuiguojiHilomp{})	//8	水果机比大小
-	ProtoProcessor.Register(&bbproto.ShuiguojiRes{})	//9	水果机的回应包
+	ProtoProcessor.Register(&bbproto.GetIntoRoom{})		//1	进入房间时候的请求
+	ProtoProcessor.Register(&bbproto.Shuiguoji{})		//2	水果机
+	ProtoProcessor.Register(&bbproto.ShuiguojiHilomp{})	//3	水果机比大小
+	ProtoProcessor.Register(&bbproto.ShuiguojiRes{})	//4	水果机的回应包
 
 	//扎金花
-	ProtoProcessor.Register(&bbproto.ZjhRoom{})		//10	进入扎金花的房间
-	ProtoProcessor.Register(&bbproto.ZjhBet{})		//11	进入扎金花的房间
-	ProtoProcessor.Register(&bbproto.ZjhMsg{})		//12	进入扎金花的房间
-	ProtoProcessor.Register(&bbproto.ZjhQueryNoSeatUser{})	//13	进入扎金花的房间
-	ProtoProcessor.Register(&bbproto.ZjhReqSeat{})		//14	进入扎金花的房间
-	ProtoProcessor.Register(&bbproto.ZjhLottery{})		//15	进入扎金花的房间
-	ProtoProcessor.Register(&bbproto.ZjhBroadcastBeginBet{})	//16 广播可以押注了
+	ProtoProcessor.Register(&bbproto.ZjhRoom{})		//5	进入扎金花的房间
+	ProtoProcessor.Register(&bbproto.ZjhBet{})		//6	进入扎金花的房间
+	ProtoProcessor.Register(&bbproto.ZjhMsg{})		//7	进入扎金花的房间
+	ProtoProcessor.Register(&bbproto.ZjhQueryNoSeatUser{})	//8	进入扎金花的房间
+	ProtoProcessor.Register(&bbproto.ZjhReqSeat{})		//9	进入扎金花的房间
+	ProtoProcessor.Register(&bbproto.ZjhLottery{})		//10	进入扎金花的房间
+	ProtoProcessor.Register(&bbproto.ZjhBroadcastBeginBet{})//11 广播可以押注了
 
 
 	//用户奖励相关的
-	ProtoProcessor.Register(&bbproto.LoginSignInBonus{})	//17	登录签到奖励
-	ProtoProcessor.Register(&bbproto.LoginTurntableBonus{})	//18	登录转盘奖励
-	ProtoProcessor.Register(&bbproto.OlineBonus{})		//19	在线奖励
-	ProtoProcessor.Register(&bbproto.TimingBonus{})		//20	定时奖励
+	ProtoProcessor.Register(&bbproto.LoginSignInBonus{})	//12	登录签到奖励
+	ProtoProcessor.Register(&bbproto.LoginTurntableBonus{})	//13	登录转盘奖励
+	ProtoProcessor.Register(&bbproto.OlineBonus{})		//14	在线奖励
+	ProtoProcessor.Register(&bbproto.TimingBonus{})		//15	定时奖励
 
 
 	//德州扑克
-	ProtoProcessor.Register(&bbproto.ThRoom{})		//21	德州扑克
-	ProtoProcessor.Register(&bbproto.THBet{})		//22	德州扑克押注
-	ProtoProcessor.Register(&bbproto.THBetBegin{})		//23	开始德州扑克的广播
-	ProtoProcessor.Register(&bbproto.THBetBroadcast{})	//24	德州扑克,押注之后的广播
-	ProtoProcessor.Register(&bbproto.THRoomAddUserBroadcast{})	//25	房间增加一个玩家
+	ProtoProcessor.Register(&bbproto.ThRoom{})		//16	德州扑克
+	ProtoProcessor.Register(&bbproto.THBet{})		//17	德州扑克押注
+	ProtoProcessor.Register(&bbproto.THBetBegin{})		//18	开始德州扑克的广播
+	ProtoProcessor.Register(&bbproto.THBetBroadcast{})	//19	德州扑克,押注之后的广播
+	ProtoProcessor.Register(&bbproto.THRoomAddUserBroadcast{})//20	房间增加一个玩家
 
 
 	//联众游戏
-	ProtoProcessor.Register(&bbproto.REQQuickConn{})	//26	//登陆
-	ProtoProcessor.Register(&bbproto.ACKQuickConn{})	//27	登陆回复
-	ProtoProcessor.Register(&bbproto.NullMsg{})		//28	空消息
-	ProtoProcessor.Register(&bbproto.MatchList_ReqMobileMatchList{})	//29	快速开始游戏
-	ProtoProcessor.Register(&bbproto.Game_LoginGame{})	//30	登陆游戏
-	ProtoProcessor.Register(&bbproto.Game_EnterMatch{})	//31	进入房间
-	ProtoProcessor.Register(&bbproto.Game_AckEnterMatch{})	//32
-	ProtoProcessor.Register(&bbproto.Game_SendGameInfo{})	//33
+	ProtoProcessor.Register(&bbproto.REQQuickConn{})	//21	//登陆
+	ProtoProcessor.Register(&bbproto.ACKQuickConn{})	//22	登陆回复
+	ProtoProcessor.Register(&bbproto.NullMsg{})		//23	空消息
+	ProtoProcessor.Register(&bbproto.MatchList_ReqMobileMatchList{})	//24	快速开始游戏
+	ProtoProcessor.Register(&bbproto.Game_LoginGame{})	//25	登陆游戏
+	ProtoProcessor.Register(&bbproto.Game_EnterMatch{})	//26	进入房间
+	ProtoProcessor.Register(&bbproto.Game_AckEnterMatch{})	//27
+	ProtoProcessor.Register(&bbproto.Game_SendGameInfo{})	//28
 
 	//开始游戏
-	ProtoProcessor.Register(&bbproto.Game_BlindCoin{})	//34	盲注
-	ProtoProcessor.Register(&bbproto.Game_InitCard{})	//35	手牌
-	ProtoProcessor.Register(&bbproto.Game_SendFlopCard{})	//36	3张公共牌
-	ProtoProcessor.Register(&bbproto.Game_SendTurnCard{})	//37	4张牌
-	ProtoProcessor.Register(&bbproto.Game_SendRiverCard{})	//38	5张牌
+	ProtoProcessor.Register(&bbproto.Game_BlindCoin{})	//29	盲注
+	ProtoProcessor.Register(&bbproto.Game_InitCard{})	//30	手牌
+	ProtoProcessor.Register(&bbproto.Game_SendFlopCard{})	//31	3张公共牌
+	ProtoProcessor.Register(&bbproto.Game_SendTurnCard{})	//32	4张牌
+	ProtoProcessor.Register(&bbproto.Game_SendRiverCard{})	//33	5张牌
 
-	ProtoProcessor.Register(&bbproto.Game_RaiseBet{})	//39	加注
-	ProtoProcessor.Register(&bbproto.Game_AckRaiseBet{})	//40	加注回复
-	ProtoProcessor.Register(&bbproto.Game_FollowBet{})	//41	跟注
-	ProtoProcessor.Register(&bbproto.Game_AckFollowBet{})	//42	跟注回复
-	ProtoProcessor.Register(&bbproto.Game_FoldBet{})	//43	弃牌
-	ProtoProcessor.Register(&bbproto.Game_AckFoldBet{})	//44	弃牌回复
-	ProtoProcessor.Register(&bbproto.Game_CheckBet{})	//45	让牌
-	ProtoProcessor.Register(&bbproto.Game_AckCheckBet{})	//46	让牌回复
-	ProtoProcessor.Register(&bbproto.Game_SendOverTurn{})	//47	下一轮
-	ProtoProcessor.Register(&bbproto.Game_SendAddUser{})	//48	新增用户
-	ProtoProcessor.Register(&bbproto.Game_ShowCard{})	//49	请求开牌
-	ProtoProcessor.Register(&bbproto.Game_AckShowCard{})	//50	回复 亮自己的手牌
-	ProtoProcessor.Register(&bbproto.Game_TestResult{})	//51	一局结束之后,返回结果
-	ProtoProcessor.Register(&bbproto.Game_PreCoin{})	//52	前注的协议号码
-	ProtoProcessor.Register(&bbproto.Game_Notice{})		//53	请求公告
-	ProtoProcessor.Register(&bbproto.Game_AckNotice{})	//54	回复请求的公告的协议
-	ProtoProcessor.Register(&bbproto.Game_CreateDesk{})	//55	创建德州的游戏房间
-	ProtoProcessor.Register(&bbproto.Game_AckCreateDesk{})	//56	创建德州的游戏房间
+	ProtoProcessor.Register(&bbproto.Game_RaiseBet{})	//34	加注
+	ProtoProcessor.Register(&bbproto.Game_AckRaiseBet{})	//35	加注回复
+	ProtoProcessor.Register(&bbproto.Game_FollowBet{})	//36	跟注
+	ProtoProcessor.Register(&bbproto.Game_AckFollowBet{})	//37	跟注回复
+	ProtoProcessor.Register(&bbproto.Game_FoldBet{})	//38	弃牌
+	ProtoProcessor.Register(&bbproto.Game_AckFoldBet{})	//39	弃牌回复
+	ProtoProcessor.Register(&bbproto.Game_CheckBet{})	//40	让牌
+	ProtoProcessor.Register(&bbproto.Game_AckCheckBet{})	//41	让牌回复
+	ProtoProcessor.Register(&bbproto.Game_SendOverTurn{})	//42	下一轮
+	ProtoProcessor.Register(&bbproto.Game_SendAddUser{})	//43	新增用户
+	ProtoProcessor.Register(&bbproto.Game_ShowCard{})	//44	请求开牌
+	ProtoProcessor.Register(&bbproto.Game_AckShowCard{})	//45	回复 亮自己的手牌
+	ProtoProcessor.Register(&bbproto.Game_TestResult{})	//46	一局结束之后,返回结果
+	ProtoProcessor.Register(&bbproto.Game_PreCoin{})	//47	前注的协议号码
+	ProtoProcessor.Register(&bbproto.Game_Notice{})		//48	请求公告
+	ProtoProcessor.Register(&bbproto.Game_AckNotice{})	//49	回复请求的公告的协议
+	ProtoProcessor.Register(&bbproto.Game_CreateDesk{})	//50	创建德州的游戏房间
+	ProtoProcessor.Register(&bbproto.Game_AckCreateDesk{})	//51	创建德州的游戏房间
 
-	ProtoProcessor.Register(&bbproto.Game_Ready{})		//57	准备游戏
-	ProtoProcessor.Register(&bbproto.Game_AckReady{})	//58	//
-	ProtoProcessor.Register(&bbproto.Game_Begin{})		//59 	开始游戏
-	ProtoProcessor.Register(&bbproto.Game_GameRecord{})     //60 	查询战绩
-	ProtoProcessor.Register(&bbproto.Game_AckGameRecord{})  //61 	查询战绩
-	ProtoProcessor.Register(&bbproto.Game_BeanGameRecord{})	//62	战绩bean
+	ProtoProcessor.Register(&bbproto.Game_Ready{})		//52	准备游戏
+	ProtoProcessor.Register(&bbproto.Game_AckReady{})	//53	//
+	ProtoProcessor.Register(&bbproto.Game_Begin{})		//54 	开始游戏
+	ProtoProcessor.Register(&bbproto.Game_GameRecord{})     //55 	查询战绩
+	ProtoProcessor.Register(&bbproto.Game_AckGameRecord{})  //56 	查询战绩
+	ProtoProcessor.Register(&bbproto.Game_BeanGameRecord{})	//57	战绩bean
 
-	ProtoProcessor.Register(&bbproto.Game_DissolveDesk{})	//63	//解散房间
-	ProtoProcessor.Register(&bbproto.Game_AckDissolveDesk{})//63	//解散房间回复
+	ProtoProcessor.Register(&bbproto.Game_DissolveDesk{})	//58	//解散房间
+	ProtoProcessor.Register(&bbproto.Game_AckDissolveDesk{})//59	//解散房间回复
 
 
 

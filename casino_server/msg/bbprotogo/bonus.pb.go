@@ -17,6 +17,8 @@ var _ = math.Inf
 
 // Ignoring public import of TerminalInfo from base.proto
 
+// Ignoring public import of User from base.proto
+
 // Ignoring public import of EProtoId from base.proto
 
 // 登陆转盘奖励,每天最多一次
@@ -30,7 +32,7 @@ type LoginTurntableBonus struct {
 func (m *LoginTurntableBonus) Reset()                    { *m = LoginTurntableBonus{} }
 func (m *LoginTurntableBonus) String() string            { return proto.CompactTextString(m) }
 func (*LoginTurntableBonus) ProtoMessage()               {}
-func (*LoginTurntableBonus) Descriptor() ([]byte, []int) { return fileDescriptor4, []int{0} }
+func (*LoginTurntableBonus) Descriptor() ([]byte, []int) { return fileDescriptor3, []int{0} }
 
 func (m *LoginTurntableBonus) GetHeader() *ProtoHeader {
 	if m != nil {
@@ -64,7 +66,7 @@ type LoginSignInBonus struct {
 func (m *LoginSignInBonus) Reset()                    { *m = LoginSignInBonus{} }
 func (m *LoginSignInBonus) String() string            { return proto.CompactTextString(m) }
 func (*LoginSignInBonus) ProtoMessage()               {}
-func (*LoginSignInBonus) Descriptor() ([]byte, []int) { return fileDescriptor4, []int{1} }
+func (*LoginSignInBonus) Descriptor() ([]byte, []int) { return fileDescriptor3, []int{1} }
 
 func (m *LoginSignInBonus) GetHeader() *ProtoHeader {
 	if m != nil {
@@ -96,7 +98,7 @@ type OlineBonus struct {
 func (m *OlineBonus) Reset()                    { *m = OlineBonus{} }
 func (m *OlineBonus) String() string            { return proto.CompactTextString(m) }
 func (*OlineBonus) ProtoMessage()               {}
-func (*OlineBonus) Descriptor() ([]byte, []int) { return fileDescriptor4, []int{2} }
+func (*OlineBonus) Descriptor() ([]byte, []int) { return fileDescriptor3, []int{2} }
 
 func (m *OlineBonus) GetHeader() *ProtoHeader {
 	if m != nil {
@@ -114,7 +116,7 @@ type TimingBonus struct {
 func (m *TimingBonus) Reset()                    { *m = TimingBonus{} }
 func (m *TimingBonus) String() string            { return proto.CompactTextString(m) }
 func (*TimingBonus) ProtoMessage()               {}
-func (*TimingBonus) Descriptor() ([]byte, []int) { return fileDescriptor4, []int{3} }
+func (*TimingBonus) Descriptor() ([]byte, []int) { return fileDescriptor3, []int{3} }
 
 func (m *TimingBonus) GetHeader() *ProtoHeader {
 	if m != nil {
@@ -130,7 +132,7 @@ func init() {
 	proto.RegisterType((*TimingBonus)(nil), "bbproto.TimingBonus")
 }
 
-var fileDescriptor4 = []byte{
+var fileDescriptor3 = []byte{
 	// 188 bytes of a gzipped FileDescriptorProto
 	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x09, 0x6e, 0x88, 0x02, 0xff, 0xe2, 0xe2, 0x4e, 0xca, 0xcf, 0x2b,
 	0x2d, 0xd6, 0x2b, 0x28, 0xca, 0x2f, 0xc9, 0x17, 0x62, 0x4f, 0x4a, 0x02, 0x33, 0xa4, 0xb8, 0x92,

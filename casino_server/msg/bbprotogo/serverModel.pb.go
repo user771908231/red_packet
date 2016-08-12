@@ -17,6 +17,8 @@ var _ = math.Inf
 
 // Ignoring public import of TerminalInfo from base.proto
 
+// Ignoring public import of User from base.proto
+
 // Ignoring public import of EProtoId from base.proto
 
 // Ignoring public import of ZjhRoom from zhajinhua.proto
@@ -53,7 +55,7 @@ type TBetRecord struct {
 func (m *TBetRecord) Reset()                    { *m = TBetRecord{} }
 func (m *TBetRecord) String() string            { return proto.CompactTextString(m) }
 func (*TBetRecord) ProtoMessage()               {}
-func (*TBetRecord) Descriptor() ([]byte, []int) { return fileDescriptor10, []int{0} }
+func (*TBetRecord) Descriptor() ([]byte, []int) { return fileDescriptor4, []int{0} }
 
 func (m *TBetRecord) GetUserId() uint32 {
 	if m != nil && m.UserId != nil {
@@ -101,7 +103,7 @@ type TZjhRound struct {
 func (m *TZjhRound) Reset()                    { *m = TZjhRound{} }
 func (m *TZjhRound) String() string            { return proto.CompactTextString(m) }
 func (*TZjhRound) ProtoMessage()               {}
-func (*TZjhRound) Descriptor() ([]byte, []int) { return fileDescriptor10, []int{1} }
+func (*TZjhRound) Descriptor() ([]byte, []int) { return fileDescriptor4, []int{1} }
 
 func (m *TZjhRound) GetId() uint32 {
 	if m != nil && m.Id != nil {
@@ -185,7 +187,7 @@ type TNotice struct {
 func (m *TNotice) Reset()                    { *m = TNotice{} }
 func (m *TNotice) String() string            { return proto.CompactTextString(m) }
 func (*TNotice) ProtoMessage()               {}
-func (*TNotice) Descriptor() ([]byte, []int) { return fileDescriptor10, []int{2} }
+func (*TNotice) Descriptor() ([]byte, []int) { return fileDescriptor4, []int{2} }
 
 func (m *TNotice) GetId() int32 {
 	if m != nil && m.Id != nil {
@@ -229,7 +231,7 @@ type ThServerUser struct {
 func (m *ThServerUser) Reset()                    { *m = ThServerUser{} }
 func (m *ThServerUser) String() string            { return proto.CompactTextString(m) }
 func (*ThServerUser) ProtoMessage()               {}
-func (*ThServerUser) Descriptor() ([]byte, []int) { return fileDescriptor10, []int{3} }
+func (*ThServerUser) Descriptor() ([]byte, []int) { return fileDescriptor4, []int{3} }
 
 type ThServerDesk struct {
 	XXX_unrecognized []byte `json:"-"`
@@ -238,7 +240,7 @@ type ThServerDesk struct {
 func (m *ThServerDesk) Reset()                    { *m = ThServerDesk{} }
 func (m *ThServerDesk) String() string            { return proto.CompactTextString(m) }
 func (*ThServerDesk) ProtoMessage()               {}
-func (*ThServerDesk) Descriptor() ([]byte, []int) { return fileDescriptor10, []int{4} }
+func (*ThServerDesk) Descriptor() ([]byte, []int) { return fileDescriptor4, []int{4} }
 
 func init() {
 	proto.RegisterType((*TBetRecord)(nil), "bbproto.TBetRecord")
@@ -248,7 +250,7 @@ func init() {
 	proto.RegisterType((*ThServerDesk)(nil), "bbproto.ThServerDesk")
 }
 
-var fileDescriptor10 = []byte{
+var fileDescriptor4 = []byte{
 	// 340 bytes of a gzipped FileDescriptorProto
 	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x09, 0x6e, 0x88, 0x02, 0xff, 0x4c, 0x91, 0xdd, 0x4e, 0xc2, 0x30,
 	0x14, 0xc7, 0x1d, 0x63, 0xcc, 0x1d, 0xbe, 0x42, 0xfd, 0xc8, 0xc2, 0x15, 0x99, 0x37, 0x5c, 0x71,

@@ -4,25 +4,18 @@ import (
 	"github.com/name5566/leaf/gate"
 	"reflect"
 	"casino_server/common/log"
-	"casino_server/service/rewardService"
 	"casino_server/service/fruitService"
 	"casino_server/msg/bbprotogo"
 	"casino_server/service/zjhService"
 	"casino_server/conf/intCons"
 	"casino_server/service/room"
 	"casino_server/service/OGservice"
-	"casino_server/service/testService"
 )
 
 func init() {
 	//
-	handler(&bbproto.TestP1{}, handleTestP1)
-	handler(&bbproto.Reg{}, handleProtHello)
-
 	//水果机相关的业务
 	handler(&bbproto.GetIntoRoom{}, handlerGetIntoRoom)
-	handler(&bbproto.RoomMsg{}, handlerRoomMsg)
-	handler(&bbproto.GetRewards{}, handlerRewards)
 	handler(&bbproto.Shuiguoji{}, handlerShuiguoji)
 	handler(&bbproto.ShuiguojiHilomp{},handlerShuiguojiHilomp)
 
@@ -60,31 +53,6 @@ func handler(m interface{}, h interface{}) {
 	skeleton.RegisterChanRPC(reflect.TypeOf(m), h)
 }
 
-func handleProtHello(args []interface{}) {
-	log.T("进入handleProtHello()")
-	// 收到的 Hello 消息
-	m := args[0].(*bbproto.Reg)
-	// 消息的发送者
-	a := args[1].(gate.Agent)
-
-	// 输出收到的消息的内容
-	log.Debug("接收到的name %v", *m.Name)
-	//给发送者回应一个 Hello 消息
-	var data bbproto.Reg
-	var n string = "hi leaf"
-	data.Name = &n
-	a.WriteMsg(&data)
-}
-
-
-//测试是否接收到广播
-func handleTestP1(args[]interface{}) {
-	log.T("进入handleTestP1()")
-	m := args[0].(*bbproto.TestP1)
-	testService.Handlertestp(m)
-}
-
-
 /**
 	请求进入游戏房间
 	1,分配房间(根据游戏类型)
@@ -101,34 +69,6 @@ func handlerGetIntoRoom(args []interface{}) {
 		room.SGJRoom.AddAgent(m.GetUserId(), a)
 	} else {
 		room.SGJRoom.RemoveAgent(m.GetUserId())
-	}
-}
-
-/**
-
-处理roomMsg
-
- */
-func handlerRoomMsg(args []interface{}) {
-	log.T("进入到 game.handlerRoomMsg()")
-	m := args[0].(*bbproto.RoomMsg)                //请求体
-	a := args[1].(gate.Agent)
-	log.T("agent:", &a)
-	room.SGJRoom.BroadcastMsg(m.GetRoomId(), m.GetMsg())
-}
-
-
-/**
-领取奖励的入口都在这里
- */
-func handlerRewards(args []interface{}) {
-	log.T("进入到 game.handlerRewards()")
-	//检测参数是否正确
-	m := args[0].(*bbproto.GetRewards)                //请求体
-	a := args[1].(gate.Agent)
-	err := rewardService.HandlerRewards(m, a)                //调用处理函数来处理
-	if err != nil {
-		log.E(err.Error())
 	}
 }
 

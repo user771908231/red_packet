@@ -1,8 +1,0 @@
-package bbproto;
-
-message GetRewards {
-    optional uint32 userId						= 1;    // app market channel
-    optional int32	rewardsType					= 3;    // 奖励的类型
-    optional string memo                        = 4;    // 奖励说明
-}
-

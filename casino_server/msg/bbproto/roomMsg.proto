@@ -1,9 +1,0 @@
-import public "base.proto";
-package bbproto;
-
-message RoomMsg {
-    optional ProtoHeader	header				= 1;
-    optional TerminalInfo	terminal			= 2;
-    optional string			msg			        = 3;
-    optional int32			roomId			    = 4;
-}
