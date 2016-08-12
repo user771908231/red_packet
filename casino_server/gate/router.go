@@ -55,5 +55,6 @@ func init() {
 	//公告
 	msg.ProtoProcessor.SetRouter(&bbproto.Game_Notice{},login.ChanRPC)	//登陆的时候查看公告信息
 	msg.ProtoProcessor.SetRouter(&bbproto.Game_CreateDesk{},game.ChanRPC)
+	msg.ProtoProcessor.SetRouter(&bbproto.Game_GameRecord{},game.ChanRPC)	//查询战绩的接口
 
 }

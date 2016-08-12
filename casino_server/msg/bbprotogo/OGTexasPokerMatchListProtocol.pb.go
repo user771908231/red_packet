@@ -242,6 +242,9 @@ It has these top-level messages:
 	Game_Ready
 	Game_AckReady
 	Game_Begin
+	Game_GameRecord
+	Game_BeanGameRecord
+	Game_AckGameRecord
 	Reg
 	RoomMsg
 	TBetRecord

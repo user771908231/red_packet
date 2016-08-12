@@ -6,14 +6,18 @@ import (
 	"fmt"
 	"casino_server/utils/test"
 	"testing"
+	"casino_server/mode"
+	"casino_server/conf/casinoConf"
+	"gopkg.in/mgo.v2/bson"
+	"github.com/name5566/leaf/db/mongodb"
 )
 
 func TestOg(t *testing.T) {
-	 //game_EnterMatch(10007)
-	 //game_EnterMatch(10008)
-	 //game_EnterMatch(10009)
-	 //game_EnterMatch(10010)
-	 //game_EnterMatch(10011)
+	//game_EnterMatch(10007)
+	//game_EnterMatch(10008)
+	//game_EnterMatch(10009)
+	//game_EnterMatch(10010)
+	//game_EnterMatch(10011)
 	//ogbet(0,20)
 	//ogbet(1,20)
 	//ogbet(2,20)
@@ -26,14 +30,17 @@ func TestOg(t *testing.T) {
 
 	//rEQQuickConn(10006)
 
-	createDesk(10084,"roomkkkk")
+	//createDesk(10084, "roomkkkk")
 
 
-	for ; ;  {
+	getRecords()
+
+
+	for ; ; {
 	}
 }
 
-func game_EnterMatch(userId uint32){
+func game_EnterMatch(userId uint32) {
 	conn, err := net.Dial(TCP, url)
 	if err != nil {
 		panic(err)
@@ -48,7 +55,7 @@ func game_EnterMatch(userId uint32){
 }
 
 //押注
-func ogbet(seatId int32,coin int64){
+func ogbet(seatId int32, coin int64) {
 	var tableId int32 = 0
 	conn, err := net.Dial(TCP, url)
 	if err != nil {
@@ -69,7 +76,7 @@ func ogbet(seatId int32,coin int64){
 
 
 //用户登陆
-func rEQQuickConn(userId uint32){
+func rEQQuickConn(userId uint32) {
 	conn, err := net.Dial(TCP, url)
 	if err != nil {
 		panic(err)
@@ -86,8 +93,7 @@ func rEQQuickConn(userId uint32){
 
 }
 
-
-func ogRaise(seatId int32,coin int64){
+func ogRaise(seatId int32, coin int64) {
 	var tableId int32 = 0
 	conn, err := net.Dial(TCP, url)
 	if err != nil {
@@ -108,7 +114,7 @@ func ogRaise(seatId int32,coin int64){
 
 
 //创建一个房间
-func createDesk(userId uint32,roomKey string){
+func createDesk(userId uint32, roomKey string) {
 	pid := int32(bbproto.EProtoId_PID_GAME_GAME_CREATEDESK)
 	reqData := &bbproto.Game_CreateDesk{}
 	reqData.BigBlind = new(int64)
@@ -136,5 +142,31 @@ func createDesk(userId uint32,roomKey string){
 
 	//读取放回的信息
 	test.Read(conn)
+}
+
+func getRecords() {
+
+	userId := 10084
+
+	//1,获取数据库连接
+	c, err := mongodb.Dial(casinoConf.DB_IP, casinoConf.DB_PORT)
+	if err != nil {
+		fmt.Println(err)
+		panic(err)
+	}
+	defer c.Close()
+
+	s := c.Ref()
+	defer c.UnRef(s)
+
+	//开始查询
+	var rets []mode.T_th_record
+	s.DB(casinoConf.DB_NAME).C(casinoConf.DBT_T_TH_RECORD).Find(bson.M{"userid": userId}).Sort("-winamount").Skip(3).Limit(4).All(&rets)
+	fmt.Println("rets:【%v】", rets)
+
+	for i := 0; i < len(rets); i++ {
+		u := rets[i]
+		fmt.Println("rets[%v]",u.Id, u.UserId,u.WinAmount)
+	}
 
 }
