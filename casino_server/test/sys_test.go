@@ -10,6 +10,11 @@ import (
 	"math/rand"
 )
 
+const url = "192.168.199.120:3797"
+//const url = "182.92.179.230:3797"
+const TCP = "tcp"
+
+
 func initSys(){
 	runtime.GOMAXPROCS(runtime.NumCPU())
 	fmt.Println("bbsvr >>>> config init...")

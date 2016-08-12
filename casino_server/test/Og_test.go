@@ -72,22 +72,6 @@ func ogbet(seatId int32, coin int64) {
 
 
 //用户登陆
-func rEQQuickConn(userId uint32) {
-	conn, err := net.Dial(TCP, url)
-	if err != nil {
-		panic(err)
-	}
-	defer conn.Close()
-	ide2 := int32(bbproto.EProtoId_REQQUICKCONN)
-
-	fmt.Println("proto 得到的id ", ide2)
-	followData := &bbproto.REQQuickConn{}
-	followData.UserId = &userId
-	m2 := test.AssembleDataNomd5(uint16(ide2), followData)
-	conn.Write(m2)
-	_ = test.Read(conn).(*bbproto.ACKQuickConn)
-
-}
 
 func ogRaise(seatId int32, coin int64) {
 	var tableId int32 = 0
