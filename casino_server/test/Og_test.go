@@ -31,7 +31,6 @@ func TestOg(t *testing.T) {
 
 	getRecords(10084)
 
-
 	for ; ; {
 	}
 }

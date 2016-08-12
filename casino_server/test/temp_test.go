@@ -5,7 +5,7 @@ import (
 	"fmt"
 )
 
-type CCC struct {
+var CCC struct {
 	I1 int
 	I2 int
 	S1 string
@@ -15,16 +15,15 @@ type CCC struct {
 
 func TestTemp(t *testing.T) {
 
-	var c = &CCC{}
-	c.I1 = 1
-	c.I2 = 1
-	c.S1 = "a"
-	c.S2 = "b"
+	CCC.I1 = 1
+	CCC.I2 = 1
+	CCC.S1 = "a"
+	CCC.S2 = "b"
 
-	fmt.Println(c.I1)
-	fmt.Println(c.I2)
-	fmt.Println(c.S1)
-	fmt.Println(c.S2)
+	fmt.Println(CCC.I1)
+	fmt.Println(CCC.I2)
+	fmt.Println(CCC.S1)
+	fmt.Println(CCC.S2)
 
 
 }
