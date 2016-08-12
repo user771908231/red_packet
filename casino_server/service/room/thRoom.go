@@ -563,7 +563,7 @@ type ThDesk struct {
 	NewRoundFirstBetUser uint32                       //新一轮,开始押注的第一个人//第一轮默认是小盲注,但是当小盲注弃牌之后,这个人要滑倒下一家去
 	BetUserNow           uint32                       //当前押注人的Id
 
-	GameNumber	     uint32			  //每一局游戏的游戏编号
+	GameNumber	     int32			  //每一局游戏的游戏编号
 	Users                []*ThUser                    //坐下的人
 	PublicPai            []*bbproto.Pai               //公共牌的部分
 	UserCount            int32                        //玩游戏的总人数

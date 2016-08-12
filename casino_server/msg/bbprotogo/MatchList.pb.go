@@ -241,6 +241,7 @@ It has these top-level messages:
 	TZjhRound
 	TNotice
 	ThServerUser
+	ThServerAllInJackpot
 	ThServerDesk
 	Shuiguoji
 	ShuiguojiHilomp

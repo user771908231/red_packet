@@ -1,5 +1,6 @@
 import public "base.proto";
 import public "zhajinhua.proto";
+import public "thPoker.proto";
 package bbproto;
 
 
@@ -38,13 +39,61 @@ message TNotice{
 
 //后台保存数据使用的mode,一般不传递给客户端,这个实体一般是保存在redis当中
 //当用程序崩溃的时候,可以用来恢复用户数据
-
 message ThServerUser{
+	optional int32	Seat			=1;		//座位号
+	optional int32	Status			=2;		//状态
+	optional int32	BreakStatus		=3;		//离线状态
+	repeated Pai    HandCards		=4;		//手牌
+	optional string waiTime			=5;		//等待的时间
+	optional string waitUUID		=6;		//等待uuid标志
+	optional int32	deskId			=7;		//桌子的id
+	optional int64 TotalBet			=8;		//总共压了多少钱
+	optional int64 TotalBet4calcAllin	=9;		//总共压了多少钱-计算allin的
+	optional int64 winAmount			=10;	//赢了多少钱
+	optional int64 TurnCoin			=11;		//押注的钱
+	optional int64 HandCoin			=12;		//押注的钱
+	optional int64 RoomCoin			=13;		//手上剩余的钱
+	repeated int64 winAmountDetail	=14;		//手牌
+    optional uint32	UserId 			=15;		//用户id
 
 }
 
-message ThServerDesk{
-	//
+message ThServerAllInJackpot{
+    optional uint32 UserId      =1;  //
+    optional int64 Jackpopt     =2;  //奖金池子
+    optional int32 ThroundCount =3;  //押注轮次
+    optional int64 AllInAmount  =4;  //allIn的值
+}
 
+
+//服务端保存桌子的状态
+message ThServerDesk{
+    optional int32	Id			=1;		//座位号
+    optional uint32	deskOwner	=2;		//开房人
+    optional string	RoomKey		=3;		//房间密钥
+    optional int32	DeskType	=4;		//房间type
+    optional int32	InitRoomCoin=5;		//进房间要代的金额
+    optional int32	JuCount			=6;		//座位号
+    optional int32	SmallBlindCoin	=7;		//座位号
+    optional int32	BigBlindCoin	=8;		//座位号
+    optional uint32	Dealer			=9;		//座位号
+    optional uint32	BigBlind	    =10;		//座位号
+    optional uint32	SmallBlind		=11;		//座位号
+    optional uint32	RaiseUserId			=12;	//座位号
+    optional uint32	NewRoundFirstBetUser=13;	//座位号
+    optional uint32	BetUserNow			=14;	//座位号
+
+    optional ThServerUser	GameNumber	=15;	//座位号
+    repeated int32	Users			    =16;	//座位号
+    repeated Pai	PublicPai			=17;	//座位号
+    optional int32	UserCount			=18;	//座位号
+    optional int32	UserCountOnline		=19;	//座位号
+    optional int32	Status			    =20;	//座位号
+    optional int64	BetAmountNow		=21;	//座位号
+    optional int32	RoundCount			=22;	//座位号
+    optional int64	Jackpot			    =23;	//座位号
+    optional int64	edgeJackpot			=24;	//座位号
+    optional int64	MinRaise			=25;	//座位号
+    optional ThServerAllInJackpot	AllInJackpot		=26;	//座位号
 
 }
