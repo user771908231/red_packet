@@ -5,9 +5,15 @@ import (
 	"fmt"
 )
 
-func TestTemp(t *testing.T) {
-	for i := 2; i < 5; i++ {
-		fmt.Println("i",i)
-	}
+type CCC struct {
+	I1 int
+	I2 int
 
 }
+
+func TestTemp(t *testing.T) {
+
+
+}
+
+

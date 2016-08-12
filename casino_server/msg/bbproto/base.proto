@@ -28,7 +28,8 @@ enum  EProtoId{
 	THBETBEGIN			=	18;		//	开始德州扑克
 	THBETBROADCAST		=	19;		//	押注之后的广播
 	THROOMADDUSERBROADCAST	=	20;	//	新用户假如德州的游戏房间
-	REQQUICKCONN 		=	21;		//	开奖的公告
+
+	PID_REQQUICKCONN 		=	21;		//	开奖的公告
 	PID_ACKQUICKCONN		=	22;		//登录 回复
 	PID_NULLMSG				=	23;		//空消息
 	PID_MATCHLIST_REQMOBILEMATCHLIST	=	24;		//快速开始游戏
