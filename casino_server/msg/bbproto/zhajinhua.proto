@@ -1,5 +1,4 @@
 import public "base.proto";
-import public "user.proto";
 
 package bbproto;
 

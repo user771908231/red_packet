@@ -1,7 +1,6 @@
 package internal
 
 import (
-	"casino_server/msg/bbprotogo"
 	"reflect"
 	"casino_server/common/log"
 	"github.com/name5566/leaf/gate"
@@ -9,12 +8,6 @@ import (
 
 func handleMsg(m interface{}, h interface{}) {
 	skeleton.RegisterChanRPC(reflect.TypeOf(m), h)
-}
-
-
-func init() {
-	handleMsg(&bbproto.HeatBeat{},handleHeatBeat)
-
 }
 
 /*

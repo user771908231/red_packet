@@ -1,8 +1,0 @@
-import public "base.proto";
-package bbproto;
-message Reg {
-	optional ProtoHeader    	header    		= 1;
-	optional string  			name 			= 2;  // name
-    optional string  			password 		= 3;  // 密码
-    optional string  			mobile 			= 4;  // 电话号码
-}

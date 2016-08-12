@@ -8,19 +8,11 @@ Package bbproto is a generated protocol buffer package.
 It is generated from these files:
 	OGTexasPokerMatchListProtocol.proto
 	OGTexasPokerProtocol.proto
-	ReqAuthUser.proto
 	base.proto
 	bonus.proto
-	getRewards.proto
-	heartbeat.proto
-	ogth.proto
-	reg.proto
-	roomMsg.proto
 	serverModel.proto
 	shuiguoji.proto
-	testp1.proto
 	thPoker.proto
-	user.proto
 	zhajinhua.proto
 
 It has these top-level messages:
@@ -195,15 +187,6 @@ It has these top-level messages:
 	OGReqRebuy
 	OGAckRebuy
 	OGBroadCastMatchRank
-	ReqAuthUser
-	ProtoHeader
-	TerminalInfo
-	LoginTurntableBonus
-	LoginSignInBonus
-	OlineBonus
-	TimingBonus
-	GetRewards
-	HeatBeat
 	REQThranReg
 	ACKThranReg
 	REQThranConn
@@ -247,8 +230,13 @@ It has these top-level messages:
 	Game_GameRecord
 	Game_BeanGameRecord
 	Game_AckGameRecord
-	Reg
-	RoomMsg
+	ProtoHeader
+	TerminalInfo
+	User
+	LoginTurntableBonus
+	LoginSignInBonus
+	OlineBonus
+	TimingBonus
 	TBetRecord
 	TZjhRound
 	TNotice
@@ -258,7 +246,6 @@ It has these top-level messages:
 	ShuiguojiHilomp
 	ShuiguojiRes
 	GetIntoRoom
-	TestP1
 	ThRoom
 	THRoomAddUserBroadcast
 	THPoker
@@ -267,7 +254,6 @@ It has these top-level messages:
 	THBetBroadcast
 	THUser
 	THLottery
-	User
 	ZjhRoom
 	ZjhBet
 	ZjhLottery

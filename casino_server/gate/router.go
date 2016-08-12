@@ -7,21 +7,14 @@ import (
 	"casino_server/msg/bbprotogo"
 	"casino_server/game"
 	"casino_server/login"
-	"casino_server/system"
 	"casino_server/bonus"
 )
 
 func init() {
 	//指定protobuf格式的路由
-	msg.ProtoProcessor.SetRouter(&bbproto.TestP1{},game.ChanRPC)
-	msg.ProtoProcessor.SetRouter(&bbproto.Reg{},login.ChanRPC)
-	msg.ProtoProcessor.SetRouter(&bbproto.ReqAuthUser{},login.ChanRPC)
-	msg.ProtoProcessor.SetRouter(&bbproto.HeatBeat{},system.ChanRPC)
 
 	//水果机
 	msg.ProtoProcessor.SetRouter(&bbproto.GetIntoRoom{},game.ChanRPC)
-	msg.ProtoProcessor.SetRouter(&bbproto.RoomMsg{},game.ChanRPC)		//给指定房间发送信息
-	msg.ProtoProcessor.SetRouter(&bbproto.GetRewards{},game.ChanRPC)	//获取奖励
 	msg.ProtoProcessor.SetRouter(&bbproto.Shuiguoji{},game.ChanRPC)		//水果机
 	msg.ProtoProcessor.SetRouter(&bbproto.ShuiguojiHilomp{},game.ChanRPC)	//水果机比大小
 
