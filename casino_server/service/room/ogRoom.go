@@ -385,7 +385,7 @@ func (t *ThDesk) GetSecondPool() []int64{
 	}
 
 	//边池
-	ret = append(ret,t.bianJackpot)
+	ret = append(ret,t.edgeJackpot)
 
 	log.T("下一句开始,返回的secondPool【%v】",ret)
 	return ret
