@@ -307,6 +307,7 @@ func (r *ThGameRoom) GetDeskByRoomKey(roomKey string) *ThDesk {
 	给指定的房间增加用户
  */
 func (r *ThGameRoom) AddUserWithRoomKey(userId uint32, roomCoin int64, roomKey string, a gate.Agent) (*ThDesk, error) {
+	log.T("玩家[%v]通过roomkey[%v]进入房间",userId,roomKey)
 	//1,首先判断roomKey 是否喂空
 	if roomKey == "" {
 		return nil, errors.New("房间密码不应该为空")

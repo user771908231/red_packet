@@ -207,6 +207,7 @@ func handlerGameLoginGame(args []interface{}){
 func handlerCreateDesk(args []interface{}){
 	m := args[0].(*bbproto.Game_CreateDesk)
 	a := args[1].(gate.Agent)
+	log.T("玩家请求创建房间m[%v]",m)
 	userId := m.GetUserId()
 	initCoin := m.GetInitCoin()	//房卡就是钻石...
 	smallBlind := m.GetSmallBlind()
@@ -231,6 +232,7 @@ func handlerCreateDesk(args []interface{}){
 	}
 
 	//返回信息
+	log.T("创建房间成功,房间的数据[%v]",result)
 	a.WriteMsg(result)
 }
 

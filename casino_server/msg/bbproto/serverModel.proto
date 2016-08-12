@@ -14,7 +14,6 @@ message TBetRecord{
 	optional	int32 	winAmount		= 4;		//这一局赢了多少
 }
 
-
 //每一轮扎金花的数据
 message TZjhRound{
 	optional	uint32	id			=	1;	//id
@@ -55,7 +54,7 @@ message ThServerUser{
 	optional int64 RoomCoin			=13;		//手上剩余的钱
 	repeated int64 winAmountDetail	=14;		//手牌
     optional uint32	UserId 			=15;		//用户id
-
+	optional int32	GameNumber		=16;		//游戏编号(每一局游戏都有独立的编号)
 }
 
 message ThServerAllInJackpot{
@@ -84,7 +83,7 @@ message ThServerDesk{
     optional uint32	BetUserNow			=14;	//座位号
 
     optional ThServerUser	GameNumber	=15;	//座位号
-    repeated int32	Users			    =16;	//座位号
+//    repeated int32	Users			    =16;	//座位号  //这里通过什么来存取比较好?,user放在thdesk中比较大
     repeated Pai	PublicPai			=17;	//座位号
     optional int32	UserCount			=18;	//座位号
     optional int32	UserCountOnline		=19;	//座位号

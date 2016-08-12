@@ -150,6 +150,7 @@ func HandlerGameEnterMatch(m *bbproto.Game_EnterMatch, a gate.Agent) error {
 	result := newGame_SendGameInfo()                //需要返回的信息
 
 
+
 	//1.1 检测参数是否正确,判断userId 是否合法
 	userCheck := userService.CheckUserIdRightful(userId)
 	if userCheck == false {
@@ -158,6 +159,7 @@ func HandlerGameEnterMatch(m *bbproto.Game_EnterMatch, a gate.Agent) error {
 	}
 
 
+	log.T("用户请求进入德州扑克的游戏房间,password[%v]",m.GetPassWord())
 	//1,进入房间,返回房间和错误信息
 	if roomKey == "" {
 		mydesk, err = room.ThGameRoomIns.AddUser(userId,roomCoin, a)
