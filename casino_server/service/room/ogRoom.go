@@ -416,9 +416,9 @@ func (mydesk *ThDesk ) GetHandCard() []*bbproto.Game_CardInfo {
 			log.T("开始给玩家[%v]解析手牌",u.UserId)
 			result := make([]*bbproto.Game_CardInfo, 0)
 			//用户手牌
-			if len(u.Cards) == 2 {
-				for i := 0; i < len(u.Cards); i++ {
-					c := u.Cards[i]
+			if len(u.HandCards) == 2 {
+				for i := 0; i < len(u.HandCards); i++ {
+					c := u.HandCards[i]
 					gc := ThCard2OGCard(c)
 					//增加到数组中
 					result = append(result, gc)

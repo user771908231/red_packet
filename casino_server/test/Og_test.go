@@ -6,10 +6,6 @@ import (
 	"fmt"
 	"casino_server/utils/test"
 	"testing"
-	"casino_server/mode"
-	"casino_server/conf/casinoConf"
-	"gopkg.in/mgo.v2/bson"
-	"github.com/name5566/leaf/db/mongodb"
 )
 
 func TestOg(t *testing.T) {
@@ -33,7 +29,7 @@ func TestOg(t *testing.T) {
 	//createDesk(10084, "roomkkkk")
 
 
-	getRecords()
+	getRecords(10084)
 
 
 	for ; ; {
@@ -144,29 +140,46 @@ func createDesk(userId uint32, roomKey string) {
 	test.Read(conn)
 }
 
-func getRecords() {
+func getRecords(userId uint32) {
 
-	userId := 10084
+	//userId := 10084
+	//
+	////1,获取数据库连接
+	//c, err := mongodb.Dial(casinoConf.DB_IP, casinoConf.DB_PORT)
+	//if err != nil {
+	//	fmt.Println(err)
+	//	panic(err)
+	//}
+	//defer c.Close()
+	//
+	//s := c.Ref()
+	//defer c.UnRef(s)
+	//
+	////开始查询
+	//var rets []mode.T_th_record
+	//s.DB(casinoConf.DB_NAME).C(casinoConf.DBT_T_TH_RECORD).Find(bson.M{"userid": userId}).Sort("-winamount").Skip(3).Limit(4).All(&rets)
+	//fmt.Println("rets:【%v】", rets)
+	//
+	//for i := 0; i < len(rets); i++ {
+	//	u := rets[i]
+	//	fmt.Println("rets[%v]",u.Id, u.UserId,u.WinAmount)
+	//}
 
-	//1,获取数据库连接
-	c, err := mongodb.Dial(casinoConf.DB_IP, casinoConf.DB_PORT)
+
+	pid := int32(bbproto.EProtoId_PID_GAME_GAME_GAMERECORD)
+	reqData := &bbproto.Game_GameRecord{}
+	reqData.UserId = new(uint32)
+	*reqData.UserId = userId
+
+	conn, err := net.Dial(TCP, url)
 	if err != nil {
-		fmt.Println(err)
 		panic(err)
 	}
-	defer c.Close()
+	defer conn.Close()
 
-	s := c.Ref()
-	defer c.UnRef(s)
-
-	//开始查询
-	var rets []mode.T_th_record
-	s.DB(casinoConf.DB_NAME).C(casinoConf.DBT_T_TH_RECORD).Find(bson.M{"userid": userId}).Sort("-winamount").Skip(3).Limit(4).All(&rets)
-	fmt.Println("rets:【%v】", rets)
-
-	for i := 0; i < len(rets); i++ {
-		u := rets[i]
-		fmt.Println("rets[%v]",u.Id, u.UserId,u.WinAmount)
-	}
-
+	m2 := test.AssembleDataNomd5(uint16(pid), reqData)
+	conn.Write(m2)
+	//读取放回的信息
+	test.Read(conn)
 }
+

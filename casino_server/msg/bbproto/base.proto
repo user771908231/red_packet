@@ -67,12 +67,12 @@ enum  EProtoId{
 	PID_GAME_GAME_CREATEDESK	=	55;	//创建房间的请求
 	PID_GAME_GAME_ACKCREATEDESK = 	56;	//回复创建房间的请求
 
-
-	PID_GAME_Game_Ready		=	57;		//准备游戏
-	PID_GAME_Game_AckReady	=	58;		//准备游戏的结果
-	PID_GAME_Game_Begin		=	59;		//开始游戏
-	PID_GAME_Game_GameRecord	=	60;	//查询战绩
-	PID_GAME_Game_BeanGameRecord	=61	;	//查询战绩的回复
+	PID_GAME_GAME_READY		=	57;		//准备游戏
+	PID_GAME_GAME_ACKREADY	=	58;		//准备游戏的结果
+	PID_GAME_GAME_BEGIN		=	59;		//开始游戏
+	PID_GAME_GAME_GAMERECORD	=	60;	//查询战绩
+	PID_GAME_GAME_ACKGAMERECORD =	61;
+	PID_GAME_GAME_BEANGAMERECORD	=62;	//查询战绩的回复
 
 }
 
