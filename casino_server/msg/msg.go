@@ -84,5 +84,16 @@ func init() {
 	ProtoProcessor.Register(&bbproto.Game_CreateDesk{})	//55	创建德州的游戏房间
 	ProtoProcessor.Register(&bbproto.Game_AckCreateDesk{})	//56	创建德州的游戏房间
 
+	ProtoProcessor.Register(&bbproto.Game_Ready{})		//57	准备游戏
+	ProtoProcessor.Register(&bbproto.Game_AckReady{})	//58	//
+	ProtoProcessor.Register(&bbproto.Game_Begin{})		//59 	开始游戏
+	ProtoProcessor.Register(&bbproto.Game_GameRecord{})     //60 	查询战绩
+	ProtoProcessor.Register(&bbproto.Game_AckGameRecord{})  //61 	查询战绩
+	ProtoProcessor.Register(&bbproto.Game_BeanGameRecord{})	//62	战绩bean
+
+	ProtoProcessor.Register(&bbproto.Game_DissolveDesk{})	//63	//解散房间
+	ProtoProcessor.Register(&bbproto.Game_AckDissolveDesk{})//63	//解散房间回复
+
+
 
 }

@@ -16,7 +16,6 @@ var (
 	POKER_COLOR_COUNT int32 = 4
 )
 
-
 var (
 	POKER_VALUE_A int32 = 0
 	POKER_VALUE_2 int32 = 1
@@ -35,7 +34,6 @@ var (
 	POKER_VALUE_BACK int32 = 52    // 牌背
 	POKER_VALUE_EMPTY int32 = 53    // 没牌
 )
-
 
 
 //通过座位号来找到user
@@ -224,7 +222,7 @@ func (t *ThDesk) GetMinRaise() int64{
 	//return t.MinRaise*2+t.BetAmountNow-t.GetUserByUserId(t.BetUserNow).HandCoin
 
 	log.T("获取用户[%v]的最低加注金额,handCoin[%v],t.MinRaise[%v],t.BetAmountNow[%v]",t.BetUserNow,t.GetUserByUserId(t.BetUserNow).HandCoin,t.MinRaise,t.BetAmountNow)
-	result := t.MinRaise+t.BetAmountNow-t.GetUserByUserId(t.BetUserNow).HandCoin
+	result := t.MinRaise+t.BetAmountNow-t.GetUserByUserId(t.BetUserNow).TurnCoin
 	if result < 0 {
 		//现在处理的有可能是新的一局开始
 		result = t.BigBlindCoin
@@ -418,9 +416,9 @@ func (mydesk *ThDesk ) GetHandCard() []*bbproto.Game_CardInfo {
 			log.T("开始给玩家[%v]解析手牌",u.UserId)
 			result := make([]*bbproto.Game_CardInfo, 0)
 			//用户手牌
-			if len(u.Cards) == 2 {
-				for i := 0; i < len(u.Cards); i++ {
-					c := u.Cards[i]
+			if len(u.HandCards) == 2 {
+				for i := 0; i < len(u.HandCards); i++ {
+					c := u.HandCards[i]
 					gc := ThCard2OGCard(c)
 					//增加到数组中
 					result = append(result, gc)

@@ -45,8 +45,15 @@ func init() {
 	handler(&bbproto.Game_RaiseBet{},handlerRaise)			//处理加注的请求
 	handler(&bbproto.Game_FoldBet{},handlerFoldBet)			//处理弃牌的请求
 	handler(&bbproto.Game_CheckBet{},handlerCheckBet)		//处理让牌的请求
+	handler(&bbproto.Game_CreateDesk{},handlerCreateDesk)		//创建房间
+	handler(&bbproto.Game_DissolveDesk{},handlerDissolveDesk)		//创建房间
 
-	handler(&bbproto.Game_CreateDesk{},handlerCreateDesk)
+
+
+	handler(&bbproto.Game_Ready{},handlerReady)			//准备游戏
+	handler(&bbproto.Game_Begin{},handlerBegin)			//开始游戏
+
+	handler(&bbproto.Game_GameRecord{},handlerGetGameRecords)	//查询战绩的接口
 }
 
 func handler(m interface{}, h interface{}) {
@@ -288,6 +295,13 @@ func handlerCreateDesk(args []interface{}){
 }
 
 
+//解散房间
+func handlerDissolveDesk(args []interface{}){
+
+
+}
+
+
 // 处理请求进入游戏房间
 func  handlerGameEnterMatch(args []interface{}){
 	m := args[0].(*bbproto.Game_EnterMatch)
@@ -295,6 +309,25 @@ func  handlerGameEnterMatch(args []interface{}){
 	//返回房间的信息
 	OGservice.HandlerGameEnterMatch(m,a)
 }
+
+
+//处理准备游戏
+func handlerReady(args []interface{}){
+	m := args[0].(*bbproto.Game_Ready)
+	a := args[1].(gate.Agent)
+	OGservice.HandlerReady(m,a)
+}
+
+
+//开始游戏的请求
+func handlerBegin(args []interface{}){
+	m := args[0].(*bbproto.Game_Begin)
+	a := args[0].(gate.Agent)
+	OGservice.HandlerBegin(m,a)
+
+
+}
+
 
 //处理跟注
 func handlerFollowBet(args []interface{}){
@@ -329,3 +362,9 @@ func handlerCheckBet(args []interface{}){
 	desk.OGBet(seatId,room.TH_DESK_BET_TYPE_CHECK,0)
 }
 
+//获得个人的战绩,并且按照时间排序
+func handlerGetGameRecords(args []interface{}){
+	m := args[0].(*bbproto.Game_GameRecord)
+	a := args[1].(gate.Agent)
+	OGservice.HandlerGetGameRecords(m,a)
+}

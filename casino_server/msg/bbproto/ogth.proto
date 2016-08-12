@@ -432,8 +432,66 @@ message Game_AckCreateDesk{
     optional int32  result          =   1;  //返回的结果
     optional int32 deskId          =   2;  //用户id
     optional string password        =   3;  //房间密码
+}
+
+//解散房间
+message Game_DissolveDesk{
+    optional uint32 userId          =   1;  //解散房间
+}
+
+//解散房间回复
+message Game_AckDissolveDesk{
+    optional uint32 userId          =   1;  //解散房间
+    optional int32  result          =   2;  //
+}
+
+
+
+//准备游戏
+message Game_Ready{
+    optional uint32 userId      =1; //userId
+}
+
+//准备游戏的结果
+message Game_AckReady{
+    optional int32 result       =1; //准备游戏的结果
+}
+
+//开始游戏
+message Game_Begin{
+    optional uint32 userId      =1; //房主的userId
+}
+
+
+//游戏战绩
+message Game_GameRecord{
+    optional int32  id          =1; //战绩id
+    optional uint32 userId      =2; //用户id
+}
+
+
+
+//message
+message Game_BeanGameRecord{
+    optional int32  id          =1; //战绩id
+    optional int64 winAmount    =2; //本局输赢多少钱
+    optional int32  deskId      =3; //关联的桌子的Id
+    optional string  beginTime    =4; //游戏开始的时间
+}
+
+//
+message Game_AckGameRecord{
+    optional uint32 userId      =1; //用户id
+    optional int32  result      =2; //查询结果
+    repeated Game_BeanGameRecord records  = 3;//结果
+
 
 }
+
+
+
+
+
 
 
 

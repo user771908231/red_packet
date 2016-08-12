@@ -50,11 +50,13 @@ func GetNoticeByType(noticeType int32) *bbproto.Game_AckNotice{
 
 		//从数据库中查询user
 		notice := &mode.T_th_notice{}
-		s.DB(casinoConf.DB_NAME).C(casinoConf.DBT_T_TH_NOTICE).Find(bson.M{"noticetype": noticeType}).One(notice)
+
+		s.DB(casinoConf.DB_NAME).C(casinoConf.DBT_T_TH_NOTICE).Find(bson.M{"noticetype" : noticeType}).One(notice)
 		if notice.Id == 0 {
 			log.T("在mongo中没有查询到notice[%v].", noticeType)
 			result = nil
 		}else{
+			log.T("数据库中查询到noticeType[%v]的 notice[%v]",noticeType,notice)
 			//把从数据获得的结果填充到redis的model中
 			result = tnotice2Rnotice(notice)
 			if result!=nil {

@@ -8,6 +8,13 @@ import (
 	"casino_server/gamedata"
 	"casino_server/service/userService"
 	"errors"
+	"github.com/name5566/leaf/db/mongodb"
+	"casino_server/conf/casinoConf"
+	"fmt"
+	"gopkg.in/mgo.v2/bson"
+	"casino_server/mode"
+	"casino_server/conf/intCons"
+	"casino_server/utils/timeUtils"
 )
 
 //联众德州,桌子状态
@@ -47,6 +54,85 @@ func HandlerCreateDesk(userId uint32,roomCoin int64,smallBlind int64,bigBlind in
 }
 
 
+//用户准备
+func HandlerReady(m *bbproto.Game_Ready,a gate.Agent) error{
+
+	//1,找到userId
+	userId := m.GetUserId()
+
+	//2,通过userId 找到桌子
+	desk := room.ThGameRoomIns.GetDeskByUserId(userId)
+
+	//3,用户开始准备
+	desk.Ready(userId)
+
+	//4,返回准备的结果
+	return nil
+}
+
+//开始游戏
+func HandlerBegin(m *bbproto.Game_Begin,a gate.Agent) error{
+	userId := m.GetUserId()
+	desk := room.ThGameRoomIns.GetDeskByDeskOwner(userId)
+	if desk == nil {
+		log.E("没有找到房主为[%v]的desk",userId)
+		return errors.New("没有找到房间")
+	}else{
+		//开始游戏
+		desk.OGRun()
+		return nil
+	}
+}
+
+//
+func HandlerGetGameRecords(m *bbproto.Game_GameRecord,a gate.Agent){
+	userId := m.GetUserId()
+
+	//1,获取数据库连接
+	c, err := mongodb.Dial(casinoConf.DB_IP, casinoConf.DB_PORT)
+	if err != nil {
+		fmt.Println(err)
+		panic(err)
+	}
+	defer c.Close()
+
+	s := c.Ref()
+	defer c.UnRef(s)
+
+	//开始查询
+	var rets []mode.T_th_record
+	s.DB(casinoConf.DB_NAME).C(casinoConf.DBT_T_TH_RECORD).Find(bson.M{"userid": userId}).Limit(20).All(&rets)
+	log.T("查询到用户[%v]的战绩[%v]",userId,rets)
+
+	//需要返回的数据
+	resData := &bbproto.Game_AckGameRecord{}
+	resData.UserId = new(uint32)
+	resData.Result = new(int32)
+
+	*resData.UserId = userId
+	*resData.Result = intCons.ACK_RESULT_SUCC
+	for i := 0; i < len(rets); i++ {
+		tr := rets[i]
+		r := &bbproto.Game_BeanGameRecord{}
+		r.DeskId = new(int32)
+		r.Id = new(int32)
+		r.WinAmount = new(int64)
+		r.BeginTime = new(string)
+		*r.DeskId 	= tr.DeskId
+		*r.Id 		= tr.Id
+		*r.WinAmount 	= tr.WinAmount
+		*r.BeginTime 	= timeUtils.Format(tr.BeginTime)
+
+		resData.Records =  append(resData.Records,r)		//加入要返回的结果
+	}
+	//返回查询到的记录
+	a.WriteMsg(resData)
+
+}
+
+
+
+
 //处理登录游戏的协议
 /**
 	1,判断用户是否已经登陆了游戏
@@ -76,7 +162,6 @@ func HandlerGameEnterMatch(m *bbproto.Game_EnterMatch, a gate.Agent) error {
 	if roomKey == "" {
 		mydesk, err = room.ThGameRoomIns.AddUser(userId,roomCoin, a)
 	}else {
-
 		mydesk, err = room.ThGameRoomIns.AddUserWithRoomKey(userId,roomCoin,roomKey, a)
 	}
 
@@ -97,7 +182,9 @@ func HandlerGameEnterMatch(m *bbproto.Game_EnterMatch, a gate.Agent) error {
 	//4,最后:确定是否开始游戏, 上了牌桌之后,如果玩家人数大于1,并且游戏处于stop的状态,则直接开始游戏
 
 	//如果是朋友桌的话,需要房主点击开始才能开始...
-	go mydesk.OGRun()
+	if mydesk.DeskType == room.TH_DESK_TYPE_JINBIAOSAI {
+		go mydesk.OGRun()
+	}
 
 	return nil
 }
@@ -330,8 +417,6 @@ func deskStatus2OG(desk *room.ThDesk) int32 {
 
 	return result
 }
-
-
 
 
 

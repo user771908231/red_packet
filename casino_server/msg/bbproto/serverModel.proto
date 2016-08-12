@@ -38,7 +38,13 @@ message TNotice{
 
 //后台保存数据使用的mode,一般不传递给客户端,这个实体一般是保存在redis当中
 //当用程序崩溃的时候,可以用来恢复用户数据
+
+message ThServerUser{
+
+}
+
 message ThServerDesk{
+	//
 
 
 }
