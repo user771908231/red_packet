@@ -91,5 +91,9 @@ func init() {
 	ProtoProcessor.Register(&bbproto.Game_AckGameRecord{})  //61 	查询战绩
 	ProtoProcessor.Register(&bbproto.Game_BeanGameRecord{})	//62	战绩bean
 
+	ProtoProcessor.Register(&bbproto.Game_DissolveDesk{})	//63	//解散房间
+	ProtoProcessor.Register(&bbproto.Game_AckDissolveDesk{})//63	//解散房间回复
+
+
 
 }

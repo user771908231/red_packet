@@ -48,13 +48,13 @@ func init() {
 	msg.ProtoProcessor.SetRouter(&bbproto.Game_LoginGame{},game.ChanRPC)	//登陆游戏
 	msg.ProtoProcessor.SetRouter(&bbproto.Game_EnterMatch{},game.ChanRPC)	//进入游戏
 	msg.ProtoProcessor.SetRouter(&bbproto.Game_FollowBet{},game.ChanRPC)	//押注的请求
-	msg.ProtoProcessor.SetRouter(&bbproto.Game_RaiseBet{},game.ChanRPC)		//加注的请求
+	msg.ProtoProcessor.SetRouter(&bbproto.Game_RaiseBet{},game.ChanRPC)	//加注的请求
 	msg.ProtoProcessor.SetRouter(&bbproto.Game_FoldBet{},game.ChanRPC)	//弃牌的请求
 	msg.ProtoProcessor.SetRouter(&bbproto.Game_CheckBet{},game.ChanRPC)	//让牌的请求
 
 	//公告
 	msg.ProtoProcessor.SetRouter(&bbproto.Game_Notice{},login.ChanRPC)	//登陆的时候查看公告信息
-	msg.ProtoProcessor.SetRouter(&bbproto.Game_CreateDesk{},game.ChanRPC)
+	msg.ProtoProcessor.SetRouter(&bbproto.Game_CreateDesk{},game.ChanRPC)	//创建房间
+	msg.ProtoProcessor.SetRouter(&bbproto.Game_DissolveDesk{},game.ChanRPC)	//解散房间
 	msg.ProtoProcessor.SetRouter(&bbproto.Game_GameRecord{},game.ChanRPC)	//查询战绩的接口
-
 }

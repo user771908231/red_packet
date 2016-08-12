@@ -434,6 +434,18 @@ message Game_AckCreateDesk{
     optional string password        =   3;  //房间密码
 }
 
+//解散房间
+message Game_DissolveDesk{
+    optional uint32 userId          =   1;  //解散房间
+}
+
+//解散房间回复
+message Game_AckDissolveDesk{
+    optional uint32 userId          =   1;  //解散房间
+    optional int32  result          =   2;  //
+}
+
+
 
 //准备游戏
 message Game_Ready{

@@ -239,6 +239,8 @@ It has these top-level messages:
 	Game_AckNotice
 	Game_CreateDesk
 	Game_AckCreateDesk
+	Game_DissolveDesk
+	Game_AckDissolveDesk
 	Game_Ready
 	Game_AckReady
 	Game_Begin

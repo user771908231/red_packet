@@ -46,6 +46,9 @@ func init() {
 	handler(&bbproto.Game_FoldBet{},handlerFoldBet)			//处理弃牌的请求
 	handler(&bbproto.Game_CheckBet{},handlerCheckBet)		//处理让牌的请求
 	handler(&bbproto.Game_CreateDesk{},handlerCreateDesk)		//创建房间
+	handler(&bbproto.Game_DissolveDesk{},handlerDissolveDesk)		//创建房间
+
+
 
 	handler(&bbproto.Game_Ready{},handlerReady)			//准备游戏
 	handler(&bbproto.Game_Begin{},handlerBegin)			//开始游戏
@@ -289,6 +292,13 @@ func handlerCreateDesk(args []interface{}){
 
 	//返回信息
 	a.WriteMsg(result)
+}
+
+
+//解散房间
+func handlerDissolveDesk(args []interface{}){
+
+
 }
 
 
