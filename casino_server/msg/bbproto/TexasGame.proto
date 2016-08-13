@@ -1129,6 +1129,8 @@ message ACKQuickConn {
     optional string MsgUrl = 26; //用户消息的URL  ,请求访问url参数type=1 统计未读消息，type=2 显示所有消息。
     optional int32 ErrorCode = 27 [default = 0]; //0为无错误；1 用户名密码错误，其它为系统级别错误，待定。
     optional string NickName    =   28; //昵称
+    optional int32  releaseTag  = 29;    //发布版本标志
+
 
 
 }
