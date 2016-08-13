@@ -54,6 +54,13 @@ func HandlerCreateDesk(userId uint32,roomCoin int64,smallBlind int64,bigBlind in
 }
 
 
+//解散房间
+func HandlerDissolveDesk(m *bbproto.Game_DissolveDesk,a gate.Agent)error{
+	//1,找到
+	return nil
+}
+
+
 //用户准备
 func HandlerReady(m *bbproto.Game_Ready,a gate.Agent) error{
 
@@ -138,6 +145,11 @@ func HandlerGetGameRecords(m *bbproto.Game_GameRecord,a gate.Agent){
 	1,判断用户是否已经登陆了游戏
 	2,如果已经登陆了游戏,替换现有的agent
 	3,如果没有登陆游戏,走正常的流程
+
+	//错误码的说明:result
+
+
+
  */
 func HandlerGameEnterMatch(m *bbproto.Game_EnterMatch, a gate.Agent) error {
 	log.T("用户请求进入德州扑克的游戏房间,m[%v]",m)
@@ -150,14 +162,12 @@ func HandlerGameEnterMatch(m *bbproto.Game_EnterMatch, a gate.Agent) error {
 	result := newGame_SendGameInfo()                //需要返回的信息
 
 
-
 	//1.1 检测参数是否正确,判断userId 是否合法
 	userCheck := userService.CheckUserIdRightful(userId)
 	if userCheck == false {
 		log.E("进入德州扑克的房间的时候,userId[%v]不合法。", userId)
 		return errors.New("用户Id不合法")
 	}
-
 
 	log.T("用户请求进入德州扑克的游戏房间,password[%v]",m.GetPassWord())
 	//1,进入房间,返回房间和错误信息
@@ -170,6 +180,7 @@ func HandlerGameEnterMatch(m *bbproto.Game_EnterMatch, a gate.Agent) error {
 	if err != nil || mydesk == nil {
 		errMsg := err.Error()
 		log.E("用户[%v]进入房间失败,errMsg[%v]",userId,errMsg)
+		result.Result = intCons.ACK_RESULT_ERROR
 		a.WriteMsg(result)
 		return err
 	}
@@ -271,7 +282,7 @@ func newGame_SendGameInfo() *bbproto.Game_SendGameInfo {
 	result.BLeave = make([]int32, 0)
 	result.Seat = new(int32)
 	result.TurnMax = new(int64)
-
+	result.Result = new(int32)
 	return result
 }
 

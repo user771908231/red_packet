@@ -239,8 +239,12 @@ func handlerCreateDesk(args []interface{}){
 
 //解散房间
 func handlerDissolveDesk(args []interface{}){
+	//解散房间
+	m := args[0].(*bbproto.Game_DissolveDesk)
+	a := args[1].(gate.Agent)
+	log.T("解散房间的请求参数[%v]",m)
 
-
+	OGservice.HandlerDissolveDesk(m,a)
 }
 
 
