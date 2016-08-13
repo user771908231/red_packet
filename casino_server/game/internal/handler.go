@@ -243,8 +243,7 @@ func handlerDissolveDesk(args []interface{}){
 	m := args[0].(*bbproto.Game_DissolveDesk)
 	a := args[1].(gate.Agent)
 	log.T("解散房间的请求参数[%v]",m)
-
-	OGservice.HandlerDissolveDesk(m,a)
+	room.ThGameRoomIns.DissolveDeskByDeskOwner(m.GetUserId(),a)
 }
 
 

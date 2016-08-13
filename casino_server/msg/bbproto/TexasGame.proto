@@ -1189,6 +1189,8 @@ message Game_DissolveDesk{
 message Game_AckDissolveDesk{
     optional uint32 userId          =   1;  //解散房间
     optional int32  result          =   2;  //
+    optional int32  deskId          =   3;  //房间Id
+    optional string passWord        =   4;  //房间密钥
 }
 
 

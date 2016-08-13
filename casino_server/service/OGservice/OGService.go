@@ -54,13 +54,6 @@ func HandlerCreateDesk(userId uint32,roomCoin int64,smallBlind int64,bigBlind in
 }
 
 
-//解散房间
-func HandlerDissolveDesk(m *bbproto.Game_DissolveDesk,a gate.Agent)error{
-	//1,找到
-	return nil
-}
-
-
 //用户准备
 func HandlerReady(m *bbproto.Game_Ready,a gate.Agent) error{
 
@@ -180,7 +173,7 @@ func HandlerGameEnterMatch(m *bbproto.Game_EnterMatch, a gate.Agent) error {
 	if err != nil || mydesk == nil {
 		errMsg := err.Error()
 		log.E("用户[%v]进入房间失败,errMsg[%v]",userId,errMsg)
-		result.Result = intCons.ACK_RESULT_ERROR
+		*result.Result = intCons.ACK_RESULT_ERROR
 		a.WriteMsg(result)
 		return err
 	}

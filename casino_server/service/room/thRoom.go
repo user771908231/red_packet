@@ -21,6 +21,7 @@ import (
 	"casino_server/gamedata"
 	"casino_server/utils/numUtils"
 	"casino_server/utils"
+	"casino_server/conf/intCons"
 )
 //config
 
@@ -205,6 +206,38 @@ func (r *ThGameRoom) RmThroom(id int32) error {
 	return nil
 }
 
+
+//通过房主id解散房间
+func (r *ThGameRoom) DissolveDeskByDeskOwner(userId uint32,a gate.Agent) error{
+
+	result := &bbproto.Game_AckDissolveDesk{}
+	result.Result = new(int32)
+	result.UserId = new(uint32)
+	result.DeskId = new(int32)
+	result.PassWord = new(string)
+
+	//1,找到桌子
+	desk := r.GetDeskByDeskOwner(userId)	//
+	//2,解散桌子的条件,如果正在游戏中,是否能解散?
+	if desk.Status != TH_DESK_STATUS_STOP {
+		*result.Result  = intCons.ACK_RESULT_ERROR
+		a.WriteMsg(result)
+		return errors.New("游戏正在进行中,不能解散")
+	}
+
+	//3,发送解散的广播
+
+	*result.Result = intCons.ACK_RESULT_SUCC
+	*result.UserId = desk.deskOwner
+	*result.PassWord = desk.RoomKey
+
+	desk.THBroadcastProtoAll(result)
+
+	//4,解散
+	r.RmThroom(desk.Id)
+	return nil
+}
+
 //通过Id找到对应的桌子
 func (r *ThGameRoom) GetDeskById(id int32) *ThDesk {
 	var result *ThDesk = nil
@@ -269,21 +302,13 @@ func (r *ThGameRoom) GetDeskByUserId(userId uint32) *ThDesk {
 
 //通过房主来找到房间
 func (r *ThGameRoom) GetDeskByDeskOwner(userId uint32) *ThDesk {
-	var result *ThDesk
-	var breakFlag bool = false
-	desks := ThGameRoomIns.ThDeskBuf
-	for i := 0; i < len(desks); i++ {
-		if breakFlag {
-			break
-		}
-		desk := desks[i]
+	for i := 0; i < len(ThGameRoomIns.ThDeskBuf); i++ {
+		desk := ThGameRoomIns.ThDeskBuf[i]
 		if desk != nil && desk.deskOwner == userId {
-			result = desk
-			break
+			return desk
 		}
 	}
-	return result
-
+	return nil
 }
 
 /**
