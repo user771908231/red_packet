@@ -8,10 +8,12 @@ import (
 // protobuf 消息处理器
 var ProtoProcessor = protobuf.NewProcessor()
 
+
 func init() {
 	// 这里我们注册了一个 JSON 消息 Hello
 
 	//次处注册proto 的消息
+	ProtoProcessor.Register(&bbproto.User{})			//0
 	ProtoProcessor.Register(&bbproto.GetIntoRoom{})		//1	进入房间时候的请求
 	ProtoProcessor.Register(&bbproto.Shuiguoji{})		//2	水果机
 	ProtoProcessor.Register(&bbproto.ShuiguojiHilomp{})	//3	水果机比大小

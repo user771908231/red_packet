@@ -16,4 +16,5 @@ type T_th_record struct {
 	WinAmount	int64	//赢了多少钱
 	Blance		int64	//账户余额
 	BeginTime	time.Time	//游戏开始时间
+	GameNumber	int32	//游戏编号
 }

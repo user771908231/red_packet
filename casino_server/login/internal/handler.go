@@ -54,6 +54,11 @@ func HandlerREQQuickConn(args []interface{}) {
 	result.UserId = new(uint32)
 	result.NickName = new(string)
 	result.AckResult = new(int32)
+	result.ReleaseTag = new(int32)
+
+
+	//默认发布版本是1
+	*result.ReleaseTag = 1			///todo  这里需要修改
 
 	var resultUser *bbproto.User
 

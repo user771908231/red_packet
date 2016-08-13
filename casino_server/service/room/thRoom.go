@@ -21,6 +21,8 @@ import (
 	"casino_server/gamedata"
 	"casino_server/utils/numUtils"
 	"casino_server/utils"
+	"casino_server/conf/intCons"
+	"strings"
 )
 //config
 
@@ -75,9 +77,9 @@ var TH_DESK_BET_TYPE_ALLIN int32 = 7      //全下
 
 //桌子的类型
 
-var TH_DESK_TYPE_wu		int32 = 0        //没有类型
-var TH_DESK_TYPE_ZIDINGYI 	int32 = 1        //自定义桌子
-var TH_DESK_TYPE_JINBIAOSAI 	int32 = 2        //锦标赛的桌子
+var TH_DESK_TYPE_wu int32 = 0        //没有类型
+var TH_DESK_TYPE_ZIDINGYI int32 = 1        //自定义桌子
+var TH_DESK_TYPE_JINBIAOSAI int32 = 2        //锦标赛的桌子
 
 /**
 	初始化函数:
@@ -205,6 +207,38 @@ func (r *ThGameRoom) RmThroom(id int32) error {
 	return nil
 }
 
+
+//通过房主id解散房间
+func (r *ThGameRoom) DissolveDeskByDeskOwner(userId uint32, a gate.Agent) error {
+
+	result := &bbproto.Game_AckDissolveDesk{}
+	result.Result = new(int32)
+	result.UserId = new(uint32)
+	result.DeskId = new(int32)
+	result.PassWord = new(string)
+
+	//1,找到桌子
+	desk := r.GetDeskByDeskOwner(userId)        //
+	//2,解散桌子的条件,如果正在游戏中,是否能解散?
+	if desk.Status != TH_DESK_STATUS_STOP {
+		*result.Result = intCons.ACK_RESULT_ERROR
+		a.WriteMsg(result)
+		return errors.New("游戏正在进行中,不能解散")
+	}
+
+	//3,发送解散的广播
+
+	*result.Result = intCons.ACK_RESULT_SUCC
+	*result.UserId = desk.deskOwner
+	*result.PassWord = desk.RoomKey
+
+	desk.THBroadcastProtoAll(result)
+
+	//4,解散
+	r.RmThroom(desk.Id)
+	return nil
+}
+
 //通过Id找到对应的桌子
 func (r *ThGameRoom) GetDeskById(id int32) *ThDesk {
 	var result *ThDesk = nil
@@ -268,22 +302,14 @@ func (r *ThGameRoom) GetDeskByUserId(userId uint32) *ThDesk {
 }
 
 //通过房主来找到房间
-func (r *ThGameRoom) GetDeskByDeskOwner(userId uint32) *ThDesk{
-	var result *ThDesk
-	var breakFlag bool = false
-	desks := ThGameRoomIns.ThDeskBuf
-	for i := 0; i < len(desks); i++ {
-		if breakFlag {
-			break
-		}
-		desk := desks[i]
-		if desk != nil && desk.deskOwner == userId{
-			result = desk
-			break
+func (r *ThGameRoom) GetDeskByDeskOwner(userId uint32) *ThDesk {
+	for i := 0; i < len(ThGameRoomIns.ThDeskBuf); i++ {
+		desk := ThGameRoomIns.ThDeskBuf[i]
+		if desk != nil && desk.deskOwner == userId {
+			return desk
 		}
 	}
-	return result
-
+	return nil
 }
 
 /**
@@ -307,6 +333,7 @@ func (r *ThGameRoom) GetDeskByRoomKey(roomKey string) *ThDesk {
 	给指定的房间增加用户
  */
 func (r *ThGameRoom) AddUserWithRoomKey(userId uint32, roomCoin int64, roomKey string, a gate.Agent) (*ThDesk, error) {
+	log.T("玩家[%v]通过roomkey[%v]进入房间", userId, roomKey)
 	//1,首先判断roomKey 是否喂空
 	if roomKey == "" {
 		return nil, errors.New("房间密码不应该为空")
@@ -406,7 +433,7 @@ type ThUser struct {
 	waiTime            time.Time             //等待时间
 	waitUUID           string                //等待标志
 	deskId             int32                 //用户所在的桌子的编号
-	TotalBet	   int64		 //计算用户总共押注的多少钱
+	TotalBet           int64                 //计算用户总共押注的多少钱
 	TotalBet4calcAllin int64                 //押注总额 ***注意,目前这个值是用来计算all in 的
 	winAmount          int64                 //总共赢了多少钱
 	winAmountDetail    []int64               //赢钱的细节, 主要是每个记录每个奖池赢了多少钱
@@ -547,34 +574,36 @@ func NewThUser() *ThUser {
  */
 type ThDesk struct {
 	sync.Mutex
-	Id                   int32                   //roomid
-	deskOwner       uint32                       //房主的id
-	RoomKey         string                       //room 自定义房间的钥匙
-	DeskType             int32                   //桌子的类型,1,表示自定义房间,2表示锦标赛的
-	InitRoomCoin    int64                        //进入这个房间的roomCoin 带入金额标准是多少
-	JuCount         int32                        //这个桌子最多能打多少局
-	SmallBlindCoin  int64                        //小盲注的押注金额
-	BigBlindCoin    int64                        //大盲注的押注金额
+	Id                   int32                        //roomid
+	deskOwner            uint32                       //房主的id
+	RoomKey              string                       //room 自定义房间的钥匙
+	DeskType             int32                        //桌子的类型,1,表示自定义房间,2表示锦标赛的
+	InitRoomCoin         int64                        //进入这个房间的roomCoin 带入金额标准是多少
+	JuCount              int32                        //这个桌子最多能打多少局
+	SmallBlindCoin       int64                        //小盲注的押注金额
+	BigBlindCoin         int64                        //大盲注的押注金额
+	BeginTime            time.Time                    //游戏开始时间
+	EndTime              time.Time                    //游戏结束时间
 
-	Dealer               uint32                  //庄家
-	BigBlind             uint32                  //大盲注
-	SmallBlind           uint32                  //小盲注
-	RaiseUserId          uint32                  //加注的人的Id,一轮结束的判断需要按照这个人为准
-	NewRoundFirstBetUser uint32                  //新一轮,开始押注的第一个人//第一轮默认是小盲注,但是当小盲注弃牌之后,这个人要滑倒下一家去
-	BetUserNow           uint32                  //当前押注人的Id
+	Dealer               uint32                       //庄家
+	BigBlind             uint32                       //大盲注
+	SmallBlind           uint32                       //小盲注
+	RaiseUserId          uint32                       //加注的人的Id,一轮结束的判断需要按照这个人为准
+	NewRoundFirstBetUser uint32                       //新一轮,开始押注的第一个人//第一轮默认是小盲注,但是当小盲注弃牌之后,这个人要滑倒下一家去
+	BetUserNow           uint32                       //当前押注人的Id
 
-
-	Users                []*ThUser               //坐下的人
-	PublicPai            []*bbproto.Pai          //公共牌的部分
-	UserCount       int32                        //玩游戏的总人数
-	UserCountOnline int32                        //在先人数
-	Status          int32                        //牌桌的状态
-	BetAmountNow    int64                        //当前的押注金额是多少
-	RoundCount      int32                        //第几轮
-	Jackpot         int64                        //奖金池
-	edgeJackpot     int64                        //边池
-	MinRaise        int64                        //最低加注金额
-	AllInJackpot    []*pokerService.AllInJackpot //allin的标记
+	GameNumber           int32                        //每一局游戏的游戏编号
+	Users                []*ThUser                    //坐下的人
+	PublicPai            []*bbproto.Pai               //公共牌的部分
+	UserCount            int32                        //玩游戏的总人数
+	UserCountOnline      int32                        //在先人数
+	Status               int32                        //牌桌的状态
+	BetAmountNow         int64                        //当前的押注金额是多少
+	RoundCount           int32                        //第几轮
+	Jackpot              int64                        //奖金池
+	edgeJackpot          int64                        //边池
+	MinRaise             int64                        //最低加注金额
+	AllInJackpot         []*pokerService.AllInJackpot //allin的标记
 }
 
 /**
@@ -691,7 +720,7 @@ func (t *ThDesk) AddThUser(userId uint32, roomCoin int64, userStatus int32, a ga
 	//3,添加thuser
 	err := t.addThuserBean(thUser)
 	if err != nil {
-		log.E("增加user【%v】到desk【%v】失败",thUser.UserId,t.Id)
+		log.E("增加user【%v】到desk【%v】失败", thUser.UserId, t.Id)
 		return errors.New("增加user失败")
 	}
 
@@ -709,7 +738,7 @@ func (t *ThDesk) AddThUser(userId uint32, roomCoin int64, userStatus int32, a ga
 }
 
 //增加一个user实体
-func (t *ThDesk) addThuserBean(user *ThUser) error{
+func (t *ThDesk) addThuserBean(user *ThUser) error {
 	for i := 0; i < len(t.Users); i++ {
 		if t.Users[i] == nil {
 			user.Seat = int32(i)                //给用户设置位置编号
@@ -825,29 +854,29 @@ func (t *ThDesk) InitUserBeginStatus() error {
 		u.TurnCoin = 0
 		u.winAmount = 0
 		u.TotalBet4calcAllin = 0
-		u.TotalBet = 0				//新的一局游戏开始,把总的押注金额设置为0
+		u.TotalBet = 0                                //新的一局游戏开始,把总的押注金额设置为0
 		u.winAmountDetail = nil
 
 		//如果用户的余额不足或者用户的状态是属于断线的状态,则设置用户为等待入座
-		if u.RoomCoin <= t.BigBlindCoin ||  u.BreakStatus == TH_USER_BREAK_STATUS_TRUE{
-			log.T("由于用户[%v] status[%v],的roomCoin[%v] <= desk.BigBlindCoin 所以设置用户为TH_USER_STATUS_WAITSEAT",u.UserId,u.BreakStatus,u.RoomCoin,t.BigBlindCoin)
+		if u.RoomCoin <= t.BigBlindCoin || u.BreakStatus == TH_USER_BREAK_STATUS_TRUE {
+			log.T("由于用户[%v] status[%v],的roomCoin[%v] <= desk.BigBlindCoin 所以设置用户为TH_USER_STATUS_WAITSEAT", u.UserId, u.BreakStatus, u.RoomCoin, t.BigBlindCoin)
 			u.Status = TH_USER_STATUS_WAITSEAT        //只是坐下,没有游戏中
 			continue
 		}
 
 		//用户不是离线的状态,并且,用户已经准备好了,则可以开始游戏
 		if u.BreakStatus == TH_USER_BREAK_STATUS_FALSE && u.Status == TH_USER_STATUS_READY {
-			log.T("由于用户[%v]的status[%v]BreakStatus[%v],所以设置状态为TH_USER_STATUS_BETING", u.UserId,u.Status,u.BreakStatus)
+			log.T("由于用户[%v]的status[%v]BreakStatus[%v],所以设置状态为TH_USER_STATUS_BETING", u.UserId, u.Status, u.BreakStatus)
 			u.Status = TH_USER_STATUS_BETING
 		}
 	}
 
 	//------------------------------------由于联众前端设计的问题...这里的user需要重新排列user的顺序------------------------------------
-	usersTemp := make([]*ThUser,len(t.Users))
-	copy(usersTemp,t.Users)
-	log.T("原来的thsuers:[%v]",t.Users)
-	log.T("复制的thsuers:[%v]",usersTemp)
-	log.T("排序之前的thusers【%v】",t.Users)
+	usersTemp := make([]*ThUser, len(t.Users))
+	copy(usersTemp, t.Users)
+	log.T("原来的thsuers:[%v]", t.Users)
+	log.T("复制的thsuers:[%v]", usersTemp)
+	log.T("排序之前的thusers【%v】", t.Users)
 
 	//是原来的thusers置为nil
 	for i := 0; i < len(t.Users); i++ {
@@ -857,18 +886,18 @@ func (t *ThDesk) InitUserBeginStatus() error {
 	//排序游戏中的玩家
 	for i := 0; i < len(usersTemp); i++ {
 		u := usersTemp[i]
-		if  u != nil && u.Status == TH_USER_STATUS_BETING{
+		if u != nil && u.Status == TH_USER_STATUS_BETING {
 			t.addThuserBean(u)
 		}
 	}
 
 	for i := 0; i < len(usersTemp); i++ {
 		u := usersTemp[i]
-		if  u != nil && u.Status != TH_USER_STATUS_BETING{
+		if u != nil && u.Status != TH_USER_STATUS_BETING {
 			t.addThuserBean(u)
 		}
 	}
-	log.T("排序之后的thusers【%v】",t.Users)
+	log.T("排序之后的thusers【%v】", t.Users)
 
 	log.T("开始一局新的游戏,初始化用户的状态完毕")
 	return nil
@@ -1238,7 +1267,7 @@ func (t *ThDesk) SetStatusWaitClose() error {
 	for i := 0; i < len(t.Users); i++ {
 		u := t.Users[i]
 		if u != nil {
-			log.T("用户[%v].nickname[%v]的status[%v]",u.UserId,u.NickName,u.Status)
+			log.T("用户[%v].nickname[%v]的status[%v]", u.UserId, u.NickName, u.Status)
 			u.InitWait()        //不再等待
 			if u.Status == TH_USER_STATUS_ALLINING || u.Status == TH_USER_STATUS_BETING {
 				//如果用户当前的状态是押注中,或者all in,那么设置用户的状态喂等待结算
@@ -1284,7 +1313,7 @@ func (t *ThDesk) Lottery() error {
 			 */
 			var winCount int = t.GetWinCount()
 			bonus := a.Jackpopt / int64(winCount)        //每个人赢的奖金
-			log.T("allInJackpot[%v]的总共有[%v]人获得奖励[%v],平均[%v]",i,winCount, a.Jackpopt,bonus)
+			log.T("allInJackpot[%v]的总共有[%v]人获得奖励[%v],平均[%v]", i, winCount, a.Jackpopt, bonus)
 			//这里吧奖金发放给每个人之后,需要把这局allin的人排除掉,再来计算剩下的人的将近
 			//牌的方式只需要把这个人的状态设置为已经结清就行了
 			for j := 0; j < len(t.Users); j++ {
@@ -1293,19 +1322,17 @@ func (t *ThDesk) Lottery() error {
 				u := t.Users[j]
 
 				//如果用户nil,则直接开始下一次循环
-				if u  == nil{
+				if u == nil {
 					continue
 				}
 
 				//判断用户是否得奖
 				if u.Status == TH_USER_STATUS_WAIT_CLOSED && u.thCards.IsWin {
 					//可以发送奖金
-					log.T("用户[%v].status[%v],iswin[%v]在allin.index[%v]活的奖金[%v]", u.UserId,u.Status,u.thCards.IsWin,i, bonus)
+					log.T("用户[%v].status[%v],iswin[%v]在allin.index[%v]活的奖金[%v]", u.UserId, u.Status, u.thCards.IsWin, i, bonus)
 					u.winAmount += bonus
 					u.RoomCoin += bonus
 					u.winAmountDetail = append(u.winAmountDetail, bonus)
-					userService.IncreasUserCoin(u.UserId, bonus)
-
 				}
 
 				//如果用户是这个奖金池all in的用户,则此用户设置喂已经结清的状态
@@ -1334,7 +1361,6 @@ func (t *ThDesk) Lottery() error {
 				u.winAmount += bbonus
 				u.RoomCoin += bbonus
 				u.winAmountDetail = append(u.winAmountDetail, bbonus)        //详细的奖励(边池主池分开)
-				userService.IncreasUserCoin(u.UserId, bbonus)
 			}
 
 			//设置为结算完了的状态
@@ -1383,7 +1409,7 @@ func (t *ThDesk) afterLottery() error {
 	for i := 0; i < len(t.Users); i++ {
 		u := t.Users[i]
 
-		if u != nil && u.BreakStatus == TH_USER_BREAK_STATUS_FALSE{
+		if u != nil && u.BreakStatus == TH_USER_BREAK_STATUS_FALSE {
 			if t.DeskType == TH_DESK_TYPE_ZIDINGYI {
 				//如果是自定义的房间,设置每个人都是坐下的状态
 				u.Status = TH_USER_STATUS_SEATED
@@ -1405,6 +1431,7 @@ func (t *ThDesk) afterLottery() error {
 //保存数据到数据库
 func (t *ThDesk)  SaveLotteryData() error {
 
+	log.T("一局游戏结束,开始保存游戏的数据到数据库")
 	//得到连接
 	c, err := mongodb.Dial(casinoConf.DB_IP, casinoConf.DB_PORT)
 	if err != nil {
@@ -1416,6 +1443,13 @@ func (t *ThDesk)  SaveLotteryData() error {
 	// 获取回话 session
 	s := c.Ref()
 	defer c.UnRef(s)
+
+
+	//为每一局保存一组数据
+	deskRecord := &mode.T_th_desk_record{}
+	deskRecord.DeskId = t.Id
+	deskRecord.BeginTime = t.BeginTime
+	deskRecord.UserIds = ""
 
 	//循环对每个人做处理
 	for i := 0; i < len(t.Users); i++ {
@@ -1430,7 +1464,6 @@ func (t *ThDesk)  SaveLotteryData() error {
 		}
 
 		//1,修改user在redis中的数据
-		userService.IncreasUserCoin(u.UserId, u.winAmount)        //更新redis中的数据
 		userService.FlashUser2Mongo(u.UserId)                        //刷新redis中的数据到mongo
 		//2,保存游戏相关的数据
 		//todo  游戏相关的数据结构 还没有建立,
@@ -1439,12 +1472,25 @@ func (t *ThDesk)  SaveLotteryData() error {
 		thData.BetAmount = u.TotalBet
 		thData.UserId = u.UserId
 		thData.DeskId = u.deskId
-		thData.WinAmount = u.winAmount-u.TotalBet
+		thData.WinAmount = u.winAmount - u.TotalBet
 		thData.Blance = *(userService.GetUserById(u.UserId).Coin)
 		thData.BeginTime = time.Now()
+		thData.GameNumber = t.GameNumber
 		s.DB(casinoConf.DB_NAME).C(casinoConf.DBT_T_TH_RECORD).Insert(thData)
+
+		//获取游戏数据
+		userRecord := mode.BeanRecord{}
+		userRecord.UserId = u.UserId
+		userRecord.NickName = u.NickName
+		userRecord.WinAmount = u.winAmount - u.TotalBet
+
+		deskRecord.Records = append(deskRecord.Records,userRecord)
+		deskRecord.UserIds = strings.Join([]string{deskRecord.UserIds,u.NickName},",")
 	}
 
+	log.T("开始保存DBT_T_TH_DESK_RECORD的信息")
+	//保存桌子的用户信息
+	s.DB(casinoConf.DB_NAME).C(casinoConf.DBT_T_TH_DESK_RECORD).Insert(deskRecord)
 	return nil
 }
 
@@ -1548,7 +1594,6 @@ func (t *ThDesk) BetUserRaise(user *ThUser, coin int64) error {
 		t.AddBetCoin(coin)                                //desk-coin
 		//2,减少用户的金额
 		t.caclUserCoin(user.UserId, coin)                        //thuser
-		userService.DecreaseUserCoin(user.UserId, coin)        //redis-user
 		//3,设置状态:设置为第一个加注的人,如果后边所有人都是跟注,可由这个人判断一轮是否结束
 		t.RaiseUserId = user.UserId
 	}
@@ -1610,7 +1655,7 @@ func (t *ThDesk) caclUserCoin(userId uint32, coin int64) error {
 	user.TurnCoin += coin
 	user.HandCoin += coin
 	user.TotalBet4calcAllin += coin
-	user.TotalBet +=coin
+	user.TotalBet += coin
 	user.RoomCoin -= coin                //这里暂时不处理roomCoin,roomCoin是在每一轮结束的时候来结算
 	userService.DecreaseUserCoin(userId, coin)
 	return nil
@@ -1883,7 +1928,6 @@ func (t *ThDesk) IsTime2begin() bool {
 
 	//todo 金钱大于大盲注的人数必须要大于最低人数才可以玩
 	log.T("当前在线玩家的数量是[%v],当前desk的状态是[%v],1未开始,2游戏中,3,开奖中", t.UserCountOnline, t.Status)
-
 
 	if t.UserCountOnline >= TH_DESK_LEAST_START_USER  && t.Status == TH_DESK_STATUS_STOP {
 		log.T("游戏到了开始的时候----begin----")

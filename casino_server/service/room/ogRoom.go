@@ -79,7 +79,7 @@ func (t *ThDesk) OGBet(seatId int32,betType int32,coin int64) error{
 	t.nextRoundInfo()	//广播新一局的信息
 
 	if t.Tiem2Lottery() {
-		log.T("现在可以开奖了:")
+		log.T("--------------------------------------现在可以开奖了---------------------------------------------")
 		return t.Lottery()
 	}else{
 		//用户开始等待,如果超时,需要做超时的处理
@@ -231,6 +231,14 @@ func (t *ThDesk) GetMinRaise() int64{
 	return result
 }
 
+//把用户信息保存到redis
+func (t *ThDesk) UpdateThuser2Redis(userId uint32) error{
+	u := t.GetUserByUserId(userId)
+	if u != nil {
+		UpdateRedisThuser(t.Id,t.GameNumber,u.UserId,u.RoomCoin,u.HandCoin,u.TurnCoin,u.TotalBet,u.TotalBet4calcAllin,u.winAmount)
+	}
+	return nil
+}
 
 //联众德州 让牌
 func (t *ThDesk) OGCheckBet(user *ThUser) error{
