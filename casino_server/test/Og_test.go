@@ -6,6 +6,10 @@ import (
 	"fmt"
 	"casino_server/utils/test"
 	"testing"
+	"github.com/name5566/leaf/db/mongodb"
+	"casino_server/conf/casinoConf"
+	"casino_server/mode"
+	"gopkg.in/mgo.v2/bson"
 )
 
 func TestOg(t *testing.T) {
@@ -26,9 +30,10 @@ func TestOg(t *testing.T) {
 
 	//rEQQuickConn(10006)
 
-	createDesk(10084)
-
-	//getRecords(10084)
+	//createDesk(10084)
+	//
+	getRecords1()
+	//getRecords(10108)
 
 	for ; ; {
 	}
@@ -163,3 +168,22 @@ func getRecords(userId uint32) {
 	test.Read(conn)
 }
 
+
+
+func getRecords1(){
+	//1,获取数据库连接
+	c, err := mongodb.Dial(casinoConf.DB_IP, casinoConf.DB_PORT)
+	if err != nil {
+		fmt.Println(err)
+		panic(err)
+	}
+	defer c.Close()
+
+	s := c.Ref()
+	defer c.UnRef(s)
+
+	//v2 战绩查询
+	var deskRecords []mode.T_th_desk_record
+	s.DB(casinoConf.DB_NAME).C(casinoConf.DBT_T_TH_DESK_RECORD).Find(bson.M{"userids": bson.RegEx{"10108","."}}).Limit(20).All(&deskRecords)
+	fmt.Println("查询到的结果:",deskRecords)
+}

@@ -15,6 +15,7 @@ import (
 	"casino_server/mode"
 	"casino_server/conf/intCons"
 	"casino_server/utils/timeUtils"
+	"casino_server/utils/numUtils"
 )
 
 //联众德州,桌子状态
@@ -99,35 +100,49 @@ func HandlerGetGameRecords(m *bbproto.Game_GameRecord,a gate.Agent){
 	s := c.Ref()
 	defer c.UnRef(s)
 
-	//开始查询
-	var rets []mode.T_th_record
-	s.DB(casinoConf.DB_NAME).C(casinoConf.DBT_T_TH_RECORD).Find(bson.M{"userid": userId}).Limit(20).All(&rets)
-	log.T("查询到用户[%v]的战绩[%v]",userId,rets)
+	//v2 战绩查询
+	var deskRecords []mode.T_th_desk_record
+	queryKey,_ := numUtils.Uint2String(userId)
+	s.DB(casinoConf.DB_NAME).C(casinoConf.DBT_T_TH_DESK_RECORD).Find(bson.M{"userids": bson.RegEx{queryKey,"."}}).Limit(20).All(&deskRecords)
+	log.T("查询到用户[%v]的战绩[%v]",userId,deskRecords)
 
 	//需要返回的数据
-	resData := &bbproto.Game_AckGameRecord{}
-	resData.UserId = new(uint32)
-	resData.Result = new(int32)
+	resDatav2 := &bbproto.Game_AckGameRecord{}
+	resDatav2.UserId = new(uint32)
+	resDatav2.Result = new(int32)
 
-	*resData.UserId = userId
-	*resData.Result = intCons.ACK_RESULT_SUCC
-	for i := 0; i < len(rets); i++ {
-		tr := rets[i]
+	*resDatav2.UserId = userId
+	*resDatav2.Result = intCons.ACK_RESULT_SUCC
+
+	//第一层循环战绩
+	for i := 0; i < len(deskRecords); i++ {
+		tr := deskRecords[i]
 		r := &bbproto.Game_BeanGameRecord{}
 		r.DeskId = new(int32)
 		r.Id = new(int32)
-		r.WinAmount = new(int64)
 		r.BeginTime = new(string)
+
 		*r.DeskId 	= tr.DeskId
-		*r.Id 		= tr.Id
-		*r.WinAmount 	= tr.WinAmount
 		*r.BeginTime 	= timeUtils.Format(tr.BeginTime)
 
-		resData.Records =  append(resData.Records,r)		//加入要返回的结果
+		//第二层循环人
+		for j := 0; j < len(tr.Records); j++ {
+			tru := tr.Records[j]
+
+			ru := &bbproto.Game_BeanUserRecord{}
+			ru.UserId = new(uint32)
+			ru.NickName = new(string)
+			ru.WinAmount = new(int64)
+
+			*ru.UserId = tru.UserId
+			*ru.NickName = tru.NickName
+			*ru.WinAmount = tru.WinAmount
+			r.Users = append(r.Users,ru)
+		}
+		resDatav2.Records =  append(resDatav2.Records,r)		//加入要返回的结果
 	}
 	//返回查询到的记录
-	a.WriteMsg(resData)
-
+	a.WriteMsg(resDatav2)
 }
 
 

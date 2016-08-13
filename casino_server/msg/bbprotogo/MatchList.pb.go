@@ -228,6 +228,7 @@ It has these top-level messages:
 	Game_AckReady
 	Game_Begin
 	Game_GameRecord
+	Game_BeanUserRecord
 	Game_BeanGameRecord
 	Game_AckGameRecord
 	ProtoHeader

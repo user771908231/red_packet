@@ -22,6 +22,7 @@ import (
 	"casino_server/utils/numUtils"
 	"casino_server/utils"
 	"casino_server/conf/intCons"
+	"strings"
 )
 //config
 
@@ -208,7 +209,7 @@ func (r *ThGameRoom) RmThroom(id int32) error {
 
 
 //通过房主id解散房间
-func (r *ThGameRoom) DissolveDeskByDeskOwner(userId uint32,a gate.Agent) error{
+func (r *ThGameRoom) DissolveDeskByDeskOwner(userId uint32, a gate.Agent) error {
 
 	result := &bbproto.Game_AckDissolveDesk{}
 	result.Result = new(int32)
@@ -217,10 +218,10 @@ func (r *ThGameRoom) DissolveDeskByDeskOwner(userId uint32,a gate.Agent) error{
 	result.PassWord = new(string)
 
 	//1,找到桌子
-	desk := r.GetDeskByDeskOwner(userId)	//
+	desk := r.GetDeskByDeskOwner(userId)        //
 	//2,解散桌子的条件,如果正在游戏中,是否能解散?
 	if desk.Status != TH_DESK_STATUS_STOP {
-		*result.Result  = intCons.ACK_RESULT_ERROR
+		*result.Result = intCons.ACK_RESULT_ERROR
 		a.WriteMsg(result)
 		return errors.New("游戏正在进行中,不能解散")
 	}
@@ -332,7 +333,7 @@ func (r *ThGameRoom) GetDeskByRoomKey(roomKey string) *ThDesk {
 	给指定的房间增加用户
  */
 func (r *ThGameRoom) AddUserWithRoomKey(userId uint32, roomCoin int64, roomKey string, a gate.Agent) (*ThDesk, error) {
-	log.T("玩家[%v]通过roomkey[%v]进入房间",userId,roomKey)
+	log.T("玩家[%v]通过roomkey[%v]进入房间", userId, roomKey)
 	//1,首先判断roomKey 是否喂空
 	if roomKey == "" {
 		return nil, errors.New("房间密码不应该为空")
@@ -581,6 +582,8 @@ type ThDesk struct {
 	JuCount              int32                        //这个桌子最多能打多少局
 	SmallBlindCoin       int64                        //小盲注的押注金额
 	BigBlindCoin         int64                        //大盲注的押注金额
+	BeginTime            time.Time                    //游戏开始时间
+	EndTime              time.Time                    //游戏结束时间
 
 	Dealer               uint32                       //庄家
 	BigBlind             uint32                       //大盲注
@@ -589,7 +592,7 @@ type ThDesk struct {
 	NewRoundFirstBetUser uint32                       //新一轮,开始押注的第一个人//第一轮默认是小盲注,但是当小盲注弃牌之后,这个人要滑倒下一家去
 	BetUserNow           uint32                       //当前押注人的Id
 
-	GameNumber	     int32			  //每一局游戏的游戏编号
+	GameNumber           int32                        //每一局游戏的游戏编号
 	Users                []*ThUser                    //坐下的人
 	PublicPai            []*bbproto.Pai               //公共牌的部分
 	UserCount            int32                        //玩游戏的总人数
@@ -1428,6 +1431,7 @@ func (t *ThDesk) afterLottery() error {
 //保存数据到数据库
 func (t *ThDesk)  SaveLotteryData() error {
 
+	log.T("一局游戏结束,开始保存游戏的数据到数据库")
 	//得到连接
 	c, err := mongodb.Dial(casinoConf.DB_IP, casinoConf.DB_PORT)
 	if err != nil {
@@ -1439,6 +1443,13 @@ func (t *ThDesk)  SaveLotteryData() error {
 	// 获取回话 session
 	s := c.Ref()
 	defer c.UnRef(s)
+
+
+	//为每一局保存一组数据
+	deskRecord := &mode.T_th_desk_record{}
+	deskRecord.DeskId = t.Id
+	deskRecord.BeginTime = t.BeginTime
+	deskRecord.UserIds = ""
 
 	//循环对每个人做处理
 	for i := 0; i < len(t.Users); i++ {
@@ -1465,10 +1476,21 @@ func (t *ThDesk)  SaveLotteryData() error {
 		thData.Blance = *(userService.GetUserById(u.UserId).Coin)
 		thData.BeginTime = time.Now()
 		thData.GameNumber = t.GameNumber
-
 		s.DB(casinoConf.DB_NAME).C(casinoConf.DBT_T_TH_RECORD).Insert(thData)
+
+		//获取游戏数据
+		userRecord := mode.BeanRecord{}
+		userRecord.UserId = u.UserId
+		userRecord.NickName = u.NickName
+		userRecord.WinAmount = u.winAmount - u.TotalBet
+
+		deskRecord.Records = append(deskRecord.Records,userRecord)
+		deskRecord.UserIds = strings.Join([]string{deskRecord.UserIds,u.NickName},",")
 	}
 
+	log.T("开始保存DBT_T_TH_DESK_RECORD的信息")
+	//保存桌子的用户信息
+	s.DB(casinoConf.DB_NAME).C(casinoConf.DBT_T_TH_DESK_RECORD).Insert(deskRecord)
 	return nil
 }
 

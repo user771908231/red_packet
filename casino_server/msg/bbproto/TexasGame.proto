@@ -1218,13 +1218,19 @@ message Game_GameRecord{
 }
 
 
+//message
+message Game_BeanUserRecord{
+    optional uint32 UserId      =1;    //用户id
+    optional string NickName    =2;    //用户昵称
+    optional int64 WinAmount    =3;     //用户输赢金额
+}
 
 //message
 message Game_BeanGameRecord{
     optional int32  id          =1; //战绩id
-    optional int64 winAmount    =2; //本局输赢多少钱
-    optional int32  deskId      =3; //关联的桌子的Id
-    optional string  beginTime    =4; //游戏开始的时间
+    optional int32  deskId      =2; //关联的桌子的Id
+    optional string  beginTime  =3; //游戏开始的时间
+    repeated Game_BeanUserRecord users  = 4;   //用户
 }
 
 //

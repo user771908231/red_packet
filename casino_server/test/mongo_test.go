@@ -12,7 +12,7 @@ import (
 
 
 func TestM(t *testing.T){
-	_TestSave(t)
+	//_TestSave(t)
 	//saveWithSub(t)
 	//update(t)
 	//_select(t)
@@ -20,15 +20,14 @@ func TestM(t *testing.T){
 	//selectSub2(t)
 	//selectSub3(t)
 	//nestSeq(t)
-	testUpsertUser(t)
+	//testUpsertUser(t)
+
+	savePoint()
 }
 func testUpsertUser(t *testing.T){
 	fmt.Println("开始保存")
 	var userId int = 99999
 	user := &bbproto.User{}
-	//user.Id = &userId
-	//userService.UpsertUser2Mongo(user)
-	//fmt.Println("保存结束")
 
 	t.Log("开始测试保存到数据库\n")
 
@@ -263,6 +262,33 @@ func  nestSeq(t *testing.T){
 	id,_ :=  c.NextSeq("test", "t_user", "id")
 	fmt.Println("id",id)
 }
+
+//测试插入数据库
+func savePoint(){
+	type t_test_point struct {
+		i  int32
+		s  string
+	}
+
+	c,_:= mongodb.Dial(casinoConf.DB_IP,casinoConf.DB_PORT)
+	defer  c.Close()
+
+	s := c.Ref()
+	defer s.Close()
+
+	data := &t_test_point{}
+	data.i = 123
+	data.s = "abc"
+	s.DB("temp").C("t_test_point").Insert(data)
+
+	user := mode.T_user{}
+	user.Coin = 1
+	user.Diamond = 1
+
+	s.DB("temp").C("t_user").Insert(&user)
+
+}
+
 
 
 
