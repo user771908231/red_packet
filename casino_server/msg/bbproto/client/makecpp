@@ -1,0 +1,17 @@
+#!/bin/sh
+TARGET_PROTO_PATH=/Users/kory/Documents/Dev/cocos2d-x-2.2.6/casino/TexasPoker/Protocols/
+
+
+mkdir -p ./OutCpp
+rm -f OutCpp/*
+
+cp ../MatchList.proto ./MatchList.proto
+cp ../TexasGame.proto ./TexasGame.proto
+cp ../base.proto ./
+
+
+sed -i '' 's/package bbproto;//g' *.proto
+protoc --proto_path=./ --cpp_out=./OutCpp *.proto
+cd OutCpp
+ls -lrt *
+cp -vf * ${TARGET_PROTO_PATH}
