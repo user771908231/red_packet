@@ -12,6 +12,10 @@ import (
 	"casino_server/service/OGservice"
 )
 
+func handler(m interface{}, h interface{}) {
+	skeleton.RegisterChanRPC(reflect.TypeOf(m), h)
+}
+
 func init() {
 	//
 	//水果机相关的业务
@@ -39,18 +43,13 @@ func init() {
 	handler(&bbproto.Game_FoldBet{},handlerFoldBet)			//处理弃牌的请求
 	handler(&bbproto.Game_CheckBet{},handlerCheckBet)		//处理让牌的请求
 	handler(&bbproto.Game_CreateDesk{},handlerCreateDesk)		//创建房间
-	handler(&bbproto.Game_DissolveDesk{},handlerDissolveDesk)		//创建房间
-
+	handler(&bbproto.Game_DissolveDesk{},handlerDissolveDesk)	//解散房间
 
 
 	handler(&bbproto.Game_Ready{},handlerReady)			//准备游戏
 	handler(&bbproto.Game_Begin{},handlerBegin)			//开始游戏
 
 	handler(&bbproto.Game_GameRecord{},handlerGetGameRecords)	//查询战绩的接口
-}
-
-func handler(m interface{}, h interface{}) {
-	skeleton.RegisterChanRPC(reflect.TypeOf(m), h)
 }
 
 /**
@@ -279,7 +278,7 @@ func handlerFollowBet(args []interface{}){
 	m := args[0].(*bbproto.Game_FollowBet)
 	seatId := m.GetSeat()
 	desk := room.ThGameRoomIns.GetDeskById(m.GetTableid())
-	desk.OGBet(seatId,room.TH_DESK_BET_TYPE_CALL,0)
+	desk.DDBet(seatId,room.TH_DESK_BET_TYPE_CALL,0)
 }
 
 // 处理加注
@@ -288,7 +287,7 @@ func handlerRaise(args []interface{}){
 	seatId := m.GetSeat()
 	coin   := m.GetCoin()
 	desk := room.ThGameRoomIns.GetDeskById(m.GetTableid())
-	desk.OGBet(seatId,room.TH_DESK_BET_TYPE_RAISE,coin)
+	desk.DDBet(seatId,room.TH_DESK_BET_TYPE_RAISE,coin)
 }
 
 // 处理弃牌
@@ -296,7 +295,7 @@ func handlerFoldBet(args []interface{}){
 	m := args[0].(*bbproto.Game_FoldBet)
 	seatId := m.GetSeat()
 	desk := room.ThGameRoomIns.GetDeskById(m.GetTableid())
-	desk.OGBet(seatId,room.TH_DESK_BET_TYPE_FOLD,0)
+	desk.DDBet(seatId,room.TH_DESK_BET_TYPE_FOLD,0)
 }
 
 // 处理让牌
@@ -304,7 +303,7 @@ func handlerCheckBet(args []interface{}){
 	m := args[0].(*bbproto.Game_CheckBet)
 	seatId := m.GetSeat()
 	desk := room.ThGameRoomIns.GetDeskById(m.GetTableid())
-	desk.OGBet(seatId,room.TH_DESK_BET_TYPE_CHECK,0)
+	desk.DDBet(seatId,room.TH_DESK_BET_TYPE_CHECK,0)
 }
 
 //获得个人的战绩,并且按照时间排序
