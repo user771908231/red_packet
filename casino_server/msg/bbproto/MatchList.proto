@@ -23,7 +23,7 @@ message MatchList_AckLogin
 	optional bytes rolename = 3;	//角色名
 }
 
-message OGREQUserAuth
+message DDREQUserAuth
 {
 	optional bytes ticket = 1;		//TICKET登录
 	optional bytes username = 2;		//用户名
@@ -35,7 +35,7 @@ message OGREQUserAuth
 }
 
 //用户认证应答
-message OGACKUserAuth
+message DDACKUserAuth
 {
 	optional int32 result = 1;
 	optional bytes cert = 2;		//用户证书字节流
@@ -493,7 +493,7 @@ message MatchList_ModifyConfig				//修改配置
 	optional int32  bPassWord  = 6;		//是否有密码
 	optional int64  prechip = 7;		//前注
 }
-message OGMatchList_MatchInfos
+message DDMatchList_MatchInfos
 {
 	optional bytes MatchID		= 1;
 	optional int64 nTableID		= 2;	//牌桌ID
@@ -506,7 +506,7 @@ message OGMatchList_MatchInfos
 
 //客户端需要知道的部分配置信息
 //#define OGID_TEXASPOKER_MATCHLIST_CONFIGINFO	 (OGID_MSGBASE_TEXASPOKER_MATCHLISTBASE + 0x000000030)
-message OGMatchList_ConfigInfo
+message DDMatchList_ConfigInfo
 {
 	optional int64 nHornValue				= 1;	//小喇叭费用
 	optional int64 nPresent_MaxCoin_Times	= 2;	//每次赠送量有最大限制
@@ -517,7 +517,7 @@ message OGMatchList_ConfigInfo
 
 //赠送礼物
 //#define OGID_TEXASPOKER_MATCHLIST_GIVEGIFT	 (OGID_MSGBASE_TEXASPOKER_MATCHLISTBASE + 0x000000031)
-message OGMatchList_GiveGift
+message DDMatchList_GiveGift
 {
 	optional bytes customerName = 1;    //买主的角色名
 	optional bytes giftId = 2;			//礼物ID
@@ -526,7 +526,7 @@ message OGMatchList_GiveGift
 
 //赠送道具
 //#define OGID_TEXASPOKER_MATCHLIST_GIVEITEM	 (OGID_MSGBASE_TEXASPOKER_MATCHLISTBASE + 0x000000032)
-message OGMatchList_GiveItem
+message DDMatchList_GiveItem
 {
 	optional bytes customRoleName = 1;	//买主的角色名
 	optional bytes itemID = 2;			//道具ID
@@ -536,7 +536,7 @@ message OGMatchList_GiveItem
 //请求排行榜信息
 //#define OGID_TEXASPOKER_MATCHLIST_USER_COIN_RNK_LIST_REQ (OGID_MSGBASE_TEXASPOKER_MATCHLISTBASE + 0x000000033)
 //#define OGID_TEXASPOKER_MATCHLIST_USER_COIN_RNK_LIST_ACK (OGID_MSGBASE_TEXASPOKER_MATCHLISTBASE + 0x000000034)
-message OGMatchList_UserCoinRnkListAck
+message DDMatchList_UserCoinRnkListAck
 {
 	message UserCoinInfo
 	{
@@ -549,7 +549,7 @@ message OGMatchList_UserCoinRnkListAck
 //请求新闻广告信息
 //#define OGID_TEXASPOKER_MATCHLIST_BROADCAST_NEWS_REQ (OGID_MSGBASE_TEXASPOKER_MATCHLISTBASE + 0x000000035)
 //#define OGID_TEXASPOKER_MATCHLIST_BROADCAST_NEWS_ACK (OGID_MSGBASE_TEXASPOKER_MATCHLISTBASE + 0x000000036)
-message OGMatchList_BroadCast_News
+message DDMatchList_BroadCast_News
 {
 	message NewsInfo
 	{
@@ -562,7 +562,7 @@ message OGMatchList_BroadCast_News
 }
 
 //#define OGID_TEXASPOKER_MATCHLIST_PROPERTY  	 (OGID_MSGBASE_TEXASPOKER_MATCHLISTBASE + 0x00000003B)
-message OGMatchList_Property
+message DDMatchList_Property
 {
 	message Property
 	{
@@ -573,13 +573,13 @@ message OGMatchList_Property
 }
 
 //客户端请求all in 场
-message OGMatchList_AllInMatchListReq
+message DDMatchList_AllInMatchListReq
 {
 	optional bytes MatchID		= 1;		//比赛id，为0时请求所有match
 }
 
 //ALL In场比赛列表
-message OGMatchList_AllInMatchListAck
+message DDMatchList_AllInMatchListAck
 {
 	repeated bytes MatchID		= 1;		//比赛id
 }
@@ -589,11 +589,11 @@ message OGMatchList_AllInMatchListAck
 //#define OGID_USER_LONGCERT_TO_SHORT							(OGID_MSGBASE_TEXASPOKER_MATCHLISTBASE + 0x00000003E)
 //optional int32  webType = 2;    //网页类型，1商城，2朋友桌管理，3朋友桌设置，4更改朋友桌密码
 //optional int32  webType = 4;  //网页类型，1商城，2朋友桌管理，3朋友桌设置，4更改朋友桌密码
-message OGMatchList_UserLongCertToShortReq
+message DDMatchList_UserLongCertToShortReq
 {
 	optional bytes userip	= 1;	//用户IP 
 }
-message OGMatchList_UserLongCertToShortAck
+message DDMatchList_UserLongCertToShortAck
 {
 	optional int32 result = 1;		//结果  0成功   其他失败
 	optional bytes shortcert = 2;	//证书
@@ -603,7 +603,7 @@ message OGMatchList_UserLongCertToShortAck
 
 //认证服务长证书换取短证书
 //#define OGID_USER_GET_SHORTCERT							(OGID_MSGBASE_GAMEUSERDBSVR + 20)
-message OGReqUserGetShortCert
+message DDReqUserGetShortCert
 {
    optional bytes ticket = 1;                //长证书
    optional bytes username = 2;				 //账号名
@@ -611,7 +611,7 @@ message OGReqUserGetShortCert
    optional int32 flags = 5;                 //渠道号 
    
 }
-message OGAckUserGetShortCert
+message DDAckUserGetShortCert
 {
    optional int32 result = 1;      						//认证结果
    optional string userName = 2;              //用户名
@@ -622,7 +622,7 @@ message OGAckUserGetShortCert
 
 //web客户端定时请求match的玩家、牌桌信息
 //#define OGID_TEXASPOKER_MATCHLIST_MATCHSTATEINFO			(OGID_MSGBASE_TEXASPOKER_MATCHLISTBASE + 0x00000003F) 
-message OGReqMatchStateInfo
+message DDReqMatchStateInfo
 {
 	optional bytes MatchID		= 1;		//比赛id
 }
