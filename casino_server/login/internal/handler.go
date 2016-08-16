@@ -66,18 +66,18 @@ func HandlerREQQuickConn(args []interface{}) {
 	var ip string = arrs[0]
 	var port string = arrs[1]
 
-	ogRoomInfo := &bbproto.OGRoomInfo{}
+	ogRoomInfo := &bbproto.DDRoomInfo{}
 	ogRoomInfo.RoomIp = &ip
 	ogRoomInfo.RoomPort = &port
 
-	thranSjjInfo := &bbproto.ThranJSSInfo{}
+	thranSjjInfo := &bbproto.SHENJINGJSSInfo{}
 	thranSjjInfo.RoomIP = &ip
 	thranSjjInfo.RoomPort = &port
 
-	oglist := make([]*bbproto.OGRoomInfo, 1)
+	oglist := make([]*bbproto.DDRoomInfo, 1)
 	oglist[0] = ogRoomInfo
 
-	tslist := make([]*bbproto.ThranJSSInfo, 1)
+	tslist := make([]*bbproto.SHENJINGJSSInfo, 1)
 	tslist[0] = thranSjjInfo
 	result.JssList = tslist
 	result.MatchSvrList = oglist
