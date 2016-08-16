@@ -410,14 +410,14 @@ message game_NowelterInfo {
 
 //现金桌的消息定义
 //请求坐下
-message OGReqSitdownSeat {
+message DDReqSitdownSeat {
     optional bytes MatchID = 1; //桌子号
     optional bytes sUserName = 2; //角色名
     optional int32 nSeatID = 3; //座位号
     optional int32 nField = 4; //区号：1:新手区、2：初级、3：中级、4：高级
     optional bytes sCFUserName = 5; //该渠道特有昵称（现在专指360）
 }
-message OGAckSitdownSeat {
+message DDAckSitdownSeat {
     optional int32 Result = 1; //结果,1为成功,0为失败
     optional int32 reason = 2; //失败原因,0 进入成功,1 不成功,原因未知,2没有足够的金币带入筹码,3这个位置有人,4该matchID不存在
     optional bytes MatchID = 3; //桌子号
@@ -428,14 +428,14 @@ message OGAckSitdownSeat {
     optional bytes sCFUserName = 8; //该渠道特有昵称（现在专指360）
 }
 //带入
-message OGReqBuyChip {
+message DDReqBuyChip {
     optional bytes MatchID = 1; //桌子号
     optional bytes sUserName = 2; //角色名
     optional int32 nSeatID = 3; //座位号
     optional int64 nBuyChip = 4; //要带入的筹码数
     optional int64 nCurChip = 5; //当前筹码数
 }
-message OGAckBuyChip {
+message DDAckBuyChip {
     optional int32 Result = 1; //结果,1为成功,0为失败
     optional int32 reason = 2; //失败原因,0带入成功,1不成功,原因未知,2记录入库失败,3读用户金币失败4写用户金币失败,5没有足够的金币,6没有该用户,
     //7没有该比赛,8数据库操作失败,9不符合强制带入条件,10不在最大最小带入范围内,11游戏中不能带人
@@ -447,19 +447,19 @@ message OGAckBuyChip {
 }
 
 //由于筹码不够，需要向客户端发送带入的消息
-message OGNeetBugChip {
+message DDNeetBugChip {
     optional bytes MatchID = 1; //桌子号
     optional bytes sUserName = 2; //角色名
 }
 //请求离座
-message OGReqLeave {
+message DDReqLeave {
     optional bytes MatchID = 1; //桌子号
     optional bytes sUserName = 2; //角色名
     optional int32 nSeatID = 3; //座位号
     optional uint32 nUserIP = 4; //本地IP
 }
 
-message OGAckLeave {
+message DDAckLeave {
     optional int32 Result = 1; //结果,1为成功,0为失败
     optional int32 reason = 2; //失败原因,0离开成功,1不成功原因未知,2更新金币失败,3记录入库失败
     optional bytes MatchID = 3; //桌子号
@@ -468,7 +468,7 @@ message OGAckLeave {
 }
 
 //带入规则
-message OGGameRule {
+message DDGameRule {
     optional bytes MatchID = 1; //桌子号
     optional bytes sUserName = 2; //角色名
     optional int32 nSeatID = 3; //座位号
@@ -477,7 +477,7 @@ message OGGameRule {
 }
 
 //等待大盲
-message OGWaitBigBling {
+message DDWaitBigBling {
     optional bytes MatchID = 1; //桌子号
     optional bytes sUserName = 2; //角色名
     optional int32 nSeatID = 3; //座位号
@@ -485,7 +485,7 @@ message OGWaitBigBling {
 }
 
 //下一个大盲旁观
-message OGNextBiglingWatch {
+message DDNextBiglingWatch {
     optional bytes MatchID = 1; //桌子号
     optional bytes sUserName = 2; //角色名
     optional int32 nSeatID = 3; //座位号
@@ -493,7 +493,7 @@ message OGNextBiglingWatch {
 }
 
 //聊天消息
-message OGChatMsg {
+message DDChatMsg {
     optional bytes MatchID = 1; //桌子号
     optional bytes sUserName = 2; //角色名
     optional int32 nSeatID = 3; //座位号
@@ -502,20 +502,20 @@ message OGChatMsg {
 }
 
 //建议消息
-message OGProposalMsg {
+message DDProposalMsg {
     optional bytes sName = 1; //姓名
     optional bytes sUserName = 2; //角色名
     optional bytes sTelephone = 3; //联系方式
     optional bytes sContent = 4; //内容
 }
 //付费消息
-message OGReqPayMsg {
+message DDReqPayMsg {
     optional bytes sUserName = 1; //角色名
     optional bytes szTxt = 2; //内容
     optional bytes MatchID = 3; //比赛ID
     optional int32 nTableNo = 4; //桌子号
 }
-message OGAckPayMsg {
+message DDAckPayMsg {
     enum Reason {
         HORN_NOTHING = 0; //成功
         HORN_NOCOIN = 1; //失败 金币不够
@@ -537,14 +537,14 @@ message OGAckPayMsg {
 
 //======================以下为朋友桌新增消息======================
 // 请求兑换活跃度
-//#define OGID_TEXASPOKER_EXCHANGEHYD (OGID_MSGBASE_TEXASPOKER_GAMEBASE + 0x00000073)
-message OGReqExChangeHYD {
+//#define DDID_TEXASPOKER_EXCHANGEHYD (DDID_MSGBASE_TEXASPOKER_GAMEBASE + 0x00000073)
+message DDReqExChangeHYD {
     optional bytes MatchID = 1; //比赛ID
     optional bytes sUserName = 2; //角色名
     optional int64 nExHYDCount = 3; //计划兑换的活跃度的数量
 }
 
-message OGAckExChangeHYD {
+message DDAckExChangeHYD {
     optional int32 nResult = 1; //结果,0为失败,1为成功
     optional bytes MatchID = 2; //比赛ID
     optional bytes sUserName = 3; //角色名
@@ -555,8 +555,8 @@ message OGAckExChangeHYD {
 }
 
 // 通知活跃度变化
-// #define OGID_TEXASPOKER_CHANGEHYD  (OGID_MSGBASE_TEXASPOKER_GAMEBASE + 0x00000074)
-message OGNtfChangeHYD {
+// #define DDID_TEXASPOKER_CHANGEHYD  (DDID_MSGBASE_TEXASPOKER_GAMEBASE + 0x00000074)
+message DDNtfChangeHYD {
     optional bytes MatchID = 1; //比赛ID
     optional bytes sUserName = 2; //角色名
     optional int64 nHYDTotal = 3; //累加活跃度
@@ -564,8 +564,8 @@ message OGNtfChangeHYD {
 }
 
 // 请求赠送金币
-// #define OGID_TEXASPOKER_PRESENTCOINS (OGID_MSGBASE_TEXASPOKER_GAMEBASE + 0x00000075)
-message OGReqPresentCoins {
+// #define DDID_TEXASPOKER_PRESENTCOINS (DDID_MSGBASE_TEXASPOKER_GAMEBASE + 0x00000075)
+message DDReqPresentCoins {
     optional bytes MatchID = 1; //比赛ID
     optional bytes sSender = 2; //赠送者
     optional bytes sRecver = 3; //接受者
@@ -573,7 +573,7 @@ message OGReqPresentCoins {
     optional uint32 nIPSender = 5; //赠送者的IP
     optional uint32 nIPRecver = 6; //接受者的IP
 }
-message OGAckPresentCoins {
+message DDAckPresentCoins {
     enum Reason {
         PC_NOTHING = 0; //成功
         PC_UNKNOWN = 1; //未知
@@ -598,15 +598,15 @@ message OGAckPresentCoins {
 }
 
 //私聊消息
-//#define OGID_TEXASPOKER_PRIVATECHAT (OGID_MSGBASE_TEXASPOKER_GAMEBASE + 0x00000076)
-message OGReqPrivateChatMsg {
+//#define DDID_TEXASPOKER_PRIVATECHAT (DDID_MSGBASE_TEXASPOKER_GAMEBASE + 0x00000076)
+message DDReqPrivateChatMsg {
     optional bytes MatchID = 1; //比赛ID
     optional bytes sSender = 2; //发送者
     optional bytes sRecver = 3; //接收者
     optional bytes szChat = 4; //聊天内容
 }
 
-message OGAckPrivateChatMsg {
+message DDAckPrivateChatMsg {
     optional bytes MatchID = 1; //比赛ID
     optional bytes sSender = 2; //发送者
     optional bytes sRecver = 3; //接收者
@@ -615,14 +615,14 @@ message OGAckPrivateChatMsg {
 }
 
 //禁言和解除禁言
-//#define OGID_TEXASPOKER_ABLEORUNABLECHAT (OGID_MSGBASE_TEXASPOKER_GAMEBASE + 0x00000077)
-message OGReqAbleOrUnableChat {
+//#define DDID_TEXASPOKER_ABLEORUNABLECHAT (DDID_MSGBASE_TEXASPOKER_GAMEBASE + 0x00000077)
+message DDReqAbleOrUnableChat {
     optional bytes MatchID = 1; //比赛ID
     optional bytes sCreater = 2; //房间创建者
     optional bytes sChatUser = 3; //聊天者
     optional int32 nAbleFlag = 4; //标志(0为不允许聊天,1为允许聊天)
 }
-message OGAckAbleOrUnableChat {
+message DDAckAbleOrUnableChat {
     optional bytes MatchID = 1; //比赛ID
     optional bytes sCreater = 2; //房间创建者
     optional bytes sChatUser = 3; //聊天者
@@ -631,14 +631,14 @@ message OGAckAbleOrUnableChat {
 }
 
 //踢人
-//#define OGID_TEXASPOKER_KICK            (OGID_MSGBASE_TEXASPOKER_GAMEBASE + 0x00000078)
-message OGReqKick {
+//#define DDID_TEXASPOKER_KICK            (DDID_MSGBASE_TEXASPOKER_GAMEBASE + 0x00000078)
+message DDReqKick {
     optional bytes MatchID = 1; //比赛ID
     optional bytes sCreater = 2; //房间创建者
     optional bytes sKickered = 3; //被踢者角色名
     optional int64 nClinetId = 4; //被踢者的CientId
 }
-message OGAckKick {
+message DDAckKick {
     optional bytes MatchID = 1; //比赛ID
     optional bytes sCreater = 2; //房间创建者
     optional bytes sKickered = 3; //被踢者角色名
@@ -646,22 +646,22 @@ message OGAckKick {
 }
 
 //玩家列表,包含旁观者和游戏者 ,为了以后踢人用
-//#define OGID_TEXASPOKER_USERLIST         (OGID_MSGBASE_TEXASPOKER_GAMEBASE + 0x00000079)
-message OGUserInfos {
+//#define DDID_TEXASPOKER_USERLIST         (DDID_MSGBASE_TEXASPOKER_GAMEBASE + 0x00000079)
+message DDUserInfos {
     optional bytes sUserName = 1; //角色名
     optional int64 nClinetId = 2; //CientId
     optional int32 nIp = 3; //IP地址
     optional bytes sCFUserName = 4; //该渠道特有昵称（现在专指360）
 }
-message OGUserList {
+message DDUserList {
     optional bytes MatchID = 1; //比赛ID
-    repeated OGUserInfos userlist = 2; //用户列表
+    repeated DDUserInfos userlist = 2; //用户列表
     optional bytes sCreater = 3; //房间创建者
 
 }
 //修改配置
-//#define OGID_TEXASPOKER_MODIFYCONFIG      (OGID_MSGBASE_TEXASPOKER_GAMEBASE + 0x00000080)
-message OGModifyConfig {
+//#define DDID_TEXASPOKER_MODIFYCONFIG      (DDID_MSGBASE_TEXASPOKER_GAMEBASE + 0x00000080)
+message DDModifyConfig {
     optional bytes MatchID = 1; //比赛ID
     optional bytes sTableName = 2; //常规桌的名字
     optional int64 nCGZ_MaxChip = 3; //最大代入筹码
@@ -669,23 +669,23 @@ message OGModifyConfig {
 }
 
 //向玩家发送禁言者的列表
-//#define OGID_TEXASPOKER_UNABLECHATLIST    (OGID_MSGBASE_TEXASPOKER_GAMEBASE + 0x00000081)
-message OGUnAbleChatList {
+//#define DDID_TEXASPOKER_UNABLECHATLIST    (DDID_MSGBASE_TEXASPOKER_GAMEBASE + 0x00000081)
+message DDUnAbleChatList {
     optional bytes MatchID = 1; //比赛ID
     repeated bytes szUserName = 2; //被禁言者的姓名
 }
 
 //随机显示图片
-//#define OGID_TEXASPOKER_SHOWPICTRUE       (OGID_MSGBASE_TEXASPOKER_GAMEBASE + 0x00000082)
-message OGShowPictrue {
+//#define DDID_TEXASPOKER_SHOWPICTRUE       (DDID_MSGBASE_TEXASPOKER_GAMEBASE + 0x00000082)
+message DDShowPictrue {
     optional bytes MatchID = 1; //比赛ID
     optional int32 nTableId = 2; //桌子号
     optional bytes szUserName = 3; //用户名
 }
 
 //新玩家加入玩家列表
-//#define OGID_TEXASPOKER_ADDUSER           (OGID_MSGBASE_TEXASPOKER_GAMEBASE + 0x00000083)
-message OGAddUserToList {
+//#define DDID_TEXASPOKER_ADDUSER           (DDID_MSGBASE_TEXASPOKER_GAMEBASE + 0x00000083)
+message DDAddUserToList {
     optional bytes MatchID = 1; //比赛ID
     optional bytes sUserName = 2; //角色名
     optional int64 nClinetId = 3; //CientId
@@ -694,46 +694,46 @@ message OGAddUserToList {
 }
 
 //玩家从列表中删除
-//#define OGID_TEXASPOKER_DELETEUSER        (OGID_MSGBASE_TEXASPOKER_GAMEBASE + 0x00000084)
-message OGDeleteUserFromList {
+//#define DDID_TEXASPOKER_DELETEUSER        (DDID_MSGBASE_TEXASPOKER_GAMEBASE + 0x00000084)
+message DDDeleteUserFromList {
     optional bytes MatchID = 1; //比赛ID
     optional bytes sUserName = 2; //角色名
 }
 
 //当否玩家进入牌桌坐下后，向本桌内的其他玩家广播此玩家的礼品状态 和 标志
-//#define OGID_BROADCAST_PLAYER_GIFT_STATUS       (OGID_MSGBASE_TEXASPOKER_GAMEBASE + 0x00000085)
-message OGBroadCastPlayerGiftStatus {
+//#define DDID_BROADCAST_PLAYER_GIFT_STATUS       (DDID_MSGBASE_TEXASPOKER_GAMEBASE + 0x00000085)
+message DDBroadCastPlayerGiftStatus {
     optional bytes roleName = 1; //被广播人
     optional bytes gift = 2; //礼品ID
     optional bytes nbcard = 3; //NB卡ID
 }
 
 //赠送礼品(客户端接到此消息后应仅作播放动画操作)
-//#define OGID_GIVEGIFT       (OGID_MSGBASE_TEXASPOKER_GAMEBASE + 0x00000086)
-message OGGiveGift {
+//#define DDID_GIVEGIFT       (DDID_MSGBASE_TEXASPOKER_GAMEBASE + 0x00000086)
+message DDGiveGift {
     optional bytes customerName = 1; //礼物买主
     optional bytes giftId = 2; //礼物ID
     repeated bytes receivers = 3; //接受者的角色名
 }
 
 //赠送道具(客户端接收到此消息后重新发送查询玩家礼品状态消息,这样贵族卡才能及时更新)
-//#define OGID_GIVEITEM       (OGID_MSGBASE_TEXASPOKER_GAMEBASE + 0x00000089)
-message OGGiveItem {
+//#define DDID_GIVEITEM       (DDID_MSGBASE_TEXASPOKER_GAMEBASE + 0x00000089)
+message DDGiveItem {
     optional bytes customerName = 1; //道具买主
     optional bytes item = 2; //道具ID
     optional bytes receivers = 3; //接受者的角色名
 }
 
 //广播表情
-//#define OGID_BROADCAST_FACE (OGID_MSGBASE_TEXASPOKER_GAMEBASE + 0x00000087)
-message OGBroadCastFace {
+//#define DDID_BROADCAST_FACE (DDID_MSGBASE_TEXASPOKER_GAMEBASE + 0x00000087)
+message DDBroadCastFace {
     optional bytes roleName = 1; //表情使用者
     optional uint32 faceType = 2; //表情类别
     optional bytes faceContent = 3; //表情内容
     optional uint32 seat = 4; //座位号
 }
 
-message OGReqRebuy {
+message DDReqRebuy {
     optional bytes roleName = 1; //REBUY的用户
     optional bytes matchid = 2; //REBUY的比赛ID
     optional int32 tableid = 3; //REBUY的桌号
@@ -741,7 +741,7 @@ message OGReqRebuy {
     optional int32 moneyType = 5; //1:金币 2:门票
 }
 
-message OGAckRebuy {
+message DDAckRebuy {
     optional int32 result = 1; //REBUY结果,0表示成功，非0表示失败
     optional int32 reson = 2; //失败原因
     optional bytes roleName = 3; //REBUY的用户
@@ -754,8 +754,8 @@ message OGAckRebuy {
 }
 
 //广播比赛名次，奖励
-//#define OGID_BROADCAST_MATCHRANK        (OGID_MSGBASE_TEXASPOKER_GAMEBASE + 0x0000008A)
-message OGBroadCastMatchRank {
+//#define DDID_BROADCAST_MATCHRANK        (DDID_MSGBASE_TEXASPOKER_GAMEBASE + 0x0000008A)
+message DDBroadCastMatchRank {
     optional bytes roleName = 1; //角色名
     optional bytes matchName = 2; //比赛名称
     optional int32 nRank = 3; //名次
@@ -771,8 +771,8 @@ message OGBroadCastMatchRank {
 ////
 
 // 注册
-// THRANID_SVR_REG = 0x00001003;//注册消息
-message REQThranReg {
+// SHENJINGID_SVR_REG = 0x00001003;//注册消息
+message REQSHENJINGReg {
     optional string UserName = 1; //用户名 5-19位 字母，数字，下划线组成
     optional string Pwd = 2; //密码	8-15位 下划线，特殊字符，不区分大小写
     optional int32 VerifyId = 3; //验证id，匹配使用
@@ -786,21 +786,21 @@ message REQThranReg {
     optional int32 RoomAdapte = 11 [default = 0]; //分配房间。 0:默认房间;1:指定房间;2:指定房间...  modify at 20120104 根据不同的值获取相应的MatchRoomList
     optional int32 Sex = 12 [default = 0]; //性别联众帐号  1男,0女。角色帐号性别 1男  2女
 }
-message ACKThranReg {
+message ACKSHENJINGReg {
     optional int32 AckResult = 1; //注册结果 "0"成功 "1"错误
     optional string ErrorStr = 2; //错误提示
     optional bytes cert = 3; //证书数据
     optional string RoleName = 4; //角色名
-    repeated OGRoomInfo RoomList = 5; //用户能够进入的房间列表
+    repeated DDRoomInfo RoomList = 5; //用户能够进入的房间列表
     optional int32 LoginId = 6; //登录id
-    repeated OGRoomInfo MatchRoomList = 7; //比赛房间列表
+    repeated DDRoomInfo MatchRoomList = 7; //比赛房间列表
     optional bytes CertNoRole = 8; //不含角色的证书数据
 }
 
-// 登录THRAN服务器
-// THRANID_SVR_LOGINCONN = 0x00001001;//登录消息
-message REQThranConn {
-    optional string UserName = 1; //用户名 18位以内 且以"thran_ddz_x~"开头 x为来源ID
+// 登录SHENJING服务器
+// SHENJINGID_SVR_LDDINCONN = 0x00001001;//登录消息
+message REQSHENJINGConn {
+    optional string UserName = 1; //用户名 18位以内 且以"SHENJING_ddz_x~"开头 x为来源ID
     optional string NickName = 2; //昵称 最大长度为8字符
     optional string Pwd = 3; //密码	8-15位
     optional int32 Sex = 4; //性别
@@ -816,7 +816,7 @@ message REQThranConn {
     optional int32 LoginType = 14 [default = 0]; //登录类型。 0默认的类型;1为接入平台2.0。 modify at 20120217 酒吧骰子用
     optional int32 GroupID = 15; //请求特定的groupid下的Game Server    modify at 20120217 酒吧骰子用
 }
-message ACKThranConn {
+message ACKSHENJINGConn {
     optional int32 AckResult = 1; //登录结果 "0"成功 "1"错误
     optional bytes cert = 2; //证书数据
     optional string UserName = 3; //用户名
@@ -824,17 +824,17 @@ message ACKThranConn {
     optional string PassWord = 5; //用户密码
     optional int32 YuanBaoCnt = 6; //元宝数量
     optional int64 CoinCnt = 7; //金币数量
-    repeated OGRoomInfo RoomList = 8; //用户能够进入的房间列表
+    repeated DDRoomInfo RoomList = 8; //用户能够进入的房间列表
     optional int32 LoginId = 9; //登录id
-    repeated OGRoomInfo MatchRoomList = 10; //比赛房间列表
+    repeated DDRoomInfo MatchRoomList = 10; //比赛房间列表
     optional bytes CertNoRole = 11; //不含角色的证书数据
-    repeated ThranRoomInfo ThranRoomItems = 12; //下发的房间服务器列表。 modify at 20120217  索蓝酒吧骰子用
+    repeated SHENJINGRoomInfo SHENJINGRoomItems = 12; //下发的房间服务器列表。 modify at 20120217  索蓝酒吧骰子用
 }
 
 // 获取短证书  modify at 20120109  获取短证书
-// THRANID_SVR_SHORTCERT = 0x00001005;//登录消息
-message REQThranShortCert {
-    optional string UserName = 1; //用户名 18位以内 且以"thran_ddz_x~"开头 x为来源ID
+// SHENJINGID_SVR_SHORTCERT = 0x00001005;//登录消息
+message REQSHENJINGShortCert {
+    optional string UserName = 1; //用户名 18位以内 且以"SHENJING_ddz_x~"开头 x为来源ID
     optional string NickName = 2; //昵称 最大长度为8字符
     optional string Pwd = 3; //密码	8-15位
     optional int32 Sex = 4; //性别
@@ -849,18 +849,18 @@ message REQThranShortCert {
     optional int32 RoomAdapte = 13 [default = 0]; //分配房间。 0:默认房间;1:指定房间;2:指定房间... modify at 20120104 根据不同的值获取相应的MatchRoomList
 }
 
-message ACKThranShortCert {
+message ACKSHENJINGShortCert {
     optional int32 AckResult = 1; //登录结果 "0"成功 "1"错误
     optional bytes ShortCert = 2; //证书数据
     optional string UserName = 3; //用户名
-    repeated OGRoomInfo RoomList = 4; //用户能够进入的房间列表
-    repeated OGRoomInfo MatchRoomList = 5; //比赛房间列表
+    repeated DDRoomInfo RoomList = 4; //用户能够进入的房间列表
+    repeated DDRoomInfo MatchRoomList = 5; //比赛房间列表
 
 }
 
-// 登录THRAN服务OpenId
-// THRANID_SVR_REG = 0x00001004;//OpenId登录消息
-message REQThranOpenId {
+// 登录SHENJING服务OpenId
+// SHENJINGID_SVR_REG = 0x00001004;//OpenId登录消息
+message REQSHENJINGOpenId {
     optional bytes UserName = 1; //第三方的用户名 | 新浪微游戏中此项为 用户的游戏名
     optional string Pwd = 2; //第三方的密码 | 新浪微游戏中此项为 用户的数字ID
     optional string type = 3; //第三方类别 人人网'renren' 新浪‘sina’
@@ -875,22 +875,22 @@ message REQThranOpenId {
     optional int32 RoomAdapte = 12 [default = 0]; //分配房间。 0:默认房间;1:指定房间;2:指定房间...   modify at 20120104 根据不同的值获取相应的MatchRoomList
     optional string ThirdAppId = 13; //申请的第三方的AppId，modify at 20120227  解决多个APPID 接入同一个OPENID的问题。
 }
-message ACKThranOpenId {
+message ACKSHENJINGOpenId {
     optional int32 AckResult = 1; //登录结果 "0"成功 "1"错误
     optional bytes cert = 2; //证书数据
     optional bytes UserName = 3; //用户名
     optional bytes RoleName = 4; //角色名
     optional int32 YuanBaoCnt = 5; //元宝数量
     optional int64 CoinCnt = 6; //金币数量
-    repeated OGRoomInfo RoomList = 7; //用户能够进入的房间列表
-    repeated OGRoomInfo MatchRoomList = 8; //比赛房间列表
+    repeated DDRoomInfo RoomList = 7; //用户能够进入的房间列表
+    repeated DDRoomInfo MatchRoomList = 8; //比赛房间列表
     optional int32 LoginId = 9; //登录id
     optional bytes CertNoRole = 10; //不含角色的证书数据
     repeated int32 AchvId = 11; //用户已有的成就
 }
 
 // 新浪微游戏操作
-// THRANID_SVR_SINAGAME = 0x00003007;//新浪微游戏相关
+// SHENJINGID_SVR_SINAGAME = 0x00003007;//新浪微游戏相关
 message REQSinaGame {
     optional string Thirdkey = 1; // 第三方下发客户端的session key
     repeated SinaApiInfo InfoList = 2; // 发送信息队列
@@ -905,7 +905,7 @@ message ACKSinaGame {
 }
 
 // 发送新浪微博
-// THRANID_SVR_WEIBO = 0x00003005;//发送微博
+// SHENJINGID_SVR_WEIBO = 0x00003005;//发送微博
 message REQWeiBo {
     optional bytes UserName = 1; //微博用户名
     optional string Pwd = 2; //微博的密码
@@ -923,56 +923,56 @@ message ACKWeiBo {
 }
 
 // 退出
-// THRANID_SVR_EXIT = 0x00001002;//退出消息
-message REQThranExit {
+// SHENJINGID_SVR_EXIT = 0x00001002;//退出消息
+message REQSHENJINGExit {
     optional int32 LoginId = 1; //登录id
     optional int32 ExitType = 2; //退出信息类型 0正常退出  1异常退出
     optional string ExitMsg = 3; //退出信息
 }
 
 // 获取游戏版本信息
-// THRANID_SVR_VERSION = 0x00003001;//索蓝游戏版本消息
-message REQThranGameVersion {
+// SHENJINGID_SVR_VERSION = 0x00003001;//索蓝游戏版本消息
+message REQSHENJINGGameVersion {
     optional int32 CurVersion = 1; //当前版本号
     optional int32 GameId = 2; //游戏ID
     optional int32 ComeFromID = 3; //终端种类ID android "1"  iphone "2" ipad "3"
     optional string ResolutionID = 4; //分辨率ID "800480" "854480" "1024768"
-    optional string ChannelID = 5; //渠道ID "thran"索兰 "apple"苹果
+    optional string ChannelID = 5; //渠道ID "SHENJING"索兰 "apple"苹果
     optional string LanguageID = 6; //语言ID "cn"简体  "twhk"繁体
     optional int32 smallVersion = 7; //当前版本小号
     optional string ClientType = 8; //客户端类型  "sina"新浪专版
     optional string ScreenSize = 9; //屏幕真实尺寸  "800480" "854x480" "1024x768"
     optional int32 RoomAdapte = 10 [default = 0]; //分配房间。 0:默认房间;1:指定房间;2:指定房间...   modify at 20120104 根据不同的值获取相应的MatchRoomList
 }
-message ACKThranGameVersion {
+message ACKSHENJINGGameVersion {
     optional int32 AckResult = 1; //登录结果  "-1"错误 不为-1表示为当前最新版本号
     optional string PlayEnable = 2; //不更新是否能继续游戏 "y"可以游戏 "n"不可以，必须更新
     optional string DownloadUrl = 3; //下载地址
     optional string GameServerIp = 4; //索蓝游戏服务器地址
     optional string GameServerPort = 5; //索蓝游戏服务器端口
-    optional string GameRankEnable = 6; //是否从thran服务器读取 游戏等级设置 "y"是 "n"不是
+    optional string GameRankEnable = 6; //是否从SHENJING服务器读取 游戏等级设置 "y"是 "n"不是
     optional string GameRankDef = 7; //游戏等级设置 格式：最小金币数/最大金币数/最少盘数/是否开放_最小金币数/最大金币数/最少盘数/是否开放；多个等级以"_"分隔；是否开放 “0”不开放 “1”开放
     optional string IfPreserve = 8; //当前是否停服维护 "y"停服维护中 "n"没有维护
     optional string PreserveMsg = 9; //系统提示消息（维护状态中，为维护信息；其余时间为系统公告）
-    repeated OGThranMatchInfo MatchInfoList = 10; //比赛列表信息
+    repeated DDSHENJINGMatchInfo MatchInfoList = 10; //比赛列表信息
     optional int32 DownloadReasion = 11; //下载原因：0 版本不对;1屏幕不对
     optional int32 GameId = 12; //游戏ID               modify at 20120104 根据服务器配置获取相应的GameId下发给游戏客户端(暂时是德州扑克用)
     optional int32 gameSort = 13; //游戏ID对应的排序规则。0无排序。其余数字为游戏自定义排序规则  modify at 20120104 根据服务器配置获取Sort下发给客户端 (暂时是德州扑克用)
-    repeated OGRoomInfo MatchRoomList = 14; //比赛房间列表        modify at 20120104 加入了MatchRoomList(主要是德州扑克用)
-    repeated ThranJSSInfo JssList = 15; // jss服务器，小商城的代理服务器。 modify at 20120321
+    repeated DDRoomInfo MatchRoomList = 14; //比赛房间列表        modify at 20120104 加入了MatchRoomList(主要是德州扑克用)
+    repeated SHENJINGJSSInfo JssList = 15; // jss服务器，小商城的代理服务器。 modify at 20120321
     optional string IfSearch = 16; //是否显示搜索（斗地主用）"y"显示 "n"不显示。 modify at 20120413
-    repeated OGBulletinInfo BulletinList = 17; //显示公告
+    repeated DDBulletinInfo BulletinList = 17; //显示公告
 }
 
 // 获取验证码
-// THRANID_SVR_VERIFY = 0x00003003;//获取验证码信息
-message REQThranNewVerify {
+// SHENJINGID_SVR_VERIFY = 0x00003003;//获取验证码信息
+message REQSHENJINGNewVerify {
     optional string SecureID = 1; //机器标识 目前使用 mac 地址
     optional int32 ComeFromID = 2; //终端种类ID android "1"  iphone "2" ipad "3"
     optional string ChannelID = 3; //渠道号
     optional int32 GameId = 4; //登录游戏ID
 }
-message ACKThranNewVerify {
+message ACKSHENJINGNewVerify {
     optional int32 AckResult = 1; //注册结果 "0"成功 "1"错误 "2"不需要验证码
     optional string ErrorStr = 2; //错误提示
     optional bytes Verify = 3; //认证码流
@@ -980,21 +980,21 @@ message ACKThranNewVerify {
 }
 
 // 找回密码功能
-// THRANID_SVR_FINDPWD = 0x00003002;//找回密码功能
+// SHENJINGID_SVR_FINDPWD = 0x00003002;//找回密码功能
 // 新设置的密码未设置，表示只发送密码而不重置
 // 新设置的密码不未空时，表示需要用户点击邮箱中的链接才能重置成功，且更新用户状态为已激活
-message REQThranFindPwd {
+message REQSHENJINGFindPwd {
     optional string Email = 1; //用户注册时填写的邮箱
     optional string NewPwd = 2; //新设置的密码
 }
-message ACKThranFindPwd {
+message ACKSHENJINGFindPwd {
     optional int32 AckResult = 1; //"0"已发邮件 "1"错误
 }
 
-// Thran心跳
-// THRANID_SVR_HEART = 0x00003006;//thran的心跳
+// SHENJING心跳
+// SHENJINGID_SVR_HEART = 0x00003006;//SHENJING的心跳
 // REQ只有消息头，没有消息体
-message ACKThranHeart {
+message ACKSHENJINGHeart {
     optional string ServTime = 1; //服务器当前时间 格式 "yyyy-MM-dd HH:mm:ss" 由于服务器时间可能与本地时间不符，所以只做成功响应。如果消息解析发生错误，则返回"-1"
 }
 
@@ -1015,7 +1015,7 @@ message SinaApiRet {
 }
 
 //游戏房间结构
-message OGRoomInfo {
+message DDRoomInfo {
     optional string RoomId = 1; //房间id
     optional string RoomRank = 2; //房间等级 1新手 2高手 3至尊
     optional string RoomIp = 3; //房间ip
@@ -1031,7 +1031,7 @@ message OGRoomInfo {
 }
 
 //比赛信息结构
-message OGThranMatchInfo {
+message DDSHENJINGMatchInfo {
     optional int32 MatchID = 1; //比赛ID ID
     optional string MatchName = 2; //比赛名称 NAME
     //以下参数在斗地主比赛中应用
@@ -1051,7 +1051,7 @@ message OGThranMatchInfo {
 }
 
 //索蓝服务器的房间基本信息 modify at 20120217  索蓝酒吧骰子用
-message ThranRoomInfo {
+message SHENJINGRoomInfo {
     optional int32 GameID = 1; //游戏ID
     optional int32 GroupID = 2; //组ID 场ID 每个游戏内的组ID不能相同
     optional bytes RoomID = 3; //每个游戏内的房间ID不能相同
@@ -1062,25 +1062,25 @@ message ThranRoomInfo {
     optional int32 CurPlayer = 8; //当前房间人数
     optional int32 RoomState = 9; //房间当前状态，0 未启动，1 启动（正常）3 故障（超时无心跳）
     optional int32 IsLock = 10 [default = 0]; //0是不锁，1锁
-    repeated ThranRoomInfo ThranRoomItems = 11; //组下配置的场(或场下配置的组)
+    repeated SHENJINGRoomInfo SHENJINGRoomItems = 11; //组下配置的场(或场下配置的组)
 }
 
 //索蓝服务器配置的jss服务器  modify at 20120321
-message ThranJSSInfo {
+message SHENJINGJSSInfo {
     optional string RoomIP = 1; //服务器IP
     optional string RoomPort = 2; // 服务器端口
     optional string Remark = 3; //服务器标注
 }
 
 //游戏公告
-message OGBulletinInfo {
+message DDBulletinInfo {
     optional bytes Title = 1; //标题
     optional bytes Content = 2; //内容
 }
 //***************************************************************//
 //modify at 20120516
 //快速登录
-//THRANID_SVR_QUICKCONN = 0x00001006;//快速登录
+//SHENJINGID_SVR_QUICKCONN = 0x00001006;//快速登录
 message REQQuickConn {
     optional bytes UserName = 1; //用户名  (第三方接入必填，为用户原始帐号或数字id),
     optional string Pwd = 2; //密码	8-15位
@@ -1110,8 +1110,8 @@ message ACKQuickConn {
     optional string RoleName = 4; //角色名
     optional int32 YuanBaoCnt = 5; //元宝数量
     optional int64 CoinCnt = 6; //金币数量
-    repeated OGRoomInfo RoomList = 7; //房间列表  ，斗地主游戏存入所有的room列表，二人麻将里存入与该用户金币相应的room。
-    repeated OGThranMatchInfo MatchRoomList = 8; //比赛房间信息
+    repeated DDRoomInfo RoomList = 7; //房间列表  ，斗地主游戏存入所有的room列表，二人麻将里存入与该用户金币相应的room。
+    repeated DDSHENJINGMatchInfo MatchRoomList = 8; //比赛房间信息
     optional bytes Cert = 9; //含角色的证书数据
     optional bytes CertNoCert = 10; //含角色的证书数据
     optional int32 CurVersion = 11; //服务器的当前最新版本号
@@ -1120,13 +1120,13 @@ message ACKQuickConn {
     optional string IfPreserve = 14; //斗地主是否停服维护 "y"停服维护中 "n"没有维护，达人麻将相反。
     optional string PreserveMsg = 16; //系统提示消息（维护状态中，为维护信息）
     optional int32 GameId = 17; //游戏ID
-    repeated ThranJSSInfo JssList = 18; // jss服务器，小商城的代理服务器。
+    repeated SHENJINGJSSInfo JssList = 18; // jss服务器，小商城的代理服务器。
     optional string IfSearch = 19; //是否显示搜索（斗地主用）"y"显示 "n"不显示。
-    repeated OGBulletinInfo BulletinList = 20; //显示公告
+    repeated DDBulletinInfo BulletinList = 20; //显示公告
     optional string VersionInfo = 21; //版本信息（更新原因）
-    repeated OGRoomInfo MatchSvrList = 22; //所有的比赛服务器列表
+    repeated DDRoomInfo MatchSvrList = 22; //所有的比赛服务器列表
     optional int32 Sex = 23; //性别
-    repeated OGRoomInfo RoomSvrList = 24; //所有的房间列表，把所有的的房间都放入列表 。
+    repeated DDRoomInfo RoomSvrList = 24; //所有的房间列表，把所有的的房间都放入列表 。
     optional int32 DdzActive = 25 [default = 0]; //是否为斗地主活动(签到，抽奖等),0否，1是
     optional string MsgUrl = 26; //用户消息的URL  ,请求访问url参数type=1 统计未读消息，type=2 显示所有消息。
     optional int32 ErrorCode = 27 [default = 0]; //0为无错误；1 用户名密码错误，其它为系统级别错误，待定。

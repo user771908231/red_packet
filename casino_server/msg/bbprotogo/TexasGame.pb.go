@@ -53,24 +53,24 @@ func (x *Game_LeaveTable_Reason) UnmarshalJSON(data []byte) error {
 }
 func (Game_LeaveTable_Reason) EnumDescriptor() ([]byte, []int) { return fileDescriptor1, []int{42, 0} }
 
-type OGAckPayMsg_Reason int32
+type DDAckPayMsg_Reason int32
 
 const (
-	OGAckPayMsg_HORN_NOTHING    OGAckPayMsg_Reason = 0
-	OGAckPayMsg_HORN_NOCOIN     OGAckPayMsg_Reason = 1
-	OGAckPayMsg_HORN_GETCOIN    OGAckPayMsg_Reason = 2
-	OGAckPayMsg_HORN_UPDATECOIN OGAckPayMsg_Reason = 3
-	OGAckPayMsg_HORN_ENABLETXT  OGAckPayMsg_Reason = 4
+	DDAckPayMsg_HORN_NOTHING    DDAckPayMsg_Reason = 0
+	DDAckPayMsg_HORN_NOCOIN     DDAckPayMsg_Reason = 1
+	DDAckPayMsg_HORN_GETCOIN    DDAckPayMsg_Reason = 2
+	DDAckPayMsg_HORN_UPDATECOIN DDAckPayMsg_Reason = 3
+	DDAckPayMsg_HORN_ENABLETXT  DDAckPayMsg_Reason = 4
 )
 
-var OGAckPayMsg_Reason_name = map[int32]string{
+var DDAckPayMsg_Reason_name = map[int32]string{
 	0: "HORN_NOTHING",
 	1: "HORN_NOCOIN",
 	2: "HORN_GETCOIN",
 	3: "HORN_UPDATECOIN",
 	4: "HORN_ENABLETXT",
 }
-var OGAckPayMsg_Reason_value = map[string]int32{
+var DDAckPayMsg_Reason_value = map[string]int32{
 	"HORN_NOTHING":    0,
 	"HORN_NOCOIN":     1,
 	"HORN_GETCOIN":    2,
@@ -78,43 +78,43 @@ var OGAckPayMsg_Reason_value = map[string]int32{
 	"HORN_ENABLETXT":  4,
 }
 
-func (x OGAckPayMsg_Reason) Enum() *OGAckPayMsg_Reason {
-	p := new(OGAckPayMsg_Reason)
+func (x DDAckPayMsg_Reason) Enum() *DDAckPayMsg_Reason {
+	p := new(DDAckPayMsg_Reason)
 	*p = x
 	return p
 }
-func (x OGAckPayMsg_Reason) String() string {
-	return proto.EnumName(OGAckPayMsg_Reason_name, int32(x))
+func (x DDAckPayMsg_Reason) String() string {
+	return proto.EnumName(DDAckPayMsg_Reason_name, int32(x))
 }
-func (x *OGAckPayMsg_Reason) UnmarshalJSON(data []byte) error {
-	value, err := proto.UnmarshalJSONEnum(OGAckPayMsg_Reason_value, data, "OGAckPayMsg_Reason")
+func (x *DDAckPayMsg_Reason) UnmarshalJSON(data []byte) error {
+	value, err := proto.UnmarshalJSONEnum(DDAckPayMsg_Reason_value, data, "DDAckPayMsg_Reason")
 	if err != nil {
 		return err
 	}
-	*x = OGAckPayMsg_Reason(value)
+	*x = DDAckPayMsg_Reason(value)
 	return nil
 }
-func (OGAckPayMsg_Reason) EnumDescriptor() ([]byte, []int) { return fileDescriptor1, []int{59, 0} }
+func (DDAckPayMsg_Reason) EnumDescriptor() ([]byte, []int) { return fileDescriptor1, []int{59, 0} }
 
-type OGAckPresentCoins_Reason int32
+type DDAckPresentCoins_Reason int32
 
 const (
-	OGAckPresentCoins_PC_NOTHING    OGAckPresentCoins_Reason = 0
-	OGAckPresentCoins_PC_UNKNOWN    OGAckPresentCoins_Reason = 1
-	OGAckPresentCoins_PC_CONNECTDB  OGAckPresentCoins_Reason = 2
-	OGAckPresentCoins_PC_DB         OGAckPresentCoins_Reason = 3
-	OGAckPresentCoins_PC_SENDERINFO OGAckPresentCoins_Reason = 4
-	OGAckPresentCoins_PC_SENDERCOIN OGAckPresentCoins_Reason = 5
-	OGAckPresentCoins_PC_CONFIG     OGAckPresentCoins_Reason = 6
-	OGAckPresentCoins_PC_CLOSE      OGAckPresentCoins_Reason = 7
-	OGAckPresentCoins_PC_AMOUNT     OGAckPresentCoins_Reason = 8
-	OGAckPresentCoins_PC_TIMESUSER  OGAckPresentCoins_Reason = 9
-	OGAckPresentCoins_PC_TIMESDAY   OGAckPresentCoins_Reason = 10
-	OGAckPresentCoins_PC_SUBTRACT   OGAckPresentCoins_Reason = 11
-	OGAckPresentCoins_PC_ADD        OGAckPresentCoins_Reason = 12
+	DDAckPresentCoins_PC_NOTHING    DDAckPresentCoins_Reason = 0
+	DDAckPresentCoins_PC_UNKNOWN    DDAckPresentCoins_Reason = 1
+	DDAckPresentCoins_PC_CONNECTDB  DDAckPresentCoins_Reason = 2
+	DDAckPresentCoins_PC_DB         DDAckPresentCoins_Reason = 3
+	DDAckPresentCoins_PC_SENDERINFO DDAckPresentCoins_Reason = 4
+	DDAckPresentCoins_PC_SENDERCOIN DDAckPresentCoins_Reason = 5
+	DDAckPresentCoins_PC_CONFIG     DDAckPresentCoins_Reason = 6
+	DDAckPresentCoins_PC_CLOSE      DDAckPresentCoins_Reason = 7
+	DDAckPresentCoins_PC_AMOUNT     DDAckPresentCoins_Reason = 8
+	DDAckPresentCoins_PC_TIMESUSER  DDAckPresentCoins_Reason = 9
+	DDAckPresentCoins_PC_TIMESDAY   DDAckPresentCoins_Reason = 10
+	DDAckPresentCoins_PC_SUBTRACT   DDAckPresentCoins_Reason = 11
+	DDAckPresentCoins_PC_ADD        DDAckPresentCoins_Reason = 12
 )
 
-var OGAckPresentCoins_Reason_name = map[int32]string{
+var DDAckPresentCoins_Reason_name = map[int32]string{
 	0:  "PC_NOTHING",
 	1:  "PC_UNKNOWN",
 	2:  "PC_CONNECTDB",
@@ -129,7 +129,7 @@ var OGAckPresentCoins_Reason_name = map[int32]string{
 	11: "PC_SUBTRACT",
 	12: "PC_ADD",
 }
-var OGAckPresentCoins_Reason_value = map[string]int32{
+var DDAckPresentCoins_Reason_value = map[string]int32{
 	"PC_NOTHING":    0,
 	"PC_UNKNOWN":    1,
 	"PC_CONNECTDB":  2,
@@ -145,23 +145,23 @@ var OGAckPresentCoins_Reason_value = map[string]int32{
 	"PC_ADD":        12,
 }
 
-func (x OGAckPresentCoins_Reason) Enum() *OGAckPresentCoins_Reason {
-	p := new(OGAckPresentCoins_Reason)
+func (x DDAckPresentCoins_Reason) Enum() *DDAckPresentCoins_Reason {
+	p := new(DDAckPresentCoins_Reason)
 	*p = x
 	return p
 }
-func (x OGAckPresentCoins_Reason) String() string {
-	return proto.EnumName(OGAckPresentCoins_Reason_name, int32(x))
+func (x DDAckPresentCoins_Reason) String() string {
+	return proto.EnumName(DDAckPresentCoins_Reason_name, int32(x))
 }
-func (x *OGAckPresentCoins_Reason) UnmarshalJSON(data []byte) error {
-	value, err := proto.UnmarshalJSONEnum(OGAckPresentCoins_Reason_value, data, "OGAckPresentCoins_Reason")
+func (x *DDAckPresentCoins_Reason) UnmarshalJSON(data []byte) error {
+	value, err := proto.UnmarshalJSONEnum(DDAckPresentCoins_Reason_value, data, "DDAckPresentCoins_Reason")
 	if err != nil {
 		return err
 	}
-	*x = OGAckPresentCoins_Reason(value)
+	*x = DDAckPresentCoins_Reason(value)
 	return nil
 }
-func (OGAckPresentCoins_Reason) EnumDescriptor() ([]byte, []int) { return fileDescriptor1, []int{64, 0} }
+func (DDAckPresentCoins_Reason) EnumDescriptor() ([]byte, []int) { return fileDescriptor1, []int{64, 0} }
 
 type Game_ACKConfirmConnect struct {
 	Result           *int32 `protobuf:"varint,1,opt,name=result" json:"result,omitempty"`
@@ -2606,7 +2606,7 @@ func (m *Game_NowelterInfo) GetNReason() int32 {
 
 // 现金桌的消息定义
 // 请求坐下
-type OGReqSitdownSeat struct {
+type DDReqSitdownSeat struct {
 	MatchID          []byte `protobuf:"bytes,1,opt,name=MatchID" json:"MatchID,omitempty"`
 	SUserName        []byte `protobuf:"bytes,2,opt,name=sUserName" json:"sUserName,omitempty"`
 	NSeatID          *int32 `protobuf:"varint,3,opt,name=nSeatID" json:"nSeatID,omitempty"`
@@ -2615,47 +2615,47 @@ type OGReqSitdownSeat struct {
 	XXX_unrecognized []byte `json:"-"`
 }
 
-func (m *OGReqSitdownSeat) Reset()                    { *m = OGReqSitdownSeat{} }
-func (m *OGReqSitdownSeat) String() string            { return proto.CompactTextString(m) }
-func (*OGReqSitdownSeat) ProtoMessage()               {}
-func (*OGReqSitdownSeat) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{46} }
+func (m *DDReqSitdownSeat) Reset()                    { *m = DDReqSitdownSeat{} }
+func (m *DDReqSitdownSeat) String() string            { return proto.CompactTextString(m) }
+func (*DDReqSitdownSeat) ProtoMessage()               {}
+func (*DDReqSitdownSeat) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{46} }
 
-func (m *OGReqSitdownSeat) GetMatchID() []byte {
+func (m *DDReqSitdownSeat) GetMatchID() []byte {
 	if m != nil {
 		return m.MatchID
 	}
 	return nil
 }
 
-func (m *OGReqSitdownSeat) GetSUserName() []byte {
+func (m *DDReqSitdownSeat) GetSUserName() []byte {
 	if m != nil {
 		return m.SUserName
 	}
 	return nil
 }
 
-func (m *OGReqSitdownSeat) GetNSeatID() int32 {
+func (m *DDReqSitdownSeat) GetNSeatID() int32 {
 	if m != nil && m.NSeatID != nil {
 		return *m.NSeatID
 	}
 	return 0
 }
 
-func (m *OGReqSitdownSeat) GetNField() int32 {
+func (m *DDReqSitdownSeat) GetNField() int32 {
 	if m != nil && m.NField != nil {
 		return *m.NField
 	}
 	return 0
 }
 
-func (m *OGReqSitdownSeat) GetSCFUserName() []byte {
+func (m *DDReqSitdownSeat) GetSCFUserName() []byte {
 	if m != nil {
 		return m.SCFUserName
 	}
 	return nil
 }
 
-type OGAckSitdownSeat struct {
+type DDAckSitdownSeat struct {
 	Result           *int32 `protobuf:"varint,1,opt,name=Result" json:"Result,omitempty"`
 	Reason           *int32 `protobuf:"varint,2,opt,name=reason" json:"reason,omitempty"`
 	MatchID          []byte `protobuf:"bytes,3,opt,name=MatchID" json:"MatchID,omitempty"`
@@ -2667,61 +2667,61 @@ type OGAckSitdownSeat struct {
 	XXX_unrecognized []byte `json:"-"`
 }
 
-func (m *OGAckSitdownSeat) Reset()                    { *m = OGAckSitdownSeat{} }
-func (m *OGAckSitdownSeat) String() string            { return proto.CompactTextString(m) }
-func (*OGAckSitdownSeat) ProtoMessage()               {}
-func (*OGAckSitdownSeat) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{47} }
+func (m *DDAckSitdownSeat) Reset()                    { *m = DDAckSitdownSeat{} }
+func (m *DDAckSitdownSeat) String() string            { return proto.CompactTextString(m) }
+func (*DDAckSitdownSeat) ProtoMessage()               {}
+func (*DDAckSitdownSeat) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{47} }
 
-func (m *OGAckSitdownSeat) GetResult() int32 {
+func (m *DDAckSitdownSeat) GetResult() int32 {
 	if m != nil && m.Result != nil {
 		return *m.Result
 	}
 	return 0
 }
 
-func (m *OGAckSitdownSeat) GetReason() int32 {
+func (m *DDAckSitdownSeat) GetReason() int32 {
 	if m != nil && m.Reason != nil {
 		return *m.Reason
 	}
 	return 0
 }
 
-func (m *OGAckSitdownSeat) GetMatchID() []byte {
+func (m *DDAckSitdownSeat) GetMatchID() []byte {
 	if m != nil {
 		return m.MatchID
 	}
 	return nil
 }
 
-func (m *OGAckSitdownSeat) GetSUserName() []byte {
+func (m *DDAckSitdownSeat) GetSUserName() []byte {
 	if m != nil {
 		return m.SUserName
 	}
 	return nil
 }
 
-func (m *OGAckSitdownSeat) GetNSeatID() int32 {
+func (m *DDAckSitdownSeat) GetNSeatID() int32 {
 	if m != nil && m.NSeatID != nil {
 		return *m.NSeatID
 	}
 	return 0
 }
 
-func (m *OGAckSitdownSeat) GetBForceBuy() int32 {
+func (m *DDAckSitdownSeat) GetBForceBuy() int32 {
 	if m != nil && m.BForceBuy != nil {
 		return *m.BForceBuy
 	}
 	return 0
 }
 
-func (m *OGAckSitdownSeat) GetNForceMinChip() int64 {
+func (m *DDAckSitdownSeat) GetNForceMinChip() int64 {
 	if m != nil && m.NForceMinChip != nil {
 		return *m.NForceMinChip
 	}
 	return 0
 }
 
-func (m *OGAckSitdownSeat) GetSCFUserName() []byte {
+func (m *DDAckSitdownSeat) GetSCFUserName() []byte {
 	if m != nil {
 		return m.SCFUserName
 	}
@@ -2729,7 +2729,7 @@ func (m *OGAckSitdownSeat) GetSCFUserName() []byte {
 }
 
 // 带入
-type OGReqBuyChip struct {
+type DDReqBuyChip struct {
 	MatchID          []byte `protobuf:"bytes,1,opt,name=MatchID" json:"MatchID,omitempty"`
 	SUserName        []byte `protobuf:"bytes,2,opt,name=sUserName" json:"sUserName,omitempty"`
 	NSeatID          *int32 `protobuf:"varint,3,opt,name=nSeatID" json:"nSeatID,omitempty"`
@@ -2738,47 +2738,47 @@ type OGReqBuyChip struct {
 	XXX_unrecognized []byte `json:"-"`
 }
 
-func (m *OGReqBuyChip) Reset()                    { *m = OGReqBuyChip{} }
-func (m *OGReqBuyChip) String() string            { return proto.CompactTextString(m) }
-func (*OGReqBuyChip) ProtoMessage()               {}
-func (*OGReqBuyChip) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{48} }
+func (m *DDReqBuyChip) Reset()                    { *m = DDReqBuyChip{} }
+func (m *DDReqBuyChip) String() string            { return proto.CompactTextString(m) }
+func (*DDReqBuyChip) ProtoMessage()               {}
+func (*DDReqBuyChip) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{48} }
 
-func (m *OGReqBuyChip) GetMatchID() []byte {
+func (m *DDReqBuyChip) GetMatchID() []byte {
 	if m != nil {
 		return m.MatchID
 	}
 	return nil
 }
 
-func (m *OGReqBuyChip) GetSUserName() []byte {
+func (m *DDReqBuyChip) GetSUserName() []byte {
 	if m != nil {
 		return m.SUserName
 	}
 	return nil
 }
 
-func (m *OGReqBuyChip) GetNSeatID() int32 {
+func (m *DDReqBuyChip) GetNSeatID() int32 {
 	if m != nil && m.NSeatID != nil {
 		return *m.NSeatID
 	}
 	return 0
 }
 
-func (m *OGReqBuyChip) GetNBuyChip() int64 {
+func (m *DDReqBuyChip) GetNBuyChip() int64 {
 	if m != nil && m.NBuyChip != nil {
 		return *m.NBuyChip
 	}
 	return 0
 }
 
-func (m *OGReqBuyChip) GetNCurChip() int64 {
+func (m *DDReqBuyChip) GetNCurChip() int64 {
 	if m != nil && m.NCurChip != nil {
 		return *m.NCurChip
 	}
 	return 0
 }
 
-type OGAckBuyChip struct {
+type DDAckBuyChip struct {
 	Result *int32 `protobuf:"varint,1,opt,name=Result" json:"Result,omitempty"`
 	Reason *int32 `protobuf:"varint,2,opt,name=reason" json:"reason,omitempty"`
 	// 7没有该比赛,8数据库操作失败,9不符合强制带入条件,10不在最大最小带入范围内,11游戏中不能带人
@@ -2790,54 +2790,54 @@ type OGAckBuyChip struct {
 	XXX_unrecognized []byte `json:"-"`
 }
 
-func (m *OGAckBuyChip) Reset()                    { *m = OGAckBuyChip{} }
-func (m *OGAckBuyChip) String() string            { return proto.CompactTextString(m) }
-func (*OGAckBuyChip) ProtoMessage()               {}
-func (*OGAckBuyChip) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{49} }
+func (m *DDAckBuyChip) Reset()                    { *m = DDAckBuyChip{} }
+func (m *DDAckBuyChip) String() string            { return proto.CompactTextString(m) }
+func (*DDAckBuyChip) ProtoMessage()               {}
+func (*DDAckBuyChip) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{49} }
 
-func (m *OGAckBuyChip) GetResult() int32 {
+func (m *DDAckBuyChip) GetResult() int32 {
 	if m != nil && m.Result != nil {
 		return *m.Result
 	}
 	return 0
 }
 
-func (m *OGAckBuyChip) GetReason() int32 {
+func (m *DDAckBuyChip) GetReason() int32 {
 	if m != nil && m.Reason != nil {
 		return *m.Reason
 	}
 	return 0
 }
 
-func (m *OGAckBuyChip) GetMatchID() []byte {
+func (m *DDAckBuyChip) GetMatchID() []byte {
 	if m != nil {
 		return m.MatchID
 	}
 	return nil
 }
 
-func (m *OGAckBuyChip) GetSUserName() []byte {
+func (m *DDAckBuyChip) GetSUserName() []byte {
 	if m != nil {
 		return m.SUserName
 	}
 	return nil
 }
 
-func (m *OGAckBuyChip) GetNBuyChip() int64 {
+func (m *DDAckBuyChip) GetNBuyChip() int64 {
 	if m != nil && m.NBuyChip != nil {
 		return *m.NBuyChip
 	}
 	return 0
 }
 
-func (m *OGAckBuyChip) GetNTotalCoin() int64 {
+func (m *DDAckBuyChip) GetNTotalCoin() int64 {
 	if m != nil && m.NTotalCoin != nil {
 		return *m.NTotalCoin
 	}
 	return 0
 }
 
-func (m *OGAckBuyChip) GetBWaitBling() int32 {
+func (m *DDAckBuyChip) GetBWaitBling() int32 {
 	if m != nil && m.BWaitBling != nil {
 		return *m.BWaitBling
 	}
@@ -2845,25 +2845,25 @@ func (m *OGAckBuyChip) GetBWaitBling() int32 {
 }
 
 // 由于筹码不够，需要向客户端发送带入的消息
-type OGNeetBugChip struct {
+type DDNeetBugChip struct {
 	MatchID          []byte `protobuf:"bytes,1,opt,name=MatchID" json:"MatchID,omitempty"`
 	SUserName        []byte `protobuf:"bytes,2,opt,name=sUserName" json:"sUserName,omitempty"`
 	XXX_unrecognized []byte `json:"-"`
 }
 
-func (m *OGNeetBugChip) Reset()                    { *m = OGNeetBugChip{} }
-func (m *OGNeetBugChip) String() string            { return proto.CompactTextString(m) }
-func (*OGNeetBugChip) ProtoMessage()               {}
-func (*OGNeetBugChip) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{50} }
+func (m *DDNeetBugChip) Reset()                    { *m = DDNeetBugChip{} }
+func (m *DDNeetBugChip) String() string            { return proto.CompactTextString(m) }
+func (*DDNeetBugChip) ProtoMessage()               {}
+func (*DDNeetBugChip) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{50} }
 
-func (m *OGNeetBugChip) GetMatchID() []byte {
+func (m *DDNeetBugChip) GetMatchID() []byte {
 	if m != nil {
 		return m.MatchID
 	}
 	return nil
 }
 
-func (m *OGNeetBugChip) GetSUserName() []byte {
+func (m *DDNeetBugChip) GetSUserName() []byte {
 	if m != nil {
 		return m.SUserName
 	}
@@ -2871,7 +2871,7 @@ func (m *OGNeetBugChip) GetSUserName() []byte {
 }
 
 // 请求离座
-type OGReqLeave struct {
+type DDReqLeave struct {
 	MatchID          []byte  `protobuf:"bytes,1,opt,name=MatchID" json:"MatchID,omitempty"`
 	SUserName        []byte  `protobuf:"bytes,2,opt,name=sUserName" json:"sUserName,omitempty"`
 	NSeatID          *int32  `protobuf:"varint,3,opt,name=nSeatID" json:"nSeatID,omitempty"`
@@ -2879,40 +2879,40 @@ type OGReqLeave struct {
 	XXX_unrecognized []byte  `json:"-"`
 }
 
-func (m *OGReqLeave) Reset()                    { *m = OGReqLeave{} }
-func (m *OGReqLeave) String() string            { return proto.CompactTextString(m) }
-func (*OGReqLeave) ProtoMessage()               {}
-func (*OGReqLeave) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{51} }
+func (m *DDReqLeave) Reset()                    { *m = DDReqLeave{} }
+func (m *DDReqLeave) String() string            { return proto.CompactTextString(m) }
+func (*DDReqLeave) ProtoMessage()               {}
+func (*DDReqLeave) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{51} }
 
-func (m *OGReqLeave) GetMatchID() []byte {
+func (m *DDReqLeave) GetMatchID() []byte {
 	if m != nil {
 		return m.MatchID
 	}
 	return nil
 }
 
-func (m *OGReqLeave) GetSUserName() []byte {
+func (m *DDReqLeave) GetSUserName() []byte {
 	if m != nil {
 		return m.SUserName
 	}
 	return nil
 }
 
-func (m *OGReqLeave) GetNSeatID() int32 {
+func (m *DDReqLeave) GetNSeatID() int32 {
 	if m != nil && m.NSeatID != nil {
 		return *m.NSeatID
 	}
 	return 0
 }
 
-func (m *OGReqLeave) GetNUserIP() uint32 {
+func (m *DDReqLeave) GetNUserIP() uint32 {
 	if m != nil && m.NUserIP != nil {
 		return *m.NUserIP
 	}
 	return 0
 }
 
-type OGAckLeave struct {
+type DDAckLeave struct {
 	Result           *int32 `protobuf:"varint,1,opt,name=Result" json:"Result,omitempty"`
 	Reason           *int32 `protobuf:"varint,2,opt,name=reason" json:"reason,omitempty"`
 	MatchID          []byte `protobuf:"bytes,3,opt,name=MatchID" json:"MatchID,omitempty"`
@@ -2921,40 +2921,40 @@ type OGAckLeave struct {
 	XXX_unrecognized []byte `json:"-"`
 }
 
-func (m *OGAckLeave) Reset()                    { *m = OGAckLeave{} }
-func (m *OGAckLeave) String() string            { return proto.CompactTextString(m) }
-func (*OGAckLeave) ProtoMessage()               {}
-func (*OGAckLeave) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{52} }
+func (m *DDAckLeave) Reset()                    { *m = DDAckLeave{} }
+func (m *DDAckLeave) String() string            { return proto.CompactTextString(m) }
+func (*DDAckLeave) ProtoMessage()               {}
+func (*DDAckLeave) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{52} }
 
-func (m *OGAckLeave) GetResult() int32 {
+func (m *DDAckLeave) GetResult() int32 {
 	if m != nil && m.Result != nil {
 		return *m.Result
 	}
 	return 0
 }
 
-func (m *OGAckLeave) GetReason() int32 {
+func (m *DDAckLeave) GetReason() int32 {
 	if m != nil && m.Reason != nil {
 		return *m.Reason
 	}
 	return 0
 }
 
-func (m *OGAckLeave) GetMatchID() []byte {
+func (m *DDAckLeave) GetMatchID() []byte {
 	if m != nil {
 		return m.MatchID
 	}
 	return nil
 }
 
-func (m *OGAckLeave) GetSUserName() []byte {
+func (m *DDAckLeave) GetSUserName() []byte {
 	if m != nil {
 		return m.SUserName
 	}
 	return nil
 }
 
-func (m *OGAckLeave) GetNlCoin() int64 {
+func (m *DDAckLeave) GetNlCoin() int64 {
 	if m != nil && m.NlCoin != nil {
 		return *m.NlCoin
 	}
@@ -2962,7 +2962,7 @@ func (m *OGAckLeave) GetNlCoin() int64 {
 }
 
 // 带入规则
-type OGGameRule struct {
+type DDGameRule struct {
 	MatchID          []byte `protobuf:"bytes,1,opt,name=MatchID" json:"MatchID,omitempty"`
 	SUserName        []byte `protobuf:"bytes,2,opt,name=sUserName" json:"sUserName,omitempty"`
 	NSeatID          *int32 `protobuf:"varint,3,opt,name=nSeatID" json:"nSeatID,omitempty"`
@@ -2971,40 +2971,40 @@ type OGGameRule struct {
 	XXX_unrecognized []byte `json:"-"`
 }
 
-func (m *OGGameRule) Reset()                    { *m = OGGameRule{} }
-func (m *OGGameRule) String() string            { return proto.CompactTextString(m) }
-func (*OGGameRule) ProtoMessage()               {}
-func (*OGGameRule) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{53} }
+func (m *DDGameRule) Reset()                    { *m = DDGameRule{} }
+func (m *DDGameRule) String() string            { return proto.CompactTextString(m) }
+func (*DDGameRule) ProtoMessage()               {}
+func (*DDGameRule) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{53} }
 
-func (m *OGGameRule) GetMatchID() []byte {
+func (m *DDGameRule) GetMatchID() []byte {
 	if m != nil {
 		return m.MatchID
 	}
 	return nil
 }
 
-func (m *OGGameRule) GetSUserName() []byte {
+func (m *DDGameRule) GetSUserName() []byte {
 	if m != nil {
 		return m.SUserName
 	}
 	return nil
 }
 
-func (m *OGGameRule) GetNSeatID() int32 {
+func (m *DDGameRule) GetNSeatID() int32 {
 	if m != nil && m.NSeatID != nil {
 		return *m.NSeatID
 	}
 	return 0
 }
 
-func (m *OGGameRule) GetMaxChip() int64 {
+func (m *DDGameRule) GetMaxChip() int64 {
 	if m != nil && m.MaxChip != nil {
 		return *m.MaxChip
 	}
 	return 0
 }
 
-func (m *OGGameRule) GetMinChip() int64 {
+func (m *DDGameRule) GetMinChip() int64 {
 	if m != nil && m.MinChip != nil {
 		return *m.MinChip
 	}
@@ -3012,7 +3012,7 @@ func (m *OGGameRule) GetMinChip() int64 {
 }
 
 // 等待大盲
-type OGWaitBigBling struct {
+type DDWaitBigBling struct {
 	MatchID          []byte `protobuf:"bytes,1,opt,name=MatchID" json:"MatchID,omitempty"`
 	SUserName        []byte `protobuf:"bytes,2,opt,name=sUserName" json:"sUserName,omitempty"`
 	NSeatID          *int32 `protobuf:"varint,3,opt,name=nSeatID" json:"nSeatID,omitempty"`
@@ -3020,33 +3020,33 @@ type OGWaitBigBling struct {
 	XXX_unrecognized []byte `json:"-"`
 }
 
-func (m *OGWaitBigBling) Reset()                    { *m = OGWaitBigBling{} }
-func (m *OGWaitBigBling) String() string            { return proto.CompactTextString(m) }
-func (*OGWaitBigBling) ProtoMessage()               {}
-func (*OGWaitBigBling) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{54} }
+func (m *DDWaitBigBling) Reset()                    { *m = DDWaitBigBling{} }
+func (m *DDWaitBigBling) String() string            { return proto.CompactTextString(m) }
+func (*DDWaitBigBling) ProtoMessage()               {}
+func (*DDWaitBigBling) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{54} }
 
-func (m *OGWaitBigBling) GetMatchID() []byte {
+func (m *DDWaitBigBling) GetMatchID() []byte {
 	if m != nil {
 		return m.MatchID
 	}
 	return nil
 }
 
-func (m *OGWaitBigBling) GetSUserName() []byte {
+func (m *DDWaitBigBling) GetSUserName() []byte {
 	if m != nil {
 		return m.SUserName
 	}
 	return nil
 }
 
-func (m *OGWaitBigBling) GetNSeatID() int32 {
+func (m *DDWaitBigBling) GetNSeatID() int32 {
 	if m != nil && m.NSeatID != nil {
 		return *m.NSeatID
 	}
 	return 0
 }
 
-func (m *OGWaitBigBling) GetIsWait() int32 {
+func (m *DDWaitBigBling) GetIsWait() int32 {
 	if m != nil && m.IsWait != nil {
 		return *m.IsWait
 	}
@@ -3054,7 +3054,7 @@ func (m *OGWaitBigBling) GetIsWait() int32 {
 }
 
 // 下一个大盲旁观
-type OGNextBiglingWatch struct {
+type DDNextBiglingWatch struct {
 	MatchID          []byte `protobuf:"bytes,1,opt,name=MatchID" json:"MatchID,omitempty"`
 	SUserName        []byte `protobuf:"bytes,2,opt,name=sUserName" json:"sUserName,omitempty"`
 	NSeatID          *int32 `protobuf:"varint,3,opt,name=nSeatID" json:"nSeatID,omitempty"`
@@ -3062,33 +3062,33 @@ type OGNextBiglingWatch struct {
 	XXX_unrecognized []byte `json:"-"`
 }
 
-func (m *OGNextBiglingWatch) Reset()                    { *m = OGNextBiglingWatch{} }
-func (m *OGNextBiglingWatch) String() string            { return proto.CompactTextString(m) }
-func (*OGNextBiglingWatch) ProtoMessage()               {}
-func (*OGNextBiglingWatch) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{55} }
+func (m *DDNextBiglingWatch) Reset()                    { *m = DDNextBiglingWatch{} }
+func (m *DDNextBiglingWatch) String() string            { return proto.CompactTextString(m) }
+func (*DDNextBiglingWatch) ProtoMessage()               {}
+func (*DDNextBiglingWatch) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{55} }
 
-func (m *OGNextBiglingWatch) GetMatchID() []byte {
+func (m *DDNextBiglingWatch) GetMatchID() []byte {
 	if m != nil {
 		return m.MatchID
 	}
 	return nil
 }
 
-func (m *OGNextBiglingWatch) GetSUserName() []byte {
+func (m *DDNextBiglingWatch) GetSUserName() []byte {
 	if m != nil {
 		return m.SUserName
 	}
 	return nil
 }
 
-func (m *OGNextBiglingWatch) GetNSeatID() int32 {
+func (m *DDNextBiglingWatch) GetNSeatID() int32 {
 	if m != nil && m.NSeatID != nil {
 		return *m.NSeatID
 	}
 	return 0
 }
 
-func (m *OGNextBiglingWatch) GetIsWatcher() int32 {
+func (m *DDNextBiglingWatch) GetIsWatcher() int32 {
 	if m != nil && m.IsWatcher != nil {
 		return *m.IsWatcher
 	}
@@ -3096,7 +3096,7 @@ func (m *OGNextBiglingWatch) GetIsWatcher() int32 {
 }
 
 // 聊天消息
-type OGChatMsg struct {
+type DDChatMsg struct {
 	MatchID          []byte `protobuf:"bytes,1,opt,name=MatchID" json:"MatchID,omitempty"`
 	SUserName        []byte `protobuf:"bytes,2,opt,name=sUserName" json:"sUserName,omitempty"`
 	NSeatID          *int32 `protobuf:"varint,3,opt,name=nSeatID" json:"nSeatID,omitempty"`
@@ -3105,40 +3105,40 @@ type OGChatMsg struct {
 	XXX_unrecognized []byte `json:"-"`
 }
 
-func (m *OGChatMsg) Reset()                    { *m = OGChatMsg{} }
-func (m *OGChatMsg) String() string            { return proto.CompactTextString(m) }
-func (*OGChatMsg) ProtoMessage()               {}
-func (*OGChatMsg) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{56} }
+func (m *DDChatMsg) Reset()                    { *m = DDChatMsg{} }
+func (m *DDChatMsg) String() string            { return proto.CompactTextString(m) }
+func (*DDChatMsg) ProtoMessage()               {}
+func (*DDChatMsg) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{56} }
 
-func (m *OGChatMsg) GetMatchID() []byte {
+func (m *DDChatMsg) GetMatchID() []byte {
 	if m != nil {
 		return m.MatchID
 	}
 	return nil
 }
 
-func (m *OGChatMsg) GetSUserName() []byte {
+func (m *DDChatMsg) GetSUserName() []byte {
 	if m != nil {
 		return m.SUserName
 	}
 	return nil
 }
 
-func (m *OGChatMsg) GetNSeatID() int32 {
+func (m *DDChatMsg) GetNSeatID() int32 {
 	if m != nil && m.NSeatID != nil {
 		return *m.NSeatID
 	}
 	return 0
 }
 
-func (m *OGChatMsg) GetSzChat() []byte {
+func (m *DDChatMsg) GetSzChat() []byte {
 	if m != nil {
 		return m.SzChat
 	}
 	return nil
 }
 
-func (m *OGChatMsg) GetResult() int32 {
+func (m *DDChatMsg) GetResult() int32 {
 	if m != nil && m.Result != nil {
 		return *m.Result
 	}
@@ -3146,7 +3146,7 @@ func (m *OGChatMsg) GetResult() int32 {
 }
 
 // 建议消息
-type OGProposalMsg struct {
+type DDProposalMsg struct {
 	SName            []byte `protobuf:"bytes,1,opt,name=sName" json:"sName,omitempty"`
 	SUserName        []byte `protobuf:"bytes,2,opt,name=sUserName" json:"sUserName,omitempty"`
 	STelephone       []byte `protobuf:"bytes,3,opt,name=sTelephone" json:"sTelephone,omitempty"`
@@ -3154,33 +3154,33 @@ type OGProposalMsg struct {
 	XXX_unrecognized []byte `json:"-"`
 }
 
-func (m *OGProposalMsg) Reset()                    { *m = OGProposalMsg{} }
-func (m *OGProposalMsg) String() string            { return proto.CompactTextString(m) }
-func (*OGProposalMsg) ProtoMessage()               {}
-func (*OGProposalMsg) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{57} }
+func (m *DDProposalMsg) Reset()                    { *m = DDProposalMsg{} }
+func (m *DDProposalMsg) String() string            { return proto.CompactTextString(m) }
+func (*DDProposalMsg) ProtoMessage()               {}
+func (*DDProposalMsg) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{57} }
 
-func (m *OGProposalMsg) GetSName() []byte {
+func (m *DDProposalMsg) GetSName() []byte {
 	if m != nil {
 		return m.SName
 	}
 	return nil
 }
 
-func (m *OGProposalMsg) GetSUserName() []byte {
+func (m *DDProposalMsg) GetSUserName() []byte {
 	if m != nil {
 		return m.SUserName
 	}
 	return nil
 }
 
-func (m *OGProposalMsg) GetSTelephone() []byte {
+func (m *DDProposalMsg) GetSTelephone() []byte {
 	if m != nil {
 		return m.STelephone
 	}
 	return nil
 }
 
-func (m *OGProposalMsg) GetSContent() []byte {
+func (m *DDProposalMsg) GetSContent() []byte {
 	if m != nil {
 		return m.SContent
 	}
@@ -3188,7 +3188,7 @@ func (m *OGProposalMsg) GetSContent() []byte {
 }
 
 // 付费消息
-type OGReqPayMsg struct {
+type DDReqPayMsg struct {
 	SUserName        []byte `protobuf:"bytes,1,opt,name=sUserName" json:"sUserName,omitempty"`
 	SzTxt            []byte `protobuf:"bytes,2,opt,name=szTxt" json:"szTxt,omitempty"`
 	MatchID          []byte `protobuf:"bytes,3,opt,name=MatchID" json:"MatchID,omitempty"`
@@ -3196,46 +3196,46 @@ type OGReqPayMsg struct {
 	XXX_unrecognized []byte `json:"-"`
 }
 
-func (m *OGReqPayMsg) Reset()                    { *m = OGReqPayMsg{} }
-func (m *OGReqPayMsg) String() string            { return proto.CompactTextString(m) }
-func (*OGReqPayMsg) ProtoMessage()               {}
-func (*OGReqPayMsg) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{58} }
+func (m *DDReqPayMsg) Reset()                    { *m = DDReqPayMsg{} }
+func (m *DDReqPayMsg) String() string            { return proto.CompactTextString(m) }
+func (*DDReqPayMsg) ProtoMessage()               {}
+func (*DDReqPayMsg) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{58} }
 
-func (m *OGReqPayMsg) GetSUserName() []byte {
+func (m *DDReqPayMsg) GetSUserName() []byte {
 	if m != nil {
 		return m.SUserName
 	}
 	return nil
 }
 
-func (m *OGReqPayMsg) GetSzTxt() []byte {
+func (m *DDReqPayMsg) GetSzTxt() []byte {
 	if m != nil {
 		return m.SzTxt
 	}
 	return nil
 }
 
-func (m *OGReqPayMsg) GetMatchID() []byte {
+func (m *DDReqPayMsg) GetMatchID() []byte {
 	if m != nil {
 		return m.MatchID
 	}
 	return nil
 }
 
-func (m *OGReqPayMsg) GetNTableNo() int32 {
+func (m *DDReqPayMsg) GetNTableNo() int32 {
 	if m != nil && m.NTableNo != nil {
 		return *m.NTableNo
 	}
 	return 0
 }
 
-type OGAckPayMsg struct {
+type DDAckPayMsg struct {
 	SUserName        []byte              `protobuf:"bytes,1,opt,name=sUserName" json:"sUserName,omitempty"`
 	MatchID          []byte              `protobuf:"bytes,2,opt,name=MatchID" json:"MatchID,omitempty"`
 	NTableNo         *int32              `protobuf:"varint,3,opt,name=nTableNo" json:"nTableNo,omitempty"`
 	SzTxt            []byte              `protobuf:"bytes,4,opt,name=szTxt" json:"szTxt,omitempty"`
 	Result           *int32              `protobuf:"varint,5,opt,name=result" json:"result,omitempty"`
-	EReason          *OGAckPayMsg_Reason `protobuf:"varint,6,opt,name=eReason,enum=bbproto.OGAckPayMsg_Reason" json:"eReason,omitempty"`
+	EReason          *DDAckPayMsg_Reason `protobuf:"varint,6,opt,name=eReason,enum=bbproto.DDAckPayMsg_Reason" json:"eReason,omitempty"`
 	NType            *int32              `protobuf:"varint,7,opt,name=nType" json:"nType,omitempty"`
 	Remaincount      *int32              `protobuf:"varint,8,opt,name=remaincount" json:"remaincount,omitempty"`
 	ReduceCoin       *int64              `protobuf:"varint,9,opt,name=reduceCoin" json:"reduceCoin,omitempty"`
@@ -3243,75 +3243,75 @@ type OGAckPayMsg struct {
 	XXX_unrecognized []byte              `json:"-"`
 }
 
-func (m *OGAckPayMsg) Reset()                    { *m = OGAckPayMsg{} }
-func (m *OGAckPayMsg) String() string            { return proto.CompactTextString(m) }
-func (*OGAckPayMsg) ProtoMessage()               {}
-func (*OGAckPayMsg) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{59} }
+func (m *DDAckPayMsg) Reset()                    { *m = DDAckPayMsg{} }
+func (m *DDAckPayMsg) String() string            { return proto.CompactTextString(m) }
+func (*DDAckPayMsg) ProtoMessage()               {}
+func (*DDAckPayMsg) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{59} }
 
-func (m *OGAckPayMsg) GetSUserName() []byte {
+func (m *DDAckPayMsg) GetSUserName() []byte {
 	if m != nil {
 		return m.SUserName
 	}
 	return nil
 }
 
-func (m *OGAckPayMsg) GetMatchID() []byte {
+func (m *DDAckPayMsg) GetMatchID() []byte {
 	if m != nil {
 		return m.MatchID
 	}
 	return nil
 }
 
-func (m *OGAckPayMsg) GetNTableNo() int32 {
+func (m *DDAckPayMsg) GetNTableNo() int32 {
 	if m != nil && m.NTableNo != nil {
 		return *m.NTableNo
 	}
 	return 0
 }
 
-func (m *OGAckPayMsg) GetSzTxt() []byte {
+func (m *DDAckPayMsg) GetSzTxt() []byte {
 	if m != nil {
 		return m.SzTxt
 	}
 	return nil
 }
 
-func (m *OGAckPayMsg) GetResult() int32 {
+func (m *DDAckPayMsg) GetResult() int32 {
 	if m != nil && m.Result != nil {
 		return *m.Result
 	}
 	return 0
 }
 
-func (m *OGAckPayMsg) GetEReason() OGAckPayMsg_Reason {
+func (m *DDAckPayMsg) GetEReason() DDAckPayMsg_Reason {
 	if m != nil && m.EReason != nil {
 		return *m.EReason
 	}
-	return OGAckPayMsg_HORN_NOTHING
+	return DDAckPayMsg_HORN_NOTHING
 }
 
-func (m *OGAckPayMsg) GetNType() int32 {
+func (m *DDAckPayMsg) GetNType() int32 {
 	if m != nil && m.NType != nil {
 		return *m.NType
 	}
 	return 0
 }
 
-func (m *OGAckPayMsg) GetRemaincount() int32 {
+func (m *DDAckPayMsg) GetRemaincount() int32 {
 	if m != nil && m.Remaincount != nil {
 		return *m.Remaincount
 	}
 	return 0
 }
 
-func (m *OGAckPayMsg) GetReduceCoin() int64 {
+func (m *DDAckPayMsg) GetReduceCoin() int64 {
 	if m != nil && m.ReduceCoin != nil {
 		return *m.ReduceCoin
 	}
 	return 0
 }
 
-func (m *OGAckPayMsg) GetSCFUserName() []byte {
+func (m *DDAckPayMsg) GetSCFUserName() []byte {
 	if m != nil {
 		return m.SCFUserName
 	}
@@ -3320,41 +3320,41 @@ func (m *OGAckPayMsg) GetSCFUserName() []byte {
 
 // ======================以下为朋友桌新增消息======================
 // 请求兑换活跃度
-// #define OGID_TEXASPOKER_EXCHANGEHYD (OGID_MSGBASE_TEXASPOKER_GAMEBASE + 0x00000073)
-type OGReqExChangeHYD struct {
+// #define DDID_TEXASPOKER_EXCHANGEHYD (DDID_MSGBASE_TEXASPOKER_GAMEBASE + 0x00000073)
+type DDReqExChangeHYD struct {
 	MatchID          []byte `protobuf:"bytes,1,opt,name=MatchID" json:"MatchID,omitempty"`
 	SUserName        []byte `protobuf:"bytes,2,opt,name=sUserName" json:"sUserName,omitempty"`
 	NExHYDCount      *int64 `protobuf:"varint,3,opt,name=nExHYDCount" json:"nExHYDCount,omitempty"`
 	XXX_unrecognized []byte `json:"-"`
 }
 
-func (m *OGReqExChangeHYD) Reset()                    { *m = OGReqExChangeHYD{} }
-func (m *OGReqExChangeHYD) String() string            { return proto.CompactTextString(m) }
-func (*OGReqExChangeHYD) ProtoMessage()               {}
-func (*OGReqExChangeHYD) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{60} }
+func (m *DDReqExChangeHYD) Reset()                    { *m = DDReqExChangeHYD{} }
+func (m *DDReqExChangeHYD) String() string            { return proto.CompactTextString(m) }
+func (*DDReqExChangeHYD) ProtoMessage()               {}
+func (*DDReqExChangeHYD) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{60} }
 
-func (m *OGReqExChangeHYD) GetMatchID() []byte {
+func (m *DDReqExChangeHYD) GetMatchID() []byte {
 	if m != nil {
 		return m.MatchID
 	}
 	return nil
 }
 
-func (m *OGReqExChangeHYD) GetSUserName() []byte {
+func (m *DDReqExChangeHYD) GetSUserName() []byte {
 	if m != nil {
 		return m.SUserName
 	}
 	return nil
 }
 
-func (m *OGReqExChangeHYD) GetNExHYDCount() int64 {
+func (m *DDReqExChangeHYD) GetNExHYDCount() int64 {
 	if m != nil && m.NExHYDCount != nil {
 		return *m.NExHYDCount
 	}
 	return 0
 }
 
-type OGAckExChangeHYD struct {
+type DDAckExChangeHYD struct {
 	NResult          *int32 `protobuf:"varint,1,opt,name=nResult" json:"nResult,omitempty"`
 	MatchID          []byte `protobuf:"bytes,2,opt,name=MatchID" json:"MatchID,omitempty"`
 	SUserName        []byte `protobuf:"bytes,3,opt,name=sUserName" json:"sUserName,omitempty"`
@@ -3365,54 +3365,54 @@ type OGAckExChangeHYD struct {
 	XXX_unrecognized []byte `json:"-"`
 }
 
-func (m *OGAckExChangeHYD) Reset()                    { *m = OGAckExChangeHYD{} }
-func (m *OGAckExChangeHYD) String() string            { return proto.CompactTextString(m) }
-func (*OGAckExChangeHYD) ProtoMessage()               {}
-func (*OGAckExChangeHYD) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{61} }
+func (m *DDAckExChangeHYD) Reset()                    { *m = DDAckExChangeHYD{} }
+func (m *DDAckExChangeHYD) String() string            { return proto.CompactTextString(m) }
+func (*DDAckExChangeHYD) ProtoMessage()               {}
+func (*DDAckExChangeHYD) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{61} }
 
-func (m *OGAckExChangeHYD) GetNResult() int32 {
+func (m *DDAckExChangeHYD) GetNResult() int32 {
 	if m != nil && m.NResult != nil {
 		return *m.NResult
 	}
 	return 0
 }
 
-func (m *OGAckExChangeHYD) GetMatchID() []byte {
+func (m *DDAckExChangeHYD) GetMatchID() []byte {
 	if m != nil {
 		return m.MatchID
 	}
 	return nil
 }
 
-func (m *OGAckExChangeHYD) GetSUserName() []byte {
+func (m *DDAckExChangeHYD) GetSUserName() []byte {
 	if m != nil {
 		return m.SUserName
 	}
 	return nil
 }
 
-func (m *OGAckExChangeHYD) GetNExHYDCount() int64 {
+func (m *DDAckExChangeHYD) GetNExHYDCount() int64 {
 	if m != nil && m.NExHYDCount != nil {
 		return *m.NExHYDCount
 	}
 	return 0
 }
 
-func (m *OGAckExChangeHYD) GetNCurHYDCount() int64 {
+func (m *DDAckExChangeHYD) GetNCurHYDCount() int64 {
 	if m != nil && m.NCurHYDCount != nil {
 		return *m.NCurHYDCount
 	}
 	return 0
 }
 
-func (m *OGAckExChangeHYD) GetNExCoin() int64 {
+func (m *DDAckExChangeHYD) GetNExCoin() int64 {
 	if m != nil && m.NExCoin != nil {
 		return *m.NExCoin
 	}
 	return 0
 }
 
-func (m *OGAckExChangeHYD) GetNTotalCoin() int64 {
+func (m *DDAckExChangeHYD) GetNTotalCoin() int64 {
 	if m != nil && m.NTotalCoin != nil {
 		return *m.NTotalCoin
 	}
@@ -3420,8 +3420,8 @@ func (m *OGAckExChangeHYD) GetNTotalCoin() int64 {
 }
 
 // 通知活跃度变化
-// #define OGID_TEXASPOKER_CHANGEHYD  (OGID_MSGBASE_TEXASPOKER_GAMEBASE + 0x00000074)
-type OGNtfChangeHYD struct {
+// #define DDID_TEXASPOKER_CHANGEHYD  (DDID_MSGBASE_TEXASPOKER_GAMEBASE + 0x00000074)
+type DDNtfChangeHYD struct {
 	MatchID          []byte `protobuf:"bytes,1,opt,name=MatchID" json:"MatchID,omitempty"`
 	SUserName        []byte `protobuf:"bytes,2,opt,name=sUserName" json:"sUserName,omitempty"`
 	NHYDTotal        *int64 `protobuf:"varint,3,opt,name=nHYDTotal" json:"nHYDTotal,omitempty"`
@@ -3429,33 +3429,33 @@ type OGNtfChangeHYD struct {
 	XXX_unrecognized []byte `json:"-"`
 }
 
-func (m *OGNtfChangeHYD) Reset()                    { *m = OGNtfChangeHYD{} }
-func (m *OGNtfChangeHYD) String() string            { return proto.CompactTextString(m) }
-func (*OGNtfChangeHYD) ProtoMessage()               {}
-func (*OGNtfChangeHYD) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{62} }
+func (m *DDNtfChangeHYD) Reset()                    { *m = DDNtfChangeHYD{} }
+func (m *DDNtfChangeHYD) String() string            { return proto.CompactTextString(m) }
+func (*DDNtfChangeHYD) ProtoMessage()               {}
+func (*DDNtfChangeHYD) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{62} }
 
-func (m *OGNtfChangeHYD) GetMatchID() []byte {
+func (m *DDNtfChangeHYD) GetMatchID() []byte {
 	if m != nil {
 		return m.MatchID
 	}
 	return nil
 }
 
-func (m *OGNtfChangeHYD) GetSUserName() []byte {
+func (m *DDNtfChangeHYD) GetSUserName() []byte {
 	if m != nil {
 		return m.SUserName
 	}
 	return nil
 }
 
-func (m *OGNtfChangeHYD) GetNHYDTotal() int64 {
+func (m *DDNtfChangeHYD) GetNHYDTotal() int64 {
 	if m != nil && m.NHYDTotal != nil {
 		return *m.NHYDTotal
 	}
 	return 0
 }
 
-func (m *OGNtfChangeHYD) GetNHYDCur() int64 {
+func (m *DDNtfChangeHYD) GetNHYDCur() int64 {
 	if m != nil && m.NHYDCur != nil {
 		return *m.NHYDCur
 	}
@@ -3463,8 +3463,8 @@ func (m *OGNtfChangeHYD) GetNHYDCur() int64 {
 }
 
 // 请求赠送金币
-// #define OGID_TEXASPOKER_PRESENTCOINS (OGID_MSGBASE_TEXASPOKER_GAMEBASE + 0x00000075)
-type OGReqPresentCoins struct {
+// #define DDID_TEXASPOKER_PRESENTCOINS (DDID_MSGBASE_TEXASPOKER_GAMEBASE + 0x00000075)
+type DDReqPresentCoins struct {
 	MatchID          []byte  `protobuf:"bytes,1,opt,name=MatchID" json:"MatchID,omitempty"`
 	SSender          []byte  `protobuf:"bytes,2,opt,name=sSender" json:"sSender,omitempty"`
 	SRecver          []byte  `protobuf:"bytes,3,opt,name=sRecver" json:"sRecver,omitempty"`
@@ -3474,113 +3474,113 @@ type OGReqPresentCoins struct {
 	XXX_unrecognized []byte  `json:"-"`
 }
 
-func (m *OGReqPresentCoins) Reset()                    { *m = OGReqPresentCoins{} }
-func (m *OGReqPresentCoins) String() string            { return proto.CompactTextString(m) }
-func (*OGReqPresentCoins) ProtoMessage()               {}
-func (*OGReqPresentCoins) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{63} }
+func (m *DDReqPresentCoins) Reset()                    { *m = DDReqPresentCoins{} }
+func (m *DDReqPresentCoins) String() string            { return proto.CompactTextString(m) }
+func (*DDReqPresentCoins) ProtoMessage()               {}
+func (*DDReqPresentCoins) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{63} }
 
-func (m *OGReqPresentCoins) GetMatchID() []byte {
+func (m *DDReqPresentCoins) GetMatchID() []byte {
 	if m != nil {
 		return m.MatchID
 	}
 	return nil
 }
 
-func (m *OGReqPresentCoins) GetSSender() []byte {
+func (m *DDReqPresentCoins) GetSSender() []byte {
 	if m != nil {
 		return m.SSender
 	}
 	return nil
 }
 
-func (m *OGReqPresentCoins) GetSRecver() []byte {
+func (m *DDReqPresentCoins) GetSRecver() []byte {
 	if m != nil {
 		return m.SRecver
 	}
 	return nil
 }
 
-func (m *OGReqPresentCoins) GetNCoin() int64 {
+func (m *DDReqPresentCoins) GetNCoin() int64 {
 	if m != nil && m.NCoin != nil {
 		return *m.NCoin
 	}
 	return 0
 }
 
-func (m *OGReqPresentCoins) GetNIPSender() uint32 {
+func (m *DDReqPresentCoins) GetNIPSender() uint32 {
 	if m != nil && m.NIPSender != nil {
 		return *m.NIPSender
 	}
 	return 0
 }
 
-func (m *OGReqPresentCoins) GetNIPRecver() uint32 {
+func (m *DDReqPresentCoins) GetNIPRecver() uint32 {
 	if m != nil && m.NIPRecver != nil {
 		return *m.NIPRecver
 	}
 	return 0
 }
 
-type OGAckPresentCoins struct {
+type DDAckPresentCoins struct {
 	MatchID          []byte                    `protobuf:"bytes,1,opt,name=MatchID" json:"MatchID,omitempty"`
 	NResult          *int32                    `protobuf:"varint,2,opt,name=nResult" json:"nResult,omitempty"`
 	SSender          []byte                    `protobuf:"bytes,3,opt,name=sSender" json:"sSender,omitempty"`
 	SRecver          []byte                    `protobuf:"bytes,4,opt,name=sRecver" json:"sRecver,omitempty"`
 	NPresentCoin     *int64                    `protobuf:"varint,5,opt,name=nPresentCoin" json:"nPresentCoin,omitempty"`
-	EReason          *OGAckPresentCoins_Reason `protobuf:"varint,6,opt,name=eReason,enum=bbproto.OGAckPresentCoins_Reason" json:"eReason,omitempty"`
+	EReason          *DDAckPresentCoins_Reason `protobuf:"varint,6,opt,name=eReason,enum=bbproto.DDAckPresentCoins_Reason" json:"eReason,omitempty"`
 	XXX_unrecognized []byte                    `json:"-"`
 }
 
-func (m *OGAckPresentCoins) Reset()                    { *m = OGAckPresentCoins{} }
-func (m *OGAckPresentCoins) String() string            { return proto.CompactTextString(m) }
-func (*OGAckPresentCoins) ProtoMessage()               {}
-func (*OGAckPresentCoins) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{64} }
+func (m *DDAckPresentCoins) Reset()                    { *m = DDAckPresentCoins{} }
+func (m *DDAckPresentCoins) String() string            { return proto.CompactTextString(m) }
+func (*DDAckPresentCoins) ProtoMessage()               {}
+func (*DDAckPresentCoins) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{64} }
 
-func (m *OGAckPresentCoins) GetMatchID() []byte {
+func (m *DDAckPresentCoins) GetMatchID() []byte {
 	if m != nil {
 		return m.MatchID
 	}
 	return nil
 }
 
-func (m *OGAckPresentCoins) GetNResult() int32 {
+func (m *DDAckPresentCoins) GetNResult() int32 {
 	if m != nil && m.NResult != nil {
 		return *m.NResult
 	}
 	return 0
 }
 
-func (m *OGAckPresentCoins) GetSSender() []byte {
+func (m *DDAckPresentCoins) GetSSender() []byte {
 	if m != nil {
 		return m.SSender
 	}
 	return nil
 }
 
-func (m *OGAckPresentCoins) GetSRecver() []byte {
+func (m *DDAckPresentCoins) GetSRecver() []byte {
 	if m != nil {
 		return m.SRecver
 	}
 	return nil
 }
 
-func (m *OGAckPresentCoins) GetNPresentCoin() int64 {
+func (m *DDAckPresentCoins) GetNPresentCoin() int64 {
 	if m != nil && m.NPresentCoin != nil {
 		return *m.NPresentCoin
 	}
 	return 0
 }
 
-func (m *OGAckPresentCoins) GetEReason() OGAckPresentCoins_Reason {
+func (m *DDAckPresentCoins) GetEReason() DDAckPresentCoins_Reason {
 	if m != nil && m.EReason != nil {
 		return *m.EReason
 	}
-	return OGAckPresentCoins_PC_NOTHING
+	return DDAckPresentCoins_PC_NOTHING
 }
 
 // 私聊消息
-// #define OGID_TEXASPOKER_PRIVATECHAT (OGID_MSGBASE_TEXASPOKER_GAMEBASE + 0x00000076)
-type OGReqPrivateChatMsg struct {
+// #define DDID_TEXASPOKER_PRIVATECHAT (DDID_MSGBASE_TEXASPOKER_GAMEBASE + 0x00000076)
+type DDReqPrivateChatMsg struct {
 	MatchID          []byte `protobuf:"bytes,1,opt,name=MatchID" json:"MatchID,omitempty"`
 	SSender          []byte `protobuf:"bytes,2,opt,name=sSender" json:"sSender,omitempty"`
 	SRecver          []byte `protobuf:"bytes,3,opt,name=sRecver" json:"sRecver,omitempty"`
@@ -3588,40 +3588,40 @@ type OGReqPrivateChatMsg struct {
 	XXX_unrecognized []byte `json:"-"`
 }
 
-func (m *OGReqPrivateChatMsg) Reset()                    { *m = OGReqPrivateChatMsg{} }
-func (m *OGReqPrivateChatMsg) String() string            { return proto.CompactTextString(m) }
-func (*OGReqPrivateChatMsg) ProtoMessage()               {}
-func (*OGReqPrivateChatMsg) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{65} }
+func (m *DDReqPrivateChatMsg) Reset()                    { *m = DDReqPrivateChatMsg{} }
+func (m *DDReqPrivateChatMsg) String() string            { return proto.CompactTextString(m) }
+func (*DDReqPrivateChatMsg) ProtoMessage()               {}
+func (*DDReqPrivateChatMsg) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{65} }
 
-func (m *OGReqPrivateChatMsg) GetMatchID() []byte {
+func (m *DDReqPrivateChatMsg) GetMatchID() []byte {
 	if m != nil {
 		return m.MatchID
 	}
 	return nil
 }
 
-func (m *OGReqPrivateChatMsg) GetSSender() []byte {
+func (m *DDReqPrivateChatMsg) GetSSender() []byte {
 	if m != nil {
 		return m.SSender
 	}
 	return nil
 }
 
-func (m *OGReqPrivateChatMsg) GetSRecver() []byte {
+func (m *DDReqPrivateChatMsg) GetSRecver() []byte {
 	if m != nil {
 		return m.SRecver
 	}
 	return nil
 }
 
-func (m *OGReqPrivateChatMsg) GetSzChat() []byte {
+func (m *DDReqPrivateChatMsg) GetSzChat() []byte {
 	if m != nil {
 		return m.SzChat
 	}
 	return nil
 }
 
-type OGAckPrivateChatMsg struct {
+type DDAckPrivateChatMsg struct {
 	MatchID          []byte `protobuf:"bytes,1,opt,name=MatchID" json:"MatchID,omitempty"`
 	SSender          []byte `protobuf:"bytes,2,opt,name=sSender" json:"sSender,omitempty"`
 	SRecver          []byte `protobuf:"bytes,3,opt,name=sRecver" json:"sRecver,omitempty"`
@@ -3630,40 +3630,40 @@ type OGAckPrivateChatMsg struct {
 	XXX_unrecognized []byte `json:"-"`
 }
 
-func (m *OGAckPrivateChatMsg) Reset()                    { *m = OGAckPrivateChatMsg{} }
-func (m *OGAckPrivateChatMsg) String() string            { return proto.CompactTextString(m) }
-func (*OGAckPrivateChatMsg) ProtoMessage()               {}
-func (*OGAckPrivateChatMsg) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{66} }
+func (m *DDAckPrivateChatMsg) Reset()                    { *m = DDAckPrivateChatMsg{} }
+func (m *DDAckPrivateChatMsg) String() string            { return proto.CompactTextString(m) }
+func (*DDAckPrivateChatMsg) ProtoMessage()               {}
+func (*DDAckPrivateChatMsg) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{66} }
 
-func (m *OGAckPrivateChatMsg) GetMatchID() []byte {
+func (m *DDAckPrivateChatMsg) GetMatchID() []byte {
 	if m != nil {
 		return m.MatchID
 	}
 	return nil
 }
 
-func (m *OGAckPrivateChatMsg) GetSSender() []byte {
+func (m *DDAckPrivateChatMsg) GetSSender() []byte {
 	if m != nil {
 		return m.SSender
 	}
 	return nil
 }
 
-func (m *OGAckPrivateChatMsg) GetSRecver() []byte {
+func (m *DDAckPrivateChatMsg) GetSRecver() []byte {
 	if m != nil {
 		return m.SRecver
 	}
 	return nil
 }
 
-func (m *OGAckPrivateChatMsg) GetSzChat() []byte {
+func (m *DDAckPrivateChatMsg) GetSzChat() []byte {
 	if m != nil {
 		return m.SzChat
 	}
 	return nil
 }
 
-func (m *OGAckPrivateChatMsg) GetResult() int32 {
+func (m *DDAckPrivateChatMsg) GetResult() int32 {
 	if m != nil && m.Result != nil {
 		return *m.Result
 	}
@@ -3671,8 +3671,8 @@ func (m *OGAckPrivateChatMsg) GetResult() int32 {
 }
 
 // 禁言和解除禁言
-// #define OGID_TEXASPOKER_ABLEORUNABLECHAT (OGID_MSGBASE_TEXASPOKER_GAMEBASE + 0x00000077)
-type OGReqAbleOrUnableChat struct {
+// #define DDID_TEXASPOKER_ABLEORUNABLECHAT (DDID_MSGBASE_TEXASPOKER_GAMEBASE + 0x00000077)
+type DDReqAbleOrUnableChat struct {
 	MatchID          []byte `protobuf:"bytes,1,opt,name=MatchID" json:"MatchID,omitempty"`
 	SCreater         []byte `protobuf:"bytes,2,opt,name=sCreater" json:"sCreater,omitempty"`
 	SChatUser        []byte `protobuf:"bytes,3,opt,name=sChatUser" json:"sChatUser,omitempty"`
@@ -3680,40 +3680,40 @@ type OGReqAbleOrUnableChat struct {
 	XXX_unrecognized []byte `json:"-"`
 }
 
-func (m *OGReqAbleOrUnableChat) Reset()                    { *m = OGReqAbleOrUnableChat{} }
-func (m *OGReqAbleOrUnableChat) String() string            { return proto.CompactTextString(m) }
-func (*OGReqAbleOrUnableChat) ProtoMessage()               {}
-func (*OGReqAbleOrUnableChat) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{67} }
+func (m *DDReqAbleOrUnableChat) Reset()                    { *m = DDReqAbleOrUnableChat{} }
+func (m *DDReqAbleOrUnableChat) String() string            { return proto.CompactTextString(m) }
+func (*DDReqAbleOrUnableChat) ProtoMessage()               {}
+func (*DDReqAbleOrUnableChat) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{67} }
 
-func (m *OGReqAbleOrUnableChat) GetMatchID() []byte {
+func (m *DDReqAbleOrUnableChat) GetMatchID() []byte {
 	if m != nil {
 		return m.MatchID
 	}
 	return nil
 }
 
-func (m *OGReqAbleOrUnableChat) GetSCreater() []byte {
+func (m *DDReqAbleOrUnableChat) GetSCreater() []byte {
 	if m != nil {
 		return m.SCreater
 	}
 	return nil
 }
 
-func (m *OGReqAbleOrUnableChat) GetSChatUser() []byte {
+func (m *DDReqAbleOrUnableChat) GetSChatUser() []byte {
 	if m != nil {
 		return m.SChatUser
 	}
 	return nil
 }
 
-func (m *OGReqAbleOrUnableChat) GetNAbleFlag() int32 {
+func (m *DDReqAbleOrUnableChat) GetNAbleFlag() int32 {
 	if m != nil && m.NAbleFlag != nil {
 		return *m.NAbleFlag
 	}
 	return 0
 }
 
-type OGAckAbleOrUnableChat struct {
+type DDAckAbleOrUnableChat struct {
 	MatchID          []byte `protobuf:"bytes,1,opt,name=MatchID" json:"MatchID,omitempty"`
 	SCreater         []byte `protobuf:"bytes,2,opt,name=sCreater" json:"sCreater,omitempty"`
 	SChatUser        []byte `protobuf:"bytes,3,opt,name=sChatUser" json:"sChatUser,omitempty"`
@@ -3722,40 +3722,40 @@ type OGAckAbleOrUnableChat struct {
 	XXX_unrecognized []byte `json:"-"`
 }
 
-func (m *OGAckAbleOrUnableChat) Reset()                    { *m = OGAckAbleOrUnableChat{} }
-func (m *OGAckAbleOrUnableChat) String() string            { return proto.CompactTextString(m) }
-func (*OGAckAbleOrUnableChat) ProtoMessage()               {}
-func (*OGAckAbleOrUnableChat) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{68} }
+func (m *DDAckAbleOrUnableChat) Reset()                    { *m = DDAckAbleOrUnableChat{} }
+func (m *DDAckAbleOrUnableChat) String() string            { return proto.CompactTextString(m) }
+func (*DDAckAbleOrUnableChat) ProtoMessage()               {}
+func (*DDAckAbleOrUnableChat) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{68} }
 
-func (m *OGAckAbleOrUnableChat) GetMatchID() []byte {
+func (m *DDAckAbleOrUnableChat) GetMatchID() []byte {
 	if m != nil {
 		return m.MatchID
 	}
 	return nil
 }
 
-func (m *OGAckAbleOrUnableChat) GetSCreater() []byte {
+func (m *DDAckAbleOrUnableChat) GetSCreater() []byte {
 	if m != nil {
 		return m.SCreater
 	}
 	return nil
 }
 
-func (m *OGAckAbleOrUnableChat) GetSChatUser() []byte {
+func (m *DDAckAbleOrUnableChat) GetSChatUser() []byte {
 	if m != nil {
 		return m.SChatUser
 	}
 	return nil
 }
 
-func (m *OGAckAbleOrUnableChat) GetNAbleFlag() int32 {
+func (m *DDAckAbleOrUnableChat) GetNAbleFlag() int32 {
 	if m != nil && m.NAbleFlag != nil {
 		return *m.NAbleFlag
 	}
 	return 0
 }
 
-func (m *OGAckAbleOrUnableChat) GetNResult() int32 {
+func (m *DDAckAbleOrUnableChat) GetNResult() int32 {
 	if m != nil && m.NResult != nil {
 		return *m.NResult
 	}
@@ -3763,8 +3763,8 @@ func (m *OGAckAbleOrUnableChat) GetNResult() int32 {
 }
 
 // 踢人
-// #define OGID_TEXASPOKER_KICK            (OGID_MSGBASE_TEXASPOKER_GAMEBASE + 0x00000078)
-type OGReqKick struct {
+// #define DDID_TEXASPOKER_KICK            (DDID_MSGBASE_TEXASPOKER_GAMEBASE + 0x00000078)
+type DDReqKick struct {
 	MatchID          []byte `protobuf:"bytes,1,opt,name=MatchID" json:"MatchID,omitempty"`
 	SCreater         []byte `protobuf:"bytes,2,opt,name=sCreater" json:"sCreater,omitempty"`
 	SKickered        []byte `protobuf:"bytes,3,opt,name=sKickered" json:"sKickered,omitempty"`
@@ -3772,40 +3772,40 @@ type OGReqKick struct {
 	XXX_unrecognized []byte `json:"-"`
 }
 
-func (m *OGReqKick) Reset()                    { *m = OGReqKick{} }
-func (m *OGReqKick) String() string            { return proto.CompactTextString(m) }
-func (*OGReqKick) ProtoMessage()               {}
-func (*OGReqKick) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{69} }
+func (m *DDReqKick) Reset()                    { *m = DDReqKick{} }
+func (m *DDReqKick) String() string            { return proto.CompactTextString(m) }
+func (*DDReqKick) ProtoMessage()               {}
+func (*DDReqKick) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{69} }
 
-func (m *OGReqKick) GetMatchID() []byte {
+func (m *DDReqKick) GetMatchID() []byte {
 	if m != nil {
 		return m.MatchID
 	}
 	return nil
 }
 
-func (m *OGReqKick) GetSCreater() []byte {
+func (m *DDReqKick) GetSCreater() []byte {
 	if m != nil {
 		return m.SCreater
 	}
 	return nil
 }
 
-func (m *OGReqKick) GetSKickered() []byte {
+func (m *DDReqKick) GetSKickered() []byte {
 	if m != nil {
 		return m.SKickered
 	}
 	return nil
 }
 
-func (m *OGReqKick) GetNClinetId() int64 {
+func (m *DDReqKick) GetNClinetId() int64 {
 	if m != nil && m.NClinetId != nil {
 		return *m.NClinetId
 	}
 	return 0
 }
 
-type OGAckKick struct {
+type DDAckKick struct {
 	MatchID          []byte `protobuf:"bytes,1,opt,name=MatchID" json:"MatchID,omitempty"`
 	SCreater         []byte `protobuf:"bytes,2,opt,name=sCreater" json:"sCreater,omitempty"`
 	SKickered        []byte `protobuf:"bytes,3,opt,name=sKickered" json:"sKickered,omitempty"`
@@ -3813,33 +3813,33 @@ type OGAckKick struct {
 	XXX_unrecognized []byte `json:"-"`
 }
 
-func (m *OGAckKick) Reset()                    { *m = OGAckKick{} }
-func (m *OGAckKick) String() string            { return proto.CompactTextString(m) }
-func (*OGAckKick) ProtoMessage()               {}
-func (*OGAckKick) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{70} }
+func (m *DDAckKick) Reset()                    { *m = DDAckKick{} }
+func (m *DDAckKick) String() string            { return proto.CompactTextString(m) }
+func (*DDAckKick) ProtoMessage()               {}
+func (*DDAckKick) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{70} }
 
-func (m *OGAckKick) GetMatchID() []byte {
+func (m *DDAckKick) GetMatchID() []byte {
 	if m != nil {
 		return m.MatchID
 	}
 	return nil
 }
 
-func (m *OGAckKick) GetSCreater() []byte {
+func (m *DDAckKick) GetSCreater() []byte {
 	if m != nil {
 		return m.SCreater
 	}
 	return nil
 }
 
-func (m *OGAckKick) GetSKickered() []byte {
+func (m *DDAckKick) GetSKickered() []byte {
 	if m != nil {
 		return m.SKickered
 	}
 	return nil
 }
 
-func (m *OGAckKick) GetNResult() int32 {
+func (m *DDAckKick) GetNResult() int32 {
 	if m != nil && m.NResult != nil {
 		return *m.NResult
 	}
@@ -3847,8 +3847,8 @@ func (m *OGAckKick) GetNResult() int32 {
 }
 
 // 玩家列表,包含旁观者和游戏者 ,为了以后踢人用
-// #define OGID_TEXASPOKER_USERLIST         (OGID_MSGBASE_TEXASPOKER_GAMEBASE + 0x00000079)
-type OGUserInfos struct {
+// #define DDID_TEXASPOKER_USERLIST         (DDID_MSGBASE_TEXASPOKER_GAMEBASE + 0x00000079)
+type DDUserInfos struct {
 	SUserName        []byte `protobuf:"bytes,1,opt,name=sUserName" json:"sUserName,omitempty"`
 	NClinetId        *int64 `protobuf:"varint,2,opt,name=nClinetId" json:"nClinetId,omitempty"`
 	NIp              *int32 `protobuf:"varint,3,opt,name=nIp" json:"nIp,omitempty"`
@@ -3856,66 +3856,66 @@ type OGUserInfos struct {
 	XXX_unrecognized []byte `json:"-"`
 }
 
-func (m *OGUserInfos) Reset()                    { *m = OGUserInfos{} }
-func (m *OGUserInfos) String() string            { return proto.CompactTextString(m) }
-func (*OGUserInfos) ProtoMessage()               {}
-func (*OGUserInfos) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{71} }
+func (m *DDUserInfos) Reset()                    { *m = DDUserInfos{} }
+func (m *DDUserInfos) String() string            { return proto.CompactTextString(m) }
+func (*DDUserInfos) ProtoMessage()               {}
+func (*DDUserInfos) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{71} }
 
-func (m *OGUserInfos) GetSUserName() []byte {
+func (m *DDUserInfos) GetSUserName() []byte {
 	if m != nil {
 		return m.SUserName
 	}
 	return nil
 }
 
-func (m *OGUserInfos) GetNClinetId() int64 {
+func (m *DDUserInfos) GetNClinetId() int64 {
 	if m != nil && m.NClinetId != nil {
 		return *m.NClinetId
 	}
 	return 0
 }
 
-func (m *OGUserInfos) GetNIp() int32 {
+func (m *DDUserInfos) GetNIp() int32 {
 	if m != nil && m.NIp != nil {
 		return *m.NIp
 	}
 	return 0
 }
 
-func (m *OGUserInfos) GetSCFUserName() []byte {
+func (m *DDUserInfos) GetSCFUserName() []byte {
 	if m != nil {
 		return m.SCFUserName
 	}
 	return nil
 }
 
-type OGUserList struct {
+type DDUserList struct {
 	MatchID          []byte         `protobuf:"bytes,1,opt,name=MatchID" json:"MatchID,omitempty"`
-	Userlist         []*OGUserInfos `protobuf:"bytes,2,rep,name=userlist" json:"userlist,omitempty"`
+	Userlist         []*DDUserInfos `protobuf:"bytes,2,rep,name=userlist" json:"userlist,omitempty"`
 	SCreater         []byte         `protobuf:"bytes,3,opt,name=sCreater" json:"sCreater,omitempty"`
 	XXX_unrecognized []byte         `json:"-"`
 }
 
-func (m *OGUserList) Reset()                    { *m = OGUserList{} }
-func (m *OGUserList) String() string            { return proto.CompactTextString(m) }
-func (*OGUserList) ProtoMessage()               {}
-func (*OGUserList) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{72} }
+func (m *DDUserList) Reset()                    { *m = DDUserList{} }
+func (m *DDUserList) String() string            { return proto.CompactTextString(m) }
+func (*DDUserList) ProtoMessage()               {}
+func (*DDUserList) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{72} }
 
-func (m *OGUserList) GetMatchID() []byte {
+func (m *DDUserList) GetMatchID() []byte {
 	if m != nil {
 		return m.MatchID
 	}
 	return nil
 }
 
-func (m *OGUserList) GetUserlist() []*OGUserInfos {
+func (m *DDUserList) GetUserlist() []*DDUserInfos {
 	if m != nil {
 		return m.Userlist
 	}
 	return nil
 }
 
-func (m *OGUserList) GetSCreater() []byte {
+func (m *DDUserList) GetSCreater() []byte {
 	if m != nil {
 		return m.SCreater
 	}
@@ -3923,8 +3923,8 @@ func (m *OGUserList) GetSCreater() []byte {
 }
 
 // 修改配置
-// #define OGID_TEXASPOKER_MODIFYCONFIG      (OGID_MSGBASE_TEXASPOKER_GAMEBASE + 0x00000080)
-type OGModifyConfig struct {
+// #define DDID_TEXASPOKER_MODIFYCONFIG      (DDID_MSGBASE_TEXASPOKER_GAMEBASE + 0x00000080)
+type DDModifyConfig struct {
 	MatchID          []byte `protobuf:"bytes,1,opt,name=MatchID" json:"MatchID,omitempty"`
 	STableName       []byte `protobuf:"bytes,2,opt,name=sTableName" json:"sTableName,omitempty"`
 	NCGZ_MaxChip     *int64 `protobuf:"varint,3,opt,name=nCGZ_MaxChip" json:"nCGZ_MaxChip,omitempty"`
@@ -3932,33 +3932,33 @@ type OGModifyConfig struct {
 	XXX_unrecognized []byte `json:"-"`
 }
 
-func (m *OGModifyConfig) Reset()                    { *m = OGModifyConfig{} }
-func (m *OGModifyConfig) String() string            { return proto.CompactTextString(m) }
-func (*OGModifyConfig) ProtoMessage()               {}
-func (*OGModifyConfig) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{73} }
+func (m *DDModifyConfig) Reset()                    { *m = DDModifyConfig{} }
+func (m *DDModifyConfig) String() string            { return proto.CompactTextString(m) }
+func (*DDModifyConfig) ProtoMessage()               {}
+func (*DDModifyConfig) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{73} }
 
-func (m *OGModifyConfig) GetMatchID() []byte {
+func (m *DDModifyConfig) GetMatchID() []byte {
 	if m != nil {
 		return m.MatchID
 	}
 	return nil
 }
 
-func (m *OGModifyConfig) GetSTableName() []byte {
+func (m *DDModifyConfig) GetSTableName() []byte {
 	if m != nil {
 		return m.STableName
 	}
 	return nil
 }
 
-func (m *OGModifyConfig) GetNCGZ_MaxChip() int64 {
+func (m *DDModifyConfig) GetNCGZ_MaxChip() int64 {
 	if m != nil && m.NCGZ_MaxChip != nil {
 		return *m.NCGZ_MaxChip
 	}
 	return 0
 }
 
-func (m *OGModifyConfig) GetNCGZ_MinChip() int64 {
+func (m *DDModifyConfig) GetNCGZ_MinChip() int64 {
 	if m != nil && m.NCGZ_MinChip != nil {
 		return *m.NCGZ_MinChip
 	}
@@ -3966,26 +3966,26 @@ func (m *OGModifyConfig) GetNCGZ_MinChip() int64 {
 }
 
 // 向玩家发送禁言者的列表
-// #define OGID_TEXASPOKER_UNABLECHATLIST    (OGID_MSGBASE_TEXASPOKER_GAMEBASE + 0x00000081)
-type OGUnAbleChatList struct {
+// #define DDID_TEXASPOKER_UNABLECHATLIST    (DDID_MSGBASE_TEXASPOKER_GAMEBASE + 0x00000081)
+type DDUnAbleChatList struct {
 	MatchID          []byte   `protobuf:"bytes,1,opt,name=MatchID" json:"MatchID,omitempty"`
 	SzUserName       [][]byte `protobuf:"bytes,2,rep,name=szUserName" json:"szUserName,omitempty"`
 	XXX_unrecognized []byte   `json:"-"`
 }
 
-func (m *OGUnAbleChatList) Reset()                    { *m = OGUnAbleChatList{} }
-func (m *OGUnAbleChatList) String() string            { return proto.CompactTextString(m) }
-func (*OGUnAbleChatList) ProtoMessage()               {}
-func (*OGUnAbleChatList) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{74} }
+func (m *DDUnAbleChatList) Reset()                    { *m = DDUnAbleChatList{} }
+func (m *DDUnAbleChatList) String() string            { return proto.CompactTextString(m) }
+func (*DDUnAbleChatList) ProtoMessage()               {}
+func (*DDUnAbleChatList) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{74} }
 
-func (m *OGUnAbleChatList) GetMatchID() []byte {
+func (m *DDUnAbleChatList) GetMatchID() []byte {
 	if m != nil {
 		return m.MatchID
 	}
 	return nil
 }
 
-func (m *OGUnAbleChatList) GetSzUserName() [][]byte {
+func (m *DDUnAbleChatList) GetSzUserName() [][]byte {
 	if m != nil {
 		return m.SzUserName
 	}
@@ -3993,34 +3993,34 @@ func (m *OGUnAbleChatList) GetSzUserName() [][]byte {
 }
 
 // 随机显示图片
-// #define OGID_TEXASPOKER_SHOWPICTRUE       (OGID_MSGBASE_TEXASPOKER_GAMEBASE + 0x00000082)
-type OGShowPictrue struct {
+// #define DDID_TEXASPOKER_SHOWPICTRUE       (DDID_MSGBASE_TEXASPOKER_GAMEBASE + 0x00000082)
+type DDShowPictrue struct {
 	MatchID          []byte `protobuf:"bytes,1,opt,name=MatchID" json:"MatchID,omitempty"`
 	NTableId         *int32 `protobuf:"varint,2,opt,name=nTableId" json:"nTableId,omitempty"`
 	SzUserName       []byte `protobuf:"bytes,3,opt,name=szUserName" json:"szUserName,omitempty"`
 	XXX_unrecognized []byte `json:"-"`
 }
 
-func (m *OGShowPictrue) Reset()                    { *m = OGShowPictrue{} }
-func (m *OGShowPictrue) String() string            { return proto.CompactTextString(m) }
-func (*OGShowPictrue) ProtoMessage()               {}
-func (*OGShowPictrue) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{75} }
+func (m *DDShowPictrue) Reset()                    { *m = DDShowPictrue{} }
+func (m *DDShowPictrue) String() string            { return proto.CompactTextString(m) }
+func (*DDShowPictrue) ProtoMessage()               {}
+func (*DDShowPictrue) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{75} }
 
-func (m *OGShowPictrue) GetMatchID() []byte {
+func (m *DDShowPictrue) GetMatchID() []byte {
 	if m != nil {
 		return m.MatchID
 	}
 	return nil
 }
 
-func (m *OGShowPictrue) GetNTableId() int32 {
+func (m *DDShowPictrue) GetNTableId() int32 {
 	if m != nil && m.NTableId != nil {
 		return *m.NTableId
 	}
 	return 0
 }
 
-func (m *OGShowPictrue) GetSzUserName() []byte {
+func (m *DDShowPictrue) GetSzUserName() []byte {
 	if m != nil {
 		return m.SzUserName
 	}
@@ -4028,8 +4028,8 @@ func (m *OGShowPictrue) GetSzUserName() []byte {
 }
 
 // 新玩家加入玩家列表
-// #define OGID_TEXASPOKER_ADDUSER           (OGID_MSGBASE_TEXASPOKER_GAMEBASE + 0x00000083)
-type OGAddUserToList struct {
+// #define DDID_TEXASPOKER_ADDUSER           (DDID_MSGBASE_TEXASPOKER_GAMEBASE + 0x00000083)
+type DDAddUserToList struct {
 	MatchID          []byte `protobuf:"bytes,1,opt,name=MatchID" json:"MatchID,omitempty"`
 	SUserName        []byte `protobuf:"bytes,2,opt,name=sUserName" json:"sUserName,omitempty"`
 	NClinetId        *int64 `protobuf:"varint,3,opt,name=nClinetId" json:"nClinetId,omitempty"`
@@ -4038,40 +4038,40 @@ type OGAddUserToList struct {
 	XXX_unrecognized []byte `json:"-"`
 }
 
-func (m *OGAddUserToList) Reset()                    { *m = OGAddUserToList{} }
-func (m *OGAddUserToList) String() string            { return proto.CompactTextString(m) }
-func (*OGAddUserToList) ProtoMessage()               {}
-func (*OGAddUserToList) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{76} }
+func (m *DDAddUserToList) Reset()                    { *m = DDAddUserToList{} }
+func (m *DDAddUserToList) String() string            { return proto.CompactTextString(m) }
+func (*DDAddUserToList) ProtoMessage()               {}
+func (*DDAddUserToList) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{76} }
 
-func (m *OGAddUserToList) GetMatchID() []byte {
+func (m *DDAddUserToList) GetMatchID() []byte {
 	if m != nil {
 		return m.MatchID
 	}
 	return nil
 }
 
-func (m *OGAddUserToList) GetSUserName() []byte {
+func (m *DDAddUserToList) GetSUserName() []byte {
 	if m != nil {
 		return m.SUserName
 	}
 	return nil
 }
 
-func (m *OGAddUserToList) GetNClinetId() int64 {
+func (m *DDAddUserToList) GetNClinetId() int64 {
 	if m != nil && m.NClinetId != nil {
 		return *m.NClinetId
 	}
 	return 0
 }
 
-func (m *OGAddUserToList) GetNIp() int32 {
+func (m *DDAddUserToList) GetNIp() int32 {
 	if m != nil && m.NIp != nil {
 		return *m.NIp
 	}
 	return 0
 }
 
-func (m *OGAddUserToList) GetSCFUserName() []byte {
+func (m *DDAddUserToList) GetSCFUserName() []byte {
 	if m != nil {
 		return m.SCFUserName
 	}
@@ -4079,26 +4079,26 @@ func (m *OGAddUserToList) GetSCFUserName() []byte {
 }
 
 // 玩家从列表中删除
-// #define OGID_TEXASPOKER_DELETEUSER        (OGID_MSGBASE_TEXASPOKER_GAMEBASE + 0x00000084)
-type OGDeleteUserFromList struct {
+// #define DDID_TEXASPOKER_DELETEUSER        (DDID_MSGBASE_TEXASPOKER_GAMEBASE + 0x00000084)
+type DDDeleteUserFromList struct {
 	MatchID          []byte `protobuf:"bytes,1,opt,name=MatchID" json:"MatchID,omitempty"`
 	SUserName        []byte `protobuf:"bytes,2,opt,name=sUserName" json:"sUserName,omitempty"`
 	XXX_unrecognized []byte `json:"-"`
 }
 
-func (m *OGDeleteUserFromList) Reset()                    { *m = OGDeleteUserFromList{} }
-func (m *OGDeleteUserFromList) String() string            { return proto.CompactTextString(m) }
-func (*OGDeleteUserFromList) ProtoMessage()               {}
-func (*OGDeleteUserFromList) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{77} }
+func (m *DDDeleteUserFromList) Reset()                    { *m = DDDeleteUserFromList{} }
+func (m *DDDeleteUserFromList) String() string            { return proto.CompactTextString(m) }
+func (*DDDeleteUserFromList) ProtoMessage()               {}
+func (*DDDeleteUserFromList) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{77} }
 
-func (m *OGDeleteUserFromList) GetMatchID() []byte {
+func (m *DDDeleteUserFromList) GetMatchID() []byte {
 	if m != nil {
 		return m.MatchID
 	}
 	return nil
 }
 
-func (m *OGDeleteUserFromList) GetSUserName() []byte {
+func (m *DDDeleteUserFromList) GetSUserName() []byte {
 	if m != nil {
 		return m.SUserName
 	}
@@ -4106,34 +4106,34 @@ func (m *OGDeleteUserFromList) GetSUserName() []byte {
 }
 
 // 当否玩家进入牌桌坐下后，向本桌内的其他玩家广播此玩家的礼品状态 和 标志
-// #define OGID_BROADCAST_PLAYER_GIFT_STATUS       (OGID_MSGBASE_TEXASPOKER_GAMEBASE + 0x00000085)
-type OGBroadCastPlayerGiftStatus struct {
+// #define DDID_BROADCAST_PLAYER_GIFT_STATUS       (DDID_MSGBASE_TEXASPOKER_GAMEBASE + 0x00000085)
+type DDBroadCastPlayerGiftStatus struct {
 	RoleName         []byte `protobuf:"bytes,1,opt,name=roleName" json:"roleName,omitempty"`
 	Gift             []byte `protobuf:"bytes,2,opt,name=gift" json:"gift,omitempty"`
 	Nbcard           []byte `protobuf:"bytes,3,opt,name=nbcard" json:"nbcard,omitempty"`
 	XXX_unrecognized []byte `json:"-"`
 }
 
-func (m *OGBroadCastPlayerGiftStatus) Reset()                    { *m = OGBroadCastPlayerGiftStatus{} }
-func (m *OGBroadCastPlayerGiftStatus) String() string            { return proto.CompactTextString(m) }
-func (*OGBroadCastPlayerGiftStatus) ProtoMessage()               {}
-func (*OGBroadCastPlayerGiftStatus) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{78} }
+func (m *DDBroadCastPlayerGiftStatus) Reset()                    { *m = DDBroadCastPlayerGiftStatus{} }
+func (m *DDBroadCastPlayerGiftStatus) String() string            { return proto.CompactTextString(m) }
+func (*DDBroadCastPlayerGiftStatus) ProtoMessage()               {}
+func (*DDBroadCastPlayerGiftStatus) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{78} }
 
-func (m *OGBroadCastPlayerGiftStatus) GetRoleName() []byte {
+func (m *DDBroadCastPlayerGiftStatus) GetRoleName() []byte {
 	if m != nil {
 		return m.RoleName
 	}
 	return nil
 }
 
-func (m *OGBroadCastPlayerGiftStatus) GetGift() []byte {
+func (m *DDBroadCastPlayerGiftStatus) GetGift() []byte {
 	if m != nil {
 		return m.Gift
 	}
 	return nil
 }
 
-func (m *OGBroadCastPlayerGiftStatus) GetNbcard() []byte {
+func (m *DDBroadCastPlayerGiftStatus) GetNbcard() []byte {
 	if m != nil {
 		return m.Nbcard
 	}
@@ -4141,34 +4141,34 @@ func (m *OGBroadCastPlayerGiftStatus) GetNbcard() []byte {
 }
 
 // 赠送礼品(客户端接到此消息后应仅作播放动画操作)
-// #define OGID_GIVEGIFT       (OGID_MSGBASE_TEXASPOKER_GAMEBASE + 0x00000086)
-type OGGiveGift struct {
+// #define DDID_GIVEGIFT       (DDID_MSGBASE_TEXASPOKER_GAMEBASE + 0x00000086)
+type DDGiveGift struct {
 	CustomerName     []byte   `protobuf:"bytes,1,opt,name=customerName" json:"customerName,omitempty"`
 	GiftId           []byte   `protobuf:"bytes,2,opt,name=giftId" json:"giftId,omitempty"`
 	Receivers        [][]byte `protobuf:"bytes,3,rep,name=receivers" json:"receivers,omitempty"`
 	XXX_unrecognized []byte   `json:"-"`
 }
 
-func (m *OGGiveGift) Reset()                    { *m = OGGiveGift{} }
-func (m *OGGiveGift) String() string            { return proto.CompactTextString(m) }
-func (*OGGiveGift) ProtoMessage()               {}
-func (*OGGiveGift) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{79} }
+func (m *DDGiveGift) Reset()                    { *m = DDGiveGift{} }
+func (m *DDGiveGift) String() string            { return proto.CompactTextString(m) }
+func (*DDGiveGift) ProtoMessage()               {}
+func (*DDGiveGift) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{79} }
 
-func (m *OGGiveGift) GetCustomerName() []byte {
+func (m *DDGiveGift) GetCustomerName() []byte {
 	if m != nil {
 		return m.CustomerName
 	}
 	return nil
 }
 
-func (m *OGGiveGift) GetGiftId() []byte {
+func (m *DDGiveGift) GetGiftId() []byte {
 	if m != nil {
 		return m.GiftId
 	}
 	return nil
 }
 
-func (m *OGGiveGift) GetReceivers() [][]byte {
+func (m *DDGiveGift) GetReceivers() [][]byte {
 	if m != nil {
 		return m.Receivers
 	}
@@ -4176,34 +4176,34 @@ func (m *OGGiveGift) GetReceivers() [][]byte {
 }
 
 // 赠送道具(客户端接收到此消息后重新发送查询玩家礼品状态消息,这样贵族卡才能及时更新)
-// #define OGID_GIVEITEM       (OGID_MSGBASE_TEXASPOKER_GAMEBASE + 0x00000089)
-type OGGiveItem struct {
+// #define DDID_GIVEITEM       (DDID_MSGBASE_TEXASPOKER_GAMEBASE + 0x00000089)
+type DDGiveItem struct {
 	CustomerName     []byte `protobuf:"bytes,1,opt,name=customerName" json:"customerName,omitempty"`
 	Item             []byte `protobuf:"bytes,2,opt,name=item" json:"item,omitempty"`
 	Receivers        []byte `protobuf:"bytes,3,opt,name=receivers" json:"receivers,omitempty"`
 	XXX_unrecognized []byte `json:"-"`
 }
 
-func (m *OGGiveItem) Reset()                    { *m = OGGiveItem{} }
-func (m *OGGiveItem) String() string            { return proto.CompactTextString(m) }
-func (*OGGiveItem) ProtoMessage()               {}
-func (*OGGiveItem) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{80} }
+func (m *DDGiveItem) Reset()                    { *m = DDGiveItem{} }
+func (m *DDGiveItem) String() string            { return proto.CompactTextString(m) }
+func (*DDGiveItem) ProtoMessage()               {}
+func (*DDGiveItem) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{80} }
 
-func (m *OGGiveItem) GetCustomerName() []byte {
+func (m *DDGiveItem) GetCustomerName() []byte {
 	if m != nil {
 		return m.CustomerName
 	}
 	return nil
 }
 
-func (m *OGGiveItem) GetItem() []byte {
+func (m *DDGiveItem) GetItem() []byte {
 	if m != nil {
 		return m.Item
 	}
 	return nil
 }
 
-func (m *OGGiveItem) GetReceivers() []byte {
+func (m *DDGiveItem) GetReceivers() []byte {
 	if m != nil {
 		return m.Receivers
 	}
@@ -4211,8 +4211,8 @@ func (m *OGGiveItem) GetReceivers() []byte {
 }
 
 // 广播表情
-// #define OGID_BROADCAST_FACE (OGID_MSGBASE_TEXASPOKER_GAMEBASE + 0x00000087)
-type OGBroadCastFace struct {
+// #define DDID_BROADCAST_FACE (DDID_MSGBASE_TEXASPOKER_GAMEBASE + 0x00000087)
+type DDBroadCastFace struct {
 	RoleName         []byte  `protobuf:"bytes,1,opt,name=roleName" json:"roleName,omitempty"`
 	FaceType         *uint32 `protobuf:"varint,2,opt,name=faceType" json:"faceType,omitempty"`
 	FaceContent      []byte  `protobuf:"bytes,3,opt,name=faceContent" json:"faceContent,omitempty"`
@@ -4220,40 +4220,40 @@ type OGBroadCastFace struct {
 	XXX_unrecognized []byte  `json:"-"`
 }
 
-func (m *OGBroadCastFace) Reset()                    { *m = OGBroadCastFace{} }
-func (m *OGBroadCastFace) String() string            { return proto.CompactTextString(m) }
-func (*OGBroadCastFace) ProtoMessage()               {}
-func (*OGBroadCastFace) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{81} }
+func (m *DDBroadCastFace) Reset()                    { *m = DDBroadCastFace{} }
+func (m *DDBroadCastFace) String() string            { return proto.CompactTextString(m) }
+func (*DDBroadCastFace) ProtoMessage()               {}
+func (*DDBroadCastFace) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{81} }
 
-func (m *OGBroadCastFace) GetRoleName() []byte {
+func (m *DDBroadCastFace) GetRoleName() []byte {
 	if m != nil {
 		return m.RoleName
 	}
 	return nil
 }
 
-func (m *OGBroadCastFace) GetFaceType() uint32 {
+func (m *DDBroadCastFace) GetFaceType() uint32 {
 	if m != nil && m.FaceType != nil {
 		return *m.FaceType
 	}
 	return 0
 }
 
-func (m *OGBroadCastFace) GetFaceContent() []byte {
+func (m *DDBroadCastFace) GetFaceContent() []byte {
 	if m != nil {
 		return m.FaceContent
 	}
 	return nil
 }
 
-func (m *OGBroadCastFace) GetSeat() uint32 {
+func (m *DDBroadCastFace) GetSeat() uint32 {
 	if m != nil && m.Seat != nil {
 		return *m.Seat
 	}
 	return 0
 }
 
-type OGReqRebuy struct {
+type DDReqRebuy struct {
 	RoleName         []byte `protobuf:"bytes,1,opt,name=roleName" json:"roleName,omitempty"`
 	Matchid          []byte `protobuf:"bytes,2,opt,name=matchid" json:"matchid,omitempty"`
 	Tableid          *int32 `protobuf:"varint,3,opt,name=tableid" json:"tableid,omitempty"`
@@ -4262,47 +4262,47 @@ type OGReqRebuy struct {
 	XXX_unrecognized []byte `json:"-"`
 }
 
-func (m *OGReqRebuy) Reset()                    { *m = OGReqRebuy{} }
-func (m *OGReqRebuy) String() string            { return proto.CompactTextString(m) }
-func (*OGReqRebuy) ProtoMessage()               {}
-func (*OGReqRebuy) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{82} }
+func (m *DDReqRebuy) Reset()                    { *m = DDReqRebuy{} }
+func (m *DDReqRebuy) String() string            { return proto.CompactTextString(m) }
+func (*DDReqRebuy) ProtoMessage()               {}
+func (*DDReqRebuy) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{82} }
 
-func (m *OGReqRebuy) GetRoleName() []byte {
+func (m *DDReqRebuy) GetRoleName() []byte {
 	if m != nil {
 		return m.RoleName
 	}
 	return nil
 }
 
-func (m *OGReqRebuy) GetMatchid() []byte {
+func (m *DDReqRebuy) GetMatchid() []byte {
 	if m != nil {
 		return m.Matchid
 	}
 	return nil
 }
 
-func (m *OGReqRebuy) GetTableid() int32 {
+func (m *DDReqRebuy) GetTableid() int32 {
 	if m != nil && m.Tableid != nil {
 		return *m.Tableid
 	}
 	return 0
 }
 
-func (m *OGReqRebuy) GetType() int32 {
+func (m *DDReqRebuy) GetType() int32 {
 	if m != nil && m.Type != nil {
 		return *m.Type
 	}
 	return 0
 }
 
-func (m *OGReqRebuy) GetMoneyType() int32 {
+func (m *DDReqRebuy) GetMoneyType() int32 {
 	if m != nil && m.MoneyType != nil {
 		return *m.MoneyType
 	}
 	return 0
 }
 
-type OGAckRebuy struct {
+type DDAckRebuy struct {
 	Result           *int32 `protobuf:"varint,1,opt,name=result" json:"result,omitempty"`
 	Reson            *int32 `protobuf:"varint,2,opt,name=reson" json:"reson,omitempty"`
 	RoleName         []byte `protobuf:"bytes,3,opt,name=roleName" json:"roleName,omitempty"`
@@ -4315,68 +4315,68 @@ type OGAckRebuy struct {
 	XXX_unrecognized []byte `json:"-"`
 }
 
-func (m *OGAckRebuy) Reset()                    { *m = OGAckRebuy{} }
-func (m *OGAckRebuy) String() string            { return proto.CompactTextString(m) }
-func (*OGAckRebuy) ProtoMessage()               {}
-func (*OGAckRebuy) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{83} }
+func (m *DDAckRebuy) Reset()                    { *m = DDAckRebuy{} }
+func (m *DDAckRebuy) String() string            { return proto.CompactTextString(m) }
+func (*DDAckRebuy) ProtoMessage()               {}
+func (*DDAckRebuy) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{83} }
 
-func (m *OGAckRebuy) GetResult() int32 {
+func (m *DDAckRebuy) GetResult() int32 {
 	if m != nil && m.Result != nil {
 		return *m.Result
 	}
 	return 0
 }
 
-func (m *OGAckRebuy) GetReson() int32 {
+func (m *DDAckRebuy) GetReson() int32 {
 	if m != nil && m.Reson != nil {
 		return *m.Reson
 	}
 	return 0
 }
 
-func (m *OGAckRebuy) GetRoleName() []byte {
+func (m *DDAckRebuy) GetRoleName() []byte {
 	if m != nil {
 		return m.RoleName
 	}
 	return nil
 }
 
-func (m *OGAckRebuy) GetMatchid() []byte {
+func (m *DDAckRebuy) GetMatchid() []byte {
 	if m != nil {
 		return m.Matchid
 	}
 	return nil
 }
 
-func (m *OGAckRebuy) GetTableid() int32 {
+func (m *DDAckRebuy) GetTableid() int32 {
 	if m != nil && m.Tableid != nil {
 		return *m.Tableid
 	}
 	return 0
 }
 
-func (m *OGAckRebuy) GetNTicketCount() int32 {
+func (m *DDAckRebuy) GetNTicketCount() int32 {
 	if m != nil && m.NTicketCount != nil {
 		return *m.NTicketCount
 	}
 	return 0
 }
 
-func (m *OGAckRebuy) GetType() int32 {
+func (m *DDAckRebuy) GetType() int32 {
 	if m != nil && m.Type != nil {
 		return *m.Type
 	}
 	return 0
 }
 
-func (m *OGAckRebuy) GetNCount() int32 {
+func (m *DDAckRebuy) GetNCount() int32 {
 	if m != nil && m.NCount != nil {
 		return *m.NCount
 	}
 	return 0
 }
 
-func (m *OGAckRebuy) GetNResultChip() int64 {
+func (m *DDAckRebuy) GetNResultChip() int64 {
 	if m != nil && m.NResultChip != nil {
 		return *m.NResultChip
 	}
@@ -4384,8 +4384,8 @@ func (m *OGAckRebuy) GetNResultChip() int64 {
 }
 
 // 广播比赛名次，奖励
-// #define OGID_BROADCAST_MATCHRANK        (OGID_MSGBASE_TEXASPOKER_GAMEBASE + 0x0000008A)
-type OGBroadCastMatchRank struct {
+// #define DDID_BROADCAST_MATCHRANK        (DDID_MSGBASE_TEXASPOKER_GAMEBASE + 0x0000008A)
+type DDBroadCastMatchRank struct {
 	RoleName         []byte `protobuf:"bytes,1,opt,name=roleName" json:"roleName,omitempty"`
 	MatchName        []byte `protobuf:"bytes,2,opt,name=matchName" json:"matchName,omitempty"`
 	NRank            *int32 `protobuf:"varint,3,opt,name=nRank" json:"nRank,omitempty"`
@@ -4395,47 +4395,47 @@ type OGBroadCastMatchRank struct {
 	XXX_unrecognized []byte `json:"-"`
 }
 
-func (m *OGBroadCastMatchRank) Reset()                    { *m = OGBroadCastMatchRank{} }
-func (m *OGBroadCastMatchRank) String() string            { return proto.CompactTextString(m) }
-func (*OGBroadCastMatchRank) ProtoMessage()               {}
-func (*OGBroadCastMatchRank) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{84} }
+func (m *DDBroadCastMatchRank) Reset()                    { *m = DDBroadCastMatchRank{} }
+func (m *DDBroadCastMatchRank) String() string            { return proto.CompactTextString(m) }
+func (*DDBroadCastMatchRank) ProtoMessage()               {}
+func (*DDBroadCastMatchRank) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{84} }
 
-func (m *OGBroadCastMatchRank) GetRoleName() []byte {
+func (m *DDBroadCastMatchRank) GetRoleName() []byte {
 	if m != nil {
 		return m.RoleName
 	}
 	return nil
 }
 
-func (m *OGBroadCastMatchRank) GetMatchName() []byte {
+func (m *DDBroadCastMatchRank) GetMatchName() []byte {
 	if m != nil {
 		return m.MatchName
 	}
 	return nil
 }
 
-func (m *OGBroadCastMatchRank) GetNRank() int32 {
+func (m *DDBroadCastMatchRank) GetNRank() int32 {
 	if m != nil && m.NRank != nil {
 		return *m.NRank
 	}
 	return 0
 }
 
-func (m *OGBroadCastMatchRank) GetNRewardType() int32 {
+func (m *DDBroadCastMatchRank) GetNRewardType() int32 {
 	if m != nil && m.NRewardType != nil {
 		return *m.NRewardType
 	}
 	return 0
 }
 
-func (m *OGBroadCastMatchRank) GetNRewardCount() int64 {
+func (m *DDBroadCastMatchRank) GetNRewardCount() int64 {
 	if m != nil && m.NRewardCount != nil {
 		return *m.NRewardCount
 	}
 	return 0
 }
 
-func (m *OGBroadCastMatchRank) GetRewardName() []byte {
+func (m *DDBroadCastMatchRank) GetRewardName() []byte {
 	if m != nil {
 		return m.RewardName
 	}
@@ -4443,8 +4443,8 @@ func (m *OGBroadCastMatchRank) GetRewardName() []byte {
 }
 
 // 注册
-// THRANID_SVR_REG = 0x00001003;//注册消息
-type REQThranReg struct {
+// SHENJINGID_SVR_REG = 0x00001003;//注册消息
+type REQSHENJINGReg struct {
 	UserName         *string `protobuf:"bytes,1,opt,name=UserName" json:"UserName,omitempty"`
 	Pwd              *string `protobuf:"bytes,2,opt,name=Pwd" json:"Pwd,omitempty"`
 	VerifyId         *int32  `protobuf:"varint,3,opt,name=VerifyId" json:"VerifyId,omitempty"`
@@ -4460,174 +4460,174 @@ type REQThranReg struct {
 	XXX_unrecognized []byte  `json:"-"`
 }
 
-func (m *REQThranReg) Reset()                    { *m = REQThranReg{} }
-func (m *REQThranReg) String() string            { return proto.CompactTextString(m) }
-func (*REQThranReg) ProtoMessage()               {}
-func (*REQThranReg) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{85} }
+func (m *REQSHENJINGReg) Reset()                    { *m = REQSHENJINGReg{} }
+func (m *REQSHENJINGReg) String() string            { return proto.CompactTextString(m) }
+func (*REQSHENJINGReg) ProtoMessage()               {}
+func (*REQSHENJINGReg) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{85} }
 
-const Default_REQThranReg_RoomAdapte int32 = 0
-const Default_REQThranReg_Sex int32 = 0
+const Default_REQSHENJINGReg_RoomAdapte int32 = 0
+const Default_REQSHENJINGReg_Sex int32 = 0
 
-func (m *REQThranReg) GetUserName() string {
+func (m *REQSHENJINGReg) GetUserName() string {
 	if m != nil && m.UserName != nil {
 		return *m.UserName
 	}
 	return ""
 }
 
-func (m *REQThranReg) GetPwd() string {
+func (m *REQSHENJINGReg) GetPwd() string {
 	if m != nil && m.Pwd != nil {
 		return *m.Pwd
 	}
 	return ""
 }
 
-func (m *REQThranReg) GetVerifyId() int32 {
+func (m *REQSHENJINGReg) GetVerifyId() int32 {
 	if m != nil && m.VerifyId != nil {
 		return *m.VerifyId
 	}
 	return 0
 }
 
-func (m *REQThranReg) GetVerifyStr() string {
+func (m *REQSHENJINGReg) GetVerifyStr() string {
 	if m != nil && m.VerifyStr != nil {
 		return *m.VerifyStr
 	}
 	return ""
 }
 
-func (m *REQThranReg) GetSecureID() string {
+func (m *REQSHENJINGReg) GetSecureID() string {
 	if m != nil && m.SecureID != nil {
 		return *m.SecureID
 	}
 	return ""
 }
 
-func (m *REQThranReg) GetComeFromID() int32 {
+func (m *REQSHENJINGReg) GetComeFromID() int32 {
 	if m != nil && m.ComeFromID != nil {
 		return *m.ComeFromID
 	}
 	return 0
 }
 
-func (m *REQThranReg) GetChannelID() string {
+func (m *REQSHENJINGReg) GetChannelID() string {
 	if m != nil && m.ChannelID != nil {
 		return *m.ChannelID
 	}
 	return ""
 }
 
-func (m *REQThranReg) GetGameId() int32 {
+func (m *REQSHENJINGReg) GetGameId() int32 {
 	if m != nil && m.GameId != nil {
 		return *m.GameId
 	}
 	return 0
 }
 
-func (m *REQThranReg) GetToken() string {
+func (m *REQSHENJINGReg) GetToken() string {
 	if m != nil && m.Token != nil {
 		return *m.Token
 	}
 	return ""
 }
 
-func (m *REQThranReg) GetUserNameApl() []byte {
+func (m *REQSHENJINGReg) GetUserNameApl() []byte {
 	if m != nil {
 		return m.UserNameApl
 	}
 	return nil
 }
 
-func (m *REQThranReg) GetRoomAdapte() int32 {
+func (m *REQSHENJINGReg) GetRoomAdapte() int32 {
 	if m != nil && m.RoomAdapte != nil {
 		return *m.RoomAdapte
 	}
-	return Default_REQThranReg_RoomAdapte
+	return Default_REQSHENJINGReg_RoomAdapte
 }
 
-func (m *REQThranReg) GetSex() int32 {
+func (m *REQSHENJINGReg) GetSex() int32 {
 	if m != nil && m.Sex != nil {
 		return *m.Sex
 	}
-	return Default_REQThranReg_Sex
+	return Default_REQSHENJINGReg_Sex
 }
 
-type ACKThranReg struct {
+type ACKSHENJINGReg struct {
 	AckResult        *int32        `protobuf:"varint,1,opt,name=AckResult" json:"AckResult,omitempty"`
 	ErrorStr         *string       `protobuf:"bytes,2,opt,name=ErrorStr" json:"ErrorStr,omitempty"`
 	Cert             []byte        `protobuf:"bytes,3,opt,name=cert" json:"cert,omitempty"`
 	RoleName         *string       `protobuf:"bytes,4,opt,name=RoleName" json:"RoleName,omitempty"`
-	RoomList         []*OGRoomInfo `protobuf:"bytes,5,rep,name=RoomList" json:"RoomList,omitempty"`
+	RoomList         []*DDRoomInfo `protobuf:"bytes,5,rep,name=RoomList" json:"RoomList,omitempty"`
 	LoginId          *int32        `protobuf:"varint,6,opt,name=LoginId" json:"LoginId,omitempty"`
-	MatchRoomList    []*OGRoomInfo `protobuf:"bytes,7,rep,name=MatchRoomList" json:"MatchRoomList,omitempty"`
+	MatchRoomList    []*DDRoomInfo `protobuf:"bytes,7,rep,name=MatchRoomList" json:"MatchRoomList,omitempty"`
 	CertNoRole       []byte        `protobuf:"bytes,8,opt,name=CertNoRole" json:"CertNoRole,omitempty"`
 	XXX_unrecognized []byte        `json:"-"`
 }
 
-func (m *ACKThranReg) Reset()                    { *m = ACKThranReg{} }
-func (m *ACKThranReg) String() string            { return proto.CompactTextString(m) }
-func (*ACKThranReg) ProtoMessage()               {}
-func (*ACKThranReg) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{86} }
+func (m *ACKSHENJINGReg) Reset()                    { *m = ACKSHENJINGReg{} }
+func (m *ACKSHENJINGReg) String() string            { return proto.CompactTextString(m) }
+func (*ACKSHENJINGReg) ProtoMessage()               {}
+func (*ACKSHENJINGReg) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{86} }
 
-func (m *ACKThranReg) GetAckResult() int32 {
+func (m *ACKSHENJINGReg) GetAckResult() int32 {
 	if m != nil && m.AckResult != nil {
 		return *m.AckResult
 	}
 	return 0
 }
 
-func (m *ACKThranReg) GetErrorStr() string {
+func (m *ACKSHENJINGReg) GetErrorStr() string {
 	if m != nil && m.ErrorStr != nil {
 		return *m.ErrorStr
 	}
 	return ""
 }
 
-func (m *ACKThranReg) GetCert() []byte {
+func (m *ACKSHENJINGReg) GetCert() []byte {
 	if m != nil {
 		return m.Cert
 	}
 	return nil
 }
 
-func (m *ACKThranReg) GetRoleName() string {
+func (m *ACKSHENJINGReg) GetRoleName() string {
 	if m != nil && m.RoleName != nil {
 		return *m.RoleName
 	}
 	return ""
 }
 
-func (m *ACKThranReg) GetRoomList() []*OGRoomInfo {
+func (m *ACKSHENJINGReg) GetRoomList() []*DDRoomInfo {
 	if m != nil {
 		return m.RoomList
 	}
 	return nil
 }
 
-func (m *ACKThranReg) GetLoginId() int32 {
+func (m *ACKSHENJINGReg) GetLoginId() int32 {
 	if m != nil && m.LoginId != nil {
 		return *m.LoginId
 	}
 	return 0
 }
 
-func (m *ACKThranReg) GetMatchRoomList() []*OGRoomInfo {
+func (m *ACKSHENJINGReg) GetMatchRoomList() []*DDRoomInfo {
 	if m != nil {
 		return m.MatchRoomList
 	}
 	return nil
 }
 
-func (m *ACKThranReg) GetCertNoRole() []byte {
+func (m *ACKSHENJINGReg) GetCertNoRole() []byte {
 	if m != nil {
 		return m.CertNoRole
 	}
 	return nil
 }
 
-// 登录THRAN服务器
-// THRANID_SVR_LOGINCONN = 0x00001001;//登录消息
-type REQThranConn struct {
+// 登录SHENJING服务器
+// SHENJINGID_SVR_LDDINCONN = 0x00001001;//登录消息
+type REQSHENJINGConn struct {
 	UserName         *string `protobuf:"bytes,1,opt,name=UserName" json:"UserName,omitempty"`
 	NickName         *string `protobuf:"bytes,2,opt,name=NickName" json:"NickName,omitempty"`
 	Pwd              *string `protobuf:"bytes,3,opt,name=Pwd" json:"Pwd,omitempty"`
@@ -4646,227 +4646,227 @@ type REQThranConn struct {
 	XXX_unrecognized []byte  `json:"-"`
 }
 
-func (m *REQThranConn) Reset()                    { *m = REQThranConn{} }
-func (m *REQThranConn) String() string            { return proto.CompactTextString(m) }
-func (*REQThranConn) ProtoMessage()               {}
-func (*REQThranConn) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{87} }
+func (m *REQSHENJINGConn) Reset()                    { *m = REQSHENJINGConn{} }
+func (m *REQSHENJINGConn) String() string            { return proto.CompactTextString(m) }
+func (*REQSHENJINGConn) ProtoMessage()               {}
+func (*REQSHENJINGConn) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{87} }
 
-const Default_REQThranConn_RoomAdapte int32 = 0
-const Default_REQThranConn_LoginType int32 = 0
+const Default_REQSHENJINGConn_RoomAdapte int32 = 0
+const Default_REQSHENJINGConn_LoginType int32 = 0
 
-func (m *REQThranConn) GetUserName() string {
+func (m *REQSHENJINGConn) GetUserName() string {
 	if m != nil && m.UserName != nil {
 		return *m.UserName
 	}
 	return ""
 }
 
-func (m *REQThranConn) GetNickName() string {
+func (m *REQSHENJINGConn) GetNickName() string {
 	if m != nil && m.NickName != nil {
 		return *m.NickName
 	}
 	return ""
 }
 
-func (m *REQThranConn) GetPwd() string {
+func (m *REQSHENJINGConn) GetPwd() string {
 	if m != nil && m.Pwd != nil {
 		return *m.Pwd
 	}
 	return ""
 }
 
-func (m *REQThranConn) GetSex() int32 {
+func (m *REQSHENJINGConn) GetSex() int32 {
 	if m != nil && m.Sex != nil {
 		return *m.Sex
 	}
 	return 0
 }
 
-func (m *REQThranConn) GetSecureID() string {
+func (m *REQSHENJINGConn) GetSecureID() string {
 	if m != nil && m.SecureID != nil {
 		return *m.SecureID
 	}
 	return ""
 }
 
-func (m *REQThranConn) GetComeFromID() int32 {
+func (m *REQSHENJINGConn) GetComeFromID() int32 {
 	if m != nil && m.ComeFromID != nil {
 		return *m.ComeFromID
 	}
 	return 0
 }
 
-func (m *REQThranConn) GetChannelID() string {
+func (m *REQSHENJINGConn) GetChannelID() string {
 	if m != nil && m.ChannelID != nil {
 		return *m.ChannelID
 	}
 	return ""
 }
 
-func (m *REQThranConn) GetGameId() int32 {
+func (m *REQSHENJINGConn) GetGameId() int32 {
 	if m != nil && m.GameId != nil {
 		return *m.GameId
 	}
 	return 0
 }
 
-func (m *REQThranConn) GetToken() string {
+func (m *REQSHENJINGConn) GetToken() string {
 	if m != nil && m.Token != nil {
 		return *m.Token
 	}
 	return ""
 }
 
-func (m *REQThranConn) GetUserNameApl() []byte {
+func (m *REQSHENJINGConn) GetUserNameApl() []byte {
 	if m != nil {
 		return m.UserNameApl
 	}
 	return nil
 }
 
-func (m *REQThranConn) GetVerifyId() int32 {
+func (m *REQSHENJINGConn) GetVerifyId() int32 {
 	if m != nil && m.VerifyId != nil {
 		return *m.VerifyId
 	}
 	return 0
 }
 
-func (m *REQThranConn) GetTicket() string {
+func (m *REQSHENJINGConn) GetTicket() string {
 	if m != nil && m.Ticket != nil {
 		return *m.Ticket
 	}
 	return ""
 }
 
-func (m *REQThranConn) GetRoomAdapte() int32 {
+func (m *REQSHENJINGConn) GetRoomAdapte() int32 {
 	if m != nil && m.RoomAdapte != nil {
 		return *m.RoomAdapte
 	}
-	return Default_REQThranConn_RoomAdapte
+	return Default_REQSHENJINGConn_RoomAdapte
 }
 
-func (m *REQThranConn) GetLoginType() int32 {
+func (m *REQSHENJINGConn) GetLoginType() int32 {
 	if m != nil && m.LoginType != nil {
 		return *m.LoginType
 	}
-	return Default_REQThranConn_LoginType
+	return Default_REQSHENJINGConn_LoginType
 }
 
-func (m *REQThranConn) GetGroupID() int32 {
+func (m *REQSHENJINGConn) GetGroupID() int32 {
 	if m != nil && m.GroupID != nil {
 		return *m.GroupID
 	}
 	return 0
 }
 
-type ACKThranConn struct {
-	AckResult        *int32           `protobuf:"varint,1,opt,name=AckResult" json:"AckResult,omitempty"`
-	Cert             []byte           `protobuf:"bytes,2,opt,name=cert" json:"cert,omitempty"`
-	UserName         *string          `protobuf:"bytes,3,opt,name=UserName" json:"UserName,omitempty"`
-	RoleName         *string          `protobuf:"bytes,4,opt,name=RoleName" json:"RoleName,omitempty"`
-	PassWord         *string          `protobuf:"bytes,5,opt,name=PassWord" json:"PassWord,omitempty"`
-	YuanBaoCnt       *int32           `protobuf:"varint,6,opt,name=YuanBaoCnt" json:"YuanBaoCnt,omitempty"`
-	CoinCnt          *int64           `protobuf:"varint,7,opt,name=CoinCnt" json:"CoinCnt,omitempty"`
-	RoomList         []*OGRoomInfo    `protobuf:"bytes,8,rep,name=RoomList" json:"RoomList,omitempty"`
-	LoginId          *int32           `protobuf:"varint,9,opt,name=LoginId" json:"LoginId,omitempty"`
-	MatchRoomList    []*OGRoomInfo    `protobuf:"bytes,10,rep,name=MatchRoomList" json:"MatchRoomList,omitempty"`
-	CertNoRole       []byte           `protobuf:"bytes,11,opt,name=CertNoRole" json:"CertNoRole,omitempty"`
-	ThranRoomItems   []*ThranRoomInfo `protobuf:"bytes,12,rep,name=ThranRoomItems" json:"ThranRoomItems,omitempty"`
-	XXX_unrecognized []byte           `json:"-"`
+type ACKSHENJINGConn struct {
+	AckResult         *int32              `protobuf:"varint,1,opt,name=AckResult" json:"AckResult,omitempty"`
+	Cert              []byte              `protobuf:"bytes,2,opt,name=cert" json:"cert,omitempty"`
+	UserName          *string             `protobuf:"bytes,3,opt,name=UserName" json:"UserName,omitempty"`
+	RoleName          *string             `protobuf:"bytes,4,opt,name=RoleName" json:"RoleName,omitempty"`
+	PassWord          *string             `protobuf:"bytes,5,opt,name=PassWord" json:"PassWord,omitempty"`
+	YuanBaoCnt        *int32              `protobuf:"varint,6,opt,name=YuanBaoCnt" json:"YuanBaoCnt,omitempty"`
+	CoinCnt           *int64              `protobuf:"varint,7,opt,name=CoinCnt" json:"CoinCnt,omitempty"`
+	RoomList          []*DDRoomInfo       `protobuf:"bytes,8,rep,name=RoomList" json:"RoomList,omitempty"`
+	LoginId           *int32              `protobuf:"varint,9,opt,name=LoginId" json:"LoginId,omitempty"`
+	MatchRoomList     []*DDRoomInfo       `protobuf:"bytes,10,rep,name=MatchRoomList" json:"MatchRoomList,omitempty"`
+	CertNoRole        []byte              `protobuf:"bytes,11,opt,name=CertNoRole" json:"CertNoRole,omitempty"`
+	SHENJINGRoomItems []*SHENJINGRoomInfo `protobuf:"bytes,12,rep,name=SHENJINGRoomItems" json:"SHENJINGRoomItems,omitempty"`
+	XXX_unrecognized  []byte              `json:"-"`
 }
 
-func (m *ACKThranConn) Reset()                    { *m = ACKThranConn{} }
-func (m *ACKThranConn) String() string            { return proto.CompactTextString(m) }
-func (*ACKThranConn) ProtoMessage()               {}
-func (*ACKThranConn) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{88} }
+func (m *ACKSHENJINGConn) Reset()                    { *m = ACKSHENJINGConn{} }
+func (m *ACKSHENJINGConn) String() string            { return proto.CompactTextString(m) }
+func (*ACKSHENJINGConn) ProtoMessage()               {}
+func (*ACKSHENJINGConn) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{88} }
 
-func (m *ACKThranConn) GetAckResult() int32 {
+func (m *ACKSHENJINGConn) GetAckResult() int32 {
 	if m != nil && m.AckResult != nil {
 		return *m.AckResult
 	}
 	return 0
 }
 
-func (m *ACKThranConn) GetCert() []byte {
+func (m *ACKSHENJINGConn) GetCert() []byte {
 	if m != nil {
 		return m.Cert
 	}
 	return nil
 }
 
-func (m *ACKThranConn) GetUserName() string {
+func (m *ACKSHENJINGConn) GetUserName() string {
 	if m != nil && m.UserName != nil {
 		return *m.UserName
 	}
 	return ""
 }
 
-func (m *ACKThranConn) GetRoleName() string {
+func (m *ACKSHENJINGConn) GetRoleName() string {
 	if m != nil && m.RoleName != nil {
 		return *m.RoleName
 	}
 	return ""
 }
 
-func (m *ACKThranConn) GetPassWord() string {
+func (m *ACKSHENJINGConn) GetPassWord() string {
 	if m != nil && m.PassWord != nil {
 		return *m.PassWord
 	}
 	return ""
 }
 
-func (m *ACKThranConn) GetYuanBaoCnt() int32 {
+func (m *ACKSHENJINGConn) GetYuanBaoCnt() int32 {
 	if m != nil && m.YuanBaoCnt != nil {
 		return *m.YuanBaoCnt
 	}
 	return 0
 }
 
-func (m *ACKThranConn) GetCoinCnt() int64 {
+func (m *ACKSHENJINGConn) GetCoinCnt() int64 {
 	if m != nil && m.CoinCnt != nil {
 		return *m.CoinCnt
 	}
 	return 0
 }
 
-func (m *ACKThranConn) GetRoomList() []*OGRoomInfo {
+func (m *ACKSHENJINGConn) GetRoomList() []*DDRoomInfo {
 	if m != nil {
 		return m.RoomList
 	}
 	return nil
 }
 
-func (m *ACKThranConn) GetLoginId() int32 {
+func (m *ACKSHENJINGConn) GetLoginId() int32 {
 	if m != nil && m.LoginId != nil {
 		return *m.LoginId
 	}
 	return 0
 }
 
-func (m *ACKThranConn) GetMatchRoomList() []*OGRoomInfo {
+func (m *ACKSHENJINGConn) GetMatchRoomList() []*DDRoomInfo {
 	if m != nil {
 		return m.MatchRoomList
 	}
 	return nil
 }
 
-func (m *ACKThranConn) GetCertNoRole() []byte {
+func (m *ACKSHENJINGConn) GetCertNoRole() []byte {
 	if m != nil {
 		return m.CertNoRole
 	}
 	return nil
 }
 
-func (m *ACKThranConn) GetThranRoomItems() []*ThranRoomInfo {
+func (m *ACKSHENJINGConn) GetSHENJINGRoomItems() []*SHENJINGRoomInfo {
 	if m != nil {
-		return m.ThranRoomItems
+		return m.SHENJINGRoomItems
 	}
 	return nil
 }
 
 // 获取短证书  modify at 20120109  获取短证书
-// THRANID_SVR_SHORTCERT = 0x00001005;//登录消息
-type REQThranShortCert struct {
+// SHENJINGID_SVR_SHORTCERT = 0x00001005;//登录消息
+type REQSHENJINGShortCert struct {
 	UserName         *string `protobuf:"bytes,1,opt,name=UserName" json:"UserName,omitempty"`
 	NickName         *string `protobuf:"bytes,2,opt,name=NickName" json:"NickName,omitempty"`
 	Pwd              *string `protobuf:"bytes,3,opt,name=Pwd" json:"Pwd,omitempty"`
@@ -4883,156 +4883,156 @@ type REQThranShortCert struct {
 	XXX_unrecognized []byte  `json:"-"`
 }
 
-func (m *REQThranShortCert) Reset()                    { *m = REQThranShortCert{} }
-func (m *REQThranShortCert) String() string            { return proto.CompactTextString(m) }
-func (*REQThranShortCert) ProtoMessage()               {}
-func (*REQThranShortCert) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{89} }
+func (m *REQSHENJINGShortCert) Reset()                    { *m = REQSHENJINGShortCert{} }
+func (m *REQSHENJINGShortCert) String() string            { return proto.CompactTextString(m) }
+func (*REQSHENJINGShortCert) ProtoMessage()               {}
+func (*REQSHENJINGShortCert) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{89} }
 
-const Default_REQThranShortCert_RoomAdapte int32 = 0
+const Default_REQSHENJINGShortCert_RoomAdapte int32 = 0
 
-func (m *REQThranShortCert) GetUserName() string {
+func (m *REQSHENJINGShortCert) GetUserName() string {
 	if m != nil && m.UserName != nil {
 		return *m.UserName
 	}
 	return ""
 }
 
-func (m *REQThranShortCert) GetNickName() string {
+func (m *REQSHENJINGShortCert) GetNickName() string {
 	if m != nil && m.NickName != nil {
 		return *m.NickName
 	}
 	return ""
 }
 
-func (m *REQThranShortCert) GetPwd() string {
+func (m *REQSHENJINGShortCert) GetPwd() string {
 	if m != nil && m.Pwd != nil {
 		return *m.Pwd
 	}
 	return ""
 }
 
-func (m *REQThranShortCert) GetSex() int32 {
+func (m *REQSHENJINGShortCert) GetSex() int32 {
 	if m != nil && m.Sex != nil {
 		return *m.Sex
 	}
 	return 0
 }
 
-func (m *REQThranShortCert) GetSecureID() string {
+func (m *REQSHENJINGShortCert) GetSecureID() string {
 	if m != nil && m.SecureID != nil {
 		return *m.SecureID
 	}
 	return ""
 }
 
-func (m *REQThranShortCert) GetComeFromID() int32 {
+func (m *REQSHENJINGShortCert) GetComeFromID() int32 {
 	if m != nil && m.ComeFromID != nil {
 		return *m.ComeFromID
 	}
 	return 0
 }
 
-func (m *REQThranShortCert) GetChannelID() string {
+func (m *REQSHENJINGShortCert) GetChannelID() string {
 	if m != nil && m.ChannelID != nil {
 		return *m.ChannelID
 	}
 	return ""
 }
 
-func (m *REQThranShortCert) GetGameId() int32 {
+func (m *REQSHENJINGShortCert) GetGameId() int32 {
 	if m != nil && m.GameId != nil {
 		return *m.GameId
 	}
 	return 0
 }
 
-func (m *REQThranShortCert) GetToken() string {
+func (m *REQSHENJINGShortCert) GetToken() string {
 	if m != nil && m.Token != nil {
 		return *m.Token
 	}
 	return ""
 }
 
-func (m *REQThranShortCert) GetUserNameApl() []byte {
+func (m *REQSHENJINGShortCert) GetUserNameApl() []byte {
 	if m != nil {
 		return m.UserNameApl
 	}
 	return nil
 }
 
-func (m *REQThranShortCert) GetVerifyId() int32 {
+func (m *REQSHENJINGShortCert) GetVerifyId() int32 {
 	if m != nil && m.VerifyId != nil {
 		return *m.VerifyId
 	}
 	return 0
 }
 
-func (m *REQThranShortCert) GetTicket() string {
+func (m *REQSHENJINGShortCert) GetTicket() string {
 	if m != nil && m.Ticket != nil {
 		return *m.Ticket
 	}
 	return ""
 }
 
-func (m *REQThranShortCert) GetRoomAdapte() int32 {
+func (m *REQSHENJINGShortCert) GetRoomAdapte() int32 {
 	if m != nil && m.RoomAdapte != nil {
 		return *m.RoomAdapte
 	}
-	return Default_REQThranShortCert_RoomAdapte
+	return Default_REQSHENJINGShortCert_RoomAdapte
 }
 
-type ACKThranShortCert struct {
+type ACKSHENJINGShortCert struct {
 	AckResult        *int32        `protobuf:"varint,1,opt,name=AckResult" json:"AckResult,omitempty"`
 	ShortCert        []byte        `protobuf:"bytes,2,opt,name=ShortCert" json:"ShortCert,omitempty"`
 	UserName         *string       `protobuf:"bytes,3,opt,name=UserName" json:"UserName,omitempty"`
-	RoomList         []*OGRoomInfo `protobuf:"bytes,4,rep,name=RoomList" json:"RoomList,omitempty"`
-	MatchRoomList    []*OGRoomInfo `protobuf:"bytes,5,rep,name=MatchRoomList" json:"MatchRoomList,omitempty"`
+	RoomList         []*DDRoomInfo `protobuf:"bytes,4,rep,name=RoomList" json:"RoomList,omitempty"`
+	MatchRoomList    []*DDRoomInfo `protobuf:"bytes,5,rep,name=MatchRoomList" json:"MatchRoomList,omitempty"`
 	XXX_unrecognized []byte        `json:"-"`
 }
 
-func (m *ACKThranShortCert) Reset()                    { *m = ACKThranShortCert{} }
-func (m *ACKThranShortCert) String() string            { return proto.CompactTextString(m) }
-func (*ACKThranShortCert) ProtoMessage()               {}
-func (*ACKThranShortCert) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{90} }
+func (m *ACKSHENJINGShortCert) Reset()                    { *m = ACKSHENJINGShortCert{} }
+func (m *ACKSHENJINGShortCert) String() string            { return proto.CompactTextString(m) }
+func (*ACKSHENJINGShortCert) ProtoMessage()               {}
+func (*ACKSHENJINGShortCert) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{90} }
 
-func (m *ACKThranShortCert) GetAckResult() int32 {
+func (m *ACKSHENJINGShortCert) GetAckResult() int32 {
 	if m != nil && m.AckResult != nil {
 		return *m.AckResult
 	}
 	return 0
 }
 
-func (m *ACKThranShortCert) GetShortCert() []byte {
+func (m *ACKSHENJINGShortCert) GetShortCert() []byte {
 	if m != nil {
 		return m.ShortCert
 	}
 	return nil
 }
 
-func (m *ACKThranShortCert) GetUserName() string {
+func (m *ACKSHENJINGShortCert) GetUserName() string {
 	if m != nil && m.UserName != nil {
 		return *m.UserName
 	}
 	return ""
 }
 
-func (m *ACKThranShortCert) GetRoomList() []*OGRoomInfo {
+func (m *ACKSHENJINGShortCert) GetRoomList() []*DDRoomInfo {
 	if m != nil {
 		return m.RoomList
 	}
 	return nil
 }
 
-func (m *ACKThranShortCert) GetMatchRoomList() []*OGRoomInfo {
+func (m *ACKSHENJINGShortCert) GetMatchRoomList() []*DDRoomInfo {
 	if m != nil {
 		return m.MatchRoomList
 	}
 	return nil
 }
 
-// 登录THRAN服务OpenId
-// THRANID_SVR_REG = 0x00001004;//OpenId登录消息
-type REQThranOpenId struct {
+// 登录SHENJING服务OpenId
+// SHENJINGID_SVR_REG = 0x00001004;//OpenId登录消息
+type REQSHENJINGOpenId struct {
 	UserName         []byte  `protobuf:"bytes,1,opt,name=UserName" json:"UserName,omitempty"`
 	Pwd              *string `protobuf:"bytes,2,opt,name=Pwd" json:"Pwd,omitempty"`
 	Type             *string `protobuf:"bytes,3,opt,name=type" json:"type,omitempty"`
@@ -5049,195 +5049,195 @@ type REQThranOpenId struct {
 	XXX_unrecognized []byte  `json:"-"`
 }
 
-func (m *REQThranOpenId) Reset()                    { *m = REQThranOpenId{} }
-func (m *REQThranOpenId) String() string            { return proto.CompactTextString(m) }
-func (*REQThranOpenId) ProtoMessage()               {}
-func (*REQThranOpenId) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{91} }
+func (m *REQSHENJINGOpenId) Reset()                    { *m = REQSHENJINGOpenId{} }
+func (m *REQSHENJINGOpenId) String() string            { return proto.CompactTextString(m) }
+func (*REQSHENJINGOpenId) ProtoMessage()               {}
+func (*REQSHENJINGOpenId) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{91} }
 
-const Default_REQThranOpenId_RoomAdapte int32 = 0
+const Default_REQSHENJINGOpenId_RoomAdapte int32 = 0
 
-func (m *REQThranOpenId) GetUserName() []byte {
+func (m *REQSHENJINGOpenId) GetUserName() []byte {
 	if m != nil {
 		return m.UserName
 	}
 	return nil
 }
 
-func (m *REQThranOpenId) GetPwd() string {
+func (m *REQSHENJINGOpenId) GetPwd() string {
 	if m != nil && m.Pwd != nil {
 		return *m.Pwd
 	}
 	return ""
 }
 
-func (m *REQThranOpenId) GetType() string {
+func (m *REQSHENJINGOpenId) GetType() string {
 	if m != nil && m.Type != nil {
 		return *m.Type
 	}
 	return ""
 }
 
-func (m *REQThranOpenId) GetSecureID() string {
+func (m *REQSHENJINGOpenId) GetSecureID() string {
 	if m != nil && m.SecureID != nil {
 		return *m.SecureID
 	}
 	return ""
 }
 
-func (m *REQThranOpenId) GetComeFromID() int32 {
+func (m *REQSHENJINGOpenId) GetComeFromID() int32 {
 	if m != nil && m.ComeFromID != nil {
 		return *m.ComeFromID
 	}
 	return 0
 }
 
-func (m *REQThranOpenId) GetChannelID() string {
+func (m *REQSHENJINGOpenId) GetChannelID() string {
 	if m != nil && m.ChannelID != nil {
 		return *m.ChannelID
 	}
 	return ""
 }
 
-func (m *REQThranOpenId) GetGameId() int32 {
+func (m *REQSHENJINGOpenId) GetGameId() int32 {
 	if m != nil && m.GameId != nil {
 		return *m.GameId
 	}
 	return 0
 }
 
-func (m *REQThranOpenId) GetVerifyId() int32 {
+func (m *REQSHENJINGOpenId) GetVerifyId() int32 {
 	if m != nil && m.VerifyId != nil {
 		return *m.VerifyId
 	}
 	return 0
 }
 
-func (m *REQThranOpenId) GetTicket() string {
+func (m *REQSHENJINGOpenId) GetTicket() string {
 	if m != nil && m.Ticket != nil {
 		return *m.Ticket
 	}
 	return ""
 }
 
-func (m *REQThranOpenId) GetToken() string {
+func (m *REQSHENJINGOpenId) GetToken() string {
 	if m != nil && m.Token != nil {
 		return *m.Token
 	}
 	return ""
 }
 
-func (m *REQThranOpenId) GetThirdkey() string {
+func (m *REQSHENJINGOpenId) GetThirdkey() string {
 	if m != nil && m.Thirdkey != nil {
 		return *m.Thirdkey
 	}
 	return ""
 }
 
-func (m *REQThranOpenId) GetRoomAdapte() int32 {
+func (m *REQSHENJINGOpenId) GetRoomAdapte() int32 {
 	if m != nil && m.RoomAdapte != nil {
 		return *m.RoomAdapte
 	}
-	return Default_REQThranOpenId_RoomAdapte
+	return Default_REQSHENJINGOpenId_RoomAdapte
 }
 
-func (m *REQThranOpenId) GetThirdAppId() string {
+func (m *REQSHENJINGOpenId) GetThirdAppId() string {
 	if m != nil && m.ThirdAppId != nil {
 		return *m.ThirdAppId
 	}
 	return ""
 }
 
-type ACKThranOpenId struct {
+type ACKSHENJINGOpenId struct {
 	AckResult        *int32        `protobuf:"varint,1,opt,name=AckResult" json:"AckResult,omitempty"`
 	Cert             []byte        `protobuf:"bytes,2,opt,name=cert" json:"cert,omitempty"`
 	UserName         []byte        `protobuf:"bytes,3,opt,name=UserName" json:"UserName,omitempty"`
 	RoleName         []byte        `protobuf:"bytes,4,opt,name=RoleName" json:"RoleName,omitempty"`
 	YuanBaoCnt       *int32        `protobuf:"varint,5,opt,name=YuanBaoCnt" json:"YuanBaoCnt,omitempty"`
 	CoinCnt          *int64        `protobuf:"varint,6,opt,name=CoinCnt" json:"CoinCnt,omitempty"`
-	RoomList         []*OGRoomInfo `protobuf:"bytes,7,rep,name=RoomList" json:"RoomList,omitempty"`
-	MatchRoomList    []*OGRoomInfo `protobuf:"bytes,8,rep,name=MatchRoomList" json:"MatchRoomList,omitempty"`
+	RoomList         []*DDRoomInfo `protobuf:"bytes,7,rep,name=RoomList" json:"RoomList,omitempty"`
+	MatchRoomList    []*DDRoomInfo `protobuf:"bytes,8,rep,name=MatchRoomList" json:"MatchRoomList,omitempty"`
 	LoginId          *int32        `protobuf:"varint,9,opt,name=LoginId" json:"LoginId,omitempty"`
 	CertNoRole       []byte        `protobuf:"bytes,10,opt,name=CertNoRole" json:"CertNoRole,omitempty"`
 	AchvId           []int32       `protobuf:"varint,11,rep,name=AchvId" json:"AchvId,omitempty"`
 	XXX_unrecognized []byte        `json:"-"`
 }
 
-func (m *ACKThranOpenId) Reset()                    { *m = ACKThranOpenId{} }
-func (m *ACKThranOpenId) String() string            { return proto.CompactTextString(m) }
-func (*ACKThranOpenId) ProtoMessage()               {}
-func (*ACKThranOpenId) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{92} }
+func (m *ACKSHENJINGOpenId) Reset()                    { *m = ACKSHENJINGOpenId{} }
+func (m *ACKSHENJINGOpenId) String() string            { return proto.CompactTextString(m) }
+func (*ACKSHENJINGOpenId) ProtoMessage()               {}
+func (*ACKSHENJINGOpenId) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{92} }
 
-func (m *ACKThranOpenId) GetAckResult() int32 {
+func (m *ACKSHENJINGOpenId) GetAckResult() int32 {
 	if m != nil && m.AckResult != nil {
 		return *m.AckResult
 	}
 	return 0
 }
 
-func (m *ACKThranOpenId) GetCert() []byte {
+func (m *ACKSHENJINGOpenId) GetCert() []byte {
 	if m != nil {
 		return m.Cert
 	}
 	return nil
 }
 
-func (m *ACKThranOpenId) GetUserName() []byte {
+func (m *ACKSHENJINGOpenId) GetUserName() []byte {
 	if m != nil {
 		return m.UserName
 	}
 	return nil
 }
 
-func (m *ACKThranOpenId) GetRoleName() []byte {
+func (m *ACKSHENJINGOpenId) GetRoleName() []byte {
 	if m != nil {
 		return m.RoleName
 	}
 	return nil
 }
 
-func (m *ACKThranOpenId) GetYuanBaoCnt() int32 {
+func (m *ACKSHENJINGOpenId) GetYuanBaoCnt() int32 {
 	if m != nil && m.YuanBaoCnt != nil {
 		return *m.YuanBaoCnt
 	}
 	return 0
 }
 
-func (m *ACKThranOpenId) GetCoinCnt() int64 {
+func (m *ACKSHENJINGOpenId) GetCoinCnt() int64 {
 	if m != nil && m.CoinCnt != nil {
 		return *m.CoinCnt
 	}
 	return 0
 }
 
-func (m *ACKThranOpenId) GetRoomList() []*OGRoomInfo {
+func (m *ACKSHENJINGOpenId) GetRoomList() []*DDRoomInfo {
 	if m != nil {
 		return m.RoomList
 	}
 	return nil
 }
 
-func (m *ACKThranOpenId) GetMatchRoomList() []*OGRoomInfo {
+func (m *ACKSHENJINGOpenId) GetMatchRoomList() []*DDRoomInfo {
 	if m != nil {
 		return m.MatchRoomList
 	}
 	return nil
 }
 
-func (m *ACKThranOpenId) GetLoginId() int32 {
+func (m *ACKSHENJINGOpenId) GetLoginId() int32 {
 	if m != nil && m.LoginId != nil {
 		return *m.LoginId
 	}
 	return 0
 }
 
-func (m *ACKThranOpenId) GetCertNoRole() []byte {
+func (m *ACKSHENJINGOpenId) GetCertNoRole() []byte {
 	if m != nil {
 		return m.CertNoRole
 	}
 	return nil
 }
 
-func (m *ACKThranOpenId) GetAchvId() []int32 {
+func (m *ACKSHENJINGOpenId) GetAchvId() []int32 {
 	if m != nil {
 		return m.AchvId
 	}
@@ -5245,7 +5245,7 @@ func (m *ACKThranOpenId) GetAchvId() []int32 {
 }
 
 // 新浪微游戏操作
-// THRANID_SVR_SINAGAME = 0x00003007;//新浪微游戏相关
+// SHENJINGID_SVR_SINAGAME = 0x00003007;//新浪微游戏相关
 type REQSinaGame struct {
 	Thirdkey         *string        `protobuf:"bytes,1,opt,name=Thirdkey" json:"Thirdkey,omitempty"`
 	InfoList         []*SinaApiInfo `protobuf:"bytes,2,rep,name=InfoList" json:"InfoList,omitempty"`
@@ -5329,7 +5329,7 @@ func (m *ACKSinaGame) GetRetList() []*SinaApiRet {
 }
 
 // 发送新浪微博
-// THRANID_SVR_WEIBO = 0x00003005;//发送微博
+// SHENJINGID_SVR_WEIBO = 0x00003005;//发送微博
 type REQWeiBo struct {
 	UserName         []byte  `protobuf:"bytes,1,opt,name=UserName" json:"UserName,omitempty"`
 	Pwd              *string `protobuf:"bytes,2,opt,name=Pwd" json:"Pwd,omitempty"`
@@ -5437,34 +5437,34 @@ func (m *ACKWeiBo) GetAckResult() int32 {
 }
 
 // 退出
-// THRANID_SVR_EXIT = 0x00001002;//退出消息
-type REQThranExit struct {
+// SHENJINGID_SVR_EXIT = 0x00001002;//退出消息
+type REQSHENJINGExit struct {
 	LoginId          *int32  `protobuf:"varint,1,opt,name=LoginId" json:"LoginId,omitempty"`
 	ExitType         *int32  `protobuf:"varint,2,opt,name=ExitType" json:"ExitType,omitempty"`
 	ExitMsg          *string `protobuf:"bytes,3,opt,name=ExitMsg" json:"ExitMsg,omitempty"`
 	XXX_unrecognized []byte  `json:"-"`
 }
 
-func (m *REQThranExit) Reset()                    { *m = REQThranExit{} }
-func (m *REQThranExit) String() string            { return proto.CompactTextString(m) }
-func (*REQThranExit) ProtoMessage()               {}
-func (*REQThranExit) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{97} }
+func (m *REQSHENJINGExit) Reset()                    { *m = REQSHENJINGExit{} }
+func (m *REQSHENJINGExit) String() string            { return proto.CompactTextString(m) }
+func (*REQSHENJINGExit) ProtoMessage()               {}
+func (*REQSHENJINGExit) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{97} }
 
-func (m *REQThranExit) GetLoginId() int32 {
+func (m *REQSHENJINGExit) GetLoginId() int32 {
 	if m != nil && m.LoginId != nil {
 		return *m.LoginId
 	}
 	return 0
 }
 
-func (m *REQThranExit) GetExitType() int32 {
+func (m *REQSHENJINGExit) GetExitType() int32 {
 	if m != nil && m.ExitType != nil {
 		return *m.ExitType
 	}
 	return 0
 }
 
-func (m *REQThranExit) GetExitMsg() string {
+func (m *REQSHENJINGExit) GetExitMsg() string {
 	if m != nil && m.ExitMsg != nil {
 		return *m.ExitMsg
 	}
@@ -5472,8 +5472,8 @@ func (m *REQThranExit) GetExitMsg() string {
 }
 
 // 获取游戏版本信息
-// THRANID_SVR_VERSION = 0x00003001;//索蓝游戏版本消息
-type REQThranGameVersion struct {
+// SHENJINGID_SVR_VERSION = 0x00003001;//索蓝游戏版本消息
+type REQSHENJINGGameVersion struct {
 	CurVersion       *int32  `protobuf:"varint,1,opt,name=CurVersion" json:"CurVersion,omitempty"`
 	GameId           *int32  `protobuf:"varint,2,opt,name=GameId" json:"GameId,omitempty"`
 	ComeFromID       *int32  `protobuf:"varint,3,opt,name=ComeFromID" json:"ComeFromID,omitempty"`
@@ -5487,222 +5487,222 @@ type REQThranGameVersion struct {
 	XXX_unrecognized []byte  `json:"-"`
 }
 
-func (m *REQThranGameVersion) Reset()                    { *m = REQThranGameVersion{} }
-func (m *REQThranGameVersion) String() string            { return proto.CompactTextString(m) }
-func (*REQThranGameVersion) ProtoMessage()               {}
-func (*REQThranGameVersion) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{98} }
+func (m *REQSHENJINGGameVersion) Reset()                    { *m = REQSHENJINGGameVersion{} }
+func (m *REQSHENJINGGameVersion) String() string            { return proto.CompactTextString(m) }
+func (*REQSHENJINGGameVersion) ProtoMessage()               {}
+func (*REQSHENJINGGameVersion) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{98} }
 
-const Default_REQThranGameVersion_RoomAdapte int32 = 0
+const Default_REQSHENJINGGameVersion_RoomAdapte int32 = 0
 
-func (m *REQThranGameVersion) GetCurVersion() int32 {
+func (m *REQSHENJINGGameVersion) GetCurVersion() int32 {
 	if m != nil && m.CurVersion != nil {
 		return *m.CurVersion
 	}
 	return 0
 }
 
-func (m *REQThranGameVersion) GetGameId() int32 {
+func (m *REQSHENJINGGameVersion) GetGameId() int32 {
 	if m != nil && m.GameId != nil {
 		return *m.GameId
 	}
 	return 0
 }
 
-func (m *REQThranGameVersion) GetComeFromID() int32 {
+func (m *REQSHENJINGGameVersion) GetComeFromID() int32 {
 	if m != nil && m.ComeFromID != nil {
 		return *m.ComeFromID
 	}
 	return 0
 }
 
-func (m *REQThranGameVersion) GetResolutionID() string {
+func (m *REQSHENJINGGameVersion) GetResolutionID() string {
 	if m != nil && m.ResolutionID != nil {
 		return *m.ResolutionID
 	}
 	return ""
 }
 
-func (m *REQThranGameVersion) GetChannelID() string {
+func (m *REQSHENJINGGameVersion) GetChannelID() string {
 	if m != nil && m.ChannelID != nil {
 		return *m.ChannelID
 	}
 	return ""
 }
 
-func (m *REQThranGameVersion) GetLanguageID() string {
+func (m *REQSHENJINGGameVersion) GetLanguageID() string {
 	if m != nil && m.LanguageID != nil {
 		return *m.LanguageID
 	}
 	return ""
 }
 
-func (m *REQThranGameVersion) GetSmallVersion() int32 {
+func (m *REQSHENJINGGameVersion) GetSmallVersion() int32 {
 	if m != nil && m.SmallVersion != nil {
 		return *m.SmallVersion
 	}
 	return 0
 }
 
-func (m *REQThranGameVersion) GetClientType() string {
+func (m *REQSHENJINGGameVersion) GetClientType() string {
 	if m != nil && m.ClientType != nil {
 		return *m.ClientType
 	}
 	return ""
 }
 
-func (m *REQThranGameVersion) GetScreenSize() string {
+func (m *REQSHENJINGGameVersion) GetScreenSize() string {
 	if m != nil && m.ScreenSize != nil {
 		return *m.ScreenSize
 	}
 	return ""
 }
 
-func (m *REQThranGameVersion) GetRoomAdapte() int32 {
+func (m *REQSHENJINGGameVersion) GetRoomAdapte() int32 {
 	if m != nil && m.RoomAdapte != nil {
 		return *m.RoomAdapte
 	}
-	return Default_REQThranGameVersion_RoomAdapte
+	return Default_REQSHENJINGGameVersion_RoomAdapte
 }
 
-type ACKThranGameVersion struct {
-	AckResult        *int32              `protobuf:"varint,1,opt,name=AckResult" json:"AckResult,omitempty"`
-	PlayEnable       *string             `protobuf:"bytes,2,opt,name=PlayEnable" json:"PlayEnable,omitempty"`
-	DownloadUrl      *string             `protobuf:"bytes,3,opt,name=DownloadUrl" json:"DownloadUrl,omitempty"`
-	GameServerIp     *string             `protobuf:"bytes,4,opt,name=GameServerIp" json:"GameServerIp,omitempty"`
-	GameServerPort   *string             `protobuf:"bytes,5,opt,name=GameServerPort" json:"GameServerPort,omitempty"`
-	GameRankEnable   *string             `protobuf:"bytes,6,opt,name=GameRankEnable" json:"GameRankEnable,omitempty"`
-	GameRankDef      *string             `protobuf:"bytes,7,opt,name=GameRankDef" json:"GameRankDef,omitempty"`
-	IfPreserve       *string             `protobuf:"bytes,8,opt,name=IfPreserve" json:"IfPreserve,omitempty"`
-	PreserveMsg      *string             `protobuf:"bytes,9,opt,name=PreserveMsg" json:"PreserveMsg,omitempty"`
-	MatchInfoList    []*OGThranMatchInfo `protobuf:"bytes,10,rep,name=MatchInfoList" json:"MatchInfoList,omitempty"`
-	DownloadReasion  *int32              `protobuf:"varint,11,opt,name=DownloadReasion" json:"DownloadReasion,omitempty"`
-	GameId           *int32              `protobuf:"varint,12,opt,name=GameId" json:"GameId,omitempty"`
-	GameSort         *int32              `protobuf:"varint,13,opt,name=gameSort" json:"gameSort,omitempty"`
-	MatchRoomList    []*OGRoomInfo       `protobuf:"bytes,14,rep,name=MatchRoomList" json:"MatchRoomList,omitempty"`
-	JssList          []*ThranJSSInfo     `protobuf:"bytes,15,rep,name=JssList" json:"JssList,omitempty"`
-	IfSearch         *string             `protobuf:"bytes,16,opt,name=IfSearch" json:"IfSearch,omitempty"`
-	BulletinList     []*OGBulletinInfo   `protobuf:"bytes,17,rep,name=BulletinList" json:"BulletinList,omitempty"`
-	XXX_unrecognized []byte              `json:"-"`
+type ACKSHENJINGGameVersion struct {
+	AckResult        *int32                 `protobuf:"varint,1,opt,name=AckResult" json:"AckResult,omitempty"`
+	PlayEnable       *string                `protobuf:"bytes,2,opt,name=PlayEnable" json:"PlayEnable,omitempty"`
+	DownloadUrl      *string                `protobuf:"bytes,3,opt,name=DownloadUrl" json:"DownloadUrl,omitempty"`
+	GameServerIp     *string                `protobuf:"bytes,4,opt,name=GameServerIp" json:"GameServerIp,omitempty"`
+	GameServerPort   *string                `protobuf:"bytes,5,opt,name=GameServerPort" json:"GameServerPort,omitempty"`
+	GameRankEnable   *string                `protobuf:"bytes,6,opt,name=GameRankEnable" json:"GameRankEnable,omitempty"`
+	GameRankDef      *string                `protobuf:"bytes,7,opt,name=GameRankDef" json:"GameRankDef,omitempty"`
+	IfPreserve       *string                `protobuf:"bytes,8,opt,name=IfPreserve" json:"IfPreserve,omitempty"`
+	PreserveMsg      *string                `protobuf:"bytes,9,opt,name=PreserveMsg" json:"PreserveMsg,omitempty"`
+	MatchInfoList    []*DDSHENJINGMatchInfo `protobuf:"bytes,10,rep,name=MatchInfoList" json:"MatchInfoList,omitempty"`
+	DownloadReasion  *int32                 `protobuf:"varint,11,opt,name=DownloadReasion" json:"DownloadReasion,omitempty"`
+	GameId           *int32                 `protobuf:"varint,12,opt,name=GameId" json:"GameId,omitempty"`
+	GameSort         *int32                 `protobuf:"varint,13,opt,name=gameSort" json:"gameSort,omitempty"`
+	MatchRoomList    []*DDRoomInfo          `protobuf:"bytes,14,rep,name=MatchRoomList" json:"MatchRoomList,omitempty"`
+	JssList          []*SHENJINGJSSInfo     `protobuf:"bytes,15,rep,name=JssList" json:"JssList,omitempty"`
+	IfSearch         *string                `protobuf:"bytes,16,opt,name=IfSearch" json:"IfSearch,omitempty"`
+	BulletinList     []*DDBulletinInfo      `protobuf:"bytes,17,rep,name=BulletinList" json:"BulletinList,omitempty"`
+	XXX_unrecognized []byte                 `json:"-"`
 }
 
-func (m *ACKThranGameVersion) Reset()                    { *m = ACKThranGameVersion{} }
-func (m *ACKThranGameVersion) String() string            { return proto.CompactTextString(m) }
-func (*ACKThranGameVersion) ProtoMessage()               {}
-func (*ACKThranGameVersion) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{99} }
+func (m *ACKSHENJINGGameVersion) Reset()                    { *m = ACKSHENJINGGameVersion{} }
+func (m *ACKSHENJINGGameVersion) String() string            { return proto.CompactTextString(m) }
+func (*ACKSHENJINGGameVersion) ProtoMessage()               {}
+func (*ACKSHENJINGGameVersion) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{99} }
 
-func (m *ACKThranGameVersion) GetAckResult() int32 {
+func (m *ACKSHENJINGGameVersion) GetAckResult() int32 {
 	if m != nil && m.AckResult != nil {
 		return *m.AckResult
 	}
 	return 0
 }
 
-func (m *ACKThranGameVersion) GetPlayEnable() string {
+func (m *ACKSHENJINGGameVersion) GetPlayEnable() string {
 	if m != nil && m.PlayEnable != nil {
 		return *m.PlayEnable
 	}
 	return ""
 }
 
-func (m *ACKThranGameVersion) GetDownloadUrl() string {
+func (m *ACKSHENJINGGameVersion) GetDownloadUrl() string {
 	if m != nil && m.DownloadUrl != nil {
 		return *m.DownloadUrl
 	}
 	return ""
 }
 
-func (m *ACKThranGameVersion) GetGameServerIp() string {
+func (m *ACKSHENJINGGameVersion) GetGameServerIp() string {
 	if m != nil && m.GameServerIp != nil {
 		return *m.GameServerIp
 	}
 	return ""
 }
 
-func (m *ACKThranGameVersion) GetGameServerPort() string {
+func (m *ACKSHENJINGGameVersion) GetGameServerPort() string {
 	if m != nil && m.GameServerPort != nil {
 		return *m.GameServerPort
 	}
 	return ""
 }
 
-func (m *ACKThranGameVersion) GetGameRankEnable() string {
+func (m *ACKSHENJINGGameVersion) GetGameRankEnable() string {
 	if m != nil && m.GameRankEnable != nil {
 		return *m.GameRankEnable
 	}
 	return ""
 }
 
-func (m *ACKThranGameVersion) GetGameRankDef() string {
+func (m *ACKSHENJINGGameVersion) GetGameRankDef() string {
 	if m != nil && m.GameRankDef != nil {
 		return *m.GameRankDef
 	}
 	return ""
 }
 
-func (m *ACKThranGameVersion) GetIfPreserve() string {
+func (m *ACKSHENJINGGameVersion) GetIfPreserve() string {
 	if m != nil && m.IfPreserve != nil {
 		return *m.IfPreserve
 	}
 	return ""
 }
 
-func (m *ACKThranGameVersion) GetPreserveMsg() string {
+func (m *ACKSHENJINGGameVersion) GetPreserveMsg() string {
 	if m != nil && m.PreserveMsg != nil {
 		return *m.PreserveMsg
 	}
 	return ""
 }
 
-func (m *ACKThranGameVersion) GetMatchInfoList() []*OGThranMatchInfo {
+func (m *ACKSHENJINGGameVersion) GetMatchInfoList() []*DDSHENJINGMatchInfo {
 	if m != nil {
 		return m.MatchInfoList
 	}
 	return nil
 }
 
-func (m *ACKThranGameVersion) GetDownloadReasion() int32 {
+func (m *ACKSHENJINGGameVersion) GetDownloadReasion() int32 {
 	if m != nil && m.DownloadReasion != nil {
 		return *m.DownloadReasion
 	}
 	return 0
 }
 
-func (m *ACKThranGameVersion) GetGameId() int32 {
+func (m *ACKSHENJINGGameVersion) GetGameId() int32 {
 	if m != nil && m.GameId != nil {
 		return *m.GameId
 	}
 	return 0
 }
 
-func (m *ACKThranGameVersion) GetGameSort() int32 {
+func (m *ACKSHENJINGGameVersion) GetGameSort() int32 {
 	if m != nil && m.GameSort != nil {
 		return *m.GameSort
 	}
 	return 0
 }
 
-func (m *ACKThranGameVersion) GetMatchRoomList() []*OGRoomInfo {
+func (m *ACKSHENJINGGameVersion) GetMatchRoomList() []*DDRoomInfo {
 	if m != nil {
 		return m.MatchRoomList
 	}
 	return nil
 }
 
-func (m *ACKThranGameVersion) GetJssList() []*ThranJSSInfo {
+func (m *ACKSHENJINGGameVersion) GetJssList() []*SHENJINGJSSInfo {
 	if m != nil {
 		return m.JssList
 	}
 	return nil
 }
 
-func (m *ACKThranGameVersion) GetIfSearch() string {
+func (m *ACKSHENJINGGameVersion) GetIfSearch() string {
 	if m != nil && m.IfSearch != nil {
 		return *m.IfSearch
 	}
 	return ""
 }
 
-func (m *ACKThranGameVersion) GetBulletinList() []*OGBulletinInfo {
+func (m *ACKSHENJINGGameVersion) GetBulletinList() []*DDBulletinInfo {
 	if m != nil {
 		return m.BulletinList
 	}
@@ -5710,8 +5710,8 @@ func (m *ACKThranGameVersion) GetBulletinList() []*OGBulletinInfo {
 }
 
 // 获取验证码
-// THRANID_SVR_VERIFY = 0x00003003;//获取验证码信息
-type REQThranNewVerify struct {
+// SHENJINGID_SVR_VERIFY = 0x00003003;//获取验证码信息
+type REQSHENJINGNewVerify struct {
 	SecureID         *string `protobuf:"bytes,1,opt,name=SecureID" json:"SecureID,omitempty"`
 	ComeFromID       *int32  `protobuf:"varint,2,opt,name=ComeFromID" json:"ComeFromID,omitempty"`
 	ChannelID        *string `protobuf:"bytes,3,opt,name=ChannelID" json:"ChannelID,omitempty"`
@@ -5719,40 +5719,40 @@ type REQThranNewVerify struct {
 	XXX_unrecognized []byte  `json:"-"`
 }
 
-func (m *REQThranNewVerify) Reset()                    { *m = REQThranNewVerify{} }
-func (m *REQThranNewVerify) String() string            { return proto.CompactTextString(m) }
-func (*REQThranNewVerify) ProtoMessage()               {}
-func (*REQThranNewVerify) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{100} }
+func (m *REQSHENJINGNewVerify) Reset()                    { *m = REQSHENJINGNewVerify{} }
+func (m *REQSHENJINGNewVerify) String() string            { return proto.CompactTextString(m) }
+func (*REQSHENJINGNewVerify) ProtoMessage()               {}
+func (*REQSHENJINGNewVerify) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{100} }
 
-func (m *REQThranNewVerify) GetSecureID() string {
+func (m *REQSHENJINGNewVerify) GetSecureID() string {
 	if m != nil && m.SecureID != nil {
 		return *m.SecureID
 	}
 	return ""
 }
 
-func (m *REQThranNewVerify) GetComeFromID() int32 {
+func (m *REQSHENJINGNewVerify) GetComeFromID() int32 {
 	if m != nil && m.ComeFromID != nil {
 		return *m.ComeFromID
 	}
 	return 0
 }
 
-func (m *REQThranNewVerify) GetChannelID() string {
+func (m *REQSHENJINGNewVerify) GetChannelID() string {
 	if m != nil && m.ChannelID != nil {
 		return *m.ChannelID
 	}
 	return ""
 }
 
-func (m *REQThranNewVerify) GetGameId() int32 {
+func (m *REQSHENJINGNewVerify) GetGameId() int32 {
 	if m != nil && m.GameId != nil {
 		return *m.GameId
 	}
 	return 0
 }
 
-type ACKThranNewVerify struct {
+type ACKSHENJINGNewVerify struct {
 	AckResult        *int32  `protobuf:"varint,1,opt,name=AckResult" json:"AckResult,omitempty"`
 	ErrorStr         *string `protobuf:"bytes,2,opt,name=ErrorStr" json:"ErrorStr,omitempty"`
 	Verify           []byte  `protobuf:"bytes,3,opt,name=Verify" json:"Verify,omitempty"`
@@ -5760,33 +5760,33 @@ type ACKThranNewVerify struct {
 	XXX_unrecognized []byte  `json:"-"`
 }
 
-func (m *ACKThranNewVerify) Reset()                    { *m = ACKThranNewVerify{} }
-func (m *ACKThranNewVerify) String() string            { return proto.CompactTextString(m) }
-func (*ACKThranNewVerify) ProtoMessage()               {}
-func (*ACKThranNewVerify) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{101} }
+func (m *ACKSHENJINGNewVerify) Reset()                    { *m = ACKSHENJINGNewVerify{} }
+func (m *ACKSHENJINGNewVerify) String() string            { return proto.CompactTextString(m) }
+func (*ACKSHENJINGNewVerify) ProtoMessage()               {}
+func (*ACKSHENJINGNewVerify) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{101} }
 
-func (m *ACKThranNewVerify) GetAckResult() int32 {
+func (m *ACKSHENJINGNewVerify) GetAckResult() int32 {
 	if m != nil && m.AckResult != nil {
 		return *m.AckResult
 	}
 	return 0
 }
 
-func (m *ACKThranNewVerify) GetErrorStr() string {
+func (m *ACKSHENJINGNewVerify) GetErrorStr() string {
 	if m != nil && m.ErrorStr != nil {
 		return *m.ErrorStr
 	}
 	return ""
 }
 
-func (m *ACKThranNewVerify) GetVerify() []byte {
+func (m *ACKSHENJINGNewVerify) GetVerify() []byte {
 	if m != nil {
 		return m.Verify
 	}
 	return nil
 }
 
-func (m *ACKThranNewVerify) GetVerifyId() int32 {
+func (m *ACKSHENJINGNewVerify) GetVerifyId() int32 {
 	if m != nil && m.VerifyId != nil {
 		return *m.VerifyId
 	}
@@ -5794,65 +5794,65 @@ func (m *ACKThranNewVerify) GetVerifyId() int32 {
 }
 
 // 找回密码功能
-// THRANID_SVR_FINDPWD = 0x00003002;//找回密码功能
+// SHENJINGID_SVR_FINDPWD = 0x00003002;//找回密码功能
 // 新设置的密码未设置，表示只发送密码而不重置
 // 新设置的密码不未空时，表示需要用户点击邮箱中的链接才能重置成功，且更新用户状态为已激活
-type REQThranFindPwd struct {
+type REQSHENJINGFindPwd struct {
 	Email            *string `protobuf:"bytes,1,opt,name=Email" json:"Email,omitempty"`
 	NewPwd           *string `protobuf:"bytes,2,opt,name=NewPwd" json:"NewPwd,omitempty"`
 	XXX_unrecognized []byte  `json:"-"`
 }
 
-func (m *REQThranFindPwd) Reset()                    { *m = REQThranFindPwd{} }
-func (m *REQThranFindPwd) String() string            { return proto.CompactTextString(m) }
-func (*REQThranFindPwd) ProtoMessage()               {}
-func (*REQThranFindPwd) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{102} }
+func (m *REQSHENJINGFindPwd) Reset()                    { *m = REQSHENJINGFindPwd{} }
+func (m *REQSHENJINGFindPwd) String() string            { return proto.CompactTextString(m) }
+func (*REQSHENJINGFindPwd) ProtoMessage()               {}
+func (*REQSHENJINGFindPwd) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{102} }
 
-func (m *REQThranFindPwd) GetEmail() string {
+func (m *REQSHENJINGFindPwd) GetEmail() string {
 	if m != nil && m.Email != nil {
 		return *m.Email
 	}
 	return ""
 }
 
-func (m *REQThranFindPwd) GetNewPwd() string {
+func (m *REQSHENJINGFindPwd) GetNewPwd() string {
 	if m != nil && m.NewPwd != nil {
 		return *m.NewPwd
 	}
 	return ""
 }
 
-type ACKThranFindPwd struct {
+type ACKSHENJINGFindPwd struct {
 	AckResult        *int32 `protobuf:"varint,1,opt,name=AckResult" json:"AckResult,omitempty"`
 	XXX_unrecognized []byte `json:"-"`
 }
 
-func (m *ACKThranFindPwd) Reset()                    { *m = ACKThranFindPwd{} }
-func (m *ACKThranFindPwd) String() string            { return proto.CompactTextString(m) }
-func (*ACKThranFindPwd) ProtoMessage()               {}
-func (*ACKThranFindPwd) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{103} }
+func (m *ACKSHENJINGFindPwd) Reset()                    { *m = ACKSHENJINGFindPwd{} }
+func (m *ACKSHENJINGFindPwd) String() string            { return proto.CompactTextString(m) }
+func (*ACKSHENJINGFindPwd) ProtoMessage()               {}
+func (*ACKSHENJINGFindPwd) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{103} }
 
-func (m *ACKThranFindPwd) GetAckResult() int32 {
+func (m *ACKSHENJINGFindPwd) GetAckResult() int32 {
 	if m != nil && m.AckResult != nil {
 		return *m.AckResult
 	}
 	return 0
 }
 
-// Thran心跳
-// THRANID_SVR_HEART = 0x00003006;//thran的心跳
+// SHENJING心跳
+// SHENJINGID_SVR_HEART = 0x00003006;//SHENJING的心跳
 // REQ只有消息头，没有消息体
-type ACKThranHeart struct {
+type ACKSHENJINGHeart struct {
 	ServTime         *string `protobuf:"bytes,1,opt,name=ServTime" json:"ServTime,omitempty"`
 	XXX_unrecognized []byte  `json:"-"`
 }
 
-func (m *ACKThranHeart) Reset()                    { *m = ACKThranHeart{} }
-func (m *ACKThranHeart) String() string            { return proto.CompactTextString(m) }
-func (*ACKThranHeart) ProtoMessage()               {}
-func (*ACKThranHeart) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{104} }
+func (m *ACKSHENJINGHeart) Reset()                    { *m = ACKSHENJINGHeart{} }
+func (m *ACKSHENJINGHeart) String() string            { return proto.CompactTextString(m) }
+func (*ACKSHENJINGHeart) ProtoMessage()               {}
+func (*ACKSHENJINGHeart) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{104} }
 
-func (m *ACKThranHeart) GetServTime() string {
+func (m *ACKSHENJINGHeart) GetServTime() string {
 	if m != nil && m.ServTime != nil {
 		return *m.ServTime
 	}
@@ -5929,7 +5929,7 @@ func (m *SinaApiRet) GetRetValue() string {
 }
 
 // 游戏房间结构
-type OGRoomInfo struct {
+type DDRoomInfo struct {
 	RoomId           *string `protobuf:"bytes,1,opt,name=RoomId" json:"RoomId,omitempty"`
 	RoomRank         *string `protobuf:"bytes,2,opt,name=RoomRank" json:"RoomRank,omitempty"`
 	RoomIp           *string `protobuf:"bytes,3,opt,name=RoomIp" json:"RoomIp,omitempty"`
@@ -5945,89 +5945,89 @@ type OGRoomInfo struct {
 	XXX_unrecognized []byte  `json:"-"`
 }
 
-func (m *OGRoomInfo) Reset()                    { *m = OGRoomInfo{} }
-func (m *OGRoomInfo) String() string            { return proto.CompactTextString(m) }
-func (*OGRoomInfo) ProtoMessage()               {}
-func (*OGRoomInfo) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{107} }
+func (m *DDRoomInfo) Reset()                    { *m = DDRoomInfo{} }
+func (m *DDRoomInfo) String() string            { return proto.CompactTextString(m) }
+func (*DDRoomInfo) ProtoMessage()               {}
+func (*DDRoomInfo) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{107} }
 
-func (m *OGRoomInfo) GetRoomId() string {
+func (m *DDRoomInfo) GetRoomId() string {
 	if m != nil && m.RoomId != nil {
 		return *m.RoomId
 	}
 	return ""
 }
 
-func (m *OGRoomInfo) GetRoomRank() string {
+func (m *DDRoomInfo) GetRoomRank() string {
 	if m != nil && m.RoomRank != nil {
 		return *m.RoomRank
 	}
 	return ""
 }
 
-func (m *OGRoomInfo) GetRoomIp() string {
+func (m *DDRoomInfo) GetRoomIp() string {
 	if m != nil && m.RoomIp != nil {
 		return *m.RoomIp
 	}
 	return ""
 }
 
-func (m *OGRoomInfo) GetRoomPort() string {
+func (m *DDRoomInfo) GetRoomPort() string {
 	if m != nil && m.RoomPort != nil {
 		return *m.RoomPort
 	}
 	return ""
 }
 
-func (m *OGRoomInfo) GetRoomStatus() string {
+func (m *DDRoomInfo) GetRoomStatus() string {
 	if m != nil && m.RoomStatus != nil {
 		return *m.RoomStatus
 	}
 	return ""
 }
 
-func (m *OGRoomInfo) GetRoomMinGold() string {
+func (m *DDRoomInfo) GetRoomMinGold() string {
 	if m != nil && m.RoomMinGold != nil {
 		return *m.RoomMinGold
 	}
 	return ""
 }
 
-func (m *OGRoomInfo) GetRoomMaxGold() string {
+func (m *DDRoomInfo) GetRoomMaxGold() string {
 	if m != nil && m.RoomMaxGold != nil {
 		return *m.RoomMaxGold
 	}
 	return ""
 }
 
-func (m *OGRoomInfo) GetRoomMinPlay() string {
+func (m *DDRoomInfo) GetRoomMinPlay() string {
 	if m != nil && m.RoomMinPlay != nil {
 		return *m.RoomMinPlay
 	}
 	return ""
 }
 
-func (m *OGRoomInfo) GetRoomType() string {
+func (m *DDRoomInfo) GetRoomType() string {
 	if m != nil && m.RoomType != nil {
 		return *m.RoomType
 	}
 	return ""
 }
 
-func (m *OGRoomInfo) GetServerType() string {
+func (m *DDRoomInfo) GetServerType() string {
 	if m != nil && m.ServerType != nil {
 		return *m.ServerType
 	}
 	return ""
 }
 
-func (m *OGRoomInfo) GetDescription() string {
+func (m *DDRoomInfo) GetDescription() string {
 	if m != nil && m.Description != nil {
 		return *m.Description
 	}
 	return ""
 }
 
-func (m *OGRoomInfo) GetRoomName() string {
+func (m *DDRoomInfo) GetRoomName() string {
 	if m != nil && m.RoomName != nil {
 		return *m.RoomName
 	}
@@ -6035,7 +6035,7 @@ func (m *OGRoomInfo) GetRoomName() string {
 }
 
 // 比赛信息结构
-type OGThranMatchInfo struct {
+type DDSHENJINGMatchInfo struct {
 	MatchID   *int32  `protobuf:"varint,1,opt,name=MatchID" json:"MatchID,omitempty"`
 	MatchName *string `protobuf:"bytes,2,opt,name=MatchName" json:"MatchName,omitempty"`
 	// 以下参数在斗地主比赛中应用
@@ -6055,110 +6055,110 @@ type OGThranMatchInfo struct {
 	XXX_unrecognized []byte  `json:"-"`
 }
 
-func (m *OGThranMatchInfo) Reset()                    { *m = OGThranMatchInfo{} }
-func (m *OGThranMatchInfo) String() string            { return proto.CompactTextString(m) }
-func (*OGThranMatchInfo) ProtoMessage()               {}
-func (*OGThranMatchInfo) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{108} }
+func (m *DDSHENJINGMatchInfo) Reset()                    { *m = DDSHENJINGMatchInfo{} }
+func (m *DDSHENJINGMatchInfo) String() string            { return proto.CompactTextString(m) }
+func (*DDSHENJINGMatchInfo) ProtoMessage()               {}
+func (*DDSHENJINGMatchInfo) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{108} }
 
-func (m *OGThranMatchInfo) GetMatchID() int32 {
+func (m *DDSHENJINGMatchInfo) GetMatchID() int32 {
 	if m != nil && m.MatchID != nil {
 		return *m.MatchID
 	}
 	return 0
 }
 
-func (m *OGThranMatchInfo) GetMatchName() string {
+func (m *DDSHENJINGMatchInfo) GetMatchName() string {
 	if m != nil && m.MatchName != nil {
 		return *m.MatchName
 	}
 	return ""
 }
 
-func (m *OGThranMatchInfo) GetAwardName() string {
+func (m *DDSHENJINGMatchInfo) GetAwardName() string {
 	if m != nil && m.AwardName != nil {
 		return *m.AwardName
 	}
 	return ""
 }
 
-func (m *OGThranMatchInfo) GetAwardSum() int32 {
+func (m *DDSHENJINGMatchInfo) GetAwardSum() int32 {
 	if m != nil && m.AwardSum != nil {
 		return *m.AwardSum
 	}
 	return 0
 }
 
-func (m *OGThranMatchInfo) GetMatchTerm() string {
+func (m *DDSHENJINGMatchInfo) GetMatchTerm() string {
 	if m != nil && m.MatchTerm != nil {
 		return *m.MatchTerm
 	}
 	return ""
 }
 
-func (m *OGThranMatchInfo) GetHumanLimit() int32 {
+func (m *DDSHENJINGMatchInfo) GetHumanLimit() int32 {
 	if m != nil && m.HumanLimit != nil {
 		return *m.HumanLimit
 	}
 	return 0
 }
 
-func (m *OGThranMatchInfo) GetMatchHumanSum() int32 {
+func (m *DDSHENJINGMatchInfo) GetMatchHumanSum() int32 {
 	if m != nil && m.MatchHumanSum != nil {
 		return *m.MatchHumanSum
 	}
 	return 0
 }
 
-func (m *OGThranMatchInfo) GetMatchType() int32 {
+func (m *DDSHENJINGMatchInfo) GetMatchType() int32 {
 	if m != nil && m.MatchType != nil {
 		return *m.MatchType
 	}
 	return 0
 }
 
-func (m *OGThranMatchInfo) GetMatchInterval() int32 {
+func (m *DDSHENJINGMatchInfo) GetMatchInterval() int32 {
 	if m != nil && m.MatchInterval != nil {
 		return *m.MatchInterval
 	}
 	return 0
 }
 
-func (m *OGThranMatchInfo) GetMatchPrize() string {
+func (m *DDSHENJINGMatchInfo) GetMatchPrize() string {
 	if m != nil && m.MatchPrize != nil {
 		return *m.MatchPrize
 	}
 	return ""
 }
 
-func (m *OGThranMatchInfo) GetMatchProcess() string {
+func (m *DDSHENJINGMatchInfo) GetMatchProcess() string {
 	if m != nil && m.MatchProcess != nil {
 		return *m.MatchProcess
 	}
 	return ""
 }
 
-func (m *OGThranMatchInfo) GetMatchDate() string {
+func (m *DDSHENJINGMatchInfo) GetMatchDate() string {
 	if m != nil && m.MatchDate != nil {
 		return *m.MatchDate
 	}
 	return ""
 }
 
-func (m *OGThranMatchInfo) GetMatchFee() string {
+func (m *DDSHENJINGMatchInfo) GetMatchFee() string {
 	if m != nil && m.MatchFee != nil {
 		return *m.MatchFee
 	}
 	return ""
 }
 
-func (m *OGThranMatchInfo) GetMatchArea() int32 {
+func (m *DDSHENJINGMatchInfo) GetMatchArea() int32 {
 	if m != nil && m.MatchArea != nil {
 		return *m.MatchArea
 	}
 	return 0
 }
 
-func (m *OGThranMatchInfo) GetDescription() string {
+func (m *DDSHENJINGMatchInfo) GetDescription() string {
 	if m != nil && m.Description != nil {
 		return *m.Description
 	}
@@ -6166,133 +6166,133 @@ func (m *OGThranMatchInfo) GetDescription() string {
 }
 
 // 索蓝服务器的房间基本信息 modify at 20120217  索蓝酒吧骰子用
-type ThranRoomInfo struct {
-	GameID           *int32           `protobuf:"varint,1,opt,name=GameID" json:"GameID,omitempty"`
-	GroupID          *int32           `protobuf:"varint,2,opt,name=GroupID" json:"GroupID,omitempty"`
-	RoomID           []byte           `protobuf:"bytes,3,opt,name=RoomID" json:"RoomID,omitempty"`
-	MaxPlayer        *int32           `protobuf:"varint,4,opt,name=MaxPlayer" json:"MaxPlayer,omitempty"`
-	RoomIP           *string          `protobuf:"bytes,5,opt,name=RoomIP" json:"RoomIP,omitempty"`
-	RoomPort         *int32           `protobuf:"varint,6,opt,name=RoomPort" json:"RoomPort,omitempty"`
-	Context          []byte           `protobuf:"bytes,7,opt,name=Context" json:"Context,omitempty"`
-	CurPlayer        *int32           `protobuf:"varint,8,opt,name=CurPlayer" json:"CurPlayer,omitempty"`
-	RoomState        *int32           `protobuf:"varint,9,opt,name=RoomState" json:"RoomState,omitempty"`
-	IsLock           *int32           `protobuf:"varint,10,opt,name=IsLock,def=0" json:"IsLock,omitempty"`
-	ThranRoomItems   []*ThranRoomInfo `protobuf:"bytes,11,rep,name=ThranRoomItems" json:"ThranRoomItems,omitempty"`
-	XXX_unrecognized []byte           `json:"-"`
+type SHENJINGRoomInfo struct {
+	GameID            *int32              `protobuf:"varint,1,opt,name=GameID" json:"GameID,omitempty"`
+	GroupID           *int32              `protobuf:"varint,2,opt,name=GroupID" json:"GroupID,omitempty"`
+	RoomID            []byte              `protobuf:"bytes,3,opt,name=RoomID" json:"RoomID,omitempty"`
+	MaxPlayer         *int32              `protobuf:"varint,4,opt,name=MaxPlayer" json:"MaxPlayer,omitempty"`
+	RoomIP            *string             `protobuf:"bytes,5,opt,name=RoomIP" json:"RoomIP,omitempty"`
+	RoomPort          *int32              `protobuf:"varint,6,opt,name=RoomPort" json:"RoomPort,omitempty"`
+	Context           []byte              `protobuf:"bytes,7,opt,name=Context" json:"Context,omitempty"`
+	CurPlayer         *int32              `protobuf:"varint,8,opt,name=CurPlayer" json:"CurPlayer,omitempty"`
+	RoomState         *int32              `protobuf:"varint,9,opt,name=RoomState" json:"RoomState,omitempty"`
+	IsLock            *int32              `protobuf:"varint,10,opt,name=IsLock,def=0" json:"IsLock,omitempty"`
+	SHENJINGRoomItems []*SHENJINGRoomInfo `protobuf:"bytes,11,rep,name=SHENJINGRoomItems" json:"SHENJINGRoomItems,omitempty"`
+	XXX_unrecognized  []byte              `json:"-"`
 }
 
-func (m *ThranRoomInfo) Reset()                    { *m = ThranRoomInfo{} }
-func (m *ThranRoomInfo) String() string            { return proto.CompactTextString(m) }
-func (*ThranRoomInfo) ProtoMessage()               {}
-func (*ThranRoomInfo) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{109} }
+func (m *SHENJINGRoomInfo) Reset()                    { *m = SHENJINGRoomInfo{} }
+func (m *SHENJINGRoomInfo) String() string            { return proto.CompactTextString(m) }
+func (*SHENJINGRoomInfo) ProtoMessage()               {}
+func (*SHENJINGRoomInfo) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{109} }
 
-const Default_ThranRoomInfo_IsLock int32 = 0
+const Default_SHENJINGRoomInfo_IsLock int32 = 0
 
-func (m *ThranRoomInfo) GetGameID() int32 {
+func (m *SHENJINGRoomInfo) GetGameID() int32 {
 	if m != nil && m.GameID != nil {
 		return *m.GameID
 	}
 	return 0
 }
 
-func (m *ThranRoomInfo) GetGroupID() int32 {
+func (m *SHENJINGRoomInfo) GetGroupID() int32 {
 	if m != nil && m.GroupID != nil {
 		return *m.GroupID
 	}
 	return 0
 }
 
-func (m *ThranRoomInfo) GetRoomID() []byte {
+func (m *SHENJINGRoomInfo) GetRoomID() []byte {
 	if m != nil {
 		return m.RoomID
 	}
 	return nil
 }
 
-func (m *ThranRoomInfo) GetMaxPlayer() int32 {
+func (m *SHENJINGRoomInfo) GetMaxPlayer() int32 {
 	if m != nil && m.MaxPlayer != nil {
 		return *m.MaxPlayer
 	}
 	return 0
 }
 
-func (m *ThranRoomInfo) GetRoomIP() string {
+func (m *SHENJINGRoomInfo) GetRoomIP() string {
 	if m != nil && m.RoomIP != nil {
 		return *m.RoomIP
 	}
 	return ""
 }
 
-func (m *ThranRoomInfo) GetRoomPort() int32 {
+func (m *SHENJINGRoomInfo) GetRoomPort() int32 {
 	if m != nil && m.RoomPort != nil {
 		return *m.RoomPort
 	}
 	return 0
 }
 
-func (m *ThranRoomInfo) GetContext() []byte {
+func (m *SHENJINGRoomInfo) GetContext() []byte {
 	if m != nil {
 		return m.Context
 	}
 	return nil
 }
 
-func (m *ThranRoomInfo) GetCurPlayer() int32 {
+func (m *SHENJINGRoomInfo) GetCurPlayer() int32 {
 	if m != nil && m.CurPlayer != nil {
 		return *m.CurPlayer
 	}
 	return 0
 }
 
-func (m *ThranRoomInfo) GetRoomState() int32 {
+func (m *SHENJINGRoomInfo) GetRoomState() int32 {
 	if m != nil && m.RoomState != nil {
 		return *m.RoomState
 	}
 	return 0
 }
 
-func (m *ThranRoomInfo) GetIsLock() int32 {
+func (m *SHENJINGRoomInfo) GetIsLock() int32 {
 	if m != nil && m.IsLock != nil {
 		return *m.IsLock
 	}
-	return Default_ThranRoomInfo_IsLock
+	return Default_SHENJINGRoomInfo_IsLock
 }
 
-func (m *ThranRoomInfo) GetThranRoomItems() []*ThranRoomInfo {
+func (m *SHENJINGRoomInfo) GetSHENJINGRoomItems() []*SHENJINGRoomInfo {
 	if m != nil {
-		return m.ThranRoomItems
+		return m.SHENJINGRoomItems
 	}
 	return nil
 }
 
 // 索蓝服务器配置的jss服务器  modify at 20120321
-type ThranJSSInfo struct {
+type SHENJINGJSSInfo struct {
 	RoomIP           *string `protobuf:"bytes,1,opt,name=RoomIP" json:"RoomIP,omitempty"`
 	RoomPort         *string `protobuf:"bytes,2,opt,name=RoomPort" json:"RoomPort,omitempty"`
 	Remark           *string `protobuf:"bytes,3,opt,name=Remark" json:"Remark,omitempty"`
 	XXX_unrecognized []byte  `json:"-"`
 }
 
-func (m *ThranJSSInfo) Reset()                    { *m = ThranJSSInfo{} }
-func (m *ThranJSSInfo) String() string            { return proto.CompactTextString(m) }
-func (*ThranJSSInfo) ProtoMessage()               {}
-func (*ThranJSSInfo) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{110} }
+func (m *SHENJINGJSSInfo) Reset()                    { *m = SHENJINGJSSInfo{} }
+func (m *SHENJINGJSSInfo) String() string            { return proto.CompactTextString(m) }
+func (*SHENJINGJSSInfo) ProtoMessage()               {}
+func (*SHENJINGJSSInfo) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{110} }
 
-func (m *ThranJSSInfo) GetRoomIP() string {
+func (m *SHENJINGJSSInfo) GetRoomIP() string {
 	if m != nil && m.RoomIP != nil {
 		return *m.RoomIP
 	}
 	return ""
 }
 
-func (m *ThranJSSInfo) GetRoomPort() string {
+func (m *SHENJINGJSSInfo) GetRoomPort() string {
 	if m != nil && m.RoomPort != nil {
 		return *m.RoomPort
 	}
 	return ""
 }
 
-func (m *ThranJSSInfo) GetRemark() string {
+func (m *SHENJINGJSSInfo) GetRemark() string {
 	if m != nil && m.Remark != nil {
 		return *m.Remark
 	}
@@ -6300,25 +6300,25 @@ func (m *ThranJSSInfo) GetRemark() string {
 }
 
 // 游戏公告
-type OGBulletinInfo struct {
+type DDBulletinInfo struct {
 	Title            []byte `protobuf:"bytes,1,opt,name=Title" json:"Title,omitempty"`
 	Content          []byte `protobuf:"bytes,2,opt,name=Content" json:"Content,omitempty"`
 	XXX_unrecognized []byte `json:"-"`
 }
 
-func (m *OGBulletinInfo) Reset()                    { *m = OGBulletinInfo{} }
-func (m *OGBulletinInfo) String() string            { return proto.CompactTextString(m) }
-func (*OGBulletinInfo) ProtoMessage()               {}
-func (*OGBulletinInfo) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{111} }
+func (m *DDBulletinInfo) Reset()                    { *m = DDBulletinInfo{} }
+func (m *DDBulletinInfo) String() string            { return proto.CompactTextString(m) }
+func (*DDBulletinInfo) ProtoMessage()               {}
+func (*DDBulletinInfo) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{111} }
 
-func (m *OGBulletinInfo) GetTitle() []byte {
+func (m *DDBulletinInfo) GetTitle() []byte {
 	if m != nil {
 		return m.Title
 	}
 	return nil
 }
 
-func (m *OGBulletinInfo) GetContent() []byte {
+func (m *DDBulletinInfo) GetContent() []byte {
 	if m != nil {
 		return m.Content
 	}
@@ -6328,7 +6328,7 @@ func (m *OGBulletinInfo) GetContent() []byte {
 // ***************************************************************//
 // modify at 20120516
 // 快速登录
-// THRANID_SVR_QUICKCONN = 0x00001006;//快速登录
+// SHENJINGID_SVR_QUICKCONN = 0x00001006;//快速登录
 type REQQuickConn struct {
 	UserName         []byte  `protobuf:"bytes,1,opt,name=UserName" json:"UserName,omitempty"`
 	Pwd              *string `protobuf:"bytes,2,opt,name=Pwd" json:"Pwd,omitempty"`
@@ -6486,35 +6486,35 @@ func (m *REQQuickConn) GetUserId() uint32 {
 }
 
 type ACKQuickConn struct {
-	AckResult        *int32              `protobuf:"varint,1,opt,name=AckResult" json:"AckResult,omitempty"`
-	UserId           *uint32             `protobuf:"varint,2,opt,name=UserId" json:"UserId,omitempty"`
-	UserName         *string             `protobuf:"bytes,3,opt,name=UserName" json:"UserName,omitempty"`
-	RoleName         *string             `protobuf:"bytes,4,opt,name=RoleName" json:"RoleName,omitempty"`
-	YuanBaoCnt       *int32              `protobuf:"varint,5,opt,name=YuanBaoCnt" json:"YuanBaoCnt,omitempty"`
-	CoinCnt          *int64              `protobuf:"varint,6,opt,name=CoinCnt" json:"CoinCnt,omitempty"`
-	RoomList         []*OGRoomInfo       `protobuf:"bytes,7,rep,name=RoomList" json:"RoomList,omitempty"`
-	MatchRoomList    []*OGThranMatchInfo `protobuf:"bytes,8,rep,name=MatchRoomList" json:"MatchRoomList,omitempty"`
-	Cert             []byte              `protobuf:"bytes,9,opt,name=Cert" json:"Cert,omitempty"`
-	CertNoCert       []byte              `protobuf:"bytes,10,opt,name=CertNoCert" json:"CertNoCert,omitempty"`
-	CurVersion       *int32              `protobuf:"varint,11,opt,name=CurVersion" json:"CurVersion,omitempty"`
-	PlayEnable       *string             `protobuf:"bytes,12,opt,name=PlayEnable" json:"PlayEnable,omitempty"`
-	DownloadUrl      *string             `protobuf:"bytes,13,opt,name=DownloadUrl" json:"DownloadUrl,omitempty"`
-	IfPreserve       *string             `protobuf:"bytes,14,opt,name=IfPreserve" json:"IfPreserve,omitempty"`
-	PreserveMsg      *string             `protobuf:"bytes,16,opt,name=PreserveMsg" json:"PreserveMsg,omitempty"`
-	GameId           *int32              `protobuf:"varint,17,opt,name=GameId" json:"GameId,omitempty"`
-	JssList          []*ThranJSSInfo     `protobuf:"bytes,18,rep,name=JssList" json:"JssList,omitempty"`
-	IfSearch         *string             `protobuf:"bytes,19,opt,name=IfSearch" json:"IfSearch,omitempty"`
-	BulletinList     []*OGBulletinInfo   `protobuf:"bytes,20,rep,name=BulletinList" json:"BulletinList,omitempty"`
-	VersionInfo      *string             `protobuf:"bytes,21,opt,name=VersionInfo" json:"VersionInfo,omitempty"`
-	MatchSvrList     []*OGRoomInfo       `protobuf:"bytes,22,rep,name=MatchSvrList" json:"MatchSvrList,omitempty"`
-	Sex              *int32              `protobuf:"varint,23,opt,name=Sex" json:"Sex,omitempty"`
-	RoomSvrList      []*OGRoomInfo       `protobuf:"bytes,24,rep,name=RoomSvrList" json:"RoomSvrList,omitempty"`
-	DdzActive        *int32              `protobuf:"varint,25,opt,name=DdzActive,def=0" json:"DdzActive,omitempty"`
-	MsgUrl           *string             `protobuf:"bytes,26,opt,name=MsgUrl" json:"MsgUrl,omitempty"`
-	ErrorCode        *int32              `protobuf:"varint,27,opt,name=ErrorCode,def=0" json:"ErrorCode,omitempty"`
-	NickName         *string             `protobuf:"bytes,28,opt,name=NickName" json:"NickName,omitempty"`
-	ReleaseTag       *int32              `protobuf:"varint,29,opt,name=releaseTag" json:"releaseTag,omitempty"`
-	XXX_unrecognized []byte              `json:"-"`
+	AckResult        *int32                 `protobuf:"varint,1,opt,name=AckResult" json:"AckResult,omitempty"`
+	UserId           *uint32                `protobuf:"varint,2,opt,name=UserId" json:"UserId,omitempty"`
+	UserName         *string                `protobuf:"bytes,3,opt,name=UserName" json:"UserName,omitempty"`
+	RoleName         *string                `protobuf:"bytes,4,opt,name=RoleName" json:"RoleName,omitempty"`
+	YuanBaoCnt       *int32                 `protobuf:"varint,5,opt,name=YuanBaoCnt" json:"YuanBaoCnt,omitempty"`
+	CoinCnt          *int64                 `protobuf:"varint,6,opt,name=CoinCnt" json:"CoinCnt,omitempty"`
+	RoomList         []*DDRoomInfo          `protobuf:"bytes,7,rep,name=RoomList" json:"RoomList,omitempty"`
+	MatchRoomList    []*DDSHENJINGMatchInfo `protobuf:"bytes,8,rep,name=MatchRoomList" json:"MatchRoomList,omitempty"`
+	Cert             []byte                 `protobuf:"bytes,9,opt,name=Cert" json:"Cert,omitempty"`
+	CertNoCert       []byte                 `protobuf:"bytes,10,opt,name=CertNoCert" json:"CertNoCert,omitempty"`
+	CurVersion       *int32                 `protobuf:"varint,11,opt,name=CurVersion" json:"CurVersion,omitempty"`
+	PlayEnable       *string                `protobuf:"bytes,12,opt,name=PlayEnable" json:"PlayEnable,omitempty"`
+	DownloadUrl      *string                `protobuf:"bytes,13,opt,name=DownloadUrl" json:"DownloadUrl,omitempty"`
+	IfPreserve       *string                `protobuf:"bytes,14,opt,name=IfPreserve" json:"IfPreserve,omitempty"`
+	PreserveMsg      *string                `protobuf:"bytes,16,opt,name=PreserveMsg" json:"PreserveMsg,omitempty"`
+	GameId           *int32                 `protobuf:"varint,17,opt,name=GameId" json:"GameId,omitempty"`
+	JssList          []*SHENJINGJSSInfo     `protobuf:"bytes,18,rep,name=JssList" json:"JssList,omitempty"`
+	IfSearch         *string                `protobuf:"bytes,19,opt,name=IfSearch" json:"IfSearch,omitempty"`
+	BulletinList     []*DDBulletinInfo      `protobuf:"bytes,20,rep,name=BulletinList" json:"BulletinList,omitempty"`
+	VersionInfo      *string                `protobuf:"bytes,21,opt,name=VersionInfo" json:"VersionInfo,omitempty"`
+	MatchSvrList     []*DDRoomInfo          `protobuf:"bytes,22,rep,name=MatchSvrList" json:"MatchSvrList,omitempty"`
+	Sex              *int32                 `protobuf:"varint,23,opt,name=Sex" json:"Sex,omitempty"`
+	RoomSvrList      []*DDRoomInfo          `protobuf:"bytes,24,rep,name=RoomSvrList" json:"RoomSvrList,omitempty"`
+	DdzActive        *int32                 `protobuf:"varint,25,opt,name=DdzActive,def=0" json:"DdzActive,omitempty"`
+	MsgUrl           *string                `protobuf:"bytes,26,opt,name=MsgUrl" json:"MsgUrl,omitempty"`
+	ErrorCode        *int32                 `protobuf:"varint,27,opt,name=ErrorCode,def=0" json:"ErrorCode,omitempty"`
+	NickName         *string                `protobuf:"bytes,28,opt,name=NickName" json:"NickName,omitempty"`
+	ReleaseTag       *int32                 `protobuf:"varint,29,opt,name=releaseTag" json:"releaseTag,omitempty"`
+	XXX_unrecognized []byte                 `json:"-"`
 }
 
 func (m *ACKQuickConn) Reset()                    { *m = ACKQuickConn{} }
@@ -6567,14 +6567,14 @@ func (m *ACKQuickConn) GetCoinCnt() int64 {
 	return 0
 }
 
-func (m *ACKQuickConn) GetRoomList() []*OGRoomInfo {
+func (m *ACKQuickConn) GetRoomList() []*DDRoomInfo {
 	if m != nil {
 		return m.RoomList
 	}
 	return nil
 }
 
-func (m *ACKQuickConn) GetMatchRoomList() []*OGThranMatchInfo {
+func (m *ACKQuickConn) GetMatchRoomList() []*DDSHENJINGMatchInfo {
 	if m != nil {
 		return m.MatchRoomList
 	}
@@ -6637,7 +6637,7 @@ func (m *ACKQuickConn) GetGameId() int32 {
 	return 0
 }
 
-func (m *ACKQuickConn) GetJssList() []*ThranJSSInfo {
+func (m *ACKQuickConn) GetJssList() []*SHENJINGJSSInfo {
 	if m != nil {
 		return m.JssList
 	}
@@ -6651,7 +6651,7 @@ func (m *ACKQuickConn) GetIfSearch() string {
 	return ""
 }
 
-func (m *ACKQuickConn) GetBulletinList() []*OGBulletinInfo {
+func (m *ACKQuickConn) GetBulletinList() []*DDBulletinInfo {
 	if m != nil {
 		return m.BulletinList
 	}
@@ -6665,7 +6665,7 @@ func (m *ACKQuickConn) GetVersionInfo() string {
 	return ""
 }
 
-func (m *ACKQuickConn) GetMatchSvrList() []*OGRoomInfo {
+func (m *ACKQuickConn) GetMatchSvrList() []*DDRoomInfo {
 	if m != nil {
 		return m.MatchSvrList
 	}
@@ -6679,7 +6679,7 @@ func (m *ACKQuickConn) GetSex() int32 {
 	return 0
 }
 
-func (m *ACKQuickConn) GetRoomSvrList() []*OGRoomInfo {
+func (m *ACKQuickConn) GetRoomSvrList() []*DDRoomInfo {
 	if m != nil {
 		return m.RoomSvrList
 	}
@@ -7244,72 +7244,72 @@ func init() {
 	proto.RegisterType((*Game_PreCoin)(nil), "bbproto.game_PreCoin")
 	proto.RegisterType((*Game_BlindCoin)(nil), "bbproto.game_BlindCoin")
 	proto.RegisterType((*Game_NowelterInfo)(nil), "bbproto.game_NowelterInfo")
-	proto.RegisterType((*OGReqSitdownSeat)(nil), "bbproto.OGReqSitdownSeat")
-	proto.RegisterType((*OGAckSitdownSeat)(nil), "bbproto.OGAckSitdownSeat")
-	proto.RegisterType((*OGReqBuyChip)(nil), "bbproto.OGReqBuyChip")
-	proto.RegisterType((*OGAckBuyChip)(nil), "bbproto.OGAckBuyChip")
-	proto.RegisterType((*OGNeetBugChip)(nil), "bbproto.OGNeetBugChip")
-	proto.RegisterType((*OGReqLeave)(nil), "bbproto.OGReqLeave")
-	proto.RegisterType((*OGAckLeave)(nil), "bbproto.OGAckLeave")
-	proto.RegisterType((*OGGameRule)(nil), "bbproto.OGGameRule")
-	proto.RegisterType((*OGWaitBigBling)(nil), "bbproto.OGWaitBigBling")
-	proto.RegisterType((*OGNextBiglingWatch)(nil), "bbproto.OGNextBiglingWatch")
-	proto.RegisterType((*OGChatMsg)(nil), "bbproto.OGChatMsg")
-	proto.RegisterType((*OGProposalMsg)(nil), "bbproto.OGProposalMsg")
-	proto.RegisterType((*OGReqPayMsg)(nil), "bbproto.OGReqPayMsg")
-	proto.RegisterType((*OGAckPayMsg)(nil), "bbproto.OGAckPayMsg")
-	proto.RegisterType((*OGReqExChangeHYD)(nil), "bbproto.OGReqExChangeHYD")
-	proto.RegisterType((*OGAckExChangeHYD)(nil), "bbproto.OGAckExChangeHYD")
-	proto.RegisterType((*OGNtfChangeHYD)(nil), "bbproto.OGNtfChangeHYD")
-	proto.RegisterType((*OGReqPresentCoins)(nil), "bbproto.OGReqPresentCoins")
-	proto.RegisterType((*OGAckPresentCoins)(nil), "bbproto.OGAckPresentCoins")
-	proto.RegisterType((*OGReqPrivateChatMsg)(nil), "bbproto.OGReqPrivateChatMsg")
-	proto.RegisterType((*OGAckPrivateChatMsg)(nil), "bbproto.OGAckPrivateChatMsg")
-	proto.RegisterType((*OGReqAbleOrUnableChat)(nil), "bbproto.OGReqAbleOrUnableChat")
-	proto.RegisterType((*OGAckAbleOrUnableChat)(nil), "bbproto.OGAckAbleOrUnableChat")
-	proto.RegisterType((*OGReqKick)(nil), "bbproto.OGReqKick")
-	proto.RegisterType((*OGAckKick)(nil), "bbproto.OGAckKick")
-	proto.RegisterType((*OGUserInfos)(nil), "bbproto.OGUserInfos")
-	proto.RegisterType((*OGUserList)(nil), "bbproto.OGUserList")
-	proto.RegisterType((*OGModifyConfig)(nil), "bbproto.OGModifyConfig")
-	proto.RegisterType((*OGUnAbleChatList)(nil), "bbproto.OGUnAbleChatList")
-	proto.RegisterType((*OGShowPictrue)(nil), "bbproto.OGShowPictrue")
-	proto.RegisterType((*OGAddUserToList)(nil), "bbproto.OGAddUserToList")
-	proto.RegisterType((*OGDeleteUserFromList)(nil), "bbproto.OGDeleteUserFromList")
-	proto.RegisterType((*OGBroadCastPlayerGiftStatus)(nil), "bbproto.OGBroadCastPlayerGiftStatus")
-	proto.RegisterType((*OGGiveGift)(nil), "bbproto.OGGiveGift")
-	proto.RegisterType((*OGGiveItem)(nil), "bbproto.OGGiveItem")
-	proto.RegisterType((*OGBroadCastFace)(nil), "bbproto.OGBroadCastFace")
-	proto.RegisterType((*OGReqRebuy)(nil), "bbproto.OGReqRebuy")
-	proto.RegisterType((*OGAckRebuy)(nil), "bbproto.OGAckRebuy")
-	proto.RegisterType((*OGBroadCastMatchRank)(nil), "bbproto.OGBroadCastMatchRank")
-	proto.RegisterType((*REQThranReg)(nil), "bbproto.REQThranReg")
-	proto.RegisterType((*ACKThranReg)(nil), "bbproto.ACKThranReg")
-	proto.RegisterType((*REQThranConn)(nil), "bbproto.REQThranConn")
-	proto.RegisterType((*ACKThranConn)(nil), "bbproto.ACKThranConn")
-	proto.RegisterType((*REQThranShortCert)(nil), "bbproto.REQThranShortCert")
-	proto.RegisterType((*ACKThranShortCert)(nil), "bbproto.ACKThranShortCert")
-	proto.RegisterType((*REQThranOpenId)(nil), "bbproto.REQThranOpenId")
-	proto.RegisterType((*ACKThranOpenId)(nil), "bbproto.ACKThranOpenId")
+	proto.RegisterType((*DDReqSitdownSeat)(nil), "bbproto.DDReqSitdownSeat")
+	proto.RegisterType((*DDAckSitdownSeat)(nil), "bbproto.DDAckSitdownSeat")
+	proto.RegisterType((*DDReqBuyChip)(nil), "bbproto.DDReqBuyChip")
+	proto.RegisterType((*DDAckBuyChip)(nil), "bbproto.DDAckBuyChip")
+	proto.RegisterType((*DDNeetBugChip)(nil), "bbproto.DDNeetBugChip")
+	proto.RegisterType((*DDReqLeave)(nil), "bbproto.DDReqLeave")
+	proto.RegisterType((*DDAckLeave)(nil), "bbproto.DDAckLeave")
+	proto.RegisterType((*DDGameRule)(nil), "bbproto.DDGameRule")
+	proto.RegisterType((*DDWaitBigBling)(nil), "bbproto.DDWaitBigBling")
+	proto.RegisterType((*DDNextBiglingWatch)(nil), "bbproto.DDNextBiglingWatch")
+	proto.RegisterType((*DDChatMsg)(nil), "bbproto.DDChatMsg")
+	proto.RegisterType((*DDProposalMsg)(nil), "bbproto.DDProposalMsg")
+	proto.RegisterType((*DDReqPayMsg)(nil), "bbproto.DDReqPayMsg")
+	proto.RegisterType((*DDAckPayMsg)(nil), "bbproto.DDAckPayMsg")
+	proto.RegisterType((*DDReqExChangeHYD)(nil), "bbproto.DDReqExChangeHYD")
+	proto.RegisterType((*DDAckExChangeHYD)(nil), "bbproto.DDAckExChangeHYD")
+	proto.RegisterType((*DDNtfChangeHYD)(nil), "bbproto.DDNtfChangeHYD")
+	proto.RegisterType((*DDReqPresentCoins)(nil), "bbproto.DDReqPresentCoins")
+	proto.RegisterType((*DDAckPresentCoins)(nil), "bbproto.DDAckPresentCoins")
+	proto.RegisterType((*DDReqPrivateChatMsg)(nil), "bbproto.DDReqPrivateChatMsg")
+	proto.RegisterType((*DDAckPrivateChatMsg)(nil), "bbproto.DDAckPrivateChatMsg")
+	proto.RegisterType((*DDReqAbleOrUnableChat)(nil), "bbproto.DDReqAbleOrUnableChat")
+	proto.RegisterType((*DDAckAbleOrUnableChat)(nil), "bbproto.DDAckAbleOrUnableChat")
+	proto.RegisterType((*DDReqKick)(nil), "bbproto.DDReqKick")
+	proto.RegisterType((*DDAckKick)(nil), "bbproto.DDAckKick")
+	proto.RegisterType((*DDUserInfos)(nil), "bbproto.DDUserInfos")
+	proto.RegisterType((*DDUserList)(nil), "bbproto.DDUserList")
+	proto.RegisterType((*DDModifyConfig)(nil), "bbproto.DDModifyConfig")
+	proto.RegisterType((*DDUnAbleChatList)(nil), "bbproto.DDUnAbleChatList")
+	proto.RegisterType((*DDShowPictrue)(nil), "bbproto.DDShowPictrue")
+	proto.RegisterType((*DDAddUserToList)(nil), "bbproto.DDAddUserToList")
+	proto.RegisterType((*DDDeleteUserFromList)(nil), "bbproto.DDDeleteUserFromList")
+	proto.RegisterType((*DDBroadCastPlayerGiftStatus)(nil), "bbproto.DDBroadCastPlayerGiftStatus")
+	proto.RegisterType((*DDGiveGift)(nil), "bbproto.DDGiveGift")
+	proto.RegisterType((*DDGiveItem)(nil), "bbproto.DDGiveItem")
+	proto.RegisterType((*DDBroadCastFace)(nil), "bbproto.DDBroadCastFace")
+	proto.RegisterType((*DDReqRebuy)(nil), "bbproto.DDReqRebuy")
+	proto.RegisterType((*DDAckRebuy)(nil), "bbproto.DDAckRebuy")
+	proto.RegisterType((*DDBroadCastMatchRank)(nil), "bbproto.DDBroadCastMatchRank")
+	proto.RegisterType((*REQSHENJINGReg)(nil), "bbproto.REQSHENJINGReg")
+	proto.RegisterType((*ACKSHENJINGReg)(nil), "bbproto.ACKSHENJINGReg")
+	proto.RegisterType((*REQSHENJINGConn)(nil), "bbproto.REQSHENJINGConn")
+	proto.RegisterType((*ACKSHENJINGConn)(nil), "bbproto.ACKSHENJINGConn")
+	proto.RegisterType((*REQSHENJINGShortCert)(nil), "bbproto.REQSHENJINGShortCert")
+	proto.RegisterType((*ACKSHENJINGShortCert)(nil), "bbproto.ACKSHENJINGShortCert")
+	proto.RegisterType((*REQSHENJINGOpenId)(nil), "bbproto.REQSHENJINGOpenId")
+	proto.RegisterType((*ACKSHENJINGOpenId)(nil), "bbproto.ACKSHENJINGOpenId")
 	proto.RegisterType((*REQSinaGame)(nil), "bbproto.REQSinaGame")
 	proto.RegisterType((*ACKSinaGame)(nil), "bbproto.ACKSinaGame")
 	proto.RegisterType((*REQWeiBo)(nil), "bbproto.REQWeiBo")
 	proto.RegisterType((*ACKWeiBo)(nil), "bbproto.ACKWeiBo")
-	proto.RegisterType((*REQThranExit)(nil), "bbproto.REQThranExit")
-	proto.RegisterType((*REQThranGameVersion)(nil), "bbproto.REQThranGameVersion")
-	proto.RegisterType((*ACKThranGameVersion)(nil), "bbproto.ACKThranGameVersion")
-	proto.RegisterType((*REQThranNewVerify)(nil), "bbproto.REQThranNewVerify")
-	proto.RegisterType((*ACKThranNewVerify)(nil), "bbproto.ACKThranNewVerify")
-	proto.RegisterType((*REQThranFindPwd)(nil), "bbproto.REQThranFindPwd")
-	proto.RegisterType((*ACKThranFindPwd)(nil), "bbproto.ACKThranFindPwd")
-	proto.RegisterType((*ACKThranHeart)(nil), "bbproto.ACKThranHeart")
+	proto.RegisterType((*REQSHENJINGExit)(nil), "bbproto.REQSHENJINGExit")
+	proto.RegisterType((*REQSHENJINGGameVersion)(nil), "bbproto.REQSHENJINGGameVersion")
+	proto.RegisterType((*ACKSHENJINGGameVersion)(nil), "bbproto.ACKSHENJINGGameVersion")
+	proto.RegisterType((*REQSHENJINGNewVerify)(nil), "bbproto.REQSHENJINGNewVerify")
+	proto.RegisterType((*ACKSHENJINGNewVerify)(nil), "bbproto.ACKSHENJINGNewVerify")
+	proto.RegisterType((*REQSHENJINGFindPwd)(nil), "bbproto.REQSHENJINGFindPwd")
+	proto.RegisterType((*ACKSHENJINGFindPwd)(nil), "bbproto.ACKSHENJINGFindPwd")
+	proto.RegisterType((*ACKSHENJINGHeart)(nil), "bbproto.ACKSHENJINGHeart")
 	proto.RegisterType((*SinaApiInfo)(nil), "bbproto.SinaApiInfo")
 	proto.RegisterType((*SinaApiRet)(nil), "bbproto.SinaApiRet")
-	proto.RegisterType((*OGRoomInfo)(nil), "bbproto.OGRoomInfo")
-	proto.RegisterType((*OGThranMatchInfo)(nil), "bbproto.OGThranMatchInfo")
-	proto.RegisterType((*ThranRoomInfo)(nil), "bbproto.ThranRoomInfo")
-	proto.RegisterType((*ThranJSSInfo)(nil), "bbproto.ThranJSSInfo")
-	proto.RegisterType((*OGBulletinInfo)(nil), "bbproto.OGBulletinInfo")
+	proto.RegisterType((*DDRoomInfo)(nil), "bbproto.DDRoomInfo")
+	proto.RegisterType((*DDSHENJINGMatchInfo)(nil), "bbproto.DDSHENJINGMatchInfo")
+	proto.RegisterType((*SHENJINGRoomInfo)(nil), "bbproto.SHENJINGRoomInfo")
+	proto.RegisterType((*SHENJINGJSSInfo)(nil), "bbproto.SHENJINGJSSInfo")
+	proto.RegisterType((*DDBulletinInfo)(nil), "bbproto.DDBulletinInfo")
 	proto.RegisterType((*REQQuickConn)(nil), "bbproto.REQQuickConn")
 	proto.RegisterType((*ACKQuickConn)(nil), "bbproto.ACKQuickConn")
 	proto.RegisterType((*NullMsg)(nil), "bbproto.NullMsg")
@@ -7328,320 +7328,320 @@ func init() {
 	proto.RegisterType((*Game_BeanGameRecord)(nil), "bbproto.Game_BeanGameRecord")
 	proto.RegisterType((*Game_AckGameRecord)(nil), "bbproto.Game_AckGameRecord")
 	proto.RegisterEnum("bbproto.Game_LeaveTable_Reason", Game_LeaveTable_Reason_name, Game_LeaveTable_Reason_value)
-	proto.RegisterEnum("bbproto.OGAckPayMsg_Reason", OGAckPayMsg_Reason_name, OGAckPayMsg_Reason_value)
-	proto.RegisterEnum("bbproto.OGAckPresentCoins_Reason", OGAckPresentCoins_Reason_name, OGAckPresentCoins_Reason_value)
+	proto.RegisterEnum("bbproto.DDAckPayMsg_Reason", DDAckPayMsg_Reason_name, DDAckPayMsg_Reason_value)
+	proto.RegisterEnum("bbproto.DDAckPresentCoins_Reason", DDAckPresentCoins_Reason_name, DDAckPresentCoins_Reason_value)
 }
 
 var fileDescriptor1 = []byte{
-	// 4945 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x09, 0x6e, 0x88, 0x02, 0xff, 0xe4, 0x7b, 0xcb, 0x6f, 0x23, 0xd9,
-	0x5a, 0xf8, 0xcf, 0x6f, 0xfb, 0xc4, 0x4e, 0x1c, 0xa7, 0xbb, 0x27, 0x77, 0x66, 0xee, 0xef, 0x72,
-	0x8b, 0xb9, 0x43, 0x33, 0x30, 0x43, 0x33, 0x17, 0x84, 0x74, 0x17, 0x30, 0x8e, 0xe3, 0xa4, 0x3d,
-	0x9d, 0x38, 0x19, 0xdb, 0x99, 0x9e, 0x19, 0x40, 0x3d, 0x15, 0xfb, 0x24, 0xa9, 0x49, 0xb9, 0xca,
-	0x53, 0x55, 0x4e, 0xd2, 0x8d, 0x40, 0x88, 0x1d, 0x12, 0x0b, 0x76, 0x08, 0x21, 0x21, 0xb1, 0xe0,
-	0x21, 0xc4, 0xdd, 0xb0, 0x64, 0x0d, 0x1b, 0xfe, 0x81, 0xbb, 0x84, 0x0d, 0x08, 0x21, 0x21, 0x40,
-	0x42, 0x62, 0xc1, 0x86, 0xef, 0xfb, 0xce, 0xa3, 0x4e, 0x95, 0xcb, 0x89, 0xbb, 0x6f, 0xf3, 0x90,
-	0x58, 0x25, 0xf5, 0xd5, 0x39, 0xdf, 0xfb, 0x79, 0x4e, 0x99, 0x6d, 0x8c, 0xf8, 0x8d, 0x1d, 0xee,
-	0xdb, 0x53, 0xfe, 0xc1, 0x2c, 0xf0, 0x23, 0xbf, 0x55, 0x39, 0x3d, 0xa5, 0x7f, 0xac, 0x87, 0xec,
-	0xc1, 0x39, 0x80, 0x9f, 0xb5, 0x3b, 0x4f, 0x3a, 0xbe, 0x77, 0xe6, 0x04, 0x53, 0xf8, 0xe3, 0xf1,
-	0x71, 0xd4, 0x5a, 0x67, 0xe5, 0x80, 0x87, 0x73, 0x37, 0xda, 0xce, 0xfd, 0x48, 0xee, 0x61, 0xc9,
-	0x7a, 0xc4, 0xd6, 0x69, 0xe5, 0x81, 0x7f, 0xee, 0x78, 0x88, 0x0a, 0x57, 0x1c, 0xf0, 0x28, 0xe2,
-	0x01, 0xad, 0xa8, 0x1b, 0x3b, 0xf2, 0xb4, 0xe3, 0x2b, 0xb6, 0x41, 0x3b, 0xba, 0x1e, 0xac, 0x39,
-	0xb4, 0xa3, 0xf1, 0x45, 0x6b, 0x83, 0x55, 0xe8, 0x9f, 0xde, 0xae, 0xdc, 0x03, 0x80, 0x91, 0x7d,
-	0xea, 0x72, 0x67, 0x22, 0x36, 0xb5, 0x9a, 0xac, 0x7a, 0x6c, 0x87, 0xe1, 0x53, 0x3f, 0x98, 0x6c,
-	0x17, 0x68, 0xc9, 0x16, 0x5b, 0x0b, 0x3b, 0x7b, 0x27, 0x21, 0x0f, 0xfa, 0x80, 0x6d, 0xbb, 0xa8,
-	0x68, 0xcd, 0x01, 0xd2, 0x9b, 0x6c, 0x97, 0xe0, 0xb9, 0x61, 0x3d, 0x65, 0x2d, 0x21, 0xc7, 0xf8,
-	0xd2, 0x20, 0x97, 0x92, 0x41, 0x93, 0x97, 0xd4, 0x12, 0xe4, 0x0b, 0x6a, 0x85, 0x37, 0xe0, 0x76,
-	0xe8, 0x7b, 0x44, 0xa8, 0x64, 0x1d, 0xb3, 0xa6, 0x40, 0x3c, 0x99, 0x3c, 0xb6, 0xbd, 0x49, 0xc7,
-	0x77, 0x3c, 0x13, 0xcd, 0x12, 0x29, 0xea, 0xac, 0x18, 0x72, 0x3b, 0x92, 0x48, 0xe1, 0x09, 0xf7,
-	0x11, 0xc6, 0x82, 0xf5, 0x3e, 0x6b, 0x10, 0xc6, 0x8e, 0x1d, 0x4c, 0x7a, 0xde, 0x99, 0xdf, 0x6a,
-	0xb0, 0xd2, 0xd8, 0x77, 0xfd, 0x40, 0x32, 0x09, 0x8f, 0x57, 0xb6, 0x3b, 0xe7, 0x52, 0x8b, 0x7f,
-	0x9b, 0x93, 0xeb, 0x7b, 0x9e, 0x13, 0xe1, 0x9e, 0x97, 0x26, 0x0f, 0x2a, 0xed, 0xf3, 0x9b, 0x08,
-	0x35, 0x28, 0x84, 0x6a, 0x3d, 0x64, 0x55, 0x12, 0x06, 0xb0, 0x81, 0xfe, 0x0a, 0x0f, 0xd7, 0x3e,
-	0x7c, 0xf0, 0x81, 0xf4, 0x88, 0x0f, 0x92, 0xbc, 0xbd, 0xc7, 0xd8, 0xf1, 0xfc, 0xd4, 0x75, 0xc6,
-	0xb4, 0xb6, 0x7c, 0xeb, 0x5a, 0xa0, 0x73, 0xe8, 0x78, 0x03, 0xdb, 0x09, 0xf9, 0x76, 0x05, 0x45,
-	0x6d, 0xb5, 0x18, 0x6b, 0x8f, 0x23, 0xc7, 0xf7, 0x46, 0x0e, 0x58, 0xae, 0x4a, 0xb4, 0x37, 0x59,
-	0x6d, 0x97, 0xbb, 0xf6, 0x73, 0x02, 0xd5, 0x48, 0xc4, 0x43, 0x29, 0x21, 0x6d, 0xdd, 0xe1, 0xd1,
-	0x6a, 0x12, 0x0e, 0x97, 0x29, 0xf8, 0x8f, 0x72, 0xca, 0x66, 0xe3, 0xcb, 0xd7, 0x83, 0x12, 0x45,
-	0x53, 0xd6, 0x27, 0x87, 0x2b, 0x28, 0xa5, 0xd2, 0x8e, 0xb2, 0xda, 0x31, 0xf3, 0x7d, 0x57, 0x8a,
-	0x6e, 0x2a, 0xa3, 0xaa, 0x20, 0x1d, 0x5b, 0x42, 0x84, 0xdc, 0x1f, 0xc9, 0x90, 0xda, 0xf3, 0x5d,
-	0xd7, 0xbf, 0x7e, 0x05, 0x2e, 0xad, 0x3f, 0xce, 0xb1, 0x4d, 0x25, 0xea, 0x2b, 0x63, 0x49, 0xc8,
-	0x52, 0x4c, 0x48, 0x5f, 0x5a, 0x90, 0xbe, 0x4c, 0x90, 0x97, 0x97, 0xf5, 0xe7, 0x59, 0x5d, 0xc9,
-	0x3a, 0x79, 0x15, 0x49, 0xff, 0x30, 0x27, 0xb3, 0x89, 0x90, 0x74, 0xf2, 0xbf, 0x55, 0xce, 0x5f,
-	0x50, 0xd1, 0x7d, 0xc1, 0xc7, 0x97, 0xaf, 0x22, 0xa8, 0xe9, 0xbd, 0xaf, 0x8a, 0xe4, 0x87, 0x90,
-	0xb4, 0xba, 0x20, 0x69, 0x6d, 0x41, 0x52, 0x46, 0x8c, 0xfe, 0xa9, 0xf2, 0xbd, 0x21, 0xf7, 0x26,
-	0x7b, 0xae, 0x3f, 0x5b, 0x31, 0x39, 0x7d, 0x07, 0xd2, 0x1d, 0xac, 0x7c, 0x44, 0xac, 0x2e, 0xcf,
-	0x26, 0x72, 0xd9, 0x4f, 0x13, 0xff, 0x77, 0x2e, 0xfb, 0x90, 0x04, 0x5b, 0xba, 0xcc, 0xfa, 0x45,
-	0x83, 0xd7, 0xd1, 0x3c, 0xf0, 0x56, 0xe4, 0xf5, 0x1d, 0x56, 0x44, 0xec, 0xb7, 0xb3, 0x6a, 0xfd,
-	0x92, 0x2c, 0x3e, 0x88, 0x7c, 0xe0, 0x5c, 0xf1, 0xe0, 0xb5, 0x62, 0xff, 0x3d, 0x53, 0xcf, 0x47,
-	0x80, 0x1d, 0xf9, 0x5f, 0xcd, 0x23, 0x8e, 0xd1, 0xa2, 0x05, 0x95, 0x8a, 0x87, 0x7c, 0xec, 0x7b,
-	0x13, 0x82, 0x15, 0x21, 0x91, 0x27, 0x73, 0x58, 0x49, 0xf9, 0xcd, 0x05, 0xf8, 0xc5, 0x58, 0xf8,
-	0x45, 0x41, 0xf8, 0x05, 0x3d, 0x55, 0xd4, 0x8e, 0x64, 0x04, 0x58, 0xae, 0x51, 0xcd, 0x46, 0xcf,
-	0x67, 0x9c, 0xaa, 0x19, 0xd9, 0x4d, 0x57, 0x33, 0x61, 0x9f, 0xbc, 0xf9, 0xf8, 0x5d, 0xe9, 0xa7,
-	0xf2, 0xf1, 0x67, 0xa4, 0x93, 0xca, 0xc7, 0x9f, 0x8d, 0xb9, 0xc1, 0xc7, 0x08, 0xd0, 0x8a, 0x1c,
-	0x6b, 0xfd, 0x59, 0x4e, 0xa6, 0x91, 0xa7, 0x8e, 0x47, 0xa5, 0x58, 0xb9, 0x7d, 0x4e, 0xd5, 0x16,
-	0x74, 0xe2, 0x9e, 0x37, 0xe1, 0x37, 0xb1, 0x16, 0x88, 0x7f, 0xa1, 0x85, 0x86, 0xe9, 0x54, 0x06,
-	0x73, 0xa5, 0x24, 0x73, 0xe5, 0x24, 0x73, 0x95, 0x24, 0x73, 0xd5, 0x05, 0xe6, 0x6a, 0x0a, 0x12,
-	0xf8, 0x2e, 0xf7, 0xb0, 0x4b, 0xc1, 0x10, 0xa9, 0x5b, 0xff, 0xa4, 0x92, 0xd6, 0x88, 0x87, 0xd1,
-	0x80, 0x3a, 0x91, 0x15, 0x0c, 0xf7, 0x50, 0x1a, 0x41, 0xb8, 0xc6, 0x6d, 0x15, 0x17, 0xe4, 0x3d,
-	0x1d, 0x5e, 0xf8, 0xd7, 0x54, 0x9c, 0xd1, 0xa6, 0xa5, 0xd6, 0x3d, 0x56, 0x3f, 0x85, 0x40, 0xd5,
-	0xd0, 0x12, 0x41, 0xdf, 0x63, 0x6b, 0x52, 0x63, 0xb8, 0x4f, 0xd6, 0xf1, 0xfb, 0x49, 0xac, 0x4a,
-	0xa5, 0x66, 0x6e, 0x10, 0x56, 0xff, 0x31, 0x88, 0x7d, 0xb5, 0xb5, 0x7a, 0xcb, 0x56, 0xab, 0x2d,
-	0xc5, 0x3d, 0xe0, 0xf6, 0x15, 0x4f, 0x76, 0x7c, 0xab, 0xa6, 0xbf, 0x5d, 0xe9, 0x4f, 0xd8, 0xad,
-	0xa8, 0xae, 0x42, 0xf7, 0x7e, 0x02, 0x83, 0xda, 0x20, 0xb6, 0xa7, 0xda, 0x43, 0xea, 0x19, 0xad,
-	0x67, 0x46, 0xc8, 0x68, 0x4c, 0x0f, 0x05, 0x26, 0x12, 0x23, 0x97, 0xa5, 0x57, 0xbd, 0xf2, 0xce,
-	0x3e, 0xd1, 0xfa, 0x57, 0xd5, 0x95, 0x51, 0xcc, 0xdb, 0xde, 0xe5, 0x0a, 0x82, 0x9a, 0x92, 0x14,
-	0x94, 0x24, 0xb8, 0x57, 0x7a, 0x23, 0x48, 0xc2, 0x07, 0xfc, 0x5a, 0x06, 0x92, 0xf4, 0x49, 0xb0,
-	0xa7, 0x27, 0x80, 0x1d, 0x7f, 0xee, 0x45, 0x32, 0x5b, 0x43, 0x34, 0x7b, 0x23, 0x3f, 0xb2, 0x5d,
-	0x69, 0x25, 0x84, 0xdd, 0x67, 0x0d, 0xaf, 0xef, 0x5f, 0x73, 0x17, 0xda, 0x5f, 0x02, 0x57, 0x17,
-	0xc0, 0xa3, 0xd8, 0x59, 0xa1, 0x35, 0xf6, 0x86, 0x63, 0x3f, 0x10, 0xae, 0x4a, 0x18, 0x05, 0x19,
-	0x62, 0x6f, 0x8d, 0xd8, 0x03, 0x8f, 0xf7, 0x48, 0xd3, 0x75, 0x92, 0xf9, 0x43, 0xd9, 0xae, 0x80,
-	0x23, 0x47, 0x2b, 0x1a, 0xd7, 0xfa, 0x55, 0x59, 0xcc, 0x3a, 0xe0, 0xd1, 0xe7, 0x9c, 0xde, 0x2d,
-	0xee, 0x02, 0xda, 0x7d, 0x7e, 0x9d, 0x54, 0xd6, 0x42, 0x67, 0x6e, 0x6a, 0xaf, 0x98, 0xf0, 0x83,
-	0x52, 0x96, 0x1f, 0x94, 0xc9, 0x0f, 0xfe, 0xa1, 0x68, 0x38, 0x02, 0x0e, 0x2d, 0x69, 0xf3, 0x2e,
-	0x31, 0x15, 0x70, 0x84, 0xab, 0x87, 0x91, 0x1d, 0xcd, 0xc3, 0x98, 0x81, 0xce, 0x85, 0x33, 0x4b,
-	0xd6, 0x54, 0xaa, 0x99, 0xa2, 0xa6, 0x02, 0x03, 0x84, 0xe4, 0x18, 0x9a, 0x5b, 0xe8, 0xb4, 0xcb,
-	0x6a, 0xd3, 0x0e, 0x58, 0x98, 0x36, 0x89, 0x34, 0x02, 0x1d, 0xf5, 0x8c, 0x3a, 0x6a, 0x8a, 0xef,
-	0xea, 0xad, 0xf1, 0x6d, 0x66, 0x82, 0xda, 0x5d, 0xbd, 0xb7, 0x0e, 0x5a, 0xa6, 0x52, 0x35, 0x15,
-	0x3a, 0x84, 0xac, 0x11, 0x24, 0xd9, 0x8d, 0xd7, 0x95, 0x9a, 0x4f, 0xbb, 0x1e, 0xb2, 0xbd, 0xdd,
-	0xa0, 0x4c, 0x61, 0x66, 0xf8, 0x75, 0x95, 0x33, 0x4f, 0xb1, 0xe3, 0xda, 0xde, 0xa0, 0x05, 0xe0,
-	0x38, 0xa7, 0x6d, 0x17, 0x72, 0xec, 0x76, 0x53, 0x3f, 0xef, 0x04, 0xdc, 0xbe, 0xdc, 0xde, 0xd4,
-	0xcf, 0x14, 0xff, 0xdb, 0x2d, 0x7a, 0x4e, 0xf4, 0xfb, 0x5b, 0xca, 0x54, 0xe0, 0xd3, 0xa7, 0xf3,
-	0xe7, 0xc2, 0xa5, 0xef, 0x69, 0x20, 0x0c, 0x59, 0xbe, 0x27, 0x80, 0xf7, 0x15, 0xf0, 0x74, 0xcf,
-	0xf1, 0x6c, 0x97, 0xde, 0x6c, 0x3f, 0x20, 0xe0, 0x1b, 0x6c, 0xc3, 0xc3, 0x61, 0xc8, 0x10, 0xe6,
-	0x0d, 0x7a, 0xf1, 0x80, 0xad, 0xd3, 0x8b, 0x98, 0xde, 0xb6, 0x32, 0x82, 0xe7, 0x8c, 0x2f, 0xc9,
-	0x2f, 0xbe, 0x01, 0x4c, 0xd5, 0x90, 0x49, 0x1c, 0x90, 0x60, 0x7c, 0x7c, 0x93, 0x98, 0x54, 0x03,
-	0xd3, 0x5b, 0xca, 0xfa, 0x61, 0x5c, 0x2b, 0xdf, 0x26, 0xe5, 0x81, 0xa2, 0x22, 0x50, 0xe7, 0xa1,
-	0x7d, 0xb3, 0xfd, 0x4d, 0x52, 0x4b, 0x3c, 0x5b, 0xfe, 0x7f, 0xf2, 0xf4, 0x03, 0x95, 0x10, 0x64,
-	0xe6, 0xc5, 0x1d, 0xd3, 0x84, 0x97, 0x81, 0x22, 0x23, 0xd2, 0xb4, 0x2e, 0x85, 0x94, 0xbc, 0xe3,
-	0x81, 0x23, 0x76, 0x2d, 0x68, 0x29, 0x74, 0x13, 0xb8, 0x32, 0x42, 0x73, 0xaa, 0xbb, 0xb5, 0x6e,
-	0x58, 0x96, 0x8c, 0x64, 0x2c, 0x4b, 0x34, 0xcf, 0x2f, 0x66, 0x59, 0xab, 0x1b, 0x4f, 0x16, 0xf1,
-	0xb2, 0x97, 0x1e, 0xa8, 0xad, 0x77, 0xd9, 0x96, 0x26, 0x05, 0xe1, 0x14, 0x2c, 0xc9, 0x1c, 0xd6,
-	0x13, 0x49, 0x6e, 0xc0, 0x67, 0x7e, 0x10, 0x89, 0x18, 0x02, 0x3b, 0xe4, 0x9d, 0x99, 0x24, 0x45,
-	0xc1, 0x16, 0x44, 0x71, 0xd1, 0xa0, 0xca, 0x5b, 0x50, 0xc9, 0x6c, 0x26, 0xa2, 0x4e, 0x68, 0xef,
-	0x53, 0x89, 0x0c, 0x44, 0xd2, 0xbe, 0xb0, 0xa8, 0x3e, 0x34, 0xe9, 0x2d, 0x3d, 0x34, 0x38, 0xee,
-	0x04, 0x37, 0x47, 0x8e, 0xcc, 0x38, 0x25, 0x6b, 0xa2, 0xce, 0x40, 0xd0, 0xbf, 0x71, 0xe9, 0x4b,
-	0x23, 0x8d, 0xa3, 0xa3, 0xa8, 0x5c, 0xed, 0xf4, 0xa9, 0xed, 0x44, 0x3b, 0xae, 0xe3, 0x9d, 0x8b,
-	0x4c, 0x66, 0x71, 0x49, 0x85, 0x14, 0x84, 0x29, 0x67, 0x05, 0x2a, 0xa4, 0xcf, 0x1b, 0x5c, 0x2c,
-	0x3b, 0x1d, 0x04, 0x40, 0x55, 0x46, 0x40, 0x51, 0x01, 0xda, 0x57, 0x9c, 0x00, 0x94, 0xaf, 0xac,
-	0x8b, 0x54, 0x8d, 0x54, 0x55, 0xec, 0x6e, 0x79, 0xa8, 0x66, 0x69, 0x25, 0x41, 0x39, 0x38, 0x36,
-	0x94, 0x8f, 0xae, 0x84, 0x47, 0x33, 0xd4, 0x06, 0x95, 0xc8, 0xb6, 0x5f, 0x48, 0x67, 0x46, 0x21,
-	0x27, 0xa2, 0x12, 0xac, 0x40, 0x08, 0x3b, 0xd6, 0xa9, 0xed, 0xba, 0xb4, 0x4b, 0x4a, 0x85, 0xe9,
-	0xd4, 0x39, 0x17, 0x10, 0x31, 0xec, 0xff, 0x41, 0x4e, 0x36, 0xdf, 0xd8, 0xc9, 0xd2, 0x0b, 0x95,
-	0xe2, 0xef, 0x40, 0x0f, 0xc9, 0x82, 0x9a, 0xdf, 0x34, 0x09, 0x28, 0xb8, 0x84, 0x2a, 0x41, 0x06,
-	0xab, 0xa8, 0x26, 0x40, 0x99, 0x45, 0x77, 0xa8, 0x58, 0x0d, 0x09, 0x52, 0x56, 0x5c, 0x0b, 0x31,
-	0x5d, 0x3b, 0x0c, 0x45, 0xca, 0x4f, 0x68, 0x5a, 0x2d, 0x5f, 0x81, 0x43, 0xec, 0x27, 0x61, 0x35,
-	0xf9, 0x5f, 0x21, 0xe1, 0xf5, 0x45, 0xa5, 0x7b, 0x7c, 0x2f, 0xba, 0x5d, 0xe1, 0x3a, 0x7f, 0x9f,
-	0x33, 0x3b, 0x30, 0x5d, 0x6e, 0xef, 0x36, 0x69, 0xf2, 0xb8, 0x48, 0xdb, 0x4f, 0x14, 0xda, 0x9f,
-	0xc2, 0xa8, 0xa7, 0x33, 0x31, 0xa4, 0xb2, 0xfe, 0xe1, 0xb7, 0x92, 0x69, 0x25, 0xa6, 0xf5, 0x81,
-	0x38, 0x3a, 0xb3, 0xbe, 0x64, 0x65, 0xf1, 0x1f, 0xd0, 0x5a, 0xfb, 0x7a, 0xee, 0x44, 0xcf, 0xa6,
-	0x7e, 0x00, 0x8a, 0x6e, 0xfe, 0x3f, 0xc8, 0xe8, 0x1b, 0x04, 0x38, 0x0b, 0x1c, 0xd0, 0xc6, 0x13,
-	0x48, 0xcb, 0xcd, 0x1c, 0xe8, 0xbc, 0x49, 0x40, 0x7b, 0xf2, 0xd5, 0x1c, 0xd4, 0x83, 0xa8, 0x9a,
-	0xf9, 0xd6, 0x9b, 0xec, 0x81, 0xb1, 0x94, 0xa0, 0x10, 0xcd, 0x3c, 0xe2, 0xcd, 0x82, 0xf5, 0xcb,
-	0x72, 0x0e, 0x38, 0x0e, 0xb8, 0x3a, 0x92, 0xbb, 0x3b, 0x42, 0x66, 0x01, 0x97, 0xb3, 0x80, 0x39,
-	0xd9, 0x14, 0xd5, 0x53, 0x5c, 0xcb, 0xad, 0xbf, 0xcc, 0xc9, 0x18, 0x14, 0xb6, 0x5c, 0x8d, 0x02,
-	0xc6, 0x36, 0x44, 0x06, 0x04, 0x42, 0x61, 0x61, 0x98, 0x2a, 0x26, 0x48, 0x96, 0x12, 0x24, 0x45,
-	0x4b, 0x07, 0xfe, 0x18, 0xa2, 0x2f, 0x9e, 0x22, 0xc5, 0x30, 0xee, 0x17, 0xb0, 0xa1, 0x77, 0xce,
-	0x63, 0x68, 0x55, 0x97, 0x28, 0xbd, 0x3a, 0x1e, 0xd1, 0xd5, 0x4a, 0xd1, 0xd4, 0x59, 0xfb, 0xd2,
-	0xf1, 0x54, 0xff, 0x47, 0xa1, 0x01, 0x5b, 0x03, 0xae, 0x2d, 0xac, 0x2b, 0x89, 0x47, 0xcd, 0x61,
-	0x3e, 0x7d, 0x0a, 0x2a, 0xb2, 0xb8, 0xcb, 0x9a, 0x47, 0xfb, 0x03, 0xfe, 0xf5, 0xd0, 0x89, 0x26,
-	0xfe, 0xb5, 0xa7, 0x52, 0x5f, 0xf2, 0x2c, 0x17, 0xfc, 0x31, 0xd4, 0x45, 0x44, 0x97, 0x03, 0x5a,
-	0x0c, 0x6b, 0x74, 0xfe, 0xf3, 0xf6, 0x1c, 0xee, 0x4e, 0xe2, 0x9e, 0xd7, 0xec, 0xda, 0x44, 0xbe,
-	0xc0, 0x23, 0x90, 0xa3, 0x7d, 0x2c, 0x7d, 0x06, 0xb9, 0x75, 0xf4, 0x29, 0xa3, 0xf4, 0xac, 0x6b,
-	0xa7, 0xcc, 0x27, 0x4a, 0x91, 0x24, 0x95, 0x62, 0xa7, 0x98, 0x66, 0xa7, 0xa4, 0x42, 0x08, 0x7a,
-	0x9b, 0x60, 0xcc, 0x77, 0xe6, 0xcf, 0x65, 0x00, 0x63, 0xbf, 0x4c, 0x20, 0x95, 0x3e, 0x2b, 0xaa,
-	0xbb, 0x33, 0x19, 0xad, 0x12, 0xa3, 0xe7, 0xac, 0x4e, 0x6a, 0x81, 0xdd, 0x2a, 0x4f, 0xbf, 0xbc,
-	0x4a, 0xb0, 0x3b, 0x91, 0x08, 0xe2, 0xd3, 0x46, 0xaf, 0x33, 0x0f, 0x8c, 0x5c, 0xfd, 0x5b, 0x39,
-	0xa4, 0x04, 0x1a, 0x51, 0x94, 0x5e, 0x87, 0x36, 0x4c, 0xc2, 0xa5, 0x8c, 0xb1, 0x42, 0x8f, 0x1a,
-	0x46, 0x85, 0x12, 0x09, 0xed, 0xbb, 0xac, 0x71, 0xb4, 0xdf, 0xe7, 0x3c, 0xda, 0x99, 0x9f, 0xaf,
-	0x2a, 0xb8, 0x35, 0x60, 0x8c, 0x94, 0x45, 0xe9, 0xe2, 0xd5, 0x54, 0x85, 0x00, 0x1a, 0xd2, 0x8e,
-	0x49, 0x84, 0x06, 0x24, 0x1a, 0x46, 0x6a, 0x11, 0x38, 0x5f, 0x87, 0x52, 0xd0, 0x41, 0xdd, 0xf8,
-	0xa4, 0xcc, 0x1a, 0x23, 0x05, 0x9c, 0x05, 0x06, 0x73, 0xf7, 0xd5, 0xb9, 0x56, 0xb5, 0xb9, 0x98,
-	0xae, 0xcd, 0x82, 0xc8, 0x09, 0x5b, 0x3f, 0xda, 0x27, 0x25, 0x8b, 0xaa, 0x73, 0xfe, 0xca, 0xc1,
-	0xd5, 0x0b, 0x11, 0x8d, 0x6e, 0x22, 0x5b, 0x68, 0x26, 0x2a, 0x66, 0x88, 0xf5, 0x69, 0xf6, 0x1d,
-	0xcc, 0x2a, 0xa8, 0x61, 0x0d, 0xa2, 0x86, 0x6d, 0xba, 0xc9, 0xfa, 0x92, 0xd5, 0x8e, 0xf6, 0xa1,
-	0x9a, 0x47, 0x87, 0xe1, 0xab, 0xf3, 0x1b, 0xbe, 0x40, 0x0c, 0xb1, 0xee, 0x65, 0x77, 0x29, 0xaa,
-	0xd9, 0x53, 0x74, 0xb3, 0xe3, 0xc0, 0x9f, 0xf9, 0xa1, 0xed, 0x22, 0x15, 0x48, 0x53, 0xa1, 0x71,
-	0x10, 0x90, 0x41, 0x03, 0xf3, 0xe2, 0x08, 0x8a, 0xc4, 0xec, 0xc2, 0xf7, 0xd4, 0x94, 0x0d, 0x7e,
-	0x1e, 0x76, 0x7c, 0x2f, 0xe2, 0x9e, 0x24, 0x04, 0xae, 0xb8, 0x46, 0xae, 0x78, 0x6c, 0x3f, 0x47,
-	0xb4, 0x09, 0x3c, 0x3a, 0x21, 0x86, 0x2f, 0x46, 0x37, 0x51, 0xcc, 0x7a, 0xd2, 0x73, 0x30, 0x76,
-	0xa8, 0x22, 0xf5, 0x7d, 0xa9, 0x8e, 0xbf, 0xca, 0x23, 0x52, 0xf0, 0xc5, 0xe5, 0x48, 0x0d, 0x2c,
-	0xf9, 0x05, 0x2c, 0xfa, 0x40, 0x4c, 0xd0, 0xcd, 0xd4, 0x48, 0xeb, 0x27, 0x59, 0x85, 0xcb, 0xc4,
-	0x5c, 0xa6, 0x52, 0xfc, 0x96, 0x2e, 0xc5, 0x06, 0x6d, 0x59, 0x86, 0xe3, 0xac, 0x5e, 0x51, 0xb9,
-	0x36, 0xe0, 0x53, 0xdb, 0xf1, 0xc6, 0x34, 0x61, 0xe9, 0x42, 0x12, 0xf0, 0xc9, 0x7c, 0x4c, 0x65,
-	0x54, 0x16, 0x92, 0x54, 0xae, 0x13, 0x67, 0x59, 0x67, 0xba, 0xa6, 0x37, 0x59, 0xfd, 0xf1, 0xd1,
-	0xa0, 0xff, 0xac, 0x7f, 0x34, 0x7a, 0xdc, 0xeb, 0xef, 0x43, 0x51, 0x87, 0x2a, 0x2f, 0x21, 0x9d,
-	0xa3, 0x5e, 0x1f, 0x0a, 0xba, 0x5a, 0xb2, 0xdf, 0x1d, 0x11, 0x24, 0x8f, 0x75, 0x9f, 0x20, 0x27,
-	0xc7, 0xbb, 0xed, 0x51, 0x97, 0x80, 0x98, 0x5b, 0xd6, 0x09, 0xd8, 0xed, 0xb7, 0x77, 0x0e, 0xba,
-	0xa3, 0xcf, 0x46, 0xcd, 0x22, 0x0c, 0x02, 0xa2, 0xd4, 0x74, 0x6f, 0x44, 0xa7, 0xf8, 0xf8, 0xf3,
-	0xdd, 0x95, 0xbc, 0x0b, 0xe7, 0xc7, 0xee, 0x0d, 0xac, 0x16, 0xf3, 0x23, 0x35, 0x73, 0xd6, 0xef,
-	0xa8, 0x4a, 0x92, 0xc2, 0xe6, 0x0d, 0xb2, 0xa6, 0x18, 0x6d, 0x97, 0x04, 0xfa, 0x42, 0x16, 0xfa,
-	0xa2, 0xea, 0x15, 0x31, 0x51, 0x6b, 0x68, 0x49, 0x85, 0x37, 0x2c, 0x4d, 0xa6, 0xd0, 0xf4, 0x69,
-	0x8d, 0xf5, 0x19, 0x86, 0x7c, 0x3f, 0x3a, 0x7b, 0x39, 0x21, 0x01, 0xe4, 0xc1, 0x5a, 0x42, 0x16,
-	0x37, 0xfa, 0x08, 0x02, 0x36, 0x64, 0x47, 0xfc, 0x2b, 0x6c, 0x53, 0x38, 0x37, 0x78, 0x0e, 0xb8,
-	0x3c, 0xd2, 0x0c, 0x33, 0x2f, 0x5e, 0x43, 0xec, 0x47, 0x21, 0x9c, 0xb5, 0x8b, 0x87, 0x03, 0x3e,
-	0xbe, 0x92, 0xed, 0x8b, 0xe8, 0x09, 0x8c, 0x2b, 0x30, 0x24, 0xdd, 0x3b, 0x96, 0x5b, 0xe8, 0xd2,
-	0x55, 0x82, 0xe4, 0xa6, 0x32, 0x25, 0xe4, 0xff, 0xc8, 0x23, 0x75, 0xf4, 0xc4, 0xbb, 0xa8, 0x2b,
-	0x13, 0xe8, 0xd4, 0xac, 0xd8, 0x29, 0xa4, 0xd9, 0x11, 0xa1, 0x80, 0xba, 0x36, 0x90, 0x4a, 0x5d,
-	0x7f, 0x98, 0x0e, 0x88, 0x6f, 0xa7, 0x02, 0xc2, 0x60, 0x43, 0x75, 0xa7, 0x3f, 0xc8, 0x69, 0x57,
-	0x5e, 0x67, 0xec, 0xb8, 0x63, 0x38, 0xb2, 0x78, 0x3e, 0xe9, 0x3f, 0xe9, 0x1f, 0x3d, 0x95, 0x7e,
-	0x0c, 0xcf, 0x9d, 0xa3, 0x7e, 0xbf, 0xdb, 0x19, 0xed, 0xee, 0x80, 0x1f, 0xd7, 0x58, 0x09, 0x20,
-	0xf0, 0x2f, 0x6a, 0xa4, 0x01, 0xff, 0x0e, 0xbb, 0xfd, 0xdd, 0xee, 0xa0, 0xd7, 0xdf, 0x3b, 0x6a,
-	0x16, 0x13, 0x20, 0xf2, 0x71, 0x8c, 0xe8, 0x9a, 0x40, 0xb1, 0xd7, 0xdb, 0x6f, 0x96, 0xa1, 0xe9,
-	0xab, 0xe2, 0xe3, 0xc1, 0xd1, 0xb0, 0xdb, 0xac, 0xc8, 0x97, 0xed, 0xc3, 0xa3, 0x93, 0xfe, 0xa8,
-	0x59, 0x95, 0xe4, 0x46, 0xbd, 0xc3, 0xee, 0xf0, 0x64, 0xd8, 0x1d, 0x34, 0x6b, 0x18, 0x59, 0x0a,
-	0xb2, 0xdb, 0xfe, 0xbc, 0xc9, 0x24, 0x60, 0x78, 0xb2, 0x33, 0x1a, 0xb4, 0x3b, 0xa3, 0xe6, 0x1a,
-	0xf8, 0x56, 0x19, 0x51, 0xec, 0xee, 0x36, 0xeb, 0xe0, 0x54, 0x5b, 0xd2, 0xf4, 0xce, 0x95, 0x1d,
-	0xf1, 0xa5, 0xc9, 0xf9, 0x6e, 0xe3, 0xa7, 0x52, 0x33, 0x8c, 0x30, 0x5b, 0x52, 0x9f, 0xaf, 0x19,
-	0xf3, 0x42, 0xd2, 0xff, 0x92, 0xdd, 0x27, 0x19, 0xda, 0x90, 0x16, 0x8f, 0x82, 0x13, 0x3a, 0x9b,
-	0xc2, 0xe5, 0x8b, 0xb4, 0x28, 0xaf, 0x43, 0x81, 0x8f, 0x34, 0x31, 0x8c, 0x18, 0x5c, 0x4b, 0x57,
-	0xdd, 0xba, 0xc4, 0x7b, 0x88, 0x6a, 0xcf, 0xb5, 0xcf, 0x65, 0xa6, 0xfe, 0x1a, 0x29, 0x80, 0x2c,
-	0xff, 0x65, 0x14, 0x4c, 0xf7, 0x16, 0x42, 0x8d, 0xb0, 0x56, 0x82, 0x50, 0x38, 0xef, 0xac, 0x4a,
-	0x06, 0xd7, 0x72, 0xc8, 0xcd, 0x06, 0x99, 0x0e, 0x54, 0x71, 0x8e, 0xa7, 0x56, 0x22, 0xd2, 0x07,
-	0x88, 0x15, 0x04, 0xf9, 0x21, 0xb0, 0x1a, 0x9c, 0x0a, 0xe5, 0x9c, 0x60, 0x15, 0x53, 0x07, 0xe1,
-	0x61, 0x56, 0x15, 0x4b, 0x30, 0x92, 0xa7, 0x28, 0x5c, 0x63, 0x05, 0xaf, 0x37, 0x93, 0x25, 0x2c,
-	0xeb, 0x7b, 0x0d, 0x28, 0xe5, 0x4c, 0xa0, 0x3d, 0x70, 0xc2, 0x0c, 0x45, 0xbf, 0x2b, 0x66, 0x4e,
-	0x17, 0x5e, 0x02, 0x4a, 0x3c, 0xba, 0xba, 0x67, 0xc4, 0x71, 0xcc, 0x8e, 0x29, 0x93, 0x38, 0xe9,
-	0xb7, 0x31, 0x8f, 0x1e, 0xfa, 0x13, 0xe7, 0xec, 0x39, 0x7d, 0xc0, 0x92, 0xe1, 0x93, 0xd4, 0x13,
-	0x50, 0x95, 0x8d, 0x13, 0x29, 0x65, 0xee, 0xfd, 0x2f, 0x9e, 0x25, 0x0f, 0x4d, 0x34, 0xd4, 0x3c,
-	0x39, 0xb1, 0x7e, 0x0e, 0x6b, 0xc8, 0x09, 0xd9, 0x18, 0x4d, 0x9f, 0x2d, 0x01, 0x12, 0x79, 0x61,
-	0x64, 0xeb, 0x02, 0xf0, 0xb6, 0x87, 0xfd, 0x0b, 0x1e, 0xdf, 0x1d, 0x3b, 0xe3, 0x28, 0x98, 0xf3,
-	0x4c, 0x1b, 0x89, 0x06, 0xa0, 0x67, 0x9c, 0x7a, 0x18, 0x78, 0x84, 0x8c, 0x5f, 0xb1, 0x0d, 0xb0,
-	0xf3, 0x84, 0x4e, 0x69, 0x46, 0x7e, 0x36, 0xfd, 0x25, 0xc5, 0x42, 0x1b, 0xaa, 0x60, 0x1a, 0xea,
-	0x96, 0xd9, 0xeb, 0x7b, 0xec, 0xde, 0xd1, 0xbe, 0x18, 0xb3, 0xf1, 0xcd, 0x5e, 0xe0, 0x4f, 0x57,
-	0x25, 0x68, 0x1d, 0xb2, 0xb7, 0x8e, 0xf6, 0x77, 0x02, 0xdf, 0x9e, 0x74, 0xec, 0x50, 0x9e, 0xe1,
-	0xed, 0x3b, 0x67, 0x91, 0x38, 0x46, 0x57, 0xf7, 0x63, 0xc9, 0x9b, 0x9c, 0x73, 0x78, 0x2f, 0xf9,
-	0xc5, 0xd6, 0xfb, 0x54, 0x5f, 0x88, 0xe2, 0x09, 0x24, 0xb6, 0xde, 0xce, 0x15, 0x47, 0x1c, 0x68,
-	0x9b, 0xf1, 0x3c, 0x8c, 0xfc, 0x69, 0xc2, 0x19, 0x61, 0x0f, 0x62, 0xe8, 0x4d, 0x62, 0x99, 0x61,
-	0xc8, 0xe7, 0x78, 0x09, 0x1b, 0xd2, 0x9c, 0x5f, 0xb7, 0x3a, 0x0a, 0x4d, 0x2f, 0xe2, 0xd3, 0x25,
-	0x68, 0x80, 0x11, 0x07, 0xde, 0x66, 0x23, 0x41, 0x5e, 0x3e, 0x43, 0x13, 0x68, 0xd1, 0xf6, 0xec,
-	0x31, 0xcf, 0x10, 0x07, 0x20, 0x67, 0xf0, 0x46, 0x0f, 0xd2, 0x0d, 0x54, 0x31, 0x42, 0x54, 0xf7,
-	0xa9, 0x6f, 0x7d, 0x42, 0x75, 0xd2, 0xdb, 0x00, 0x07, 0x16, 0x63, 0x11, 0x1d, 0x88, 0x67, 0x20,
-	0x35, 0xce, 0x1d, 0xf2, 0xe9, 0x73, 0x87, 0x25, 0xa7, 0x42, 0x53, 0xe8, 0x7d, 0x9f, 0xc7, 0x77,
-	0x48, 0xd6, 0x9f, 0xe4, 0xe4, 0x98, 0x24, 0x68, 0xa4, 0x0f, 0x71, 0xa1, 0xd0, 0xc3, 0xb3, 0x9e,
-	0x92, 0x4c, 0x16, 0x0a, 0x69, 0x16, 0x8a, 0x69, 0x16, 0xe2, 0x5b, 0xaa, 0x11, 0x66, 0x96, 0x28,
-	0xbe, 0xa5, 0x8a, 0x19, 0xab, 0xe8, 0xd1, 0xbf, 0x63, 0x74, 0x9e, 0xe2, 0x16, 0x00, 0xf9, 0xa0,
-	0x58, 0xa3, 0xd6, 0xd3, 0xfa, 0xcd, 0x1c, 0xfa, 0x9f, 0x56, 0x34, 0xb9, 0x1c, 0x1d, 0x4c, 0x2e,
-	0x2a, 0x06, 0x05, 0xc5, 0xd7, 0x86, 0xc7, 0x63, 0xcb, 0x62, 0x1c, 0x4e, 0x0a, 0x0a, 0xfa, 0x42,
-	0xad, 0x98, 0x79, 0xa1, 0x56, 0xca, 0xb8, 0xfe, 0x12, 0x97, 0x47, 0x7f, 0x97, 0x63, 0x6b, 0x83,
-	0xee, 0x27, 0xa3, 0x8b, 0xc0, 0x86, 0x1d, 0xe7, 0x0b, 0x67, 0xe4, 0x35, 0x0c, 0xa7, 0xe3, 0x6b,
-	0x61, 0x97, 0x1a, 0xbe, 0xfe, 0x94, 0x07, 0x90, 0x87, 0x7a, 0x93, 0x78, 0x68, 0x12, 0x90, 0x61,
-	0x24, 0xba, 0x18, 0x5a, 0x34, 0xe4, 0xe3, 0x79, 0xc0, 0xe5, 0x11, 0x44, 0x0d, 0x29, 0x77, 0xc0,
-	0x1b, 0x31, 0xd0, 0x00, 0x56, 0x56, 0x1b, 0xb1, 0x2f, 0xf4, 0xb8, 0x0b, 0xa0, 0x0a, 0x2d, 0x03,
-	0xed, 0xd1, 0xfd, 0xd5, 0x44, 0x6a, 0x0f, 0xcf, 0xfe, 0xfd, 0x4b, 0x2e, 0x5a, 0xf6, 0x1a, 0x8a,
-	0xaa, 0x78, 0x6b, 0xcf, 0x5c, 0xd1, 0xb2, 0xb7, 0xee, 0x83, 0x50, 0xbe, 0x3f, 0x6d, 0x4f, 0xec,
-	0x59, 0x24, 0xee, 0xf4, 0x4a, 0xdf, 0xcb, 0x3d, 0x02, 0x54, 0x85, 0x21, 0xbf, 0x11, 0x17, 0x40,
-	0xf0, 0x6c, 0xfd, 0x35, 0xc8, 0xd9, 0xee, 0x3c, 0xd1, 0x72, 0x02, 0x75, 0xf2, 0x15, 0xc3, 0x45,
-	0x80, 0xed, 0x6e, 0x10, 0xf8, 0x01, 0x0a, 0x22, 0xa4, 0xc5, 0xa3, 0x2c, 0x1e, 0x44, 0xf1, 0x38,
-	0x34, 0x50, 0xd6, 0x11, 0x82, 0x7e, 0x07, 0x21, 0x22, 0x77, 0xc8, 0x4f, 0xcc, 0xb6, 0x8c, 0x8c,
-	0x8e, 0xaf, 0xd4, 0x39, 0x2d, 0xdd, 0x2c, 0xf4, 0x26, 0x52, 0xf4, 0xf7, 0x58, 0x43, 0x18, 0x5d,
-	0x6d, 0xae, 0x2c, 0xdf, 0x8c, 0xaa, 0x03, 0x1e, 0xfa, 0x3e, 0xd2, 0x96, 0x47, 0x32, 0xbf, 0x9b,
-	0x67, 0x75, 0x65, 0x34, 0xfc, 0x94, 0x31, 0xc3, 0x6a, 0xf8, 0xd9, 0x83, 0xba, 0x0e, 0xca, 0x9b,
-	0x76, 0x2c, 0xa8, 0x07, 0x54, 0x8f, 0x3e, 0xcc, 0xfe, 0xef, 0xb3, 0x97, 0xe9, 0x41, 0x6b, 0x2a,
-	0x66, 0x44, 0x58, 0x91, 0xb5, 0x6a, 0x29, 0x8b, 0x36, 0x94, 0x45, 0xef, 0xb1, 0x1a, 0x69, 0x91,
-	0xdc, 0x7c, 0x5d, 0x41, 0x41, 0xb7, 0xfb, 0x81, 0x3f, 0x9f, 0x01, 0x4f, 0x1b, 0x94, 0x07, 0xfe,
-	0x1c, 0x74, 0xa3, 0x0c, 0x4d, 0xba, 0xc9, 0xb0, 0xb4, 0xb2, 0xab, 0x1e, 0x50, 0x13, 0xb5, 0xa8,
-	0x96, 0x61, 0x69, 0xf3, 0x8b, 0x4d, 0xad, 0xa2, 0xcf, 0xe7, 0xb6, 0xb7, 0x63, 0xfb, 0x1d, 0x9d,
-	0x0b, 0x80, 0x19, 0x6c, 0xc2, 0x11, 0x20, 0x0e, 0xd4, 0x4c, 0x07, 0xa9, 0xae, 0xe4, 0x20, 0xb5,
-	0x6c, 0x07, 0x61, 0xab, 0x3a, 0x88, 0xb8, 0xd4, 0xfe, 0x80, 0xad, 0x0b, 0x4f, 0xc7, 0x45, 0x90,
-	0xf3, 0x43, 0x50, 0x6d, 0xf2, 0xae, 0x2c, 0x7e, 0x8d, 0x77, 0x65, 0xff, 0x9e, 0x63, 0x9b, 0xca,
-	0xa1, 0xa0, 0x96, 0x07, 0x11, 0x62, 0xfc, 0xbf, 0xe0, 0x55, 0xd6, 0xef, 0x83, 0xe4, 0xca, 0x5d,
-	0x62, 0xc9, 0x33, 0x7c, 0x06, 0x40, 0xfa, 0xfd, 0x52, 0xc7, 0x31, 0xed, 0x5d, 0x5c, 0x6e, 0xb2,
-	0x05, 0xf3, 0x2e, 0x4f, 0x1e, 0xd6, 0xbf, 0xe5, 0xd8, 0xba, 0x32, 0xcd, 0xd1, 0x8c, 0x83, 0x8f,
-	0x64, 0x7c, 0x2d, 0x92, 0xc8, 0xd1, 0xe6, 0xb5, 0x61, 0x32, 0x19, 0x17, 0x33, 0xcc, 0x50, 0x5a,
-	0x34, 0x43, 0x39, 0x65, 0x86, 0x8a, 0xb2, 0xa7, 0x56, 0x71, 0x35, 0xa5, 0x62, 0x61, 0x19, 0x6d,
-	0x28, 0xa6, 0x28, 0x8f, 0x2e, 0x9c, 0x60, 0x72, 0xc9, 0x9f, 0x93, 0x4d, 0xd2, 0x36, 0x50, 0xb9,
-	0x19, 0x19, 0xa2, 0x85, 0xed, 0xd9, 0x0c, 0x70, 0xa3, 0x69, 0x6a, 0xd6, 0x6f, 0xe4, 0xd9, 0xba,
-	0xb2, 0x8b, 0x14, 0xfb, 0xa5, 0x03, 0x79, 0x31, 0x65, 0xd7, 0x53, 0x61, 0x5b, 0x4a, 0x87, 0x6d,
-	0x79, 0x21, 0x6c, 0x2b, 0x2f, 0x61, 0xc6, 0x97, 0x09, 0xf1, 0x64, 0xd8, 0x32, 0xd5, 0xe8, 0xb5,
-	0xc7, 0x17, 0x57, 0xe4, 0xc3, 0x05, 0xc8, 0x65, 0xbf, 0x2d, 0x8a, 0xf3, 0xd0, 0xf1, 0x6c, 0xfa,
-	0x18, 0xdd, 0xd4, 0xa8, 0x08, 0x48, 0x98, 0x29, 0x10, 0xfd, 0x41, 0xd6, 0x4c, 0x81, 0xdb, 0xda,
-	0x33, 0x47, 0x7d, 0x3a, 0xf1, 0x5a, 0xbc, 0x00, 0xda, 0x7d, 0x2c, 0xa3, 0x9a, 0xa3, 0x0c, 0x9b,
-	0xbc, 0xc3, 0x2a, 0x03, 0x1e, 0x19, 0x1c, 0x6d, 0xa5, 0x39, 0x82, 0xd7, 0xd6, 0xf7, 0x73, 0xa0,
-	0xe3, 0xee, 0x27, 0x4f, 0xb9, 0xb3, 0xe3, 0xff, 0x0f, 0x39, 0xb4, 0x76, 0xd7, 0xaa, 0xf2, 0xde,
-	0xeb, 0x53, 0x98, 0xf7, 0xc9, 0x3e, 0x75, 0xf1, 0x08, 0x33, 0x8d, 0x3c, 0x19, 0xfc, 0x26, 0xab,
-	0x82, 0xdc, 0x82, 0xdd, 0x45, 0xa1, 0xad, 0x9d, 0xb8, 0x20, 0x77, 0x6f, 0x9c, 0xc8, 0x34, 0x77,
-	0xdc, 0x5c, 0xc0, 0x8b, 0xe4, 0xfd, 0x13, 0x42, 0x90, 0x22, 0x09, 0x66, 0xfd, 0x4d, 0x8e, 0x6d,
-	0x29, 0x24, 0xc8, 0x28, 0x44, 0x5b, 0xe8, 0xf8, 0x1e, 0x89, 0x37, 0x0f, 0xe4, 0x53, 0x7c, 0xea,
-	0x2f, 0x65, 0xd1, 0x13, 0x95, 0xa1, 0x82, 0x82, 0x6a, 0x02, 0x81, 0x47, 0xdf, 0x9d, 0xe3, 0x17,
-	0x24, 0x5a, 0x59, 0x09, 0xc5, 0xe8, 0xbc, 0x7c, 0x60, 0x7b, 0xe7, 0x73, 0xfb, 0x9c, 0x6b, 0x65,
-	0xc1, 0x66, 0xba, 0x7b, 0x53, 0x64, 0x2b, 0x9a, 0x8c, 0xeb, 0x40, 0x97, 0x4f, 0x72, 0x54, 0xd5,
-	0xee, 0xe1, 0x38, 0xe0, 0xdc, 0x1b, 0x3a, 0x2f, 0xb8, 0xcc, 0x04, 0xc9, 0x40, 0x67, 0x2a, 0xd9,
-	0xfe, 0xa0, 0xc0, 0xb6, 0x54, 0x50, 0x9b, 0x12, 0x66, 0x78, 0x11, 0x60, 0xc5, 0xd9, 0x4a, 0x7e,
-	0xb6, 0x93, 0x57, 0x99, 0x7f, 0xd7, 0xbf, 0xf6, 0x5c, 0xe8, 0x9b, 0x4f, 0x02, 0x57, 0xba, 0x03,
-	0x30, 0x4a, 0x5f, 0x31, 0xf1, 0x00, 0x26, 0x19, 0x39, 0xf6, 0xd5, 0xf0, 0xa2, 0x31, 0x86, 0x1e,
-	0xe3, 0x27, 0x15, 0x25, 0x13, 0x8e, 0xfd, 0xb3, 0x44, 0x5d, 0x56, 0xa8, 0x15, 0x7c, 0x97, 0x9f,
-	0xc9, 0x42, 0x04, 0x3c, 0xf4, 0xce, 0xe8, 0x70, 0x0d, 0xb0, 0x48, 0x69, 0x61, 0xa1, 0x82, 0x28,
-	0x5f, 0xa9, 0xb5, 0x1e, 0xc9, 0x44, 0xa0, 0x43, 0x51, 0x94, 0xeb, 0x6f, 0x18, 0x89, 0x80, 0x64,
-	0xd6, 0x8b, 0xf0, 0xf3, 0x1e, 0x25, 0x0a, 0x9e, 0xd2, 0xa1, 0x86, 0xd7, 0x52, 0x86, 0xad, 0x2b,
-	0xbf, 0xc1, 0xdb, 0xcd, 0x21, 0x8a, 0xd0, 0xc8, 0xee, 0x0d, 0xd6, 0x97, 0x67, 0x9d, 0x77, 0x59,
-	0xe5, 0xe3, 0x30, 0xa4, 0x55, 0x1b, 0xa9, 0x6f, 0x1a, 0x89, 0xa1, 0x8f, 0x87, 0x43, 0x95, 0x1e,
-	0x7a, 0x67, 0x43, 0x6e, 0x07, 0xe3, 0x8b, 0xed, 0x26, 0x89, 0xf4, 0x3e, 0xab, 0xef, 0xcc, 0x5d,
-	0x98, 0x90, 0x1d, 0x8f, 0xb6, 0x6f, 0xd2, 0xf6, 0x37, 0x0c, 0x22, 0xea, 0xb5, 0xfc, 0x3a, 0x58,
-	0xf7, 0x0f, 0x7d, 0x7e, 0x2d, 0xea, 0x44, 0x22, 0x52, 0x73, 0x19, 0x91, 0x9a, 0x5f, 0x8c, 0xd4,
-	0x42, 0x2a, 0x52, 0xc5, 0x79, 0xcd, 0x17, 0x71, 0x8d, 0x8e, 0xb1, 0xaf, 0xd4, 0xc1, 0x03, 0x26,
-	0xb1, 0x3c, 0x2e, 0x08, 0xba, 0x88, 0x15, 0xe5, 0x4f, 0x7e, 0x36, 0x14, 0xe7, 0x7b, 0x8e, 0x37,
-	0x81, 0xac, 0x83, 0xa1, 0xdf, 0x9d, 0xda, 0x8e, 0x2b, 0x99, 0x06, 0x1c, 0x40, 0x55, 0xa7, 0x23,
-	0xeb, 0x1d, 0xb6, 0xa1, 0xb8, 0x51, 0x3b, 0x32, 0x32, 0xc2, 0xb7, 0x59, 0x43, 0xad, 0x7a, 0x0c,
-	0x8a, 0x8d, 0x84, 0x36, 0x82, 0x2b, 0xfa, 0x8c, 0x82, 0x10, 0x5b, 0x1f, 0xb1, 0x35, 0x33, 0x47,
-	0xe3, 0xc7, 0x2b, 0x33, 0x87, 0x22, 0x2b, 0x17, 0x7f, 0x78, 0x11, 0x7d, 0xaa, 0x7f, 0x27, 0x43,
-	0xac, 0x9c, 0x88, 0x5f, 0x04, 0x89, 0x94, 0xb1, 0x03, 0xb1, 0xa7, 0x73, 0xaa, 0xf8, 0x4e, 0x25,
-	0x4a, 0x9f, 0xfa, 0x2b, 0x9c, 0xf9, 0x05, 0x9c, 0x02, 0xc7, 0xbf, 0xd0, 0xe0, 0xac, 0x5d, 0x06,
-	0xef, 0x17, 0xf1, 0xff, 0x49, 0xdc, 0xf2, 0xe1, 0x33, 0x4d, 0x9c, 0x9a, 0x09, 0x5a, 0x31, 0x33,
-	0xbb, 0x65, 0x7f, 0x4a, 0x51, 0xa6, 0x13, 0x32, 0x42, 0xe4, 0x97, 0x85, 0x25, 0x15, 0x38, 0x08,
-	0x3b, 0x74, 0xbc, 0x7d, 0xfc, 0xce, 0xae, 0x9c, 0x00, 0xda, 0x37, 0x04, 0xac, 0xa4, 0x56, 0x62,
-	0x06, 0x90, 0x71, 0x27, 0x89, 0xe8, 0x8f, 0x3b, 0x45, 0xde, 0xa1, 0xf0, 0x26, 0x18, 0xd3, 0x19,
-	0x82, 0x87, 0xe3, 0xc0, 0x99, 0x45, 0x2a, 0xa4, 0xf4, 0x56, 0xaa, 0x2e, 0xd4, 0x0b, 0x5a, 0x7f,
-	0x91, 0xc7, 0xd3, 0xae, 0x54, 0x48, 0xa6, 0x0e, 0x7f, 0xc8, 0x31, 0x0f, 0x13, 0xb3, 0x37, 0x25,
-	0xcf, 0xb6, 0x1e, 0xa0, 0xb5, 0xf4, 0x04, 0x1a, 0xce, 0xa7, 0xf1, 0xe1, 0x04, 0xed, 0x1b, 0xf1,
-	0x60, 0x1a, 0x67, 0xd8, 0xc7, 0xf3, 0xa9, 0x0d, 0xa1, 0x34, 0x75, 0xa2, 0xf8, 0x0e, 0x9e, 0x96,
-	0xd1, 0x0b, 0xdc, 0x5d, 0x49, 0xee, 0x56, 0x19, 0x36, 0x5e, 0xd9, 0xc3, 0x1f, 0x7d, 0x5d, 0xd9,
-	0x6e, 0xdc, 0x41, 0x10, 0xf8, 0x38, 0xc0, 0xc4, 0xcb, 0x54, 0x36, 0x94, 0x30, 0x7f, 0xcc, 0xc3,
-	0x50, 0x6a, 0x40, 0xe1, 0xdc, 0xb5, 0x65, 0xdb, 0x45, 0x6c, 0x13, 0x68, 0x8f, 0x8b, 0x66, 0x38,
-	0x5e, 0xd4, 0x0e, 0xb8, 0x2d, 0xe6, 0xab, 0xb4, 0x3a, 0x37, 0x48, 0x79, 0xff, 0x9c, 0x63, 0x8d,
-	0xc4, 0xf4, 0xa0, 0xc3, 0x75, 0x37, 0x76, 0x3a, 0x35, 0x93, 0xe9, 0x8f, 0x46, 0x68, 0xb1, 0x71,
-	0x25, 0x0d, 0x26, 0x4f, 0x7c, 0x50, 0xa5, 0x96, 0x1c, 0x4b, 0x8d, 0x99, 0x4e, 0x65, 0x0c, 0x57,
-	0xa0, 0x81, 0x1b, 0x31, 0x5c, 0x11, 0x16, 0xa8, 0x8b, 0x12, 0x8b, 0xfe, 0xdd, 0x95, 0x72, 0x3c,
-	0xf5, 0x0d, 0xf0, 0x26, 0xde, 0x17, 0x1f, 0xf8, 0xe3, 0x4b, 0x5d, 0x86, 0x32, 0xa6, 0xa3, 0xb5,
-	0x5b, 0xa7, 0xa3, 0x8f, 0x58, 0x3d, 0x91, 0x2d, 0x63, 0x5e, 0x73, 0x0b, 0xbc, 0xc6, 0x21, 0xc2,
-	0xa7, 0x76, 0x70, 0x29, 0x63, 0xec, 0x11, 0x1e, 0xe0, 0x9a, 0x09, 0x13, 0x73, 0xcc, 0xc8, 0x89,
-	0x5c, 0xe3, 0x00, 0x4c, 0x9d, 0x9f, 0x89, 0x63, 0xc6, 0x7f, 0x14, 0x23, 0xfe, 0x27, 0x73, 0x68,
-	0xb0, 0x33, 0x47, 0xfc, 0xfa, 0xc2, 0xc1, 0x8c, 0xce, 0xb5, 0x85, 0x8c, 0x5c, 0x5b, 0x5c, 0xcc,
-	0xb5, 0xa5, 0x54, 0xae, 0x2d, 0x27, 0xbb, 0xa2, 0x4a, 0x46, 0x25, 0xaf, 0x66, 0x0e, 0xe3, 0x35,
-	0xa3, 0x91, 0x37, 0x3a, 0x15, 0xa6, 0xba, 0x90, 0x44, 0x23, 0xb1, 0x96, 0xd9, 0x9b, 0xd4, 0x33,
-	0x1a, 0x91, 0x46, 0x46, 0x7b, 0xb1, 0x4e, 0xb0, 0x6d, 0xd6, 0xa4, 0x3e, 0x78, 0xd7, 0x39, 0x77,
-	0x22, 0xdb, 0x25, 0x9d, 0x6c, 0x2c, 0xcc, 0x1c, 0x4d, 0xb5, 0xdf, 0x18, 0x2e, 0x36, 0x95, 0xcc,
-	0xf2, 0x87, 0x95, 0x2d, 0x3a, 0x9e, 0xfc, 0x7e, 0x89, 0xce, 0x0c, 0x62, 0x65, 0x67, 0xd4, 0x96,
-	0x38, 0xf5, 0x8a, 0x53, 0xcf, 0x55, 0x4e, 0x0d, 0x5e, 0xe7, 0xb0, 0xf1, 0x28, 0x7b, 0xd8, 0xb8,
-	0xa5, 0xc7, 0xc0, 0x5f, 0x43, 0xe1, 0x70, 0x54, 0x53, 0x83, 0x8f, 0x98, 0x37, 0x08, 0xc6, 0x34,
-	0x2c, 0xb6, 0xd7, 0x5a, 0x46, 0xe3, 0x55, 0xcf, 0x6a, 0xbc, 0x1a, 0x19, 0xdd, 0xd1, 0x7a, 0x56,
-	0x77, 0xd4, 0x4c, 0x79, 0xd8, 0x26, 0x51, 0x30, 0x9a, 0x92, 0xd6, 0xaa, 0x4d, 0xc9, 0x56, 0x66,
-	0x53, 0x72, 0xef, 0xd6, 0xa6, 0x04, 0xb9, 0x91, 0xb2, 0xd1, 0xcf, 0x21, 0xee, 0x13, 0x8e, 0x1f,
-	0x97, 0x19, 0x72, 0x78, 0x45, 0xd7, 0x34, 0xdb, 0x0f, 0x96, 0xab, 0x5c, 0x1e, 0x67, 0xbc, 0x21,
-	0x3f, 0x3c, 0xa6, 0xaa, 0xa4, 0xb6, 0x6d, 0x2f, 0xdf, 0x06, 0xb1, 0xb1, 0x3b, 0x79, 0x81, 0x1f,
-	0x6e, 0x5f, 0xe1, 0xa7, 0xd8, 0xfa, 0x40, 0xb2, 0x0c, 0x2a, 0x41, 0xf5, 0xbd, 0x29, 0x33, 0x75,
-	0x8d, 0x7a, 0x95, 0x8e, 0x3f, 0xe1, 0xe2, 0x93, 0x6c, 0x5c, 0x65, 0x1e, 0xb0, 0xbc, 0xad, 0xd4,
-	0x1c, 0x70, 0x17, 0x7a, 0x44, 0x3e, 0xb2, 0xcf, 0xe9, 0xb3, 0xec, 0x92, 0x55, 0x63, 0x95, 0x3e,
-	0x08, 0x0a, 0xf8, 0xac, 0x53, 0xd6, 0xdc, 0x57, 0x9f, 0x5d, 0xca, 0xdb, 0x93, 0xd5, 0x7e, 0xa5,
-	0xa1, 0xc9, 0x14, 0xd4, 0x8c, 0x65, 0xdc, 0x83, 0xab, 0xd3, 0xfb, 0x92, 0x6c, 0x65, 0xa8, 0x39,
-	0x7e, 0xd6, 0xf7, 0x23, 0x67, 0xcc, 0xe9, 0xa6, 0x9f, 0xfe, 0x8b, 0x5b, 0x15, 0xeb, 0xd7, 0x73,
-	0xa2, 0xb1, 0xc6, 0x2f, 0xa9, 0x97, 0x2f, 0xa3, 0xc3, 0x6a, 0x01, 0xa3, 0xdc, 0x97, 0x97, 0x29,
-	0xa6, 0x21, 0x80, 0xe6, 0x0d, 0x42, 0x2d, 0xde, 0x7f, 0xc8, 0xa7, 0xbe, 0x0c, 0x28, 0xfc, 0x56,
-	0x5a, 0x1d, 0xc7, 0x83, 0x42, 0xcf, 0x1c, 0x97, 0x4f, 0x42, 0xfa, 0xa5, 0x4f, 0xcd, 0xfa, 0x35,
-	0xb6, 0x41, 0x1c, 0x88, 0xab, 0x33, 0xa8, 0x5b, 0x97, 0x46, 0x9c, 0xe7, 0x54, 0xcc, 0xce, 0xec,
-	0x30, 0xbc, 0xc6, 0x53, 0xbc, 0xbc, 0x22, 0x12, 0x66, 0x7c, 0x7f, 0x7b, 0x9a, 0xfc, 0x30, 0x16,
-	0x20, 0x0e, 0xfe, 0x30, 0x39, 0xbe, 0x92, 0x87, 0x04, 0x21, 0x20, 0xfa, 0x22, 0x00, 0x26, 0xe3,
-	0x96, 0xd2, 0x40, 0x92, 0x85, 0x20, 0x95, 0x46, 0x26, 0x00, 0xef, 0x19, 0x96, 0xd0, 0x2c, 0x89,
-	0x5a, 0xf1, 0xa3, 0x6c, 0x93, 0xf0, 0xec, 0x3a, 0x21, 0x24, 0xc8, 0xab, 0x4c, 0x49, 0xac, 0xcf,
-	0xd8, 0x3d, 0x45, 0xec, 0xb6, 0x75, 0xe9, 0x9f, 0xab, 0x1b, 0xe4, 0x0b, 0x26, 0x79, 0x3a, 0xd7,
-	0x24, 0x15, 0x5b, 0x6f, 0x8b, 0x5f, 0x85, 0x3c, 0x83, 0xb1, 0x64, 0xf2, 0x7c, 0x81, 0xee, 0xb7,
-	0x58, 0x43, 0xd1, 0xd5, 0x0b, 0x12, 0xbf, 0xa0, 0x57, 0xdb, 0x77, 0xb8, 0xfc, 0x94, 0x3e, 0xb1,
-	0xfd, 0x7d, 0x69, 0x23, 0x9a, 0xb5, 0xf8, 0x18, 0xa8, 0x4a, 0x93, 0x6a, 0xe5, 0xcc, 0x8d, 0x1c,
-	0x6b, 0x7d, 0xcc, 0xb6, 0x24, 0x32, 0x9b, 0x3e, 0x89, 0x93, 0x5b, 0xe2, 0x54, 0xac, 0xcd, 0x9a,
-	0x3a, 0x95, 0x04, 0xf3, 0x3c, 0x75, 0xbc, 0xf6, 0xd4, 0xf8, 0x4a, 0xe6, 0x6b, 0x03, 0xd7, 0x72,
-	0xf2, 0x09, 0xdb, 0xe0, 0x87, 0x93, 0x28, 0xc6, 0xc8, 0xd1, 0x61, 0xf2, 0x13, 0xac, 0x84, 0x1c,
-	0x86, 0xf2, 0x74, 0xef, 0x6d, 0x1d, 0xff, 0x19, 0x7c, 0x5a, 0xe3, 0xd8, 0x23, 0x0c, 0x8a, 0x77,
-	0x99, 0xe8, 0x7d, 0x56, 0x09, 0x68, 0x65, 0x28, 0x7f, 0xe0, 0x90, 0x41, 0x24, 0x46, 0xb7, 0x93,
-	0x7f, 0x5c, 0xf8, 0xcf, 0x00, 0x00, 0x00, 0xff, 0xff, 0xbf, 0x83, 0x1b, 0x9d, 0xfb, 0x40, 0x00,
-	0x00,
+	// 4954 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x09, 0x6e, 0x88, 0x02, 0xff, 0xe4, 0x3b, 0x4b, 0x6c, 0x2b, 0x59,
+	0x56, 0xf8, 0x6f, 0xdf, 0x38, 0x89, 0xe3, 0xf7, 0xe9, 0x4c, 0x77, 0x0f, 0xc3, 0x14, 0x3d, 0x33,
+	0x6f, 0x1a, 0xba, 0x69, 0x5e, 0x0f, 0x42, 0x9a, 0x05, 0x8c, 0x63, 0x3b, 0x79, 0xee, 0x97, 0x38,
+	0x69, 0xdb, 0xe9, 0xd7, 0x3d, 0x30, 0x7a, 0x5d, 0xb1, 0x6f, 0x92, 0xea, 0x94, 0xab, 0xdc, 0x55,
+	0xe5, 0x24, 0xef, 0x21, 0x10, 0x1b, 0x16, 0x48, 0x2c, 0xd8, 0xb1, 0x80, 0x0d, 0x0b, 0x3e, 0x42,
+	0xb0, 0x62, 0x89, 0xd8, 0xc1, 0x92, 0x35, 0xdb, 0x11, 0x0b, 0x84, 0x90, 0x90, 0x60, 0x05, 0x82,
+	0x0d, 0xe7, 0x9c, 0xfb, 0xa9, 0x5b, 0xe5, 0x72, 0xe2, 0xbc, 0x79, 0x7c, 0xa4, 0x59, 0x25, 0x75,
+	0xea, 0xde, 0xf3, 0xff, 0xde, 0x5b, 0x66, 0x9b, 0x23, 0x7e, 0x6d, 0x87, 0x7b, 0xf6, 0x94, 0xbf,
+	0x3f, 0x0b, 0xfc, 0xc8, 0x6f, 0x56, 0x4e, 0x4e, 0xe8, 0x1f, 0xeb, 0x11, 0x7b, 0x78, 0x06, 0xe0,
+	0xe7, 0xad, 0xf6, 0xd3, 0xb6, 0xef, 0x9d, 0x3a, 0xc1, 0x14, 0xfe, 0x78, 0x7c, 0x1c, 0x35, 0x37,
+	0x58, 0x39, 0xe0, 0xe1, 0xdc, 0x8d, 0xb6, 0x73, 0x3f, 0x95, 0x7b, 0x54, 0xb2, 0x3e, 0x60, 0x1b,
+	0xb4, 0x72, 0xdf, 0x3f, 0x73, 0x3c, 0x44, 0x85, 0x2b, 0xf6, 0x79, 0x14, 0xf1, 0x80, 0x56, 0xd4,
+	0x8d, 0x1d, 0x79, 0xda, 0xf1, 0x05, 0xdb, 0xa4, 0x1d, 0x5d, 0x0f, 0xd6, 0x1c, 0xd8, 0xd1, 0xf8,
+	0xbc, 0xb9, 0xc9, 0x2a, 0xf4, 0x4f, 0xaf, 0x23, 0xf7, 0x00, 0x60, 0x64, 0x9f, 0xb8, 0xdc, 0x99,
+	0x88, 0x4d, 0xcd, 0x06, 0xab, 0x1e, 0xd9, 0x61, 0xf8, 0xcc, 0x0f, 0x26, 0xdb, 0x05, 0x5a, 0x72,
+	0x8f, 0xad, 0x85, 0xed, 0xdd, 0xe3, 0x90, 0x07, 0x7d, 0xc0, 0xb6, 0x5d, 0x54, 0xb4, 0xe6, 0x00,
+	0xe9, 0x4d, 0xb6, 0x4b, 0xf0, 0xbc, 0x6e, 0x3d, 0x63, 0x4d, 0x21, 0xc7, 0xf8, 0xc2, 0x20, 0x97,
+	0x92, 0x41, 0x93, 0x97, 0xd4, 0x12, 0xe4, 0x0b, 0x6a, 0x85, 0x37, 0xe0, 0x76, 0xe8, 0x7b, 0x44,
+	0xa8, 0x64, 0x1d, 0xb1, 0x86, 0x40, 0x3c, 0x99, 0x3c, 0xb1, 0xbd, 0x49, 0xdb, 0x77, 0x3c, 0x13,
+	0xcd, 0x12, 0x29, 0xea, 0xac, 0x18, 0x72, 0x3b, 0x92, 0x48, 0xe1, 0x09, 0xf7, 0x11, 0xc6, 0x82,
+	0xf5, 0x1e, 0x5b, 0x27, 0x8c, 0x6d, 0x3b, 0x98, 0xf4, 0xbc, 0x53, 0xbf, 0xb9, 0xce, 0x4a, 0x63,
+	0xdf, 0xf5, 0x03, 0xc9, 0x24, 0x3c, 0x5e, 0xda, 0xee, 0x9c, 0x4b, 0x2d, 0xfe, 0x30, 0x27, 0xd7,
+	0xf7, 0x3c, 0x27, 0xc2, 0x3d, 0x77, 0x26, 0x0f, 0x2a, 0xed, 0xf3, 0xeb, 0x08, 0x35, 0x28, 0x84,
+	0x6a, 0x3e, 0x62, 0x55, 0x12, 0x06, 0xb0, 0x81, 0xfe, 0x0a, 0x8f, 0xd6, 0x1e, 0x3f, 0x7c, 0x5f,
+	0x7a, 0xc4, 0xfb, 0x49, 0xde, 0xde, 0x65, 0xec, 0x68, 0x7e, 0xe2, 0x3a, 0x63, 0x5a, 0x5b, 0xbe,
+	0x71, 0x2d, 0xd0, 0x39, 0x70, 0xbc, 0x81, 0xed, 0x84, 0x7c, 0xbb, 0x82, 0xa2, 0x36, 0x9b, 0x8c,
+	0xb5, 0xc6, 0x91, 0xe3, 0x7b, 0x23, 0x07, 0x2c, 0x57, 0x25, 0xda, 0x5b, 0xac, 0xd6, 0xe1, 0xae,
+	0xfd, 0x82, 0x40, 0x35, 0x12, 0xf1, 0x40, 0x4a, 0x48, 0x5b, 0x77, 0x78, 0xb4, 0x9a, 0x84, 0xc3,
+	0x65, 0x0a, 0xfe, 0xe3, 0x9c, 0xb2, 0xd9, 0xf8, 0xe2, 0xf5, 0xa0, 0x44, 0xd1, 0x94, 0xf5, 0xc9,
+	0xe1, 0x0a, 0x4a, 0xa9, 0xb4, 0xa3, 0xac, 0x76, 0xcc, 0x7c, 0xdf, 0x95, 0xa2, 0x9b, 0xca, 0xa8,
+	0x2a, 0x48, 0xdb, 0x96, 0x10, 0x21, 0xf7, 0xf7, 0x64, 0x48, 0xed, 0xfa, 0xae, 0xeb, 0x5f, 0xbd,
+	0x02, 0x97, 0xd6, 0x9f, 0xe4, 0xd8, 0x96, 0x12, 0xf5, 0x95, 0xb1, 0x24, 0x64, 0x29, 0x26, 0xa4,
+	0x2f, 0x2d, 0x48, 0x5f, 0x26, 0xc8, 0xdd, 0x65, 0xfd, 0x25, 0x56, 0x57, 0xb2, 0x4e, 0x5e, 0x45,
+	0xd2, 0x3f, 0xca, 0xc9, 0x6c, 0x22, 0x24, 0x9d, 0xfc, 0x7f, 0x95, 0xf3, 0x97, 0x55, 0x74, 0x9f,
+	0xf3, 0xf1, 0xc5, 0xab, 0x08, 0x6a, 0x7a, 0xef, 0xab, 0x22, 0xf9, 0x11, 0x24, 0xad, 0x2e, 0x48,
+	0x5a, 0x5b, 0x90, 0x94, 0x11, 0xa3, 0x7f, 0xa6, 0x7c, 0x6f, 0xc8, 0xbd, 0xc9, 0xae, 0xeb, 0xcf,
+	0x56, 0x4c, 0x4e, 0xdf, 0x80, 0x74, 0x07, 0x2b, 0x3f, 0x20, 0x56, 0x97, 0x67, 0x13, 0xb9, 0xec,
+	0xe7, 0x89, 0xff, 0x5b, 0x97, 0x3d, 0x26, 0xc1, 0x96, 0x2e, 0xb3, 0x7e, 0xc5, 0xe0, 0x75, 0x34,
+	0x0f, 0xbc, 0x15, 0x79, 0x7d, 0x87, 0x15, 0x11, 0xfb, 0xcd, 0xac, 0x5a, 0xbf, 0x2a, 0x8b, 0x0f,
+	0x22, 0x1f, 0x38, 0x97, 0x3c, 0x78, 0xad, 0xd8, 0x7f, 0xdf, 0xd4, 0xf3, 0x21, 0x60, 0x47, 0xfe,
+	0x57, 0xf3, 0x88, 0x23, 0xb4, 0x68, 0x41, 0xa5, 0xe2, 0x21, 0x1f, 0xfb, 0xde, 0x84, 0x60, 0x45,
+	0x48, 0xe4, 0xc9, 0x1c, 0x56, 0x52, 0x7e, 0x73, 0x0e, 0x7e, 0x31, 0x16, 0x7e, 0x51, 0x10, 0x7e,
+	0x41, 0x4f, 0x15, 0xb5, 0x23, 0x19, 0x01, 0x96, 0x6b, 0x54, 0xb3, 0xd1, 0x8b, 0x19, 0xa7, 0x6a,
+	0x46, 0x76, 0xd3, 0xd5, 0x4c, 0xd8, 0x27, 0x6f, 0x3e, 0x7e, 0x28, 0xfd, 0x54, 0x3e, 0x7e, 0x47,
+	0x3a, 0xa9, 0x7c, 0xfc, 0x85, 0x98, 0x1b, 0x7c, 0x8c, 0x00, 0xad, 0xc8, 0xb1, 0xd6, 0x9f, 0xe7,
+	0x64, 0x1a, 0x79, 0xe6, 0x78, 0x54, 0x8a, 0x95, 0xdb, 0xe7, 0x54, 0x6d, 0x41, 0x27, 0xee, 0x79,
+	0x13, 0x7e, 0x1d, 0x6b, 0x81, 0xf8, 0x17, 0x5a, 0x58, 0x37, 0x9d, 0xca, 0x60, 0xae, 0x94, 0x64,
+	0xae, 0x9c, 0x64, 0xae, 0x92, 0x64, 0xae, 0xba, 0xc0, 0x5c, 0x4d, 0x41, 0x02, 0xdf, 0xe5, 0x1e,
+	0x76, 0x29, 0x18, 0x22, 0x75, 0xeb, 0x5f, 0x54, 0xd2, 0x1a, 0xf1, 0x30, 0x1a, 0x50, 0x27, 0xb2,
+	0x82, 0xe1, 0x1e, 0x49, 0x23, 0x08, 0xd7, 0xb8, 0xa9, 0xe2, 0x82, 0xbc, 0x27, 0xc3, 0x73, 0xff,
+	0x8a, 0x8a, 0x33, 0xda, 0xb4, 0xd4, 0xbc, 0xcf, 0xea, 0x27, 0x10, 0xa8, 0x1a, 0x5a, 0x22, 0xe8,
+	0xbb, 0x6c, 0x4d, 0x6a, 0x0c, 0xf7, 0xc9, 0x3a, 0xfe, 0x20, 0x89, 0x55, 0xa9, 0xd4, 0xcc, 0x0d,
+	0xc2, 0xea, 0xdf, 0x82, 0xd8, 0x57, 0x5b, 0xab, 0x37, 0x6c, 0xb5, 0x5a, 0x52, 0xdc, 0x7d, 0x6e,
+	0x5f, 0xf2, 0x64, 0xc7, 0xb7, 0x6a, 0xfa, 0xeb, 0x48, 0x7f, 0xc2, 0x6e, 0x45, 0x75, 0x15, 0xba,
+	0xf7, 0x13, 0x18, 0xd4, 0x06, 0xb1, 0x3d, 0xd5, 0x1e, 0x52, 0xcf, 0x68, 0x3d, 0x37, 0x42, 0x46,
+	0x63, 0x7a, 0x24, 0x30, 0x91, 0x18, 0xb9, 0x2c, 0xbd, 0xea, 0x95, 0xb7, 0xf6, 0x89, 0xd6, 0xbf,
+	0xa9, 0xae, 0x8c, 0x62, 0xde, 0xf6, 0x2e, 0x56, 0x10, 0xd4, 0x94, 0xa4, 0xa0, 0x24, 0xc1, 0xbd,
+	0xd2, 0x1b, 0x41, 0x12, 0x3e, 0xe0, 0x57, 0x32, 0x90, 0xa4, 0x4f, 0x82, 0x3d, 0x3d, 0x01, 0x6c,
+	0xfb, 0x73, 0x2f, 0x92, 0xd9, 0x1a, 0xa2, 0xd9, 0x1b, 0xf9, 0x91, 0xed, 0x4a, 0x2b, 0x21, 0xec,
+	0x01, 0x5b, 0xf7, 0xfa, 0xfe, 0x15, 0x77, 0xa1, 0xfd, 0x25, 0x70, 0x75, 0x01, 0x3c, 0x8a, 0x9d,
+	0x15, 0x5a, 0x63, 0x6f, 0x38, 0xf6, 0x03, 0xe1, 0xaa, 0x84, 0x51, 0x90, 0x21, 0xf6, 0xd6, 0x88,
+	0x3d, 0xf0, 0x78, 0x8f, 0x34, 0x5d, 0x27, 0x99, 0x1f, 0xcb, 0x76, 0x05, 0x1c, 0x39, 0x5a, 0xd1,
+	0xb8, 0xd6, 0xaf, 0xcb, 0x62, 0xd6, 0x06, 0x8f, 0x3e, 0xe3, 0xf4, 0x6e, 0x71, 0x17, 0xd0, 0xee,
+	0xf3, 0xab, 0xa4, 0xb2, 0x16, 0x3a, 0x73, 0x53, 0x7b, 0xc5, 0x84, 0x1f, 0x94, 0xb2, 0xfc, 0xa0,
+	0x4c, 0x7e, 0xf0, 0x4f, 0x45, 0xc3, 0x11, 0x70, 0x68, 0x49, 0x9b, 0x77, 0x89, 0xa9, 0x80, 0x23,
+	0x5c, 0x3d, 0x8c, 0xec, 0x68, 0x1e, 0xc6, 0x0c, 0xb4, 0xcf, 0x9d, 0x59, 0xb2, 0xa6, 0x52, 0xcd,
+	0x14, 0x35, 0x15, 0x18, 0x20, 0x24, 0x47, 0xd0, 0xdc, 0x42, 0xa7, 0x5d, 0x56, 0x9b, 0x76, 0xc0,
+	0xc2, 0xb4, 0x49, 0xa4, 0x11, 0xe8, 0xa8, 0x67, 0xd4, 0x51, 0x53, 0x7c, 0x57, 0x6f, 0x8c, 0x6f,
+	0x33, 0x13, 0xd4, 0x6e, 0xeb, 0xbd, 0x75, 0xd0, 0x32, 0x95, 0xaa, 0xa9, 0xd0, 0x21, 0x64, 0x8d,
+	0x20, 0xc9, 0x6e, 0xbc, 0xae, 0xd4, 0x7c, 0xd2, 0xf5, 0x90, 0xed, 0xed, 0x75, 0xca, 0x14, 0x66,
+	0x86, 0xdf, 0x50, 0x39, 0xf3, 0x04, 0x3b, 0xae, 0xed, 0x4d, 0x5a, 0x00, 0x8e, 0x73, 0xd2, 0x72,
+	0x21, 0xc7, 0x6e, 0x37, 0xf4, 0xf3, 0x4e, 0xc0, 0xed, 0x8b, 0xed, 0x2d, 0xfd, 0x4c, 0xf1, 0xbf,
+	0xdd, 0xa4, 0xe7, 0x44, 0xbf, 0x7f, 0x4f, 0x99, 0x0a, 0x7c, 0xfa, 0x64, 0xfe, 0x42, 0xb8, 0xf4,
+	0x7d, 0x0d, 0x84, 0x21, 0xcb, 0xf7, 0x04, 0xf0, 0x81, 0x02, 0x9e, 0xec, 0x3a, 0x9e, 0xed, 0xd2,
+	0x9b, 0xed, 0x87, 0x04, 0x7c, 0x83, 0x6d, 0x7a, 0x38, 0x0c, 0x19, 0xc2, 0xbc, 0x41, 0x2f, 0x1e,
+	0xb2, 0x0d, 0x7a, 0x11, 0xd3, 0xdb, 0x56, 0x46, 0xf0, 0x9c, 0xf1, 0x05, 0xf9, 0xc5, 0x57, 0x80,
+	0xa9, 0x1a, 0x32, 0x89, 0x03, 0x12, 0x8c, 0x8f, 0x6f, 0x12, 0x93, 0x6a, 0x60, 0x7a, 0x4b, 0x59,
+	0x3f, 0x8c, 0x6b, 0xe5, 0xdb, 0xa4, 0x3c, 0x50, 0x54, 0x04, 0xea, 0x3c, 0xb0, 0xaf, 0xb7, 0xbf,
+	0x4a, 0x6a, 0x89, 0x67, 0xcb, 0x9f, 0x24, 0x4f, 0xdf, 0x57, 0x09, 0x41, 0x66, 0x5e, 0xdc, 0x31,
+	0x4d, 0x78, 0x19, 0x28, 0x32, 0x22, 0x4d, 0xeb, 0x52, 0x48, 0xc9, 0x3b, 0x1e, 0x38, 0x62, 0xd7,
+	0x82, 0x96, 0x42, 0x37, 0x81, 0x2b, 0x23, 0x34, 0xa7, 0xba, 0x1b, 0xeb, 0x86, 0x65, 0xc9, 0x48,
+	0xc6, 0xb2, 0x44, 0xf3, 0xfc, 0x62, 0x96, 0xb5, 0xba, 0xf1, 0x64, 0x11, 0x2f, 0xbb, 0xf3, 0x40,
+	0x6d, 0x7d, 0x93, 0xdd, 0xd3, 0xa4, 0x20, 0x9c, 0x82, 0x25, 0x99, 0xc3, 0x7a, 0x2a, 0xc9, 0x0d,
+	0xf8, 0xcc, 0x0f, 0x22, 0x11, 0x43, 0x60, 0x87, 0xbc, 0x33, 0x93, 0xa4, 0x28, 0xd8, 0x82, 0x28,
+	0x2e, 0x1a, 0x54, 0x79, 0x0b, 0x2a, 0x99, 0xcd, 0x44, 0xd4, 0x09, 0xed, 0x7d, 0x22, 0x91, 0x81,
+	0x48, 0xda, 0x17, 0x16, 0xd5, 0x87, 0x26, 0xbd, 0xa1, 0x87, 0x06, 0xc7, 0x9d, 0xe0, 0xe6, 0xc8,
+	0x91, 0x19, 0xa7, 0x64, 0x4d, 0xd4, 0x19, 0x08, 0xfa, 0x37, 0x2e, 0xbd, 0x33, 0xd2, 0x38, 0x3a,
+	0x8a, 0xca, 0xd5, 0x4e, 0x9e, 0xd9, 0x4e, 0xb4, 0xe3, 0x3a, 0xde, 0x99, 0xc8, 0x64, 0x16, 0x97,
+	0x54, 0x48, 0x41, 0x98, 0x72, 0x56, 0xa0, 0x42, 0xfa, 0xbc, 0xc6, 0xc5, 0xb2, 0xd3, 0x41, 0x00,
+	0x54, 0x65, 0x04, 0x14, 0x15, 0xa0, 0x75, 0xc9, 0x09, 0x40, 0xf9, 0xca, 0x3a, 0x4f, 0xd5, 0x48,
+	0x55, 0xc5, 0x6e, 0x97, 0x87, 0x6a, 0x96, 0x56, 0x12, 0x94, 0x83, 0x23, 0x43, 0xf9, 0xe8, 0x4a,
+	0x78, 0x34, 0x43, 0x6d, 0x50, 0x89, 0x6c, 0xfb, 0x7d, 0xe9, 0xcc, 0x28, 0xe4, 0x44, 0x54, 0x82,
+	0x15, 0x08, 0x61, 0xc7, 0x3a, 0xb5, 0x5d, 0x97, 0x76, 0x49, 0xa9, 0x30, 0x9d, 0x3a, 0x67, 0x02,
+	0x22, 0x86, 0xfd, 0x3f, 0xcc, 0xc9, 0xe6, 0x1b, 0x3b, 0x59, 0x7a, 0xa1, 0x52, 0xfc, 0x2d, 0xe8,
+	0x21, 0x59, 0x50, 0xf3, 0x9b, 0x26, 0x01, 0x05, 0x97, 0x50, 0x25, 0xc8, 0x60, 0x15, 0xd5, 0x04,
+	0x28, 0xb3, 0xe8, 0x0e, 0x15, 0xab, 0x21, 0x41, 0xca, 0x8a, 0x6b, 0x21, 0xa6, 0x6b, 0x87, 0xa1,
+	0x48, 0xf9, 0x09, 0x4d, 0xab, 0xe5, 0x2b, 0x70, 0x88, 0xfd, 0x24, 0xac, 0x26, 0xff, 0x2b, 0x24,
+	0xbc, 0xbe, 0xa8, 0x74, 0x8f, 0xef, 0x45, 0xb7, 0x2b, 0x5c, 0xe7, 0x1f, 0x73, 0x66, 0x07, 0xa6,
+	0xcb, 0xed, 0xed, 0x26, 0x4d, 0x1e, 0x17, 0x69, 0xfb, 0x89, 0x42, 0xfb, 0x73, 0x18, 0xf5, 0x74,
+	0x26, 0x86, 0x54, 0x36, 0x1e, 0x7f, 0x2d, 0x99, 0x56, 0x62, 0x5a, 0xef, 0x8b, 0xa3, 0x33, 0xeb,
+	0x73, 0x56, 0x16, 0xff, 0x01, 0xad, 0xb5, 0x2f, 0xe7, 0x4e, 0xf4, 0x7c, 0xea, 0x07, 0xa0, 0xe8,
+	0xc6, 0x4f, 0x40, 0x46, 0xdf, 0x24, 0xc0, 0x69, 0xe0, 0x80, 0x36, 0x9e, 0x42, 0x5a, 0x6e, 0xe4,
+	0x40, 0xe7, 0x0d, 0x02, 0xda, 0x93, 0x2f, 0xe6, 0xa0, 0x1e, 0x44, 0xd5, 0xc8, 0x37, 0xdf, 0x64,
+	0x0f, 0x8d, 0xa5, 0x04, 0x85, 0x68, 0xe6, 0x11, 0x6f, 0x14, 0xac, 0x1f, 0xc8, 0x39, 0xe0, 0x28,
+	0xe0, 0xea, 0x48, 0xee, 0xf6, 0x08, 0x99, 0x05, 0x5c, 0xce, 0x02, 0xe6, 0x64, 0x53, 0x54, 0x4f,
+	0x71, 0x2d, 0xb7, 0xfe, 0x26, 0x27, 0x63, 0x50, 0xd8, 0x72, 0x35, 0x0a, 0x18, 0xdb, 0x10, 0x19,
+	0x10, 0x08, 0x85, 0x85, 0x61, 0xaa, 0x98, 0x20, 0x59, 0x4a, 0x90, 0x14, 0x2d, 0x1d, 0xf8, 0x63,
+	0x88, 0xbe, 0x78, 0x82, 0x14, 0xc3, 0xb8, 0x5f, 0xc0, 0x86, 0xde, 0x39, 0x8b, 0xa1, 0x55, 0x5d,
+	0xa2, 0xf4, 0xea, 0x78, 0x44, 0x57, 0x2b, 0x45, 0x53, 0x67, 0xed, 0x49, 0xc7, 0x53, 0xfd, 0x1f,
+	0x85, 0x06, 0x6c, 0x0d, 0xb8, 0xb6, 0xb0, 0xae, 0x24, 0x1e, 0x35, 0x87, 0xf9, 0xf4, 0x29, 0xa8,
+	0xc8, 0xe2, 0x2e, 0x6b, 0x74, 0x3a, 0x03, 0xfe, 0xe5, 0xd0, 0x89, 0x26, 0xfe, 0x95, 0xa7, 0x52,
+	0x5f, 0xf2, 0x2c, 0x17, 0xfc, 0x31, 0xd4, 0x45, 0x44, 0x97, 0x03, 0x5a, 0x0c, 0x6b, 0x74, 0xfe,
+	0xf3, 0x76, 0x1d, 0xee, 0x4e, 0xe2, 0x9e, 0xd7, 0xec, 0xda, 0x44, 0xbe, 0xc0, 0x23, 0x90, 0x4e,
+	0x07, 0x4b, 0x9f, 0x41, 0x6e, 0x03, 0x7d, 0xca, 0x28, 0x3d, 0x1b, 0xda, 0x29, 0xf3, 0x89, 0x52,
+	0x24, 0x49, 0xa5, 0xd8, 0x29, 0xa6, 0xd9, 0x29, 0xa9, 0x10, 0x82, 0xde, 0x26, 0x18, 0xf3, 0x9d,
+	0xf9, 0x0b, 0x19, 0xc0, 0xd8, 0x2f, 0x13, 0x48, 0xa5, 0xcf, 0x8a, 0xea, 0xee, 0x4c, 0x46, 0xab,
+	0xc4, 0xe8, 0x19, 0xab, 0x93, 0x5a, 0x60, 0xb7, 0xca, 0xd3, 0x77, 0x57, 0x09, 0x76, 0x27, 0x12,
+	0x41, 0x7c, 0xda, 0xe8, 0xb5, 0xe7, 0x81, 0x91, 0xab, 0x7f, 0x27, 0x87, 0x94, 0x40, 0x23, 0x8a,
+	0xd2, 0xeb, 0xd0, 0x86, 0x49, 0xb8, 0x94, 0x31, 0x56, 0xe8, 0x51, 0xc3, 0xa8, 0x50, 0x22, 0xa1,
+	0x7d, 0xc8, 0xd6, 0x3b, 0x9d, 0x3e, 0xe7, 0xd1, 0xce, 0xfc, 0x6c, 0x55, 0xc1, 0xad, 0x01, 0x63,
+	0xa4, 0x2c, 0x4a, 0x17, 0xaf, 0xa6, 0x2a, 0x04, 0xd0, 0x90, 0x76, 0x44, 0x22, 0xac, 0x43, 0xa2,
+	0x61, 0xa4, 0x16, 0x81, 0xf3, 0x75, 0x28, 0x05, 0x1d, 0xd4, 0x8d, 0x4f, 0xca, 0xac, 0x31, 0x52,
+	0xc0, 0x59, 0x60, 0x30, 0x77, 0x5f, 0x9d, 0x6b, 0x55, 0x9b, 0x8b, 0xe9, 0xda, 0x2c, 0x88, 0x1c,
+	0xb3, 0x8d, 0x4e, 0x87, 0x94, 0x2c, 0xaa, 0xce, 0xd9, 0x2b, 0x07, 0x57, 0x2f, 0x44, 0x34, 0xba,
+	0x89, 0x6c, 0xa2, 0x99, 0xa8, 0x98, 0x21, 0xd6, 0x67, 0xd9, 0x77, 0x30, 0xab, 0xa0, 0x86, 0x35,
+	0x88, 0x1a, 0xb6, 0xe9, 0x26, 0xeb, 0x73, 0x68, 0xec, 0x3b, 0x50, 0xcd, 0xa3, 0x83, 0xf0, 0xd5,
+	0xf9, 0x0d, 0x5f, 0x22, 0x86, 0x58, 0xf7, 0xb2, 0xbb, 0x14, 0xd5, 0xec, 0x19, 0xba, 0xd9, 0x51,
+	0xe0, 0xcf, 0xfc, 0xd0, 0x76, 0x91, 0x0a, 0xa4, 0xa9, 0xd0, 0x38, 0x08, 0xc8, 0xa0, 0x81, 0x79,
+	0x71, 0x04, 0x45, 0x62, 0x76, 0xee, 0x7b, 0x6a, 0xca, 0x06, 0x3f, 0x0f, 0xdb, 0xbe, 0x17, 0x71,
+	0x4f, 0x12, 0x02, 0x57, 0x5c, 0x23, 0x57, 0x3c, 0xb2, 0x5f, 0x20, 0xda, 0x04, 0x1e, 0x9d, 0x10,
+	0xc3, 0x97, 0xa3, 0xeb, 0x28, 0x66, 0x3d, 0xe9, 0x39, 0x18, 0x3b, 0x54, 0x91, 0xfa, 0xbe, 0x54,
+	0xc7, 0xdf, 0xe6, 0x11, 0x29, 0xf8, 0xe2, 0x72, 0xa4, 0x06, 0x96, 0xfc, 0x02, 0x16, 0x7d, 0x20,
+	0x26, 0xe8, 0x66, 0x6a, 0xa4, 0xf9, 0xb3, 0xac, 0xc2, 0x65, 0x62, 0x2e, 0x53, 0x29, 0x7e, 0x4b,
+	0x97, 0x62, 0x83, 0xb6, 0x2c, 0xc3, 0x71, 0x56, 0xaf, 0xa8, 0x5c, 0x1b, 0xf0, 0xa9, 0xed, 0x78,
+	0x63, 0x9a, 0xb0, 0x74, 0x21, 0x09, 0xf8, 0x64, 0x3e, 0xa6, 0x32, 0x2a, 0x0b, 0x49, 0x2a, 0xd7,
+	0x89, 0xb3, 0xac, 0x53, 0x5d, 0xd3, 0x1b, 0xac, 0xfe, 0xe4, 0x70, 0xd0, 0x7f, 0xde, 0x3f, 0x1c,
+	0x3d, 0xe9, 0xf5, 0xf7, 0xa0, 0xa8, 0x43, 0x95, 0x97, 0x90, 0xf6, 0x61, 0xaf, 0x0f, 0x05, 0x5d,
+	0x2d, 0xd9, 0xeb, 0x8e, 0x08, 0x92, 0xc7, 0xba, 0x4f, 0x90, 0xe3, 0xa3, 0x4e, 0x6b, 0xd4, 0x25,
+	0x20, 0xe6, 0x96, 0x0d, 0x02, 0x76, 0xfb, 0xad, 0x9d, 0xfd, 0xee, 0xe8, 0xd3, 0x51, 0xa3, 0x08,
+	0x83, 0x80, 0x28, 0x35, 0xdd, 0x6b, 0xd1, 0x29, 0x3e, 0xf9, 0xac, 0xb3, 0x92, 0x77, 0xe1, 0xfc,
+	0xd8, 0xbd, 0x86, 0xd5, 0x62, 0x7e, 0xa4, 0x66, 0xce, 0xfa, 0x3d, 0x55, 0x49, 0x52, 0xd8, 0xbc,
+	0x41, 0xd6, 0x14, 0xa3, 0xed, 0x92, 0x40, 0x5f, 0xc8, 0x42, 0x5f, 0x54, 0xbd, 0x22, 0x26, 0x6a,
+	0x0d, 0x2d, 0xa9, 0xf0, 0x86, 0xa5, 0xc9, 0x14, 0x9a, 0x3e, 0xad, 0xb1, 0x3e, 0xc5, 0x90, 0xef,
+	0x47, 0xa7, 0x77, 0x13, 0x12, 0x40, 0x1e, 0xac, 0x25, 0x64, 0x71, 0xa3, 0x8f, 0x20, 0x60, 0x43,
+	0x76, 0xc4, 0xbf, 0xc6, 0xb6, 0x84, 0x73, 0x83, 0xe7, 0x80, 0xcb, 0x23, 0xcd, 0x30, 0xf3, 0xe2,
+	0x35, 0xc4, 0x7e, 0x14, 0xc2, 0x59, 0xbb, 0x78, 0x38, 0xe0, 0xe3, 0x4b, 0xd9, 0xbe, 0x88, 0x9e,
+	0xc0, 0xb8, 0x02, 0x43, 0xd2, 0xbd, 0x23, 0xb9, 0x85, 0x2e, 0x5d, 0x25, 0x48, 0x6e, 0x2a, 0x53,
+	0x42, 0xfe, 0xaf, 0x3c, 0x52, 0x47, 0x4f, 0xbc, 0x8d, 0xba, 0x32, 0x81, 0x4e, 0xcd, 0x8a, 0x9d,
+	0x42, 0x9a, 0x1d, 0x11, 0x0a, 0xa8, 0x6b, 0x03, 0xa9, 0xd4, 0xf5, 0xe3, 0x74, 0x40, 0x7c, 0x3d,
+	0x15, 0x10, 0x06, 0x1b, 0xaa, 0x3b, 0xfd, 0xfb, 0x9c, 0x76, 0xe5, 0x0d, 0xc6, 0x8e, 0xda, 0x86,
+	0x23, 0x8b, 0xe7, 0xe3, 0xfe, 0xd3, 0xfe, 0xe1, 0x33, 0xe9, 0xc7, 0xf0, 0xdc, 0x3e, 0xec, 0xf7,
+	0xbb, 0xed, 0x51, 0x67, 0x07, 0xfc, 0xb8, 0xc6, 0x4a, 0x00, 0x81, 0x7f, 0x51, 0x23, 0xeb, 0xf0,
+	0xef, 0xb0, 0xdb, 0xef, 0x74, 0x07, 0xbd, 0xfe, 0xee, 0x61, 0xa3, 0x98, 0x00, 0x91, 0x8f, 0x63,
+	0x44, 0xd7, 0x04, 0x8a, 0xdd, 0xde, 0x5e, 0xa3, 0x0c, 0x4d, 0x5f, 0x15, 0x1f, 0xf7, 0x0f, 0x87,
+	0xdd, 0x46, 0x45, 0xbe, 0x6c, 0x1d, 0x1c, 0x1e, 0xf7, 0x47, 0x8d, 0xaa, 0x24, 0x37, 0xea, 0x1d,
+	0x74, 0x87, 0xc7, 0xc3, 0xee, 0xa0, 0x51, 0xc3, 0xc8, 0x52, 0x90, 0x4e, 0xeb, 0xb3, 0x06, 0x93,
+	0x80, 0xe1, 0xf1, 0xce, 0x68, 0xd0, 0x6a, 0x8f, 0x1a, 0x6b, 0xe0, 0x5b, 0x65, 0x44, 0xd1, 0xe9,
+	0x34, 0xea, 0xe0, 0x54, 0xf7, 0xa4, 0xe9, 0x9d, 0x4b, 0x3b, 0xe2, 0x4b, 0x93, 0xf3, 0xed, 0xc6,
+	0x4f, 0xa5, 0x66, 0x18, 0x61, 0xee, 0x49, 0x7d, 0xbe, 0x66, 0xcc, 0x0b, 0x49, 0xff, 0x73, 0xf6,
+	0x80, 0x64, 0x68, 0x41, 0x5a, 0x3c, 0x0c, 0x8e, 0xe9, 0x6c, 0x0a, 0x97, 0x2f, 0xd2, 0xa2, 0xbc,
+	0x0e, 0x05, 0x3e, 0xd2, 0xc4, 0x30, 0x62, 0x70, 0x2d, 0x5d, 0x75, 0xeb, 0x12, 0xef, 0x21, 0xaa,
+	0x5d, 0xd7, 0x3e, 0x93, 0x99, 0xfa, 0x4b, 0xa4, 0x00, 0xb2, 0xfc, 0x8f, 0x51, 0x30, 0xdd, 0x5b,
+	0x08, 0x35, 0xc2, 0x5a, 0x09, 0x42, 0xe1, 0xbc, 0xb3, 0x2a, 0x19, 0x5c, 0xcb, 0x21, 0x37, 0x1b,
+	0x64, 0xda, 0x50, 0xc5, 0x39, 0x9e, 0x5a, 0x89, 0x48, 0x1f, 0x20, 0x56, 0x10, 0xe4, 0x47, 0xc0,
+	0x6a, 0x70, 0x2a, 0x94, 0x73, 0x8c, 0x55, 0x4c, 0x1d, 0x84, 0x87, 0x59, 0x55, 0x2c, 0xc1, 0x48,
+	0x9e, 0xa2, 0x70, 0x8d, 0x15, 0xbc, 0xde, 0x4c, 0x96, 0xb0, 0xac, 0xef, 0x35, 0xa0, 0x94, 0x33,
+	0x81, 0x76, 0xdf, 0x09, 0x33, 0x14, 0xfd, 0x4d, 0x31, 0x73, 0xba, 0xf0, 0x12, 0x50, 0xe2, 0xd1,
+	0xd5, 0x7d, 0x23, 0x8e, 0x63, 0x76, 0x4c, 0x99, 0xc4, 0x49, 0xbf, 0x8d, 0x79, 0xf4, 0xc0, 0x9f,
+	0x38, 0xa7, 0x2f, 0xe8, 0x03, 0x96, 0x0c, 0x9f, 0xa4, 0x9e, 0x80, 0xaa, 0x6c, 0x9c, 0x48, 0x29,
+	0x73, 0xef, 0x7d, 0xff, 0x79, 0xf2, 0xd0, 0x44, 0x43, 0xcd, 0x93, 0x13, 0xeb, 0x17, 0xb1, 0x86,
+	0x1c, 0x93, 0x8d, 0xd1, 0xf4, 0xd9, 0x12, 0x20, 0x91, 0x97, 0x46, 0xb6, 0x2e, 0x00, 0x6f, 0xbb,
+	0xd8, 0xbf, 0xe0, 0xf1, 0xdd, 0x91, 0x33, 0x8e, 0x82, 0x39, 0xcf, 0xb4, 0x91, 0x68, 0x00, 0x7a,
+	0xc6, 0xa9, 0x87, 0x81, 0x47, 0xc8, 0xf8, 0x05, 0xdb, 0x04, 0x3b, 0x4f, 0xe8, 0x94, 0x66, 0xe4,
+	0x67, 0xd3, 0x5f, 0x52, 0x2c, 0xb4, 0xa1, 0x0a, 0xa6, 0xa1, 0x6e, 0x98, 0xbd, 0xbe, 0xcb, 0xee,
+	0x77, 0x3a, 0x62, 0xcc, 0xc6, 0x37, 0xbb, 0x81, 0x3f, 0x5d, 0x95, 0xa0, 0x75, 0xc0, 0xde, 0xea,
+	0x74, 0x76, 0x02, 0xdf, 0x9e, 0xb4, 0xed, 0x50, 0x9e, 0xe1, 0xed, 0x39, 0xa7, 0x91, 0x38, 0x46,
+	0x57, 0xf7, 0x63, 0xc9, 0x9b, 0x9c, 0x33, 0x78, 0x2f, 0xf9, 0xc5, 0xd6, 0xfb, 0x44, 0x5f, 0x88,
+	0xe2, 0x09, 0x24, 0xb6, 0xde, 0xce, 0x25, 0x47, 0x1c, 0x68, 0x9b, 0xf1, 0x3c, 0x8c, 0xfc, 0x69,
+	0xc2, 0x19, 0x61, 0x0f, 0x62, 0xe8, 0x4d, 0x62, 0x99, 0x61, 0xc8, 0xe7, 0x78, 0x09, 0x1b, 0xd2,
+	0x9c, 0x5f, 0xb7, 0xda, 0x0a, 0x4d, 0x2f, 0xe2, 0xd3, 0x25, 0x68, 0x80, 0x11, 0x07, 0xde, 0x66,
+	0x23, 0x41, 0x5e, 0x3e, 0x45, 0x13, 0x68, 0xd1, 0x76, 0xed, 0x31, 0xcf, 0x10, 0x07, 0x20, 0xa7,
+	0xf0, 0x46, 0x0f, 0xd2, 0xeb, 0xa8, 0x62, 0x84, 0xa8, 0xee, 0x53, 0xdf, 0xfa, 0x84, 0xea, 0xa4,
+	0x77, 0x1d, 0x1c, 0x58, 0x8c, 0x45, 0x74, 0x20, 0x9e, 0x81, 0xd4, 0x38, 0x77, 0xc8, 0xa7, 0xcf,
+	0x1d, 0x96, 0x9c, 0x0a, 0x4d, 0xa1, 0xf7, 0x7d, 0x11, 0xdf, 0x21, 0x59, 0x7f, 0x9a, 0x93, 0x63,
+	0x92, 0xa0, 0x91, 0x3e, 0xc4, 0x85, 0x42, 0x0f, 0xcf, 0x7a, 0x4a, 0x32, 0x59, 0x28, 0xa4, 0x59,
+	0x28, 0xa6, 0x59, 0x88, 0x6f, 0xa9, 0x46, 0x98, 0x59, 0xa2, 0xf8, 0x96, 0x2a, 0x66, 0xac, 0xa2,
+	0x47, 0xff, 0xb6, 0xd1, 0x79, 0x8a, 0x5b, 0x00, 0xe4, 0x83, 0x62, 0x8d, 0x5a, 0x4f, 0xeb, 0xb7,
+	0x73, 0xe8, 0x7f, 0x5a, 0xd1, 0xe4, 0x72, 0x74, 0x30, 0xb9, 0xa8, 0x18, 0x14, 0x14, 0x5f, 0x1b,
+	0x1e, 0x8f, 0x2d, 0x8b, 0x71, 0x38, 0x29, 0x28, 0xe8, 0x0b, 0xb5, 0x62, 0xe6, 0x85, 0x5a, 0x29,
+	0xe3, 0xfa, 0x4b, 0x5e, 0x1e, 0xe5, 0xd8, 0xc6, 0xa0, 0xfb, 0xf1, 0xf0, 0x49, 0xb7, 0xff, 0x11,
+	0xb4, 0x07, 0x03, 0x7e, 0xb6, 0x70, 0x4c, 0x5e, 0xc3, 0x88, 0x3a, 0xba, 0x12, 0xa6, 0xa9, 0xe1,
+	0xeb, 0x4f, 0x78, 0x00, 0xa9, 0xa8, 0x37, 0x89, 0xe7, 0x26, 0x01, 0x19, 0x46, 0xa2, 0x91, 0xa1,
+	0x45, 0x43, 0x3e, 0x9e, 0x07, 0x5c, 0x9e, 0x42, 0xd4, 0x90, 0x78, 0x1b, 0x1c, 0x12, 0x63, 0x0d,
+	0x60, 0x65, 0xb5, 0x11, 0x5b, 0x43, 0x8f, 0xbb, 0x00, 0xaa, 0xd0, 0x32, 0x50, 0x20, 0x5d, 0x61,
+	0x4d, 0xa4, 0x02, 0xf1, 0xf8, 0xdf, 0xbf, 0xe0, 0xa2, 0x6b, 0xaf, 0xa1, 0xb4, 0x8a, 0xb7, 0xd6,
+	0xcc, 0x15, 0x5d, 0x7b, 0xf3, 0x01, 0xc8, 0xe5, 0xfb, 0xd3, 0xd6, 0xc4, 0x9e, 0x45, 0xe2, 0x5a,
+	0xaf, 0xf4, 0xdd, 0xdc, 0x07, 0x80, 0xaa, 0x30, 0xe4, 0xd7, 0xe2, 0x0e, 0x08, 0x9e, 0xad, 0xbf,
+	0x03, 0x51, 0x5b, 0xed, 0xa7, 0xa6, 0xa8, 0xc0, 0x00, 0x79, 0x8c, 0xe1, 0x28, 0xc0, 0x79, 0x37,
+	0x08, 0xfc, 0x00, 0x65, 0x11, 0x02, 0xe3, 0x81, 0x16, 0x0f, 0xa2, 0x78, 0x28, 0x1a, 0x28, 0x1b,
+	0x09, 0x59, 0xbf, 0x81, 0x10, 0x91, 0x41, 0xe4, 0x87, 0x66, 0xf7, 0x8c, 0xbc, 0x8e, 0xaf, 0xd4,
+	0x69, 0x2d, 0xdd, 0x2f, 0xf4, 0x26, 0x52, 0xfa, 0x77, 0xd9, 0xba, 0x30, 0xbd, 0xda, 0x5c, 0x59,
+	0xbe, 0x19, 0xb5, 0x07, 0x3c, 0xf4, 0x7d, 0xa4, 0x2d, 0x0f, 0x66, 0xfe, 0x20, 0xcf, 0x36, 0x0d,
+	0xd3, 0xe1, 0x37, 0x8d, 0x19, 0xb6, 0xc3, 0xef, 0x1f, 0xd4, 0xbd, 0x50, 0xde, 0xb4, 0x66, 0x41,
+	0x3d, 0xa0, 0x92, 0xf4, 0xa9, 0xf6, 0xff, 0x9e, 0xd5, 0x4c, 0x3f, 0x5a, 0x53, 0xc1, 0x23, 0xe2,
+	0x8b, 0x6c, 0x56, 0x4b, 0xd9, 0x75, 0x5d, 0xd9, 0xf5, 0x3e, 0xab, 0x91, 0x22, 0xc9, 0xdf, 0x37,
+	0x14, 0x14, 0xd4, 0xbb, 0x17, 0xf8, 0xf3, 0x19, 0xf0, 0xb4, 0x49, 0x09, 0xe1, 0xaf, 0x40, 0x3d,
+	0x86, 0xb9, 0x49, 0x3d, 0x19, 0xf6, 0x56, 0xd6, 0xd5, 0xc3, 0x6a, 0xa2, 0x2e, 0xd5, 0x32, 0xec,
+	0x6d, 0x7e, 0xbd, 0xa9, 0xb5, 0xf4, 0xd9, 0xdc, 0xf6, 0x76, 0x6c, 0xbf, 0xad, 0xf3, 0x02, 0xf0,
+	0x83, 0x0d, 0x39, 0x02, 0xc4, 0xe1, 0x9a, 0xe9, 0x26, 0xd5, 0x95, 0xdc, 0xa4, 0x96, 0xed, 0x26,
+	0x6c, 0x55, 0x37, 0x11, 0x17, 0xdc, 0xdf, 0x61, 0x5b, 0xda, 0xe5, 0x71, 0x1d, 0x94, 0x80, 0x10,
+	0x14, 0x8c, 0x38, 0xbe, 0xa2, 0x71, 0x24, 0x56, 0xe0, 0xed, 0xd9, 0x7f, 0x42, 0x8e, 0x32, 0x9c,
+	0x0b, 0x0a, 0x7c, 0x10, 0x21, 0xea, 0x1f, 0x07, 0x0f, 0xc3, 0xfb, 0x96, 0xfb, 0x86, 0xeb, 0xc4,
+	0xc2, 0x67, 0xf8, 0x0f, 0x80, 0xf4, 0xfb, 0xa5, 0x4e, 0x64, 0xda, 0xbe, 0xb8, 0xdc, 0x7c, 0x0b,
+	0xa6, 0x5e, 0x9e, 0x4e, 0xac, 0x7f, 0xcf, 0xb1, 0x2d, 0xc3, 0x40, 0x87, 0x33, 0x0e, 0x2e, 0x93,
+	0xf1, 0x21, 0x49, 0x22, 0x77, 0x9b, 0x37, 0x8a, 0xc9, 0x24, 0x5d, 0xcc, 0x30, 0x46, 0x69, 0xd1,
+	0x18, 0xe5, 0x94, 0x31, 0x2a, 0xca, 0xaa, 0x5a, 0xd1, 0xd5, 0x94, 0xa2, 0x85, 0x7d, 0xb4, 0xb9,
+	0x98, 0xa2, 0x3c, 0x3a, 0x77, 0x82, 0xc9, 0x05, 0x7f, 0x41, 0x96, 0x49, 0x5b, 0x42, 0xe5, 0x6c,
+	0x64, 0x88, 0x16, 0xb6, 0x66, 0x33, 0xc0, 0x8d, 0x06, 0xaa, 0x59, 0xbf, 0x05, 0xe3, 0xb7, 0x61,
+	0x1d, 0x29, 0xf9, 0x9d, 0x43, 0x7b, 0x31, 0x95, 0xd7, 0x53, 0x81, 0x5c, 0x4a, 0x07, 0x72, 0x79,
+	0x21, 0x90, 0x2b, 0x77, 0x30, 0xe6, 0x5d, 0x82, 0x3e, 0x19, 0xc8, 0x4c, 0xb5, 0x81, 0xad, 0xf1,
+	0xf9, 0x25, 0x39, 0x73, 0x01, 0x12, 0xdc, 0xef, 0xe6, 0xd8, 0x1a, 0x7a, 0x80, 0xe3, 0xd9, 0xf4,
+	0xa9, 0xba, 0xa9, 0x54, 0x11, 0x99, 0x30, 0x71, 0x20, 0xfa, 0xfd, 0xac, 0x89, 0x03, 0xb7, 0xb5,
+	0x66, 0x8e, 0xfa, 0xb0, 0xe2, 0xb5, 0x38, 0x02, 0x0c, 0x03, 0x6b, 0x68, 0x19, 0xc5, 0x51, 0x86,
+	0x4d, 0xde, 0x61, 0x95, 0x01, 0x8f, 0x0c, 0x8e, 0xee, 0xa5, 0x39, 0x82, 0xd7, 0xd6, 0x5f, 0xe4,
+	0x40, 0xc7, 0xdd, 0x8f, 0x9f, 0x71, 0x67, 0xc7, 0xff, 0x3f, 0xf2, 0x69, 0xed, 0xb1, 0x55, 0xe5,
+	0xc0, 0x57, 0x27, 0x07, 0xe1, 0x19, 0xd9, 0xa7, 0x2e, 0x1e, 0x61, 0xe2, 0x91, 0xe7, 0x86, 0x5f,
+	0x65, 0x55, 0x90, 0x5b, 0xb0, 0xbb, 0x28, 0x34, 0x34, 0xf9, 0x66, 0xa1, 0xee, 0x5e, 0x3b, 0x91,
+	0x69, 0xf1, 0xb8, 0xef, 0x80, 0x17, 0xc9, 0x0b, 0x2a, 0x84, 0x20, 0x51, 0x92, 0xcd, 0xfa, 0x87,
+	0x1c, 0x7b, 0x68, 0xe0, 0x41, 0x76, 0x21, 0xec, 0x42, 0xc7, 0xf7, 0x48, 0xc8, 0x79, 0x20, 0x9f,
+	0xe2, 0x9b, 0x01, 0x29, 0x91, 0x9e, 0xba, 0x0c, 0x45, 0x14, 0x54, 0xa3, 0x08, 0x9c, 0xfa, 0xee,
+	0x1c, 0xbf, 0x32, 0xd1, 0x2a, 0x4b, 0xa8, 0x47, 0xa7, 0xe9, 0x7d, 0xdb, 0x3b, 0x9b, 0xdb, 0x67,
+	0x5c, 0xab, 0x0c, 0x36, 0xd3, 0xfd, 0x9c, 0x22, 0x5b, 0xd1, 0x64, 0x5c, 0x07, 0x26, 0x01, 0x12,
+	0xa5, 0xaa, 0x76, 0x0f, 0xc7, 0x01, 0xe7, 0xde, 0xd0, 0x79, 0xc9, 0x65, 0x4a, 0x48, 0x46, 0x3c,
+	0x53, 0xb9, 0xf7, 0x87, 0x05, 0xf6, 0xd0, 0x88, 0x6e, 0x53, 0xc8, 0x0c, 0x77, 0x02, 0xc4, 0x38,
+	0x82, 0xc9, 0xaf, 0x7b, 0xf2, 0xaa, 0x16, 0x74, 0xfc, 0x2b, 0xcf, 0x85, 0xf6, 0xfa, 0x38, 0x70,
+	0xa5, 0x5f, 0x00, 0xaf, 0xf4, 0xb1, 0x13, 0x0f, 0x60, 0xe0, 0x91, 0xd3, 0x61, 0x0d, 0xef, 0x23,
+	0x63, 0xe8, 0x11, 0x7e, 0x79, 0x51, 0x32, 0xe1, 0xd8, 0x66, 0x4b, 0xd4, 0x65, 0x85, 0x5a, 0xc1,
+	0x3b, 0xfc, 0x54, 0x96, 0x26, 0xe0, 0xa1, 0x77, 0x4a, 0x67, 0x70, 0x80, 0x45, 0x0a, 0x0c, 0x0b,
+	0x15, 0x44, 0x39, 0x4d, 0xad, 0xf9, 0xa1, 0xcc, 0x08, 0x3a, 0x26, 0x45, 0x25, 0x7f, 0xdb, 0xc8,
+	0x08, 0x4a, 0x6c, 0xbd, 0x0e, 0x3f, 0x04, 0x52, 0xd2, 0xe0, 0x79, 0x1e, 0xea, 0x79, 0x2d, 0x65,
+	0xde, 0xba, 0x72, 0x20, 0xbc, 0x07, 0x1d, 0xa2, 0x14, 0xeb, 0xd9, 0x9d, 0xc3, 0xc6, 0xf2, 0x0c,
+	0xf4, 0x6d, 0x56, 0xf9, 0x28, 0x0c, 0x69, 0xd5, 0x26, 0xad, 0xda, 0x5e, 0xe8, 0x0d, 0x3e, 0x1a,
+	0x0e, 0x55, 0xb6, 0xe8, 0x9d, 0x0e, 0xb9, 0x1d, 0x8c, 0xcf, 0xb7, 0x1b, 0x24, 0xd8, 0x7b, 0xac,
+	0xbe, 0x33, 0x77, 0x61, 0x9c, 0x76, 0x3c, 0xc2, 0xb0, 0x45, 0x18, 0xde, 0x30, 0xe8, 0xa8, 0xd7,
+	0x54, 0xba, 0x9e, 0x27, 0x5a, 0x8b, 0x3e, 0xbf, 0x12, 0xc5, 0x23, 0x11, 0xbb, 0xb9, 0x8c, 0xd8,
+	0xcd, 0x2f, 0xc6, 0x6e, 0x21, 0x15, 0xbb, 0xe2, 0x7c, 0xe7, 0x07, 0x89, 0xf2, 0x1d, 0x13, 0x58,
+	0xa9, 0xdd, 0x07, 0x64, 0x62, 0x79, 0x5c, 0x25, 0x74, 0x71, 0x2b, 0xca, 0x9b, 0xc1, 0xa6, 0xc1,
+	0xff, 0xae, 0xe3, 0x4d, 0x20, 0x1b, 0x61, 0x4a, 0xe8, 0x4e, 0x6d, 0xc7, 0x95, 0xac, 0x03, 0x1a,
+	0x20, 0xac, 0xd3, 0x94, 0xf5, 0x2d, 0xd6, 0x34, 0x78, 0x52, 0x9b, 0x32, 0x92, 0xc5, 0x3b, 0xac,
+	0x61, 0x2c, 0x7c, 0x02, 0x7a, 0x8e, 0x84, 0x66, 0x82, 0x4b, 0xfa, 0x04, 0x83, 0xd0, 0x5b, 0xdf,
+	0x63, 0x6b, 0x66, 0x06, 0xc7, 0x0f, 0x5f, 0x66, 0x0e, 0x45, 0x5c, 0x2e, 0xfe, 0x68, 0x23, 0xfa,
+	0x44, 0xff, 0xc6, 0x86, 0x18, 0x3a, 0x16, 0xbf, 0x26, 0x12, 0xd9, 0x64, 0x07, 0x62, 0x52, 0x67,
+	0x5c, 0xf1, 0x8d, 0x4b, 0x94, 0xbe, 0x31, 0x50, 0x38, 0xf3, 0x0b, 0x38, 0x05, 0x8e, 0x7f, 0xa5,
+	0xa1, 0x5b, 0x3b, 0x11, 0xde, 0x4d, 0xe2, 0xff, 0x93, 0xb8, 0x33, 0xc4, 0x67, 0x9a, 0x56, 0x35,
+	0x13, 0xb4, 0x62, 0x66, 0x76, 0xd7, 0xfe, 0x94, 0x42, 0x4f, 0xa7, 0x6b, 0x84, 0xc8, 0xaf, 0x12,
+	0x4b, 0x2a, 0x9a, 0x10, 0x76, 0xe0, 0x78, 0x7b, 0xf8, 0x8d, 0x5e, 0x39, 0x01, 0xb4, 0xaf, 0x09,
+	0x58, 0x49, 0xad, 0xc4, 0xb4, 0x20, 0x83, 0x51, 0x12, 0xd1, 0x1f, 0x86, 0x8a, 0x7c, 0x44, 0x31,
+	0x4f, 0x30, 0xa6, 0xd3, 0x06, 0x0f, 0xc7, 0x81, 0x33, 0x8b, 0x54, 0x90, 0xe9, 0xad, 0x54, 0x7b,
+	0xa8, 0x65, 0xb4, 0xfe, 0x3a, 0x8f, 0xa7, 0xc4, 0x8b, 0x71, 0x9a, 0x3a, 0x3b, 0x22, 0x3f, 0x3d,
+	0x48, 0x8c, 0xee, 0x94, 0x57, 0x5b, 0x7a, 0xfe, 0xd6, 0x0a, 0x20, 0xd0, 0x70, 0x3e, 0x8d, 0xcf,
+	0x36, 0x68, 0xdf, 0x88, 0x07, 0xd3, 0x38, 0xf9, 0x3e, 0x99, 0x4f, 0x6d, 0x08, 0xae, 0xa9, 0x13,
+	0xc5, 0x57, 0xf8, 0xb4, 0x8c, 0x5e, 0xe0, 0xee, 0x4a, 0x72, 0xb7, 0x4a, 0xbe, 0xf1, 0xca, 0x1e,
+	0xfe, 0x66, 0xec, 0xd2, 0x76, 0xe3, 0x16, 0x83, 0xc0, 0x47, 0x01, 0xe6, 0x64, 0xa6, 0xb2, 0xa4,
+	0x84, 0xf9, 0x63, 0x1e, 0x86, 0x52, 0x09, 0x0a, 0x67, 0xc7, 0x96, 0xad, 0x19, 0xb1, 0x4d, 0xa0,
+	0x5d, 0x2e, 0xda, 0xe6, 0x78, 0x51, 0x2b, 0xe0, 0xb6, 0x98, 0xca, 0xd2, 0x1a, 0xdd, 0x24, 0xfd,
+	0xfd, 0x47, 0x8e, 0x35, 0xd2, 0xd3, 0x86, 0x0e, 0xe0, 0x4e, 0xec, 0x7a, 0x6a, 0x98, 0xd3, 0x9f,
+	0x9d, 0xd0, 0x62, 0xe3, 0x52, 0x1b, 0x0c, 0x9f, 0xf8, 0x24, 0x4b, 0x2d, 0x39, 0x92, 0x4a, 0x33,
+	0x5d, 0xcb, 0x18, 0xc9, 0x40, 0x09, 0xd7, 0x62, 0x24, 0x23, 0x2c, 0x50, 0x35, 0x25, 0x16, 0xfd,
+	0xcb, 0x2d, 0xe5, 0x7e, 0xea, 0x2b, 0xe2, 0x2d, 0xbc, 0x71, 0xde, 0xf7, 0xc7, 0x17, 0xba, 0x48,
+	0x65, 0xcf, 0x54, 0x6b, 0xb7, 0xcd, 0x54, 0x6d, 0xb6, 0x99, 0xce, 0xa5, 0x31, 0xd3, 0xb9, 0x05,
+	0xa6, 0xe3, 0x88, 0xe1, 0x53, 0x3b, 0xb8, 0x90, 0x21, 0xf7, 0x01, 0x9e, 0x05, 0x9b, 0xe9, 0x14,
+	0x13, 0xcf, 0xc8, 0x89, 0x5c, 0xe3, 0x2c, 0x4d, 0x1d, 0xc5, 0x89, 0x13, 0xcb, 0x7f, 0xce, 0x43,
+	0x91, 0xef, 0x7e, 0xfc, 0xf1, 0x1c, 0x1a, 0xf2, 0xcc, 0x43, 0x82, 0xfa, 0xc2, 0x01, 0x8f, 0x4e,
+	0xc3, 0x85, 0x8c, 0x34, 0x5c, 0x5c, 0x4c, 0xc3, 0xa5, 0x54, 0x1a, 0x2e, 0x27, 0x5b, 0xa8, 0x4a,
+	0x46, 0xc1, 0xaf, 0x66, 0x8e, 0xf3, 0x35, 0xa3, 0xf1, 0x37, 0x1a, 0x1a, 0xa6, 0x9a, 0x95, 0x44,
+	0xbf, 0xb1, 0x96, 0xd9, 0xc2, 0xd4, 0x33, 0xfa, 0x95, 0xf5, 0x8c, 0x2e, 0x64, 0x83, 0x60, 0xdb,
+	0xac, 0x41, 0x4d, 0x73, 0xc7, 0x39, 0x73, 0x22, 0xdb, 0x25, 0x9d, 0x6c, 0x2e, 0xcc, 0x28, 0x0d,
+	0xb5, 0xdf, 0x18, 0x46, 0xb6, 0x94, 0xcc, 0xf2, 0x37, 0x9a, 0x4d, 0x3a, 0xe9, 0xfc, 0xcb, 0x12,
+	0xab, 0x43, 0xfa, 0x8e, 0x95, 0x9d, 0x51, 0x73, 0xe2, 0x4c, 0x2c, 0x0e, 0x50, 0x57, 0x39, 0x74,
+	0x78, 0x9d, 0x93, 0xc9, 0x87, 0xd9, 0x93, 0xc9, 0xcd, 0x7d, 0x08, 0xfe, 0xb6, 0x0a, 0x87, 0xa9,
+	0x9a, 0x1a, 0x94, 0xc4, 0x7c, 0x42, 0x30, 0xa6, 0x61, 0xb1, 0xc9, 0xd6, 0x32, 0xfa, 0xb3, 0x7a,
+	0x56, 0x7f, 0xb6, 0x9e, 0xd1, 0x44, 0x6d, 0x64, 0x35, 0x51, 0x8d, 0x94, 0x93, 0x6d, 0x11, 0x05,
+	0xa3, 0x71, 0x69, 0xde, 0xa1, 0x71, 0xb9, 0x97, 0xd9, 0xb8, 0xdc, 0xbf, 0xb1, 0x71, 0x41, 0x86,
+	0xa4, 0x78, 0xf4, 0xfb, 0x8a, 0x07, 0x84, 0xe3, 0xdb, 0x32, 0x67, 0x0e, 0x2f, 0xe9, 0xde, 0x67,
+	0xfb, 0xe1, 0x72, 0xc5, 0xcb, 0xa3, 0x90, 0x37, 0xe4, 0x97, 0xcc, 0x54, 0xaa, 0xd4, 0xb6, 0xed,
+	0xe5, 0xdb, 0x20, 0x42, 0x3a, 0x93, 0x97, 0xf8, 0x25, 0xf8, 0x25, 0x7e, 0xdb, 0xad, 0x8f, 0x37,
+	0xcb, 0xa0, 0x15, 0xd4, 0xe0, 0x9b, 0x32, 0x77, 0xd7, 0xa8, 0x93, 0x69, 0xfb, 0x13, 0x2e, 0xbe,
+	0xf1, 0xc6, 0x55, 0xe6, 0xe1, 0xcc, 0xdb, 0x4a, 0xd3, 0x01, 0x77, 0xa1, 0x95, 0xe4, 0x23, 0xfb,
+	0x8c, 0xbe, 0xf3, 0x2e, 0x59, 0x35, 0x56, 0xe9, 0x83, 0xa0, 0x80, 0xcf, 0x3a, 0x61, 0x8d, 0x3d,
+	0xf5, 0x1d, 0xa7, 0xbc, 0x8e, 0x59, 0xed, 0x67, 0x1f, 0x9a, 0x4c, 0x41, 0x8d, 0x65, 0xc6, 0xc5,
+	0xba, 0xba, 0x0e, 0x10, 0x67, 0xf5, 0x5f, 0x17, 0x6d, 0xf4, 0xf3, 0xbe, 0x1f, 0x39, 0x63, 0x4e,
+	0x9f, 0x0e, 0xd0, 0x7f, 0x71, 0xff, 0x62, 0xfd, 0x66, 0x4e, 0xb4, 0xe0, 0xf8, 0x69, 0xf6, 0xf2,
+	0x65, 0x74, 0xfa, 0x2d, 0x60, 0x94, 0x01, 0xf3, 0x32, 0xd1, 0xac, 0x0b, 0xa0, 0x79, 0x25, 0x51,
+	0x8b, 0xf7, 0x1f, 0xf0, 0xa9, 0x2f, 0xc3, 0x0a, 0x3f, 0xbe, 0x56, 0xe7, 0xfb, 0xa0, 0xd0, 0x53,
+	0xc7, 0xe5, 0x93, 0x90, 0x7e, 0x3a, 0x54, 0xb3, 0x7e, 0x83, 0x6d, 0x12, 0x07, 0xe2, 0x2e, 0x0e,
+	0x2a, 0xd9, 0x85, 0x11, 0xed, 0x39, 0x15, 0xb9, 0x33, 0x3b, 0x0c, 0xaf, 0xf0, 0x28, 0x30, 0xaf,
+	0x88, 0x84, 0x19, 0x1f, 0xf4, 0x9e, 0x24, 0xbf, 0xb4, 0x05, 0x88, 0x83, 0xbf, 0x74, 0x8e, 0xef,
+	0xf8, 0x21, 0x4d, 0x08, 0x88, 0xbe, 0x59, 0x80, 0x61, 0xba, 0xa9, 0x34, 0x90, 0x64, 0x21, 0x48,
+	0x25, 0x93, 0x09, 0xc0, 0x7b, 0x86, 0x25, 0x34, 0x4b, 0xa2, 0x62, 0xfc, 0x34, 0xdb, 0x22, 0x3c,
+	0x1d, 0x27, 0x84, 0x34, 0x79, 0x99, 0x29, 0x89, 0xf5, 0x29, 0xbb, 0xaf, 0x88, 0xdd, 0xb4, 0x2e,
+	0xfd, 0xfb, 0x77, 0x83, 0x7c, 0xc1, 0x24, 0x4f, 0x87, 0xa3, 0xa4, 0x62, 0xeb, 0x6d, 0xf1, 0x33,
+	0x93, 0xe7, 0x30, 0xbd, 0x4c, 0x5e, 0x2c, 0xd0, 0xfd, 0x1a, 0x5b, 0x57, 0x74, 0xf5, 0x82, 0xc4,
+	0x4f, 0xf2, 0xd5, 0xf6, 0x1d, 0x2e, 0xbf, 0xcd, 0x4f, 0x6c, 0x7f, 0x4f, 0xda, 0x88, 0xa6, 0x32,
+	0x3e, 0x06, 0xaa, 0xd2, 0xa4, 0x5a, 0x39, 0x73, 0x23, 0xd3, 0x5a, 0x1f, 0xb1, 0x7b, 0x12, 0x99,
+	0x4d, 0xdf, 0xd8, 0xc9, 0x2d, 0x71, 0x42, 0xd6, 0x66, 0x4d, 0x9d, 0x68, 0x82, 0x79, 0x9e, 0x39,
+	0x5e, 0x6b, 0x6a, 0x7c, 0x76, 0xf3, 0xa5, 0x81, 0x6b, 0x39, 0xf9, 0x84, 0x6d, 0xf0, 0x4b, 0x4c,
+	0x14, 0x63, 0xe4, 0xe8, 0x30, 0xf9, 0x19, 0x56, 0x42, 0x0e, 0x43, 0x79, 0x2c, 0x18, 0xe7, 0xe0,
+	0x0c, 0x3e, 0xad, 0x71, 0xec, 0x11, 0x06, 0xc5, 0xdb, 0x4c, 0xf4, 0x1e, 0xab, 0x04, 0xb4, 0x32,
+	0x94, 0xbf, 0x98, 0xc8, 0x20, 0x12, 0xa3, 0xdb, 0xc9, 0x3f, 0x29, 0xfc, 0x77, 0x00, 0x00, 0x00,
+	0xff, 0xff, 0x2d, 0xd7, 0xaa, 0x92, 0x4c, 0x41, 0x00, 0x00,
 }
