@@ -9,8 +9,10 @@ cp ../MatchList.proto ./MatchList.proto
 cp ../TexasGame.proto ./TexasGame.proto
 cp ../base.proto ./
 
-
 sed -i '' 's/package bbproto;//g' *.proto
+cp -vf ./*.proto ${TARGET_PROTO_PATH}/protobuf/
+
+
 protoc --proto_path=./ --cpp_out=./OutCpp *.proto
 cd OutCpp
 ls -lrt *
