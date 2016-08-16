@@ -522,7 +522,7 @@ func (t *ThUser) TimeOut(timeNow time.Time) (bool, error) {
 		log.T("玩家[%v]超时,现在做超时的处理", t.UserId)
 		//表示已经超时了
 		//给玩家发送超时的广播
-		err := t.GetDesk().OGBet(t.Seat, TH_DESK_BET_TYPE_FOLD, 0)
+		err := t.GetDesk().DDBet(t.Seat, TH_DESK_BET_TYPE_FOLD, 0)
 		if err != nil {
 			log.E("用户[%v]弃牌失败", t.UserId)
 		}
@@ -1387,6 +1387,9 @@ func (t *ThDesk) Lottery() error {
 	result.Handcard = t.GetHandCard()                //手牌
 	result.WinCoinInfo = t.getWinCoinInfo()
 	result.HandCoin = t.GetHandCoin()
+
+	//result.CoinInfo					//每个人的输赢情况
+
 	t.THBroadcastProto(result, 0)
 
 	//开奖之后,设置状态为 没有开始游戏

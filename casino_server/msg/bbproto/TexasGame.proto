@@ -177,6 +177,7 @@ message game_WinCoin {
     optional bytes rolename = 10;
 }
 
+//牌局的结果
 message game_TestResult {
     optional bytes Matchid = 1;
     optional int32 Tableid = 2;
@@ -185,6 +186,7 @@ message game_TestResult {
     repeated int32 bCanShowCard = 5;
     repeated game_WinCoin WinCoinInfo = 6;
     repeated int64 HandCoin = 7;
+    repeated game_WinCoin CoinInfo = 8;
 }
 
 message game_LeaveMatch {

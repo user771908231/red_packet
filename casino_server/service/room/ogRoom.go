@@ -42,7 +42,7 @@ func (t *ThDesk) getUserBySeat(seatId int32) *ThUser {
 }
 
 //押注的通用接口
-func (t *ThDesk) OGBet(seatId int32,betType int32,coin int64) error{
+func (t *ThDesk) DDBet(seatId int32,betType int32,coin int64) error{
 	t.Lock()
 	defer t.Unlock()
 	log.T("用户seatId[%v]开始操作betType[%v]",seatId,betType)
@@ -59,16 +59,16 @@ func (t *ThDesk) OGBet(seatId int32,betType int32,coin int64) error{
 	//押注:大盲注之后的第一个人,这个类型不会使用到
 
 	case TH_DESK_BET_TYPE_CALL:
-		t.OgFollowBet(user)
+		t.DDFollowBet(user)
 
 	case TH_DESK_BET_TYPE_FOLD:
-		t.OgFoldBet(user)
+		t.DDFoldBet(user)
 
 	case TH_DESK_BET_TYPE_CHECK:        //让牌
-		t.OGCheckBet(user)
+		t.DDCheckBet(user)
 
 	case TH_DESK_BET_TYPE_RAISE:        //加注
-		t.OGRaiseBet(user,coin)
+		t.DDRaiseBet(user,coin)
 
 	case TH_DESK_BET_TYPE_RERRAISE:        //再加注
 
@@ -91,7 +91,7 @@ func (t *ThDesk) OGBet(seatId int32,betType int32,coin int64) error{
 
 
 //这里只处理逻辑
-func (t *ThDesk) OgFollowBet(user *ThUser) error {
+func (t *ThDesk) DDFollowBet(user *ThUser) error {
 
 	//1,押注
 	log.T("用户[%v]开始押注",user.UserId)
@@ -133,7 +133,7 @@ func (t *ThDesk) OgFollowBet(user *ThUser) error {
 }
 
 //这里只处理逻辑
-func (t *ThDesk) OgFoldBet(user  *ThUser) error {
+func (t *ThDesk) DDFoldBet(user  *ThUser) error {
 
 	log.T("用户[%v]开始弃牌",user.UserId)
 
@@ -175,7 +175,7 @@ func (t *ThDesk) OgFoldBet(user  *ThUser) error {
 
 
 //联众德州 加注
-func (t *ThDesk) OGRaiseBet(user *ThUser,coin int64) error{
+func (t *ThDesk) DDRaiseBet(user *ThUser,coin int64) error{
 	//1,得到跟注的用户,检测用户
 
 	//2,开始处理加注
@@ -241,7 +241,7 @@ func (t *ThDesk) UpdateThuser2Redis(userId uint32) error{
 }
 
 //联众德州 让牌
-func (t *ThDesk) OGCheckBet(user *ThUser) error{
+func (t *ThDesk) DDCheckBet(user *ThUser) error{
 
 	log.T("用户[%v]开始让牌",user.UserId)
 	//1,让牌

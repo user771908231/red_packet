@@ -32,7 +32,7 @@ func TestOg(t *testing.T) {
 
 	//createDesk(10084)
 	//
-	getRecords1()
+	//getRecords1()
 	//getRecords(10108)
 
 	for ; ; {
