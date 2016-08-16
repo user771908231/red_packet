@@ -1387,6 +1387,9 @@ func (t *ThDesk) Lottery() error {
 	result.Handcard = t.GetHandCard()                //手牌
 	result.WinCoinInfo = t.getWinCoinInfo()
 	result.HandCoin = t.GetHandCoin()
+
+	//result.CoinInfo					//每个人的输赢情况
+
 	t.THBroadcastProto(result, 0)
 
 	//开奖之后,设置状态为 没有开始游戏
