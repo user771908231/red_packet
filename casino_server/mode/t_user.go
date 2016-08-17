@@ -36,6 +36,10 @@ type T_user struct {
 	Gift     []string //礼物的记录
 	TimeLastSign	time.Time	//最后一次签到时间
 	ContinueSignCount int32		//连续签到的次数
+
+	//微信
+	OpenId	string	//openId
+	HeadUrl	string	//头像
 }
 
 

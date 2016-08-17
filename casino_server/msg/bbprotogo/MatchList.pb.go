@@ -231,6 +231,7 @@ It has these top-level messages:
 	Game_BeanUserRecord
 	Game_BeanGameRecord
 	Game_AckGameRecord
+	WeixinInfo
 	ProtoHeader
 	TerminalInfo
 	User

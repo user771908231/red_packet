@@ -42,7 +42,7 @@ func CheckUserId(userId uint32) int8 {
 	2,保存mongo
 	3,缓存到redis
  */
-func NewUserAndSave() (*bbproto.User, error) {
+func NewUserAndSave(openId,wxNickName,headUrl string) (*bbproto.User, error) {
 	//1,获取数据库连接和回话
 	c, err := mongodb.Dial(casinoConf.DB_IP, casinoConf.DB_PORT)
 	if err != nil {
@@ -60,15 +60,20 @@ func NewUserAndSave() (*bbproto.User, error) {
 		return nil, err
 	}
 	userId := uint32(id)
-	Nickname := config.RandNickname()
 
 	//构造user
 	nuser := &mode.T_user{}
 	nuser.Mid = bson.NewObjectId()
 	nuser.Id = userId
-	nuser.NickName = Nickname
-	nuser.Coin = int64(10000)
+	if wxNickName == "" {
+		nuser.NickName =  config.RandNickname()
+	}else{
+		nuser.NickName = wxNickName
+	}
+	nuser.OpenId = openId
+	nuser.HeadUrl = headUrl
 
+	//保存数据到数据库
 	err = s.DB(casinoConf.DB_NAME).C(casinoConf.DBT_T_USER).Insert(nuser)
 	if err != nil {
 		log.E("保存用户的时候失败 error【%v】",err.Error())
@@ -77,7 +82,6 @@ func NewUserAndSave() (*bbproto.User, error) {
 
 	result,_ := Tuser2Ruser(nuser)
 	return result, nil
-
 }
 
 
@@ -139,6 +143,45 @@ func GetUserById(id uint32) *bbproto.User {
 
 }
 
+
+func GetUserByOpenId(openId  string) *bbproto.User {
+	//1,首先在 redis中去的数据
+	result := &bbproto.User{}
+	// 获取连接 connection
+	c, err := mongodb.Dial(casinoConf.DB_IP, casinoConf.DB_PORT)
+	if err != nil {
+		result = nil
+	}
+	defer c.Close()
+	s := c.Ref()
+	defer c.UnRef(s)
+
+	//从数据库中查询user
+	tuser := &mode.T_user{}
+	s.DB(casinoConf.DB_NAME).C(casinoConf.DBT_T_USER).Find(bson.M{"open_id": openId}).One(tuser)
+	if tuser.Id < casinoConf.MIN_USER_ID {
+		log.T("在mongo中没有查询到user[%v].", openId)
+		result = nil
+	}else{
+		log.T("在mongo中查询到了user[%v],现在开始缓存",tuser)
+		//把从数据获得的结果填充到redis的model中
+		result,_ = Tuser2Ruser(tuser)
+		if result!=nil {
+			SaveUser2Redis(result)
+		}
+	}
+
+	//判断用户是否存在,如果不存在,则返回空
+	if result == nil {
+		return nil
+	}else{
+		result.OninitLoginTurntableState()	//初始化登录转盘之后的奖励
+		return result
+	}
+
+}
+
+
 /**
 	将用户model保存在redis中
  */
@@ -155,19 +198,26 @@ func SaveUser2Redis(u *bbproto.User) {
  */
 func SaveUser2RedisAndMongo(u *bbproto.User){
 	SaveUser2Redis(u)
-	UpsertUser2Mongo(u)
+	UpsertRUser2Mongo(u)
 }
 
 
 //把redis中的数据刷新到数据库
 func FlashUser2Mongo(userId uint32) error{
 	u := GetUserById(userId)
-	UpsertUser2Mongo(u)
+	UpsertRUser2Mongo(u)
 	return nil
 }
 
 
-func UpsertUser2Mongo(u *bbproto.User){
+func UpsertRUser2Mongo(u *bbproto.User){
+	//把bbproto.User转化为  model.User
+	tuser,_:=Ruser2Tuser(u)	//
+	UpsertTUser2Mongo(*tuser)
+}
+
+//保存用户到mongo
+func UpsertTUser2Mongo(tuser mode.T_user){
 	//得到数据库连接池
 	c, err := mongodb.Dial(casinoConf.DB_IP, casinoConf.DB_PORT)
 	if err != nil {
@@ -175,13 +225,9 @@ func UpsertUser2Mongo(u *bbproto.User){
 		return
 	}
 	defer c.Close()
-
 	s := c.Ref()
 	defer c.UnRef(s)
 
-	//把bbproto.User转化为  model.User
-	tuser,_:=Ruser2Tuser(u)	//
-	log.T("把user[%v]保存到数据库]",tuser)
 	if tuser.Mid == ""{
 		s.DB(casinoConf.DB_NAME).C(casinoConf.DBT_T_USER).Insert(tuser)
 	}else{
@@ -189,6 +235,7 @@ func UpsertUser2Mongo(u *bbproto.User){
 	}
 
 }
+
 /**
 	更新用用户余额的信息
  */
@@ -207,7 +254,7 @@ func UpUserBalance(userId uint32, amount int64,utype int) error {
 
 	//3,更新mongo 中的值
 	if utype == UPDATE_TYPE_REAIS_MONGO {
-		UpsertUser2Mongo(user)
+		UpsertRUser2Mongo(user)
 	}
 
 	return nil
@@ -230,6 +277,8 @@ func Tuser2Ruser(tu *mode.T_user)(*bbproto.User,error){
 	result.NickName = &tu.NickName
 	result.Coin = &tu.Coin
 	result.Diamond = &tu.Diamond
+	result.OpenId = &tu.OpenId
+	result.HeadUrl = &tu.HeadUrl
 	return result,nil
 }
 

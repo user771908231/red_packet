@@ -48,47 +48,27 @@ func HandlerREQQuickConn(args []interface{}) {
 	//需要返回的结果
 
 	//ip地址信息
-	result := &bbproto.ACKQuickConn{}
-	result.CoinCnt = new(int64)
-	result.UserName = new(string)
-	result.UserId = new(uint32)
-	result.NickName = new(string)
-	result.AckResult = new(int32)
-	result.ReleaseTag = new(int32)
-
-
-	//默认发布版本是1
-	*result.ReleaseTag = 1			///todo  这里需要修改
-
+	result := newACKQuickConn()
 	var resultUser *bbproto.User
 
-	arrs := strings.Split(conf.Server.TCPAddr, ":")
-	var ip string = arrs[0]
-	var port string = arrs[1]
+	//首先判断是否是微信登陆
+	if m.GetWx() == nil || m.GetWx().GetOpenId() == "" {
+		//普通登陆,通过userId来判断是登录还是注册,如果userId ==0 ,重新注册一个,如果userId !=0 从数据库查询
+		if m.GetUserId() == 0 {
+			resultUser, _ = userService.NewUserAndSave("","","")
+		} else {
+			resultUser = userService.GetUserById(m.GetUserId())
+		}
+	}else{
+		//微信登陆,如果是微信新用户,则创建一个user,并且保存
+		openId := m.GetWx().GetOpenId()
+		resultUser = userService.GetUserByOpenId(openId)
+		if resultUser == nil {
+			//重新生成一个并保存到数据库
+			resultUser, _ = userService.NewUserAndSave(m.GetWx().GetOpenId(),m.GetWx().GetNickName(),m.GetWx().GetHeadUrl())
+		}
 
-	ogRoomInfo := &bbproto.DDRoomInfo{}
-	ogRoomInfo.RoomIp = &ip
-	ogRoomInfo.RoomPort = &port
-
-	thranSjjInfo := &bbproto.SHENJINGJSSInfo{}
-	thranSjjInfo.RoomIP = &ip
-	thranSjjInfo.RoomPort = &port
-
-	oglist := make([]*bbproto.DDRoomInfo, 1)
-	oglist[0] = ogRoomInfo
-
-	tslist := make([]*bbproto.SHENJINGJSSInfo, 1)
-	tslist[0] = thranSjjInfo
-	result.JssList = tslist
-	result.MatchSvrList = oglist
-
-	// 通过userId来判断是登录还是注册,如果userId ==0 ,重新注册一个,如果userId !=0 从数据库查询
-	if m.GetUserId() == 0 {
-		resultUser, _ = userService.NewUserAndSave()
-	} else {
-		resultUser = userService.GetUserById(m.GetUserId())
 	}
-
 
 	//如果得到的user ==nil 或者 用密码登陆的时候密码不正确
 	if resultUser == nil || (resultUser.GetPwd() != "" && m.GetPwd() != resultUser.GetPwd()) {
@@ -124,4 +104,42 @@ func handlerNotice(args []interface{}) {
 	tnotice := noticeServer.GetNoticeByType(m.GetNoticeType())
 	log.T("查询到了notice[%v]",tnotice)
 	a.WriteMsg(tnotice)
+}
+
+
+
+//返回登陆信息
+func newACKQuickConn() * bbproto.ACKQuickConn{
+	result := &bbproto.ACKQuickConn{}
+
+	result.CoinCnt = new(int64)
+	result.UserName = new(string)
+	result.UserId = new(uint32)
+	result.NickName = new(string)
+	result.AckResult = new(int32)
+	result.ReleaseTag = new(int32)
+	//默认发布版本是1
+	*result.ReleaseTag = 1			///todo  这里需要修改
+
+	arrs := strings.Split(conf.Server.TCPAddr, ":")
+	var ip string = arrs[0]
+	var port string = arrs[1]
+
+	ogRoomInfo := &bbproto.DDRoomInfo{}
+	ogRoomInfo.RoomIp = &ip
+	ogRoomInfo.RoomPort = &port
+
+	thranSjjInfo := &bbproto.SHENJINGJSSInfo{}
+	thranSjjInfo.RoomIP = &ip
+	thranSjjInfo.RoomPort = &port
+
+	oglist := make([]*bbproto.DDRoomInfo, 1)
+	oglist[0] = ogRoomInfo
+
+	tslist := make([]*bbproto.SHENJINGJSSInfo, 1)
+	tslist[0] = thranSjjInfo
+	result.JssList = tslist
+	result.MatchSvrList = oglist
+
+	return result
 }
