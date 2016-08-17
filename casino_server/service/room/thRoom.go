@@ -1381,14 +1381,14 @@ func (t *ThDesk) Lottery() error {
 
 	// 新的开奖协议
 	result := &bbproto.Game_TestResult{}
-	result.Tableid = &t.Id                                //桌子
-	result.BCanShowCard = t.GetBshowCard()                //
-	result.BShowCard = t.GetBshowCard()                //亮牌
+	result.Tableid = &t.Id                           //桌子
+	result.BCanShowCard = t.GetBshowCard()           //
+	result.BShowCard = t.GetBshowCard()              //亮牌
 	result.Handcard = t.GetHandCard()                //手牌
 	result.WinCoinInfo = t.getWinCoinInfo()
 	result.HandCoin = t.GetHandCoin()
 
-	//result.CoinInfo					//每个人的输赢情况
+	result.CoinInfo	= t.getCoinInfo()		//每个人的输赢情况
 
 	t.THBroadcastProto(result, 0)
 
