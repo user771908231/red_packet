@@ -474,7 +474,7 @@ func (t *ThDesk) getWinCoinInfo() []*bbproto.Game_WinCoin{
 	//对每个人做计算
 	for i := 0; i < len(t.Users); i++ {
 		u := t.Users[i]
-		if u != nil && u.winAmount > 0{
+		if u != nil && u.Status == TH_USER_STATUS_CLOSED && u.winAmount > 0  && u.thCards != nil {
 			//开是对这个人计算
 			gwc := NewGame_WinCoin()
 
@@ -501,7 +501,8 @@ func (t *ThDesk) getCoinInfo() []*bbproto.Game_WinCoin{
 	//对每个人做计算
 	for i := 0; i < len(t.Users); i++ {
 		u := t.Users[i]
-		if u != nil{
+		if u != nil && u.Status == TH_USER_STATUS_CLOSED && u.thCards != nil{
+			log.T("开始计算[%v]的coinInfo,status[%v],thcards[%v]",u.UserId,u.Status,u.thCards)
 			//开是对这个人计算
 			gwc := NewGame_WinCoin()
 
@@ -537,6 +538,13 @@ func (t *ThDesk) GetBshowCard() []int32{
 
 //把结果牌 针对og来排序
 func OGTHCardPaixu(s *pokerService.ThCards) []*bbproto.Pai{
+
+	//判断参数是否nil
+	if s == nil {
+		return nil
+	}
+
+
 	lensCards := len(s.Cards)
 	ret := make([]*bbproto.Pai,lensCards)
 
