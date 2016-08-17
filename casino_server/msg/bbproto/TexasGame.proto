@@ -1189,6 +1189,8 @@ message Game_AckCreateDesk{
     optional string password        =   3;  //房间密码
 }
 
+
+
 //解散房间
 message Game_DissolveDesk{
     optional uint32 userId          =   1;  //解散房间
@@ -1201,6 +1203,20 @@ message Game_AckDissolveDesk{
     optional int32  deskId          =   3;  //房间Id
     optional string passWord        =   4;  //房间密钥
 }
+
+
+//离开房间
+message Game_LeaveDesk{
+    optional uint32 userId          =   1;  //用户Id
+}
+
+
+//离开房间的回复
+message Game_ACKLeaveDesk{
+    optional int32  result          =   1;  //离开房间的结果
+}
+
+
 
 
 
@@ -1257,12 +1273,29 @@ message WeixinInfo {
 }
 
 
+//聊天的内容
+message Game_Message{
+    optional int32  msgType     = 1;    //消息的类型,1,快捷,2,表情,3,自定义
+    optional int32  id          =2;     //只有快捷和表情的时候有用
+    optional string msg         =3;     //自定义的时候使用
+    optional uint32 userId      =4;     //发消息的人是谁
+    optional int32  deskId      =5;     //desk的id
+}
+
+
+//消息广播
+message Game_SendMessage{
+    optional int32  msgType     = 1;    //消息的类型,1,快捷,2,表情,3,自定义
+    optional int32  id          =2;     //只有快捷和表情的时候有用
+    optional string msg         =3;     //自定义的时候使用
+    optional uint32 userId      =4;     //发消息的人是谁
+}
 
 
 
-
-
-
-
-
+//几局完成之后的情况
+message Game_SendDeskEndLottery{
+    optional int32  result      =   1;  //
+    repeated game_WinCoin   coinInfo = 2;   //胜负的情况
+}
 

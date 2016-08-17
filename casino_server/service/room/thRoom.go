@@ -768,7 +768,7 @@ func (t *ThDesk) LeaveThuser(userId uint32) error {
 	t.Lock()
 	defer t.Unlock()
 	user := t.GetUserByUserId(userId)
-	user.Status = TH_USER_STATUS_LEAVE        //设置状态为离开
+	user.Status = TH_USER_STATUS_LEAVE     //设置状态为离开
 	return nil
 }
 
@@ -782,7 +782,6 @@ func (t *ThDesk) SetOfflineStatus(userId uint32) error {
 	u.BreakStatus = TH_USER_BREAK_STATUS_TRUE        //设置为掉线的状态
 	t.UserCountOnline --
 	return nil
-
 }
 
 //初始化前注的信息

@@ -49,6 +49,9 @@ func init() {
 	handler(&bbproto.Game_Ready{},handlerReady)			//准备游戏
 	handler(&bbproto.Game_Begin{},handlerBegin)			//开始游戏
 
+	handler(&bbproto.Game_Message{},handlerGameMessage)
+	handler(&bbproto.Game_LeaveDesk{},handlerLeaveDesk)		//离开桌子
+
 	handler(&bbproto.Game_GameRecord{},handlerGetGameRecords)	//查询战绩的接口
 }
 
@@ -252,6 +255,19 @@ func  handlerGameEnterMatch(args []interface{}){
 	a := args[1].(gate.Agent)
 	//返回房间的信息
 	OGservice.HandlerGameEnterMatch(m,a)
+}
+
+//处理离开房间的请求
+func handlerLeaveDesk(args []interface{}){
+	m := args[0].(*bbproto.Game_LeaveDesk)
+	a := args[1].(gate.Agent)
+	OGservice.HandlerLeaveDesk(m,a)
+}
+
+func handlerGameMessage(args []interface{}){
+	m := args[0].(*bbproto.Game_Message)
+	a := args[1].(gate.Agent)
+	OGservice.HandlerMessage(m,a)
 }
 
 

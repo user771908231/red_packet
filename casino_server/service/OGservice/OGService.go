@@ -54,6 +54,28 @@ func HandlerCreateDesk(userId uint32,roomCoin int64,smallBlind int64,bigBlind in
 
 }
 
+//离开房间
+func HandlerLeaveDesk(m *bbproto.Game_Message,a gate.Agent){
+	//deskId
+	desk := room.ThGameRoomIns.GetDeskByUserId(m.GetUserId())
+	desk.LeaveThuser(m.GetUserId())
+}
+
+///用户发送消息
+func HandlerMessage(m *bbproto.Game_Message,a gate.Agent){
+	//deskId
+	result := &bbproto.Game_SendMessage{}
+	desk := room.ThGameRoomIns.GetDeskByUserId(m.GetUserId())
+	if desk == nil {
+		//返回错误信息
+	}else{
+		result.UserId = m.UserId
+		result.Msg = m.Msg
+		result.MsgType = m.MsgType
+		result.Id = m.Id
+		desk.THBroadcastProtoAll(result)
+	}
+}
 
 //用户准备
 func HandlerReady(m *bbproto.Game_Ready,a gate.Agent) error{

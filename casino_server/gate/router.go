@@ -44,6 +44,8 @@ func init() {
 	msg.ProtoProcessor.SetRouter(&bbproto.Game_RaiseBet{},game.ChanRPC)	//加注的请求
 	msg.ProtoProcessor.SetRouter(&bbproto.Game_FoldBet{},game.ChanRPC)	//弃牌的请求
 	msg.ProtoProcessor.SetRouter(&bbproto.Game_CheckBet{},game.ChanRPC)	//让牌的请求
+	msg.ProtoProcessor.SetRouter(&bbproto.Game_Message{},game.ChanRPC)	//发送信息
+	msg.ProtoProcessor.SetRouter(&bbproto.Game_LeaveDesk{},game.ChanRPC)	//离开游戏房间
 
 	//公告
 	msg.ProtoProcessor.SetRouter(&bbproto.Game_Notice{},login.ChanRPC)	//登陆的时候查看公告信息
