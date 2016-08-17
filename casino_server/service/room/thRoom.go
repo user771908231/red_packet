@@ -1497,7 +1497,7 @@ func (t *ThDesk)  SaveLotteryData() error {
 	return nil
 }
 
-//得到这句胜利的人有几个
+//得到这局胜利的人有几个
 func (t *ThDesk) GetWinCount() int {
 	t.CalcThcardsWin()        //先计算牌的局面
 
@@ -1513,6 +1513,25 @@ func (t *ThDesk) GetWinCount() int {
 	return result
 }
 
+
+//新用户进入的时候,返回的信息
+func (t *ThDesk) GetWeiXinInfos() []*bbproto.WeixinInfo{
+	var result []*bbproto.WeixinInfo
+	for i := 0; i < len(t.Users); i++ {
+		u := t.Users[i]
+		if u != nil {
+			ru :=userService.GetUserById(u.UserId)
+			wxi := &bbproto.WeixinInfo{}
+			wxi.HeadUrl = ru.HeadUrl
+			wxi.NickName = ru.NickName
+			wxi.OpenId = ru.OpenId
+
+			//放在列表中
+			result = append(result,wxi)
+		}
+	}
+	return result
+}
 
 //跟注:跟注的时候 不需要重新设置押注的人
 //只是跟注,需要减少用户的资产,增加奖池的金额

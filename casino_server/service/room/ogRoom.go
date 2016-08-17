@@ -462,8 +462,6 @@ func NewGame_WinCoin() *bbproto.Game_WinCoin{
 	gwc.Coin = new(int64)
 	gwc.Seat = new(int32)
 	gwc.PoolIndex = new(int32)
-	//gwc.Rolename = new(int32)
-
 	return gwc
 
 }
@@ -518,6 +516,7 @@ func (t *ThDesk) getCoinInfo() []*bbproto.Game_WinCoin{
 			*gwc.Coin = u.TotalBet - u.winAmount			//表示除去押注的金额,净赚多少钱
 			*gwc.Seat = u.Seat
 			*gwc.PoolIndex = int32(0)
+			gwc.Rolename = []byte(u.NickName)
 			ret = append(ret,gwc)
 		}
 	}
