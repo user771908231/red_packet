@@ -1292,10 +1292,19 @@ message Game_SendMessage{
 }
 
 
+//几局游戏完了之后的广播信息
+message game_EndLottery {
+    optional int64 coin     = 1;        //总共输赢筹码
+    optional bool bigWin    = 2;       //是否为大赢家
+    optional bool owner     = 3;        //是否为房主
+    optional bytes rolename = 4;    //玩家姓名
+}
 
 //几局完成之后的情况
 message Game_SendDeskEndLottery{
-    optional int32  result      =   1;  //
-    repeated game_WinCoin   coinInfo = 2;   //胜负的情况
+    optional int32  result              = 1;  //
+    repeated game_EndLottery   coinInfo = 2;   //胜负的情况
 }
+
+
 

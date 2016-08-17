@@ -55,7 +55,7 @@ func HandlerCreateDesk(userId uint32,roomCoin int64,smallBlind int64,bigBlind in
 }
 
 //离开房间
-func HandlerLeaveDesk(m *bbproto.Game_Message,a gate.Agent){
+func HandlerLeaveDesk(m *bbproto.Game_LeaveDesk,a gate.Agent){
 	//deskId
 	desk := room.ThGameRoomIns.GetDeskByUserId(m.GetUserId())
 	desk.LeaveThuser(m.GetUserId())
@@ -102,7 +102,7 @@ func HandlerBegin(m *bbproto.Game_Begin,a gate.Agent) error{
 		return errors.New("没有找到房间")
 	}else{
 		//开始游戏
-		desk.OGRun()
+		desk.Run()
 		return nil
 	}
 }
@@ -226,7 +226,7 @@ func HandlerGameEnterMatch(m *bbproto.Game_EnterMatch, a gate.Agent) error {
 
 	//如果是朋友桌的话,需要房主点击开始才能开始...
 	if mydesk.DeskType == room.TH_DESK_TYPE_JINBIAOSAI {
-		go mydesk.OGRun()
+		go mydesk.Run()
 	}
 
 	return nil

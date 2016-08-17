@@ -236,6 +236,7 @@ It has these top-level messages:
 	WeixinInfo
 	Game_Message
 	Game_SendMessage
+	Game_EndLottery
 	Game_SendDeskEndLottery
 	ProtoHeader
 	TerminalInfo
