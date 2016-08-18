@@ -66,12 +66,9 @@ var TH_DESK_BET_TYPE_ALLIN 	int32 = 7      		//全下
 
 
 var ThGameRoomIns ThGameRoom        	//房间实例,在init函数中初始化
-var ChampionshipRoom CSThGameRoom 	//锦标赛的房间
 
 func init() {
 	ThGameRoomIns.OnInit()                //初始化房间
-	ChampionshipRoom.OnInit()	//初始化,开始运行
-	ChampionshipRoom.Run()
 }
 
 /**

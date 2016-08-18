@@ -1280,6 +1280,8 @@ message Game_Message{
     optional string msg         =3;     //自定义的时候使用
     optional uint32 userId      =4;     //发消息的人是谁
     optional int32  deskId      =5;     //desk的id
+    optional int32  seat        =6;     //发信息人的座位号
+
 }
 
 
@@ -1289,6 +1291,7 @@ message Game_SendMessage{
     optional int32  id          =2;     //只有快捷和表情的时候有用
     optional string msg         =3;     //自定义的时候使用
     optional uint32 userId      =4;     //发消息的人是谁
+    optional int32  seat        =5;     //发信息人的座位号
 }
 
 
@@ -1298,6 +1301,7 @@ message game_EndLottery {
     optional bool bigWin    = 2;       //是否为大赢家
     optional bool owner     = 3;        //是否为房主
     optional string rolename = 4;    //玩家姓名
+
 }
 
 //几局完成之后的情况

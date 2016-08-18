@@ -62,16 +62,18 @@ func HandlerLeaveDesk(m *bbproto.Game_LeaveDesk,a gate.Agent){
 ///用户发送消息
 func HandlerMessage(m *bbproto.Game_Message,a gate.Agent){
 	//deskId
+	log.T("用户开始发送消息m[%v]",m)
 	result := &bbproto.Game_SendMessage{}
 	desk := room.GetDeskByAgent(a)
 
 	if desk == nil {
 		//返回错误信息
 	}else{
-		result.UserId = m.UserId
+		result.UserId = m.GetUserId()
 		result.Msg = m.Msg
 		result.MsgType = m.MsgType
 		result.Id = m.Id
+		result.Seat = m.Seat
 		desk.THBroadcastProtoAll(result)
 	}
 }
@@ -224,7 +226,7 @@ func HandlerGameEnterMatch(m *bbproto.Game_EnterMatch, a gate.Agent) error {
 
 	//4,最后:确定是否开始游戏, 上了牌桌之后,如果玩家人数大于1,并且游戏处于stop的状态,则直接开始游戏
 
-	//如果是朋友桌的话,需要房主点击开始才能开始...
+	//5,如果是朋友桌的话,需要房主点击开始才能开始...,如果是锦标赛,则自动开始游戏
 	if mydesk.DeskType == intCons.GAME_TYPE_TH_CS {
 		go mydesk.Run()
 	}

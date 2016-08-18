@@ -850,17 +850,38 @@ func (t *ThDesk) Lottery() error {
 	//开奖时间是在5秒之后开奖
 	time.Sleep(TH_LOTTERY_DURATION)
 
-
-	if t.JuCountNow < t.JuCount {
-		//表示还可以继续开始游戏
+	//判断是否可以继续啊下次游戏
+	if t.canNextRun() {
 		go t.Run()
 	}else{
 		//表示不能继续开始游戏
 		t.End()
 	}
-
-
 	return nil
+}
+
+//判断开奖之后是否可以继续游戏
+func (t *ThDesk) canNextRun() bool{
+
+	if t.DeskType == intCons.GAME_TYPE_TH {
+		//如果是自定义房间
+		//1,局数
+		//2,人数
+		if t.JuCountNow > t.JuCount {
+			return false
+		}
+	}else if t.DeskType == intCons.GAME_TYPE_TH_CS{
+		//锦标赛
+		if ChampionshipRoom.CanNextDeskRun() {
+			return true
+		}else{
+			return false
+		}
+
+	}
+
+	return true
+
 }
 
 //开奖之后的处理
