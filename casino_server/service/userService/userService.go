@@ -166,6 +166,20 @@ func GetUserSessionByUserId(id uint32) *bbproto.ThServerUserSession{
 }
 
 
+//保存回话信息
+func SaveUserSession(userData *bbproto.ThServerUserSession){
+
+	//获取连接
+	conn := data.Data{}
+	conn.Open(casinoConf.REDIS_DB_NAME)
+	defer conn.Close()
+
+	//保存数据
+	key := GetRedisUserSeesionKey(userData.GetUserId())
+	conn.SetObj(key, userData)
+}
+
+
 func GetUserByOpenId(openId  string) *bbproto.User {
 	//1,首先在 redis中去的数据
 	result := &bbproto.User{}

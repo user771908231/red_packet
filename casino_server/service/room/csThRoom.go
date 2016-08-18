@@ -5,11 +5,16 @@ import (
 	"casino_server/common/log"
 )
 
+var ChampionshipRoom CSThGameRoom 	//锦标赛的房间
 
+
+func init(){
+	ChampionshipRoom.OnInit()	//初始化,开始运行
+	ChampionshipRoom.Run()
+}
 //锦标赛
 type CSThGameRoom struct {
 	ThGameRoom
-
 	//锦标赛房间的专有属性
 	matchId	int32		//比赛内容
 
@@ -52,6 +57,7 @@ func (r *CSThGameRoom) AddUser(userId uint32, roomCoin int64, a gate.Agent) (*Th
 	if mydesk == nil {
 		log.T("没有多余的desk可以用,重新创建一个desk")
 		mydesk = NewThDesk()
+		mydesk.MatchId = r.matchId
 		r.AddThDesk(mydesk)
 	}
 
@@ -63,6 +69,13 @@ func (r *CSThGameRoom) AddUser(userId uint32, roomCoin int64, a gate.Agent) (*Th
 	}
 
 	mydesk.LogString()        //答应当前房间的信息
-
 	return mydesk, nil
 }
+
+
+//是否可以进行下把游戏
+func (r *CSThGameRoom) CanNextDeskRun() bool{
+	return true
+
+}
+
