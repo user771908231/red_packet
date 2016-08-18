@@ -69,7 +69,7 @@ func HandlerMessage(m *bbproto.Game_Message,a gate.Agent){
 	if desk == nil {
 		//返回错误信息
 	}else{
-		result.UserId = m.GetUserId()
+		result.UserId = m.UserId
 		result.Msg = m.Msg
 		result.MsgType = m.MsgType
 		result.Id = m.Id
