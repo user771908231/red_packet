@@ -1297,7 +1297,7 @@ message game_EndLottery {
     optional int64 coin     = 1;        //总共输赢筹码
     optional bool bigWin    = 2;       //是否为大赢家
     optional bool owner     = 3;        //是否为房主
-    optional bytes rolename = 4;    //玩家姓名
+    optional string rolename = 4;    //玩家姓名
 }
 
 //几局完成之后的情况

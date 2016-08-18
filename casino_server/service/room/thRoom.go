@@ -2046,7 +2046,7 @@ func (mydesk *ThDesk) Run() error {
 func (t *ThDesk) End(){
 	//广播结算的信息
 	result := &bbproto.Game_SendDeskEndLottery{}
-	result.Result = intCons.ACK_RESULT_SUCC
+	result.Result = &intCons.ACK_RESULT_SUCC
 
 	for i:=0 ;i <len(t.Users); i++{
 		u := t.Users[i]
