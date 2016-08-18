@@ -5,7 +5,6 @@ import (
 	"github.com/name5566/leaf/gate"
 	"casino_server/service/room"
 	"casino_server/common/log"
-	"casino_server/gamedata"
 	"casino_server/service/userService"
 	"errors"
 	"github.com/name5566/leaf/db/mongodb"
@@ -20,20 +19,19 @@ import (
 
 //联众德州,桌子状态
 var (
-	GAME_STATUS_READY int32 = 0        //准备
-	GAME_STATUS_DEAL_CARDS int32 = 1        //发牌
-	GAME_STATUS_PRECHIP int32 = 2        //盲注
-	GAME_STATUS_FIRST_TURN int32 = 3        //第一轮
-	GAME_STATUS_SECOND_TURN int32 = 4        //第二轮
-	GAME_STATUS_THIRD_TURN int32 = 5        //第三轮
-	GAME_STATUS_LAST_TURN int32 = 6        //第四轮
-	GAME_STATUS_SHOW_RESULT int32 = 7        //完成
+	GAME_STATUS_READY 		int32 = 0        //准备
+	GAME_STATUS_DEAL_CARDS 		int32 = 1        //发牌
+	GAME_STATUS_PRECHIP 		int32 = 2        //盲注
+	GAME_STATUS_FIRST_TURN 		int32 = 3        //第一轮
+	GAME_STATUS_SECOND_TURN 	int32 = 4        //第二轮
+	GAME_STATUS_THIRD_TURN 		int32 = 5        //第三轮
+	GAME_STATUS_LAST_TURN 		int32 = 6        //第四轮
+	GAME_STATUS_SHOW_RESULT 	int32 = 7        //完成
 )
 
 /**
 	用户通过钻石创建游戏房间
 	ateDesk(userId,initCoin,roomKey,smallBlind,bigBlind,juCount)
-
 	//新修改:创建房间的时候roomKey 系统指定,不需要用户输入
  */
 
@@ -57,7 +55,7 @@ func HandlerCreateDesk(userId uint32,roomCoin int64,smallBlind int64,bigBlind in
 //离开房间
 func HandlerLeaveDesk(m *bbproto.Game_LeaveDesk,a gate.Agent){
 	//deskId
-	desk := room.ThGameRoomIns.GetDeskByUserId(m.GetUserId())
+	desk := room.GetDeskByAgent(a)
 	desk.LeaveThuser(m.GetUserId())
 }
 
@@ -65,7 +63,8 @@ func HandlerLeaveDesk(m *bbproto.Game_LeaveDesk,a gate.Agent){
 func HandlerMessage(m *bbproto.Game_Message,a gate.Agent){
 	//deskId
 	result := &bbproto.Game_SendMessage{}
-	desk := room.ThGameRoomIns.GetDeskByUserId(m.GetUserId())
+	desk := room.GetDeskByAgent(a)
+
 	if desk == nil {
 		//返回错误信息
 	}else{
@@ -84,7 +83,9 @@ func HandlerReady(m *bbproto.Game_Ready,a gate.Agent) error{
 	userId := m.GetUserId()
 
 	//2,通过userId 找到桌子
-	desk := room.ThGameRoomIns.GetDeskByUserId(userId)
+	//desk := room.ThGameRoomIns.GetDeskByUserId(userId)
+	//
+	desk := room.GetDeskByAgent(a)
 
 	//3,用户开始准备
 	desk.Ready(userId)
@@ -96,8 +97,9 @@ func HandlerReady(m *bbproto.Game_Ready,a gate.Agent) error{
 //开始游戏
 func HandlerBegin(m *bbproto.Game_Begin,a gate.Agent) error{
 	userId := m.GetUserId()
-	desk := room.ThGameRoomIns.GetDeskByDeskOwner(userId)
-	if desk == nil {
+	//desk := room.ThGameRoomIns.GetDeskByDeskOwner(userId)
+	desk := room.GetDeskByAgent(a)
+	if desk == nil || desk.DeskOwner != userId {
 		log.E("没有找到房主为[%v]的desk",userId)
 		return errors.New("没有找到房间")
 	}else{
@@ -177,9 +179,6 @@ func HandlerGetGameRecords(m *bbproto.Game_GameRecord,a gate.Agent){
 	3,如果没有登陆游戏,走正常的流程
 
 	//错误码的说明:result
-
-
-
  */
 func HandlerGameEnterMatch(m *bbproto.Game_EnterMatch, a gate.Agent) error {
 	log.T("用户请求进入德州扑克的游戏房间,m[%v]",m)
@@ -202,7 +201,8 @@ func HandlerGameEnterMatch(m *bbproto.Game_EnterMatch, a gate.Agent) error {
 	log.T("用户请求进入德州扑克的游戏房间,password[%v]",m.GetPassWord())
 	//1,进入房间,返回房间和错误信息
 	if roomKey == "" {
-		mydesk, err = room.ThGameRoomIns.AddUser(userId,roomCoin, a)
+		mydesk, err = room.ChampionshipRoom.AddUser(userId,roomCoin, a)
+
 	}else {
 		mydesk, err = room.ThGameRoomIns.AddUserWithRoomKey(userId,roomCoin,roomKey, a)
 	}
@@ -225,64 +225,9 @@ func HandlerGameEnterMatch(m *bbproto.Game_EnterMatch, a gate.Agent) error {
 	//4,最后:确定是否开始游戏, 上了牌桌之后,如果玩家人数大于1,并且游戏处于stop的状态,则直接开始游戏
 
 	//如果是朋友桌的话,需要房主点击开始才能开始...
-	if mydesk.DeskType == room.TH_DESK_TYPE_JINBIAOSAI {
+	if mydesk.DeskType == intCons.GAME_TYPE_TH_CS {
 		go mydesk.Run()
 	}
-
-	return nil
-}
-
-//处理登录游戏的协议
-/**
-	1,判断用户是否已经登陆了游戏
-	2,如果已经登陆了游戏,替换现有的agent
-	3,如果没有登陆游戏,走正常的流程
- */
-func HandlerGameEnterMatchWithRoomKey(m *bbproto.Game_EnterMatch, a gate.Agent) error {
-	log.T("用户请求进入德州扑克的游戏房间,m[%v]",m)
-
-	log.T("用户请求进入德州扑克的游戏房间,m[%v]",m)
-
-	var err error					//错误信息
-	var mydesk *room.ThDesk				//用户需要进入的房间
-	userId := m.GetUserId()				//进入游戏房间的user
-	roomCoin := int64(1000)				//to do 暂时设置为1000
-	roomKey := string(m.GetPassWord())		//房间的roomkey
-	result := newGame_SendGameInfo()                //需要返回的信息
-
-
-	//1.1 检测参数是否正确,判断userId 是否合法
-	userCheck := userService.CheckUserIdRightful(userId)
-	if userCheck == false {
-		log.E("进入德州扑克的房间的时候,userId[%v]不合法。", userId)
-		return errors.New("用户Id不合法")
-	}
-
-
-	//1,进入房间,返回房间和错误信息
-	mydesk, err = room.ThGameRoomIns.AddUserWithRoomKey(userId,roomCoin,roomKey, a)
-	if err != nil || mydesk == nil {
-		errMsg := err.Error()
-		log.E("用户[%v]进入房间失败,errMsg[%v]",userId,errMsg)
-		a.WriteMsg(result)
-		return err
-	}
-
-	//2 构造信息并且返回
-	initGameSendgameInfoByDesk(mydesk, result,userId)
-	log.T("给请求登陆房间的人[%v]回复信息[%v]",userId,result)
-
-	//3 发送进入游戏房间的广播
-	mydesk.OGTHBroadAddUser(result)
-
-	//4,最后:确定是否开始游戏, 上了牌桌之后,如果玩家人数大于1,并且游戏处于stop的状态,则直接开始游戏
-
-	//如果是朋友桌的话,需要房主点击开始才能开始...
-	//这里需要特别处理
-
-
-	//go mydesk.OGRun()
-
 
 	return nil
 }
@@ -332,7 +277,6 @@ func initGameSendgameInfoByDesk(mydesk *room.ThDesk, result *bbproto.Game_SendGa
 	*result.NInitActionTime = int32(room.TH_TIMEOUT_DURATION_INT)
 	*result.NInitDelayTime = int32(room.TH_TIMEOUT_DURATION_INT)
 	result.Handcard = mydesk.GetHandCard()		//用户手牌
-	//result.HandCoin = mydesk.GetCoin()	//下注的金额
 	result.HandCoin = mydesk.GetRoomCoin()	//带入金额
 	result.TurnCoin = getTurnCoin(mydesk)
 	*result.Seat	= mydesk.GetUserByUserId(myUserId).Seat	//int32(mydesk.GetUserIndex(myUserId))	//我
@@ -473,10 +417,9 @@ func getUserIdByAgent( a gate.Agent) uint32{
 		return uint32(0)
 	}
 
-	userData := ad.(*gamedata.AgentUserData)
+	userData := ad.(*bbproto.ThServerUserSession)
 	log.T("得到的UserAgent中的userId是[%v]",userData.UserId)
 	//return userData.UserId
-
 	//测试代码,返回10006
 	return 10006
 }
