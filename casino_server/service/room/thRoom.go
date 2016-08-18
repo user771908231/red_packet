@@ -239,15 +239,8 @@ func (r *ThGameRoom) IsRepeatIntoRoom(userId uint32, a gate.Agent) *ThDesk {
 
 	//3,重新设置用户的信息
 	log.T("用户[%v]重新进入房间了", userId)
-	u := desk.GetUserByUserId(userId)
-	u.agent = a							//替换User的agent
-	u.BreakStatus = TH_USER_BREAK_STATUS_FALSE       		//设置没有掉线的情况
+	desk.GetUserByUserId(userId).UpdateAgentUserData(a,desk.Id,desk.MatchId)
 	desk.UserCountOnline ++
-	userAgentData := bbproto.NewThServerUserSession()		//绑定参数
-	*userAgentData.UserId = userId
-	*userAgentData.DeskId = desk.Id
-	*userAgentData.MatchId = desk.MatchId
-	a.SetUserData(userAgentData)
 
 	return desk
 }

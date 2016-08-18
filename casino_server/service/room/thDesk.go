@@ -182,11 +182,7 @@ func (t *ThDesk) AddThUser(userId uint32, roomCoin int64, userStatus int32, a ga
 	}
 
 	//4, 把用户的信息绑定到agent上
-	userAgentData := bbproto.NewThServerUserSession()
-	*userAgentData.UserId = userId
-	*userAgentData.DeskId = t.Id
-	*userAgentData.MatchId = t.MatchId
-	a.SetUserData(userAgentData)
+	thUser.UpdateAgentUserData(a,t.Id,t.MatchId)
 
 	//5,等待的用户加1
 	t.UserCount ++

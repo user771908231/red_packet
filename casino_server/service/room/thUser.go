@@ -163,3 +163,22 @@ func NewThUser() *ThUser {
 	result.BreakStatus = TH_USER_BREAK_STATUS_FALSE
 	return result
 }
+
+//更新用户的agentUserData数据
+func (t *ThUser) UpdateAgentUserData(a gate.Agent,deskId int32,matchId int32){
+
+	//保存回话信息
+	userAgentData := bbproto.NewThServerUserSession()		//绑定参数
+	*userAgentData.UserId = t.UserId
+	*userAgentData.DeskId = deskId
+	*userAgentData.MatchId = matchId
+	a.SetUserData(userAgentData)
+	t.agent = a
+	t.BreakStatus = TH_USER_BREAK_STATUS_FALSE
+
+	//回话信息保存到redis
+	userService.SaveUserSession(userAgentData)
+
+}
+
+
