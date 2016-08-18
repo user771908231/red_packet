@@ -54,6 +54,28 @@ func HandlerCreateDesk(userId uint32,roomCoin int64,smallBlind int64,bigBlind in
 
 }
 
+//离开房间
+func HandlerLeaveDesk(m *bbproto.Game_LeaveDesk,a gate.Agent){
+	//deskId
+	desk := room.ThGameRoomIns.GetDeskByUserId(m.GetUserId())
+	desk.LeaveThuser(m.GetUserId())
+}
+
+///用户发送消息
+func HandlerMessage(m *bbproto.Game_Message,a gate.Agent){
+	//deskId
+	result := &bbproto.Game_SendMessage{}
+	desk := room.ThGameRoomIns.GetDeskByUserId(m.GetUserId())
+	if desk == nil {
+		//返回错误信息
+	}else{
+		result.UserId = m.UserId
+		result.Msg = m.Msg
+		result.MsgType = m.MsgType
+		result.Id = m.Id
+		desk.THBroadcastProtoAll(result)
+	}
+}
 
 //用户准备
 func HandlerReady(m *bbproto.Game_Ready,a gate.Agent) error{
@@ -80,7 +102,7 @@ func HandlerBegin(m *bbproto.Game_Begin,a gate.Agent) error{
 		return errors.New("没有找到房间")
 	}else{
 		//开始游戏
-		desk.OGRun()
+		desk.Run()
 		return nil
 	}
 }
@@ -204,7 +226,7 @@ func HandlerGameEnterMatch(m *bbproto.Game_EnterMatch, a gate.Agent) error {
 
 	//如果是朋友桌的话,需要房主点击开始才能开始...
 	if mydesk.DeskType == room.TH_DESK_TYPE_JINBIAOSAI {
-		go mydesk.OGRun()
+		go mydesk.Run()
 	}
 
 	return nil
@@ -316,6 +338,7 @@ func initGameSendgameInfoByDesk(mydesk *room.ThDesk, result *bbproto.Game_SendGa
 	*result.Seat	= mydesk.GetUserByUserId(myUserId).Seat	//int32(mydesk.GetUserIndex(myUserId))	//我
 	result.SecondPool = mydesk.GetSecondPool()
 	*result.TurnMax = mydesk.BetAmountNow
+	result.WeixinInfos = mydesk.GetWeiXinInfos()
 
 	//循环User来处理
 	for i := 0; i < len(mydesk.Users); i++ {

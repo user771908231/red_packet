@@ -462,8 +462,6 @@ func NewGame_WinCoin() *bbproto.Game_WinCoin{
 	gwc.Coin = new(int64)
 	gwc.Seat = new(int32)
 	gwc.PoolIndex = new(int32)
-	//gwc.Rolename = new(int32)
-
 	return gwc
 
 }
@@ -474,7 +472,7 @@ func (t *ThDesk) getWinCoinInfo() []*bbproto.Game_WinCoin{
 	//对每个人做计算
 	for i := 0; i < len(t.Users); i++ {
 		u := t.Users[i]
-		if u != nil && u.winAmount > 0{
+		if u != nil && u.Status == TH_USER_STATUS_CLOSED && u.winAmount > 0  && u.thCards != nil {
 			//开是对这个人计算
 			gwc := NewGame_WinCoin()
 
@@ -487,9 +485,38 @@ func (t *ThDesk) getWinCoinInfo() []*bbproto.Game_WinCoin{
 			*gwc.Card4 = paicards[3].GetMapKey()
 			*gwc.Card5 = paicards[4].GetMapKey()
 			*gwc.Cardtype = u.thCards.GetOGCardType()
-			*gwc.Coin = u.winAmount
+			*gwc.Coin = u.winAmount					//这个表示的是赢得的底池多少钱
 			*gwc.Seat = u.Seat
 			*gwc.PoolIndex = int32(0)
+			ret = append(ret,gwc)
+		}
+	}
+	return ret
+}
+
+func (t *ThDesk) getCoinInfo() []*bbproto.Game_WinCoin{
+	var ret []*bbproto.Game_WinCoin
+	//对每个人做计算
+	for i := 0; i < len(t.Users); i++ {
+		u := t.Users[i]
+		if u != nil && u.Status == TH_USER_STATUS_CLOSED && u.thCards != nil{
+			log.T("开始计算[%v]的coinInfo,status[%v],thcards[%v]",u.UserId,u.Status,u.thCards)
+			//开是对这个人计算
+			gwc := NewGame_WinCoin()
+
+			//这里需要先对牌进行排序
+			paicards := OGTHCardPaixu(u.thCards)
+
+			*gwc.Card1 = paicards[0].GetMapKey()
+			*gwc.Card2 = paicards[1].GetMapKey()
+			*gwc.Card3 = paicards[2].GetMapKey()
+			*gwc.Card4 = paicards[3].GetMapKey()
+			*gwc.Card5 = paicards[4].GetMapKey()
+			*gwc.Cardtype = u.thCards.GetOGCardType()
+			*gwc.Coin = u.TotalBet - u.winAmount			//表示除去押注的金额,净赚多少钱
+			*gwc.Seat = u.Seat
+			*gwc.PoolIndex = int32(0)
+			gwc.Rolename = []byte(u.NickName)
 			ret = append(ret,gwc)
 		}
 	}
@@ -510,6 +537,13 @@ func (t *ThDesk) GetBshowCard() []int32{
 
 //把结果牌 针对og来排序
 func OGTHCardPaixu(s *pokerService.ThCards) []*bbproto.Pai{
+
+	//判断参数是否nil
+	if s == nil {
+		return nil
+	}
+
+
 	lensCards := len(s.Cards)
 	ret := make([]*bbproto.Pai,lensCards)
 

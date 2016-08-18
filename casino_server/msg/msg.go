@@ -90,6 +90,11 @@ func init() {
 	ProtoProcessor.Register(&bbproto.Game_DissolveDesk{})	//58	//解散房间
 	ProtoProcessor.Register(&bbproto.Game_AckDissolveDesk{})//59	//解散房间回复
 
+	ProtoProcessor.Register(&bbproto.Game_LeaveDesk{})	//60	//离开房间
+	ProtoProcessor.Register(&bbproto.Game_ACKLeaveDesk{})	//61	//离开房间回复
 
+	ProtoProcessor.Register(&bbproto.Game_SendDeskEndLottery{})	//62最终开奖的节奏
+	ProtoProcessor.Register(&bbproto.Game_Message{})	//63	//发送信息
+	ProtoProcessor.Register(&bbproto.Game_SendMessage{})	//64	//发送消息广播
 
 }

@@ -268,6 +268,11 @@ message game_SendGameInfo {
     repeated int64 secondPool = 28;    //池子
     optional int64 turnMax = 29;    //返回最大的押注值
     optional int32 result  = 30;      //进入房间的结果
+
+    //① 新增字段： repeated WeixinInfo  = 31;  //微信用户信息
+    //② EnterMatch时、广播新进用户时，才需返回WeixinInfo；其它广播不需要。
+    repeated WeixinInfo weixinInfos  = 31;
+
 }
 
 message game_ShowCard {
@@ -1100,6 +1105,8 @@ message REQQuickConn {
     optional string Thirdkey = 16; // 第三方下发客户端的session key  (第三方接入必填，用于校验合法性)
     optional string ThirdAppId = 17; //申请的第三方的AppId,解决多个APPID 接入同一个OPENID的问题。  (第三方接入必填)
     optional uint32 userId = 18;    //用户Id
+    optional WeixinInfo wx = 19;    //微信登录信息
+
 
 }
 
@@ -1132,8 +1139,6 @@ message ACKQuickConn {
     optional int32 ErrorCode = 27 [default = 0]; //0为无错误；1 用户名密码错误，其它为系统级别错误，待定。
     optional string NickName    =   28; //昵称
     optional int32  releaseTag  = 29;    //发布版本标志
-
-
 
 }
 
@@ -1184,6 +1189,8 @@ message Game_AckCreateDesk{
     optional string password        =   3;  //房间密码
 }
 
+
+
 //解散房间
 message Game_DissolveDesk{
     optional uint32 userId          =   1;  //解散房间
@@ -1196,6 +1203,20 @@ message Game_AckDissolveDesk{
     optional int32  deskId          =   3;  //房间Id
     optional string passWord        =   4;  //房间密钥
 }
+
+
+//离开房间
+message Game_LeaveDesk{
+    optional uint32 userId          =   1;  //用户Id
+}
+
+
+//离开房间的回复
+message Game_ACKLeaveDesk{
+    optional int32  result          =   1;  //离开房间的结果
+}
+
+
 
 
 
@@ -1243,3 +1264,47 @@ message Game_AckGameRecord{
     optional int32  result      =2; //查询结果
     repeated Game_BeanGameRecord records  = 3;//结果
 }
+
+// 微信信息
+message WeixinInfo {
+    optional string openId      = 1; // 微信授权用户唯一id
+    optional string nickName    = 2; // 微信昵称
+    optional string headUrl      = 3; // 微信头像
+}
+
+
+//聊天的内容
+message Game_Message{
+    optional int32  msgType     = 1;    //消息的类型,1,快捷,2,表情,3,自定义
+    optional int32  id          =2;     //只有快捷和表情的时候有用
+    optional string msg         =3;     //自定义的时候使用
+    optional uint32 userId      =4;     //发消息的人是谁
+    optional int32  deskId      =5;     //desk的id
+}
+
+
+//消息广播
+message Game_SendMessage{
+    optional int32  msgType     = 1;    //消息的类型,1,快捷,2,表情,3,自定义
+    optional int32  id          =2;     //只有快捷和表情的时候有用
+    optional string msg         =3;     //自定义的时候使用
+    optional uint32 userId      =4;     //发消息的人是谁
+}
+
+
+//几局游戏完了之后的广播信息
+message game_EndLottery {
+    optional int64 coin     = 1;        //总共输赢筹码
+    optional bool bigWin    = 2;       //是否为大赢家
+    optional bool owner     = 3;        //是否为房主
+    optional string rolename = 4;    //玩家姓名
+}
+
+//几局完成之后的情况
+message Game_SendDeskEndLottery{
+    optional int32  result              = 1;  //
+    repeated game_EndLottery   coinInfo = 2;   //胜负的情况
+}
+
+
+

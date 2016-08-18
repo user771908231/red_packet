@@ -580,6 +580,7 @@ type ThDesk struct {
 	DeskType             int32                        //桌子的类型,1,表示自定义房间,2表示锦标赛的
 	InitRoomCoin         int64                        //进入这个房间的roomCoin 带入金额标准是多少
 	JuCount              int32                        //这个桌子最多能打多少局
+	JuCountNow	     int32			  //这个桌子已经玩了多少局
 	SmallBlindCoin       int64                        //小盲注的押注金额
 	BigBlindCoin         int64                        //大盲注的押注金额
 	BeginTime            time.Time                    //游戏开始时间
@@ -768,7 +769,7 @@ func (t *ThDesk) LeaveThuser(userId uint32) error {
 	t.Lock()
 	defer t.Unlock()
 	user := t.GetUserByUserId(userId)
-	user.Status = TH_USER_STATUS_LEAVE        //设置状态为离开
+	user.Status = TH_USER_STATUS_LEAVE     //设置状态为离开
 	return nil
 }
 
@@ -782,7 +783,6 @@ func (t *ThDesk) SetOfflineStatus(userId uint32) error {
 	u.BreakStatus = TH_USER_BREAK_STATUS_TRUE        //设置为掉线的状态
 	t.UserCountOnline --
 	return nil
-
 }
 
 //初始化前注的信息
@@ -1381,14 +1381,14 @@ func (t *ThDesk) Lottery() error {
 
 	// 新的开奖协议
 	result := &bbproto.Game_TestResult{}
-	result.Tableid = &t.Id                                //桌子
-	result.BCanShowCard = t.GetBshowCard()                //
-	result.BShowCard = t.GetBshowCard()                //亮牌
+	result.Tableid = &t.Id                           //桌子
+	result.BCanShowCard = t.GetBshowCard()           //
+	result.BShowCard = t.GetBshowCard()              //亮牌
 	result.Handcard = t.GetHandCard()                //手牌
 	result.WinCoinInfo = t.getWinCoinInfo()
 	result.HandCoin = t.GetHandCoin()
 
-	//result.CoinInfo					//每个人的输赢情况
+	result.CoinInfo	= t.getCoinInfo()		//每个人的输赢情况
 
 	t.THBroadcastProto(result, 0)
 
@@ -1397,7 +1397,16 @@ func (t *ThDesk) Lottery() error {
 
 	//开奖时间是在5秒之后开奖
 	time.Sleep(TH_LOTTERY_DURATION)
-	go t.OGRun()
+
+
+	if t.JuCountNow < t.JuCount {
+		//表示还可以继续开始游戏
+		go t.Run()
+	}else{
+		//表示不能继续开始游戏
+		t.End()
+	}
+
 
 	return nil
 }
@@ -1407,6 +1416,7 @@ func (t *ThDesk) afterLottery() error {
 	//1,设置游戏竹子的状态
 	log.T("开奖结束,设置desk的状态为stop")
 	t.Status = TH_DESK_STATUS_STOP        //设置喂没有开始开始游戏
+	t.JuCountNow ++
 
 	//2,设置用户的状态
 	for i := 0; i < len(t.Users); i++ {
@@ -1497,7 +1507,7 @@ func (t *ThDesk)  SaveLotteryData() error {
 	return nil
 }
 
-//得到这句胜利的人有几个
+//得到这局胜利的人有几个
 func (t *ThDesk) GetWinCount() int {
 	t.CalcThcardsWin()        //先计算牌的局面
 
@@ -1513,6 +1523,25 @@ func (t *ThDesk) GetWinCount() int {
 	return result
 }
 
+
+//新用户进入的时候,返回的信息
+func (t *ThDesk) GetWeiXinInfos() []*bbproto.WeixinInfo{
+	var result []*bbproto.WeixinInfo
+	for i := 0; i < len(t.Users); i++ {
+		u := t.Users[i]
+		if u != nil {
+			ru :=userService.GetUserById(u.UserId)
+			wxi := &bbproto.WeixinInfo{}
+			wxi.HeadUrl = ru.HeadUrl
+			wxi.NickName = ru.NickName
+			wxi.OpenId = ru.OpenId
+
+			//放在列表中
+			result = append(result,wxi)
+		}
+	}
+	return result
+}
 
 //跟注:跟注的时候 不需要重新设置押注的人
 //只是跟注,需要减少用户的资产,增加奖池的金额
@@ -1932,7 +1961,7 @@ func (t *ThDesk) IsTime2begin() bool {
 	//todo 金钱大于大盲注的人数必须要大于最低人数才可以玩
 	log.T("当前在线玩家的数量是[%v],当前desk的状态是[%v],1未开始,2游戏中,3,开奖中", t.UserCountOnline, t.Status)
 
-	if t.UserCountOnline >= TH_DESK_LEAST_START_USER  && t.Status == TH_DESK_STATUS_STOP {
+	if t.UserCountOnline >= TH_DESK_LEAST_START_USER  && t.Status == TH_DESK_STATUS_STOP{
 		log.T("游戏到了开始的时候----begin----")
 		return true
 	} else {
@@ -1942,7 +1971,7 @@ func (t *ThDesk) IsTime2begin() bool {
 }
 
 //开始游戏
-func (mydesk *ThDesk) OGRun() error {
+func (mydesk *ThDesk) Run() error {
 	mydesk.Lock()
 	defer mydesk.Unlock()
 
@@ -2011,6 +2040,41 @@ func (mydesk *ThDesk) OGRun() error {
 
 	log.T("\n\n开始一局新的游戏,初始化完毕\n\n")
 	return nil
+}
+
+//表示游戏结束
+func (t *ThDesk) End(){
+	//广播结算的信息
+	result := &bbproto.Game_SendDeskEndLottery{}
+	result.Result = &intCons.ACK_RESULT_SUCC
+
+	for i:=0 ;i <len(t.Users); i++{
+		u := t.Users[i]
+		if u != nil {
+			//
+			gel := &bbproto.Game_EndLottery{}
+			gel.Coin = new(int64)
+			gel.BigWin = new(bool)
+			gel.Owner = new(bool)
+			gel.Rolename = new(string)
+
+			*gel.Coin = u.winAmount
+
+			if t.deskOwner == u.UserId {
+				*gel.Owner = true
+			}else{
+				*gel.Owner = false
+			}
+
+			*gel.Rolename = u.NickName
+			result.CoinInfo = append(result.CoinInfo,gel)
+		}
+	}
+
+	//设置bigWin
+
+	//广播消息
+	t.THBroadcastProtoAll(result)
 }
 
 

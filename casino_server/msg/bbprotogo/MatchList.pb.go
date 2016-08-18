@@ -224,6 +224,8 @@ It has these top-level messages:
 	Game_AckCreateDesk
 	Game_DissolveDesk
 	Game_AckDissolveDesk
+	Game_LeaveDesk
+	Game_ACKLeaveDesk
 	Game_Ready
 	Game_AckReady
 	Game_Begin
@@ -231,6 +233,11 @@ It has these top-level messages:
 	Game_BeanUserRecord
 	Game_BeanGameRecord
 	Game_AckGameRecord
+	WeixinInfo
+	Game_Message
+	Game_SendMessage
+	Game_EndLottery
+	Game_SendDeskEndLottery
 	ProtoHeader
 	TerminalInfo
 	User
