@@ -8,11 +8,12 @@ import (
 	"gopkg.in/mgo.v2/bson"
 	"casino_server/mode"
 	"casino_server/msg/bbprotogo"
+	"casino_server/utils/db"
 )
 
 
 func TestM(t *testing.T){
-	//_TestSave(t)
+	_TestSave(t)
 	//saveWithSub(t)
 	//update(t)
 	//_select(t)
@@ -22,7 +23,7 @@ func TestM(t *testing.T){
 	//nestSeq(t)
 	//testUpsertUser(t)
 
-	savePoint()
+	//savePoint()
 }
 func testUpsertUser(t *testing.T){
 	fmt.Println("开始保存")
@@ -63,32 +64,11 @@ func testUpsertUser(t *testing.T){
 func _TestSave(t *testing.T){
 	t.Log("开始测试保存到数据库\n")
 
-	// 获取连接 connection
-	c, err := mongodb.Dial("localhost", 51668)
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
-	defer c.Close()
-
-	// 获取回话 session
-	s := c.Ref()
-	defer c.UnRef(s)
-
-	user := mode.T_user{}
-	id,_ :=  c.NextSeq("test", "t_user", "id")
-	user.Id = uint32(id)
-	//user.Mid = bson.NewObjectId();
-	e := s.DB("test").C("t_user").Insert(user)
-	if e != nil {
-		t.Error(e)
-	}
-
 	var testResult mode.T_test
-	testResult.Name = "测试2"
+	testResult.Name = "测试2222"
 	testResult.Mid = bson.NewObjectId()
-	s.DB(casinoConf.DB_NAME).C(casinoConf.DBT_T_TEST).Insert(testResult)
 
+	db.SaveMgoData(casinoConf.DBT_T_TEST,testResult)
 	t.Log("开始测试保存到数据库--end\n")
 
 }

@@ -3,6 +3,7 @@ package room
 import (
 	"github.com/name5566/leaf/gate"
 	"casino_server/common/log"
+	"time"
 )
 
 var ChampionshipRoom CSThGameRoom 	//锦标赛的房间
@@ -17,12 +18,54 @@ type CSThGameRoom struct {
 	ThGameRoom
 	//锦标赛房间的专有属性
 	matchId	int32		//比赛内容
-
+	beginTime	time.Time	//游戏开始的时间
+	endTime 	time.Time	//游戏结束的时间
 }
 
 //run游戏房间
 func (r *CSThGameRoom) Run() {
+	log.T("锦标赛游戏开始...")
+	//这里定义一个计时器
+	ticker := time.NewTicker(time.Second * 2)
+	go func() {
+		for timeNow := range ticker.C {
+			log.T("",timeNow)
+			if r.checkEnd() {
+				break
+			}
+		}
+	}()
+}
 
+//检测结束
+func (r *CSThGameRoom) checkEnd() bool{
+	//如果时间已经过了,并且所有桌子的状态都是已经停止游戏,那么表示这一局结束
+	if r.endTime.Before(time.Now()) && r.allStop() {
+		//结算本局
+		return true
+	}else{
+		return  false
+	}
+
+}
+
+
+//判断是否所有的desk停止游戏
+func (r *CSThGameRoom) allStop() bool{
+	result := true
+	for i := 0; i < len(r.ThDeskBuf); i++ {
+		desk := r.ThDeskBuf[i]
+		if  desk != nil && desk.Status != TH_DESK_STATUS_STOP{
+			result = false
+			break
+		}
+	}
+	return result
+
+}
+
+func (r *CSThGameRoom) End(){
+	log.T("锦标赛游戏结束")
 }
 
 //游戏大厅增加一个玩家
@@ -75,7 +118,11 @@ func (r *CSThGameRoom) AddUser(userId uint32, roomCoin int64, a gate.Agent) (*Th
 
 //是否可以进行下把游戏
 func (r *CSThGameRoom) CanNextDeskRun() bool{
+	nowTime := time.Now()
+	if r.endTime.Before(nowTime) {
+		//如果当前时间已经在结束时间之后,那么本局游戏结束
+		return false
+	}
 	return true
-
 }
 

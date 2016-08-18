@@ -20,6 +20,7 @@ import (
 	"errors"
 	"github.com/name5566/leaf/gate"
 	"github.com/golang/protobuf/proto"
+	"casino_server/utils/db"
 )
 
 
@@ -915,21 +916,26 @@ func (t *ThDesk) afterLottery() error {
 
 
 //保存数据到数据库
+
+//这里需要根据游戏类型的不同来分别存醋
+
 func (t *ThDesk)  SaveLotteryData() error {
 
-	log.T("一局游戏结束,开始保存游戏的数据到数据库")
-	//得到连接
-	c, err := mongodb.Dial(casinoConf.DB_IP, casinoConf.DB_PORT)
-	if err != nil {
-		fmt.Println(err)
-		return err
+	if t.DeskType == intCons.GAME_TYPE_TH {
+		//自定义房间
+		return t.SaveLotteryDatath()
+	}else if t.DeskType == intCons.GAME_TYPE_TH_CS{
+		//锦标赛
+		return t.SaveLotteryDatacsth()
 	}
-	defer c.Close()
 
-	// 获取回话 session
-	s := c.Ref()
-	defer c.UnRef(s)
+	return nil
 
+}
+
+
+func (t *ThDesk) SaveLotteryDatath() error{
+	log.T("一局游戏结束,开始保存游戏的数据到数据库")
 
 	//为每一局保存一组数据
 	deskRecord := &mode.T_th_desk_record{}
@@ -962,7 +968,7 @@ func (t *ThDesk)  SaveLotteryData() error {
 		thData.Blance = *(userService.GetUserById(u.UserId).Coin)
 		thData.BeginTime = time.Now()
 		thData.GameNumber = t.GameNumber
-		s.DB(casinoConf.DB_NAME).C(casinoConf.DBT_T_TH_RECORD).Insert(thData)
+		db.SaveMgoData(casinoConf.DBT_T_TH_RECORD,thData)
 
 		//获取游戏数据
 		userRecord := mode.BeanRecord{}
@@ -976,8 +982,63 @@ func (t *ThDesk)  SaveLotteryData() error {
 
 	log.T("开始保存DBT_T_TH_DESK_RECORD的信息")
 	//保存桌子的用户信息
-	s.DB(casinoConf.DB_NAME).C(casinoConf.DBT_T_TH_DESK_RECORD).Insert(deskRecord)
+	db.SaveMgoData(casinoConf.DBT_T_TH_DESK_RECORD,deskRecord)
 	return nil
+
+}
+
+
+func (t *ThDesk) SaveLotteryDatacsth() error{
+	log.T("一局游戏结束,开始保存游戏的数据到数据库")
+
+	//为每一局保存一组数据
+	deskRecord := &mode.T_th_desk_record{}
+	deskRecord.DeskId = t.Id
+	deskRecord.BeginTime = t.BeginTime
+	deskRecord.UserIds = ""
+
+	//循环对每个人做处理
+	for i := 0; i < len(t.Users); i++ {
+		u := t.Users[i]
+		if u == nil {
+			continue
+		}
+
+		if u.Status != TH_USER_STATUS_CLOSED {
+			log.E("保存用户[%v]信息到数据库的时候出错,状态[%v]不正确", u.UserId, u.Status)
+			continue
+		}
+
+		//1,修改user在redis中的数据
+		userService.FlashUser2Mongo(u.UserId)                        //刷新redis中的数据到mongo
+		//2,保存游戏相关的数据
+		//todo  游戏相关的数据结构 还没有建立,
+		thData := &mode.T_th_record{}
+		thData.Mid = bson.NewObjectId()
+		thData.BetAmount = u.TotalBet
+		thData.UserId = u.UserId
+		thData.DeskId = u.deskId
+		thData.WinAmount = u.winAmount - u.TotalBet
+		thData.Blance = *(userService.GetUserById(u.UserId).Coin)
+		thData.BeginTime = time.Now()
+		thData.GameNumber = t.GameNumber
+		db.SaveMgoData(casinoConf.DBT_T_TH_RECORD,thData)
+
+		//获取游戏数据
+		userRecord := mode.BeanRecord{}
+		userRecord.UserId = u.UserId
+		userRecord.NickName = u.NickName
+		userRecord.WinAmount = u.winAmount - u.TotalBet
+
+		deskRecord.Records = append(deskRecord.Records,userRecord)
+		deskRecord.UserIds = strings.Join([]string{deskRecord.UserIds,u.NickName},",")
+	}
+
+	log.T("开始保存DBT_T_TH_DESK_RECORD的信息")
+	//保存桌子的用户信息
+	db.SaveMgoData(casinoConf.DBT_T_TH_DESK_RECORD,deskRecord)
+	return nil
+
 }
 
 //得到这局胜利的人有几个
@@ -1413,9 +1474,20 @@ func (t *ThDesk) CheckBetUserBySeat(user *ThUser) bool {
 //是不是可以开始游戏了
 func (t *ThDesk) IsTime2begin() bool {
 
-	//todo 这里需要增加锦标赛的逻辑
-
 	log.T("判断是否可以开始一局新的游戏")
+
+
+	//1, 锦标赛开始的逻辑限制
+	if t.DeskType == intCons.GAME_TYPE_TH_CS {
+		//如果是锦标赛:1,房间的状态是正在游戏中
+		if !ChampionshipRoom.CanNextDeskRun() {
+			return false
+		}
+	}
+
+
+
+	//2,通用的开始逻辑限制
 	/**
 		开始游戏的要求:
 		1,[在线]用户的人数达到了最低可玩人数
