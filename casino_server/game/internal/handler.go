@@ -17,7 +17,6 @@ func handler(m interface{}, h interface{}) {
 }
 
 func init() {
-	//
 	//水果机相关的业务
 	handler(&bbproto.GetIntoRoom{}, handlerGetIntoRoom)
 	handler(&bbproto.Shuiguoji{}, handlerShuiguoji)
@@ -284,41 +283,47 @@ func handlerBegin(args []interface{}){
 	m := args[0].(*bbproto.Game_Begin)
 	a := args[0].(gate.Agent)
 	OGservice.HandlerBegin(m,a)
-
-
 }
 
 
 //处理跟注
 func handlerFollowBet(args []interface{}){
 	m := args[0].(*bbproto.Game_FollowBet)
+	a := args[1].(gate.Agent)
 	seatId := m.GetSeat()
-	desk := room.ThGameRoomIns.GetDeskById(m.GetTableid())
+	desk := room.GetDeskByAgent(a)
 	desk.DDBet(seatId,room.TH_DESK_BET_TYPE_CALL,0)
 }
 
 // 处理加注
 func handlerRaise(args []interface{}){
 	m := args[0].(*bbproto.Game_RaiseBet)
+	a := args[1].(gate.Agent)
 	seatId := m.GetSeat()
 	coin   := m.GetCoin()
-	desk := room.ThGameRoomIns.GetDeskById(m.GetTableid())
+	desk := room.GetDeskByAgent(a)
+
 	desk.DDBet(seatId,room.TH_DESK_BET_TYPE_RAISE,coin)
 }
 
 // 处理弃牌
 func handlerFoldBet(args []interface{}){
 	m := args[0].(*bbproto.Game_FoldBet)
+	a := args[1].(gate.Agent)
 	seatId := m.GetSeat()
-	desk := room.ThGameRoomIns.GetDeskById(m.GetTableid())
+	desk := room.GetDeskByAgent(a)
+
 	desk.DDBet(seatId,room.TH_DESK_BET_TYPE_FOLD,0)
 }
 
 // 处理让牌
 func handlerCheckBet(args []interface{}){
 	m := args[0].(*bbproto.Game_CheckBet)
+	a := args[1].(gate.Agent)
+
 	seatId := m.GetSeat()
-	desk := room.ThGameRoomIns.GetDeskById(m.GetTableid())
+	desk := room.GetDeskByAgent(a)
+
 	desk.DDBet(seatId,room.TH_DESK_BET_TYPE_CHECK,0)
 }
 

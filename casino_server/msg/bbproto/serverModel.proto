@@ -57,6 +57,15 @@ message ThServerUser{
 	optional int32	GameNumber		=16;		//游戏编号(每一局游戏都有独立的编号)
 }
 
+//保存用户的会话信息
+message ThServerUserSession{
+	optional uint32		userId		 = 1;	//用户Id
+	optional int32 		gameStatus   = 2;	//游戏状态
+	optional int32 		gameType	 = 3;	//游戏类型
+	optional int32 		deskId		 = 4;	//房间的Id
+	optional int32		matchId		 = 5;	//matchId
+}
+
 message ThServerAllInJackpot{
     optional uint32 UserId      =1;  //
     optional int64 Jackpopt     =2;  //奖金池子

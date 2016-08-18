@@ -3,8 +3,8 @@ package internal
 import (
 	"github.com/name5566/leaf/gate"
 	"casino_server/common/log"
-	"casino_server/gamedata"
 	"casino_server/service/room"
+	"casino_server/msg/bbprotogo"
 )
 
 
@@ -34,11 +34,15 @@ func rpcCloseAgent(args []interface{}) {
 		log.T("通过agent[%v]取出来的userData 是nil",a)
 	}else{
 		//用户数据还在,设置用户为掉线的状态
-		userData := agentData.(*gamedata.AgentUserData)
-		log.T("用户[%v]现在掉线了,现在设置用户为掉线的状态",userData.UserId)
-		desk := room.ThGameRoomIns.GetDeskByUserId(userData.UserId)
-		desk.SetOfflineStatus(userData.UserId)
+		userData := agentData.(*bbproto.ThServerUserSession)
+		log.T("用户[%v]现在掉线了,现在设置用户为掉线的状态",userData.GetUserId())
+		//desk := room.ThGameRoomIns.GetDeskByUserId(userData.GetUserId())
+		desk := room.GetDeskByIdAndMatchId(userData.GetDeskId(),userData.GetMatchId())
+		desk.SetOfflineStatus(userData.GetUserId())
 	}
+
+
+
 	//用户掉线的处理--------------------------------------end--------------------------------------
 
 }

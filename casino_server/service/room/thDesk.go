@@ -18,7 +18,6 @@ import (
 	"casino_server/msg/bbprotoFuncs"
 	"casino_server/utils/numUtils"
 	"errors"
-	"casino_server/gamedata"
 	"github.com/name5566/leaf/gate"
 	"github.com/golang/protobuf/proto"
 )
@@ -30,16 +29,17 @@ import (
  */
 type ThDesk struct {
 	sync.Mutex
-	Id                   int32                        //roomid
-	deskOwner            uint32                       //房主的id
-	RoomKey              string                       //room 自定义房间的钥匙
-	DeskType             int32                        //桌子的类型,1,表示自定义房间,2表示锦标赛的
-	InitRoomCoin         int64                        //进入这个房间的roomCoin 带入金额标准是多少
-	JuCount              int32                        //这个桌子最多能打多少局
-	JuCountNow	     int32			  //这个桌子已经玩了多少局
-	SmallBlindCoin       int64                        //小盲注的押注金额
-	BigBlindCoin         int64                        //大盲注的押注金额
-	BeginTime            time.Time                    //游戏开始时间
+	Id             int32                              //roomid
+	MatchId        int32                              //matchId
+	DeskOwner      uint32                             //房主的id
+	RoomKey        string                             //room 自定义房间的钥匙
+	DeskType       int32                              //桌子的类型,1,表示自定义房间,2表示锦标赛的
+	InitRoomCoin   int64                              //进入这个房间的roomCoin 带入金额标准是多少
+	JuCount        int32                              //这个桌子最多能打多少局
+	JuCountNow     int32                              //这个桌子已经玩了多少局
+	SmallBlindCoin int64                              //小盲注的押注金额
+	BigBlindCoin   int64                              //大盲注的押注金额
+	BeginTime      time.Time                          //游戏开始时间
 	EndTime              time.Time                    //游戏结束时间
 
 	Dealer               uint32                       //庄家
@@ -84,7 +84,7 @@ func NewThDesk() *ThDesk {
 	result.SmallBlindCoin = ThGameRoomIns.SmallBlindCoin
 	result.BigBlindCoin = 2 * ThGameRoomIns.SmallBlindCoin
 	result.Status = TH_DESK_STATUS_STOP        //游戏还没有开始的状态
-	result.DeskType = TH_DESK_TYPE_JINBIAOSAI                          //游戏桌子的类型
+	result.DeskType = intCons.GAME_TYPE_TH_CS                          //游戏桌子的类型
 	result.JuCount = 0
 	return result
 }
@@ -182,11 +182,11 @@ func (t *ThDesk) AddThUser(userId uint32, roomCoin int64, userStatus int32, a ga
 	}
 
 	//4, 把用户的信息绑定到agent上
-	userAgentData := &gamedata.AgentUserData{}
-	userAgentData.UserId = userId
-	userAgentData.ThDeskId = t.Id
+	userAgentData := bbproto.NewThServerUserSession()
+	*userAgentData.UserId = userId
+	*userAgentData.DeskId = t.Id
+	*userAgentData.MatchId = t.MatchId
 	a.SetUserData(userAgentData)
-
 
 	//5,等待的用户加1
 	t.UserCount ++
@@ -879,7 +879,7 @@ func (t *ThDesk) afterLottery() error {
 		u := t.Users[i]
 
 		if u != nil && u.BreakStatus == TH_USER_BREAK_STATUS_FALSE {
-			if t.DeskType == TH_DESK_TYPE_ZIDINGYI {
+			if t.DeskType == intCons.GAME_TYPE_TH {
 				//如果是自定义的房间,设置每个人都是坐下的状态
 				u.Status = TH_USER_STATUS_SEATED
 			} else {
@@ -1516,7 +1516,7 @@ func (t *ThDesk) End(){
 
 			*gel.Coin = u.winAmount
 
-			if t.deskOwner == u.UserId {
+			if t.DeskOwner == u.UserId {
 				*gel.Owner = true
 			}else{
 				*gel.Owner = false

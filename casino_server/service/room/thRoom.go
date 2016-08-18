@@ -9,7 +9,6 @@ import (
 	"casino_server/service/userService"
 	"time"
 	"casino_server/mode"
-	"casino_server/gamedata"
 	"casino_server/utils/numUtils"
 	"casino_server/utils"
 	"casino_server/conf/intCons"
@@ -65,20 +64,14 @@ var TH_DESK_BET_TYPE_RAISE 	int32 = 5      		//加注
 var TH_DESK_BET_TYPE_RERRAISE 	int32 = 6   		//再加注
 var TH_DESK_BET_TYPE_ALLIN 	int32 = 7      		//全下
 
-//桌子的类型
-var TH_DESK_TYPE_ZIDINGYI 	int32 = 1        	//自定义桌子
-var TH_DESK_TYPE_JINBIAOSAI	int32 = 2        	//锦标赛的桌子
-
-/**
-	初始化函数:
-		初始化游戏房间
- */
 
 var ThGameRoomIns ThGameRoom        	//房间实例,在init函数中初始化
-
+var ChampionshipRoom CSThGameRoom 	//锦标赛的房间
 
 func init() {
 	ThGameRoomIns.OnInit()                //初始化房间
+	ChampionshipRoom.OnInit()	//初始化,开始运行
+	ChampionshipRoom.Run()
 }
 
 /**
@@ -140,12 +133,12 @@ func (r *ThGameRoom) CreateDeskByUserIdAndRoomKey(userId uint32, roomCoin int64,
 	desk := NewThDesk()
 	desk.RoomKey = roomkey
 	desk.InitRoomCoin = roomCoin
-	desk.deskOwner = userId
+	desk.DeskOwner = userId
 	desk.SmallBlindCoin = smallBlind
 	desk.BigBlindCoin = bigBlind
 	desk.JuCount = jucount
 	desk.GetRoomCoin()
-	r.AddThRoom(desk)
+	r.AddThDesk(desk)
 
 	//2,创建房间成功之后,扣除user的钻石
 	upDianmond := 0 - TH_DESK_CREATE_DIAMOND
@@ -161,7 +154,7 @@ func (r *ThGameRoom) CreateDeskByUserIdAndRoomKey(userId uint32, roomCoin int64,
 }
 
 //增加一个thRoom
-func (r *ThGameRoom) AddThRoom(throom *ThDesk) error {
+func (r *ThGameRoom) AddThDesk(throom *ThDesk) error {
 	r.ThDeskBuf = append(r.ThDeskBuf, throom)
 	return nil
 }
@@ -202,7 +195,12 @@ func (r *ThGameRoom) DissolveDeskByDeskOwner(userId uint32, a gate.Agent) error 
 	result.PassWord = new(string)
 
 	//1,找到桌子
-	desk := r.GetDeskByDeskOwner(userId)        //
+	//desk := r.GetDeskByDeskOwner(userId)        //
+	desk := GetDeskByAgent(a)
+	if desk.DeskOwner != userId {
+		return errors.New("不是房主,没有权限解散房间")
+	}
+
 	//2,解散桌子的条件,如果正在游戏中,是否能解散?
 	if desk.Status != TH_DESK_STATUS_STOP {
 		*result.Result = intCons.ACK_RESULT_ERROR
@@ -213,7 +211,7 @@ func (r *ThGameRoom) DissolveDeskByDeskOwner(userId uint32, a gate.Agent) error 
 	//3,发送解散的广播
 
 	*result.Result = intCons.ACK_RESULT_SUCC
-	*result.UserId = desk.deskOwner
+	*result.UserId = desk.DeskOwner
 	*result.PassWord = desk.RoomKey
 
 	desk.THBroadcastProtoAll(result)
@@ -223,77 +221,35 @@ func (r *ThGameRoom) DissolveDeskByDeskOwner(userId uint32, a gate.Agent) error 
 	return nil
 }
 
-//通过Id找到对应的桌子
-func (r *ThGameRoom) GetDeskById(id int32) *ThDesk {
-	var result *ThDesk = nil
-	for i := 0; i < len(r.ThDeskBuf); i++ {
-		if r.ThDeskBuf[i] != nil && r.ThDeskBuf[i].Id == id {
-			result = r.ThDeskBuf[i]
-			break
-		}
-	}
-	return result
-}
+
 
 //通过UserId判断是不是重复进入房间
 func (r *ThGameRoom) IsRepeatIntoRoom(userId uint32, a gate.Agent) *ThDesk {
-	//新的判断的代码
-	desk := r.GetDeskByUserId(userId)
-	if desk != nil {
-		log.T("用户[%v]重新进入房间了", userId)
-		u := desk.GetUserByUserId(userId)
-		//替换User的agent
-		u.agent = a
-		u.BreakStatus = TH_USER_BREAK_STATUS_FALSE        //设置没有掉线的情况
-		desk.UserCountOnline ++
-		//绑定参数
-		userAgentData := &gamedata.AgentUserData{}
-		userAgentData.UserId = userId
-		userAgentData.ThDeskId = desk.Id
-		a.SetUserData(userAgentData)
+	//1,取回话信息,如果回话信息为nil,直接返回nil
+	userData := userService.GetUserSessionByUserId(userId)
+	if userData == nil {
+		return nil
 	}
+
+	//2,取桌子的信息,如果桌子为nil,则直接返回nil
+	desk := GetDeskByIdAndMatchId(userData.GetDeskId(),userData.GetMatchId())
+	if desk == nil {
+		return nil
+	}
+
+	//3,重新设置用户的信息
+	log.T("用户[%v]重新进入房间了", userId)
+	u := desk.GetUserByUserId(userId)
+	u.agent = a							//替换User的agent
+	u.BreakStatus = TH_USER_BREAK_STATUS_FALSE       		//设置没有掉线的情况
+	desk.UserCountOnline ++
+	userAgentData := bbproto.NewThServerUserSession()		//绑定参数
+	*userAgentData.UserId = userId
+	*userAgentData.DeskId = desk.Id
+	*userAgentData.MatchId = desk.MatchId
+	a.SetUserData(userAgentData)
+
 	return desk
-}
-
-/**
-	通过UserId 找到对应的桌子
- */
-func (r *ThGameRoom) GetDeskByUserId(userId uint32) *ThDesk {
-	var result *ThDesk
-	var breakFlag bool = false
-	desks := ThGameRoomIns.ThDeskBuf
-	for i := 0; i < len(desks); i++ {
-		if breakFlag {
-			break
-		}
-		desk := desks[i]
-		if desk != nil {
-			users := desk.Users
-			for j := 0; j < len(users); j++ {
-				u := users[j]
-
-				//查找房间,并且,用户离开的房间是不算的
-				if u != nil && u.UserId == userId && u.Status != TH_USER_STATUS_LEAVE {
-					result = desk
-					breakFlag = true
-					break
-				}
-			}
-
-		}
-	}
-	return result
-}
-
-//通过房主来找到房间
-func (r *ThGameRoom) GetDeskByDeskOwner(userId uint32) *ThDesk {
-	for i := 0; i < len(ThGameRoomIns.ThDeskBuf); i++ {
-		desk := ThGameRoomIns.ThDeskBuf[i]
-		if desk != nil && desk.deskOwner == userId {
-			return desk
-		}
-	}
-	return nil
 }
 
 /**
@@ -347,57 +303,62 @@ func (r *ThGameRoom) AddUserWithRoomKey(userId uint32, roomCoin int64, roomKey s
 	return mydesk, nil
 
 }
-//游戏大厅增加一个玩家
-func (r *ThGameRoom) AddUser(userId uint32, roomCoin int64, a gate.Agent) (*ThDesk, error) {
-	//进入房间的操作需要加锁
-	r.Lock()
-	defer r.Unlock()
-	log.T("userid【%v】进入德州扑克的房间", userId)
-
-	var mydesk *ThDesk = nil                //为用户找到的desk
-
-	//1,判断用户是否已经在房间里了,如果是在房间里,那么替换现有的agent,
-	mydesk = r.IsRepeatIntoRoom(userId, a)
-	if mydesk != nil {
-		return mydesk, nil
-	}
-
-	//2,查询哪个德州的房间缺人:循环每个德州的房间,然后查询哪个房间缺人
-	for deskIndex := 0; deskIndex < len(r.ThDeskBuf); deskIndex++ {
-		tempDesk := r.ThDeskBuf[deskIndex]
-		if tempDesk == nil {
-			log.E("找到房间为nil,出错")
-			break
-		}
-		if tempDesk.UserCount < r.ThRoomSeatMax {
-			mydesk = tempDesk        //通过roomId找到德州的room
-			break;
-		}
-	}
-
-	//如果没有可以使用的桌子,那么重新创建一个,并且放进游戏大厅
-	if mydesk == nil {
-		log.T("没有多余的desk可以用,重新创建一个desk")
-		mydesk = NewThDesk()
-		r.AddThRoom(mydesk)
-	}
-
-	//3,进入房间,竞标赛进入房间的时候,默认就是准备的状态
-	err := mydesk.AddThUser(userId, roomCoin, TH_USER_STATUS_READY, a)
-	if err != nil {
-		log.E("用户上德州扑克的桌子 失败...")
-		return nil, err
-	}
-
-	mydesk.LogString()        //答应当前房间的信息
-
-	return mydesk, nil
-}
 
 //退出房间,设置房间状态
-func (r *ThGameRoom) LeaveRoom(userId uint32) error {
-	desk := r.GetDeskByUserId(userId)
-	desk.LeaveThuser(userId)
+func (r *ThGameRoom) LeaveRoom(deskId,deskType int32,userId uint32) error {
+	//desk := r.GetDeskByUserId(userId)
+	//desk := GetDeskByIdAndType(deskId,deskType)
+	//desk.LeaveThuser(userId)
 	return nil
 }
 
+//通过Id找到对应的桌子
+func (r *ThGameRoom) GetDeskById(id int32) *ThDesk {
+	var result *ThDesk = nil
+	for i := 0; i < len(r.ThDeskBuf); i++ {
+		if r.ThDeskBuf[i] != nil && r.ThDeskBuf[i].Id == id {
+			result = r.ThDeskBuf[i]
+			break
+		}
+	}
+	return result
+}
+
+//通过肘子的类型和Match得到thdesk
+func GetDeskByIdAndMatchId(deskId int32,matchId int32) *ThDesk{
+	//1,把type 转义
+	if matchId >0 {
+		//返回自定义房间里面的desk
+		return ThGameRoomIns.GetDeskById(deskId)
+	}else if matchId == 0{
+		//返回锦标赛的房间
+		return ChampionshipRoom.GetDeskById(deskId)
+
+	}else{
+		return  nil
+	}
+}
+
+//通过连接得到桌子
+func GetDeskByAgent(a gate.Agent) *ThDesk{
+	//得到用户数据
+	var userData *bbproto.ThServerUserSession
+	agentData := a.UserData()
+	if agentData == nil{
+		return nil
+	}
+
+	userData = agentData.(*bbproto.ThServerUserSession)
+
+	//得到桌子
+	deskId := userData.GetDeskId()
+	matchId := userData.GetMatchId()
+	//gameStatus := userData.GetGameStatus()
+
+	//返回数据
+	desk := GetDeskByIdAndMatchId(deskId,matchId)
+	log.T("通过agent.userData()[%v]得到thdesk[%v]",userData,desk)
+
+	return desk
+
+}

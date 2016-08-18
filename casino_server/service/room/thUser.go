@@ -96,7 +96,8 @@ func (t *ThUser) wait() error {
 
 //返回自己所在的桌子
 func (t *ThUser) GetDesk() *ThDesk {
-	desk := ThGameRoomIns.GetDeskById(t.deskId)
+	//desk := ThGameRoomIns.GetDeskById(t.deskId)
+	desk := GetDeskByAgent(t.agent)
 	return desk
 }
 

@@ -31,5 +31,9 @@ func String2Int(s string) (int){
 	return i
 }
 
+func String2Int32(s string) int32{
+	i,_ := strconv.ParseInt(s,32,0)
+	return int32(i)
+}
 
 

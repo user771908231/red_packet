@@ -90,6 +90,12 @@ func GetRedisUserKey(id uint32) string {
 	return strings.Join([]string{casinoConf.DBT_T_USER,idStr}, "-")
 }
 
+
+//取session的rediskey
+func GetRedisUserSeesionKey(userid uint32) string{
+	idStr, _ := numUtils.Uint2String(userid)
+	return strings.Join([]string{"agent_session",idStr}, "_")
+}
 /**
 	根据用户id得到User的id
 	1,首先从redis中查询user信息
@@ -140,7 +146,23 @@ func GetUserById(id uint32) *bbproto.User {
 		result.OninitLoginTurntableState()	//初始化登录转盘之后的奖励
 		return result
 	}
+}
 
+//返回session信息
+func GetUserSessionByUserId(id uint32) *bbproto.ThServerUserSession{
+	conn := data.Data{}
+	conn.Open(casinoConf.REDIS_DB_NAME)
+	defer conn.Close()
+
+	key := GetRedisUserSeesionKey(id)
+	result := &bbproto.ThServerUserSession{}
+	conn.GetObj(key, result)
+
+	if result == nil || result.GetUserId() == 0 {
+		 return nil
+	}else{
+		return result
+	}
 }
 
 

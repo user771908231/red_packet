@@ -3,28 +3,17 @@ package mongodb
 import (
 	"testing"
 	"fmt"
+	"casino_server/utils/strUtils"
 )
 
-var CCC struct {
-	I1 int
-	I2 int
-	S1 string
-	S2 string
-
-}
 
 func TestTemp(t *testing.T) {
+	s := "abc"
+	b := strUtils.Str2Bytes(s)
+	fmt.Println(b)
 
-	CCC.I1 = 1
-	CCC.I2 = 1
-	CCC.S1 = "a"
-	CCC.S2 = "b"
-
-	fmt.Println(CCC.I1)
-	fmt.Println(CCC.I2)
-	fmt.Println(CCC.S1)
-	fmt.Println(CCC.S2)
-
+	c := strUtils.Bytes2Str(b)
+	fmt.Println(c)
 
 }
 
