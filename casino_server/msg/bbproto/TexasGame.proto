@@ -1312,13 +1312,13 @@ message Game_SendDeskEndLottery{
 //盲注的信息
 message Game_TounamentBlind{
     repeated int32 smallBlind      =   1;//盲注
-    optional int32 ante            =   2;//前注
+    repeated int32 ante            =   2;//前注
 }
 
 //
 message Game_TounamentRewards {
-    optional string iconPath        =   1;//图标名称,将牌的icon
-    optional string rewards         =   2; //奖励,的说明
+    repeated string iconPath        =   1;//图标名称,将牌的icon
+    repeated string rewards         =   2; //奖励,的说明
 }
 
 message Game_TounamentRank {

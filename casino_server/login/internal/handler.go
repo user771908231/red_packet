@@ -54,20 +54,25 @@ func HandlerREQQuickConn(args []interface{}) {
 	//首先判断是否是微信登陆
 	if m.GetWx() == nil || m.GetWx().GetOpenId() == "" {
 		//普通登陆,通过userId来判断是登录还是注册,如果userId ==0 ,重新注册一个,如果userId !=0 从数据库查询
-		if m.GetUserId() == 0 {
-			resultUser, _ = userService.NewUserAndSave("","","")
-		} else {
-			resultUser = userService.GetUserById(m.GetUserId())
-		}
+		//log.T("用户是普通登陆")
+		//if m.GetUserId() == 0 {
+		//	resultUser, _ = userService.NewUserAndSave("","","")
+		//} else {
+		//	resultUser = userService.GetUserById(m.GetUserId())
+		//}
 	}else{
+		log.T("用户是使用微信登陆")
 		//微信登陆,如果是微信新用户,则创建一个user,并且保存
 		openId := m.GetWx().GetOpenId()
 		resultUser = userService.GetUserByOpenId(openId)
 		if resultUser == nil {
 			//重新生成一个并保存到数据库
-			resultUser, _ = userService.NewUserAndSave(m.GetWx().GetOpenId(),m.GetWx().GetNickName(),m.GetWx().GetHeadUrl())
+			if m.GetWx().GetHeadUrl()==""||m.GetWx().GetNickName()==""||m.GetWx().GetOpenId()==""{
+				//表示参数非法 返回错误
+			}else{
+				resultUser, _ = userService.NewUserAndSave(m.GetWx().GetOpenId(),m.GetWx().GetNickName(),m.GetWx().GetHeadUrl())
+			}
 		}
-
 	}
 
 	//如果得到的user ==nil 或者 用密码登陆的时候密码不正确

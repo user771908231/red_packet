@@ -16,14 +16,9 @@ import (
 type T_user struct {
 	Mid      bson.ObjectId		`json:"mid" bson:"_id"`
 	Id       uint32   //id
-	Name     string
 	NickName string   //昵称
-	Sex      string
-	Icon     string
-	Desc     string   //个人描述
 	Location string   //地区
 	Password string
-	Mobile   string
 
 	Coin     int64    //金币
 	Diamond	 int64		//钻石
@@ -33,7 +28,6 @@ type T_user struct {
 	Level    string   //等级
 	Rank     string   //称号
 
-	Gift     []string //礼物的记录
 	TimeLastSign	time.Time	//最后一次签到时间
 	ContinueSignCount int32		//连续签到的次数
 
@@ -42,5 +36,6 @@ type T_user struct {
 	HeadUrl	string	//头像
 }
 
-
-
+func (t *T_user) GetMid() bson.ObjectId{
+	return t.Mid
+}

@@ -8,7 +8,6 @@ import (
 	"casino_server/common/config"
 	"gopkg.in/mgo.v2/bson"
 	"casino_server/common/log"
-	"casino_server/conf/intCons"
 	"casino_server/utils/redis"
 	"casino_server/utils/numUtils"
 	"strings"
@@ -27,15 +26,6 @@ var(
 
 /**
 
-判断id是否正确
- */
-func CheckUserId(userId uint32) int8 {
-	if userId > casinoConf.MAX_USER_ID || userId < casinoConf.MIN_USER_ID {
-		return intCons.LOGIN_WAY_QUICK
-	} else {
-		return intCons.LOGIN_WAY_LOGIN
-	}
-}
 
 /**
 	1,create 一个user
@@ -211,10 +201,9 @@ func GetUserByOpenId(openId  string) *bbproto.User {
 	if result == nil {
 		return nil
 	}else{
-		result.OninitLoginTurntableState()	//初始化登录转盘之后的奖励
+		//result.OninitLoginTurntableState()	//初始化登录转盘之后的奖励
 		return result
 	}
-
 }
 
 
@@ -273,31 +262,6 @@ func UpsertTUser2Mongo(tuser mode.T_user){
 }
 
 /**
-	更新用用户余额的信息
- */
-func UpUserBalance(userId uint32, amount int64,utype int) error {
-
-	//1,获得锁
-	l := UserLockPools.GetUserLockByUserId(userId)
-	l.Lock()
-	defer l.Unlock()
-
-	//2,跟新redis中的值
-	//由于用户user相关的都会存在redis 中的,所以肯定会更新redis
-	user := GetUserById(userId)
-	*user.Coin += amount
-	SaveUser2Redis(user)	//保存user
-
-	//3,更新mongo 中的值
-	if utype == UPDATE_TYPE_REAIS_MONGO {
-		UpsertRUser2Mongo(user)
-	}
-
-	return nil
-}
-
-
-/**
 	mongo中User模型转化为 redis中的user模型
  */
 func Tuser2Ruser(tu *mode.T_user)(*bbproto.User,error){
@@ -308,7 +272,6 @@ func Tuser2Ruser(tu *mode.T_user)(*bbproto.User,error){
 		//log.T("获得t_user.mid %v",hesStr)
 	}
 
-	result.Name = &tu.Name
 	result.Id = &tu.Id
 	result.NickName = &tu.NickName
 	result.Coin = &tu.Coin
@@ -333,9 +296,12 @@ func Ruser2Tuser(ru *bbproto.User) (*mode.T_user,error){
 	}
 
 	result.Id = ru.GetId()
-	result.Name = ru.GetName()
 	result.NickName = ru.GetNickName()
 	result.Coin = ru.GetCoin()
+	result.HeadUrl = ru.GetHeadUrl()
+	result.OpenId = ru.GetOpenId()
+	result.Diamond = ru.GetDiamond()
+
 	return result,nil
 }
 
@@ -365,7 +331,6 @@ func DecreaseUserCoin(userId uint32,coin int64) error{
 	return nil
 }
 
-
 //更新用户的钻石之后,在放回用户当前的余额,更新用户钻石需要同事更新redis和mongo的数据
 func UpdateUserDiamond(userId uint32,diamond int64) int64{
 	//1,获取锁
@@ -380,14 +345,17 @@ func UpdateUserDiamond(userId uint32,diamond int64) int64{
 	}
 
 	*user.Diamond += diamond
+
 	SaveUser2RedisAndMongo(user)
 
 	//3,返回数据
 	return user.GetDiamond()
 }
 
-func CreateDiamonDetail(userId uint32,detailsType int32,diamond int64,remainDiamond int64,memo string) error{
 
+//craete钻石交易记录
+
+func CreateDiamonDetail(userId uint32,detailsType int32,diamond int64,remainDiamond int64,memo string) error{
 	//1,获取数据库连接
 	c, err := mongodb.Dial(casinoConf.DB_IP, casinoConf.DB_PORT)
 	if err != nil {

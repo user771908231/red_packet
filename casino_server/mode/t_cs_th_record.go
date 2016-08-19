@@ -27,3 +27,7 @@ type T_cs_th_record struct {
 	EndTime 	time.Time
 	Status		int32			//游戏的状态,未开始,进行中,已经完成
 }
+
+func (t *T_cs_th_record) GetMid() bson.ObjectId{
+	return t.Mid
+}
