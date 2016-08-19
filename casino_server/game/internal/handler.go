@@ -52,6 +52,8 @@ func init() {
 	handler(&bbproto.Game_LeaveDesk{},handlerLeaveDesk)		//离开桌子
 
 	handler(&bbproto.Game_GameRecord{},handlerGetGameRecords)	//查询战绩的接口
+
+
 }
 
 /**

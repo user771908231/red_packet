@@ -52,4 +52,11 @@ func init() {
 	msg.ProtoProcessor.SetRouter(&bbproto.Game_CreateDesk{},game.ChanRPC)	//创建房间
 	msg.ProtoProcessor.SetRouter(&bbproto.Game_DissolveDesk{},game.ChanRPC)	//解散房间
 	msg.ProtoProcessor.SetRouter(&bbproto.Game_GameRecord{},game.ChanRPC)	//查询战绩的接口
+
+
+	msg.ProtoProcessor.SetRouter(&bbproto.Game_TounamentBlind{},game.ChanRPC)
+	msg.ProtoProcessor.SetRouter(&bbproto.Game_TounamentRewards{},game.ChanRPC)
+	msg.ProtoProcessor.SetRouter(&bbproto.Game_TounamentRank{},game.ChanRPC)
+	msg.ProtoProcessor.SetRouter(&bbproto.Game_TounamentSummary{},game.ChanRPC)
+
 }

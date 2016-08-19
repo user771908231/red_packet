@@ -1309,4 +1309,31 @@ message Game_SendDeskEndLottery{
 }
 
 
+//盲注的信息
+message Game_TounamentBlind{
+    repeated int32 smallBlind      =   1;//盲注
+    optional int32 ante            =   2;//前注
+}
+
+//
+message Game_TounamentRewards {
+    optional string iconPath        =   1;//图标名称,将牌的icon
+    optional string rewards         =   2; //奖励,的说明
+}
+
+message Game_TounamentRank {
+    optional int32 place        =   1 ;//名次
+    optional string playerImage =   2 ; //玩家头像
+    optional string playerName  =   3 ; //玩家姓名
+    optional int64 coin         =   4 ; //筹码
+}
+
+message Game_TounamentSummary{
+    optional string fee     =   1   ; //图标名称
+    optional string tiem    =   2   ; //比赛的时间
+    optional string personCount =   3   ;   //参赛人数
+    optional string coin    =   4   ;   //参赛筹码
+}
+
+
 
