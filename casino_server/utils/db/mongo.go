@@ -3,7 +3,7 @@ package db
 import (
 	"casino_server/conf/casinoConf"
 	"github.com/name5566/leaf/db/mongodb"
-	"fmt"
+	"gopkg.in/mgo.v2/bson"
 )
 
 
@@ -44,9 +44,8 @@ func UpdateMgoData(dbt string,data interface{}) error{
 	s := c.Ref()
 	defer c.UnRef(s)
 
-	error := s.DB(casinoConf.DB_NAME).C(dbt).Update(data)
+	error := s.DB(casinoConf.DB_NAME).C(dbt).Update(bson.M{})
 	return error
-
 }
 
 

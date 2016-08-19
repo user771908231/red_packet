@@ -65,9 +65,12 @@ func HandlerREQQuickConn(args []interface{}) {
 		resultUser = userService.GetUserByOpenId(openId)
 		if resultUser == nil {
 			//重新生成一个并保存到数据库
-			resultUser, _ = userService.NewUserAndSave(m.GetWx().GetOpenId(),m.GetWx().GetNickName(),m.GetWx().GetHeadUrl())
+			if m.GetWx().GetHeadUrl()==""||m.GetWx().GetNickName()==""||m.GetWx().GetOpenId()==""{
+				//表示参数非法 返回错误
+			}else{
+				resultUser, _ = userService.NewUserAndSave(m.GetWx().GetOpenId(),m.GetWx().GetNickName(),m.GetWx().GetHeadUrl())
+			}
 		}
-
 	}
 
 	//如果得到的user ==nil 或者 用密码登陆的时候密码不正确
