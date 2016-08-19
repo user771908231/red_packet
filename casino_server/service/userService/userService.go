@@ -211,10 +211,9 @@ func GetUserByOpenId(openId  string) *bbproto.User {
 	if result == nil {
 		return nil
 	}else{
-		result.OninitLoginTurntableState()	//初始化登录转盘之后的奖励
+		//result.OninitLoginTurntableState()	//初始化登录转盘之后的奖励
 		return result
 	}
-
 }
 
 

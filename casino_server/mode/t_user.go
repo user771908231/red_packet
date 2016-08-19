@@ -42,5 +42,6 @@ type T_user struct {
 	HeadUrl	string	//头像
 }
 
-
-
+func (t *T_user) GetMid() bson.ObjectId{
+	return t.Mid
+}

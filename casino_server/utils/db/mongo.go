@@ -4,6 +4,7 @@ import (
 	"casino_server/conf/casinoConf"
 	"github.com/name5566/leaf/db/mongodb"
 	"gopkg.in/mgo.v2/bson"
+	"casino_server/mode"
 )
 
 
@@ -24,17 +25,18 @@ func InsertMgoData(dbt string,data interface{}) error{
 
 	// 获取回话 session
 	s := c.Ref()
-	defer c.UnRef(s)
 
 	error := s.DB(casinoConf.DB_NAME).C(dbt).Insert(data)
+
+	c.UnRef(s)
+
 	return error
 
 }
 
-
 //更新数据
-func UpdateMgoData(dbt string,data interface{}) error{
-	c, err := GetMongoConn()
+func UpdateMgoData(dbt string,data mode.BaseMode) error{
+	c, err := mongodb.Dial(casinoConf.DB_IP, casinoConf.DB_PORT)
 	if err != nil {
 		return err
 	}
@@ -44,7 +46,7 @@ func UpdateMgoData(dbt string,data interface{}) error{
 	s := c.Ref()
 	defer c.UnRef(s)
 
-	error := s.DB(casinoConf.DB_NAME).C(dbt).Update(bson.M{})
+	error := s.DB(casinoConf.DB_NAME).C(dbt).Update(bson.M{"_id": data.GetMid()},data)
 	return error
 }
 
