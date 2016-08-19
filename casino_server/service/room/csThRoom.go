@@ -53,7 +53,7 @@ func (r *CSThGameRoom) Run() {
 	saveData.Id = r.matchId
 	saveData.BeginTime = r.beginTime
 	saveData.EndTime = r.endTime
-	db.SaveMgoData(casinoConf.DBT_T_CS_TH_RECORD,saveData)
+	db.InsertMgoData(casinoConf.DBT_T_CS_TH_RECORD,saveData)
 
 
 	//这里定义一个计时器,每十秒钟检测一次游戏

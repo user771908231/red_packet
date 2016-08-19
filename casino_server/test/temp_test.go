@@ -2,29 +2,17 @@ package mongodb
 
 import (
 	"testing"
-	"time"
+	"casino_server/mode"
+	"gopkg.in/mgo.v2/bson"
+	"casino_server/utils/db"
+	"casino_server/conf/casinoConf"
 	"fmt"
 )
 
-
 func TestTemp(t *testing.T) {
-	ticker := time.NewTicker(time.Second * 2)
-	go func() {
-		for timeNow := range ticker.C {
-			fmt.Println("哈哈哈",timeNow,time.Now())
-			a()
-		}
-	}()
-	for ; ;  {
-		
-	}
+	userData := &mode.T_user{}
+	userData.Mid = bson.ObjectIdHex("57b6c2911ba69d41e7384791")
+	userData.NickName = "dongbing2"
+	err := db.InsertMgoData(casinoConf.DBT_T_USER,userData)
+	fmt.Println(err)
 }
-
-
-func a(){
-	fmt.Println("开始",time.Now())
-	time.Sleep(time.Second*10)
-	fmt.Println("结束",time.Now())
-
-}
-

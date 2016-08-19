@@ -7,12 +7,17 @@ import (
 )
 
 
+
+//活的链接
+func GetMongoConn()(*mongodb.DialContext, error) {
+	return  mongodb.Dial(casinoConf.DB_IP, casinoConf.DB_PORT)
+}
+
 //保存数据
-func  SaveMgoData(dbt string,data interface{}) error{
+func InsertMgoData(dbt string,data interface{}) error{
 	//得到连接
-	c, err := mongodb.Dial(casinoConf.DB_IP, casinoConf.DB_PORT)
+	c, err := GetMongoConn()
 	if err != nil {
-		fmt.Println(err)
 		return err
 	}
 	defer c.Close()
@@ -21,8 +26,26 @@ func  SaveMgoData(dbt string,data interface{}) error{
 	s := c.Ref()
 	defer c.UnRef(s)
 
-	s.DB(casinoConf.DB_NAME).C(dbt).Insert(data)
-	return nil
+	error := s.DB(casinoConf.DB_NAME).C(dbt).Insert(data)
+	return error
+
+}
+
+
+//更新数据
+func UpdateMgoData(dbt string,data interface{}) error{
+	c, err := GetMongoConn()
+	if err != nil {
+		return err
+	}
+	defer c.Close()
+
+	// 获取回话 session
+	s := c.Ref()
+	defer c.UnRef(s)
+
+	error := s.DB(casinoConf.DB_NAME).C(dbt).Update(data)
+	return error
 
 }
 
@@ -30,7 +53,7 @@ func  SaveMgoData(dbt string,data interface{}) error{
 //得到序列号
 func GetNextSeq(dbt string) int32{
 	//连接数据库
-	c,err := mongodb.Dial(casinoConf.DB_IP,casinoConf.DB_PORT)
+	c,err := GetMongoConn()
 	if err != nil{
 		return 0
 	}

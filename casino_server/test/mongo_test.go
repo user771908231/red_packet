@@ -68,7 +68,7 @@ func _TestSave(t *testing.T){
 	testResult.Name = "测试2222"
 	testResult.Mid = bson.NewObjectId()
 
-	db.SaveMgoData(casinoConf.DBT_T_TEST,testResult)
+	db.InsertMgoData(casinoConf.DBT_T_TEST,testResult)
 	t.Log("开始测试保存到数据库--end\n")
 
 }

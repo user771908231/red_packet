@@ -976,7 +976,7 @@ func (t *ThDesk) SaveLotteryDatath() error{
 		thData.Blance = *(userService.GetUserById(u.UserId).Coin)
 		thData.BeginTime = time.Now()
 		thData.GameNumber = t.GameNumber
-		db.SaveMgoData(casinoConf.DBT_T_TH_RECORD,thData)
+		db.InsertMgoData(casinoConf.DBT_T_TH_RECORD,thData)
 
 		//获取游戏数据
 		userRecord := mode.BeanRecord{}
@@ -990,7 +990,7 @@ func (t *ThDesk) SaveLotteryDatath() error{
 
 	log.T("开始保存DBT_T_TH_DESK_RECORD的信息")
 	//保存桌子的用户信息
-	db.SaveMgoData(casinoConf.DBT_T_TH_DESK_RECORD,deskRecord)
+	db.InsertMgoData(casinoConf.DBT_T_TH_DESK_RECORD,deskRecord)
 	return nil
 
 }
@@ -1030,7 +1030,7 @@ func (t *ThDesk) SaveLotteryDatacsth() error{
 		thData.Blance = *(userService.GetUserById(u.UserId).Coin)
 		thData.BeginTime = time.Now()
 		thData.GameNumber = t.GameNumber
-		db.SaveMgoData(casinoConf.DBT_T_TH_RECORD,thData)
+		db.InsertMgoData(casinoConf.DBT_T_TH_RECORD,thData)
 
 		//获取游戏数据
 		userRecord := mode.BeanRecord{}
@@ -1044,7 +1044,7 @@ func (t *ThDesk) SaveLotteryDatacsth() error{
 
 	log.T("开始保存DBT_T_TH_DESK_RECORD的信息")
 	//保存桌子的用户信息
-	db.SaveMgoData(casinoConf.DBT_T_TH_DESK_RECORD,deskRecord)
+	db.InsertMgoData(casinoConf.DBT_T_TH_DESK_RECORD,deskRecord)
 	return nil
 
 }
