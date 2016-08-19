@@ -118,6 +118,7 @@ func (t *ThDesk) LogString() {
 			log.T("当前desk[%v]的user[%v]的状态status[%v],牌的信息[%v]", t.Id, u.UserId, u.Status, u.HandCards)
 		}
 	}
+	log.T("当前desk[%v]的信息的状态,MatchId[%v]", t.Id, t.MatchId)
 	log.T("当前desk[%v]的信息的状态,总人数SeatedCount[%v],在线人数[%v]", t.Id, t.UserCount, t.UserCountOnline)
 	log.T("当前desk[%v]的信息的状态,小盲注[%v]", t.Id, t.SmallBlind)
 	log.T("当前desk[%v]的信息的状态,大盲注[%v]", t.Id, t.BigBlind)

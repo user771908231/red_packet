@@ -1107,7 +1107,6 @@ message REQQuickConn {
     optional uint32 userId = 18;    //用户Id
     optional WeixinInfo wx = 19;    //微信登录信息
 
-
 }
 
 message ACKQuickConn {
@@ -1139,7 +1138,6 @@ message ACKQuickConn {
     optional int32 ErrorCode = 27 [default = 0]; //0为无错误；1 用户名密码错误，其它为系统级别错误，待定。
     optional string NickName    =   28; //昵称
     optional int32  releaseTag  = 29;    //发布版本标志
-
 }
 
 message NullMsg {
@@ -1296,7 +1294,7 @@ message Game_SendMessage{
 
 
 //几局游戏完了之后的广播信息
-message game_EndLottery {
+message Game_EndLottery {
     optional int64 coin     = 1;        //总共输赢筹码
     optional bool bigWin    = 2;       //是否为大赢家
     optional bool owner     = 3;        //是否为房主
@@ -1307,7 +1305,7 @@ message game_EndLottery {
 //几局完成之后的情况
 message Game_SendDeskEndLottery{
     optional int32  result              = 1;  //
-    repeated game_EndLottery   coinInfo = 2;   //胜负的情况
+    repeated Game_EndLottery   coinInfo = 2;   //胜负的情况
 }
 
 

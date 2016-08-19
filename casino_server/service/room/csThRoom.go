@@ -8,6 +8,7 @@ import (
 	"casino_server/conf/casinoConf"
 	"casino_server/mode"
 	"gopkg.in/mgo.v2/bson"
+	"errors"
 )
 
 var ChampionshipRoom CSThGameRoom 	//锦标赛的房间
@@ -25,6 +26,17 @@ type CSThGameRoom struct {
 	beginTime	time.Time	//游戏开始的时间
 	endTime 	time.Time	//游戏结束的时间
 }
+
+//只有开始之后才能进入游戏房间
+func (r *CSThGameRoom) IsBegin() bool{
+	nowTime := time.Now()
+	if nowTime.Before(r.endTime) {
+		return true
+	}else{
+		return false
+	}
+}
+
 
 //run游戏房间
 func (r *CSThGameRoom) Run() {
@@ -91,13 +103,17 @@ func (r *CSThGameRoom) End(){
 
 //游戏大厅增加一个玩家
 func (r *CSThGameRoom) AddUser(userId uint32, roomCoin int64, a gate.Agent) (*ThDesk, error) {
-	//进入房间的操作需要加锁
 	r.Lock()
 	defer r.Unlock()
 	log.T("userid【%v】进入德州扑克的房间", userId)
 
-	var mydesk *ThDesk = nil                //为用户找到的desk
+	//这里需要判断锦标赛是否可以开始游戏
+	if !r.IsBegin() {
+		log.T("用户[%v]进入锦标赛的房间失败,因为游戏还没有开始",userId)
+		return nil,errors.New("游戏还没有开始")
+	}
 
+	var mydesk *ThDesk = nil                //为用户找到的desk
 	//1,判断用户是否已经在房间里了,如果是在房间里,那么替换现有的agent,
 	mydesk = r.IsRepeatIntoRoom(userId, a)
 	if mydesk != nil {

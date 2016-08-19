@@ -116,8 +116,6 @@ func (t *ThUser) TimeOut(timeNow time.Time) (bool, error) {
 	//如果用户超市,或者用户选择离线,那么直接做弃牌的操作
 	if t.waiTime.Before(timeNow) || t.IsLeave {
 		log.T("玩家[%v]超时,现在做超时的处理", t.UserId)
-		//表示已经超时了
-		//给玩家发送超时的广播
 		err := t.GetDesk().DDBet(t.Seat, TH_DESK_BET_TYPE_FOLD, 0)
 		if err != nil {
 			log.E("用户[%v]弃牌失败", t.UserId)

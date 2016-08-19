@@ -16,9 +16,8 @@ import (
 //config
 
 var TH_GAME_SMALL_BLIND 	int64 = 10              //小盲注的金额
-var GAME_THROOM_MAX_COUNT 	int32 = 500             //一个游戏大厅最多有多少桌德州扑克
-var TH_TIMEOUT_DURATION = time.Second * 1500      	//德州出牌的超时时间
-var TH_TIMEOUT_DURATION_INT 	int32 = 1500          	//德州出牌的超时时间
+var TH_TIMEOUT_DURATION = time.Second * 20      	//德州出牌的超时时间
+var TH_TIMEOUT_DURATION_INT 	int32 = 20        	//德州出牌的超时时间
 var TH_LOTTERY_DURATION = time.Second * 5         	//德州开奖的时间
 var TH_DESK_CREATE_DIAMOND 	int64 = 10; 		//创建牌桌需要的钻石数量
 
@@ -313,11 +312,11 @@ func (r *ThGameRoom) GetDeskById(id int32) *ThDesk {
 func GetDeskByIdAndMatchId(deskId int32,matchId int32) *ThDesk{
 	//1,把type 转义
 	if matchId >0 {
-		//返回自定义房间里面的desk
-		return ThGameRoomIns.GetDeskById(deskId)
-	}else if matchId == 0{
 		//返回锦标赛的房间
 		return ChampionshipRoom.GetDeskById(deskId)
+	}else if matchId == 0{
+		//返回自定义房间里面的desk
+		return ThGameRoomIns.GetDeskById(deskId)
 
 	}else{
 		return  nil

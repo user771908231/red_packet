@@ -66,14 +66,13 @@ func HandlerMessage(m *bbproto.Game_Message,a gate.Agent){
 	result := &bbproto.Game_SendMessage{}
 	desk := room.GetDeskByAgent(a)
 
-	if desk == nil {
-		//返回错误信息
-	}else{
+	if desk != nil {
 		result.UserId = m.UserId
 		result.Msg = m.Msg
 		result.MsgType = m.MsgType
 		result.Id = m.Id
 		result.Seat = m.Seat
+		log.T("开始广播用户[%v]发送的消息[%v]",m.GetUserId(),result)
 		desk.THBroadcastProtoAll(result)
 	}
 }
