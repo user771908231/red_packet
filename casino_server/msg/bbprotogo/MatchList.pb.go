@@ -238,8 +238,11 @@ It has these top-level messages:
 	Game_SendMessage
 	Game_EndLottery
 	Game_SendDeskEndLottery
+	Game_TounamentBlindBean
 	Game_TounamentBlind
+	Game_TounamentRewardsBean
 	Game_TounamentRewards
+	Game_TounamentRankBean
 	Game_TounamentRank
 	Game_TounamentSummary
 	ProtoHeader
