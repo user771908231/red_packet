@@ -4,6 +4,10 @@ import (
 	"github.com/name5566/leaf/gate"
 	"casino_server/common/log"
 	"time"
+	"casino_server/utils/db"
+	"casino_server/conf/casinoConf"
+	"casino_server/mode"
+	"gopkg.in/mgo.v2/bson"
 )
 
 var ChampionshipRoom CSThGameRoom 	//锦标赛的房间
@@ -25,12 +29,29 @@ type CSThGameRoom struct {
 //run游戏房间
 func (r *CSThGameRoom) Run() {
 	log.T("锦标赛游戏开始...")
-	//这里定义一个计时器
-	ticker := time.NewTicker(time.Second * 2)
+
+	//设置room属性
+	r.beginTime = time.Now()
+	r.endTime   = r.beginTime.Add(time.Second*60*20)		//一局游戏的时间是20分钟
+	r.matchId   = db.GetNextSeq(casinoConf.DBT_T_CS_TH_RECORD)	//生成游戏的matchId
+
+	//保存游戏数据
+	saveData := &mode.T_cs_th_record{}
+	saveData.Mid = bson.NewObjectId()
+	saveData.Id = r.matchId
+	saveData.BeginTime = r.beginTime
+	saveData.EndTime = r.endTime
+	db.SaveMgoData(casinoConf.DBT_T_CS_TH_RECORD,saveData)
+
+
+	//这里定义一个计时器,每十秒钟检测一次游戏
+	ticker := time.NewTicker(time.Second * 10)
 	go func() {
 		for timeNow := range ticker.C {
-			log.T("",timeNow)
+			log.T("开始time[%v]检测锦标赛matchId[%v]有没有结束...",timeNow,r.matchId)
 			if r.checkEnd() {
+				//重新开始
+				go r.Run()
 				break
 			}
 		}

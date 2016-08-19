@@ -321,16 +321,16 @@ func isAllIn(u *room.ThUser) int32 {
 
 //判断是否是掉线
 func isBreak(u *room.ThUser) int32 {
-	if u.BreakStatus == room.TH_USER_BREAK_STATUS_TRUE {
+	if u.IsBreak {
 		return 1
 	} else {
 		return 0
 	}
 }
 
-//判断是否allIn
+//判断是否离开房间
 func isLeave(u *room.ThUser) int32 {
-	if u.Status == room.TH_USER_STATUS_LEAVE {
+	if u.IsLeave {
 		return 1
 	} else {
 		return 0

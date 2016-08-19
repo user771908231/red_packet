@@ -36,11 +36,6 @@ var TH_USER_STATUS_ALLINING 	int32 = 5        	//allIn
 var TH_USER_STATUS_FOLDED 	int32 = 6          	//弃牌
 var TH_USER_STATUS_WAIT_CLOSED 	int32 = 7    		 //等待结算
 var TH_USER_STATUS_CLOSED 	int32 = 8          	//已经结算
-var TH_USER_STATUS_LEAVE 	int32 = 9           	//离开  ????厉害是否有离开的状态
-
-
-var TH_USER_BREAK_STATUS_TRUE 	int32 = 1      		//已经断线
-var TH_USER_BREAK_STATUS_FALSE 	int32 = 0     		//没有断线
 
 
 //德州扑克,牌桌的状态

@@ -22,7 +22,8 @@ type ThUser struct {
 	Seat               int32                 //用户的座位号
 	agent              gate.Agent            //agent
 	Status             int32                 //当前的状态
-	BreakStatus        int32                 //用户断线的状态,这里判断用户是否断线
+	IsBreak            bool                  //用户断线的状态,这里判断用户是否断线
+	IsLeave            bool                  //用户是否处于离开的状态
 	HandCards          []*bbproto.Pai        //手牌
 	thCards            *pokerService.ThCards //手牌加公共牌取出来的值,这个值可以实在结算的时候来取
 	waiTime            time.Time             //等待时间
@@ -113,7 +114,7 @@ func (t *ThUser) TimeOut(timeNow time.Time) (bool, error) {
 	}
 
 	//如果用户超市,或者用户选择离线,那么直接做弃牌的操作
-	if t.waiTime.Before(timeNow) || t.Status == TH_USER_STATUS_LEAVE {
+	if t.waiTime.Before(timeNow) || t.IsLeave {
 		log.T("玩家[%v]超时,现在做超时的处理", t.UserId)
 		//表示已经超时了
 		//给玩家发送超时的广播
@@ -160,7 +161,8 @@ func NewThUser() *ThUser {
 	result.TotalBet = 0
 	result.winAmount = 0
 	result.RoomCoin = 0
-	result.BreakStatus = TH_USER_BREAK_STATUS_FALSE
+	result.IsBreak = false
+	result.IsLeave = false
 	return result
 }
 
@@ -174,7 +176,7 @@ func (t *ThUser) UpdateAgentUserData(a gate.Agent,deskId int32,matchId int32){
 	*userAgentData.MatchId = matchId
 	a.SetUserData(userAgentData)
 	t.agent = a
-	t.BreakStatus = TH_USER_BREAK_STATUS_FALSE
+	t.IsBreak = false
 
 	//回话信息保存到redis
 	userService.SaveUserSession(userAgentData)
