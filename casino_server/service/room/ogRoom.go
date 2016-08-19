@@ -144,6 +144,11 @@ func (t *ThDesk) DDFoldBet(user  *ThUser) error {
 	}
 	user.Status = TH_USER_STATUS_FOLDED
 
+	//如果用户是离开的情况,设置用户已经离开
+	if user.IsLeave {
+		t.LeaveThuser(user.UserId)
+	}
+
 	//2,初始化下一个押注的人
 	t.NextBetUser()
 

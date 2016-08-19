@@ -97,4 +97,9 @@ func init() {
 	ProtoProcessor.Register(&bbproto.Game_Message{})	//63	//发送信息
 	ProtoProcessor.Register(&bbproto.Game_SendMessage{})	//64	//发送消息广播
 
+	ProtoProcessor.Register(&bbproto.Game_TounamentBlind{})	//65
+	ProtoProcessor.Register(&bbproto.Game_TounamentRewards{})//66
+	ProtoProcessor.Register(&bbproto.Game_TounamentRank{})	//67
+	ProtoProcessor.Register(&bbproto.Game_TounamentSummary{})	//68	//描述
+
 }

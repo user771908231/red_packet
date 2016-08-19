@@ -66,14 +66,13 @@ func HandlerMessage(m *bbproto.Game_Message,a gate.Agent){
 	result := &bbproto.Game_SendMessage{}
 	desk := room.GetDeskByAgent(a)
 
-	if desk == nil {
-		//返回错误信息
-	}else{
+	if desk != nil {
 		result.UserId = m.UserId
 		result.Msg = m.Msg
 		result.MsgType = m.MsgType
 		result.Id = m.Id
 		result.Seat = m.Seat
+		log.T("开始广播用户[%v]发送的消息[%v]",m.GetUserId(),result)
 		desk.THBroadcastProtoAll(result)
 	}
 }
@@ -321,16 +320,16 @@ func isAllIn(u *room.ThUser) int32 {
 
 //判断是否是掉线
 func isBreak(u *room.ThUser) int32 {
-	if u.BreakStatus == room.TH_USER_BREAK_STATUS_TRUE {
+	if u.IsBreak {
 		return 1
 	} else {
 		return 0
 	}
 }
 
-//判断是否allIn
+//判断是否离开房间
 func isLeave(u *room.ThUser) int32 {
-	if u.Status == room.TH_USER_STATUS_LEAVE {
+	if u.IsLeave {
 		return 1
 	} else {
 		return 0

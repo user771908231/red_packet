@@ -238,6 +238,10 @@ It has these top-level messages:
 	Game_SendMessage
 	Game_EndLottery
 	Game_SendDeskEndLottery
+	Game_TounamentBlind
+	Game_TounamentRewards
+	Game_TounamentRank
+	Game_TounamentSummary
 	ProtoHeader
 	TerminalInfo
 	User

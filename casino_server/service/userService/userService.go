@@ -194,7 +194,7 @@ func GetUserByOpenId(openId  string) *bbproto.User {
 
 	//从数据库中查询user
 	tuser := &mode.T_user{}
-	s.DB(casinoConf.DB_NAME).C(casinoConf.DBT_T_USER).Find(bson.M{"open_id": openId}).One(tuser)
+	s.DB(casinoConf.DB_NAME).C(casinoConf.DBT_T_USER).Find(bson.M{"openid": openId}).One(tuser)
 	if tuser.Id < casinoConf.MIN_USER_ID {
 		log.T("在mongo中没有查询到user[%v].", openId)
 		result = nil

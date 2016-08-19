@@ -1107,7 +1107,6 @@ message REQQuickConn {
     optional uint32 userId = 18;    //用户Id
     optional WeixinInfo wx = 19;    //微信登录信息
 
-
 }
 
 message ACKQuickConn {
@@ -1139,7 +1138,6 @@ message ACKQuickConn {
     optional int32 ErrorCode = 27 [default = 0]; //0为无错误；1 用户名密码错误，其它为系统级别错误，待定。
     optional string NickName    =   28; //昵称
     optional int32  releaseTag  = 29;    //发布版本标志
-
 }
 
 message NullMsg {
@@ -1296,7 +1294,7 @@ message Game_SendMessage{
 
 
 //几局游戏完了之后的广播信息
-message game_EndLottery {
+message Game_EndLottery {
     optional int64 coin     = 1;        //总共输赢筹码
     optional bool bigWin    = 2;       //是否为大赢家
     optional bool owner     = 3;        //是否为房主
@@ -1307,7 +1305,34 @@ message game_EndLottery {
 //几局完成之后的情况
 message Game_SendDeskEndLottery{
     optional int32  result              = 1;  //
-    repeated game_EndLottery   coinInfo = 2;   //胜负的情况
+    repeated Game_EndLottery   coinInfo = 2;   //胜负的情况
+}
+
+
+//盲注的信息
+message Game_TounamentBlind{
+    repeated int32 smallBlind      =   1;//盲注
+    optional int32 ante            =   2;//前注
+}
+
+//
+message Game_TounamentRewards {
+    optional string iconPath        =   1;//图标名称,将牌的icon
+    optional string rewards         =   2; //奖励,的说明
+}
+
+message Game_TounamentRank {
+    optional int32 place        =   1 ;//名次
+    optional string playerImage =   2 ; //玩家头像
+    optional string playerName  =   3 ; //玩家姓名
+    optional int64 coin         =   4 ; //筹码
+}
+
+message Game_TounamentSummary{
+    optional string fee     =   1   ; //图标名称
+    optional string tiem    =   2   ; //比赛的时间
+    optional string personCount =   3   ;   //参赛人数
+    optional string coin    =   4   ;   //参赛筹码
 }
 
 
