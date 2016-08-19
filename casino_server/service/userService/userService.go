@@ -262,31 +262,6 @@ func UpsertTUser2Mongo(tuser mode.T_user){
 }
 
 /**
-	更新用用户余额的信息
- */
-func UpUserBalance(userId uint32, amount int64,utype int) error {
-
-	//1,获得锁
-	l := UserLockPools.GetUserLockByUserId(userId)
-	l.Lock()
-	defer l.Unlock()
-
-	//2,跟新redis中的值
-	//由于用户user相关的都会存在redis 中的,所以肯定会更新redis
-	user := GetUserById(userId)
-	*user.Coin += amount
-	SaveUser2Redis(user)	//保存user
-
-	//3,更新mongo 中的值
-	if utype == UPDATE_TYPE_REAIS_MONGO {
-		UpsertRUser2Mongo(user)
-	}
-
-	return nil
-}
-
-
-/**
 	mongo中User模型转化为 redis中的user模型
  */
 func Tuser2Ruser(tu *mode.T_user)(*bbproto.User,error){
