@@ -220,10 +220,9 @@ func (t *ThDesk) Ready(userId uint32) error {
 
 //  用户退出德州游戏的房间,rmUser 需要在事物中进行
 func (t *ThDesk) LeaveThuser(userId uint32) error {
-	t.Lock()
-	defer t.Unlock()
 	user := t.GetUserByUserId(userId)
 	user.IsLeave = true     //设置状态为离开
+	t.UserCountOnline --
 	return nil
 }
 
@@ -232,7 +231,6 @@ func (t *ThDesk) SetOfflineStatus(userId uint32) error {
 
 	u := t.GetUserByUserId(userId)
 	//1,设置状态为断线
-
 	//这里需要保存掉线钱的状态
 	u.IsBreak = true        //设置为掉线的状态
 	t.UserCountOnline --

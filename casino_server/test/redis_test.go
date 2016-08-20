@@ -19,7 +19,6 @@ func f1(t *testing.T){
 	}
 
 	user:=mode.T_user{
-		Name:"cacheuser",
 	}
 
 	v := "a,b,c,d"

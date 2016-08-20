@@ -28,7 +28,6 @@ func  addUserCoin(userId uint32,coin int64){
 func getUser(userId uint32){
 	user := userService.GetUserById(userId)
 	fmt.Println("user.NickName",*user.NickName)
-	fmt.Println("user.Name",*user.Name)
 	fmt.Println("user.id",*user.Id)
 	fmt.Println("user.coin",*user.Coin)
 }

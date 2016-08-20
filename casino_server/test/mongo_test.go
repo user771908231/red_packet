@@ -105,8 +105,6 @@ func _select(t *testing.T){
 	s.DB(casinoConf.DB_NAME).C(casinoConf.DBT_T_USER).Find(bson.M{"id": 19}).One(&result)
 	//t.Log("Mid ",result.Mid)
 	t.Log("Id ",result.Id)
-	t.Log("Mobile ",result.Mobile)
-	t.Log("Name ",result.Name)
 	//t.Log("NickName ",result.NickName)
 
 	//result := Person{}

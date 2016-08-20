@@ -1341,7 +1341,7 @@ message Game_TounamentRank {
 
 message Game_TounamentSummary{
     optional string fee     =   1   ; //图标名称
-    optional string tiem    =   2   ; //比赛的时间
+    optional string time    =   2   ; //比赛的时间
     optional string personCount =   3   ;   //参赛人数
     optional string coin    =   4   ;   //参赛筹码
 }
