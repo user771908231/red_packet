@@ -424,4 +424,3 @@ func getUserIdByAgent( a gate.Agent) uint32{
 	//测试代码,返回10006
 	return 10006
 }
-

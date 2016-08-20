@@ -10,6 +10,7 @@ import (
 	"casino_server/conf/intCons"
 	"casino_server/service/room"
 	"casino_server/service/OGservice"
+	"casino_server/service/CSTHService"
 )
 
 func handler(m interface{}, h interface{}) {
@@ -57,6 +58,8 @@ func init() {
 	handler(&bbproto.Game_TounamentRewards{}, handlerGame_TounamentRewards)
 	handler(&bbproto.Game_TounamentRank{}, handlerGame_TounamentRank)
 	handler(&bbproto.Game_TounamentSummary{}, handlerGame_TounamentSummary)
+
+	handler(&bbproto.Game_MatchList{},handlerGame_MatchList)	//锦标赛列表
 
 }
 
@@ -412,4 +415,11 @@ func handlerGame_TounamentSummary(args []interface{}) {
 	*m.PersonCount = "65-1000人"
 	*m.Coin = "5000"
 	a.WriteMsg(m)
+}
+
+//竞标赛列表
+func handlerGame_MatchList(args []interface{}){
+	a := args[1].(gate.Agent)
+	data := CSTHService.GetGameMatchList()
+	a.WriteMsg(data)
 }

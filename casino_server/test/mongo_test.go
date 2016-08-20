@@ -11,3 +11,4 @@ func TestMongoUtils(t *testing.T){
 	id := db.GetNextSeq(casinoConf.DBT_T_USER)
 	fmt.Println("哈哈哈",id)
 }
+
