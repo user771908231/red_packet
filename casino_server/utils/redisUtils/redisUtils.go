@@ -29,3 +29,15 @@ func GetObj(key string,p proto.Message) proto.Message{
 	defer conn.Close()
 	return conn.GetObjv2(key, p)
 }
+
+/**
+	保存一个对象到redis
+ */
+func SaveObj(key string,p proto.Message){
+	conn := data.Data{}
+	conn.Open(casinoConf.REDIS_DB_NAME)
+	defer conn.Close()
+	conn.SetObj(key,p)
+}
+
+

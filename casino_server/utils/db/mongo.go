@@ -64,3 +64,33 @@ func GetNextSeq(dbt string) int32{
 	id,_ :=  c.NextSeq(casinoConf.DB_NAME, dbt, casinoConf.DB_ENSURECOUNTER_KEY)
 	return int32(id)
 }
+
+//查询
+func GetList(des interface{},dbt string,query interface{},sort string,limit int) interface{}{
+	c,err := GetMongoConn()
+	if err != nil{
+		return 0
+	}
+	defer  c.Close()
+
+	//获取session
+	s := c.Ref()
+	defer c.UnRef(s)
+
+	ret := []mode.BaseMode{}
+	s.DB(casinoConf.DB_NAME).C(dbt).Find(query).Sort(sort).Limit(limit).All(&ret)
+	return ret
+}
+
+func GetList2(f func(*mongodb.Session)){
+	c,err := GetMongoConn()
+	if err != nil{
+	}
+	defer  c.Close()
+
+	//获取session
+	s := c.Ref()
+	defer c.UnRef(s)
+
+	f(s)
+}
