@@ -54,11 +54,11 @@ func UpdateMgoData(dbt string,data mode.BaseMode) error{
 
 
 //得到序列号
-func GetNextSeq(dbt string) int32{
+func GetNextSeq(dbt string) (int32,error){
 	//连接数据库
 	c,err := GetMongoConn()
 	if err != nil{
-		return 0
+		return 0,err
 	}
 	defer  c.Close()
 
@@ -66,7 +66,7 @@ func GetNextSeq(dbt string) int32{
 	s := c.Ref()
 	defer c.UnRef(s)
 	id,_ :=  c.NextSeq(casinoConf.DB_NAME, dbt, casinoConf.DB_ENSURECOUNTER_KEY)
-	return int32(id)
+	return int32(id),nil
 }
 
 

@@ -85,6 +85,19 @@ enum  EProtoId{
 }
 
 
+
+enum  ErrorCode{
+	ErrorCode_succ			=	0;	//表示成功
+
+	//-1   -100 登陆异常
+
+
+	//-101   -200	游戏异常
+	ERRORCODE_CREATE_DESK_DIAMOND_NOTENOUGH		=	-101;	//创建房间的时候余额不足
+	ERRORCODE_CREATE_DESK_USER_NOTFOUND			=	-102;	//创建房间的时候余额不足
+
+}
+
 //general response protocol
 message ProtoHeader {
 	optional string apiVer		= 1;

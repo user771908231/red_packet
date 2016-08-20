@@ -46,7 +46,7 @@ func (r *CSThGameRoom) Run() {
 	//设置room属性
 	r.beginTime = time.Now()
 	r.endTime   = r.beginTime.Add(time.Second*60*20)		//一局游戏的时间是20分钟
-	r.matchId   = db.GetNextSeq(casinoConf.DBT_T_CS_TH_RECORD)	//生成游戏的matchId
+	r.matchId,_ = db.GetNextSeq(casinoConf.DBT_T_CS_TH_RECORD)	//生成游戏的matchId
 
 	//保存游戏数据,1,保存数据到mongo,2,刷新redis中的信息
 	saveData := &mode.T_cs_th_record{}

@@ -234,7 +234,7 @@ func handlerCreateDesk(args []interface{}) {
 	desk, err := OGservice.HandlerCreateDesk(userId, initCoin, smallBlind, bigBlind, juCount)
 	if err != nil {
 		log.E("创建房间失败 errmsg [%v]", err)
-		*result.Result = -1
+		*result.Result = int32(bbproto.ErrorCode_ERRORCODE_CREATE_DESK_DIAMOND_NOTENOUGH)
 	} else {
 		*result.Result = 0
 		*result.DeskId = desk.Id
