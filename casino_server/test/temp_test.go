@@ -8,6 +8,7 @@ import (
 	"gopkg.in/mgo.v2/bson"
 	"casino_server/mode"
 	"github.com/name5566/leaf/db/mongodb"
+	"gopkg.in/mgo.v2"
 )
 
 func TestTemp(t *testing.T) {
@@ -33,24 +34,14 @@ func testN() {
 	tuser := &mode.T_user{}
 	s.DB(casinoConf.DB_NAME).C(casinoConf.DBT_T_USER).Find(bson.M{"nickname": "dongbing333"}).One(tuser)
 	fmt.Println("得到的结果2:", tuser)
-
-}
-
-func testMongoUtils() {
-	fmt.Println("开始测试")
-
-	ret := []mode.T_user{}
-	users := db.GetList(ret, casinoConf.DBT_T_USER, bson.M{"nickname":"dongbing333"}, "id", 20)
-
-	fmt.Println("得到的结果:", users)
 }
 
 func testMongoUtils2() {
 	fmt.Println("开始测试")
 
 	ret := []mode.T_user{}
-	db.GetList2(func(s *mongodb.Session) {
-		s.DB(casinoConf.DB_NAME).C(casinoConf.DBT_T_USER).Find(bson.M{"nickname":"dongbing333"}).All(&ret)
+	db.Query(func(d *mgo.Database) {
+		d.C(casinoConf.DBT_T_USER).Find(bson.M{}).All(&ret)
 	})
 	fmt.Println("得到的结果.size():", len(ret))
 	fmt.Println("得到的结果:", ret)

@@ -25,6 +25,9 @@ type T_cs_th_record struct {
 	BeginTime	time.Time
 	EndTime 	time.Time
 	Status		int32			//游戏的状态,未开始,进行中,已经完成
+	CostFee		int64			//进入游戏需要消耗的钻石
+	Title		string			//在线人数
+	GameType 	int32			//锦标赛类型
 }
 
 func (t *T_cs_th_record) GetMid() bson.ObjectId{

@@ -55,7 +55,7 @@ func (r *CSThGameRoom) Run() {
 	saveData.BeginTime = r.beginTime
 	saveData.EndTime = r.endTime
 	db.InsertMgoData(casinoConf.DBT_T_CS_TH_RECORD,saveData)
-	CSTHService.RefreshRedisMatchList(r)	//这里刷新redis中的锦标赛数据
+	CSTHService.RefreshRedisMatchList()	//这里刷新redis中的锦标赛数据
 
 
 	//这里定义一个计时器,每十秒钟检测一次游戏

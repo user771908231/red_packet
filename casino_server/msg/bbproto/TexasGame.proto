@@ -1352,7 +1352,7 @@ message Game_MatchItem {
     optional string  title  =2  ;   //比赛标题：100元话费争夺赛
     optional string  time   =3  ;   //开始时间
     optional int32 status   =4  ;   //比赛状态：1=进行中  2=已结束
-    optional int32 costFee  =5  ;   //参赛费用
+    optional int64 costFee  =5  ;   //参赛费用
     optional int32  person  =6  ;   //在线人数
 }
 

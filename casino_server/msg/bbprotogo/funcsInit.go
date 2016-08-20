@@ -28,3 +28,17 @@ func NewGame_TounamentRankBean() *Game_TounamentRankBean{
 	ret.PlayerName  = new(string)
 	return ret
 }
+
+//初始化一个
+
+func NewGame_MatchItem()*Game_MatchItem{
+	ret := &Game_MatchItem{}
+	ret.CostFee = new(int64)
+	ret.Person  = new(int32)
+	ret.Status  = new(int32)
+	ret.Person  = new(int32)
+	ret.Time    = new(string)
+	ret.Title   = new(string)
+	ret.Type    = new(int32)
+	return ret
+}

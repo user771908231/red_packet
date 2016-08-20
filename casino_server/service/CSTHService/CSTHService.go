@@ -4,8 +4,11 @@ package CSTHService
 import (
 	"casino_server/msg/bbprotogo"
 	"casino_server/utils/redisUtils"
-	"casino_server/service/room"
 	"casino_server/utils/db"
+	"casino_server/mode"
+	"gopkg.in/mgo.v2"
+	"casino_server/conf/casinoConf"
+	"gopkg.in/mgo.v2/bson"
 )
 
 
@@ -18,16 +21,36 @@ func GetMatchListRedisKey() string {
 func GetGameMatchList() *bbproto.Game_MatchList {
 	data := redisUtils.GetObj(GetMatchListRedisKey(),&bbproto.Game_MatchList{})
 	if data == nil{
-		return data
+		return nil
 	}else{
 		return data.(*bbproto.Game_MatchList)
 	}
 }
 
 //刷新锦标赛的列表信息
-func RefreshRedisMatchList(r *room.CSThGameRoom) {
+func RefreshRedisMatchList() {
 	//1,获取数据库中的近20场次的信息(通过时间来排序)
-	db.UpdateMgoData()
+	data := []mode.T_cs_th_record{}
+	db.Query(func(d *mgo.Database) {
+		d.C(casinoConf.DBT_T_CS_TH_RECORD).Find(bson.M{}).Sort("-id").Limit(20).All(&data)
+	})
 
+	//把得到的数据保存在数据库中
+	if len(data) > 0 {
+		//表示有数据,需要存储在redis中
+		sdata := &bbproto.Game_MatchList{}
+		for i := 0; i < len(data); i++ {
+			d := data[i]
+			sd := bbproto.NewGame_MatchItem()
+			*sd.CostFee = d.CostFee
+			*sd.Title   = d.Title
+			*sd.Status  = d.Status
+			*sd.Type    = d.GameType
+			sdata.Items = append(sdata.Items,sd)
+		}
+
+		//存储
+		redisUtils.SaveObj(GetMatchListRedisKey(),sdata)
+	}
 
 }

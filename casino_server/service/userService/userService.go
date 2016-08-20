@@ -13,6 +13,8 @@ import (
 	"strings"
 	"casino_server/mode"
 	"time"
+	"casino_server/utils/db"
+	"gopkg.in/mgo.v2"
 )
 
 
@@ -171,21 +173,16 @@ func SaveUserSession(userData *bbproto.ThServerUserSession){
 
 
 func GetUserByOpenId(openId  string) *bbproto.User {
-	//1,首先在 redis中去的数据
-	result := &bbproto.User{}
-	// 获取连接 connection
-	c, err := mongodb.Dial(casinoConf.DB_IP, casinoConf.DB_PORT)
-	if err != nil {
-		result = nil
-	}
-	defer c.Close()
-	s := c.Ref()
-	defer c.UnRef(s)
+	//1,首先在 redis中去的数据--登录考虑是否需要从redis中查询
 
-	//从数据库中查询user
+	//2,从数据库中查询
+	result := &bbproto.User{}
 	tuser := &mode.T_user{}
-	s.DB(casinoConf.DB_NAME).C(casinoConf.DBT_T_USER).Find(bson.M{"openid": openId}).One(tuser)
-	if tuser.Id < casinoConf.MIN_USER_ID {
+	db.Query(func(d *mgo.Database) {
+		d.C(casinoConf.DBT_T_USER).Find(bson.M{"openid": openId}).One(tuser)
+	})
+
+	if tuser == nil || tuser.Id < casinoConf.MIN_USER_ID {
 		log.T("在mongo中没有查询到user[%v].", openId)
 		result = nil
 	}else{

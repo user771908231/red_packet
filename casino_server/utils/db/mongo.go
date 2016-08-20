@@ -1,3 +1,6 @@
+
+//author saplmm
+
 package db
 
 import (
@@ -5,6 +8,7 @@ import (
 	"github.com/name5566/leaf/db/mongodb"
 	"gopkg.in/mgo.v2/bson"
 	"casino_server/mode"
+	"gopkg.in/mgo.v2"
 )
 
 
@@ -65,24 +69,9 @@ func GetNextSeq(dbt string) int32{
 	return int32(id)
 }
 
-//查询
-func GetList(des interface{},dbt string,query interface{},sort string,limit int) interface{}{
-	c,err := GetMongoConn()
-	if err != nil{
-		return 0
-	}
-	defer  c.Close()
 
-	//获取session
-	s := c.Ref()
-	defer c.UnRef(s)
-
-	ret := []mode.BaseMode{}
-	s.DB(casinoConf.DB_NAME).C(dbt).Find(query).Sort(sort).Limit(limit).All(&ret)
-	return ret
-}
-
-func GetList2(f func(*mongodb.Session)){
+//查询一个list
+func Query(f func(*mgo.Database)){
 	c,err := GetMongoConn()
 	if err != nil{
 	}
@@ -91,6 +80,6 @@ func GetList2(f func(*mongodb.Session)){
 	//获取session
 	s := c.Ref()
 	defer c.UnRef(s)
+	f(s.DB(casinoConf.DB_NAME))
 
-	f(s)
 }
