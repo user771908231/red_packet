@@ -59,4 +59,6 @@ func init() {
 	msg.ProtoProcessor.SetRouter(&bbproto.Game_TounamentRank{},game.ChanRPC)
 	msg.ProtoProcessor.SetRouter(&bbproto.Game_TounamentSummary{},game.ChanRPC)
 
+	msg.ProtoProcessor.SetRouter(&bbproto.Game_MatchList{},game.ChanRPC)	//锦标赛 列表
+
 }

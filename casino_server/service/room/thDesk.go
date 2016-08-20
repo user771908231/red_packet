@@ -1622,9 +1622,7 @@ func (t *ThDesk) End(){
 			result.CoinInfo = append(result.CoinInfo,gel)
 		}
 	}
-
 	//设置bigWin
-
 	//广播消息
 	t.THBroadcastProtoAll(result)
 }

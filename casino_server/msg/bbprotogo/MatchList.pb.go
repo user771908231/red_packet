@@ -245,6 +245,8 @@ It has these top-level messages:
 	Game_TounamentRankBean
 	Game_TounamentRank
 	Game_TounamentSummary
+	Game_MatchItem
+	Game_MatchList
 	ProtoHeader
 	TerminalInfo
 	User

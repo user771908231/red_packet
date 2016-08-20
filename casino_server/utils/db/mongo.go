@@ -25,11 +25,9 @@ func InsertMgoData(dbt string,data interface{}) error{
 
 	// 获取回话 session
 	s := c.Ref()
+	defer c.UnRef(s)
 
 	error := s.DB(casinoConf.DB_NAME).C(dbt).Insert(data)
-
-	c.UnRef(s)
-
 	return error
 
 }
@@ -62,7 +60,7 @@ func GetNextSeq(dbt string) int32{
 
 	//获取session
 	s := c.Ref()
-	defer s.Close()
+	defer c.UnRef(s)
 	id,_ :=  c.NextSeq(casinoConf.DB_NAME, dbt, casinoConf.DB_ENSURECOUNTER_KEY)
 	return int32(id)
 }

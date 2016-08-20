@@ -101,5 +101,6 @@ func init() {
 	ProtoProcessor.Register(&bbproto.Game_TounamentRewards{})//66
 	ProtoProcessor.Register(&bbproto.Game_TounamentRank{})	//67
 	ProtoProcessor.Register(&bbproto.Game_TounamentSummary{})	//68	//描述
+	ProtoProcessor.Register(&bbproto.Game_MatchList{})	//69	竞标赛列表
 
 }
