@@ -255,7 +255,7 @@ func (t *ThDesk) AddThUser(userId uint32, roomCoin int64, userStatus int32, a ga
 
 	//5,等待的用户加1
 	t.UserCount ++
-	t.UserCountOnline ++
+	t.AddUserCountOnline()
 	return nil
 }
 
@@ -303,7 +303,7 @@ func (t *ThDesk) IsAllReady() bool {
 func (t *ThDesk) LeaveThuser(userId uint32) error {
 	user := t.GetUserByUserId(userId)
 	user.IsLeave = true     //设置状态为离开
-	t.UserCountOnline --
+	t.SubUserCountOnline()
 	return nil
 }
 
@@ -314,7 +314,7 @@ func (t *ThDesk) SetOfflineStatus(userId uint32) error {
 	//1,设置状态为断线
 	//这里需要保存掉线钱的状态
 	u.IsBreak = true        //设置为掉线的状态
-	t.UserCountOnline --
+	t.SubUserCountOnline()
 	return nil
 }
 
@@ -1731,4 +1731,13 @@ func (t *ThDesk) GetCanRise() int32 {
 	} else {
 		return 1
 	}
+}
+
+func (t *ThDesk) AddUserCountOnline(){
+	atomic.AddInt32(&t.UserCountOnline,1)
+}
+
+func (t *ThDesk) SubUserCountOnline(){
+	atomic.AddInt32(&t.UserCountOnline,-1)
+
 }
