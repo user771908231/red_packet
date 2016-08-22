@@ -8,10 +8,10 @@ import (
 /**
 	转盘奖励的表
  */
-type T_bonus_turntable  struct{
-	Mid		bson.ObjectId		`json:"mid" bson:"_id"`
-	Id		uint32		//id
-	Amount 		int64		//金额
-	Time		time.Time	//时间
-	UserId		uint32		//用户id
+type T_bonus_turntable  struct {
+	Mid    bson.ObjectId                `json:"mid" bson:"_id"`
+	Id     uint32    //id
+	Amount int64     //金额
+	Time   time.Time //时间
+	UserId uint32    //用户id
 }

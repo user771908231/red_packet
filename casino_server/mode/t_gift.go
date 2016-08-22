@@ -1,6 +1,5 @@
 package mode
 
-type T_gift struct  {
-	name		string		//
-
+type T_gift struct {
+	name string //
 }
