@@ -218,6 +218,7 @@ func (t *ThDesk) IsrepeatIntoWithRoomKey(userId uint32, a gate.Agent) bool {
 			u.agent = a                                                //设置用户的连接
 			u.IsBreak = false                //设置用户的离线状态
 			u.UpdateAgentUserData(a,t.Id,t.MatchId)
+			t.AddUserCountOnline()
 			return true
 		}
 	}
