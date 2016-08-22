@@ -18,18 +18,6 @@ import (
 	"casino_server/common/Error"
 )
 
-
-//const-config
-var(
-	//更新的方式,是只更新到redis 还是redis和mongo都需要更新
-	UPDATE_TYPE_ONLY_REDIS	int  = 1
-	UPDATE_TYPE_REAIS_MONGO int  = 2
-)
-
-
-/**
-
-
 /**
 	1,create 一个user
 	2,保存mongo
