@@ -44,7 +44,7 @@ func GetRedisThUser(deskId int32, gameNumber int32, userId uint32) *bbproto.ThSe
 }
 
 //新建立一个user放在redis中
-func NewRedisThuser(desk *ThDesk, userId uint32,user *ThUser) {
+func NewRedisThuser(user *ThUser) {
 
 	//初始化值 user
 	ruser := NewThServerUser()

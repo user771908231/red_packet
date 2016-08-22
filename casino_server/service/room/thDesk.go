@@ -214,8 +214,10 @@ func (t *ThDesk) IsrepeatIntoWithRoomKey(userId uint32, a gate.Agent) bool {
 		u := t.Users[i]
 		if u != nil && u.UserId == userId {
 			//如果u!=nil 那么
+			log.T("用户[%v]断线重连",userId)
 			u.agent = a                                                //设置用户的连接
 			u.IsBreak = false                //设置用户的离线状态
+			u.UpdateAgentUserData(a,t.Id,t.MatchId)
 			return true
 		}
 	}
@@ -249,7 +251,7 @@ func (t *ThDesk) AddThUser(userId uint32, roomCoin int64, userStatus int32, a ga
 
 	//4, 把用户的信息绑定到agent上
 	thUser.UpdateAgentUserData(a, t.Id, t.MatchId)
-	thUser.Update2redis()		//把数据保存到redis中去
+	NewRedisThuser(thUser)
 
 	//5,等待的用户加1
 	t.UserCount ++
