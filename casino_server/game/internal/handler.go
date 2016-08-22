@@ -234,7 +234,7 @@ func handlerCreateDesk(args []interface{}) {
 	desk, err := OGservice.HandlerCreateDesk(userId, initCoin, smallBlind, bigBlind, juCount)
 	if err != nil {
 		log.E("创建房间失败 errmsg [%v]", err)
-		*result.Result = int32(bbproto.ErrorCode_ERRORCODE_CREATE_DESK_DIAMOND_NOTENOUGH)
+		*result.Result = int32(bbproto.DDErrorCode_ERRORCODE_CREATE_DESK_DIAMOND_NOTENOUGH)
 	} else {
 		*result.Result = 0
 		*result.DeskId = desk.Id
@@ -290,7 +290,7 @@ func handlerReady(args []interface{}) {
 //开始游戏的请求
 func handlerBegin(args []interface{}) {
 	m := args[0].(*bbproto.Game_Begin)
-	a := args[0].(gate.Agent)
+	a := args[1].(gate.Agent)
 	OGservice.HandlerBegin(m, a)
 }
 

@@ -79,7 +79,7 @@ func HandlerMessage(m *bbproto.Game_Message,a gate.Agent){
 
 //用户准备
 func HandlerReady(m *bbproto.Game_Ready,a gate.Agent) error{
-
+	log.T("用户开始准备游戏m[%v]",m)
 	//1,找到userId
 	userId := m.GetUserId()
 
@@ -87,11 +87,24 @@ func HandlerReady(m *bbproto.Game_Ready,a gate.Agent) error{
 	//desk := room.ThGameRoomIns.GetDeskByUserId(userId)
 	//
 	desk := room.GetDeskByAgent(a)
+	if desk == nil {
+		log.E("房间不存在")
+		return errors.New("房间不存在")
+	}
 
 	//3,用户开始准备
 	desk.Ready(userId)
 
 	//4,返回准备的结果
+	result := &bbproto.Game_AckReady{}
+	result.Result = &intCons.ACK_RESULT_SUCC
+	a.WriteMsg(result)
+
+	//如果全部的人都准备好了,那么可以开始游戏
+	if desk.IsAllReady() {
+		desk.Run()
+	}
+
 	return nil
 }
 

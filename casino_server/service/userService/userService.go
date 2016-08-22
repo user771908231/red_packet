@@ -339,12 +339,12 @@ func UpdateUserDiamond(userId uint32,diamond int64) (int64,error){
 	//2,修改用户redis和mongo中的数据
 	user := GetUserById(userId)
 	if user == nil {
-		return -1,Error.NewError(int(bbproto.ErrorCode_ERRORCODE_CREATE_DESK_USER_NOTFOUND),"余额不足")
+		return -1,Error.NewError(int(bbproto.DDErrorCode_ERRORCODE_CREATE_DESK_USER_NOTFOUND),"余额不足")
 	}
 
 	//判断用户的钻石是否足够
 	if user.GetDiamond() <= diamond {
-		return user.GetDiamond(),Error.NewError(int(bbproto.ErrorCode_ERRORCODE_CREATE_DESK_DIAMOND_NOTENOUGH),"余额不足")
+		return user.GetDiamond(),Error.NewError(int(bbproto.DDErrorCode_ERRORCODE_CREATE_DESK_DIAMOND_NOTENOUGH),"余额不足")
 	}
 
 	//修改并且更新用户数据
@@ -354,7 +354,6 @@ func UpdateUserDiamond(userId uint32,diamond int64) (int64,error){
 	//3,返回数据
 	return user.GetDiamond(),nil
 }
-
 
 //craete钻石交易记录
 

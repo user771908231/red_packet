@@ -38,10 +38,11 @@ func rpcCloseAgent(args []interface{}) {
 		log.T("用户[%v]现在掉线了,现在设置用户为掉线的状态",userData.GetUserId())
 		//desk := room.ThGameRoomIns.GetDeskByUserId(userData.GetUserId())
 		desk := room.GetDeskByIdAndMatchId(userData.GetDeskId(),userData.GetMatchId())
-		desk.SetOfflineStatus(userData.GetUserId())
+		if desk != nil {
+			//这里一般不存在desk==nil的情况
+			desk.SetOfflineStatus(userData.GetUserId())
+		}
 	}
-
-
 
 	//用户掉线的处理--------------------------------------end--------------------------------------
 

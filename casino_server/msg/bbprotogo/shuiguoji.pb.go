@@ -21,7 +21,7 @@ var _ = math.Inf
 
 // Ignoring public import of EProtoId from base.proto
 
-// Ignoring public import of ErrorCode from base.proto
+// Ignoring public import of DDErrorCode from base.proto
 
 type Shuiguoji struct {
 	ProtoHeader *ProtoHeader `protobuf:"bytes,1,opt,name=ProtoHeader" json:"ProtoHeader,omitempty"`

@@ -217,6 +217,19 @@ func (t *ThDesk) Ready(userId uint32) error {
 	return nil
 }
 
+//查看是否全部准备好了
+func (t *ThDesk) IsAllReady() bool{
+	for i := 0; i < len(t.Users); i++ {
+		u := t.Users[i]
+		if u != nil {
+			if u.Status != TH_USER_STATUS_READY {
+				return false
+			}
+		}
+	}
+
+	return true
+}
 
 //  用户退出德州游戏的房间,rmUser 需要在事物中进行
 func (t *ThDesk) LeaveThuser(userId uint32) error {
@@ -1491,7 +1504,6 @@ func (t *ThDesk) IsTime2begin() bool {
 			return false
 		}
 	}
-
 
 
 	//2,通用的开始逻辑限制
