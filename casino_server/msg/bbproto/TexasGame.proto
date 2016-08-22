@@ -1341,10 +1341,24 @@ message Game_TounamentRank {
 
 message Game_TounamentSummary{
     optional string fee     =   1   ; //图标名称
-    optional string tiem    =   2   ; //比赛的时间
+    optional string time    =   2   ; //比赛的时间
     optional string personCount =   3   ;   //参赛人数
     optional string coin    =   4   ;   //参赛筹码
 }
 
 
+message Game_MatchItem {
+    optional int32 type     =1  ;   //1=送话费场、2=送代金券场、3=送流量包场
+    optional string  title  =2  ;   //比赛标题：100元话费争夺赛
+    optional string  time   =3  ;   //开始时间
+    optional int32 status   =4  ;   //比赛状态：1=进行中  2=已结束
+    optional int64 costFee  =5  ;   //参赛费用
+    optional int32  person  =6  ;   //在线人数
+}
+
+//竞标赛场次列表，每条包括信息：
+message Game_MatchList {
+    optional int32     result       = 1;
+    repeated Game_MatchItem items   = 2;
+}
 

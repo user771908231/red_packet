@@ -13,6 +13,9 @@ import (
 	"strings"
 	"casino_server/mode"
 	"time"
+	"casino_server/utils/db"
+	"gopkg.in/mgo.v2"
+	"casino_server/common/Error"
 )
 
 
@@ -171,21 +174,16 @@ func SaveUserSession(userData *bbproto.ThServerUserSession){
 
 
 func GetUserByOpenId(openId  string) *bbproto.User {
-	//1,首先在 redis中去的数据
-	result := &bbproto.User{}
-	// 获取连接 connection
-	c, err := mongodb.Dial(casinoConf.DB_IP, casinoConf.DB_PORT)
-	if err != nil {
-		result = nil
-	}
-	defer c.Close()
-	s := c.Ref()
-	defer c.UnRef(s)
+	//1,首先在 redis中去的数据--登录考虑是否需要从redis中查询
 
-	//从数据库中查询user
+	//2,从数据库中查询
+	result := &bbproto.User{}
 	tuser := &mode.T_user{}
-	s.DB(casinoConf.DB_NAME).C(casinoConf.DBT_T_USER).Find(bson.M{"openid": openId}).One(tuser)
-	if tuser.Id < casinoConf.MIN_USER_ID {
+	db.Query(func(d *mgo.Database) {
+		d.C(casinoConf.DBT_T_USER).Find(bson.M{"openid": openId}).One(tuser)
+	})
+
+	if tuser == nil || tuser.Id < casinoConf.MIN_USER_ID {
 		log.T("在mongo中没有查询到user[%v].", openId)
 		result = nil
 	}else{
@@ -332,7 +330,7 @@ func DecreaseUserCoin(userId uint32,coin int64) error{
 }
 
 //更新用户的钻石之后,在放回用户当前的余额,更新用户钻石需要同事更新redis和mongo的数据
-func UpdateUserDiamond(userId uint32,diamond int64) int64{
+func UpdateUserDiamond(userId uint32,diamond int64) (int64,error){
 	//1,获取锁
 	//lock := UserLockPools.GetUserLockByUserId(userId)
 	//lock.Lock()
@@ -341,39 +339,34 @@ func UpdateUserDiamond(userId uint32,diamond int64) int64{
 	//2,修改用户redis和mongo中的数据
 	user := GetUserById(userId)
 	if user == nil {
-		return -1
+		return -1,Error.NewError(int(bbproto.ErrorCode_ERRORCODE_CREATE_DESK_USER_NOTFOUND),"余额不足")
 	}
 
-	*user.Diamond += diamond
+	//判断用户的钻石是否足够
+	if user.GetDiamond() <= diamond {
+		return user.GetDiamond(),Error.NewError(int(bbproto.ErrorCode_ERRORCODE_CREATE_DESK_DIAMOND_NOTENOUGH),"余额不足")
+	}
 
+	//修改并且更新用户数据
+	*user.Diamond += diamond
 	SaveUser2RedisAndMongo(user)
 
 	//3,返回数据
-	return user.GetDiamond()
+	return user.GetDiamond(),nil
 }
 
 
 //craete钻石交易记录
 
 func CreateDiamonDetail(userId uint32,detailsType int32,diamond int64,remainDiamond int64,memo string) error{
-	//1,获取数据库连接
-	c, err := mongodb.Dial(casinoConf.DB_IP, casinoConf.DB_PORT)
-	if err != nil {
-		fmt.Println(err)
-		panic(err)
-	}
-	defer c.Close()
 
-	s := c.Ref()
-	defer c.UnRef(s)
-
-	//2,活的交易记录自增主键
-	id, err := c.NextSeq(casinoConf.DB_NAME, casinoConf.DBT_T_USER_DIAMOND_DETAILS, casinoConf.DB_ENSURECOUNTER_KEY)
+	//1,获得的交易记录自增主键
+	id,err:= db.GetNextSeq(casinoConf.DBT_T_USER_DIAMOND_DETAILS)
 	if err != nil {
-		return err
+		return Error.NewError(0,err.Error())
 	}
 
-	//构造交易记录
+	//2,构造交易记录
 	detail := &mode.T_user_diamond_details{}
 	detail.Id = uint32(id)
 	detail.UserId = userId
@@ -383,10 +376,11 @@ func CreateDiamonDetail(userId uint32,detailsType int32,diamond int64,remainDiam
 	detail.DetailTime = time.Now()
 	detail.Memo = memo
 
-	err = s.DB(casinoConf.DB_NAME).C(casinoConf.DBT_T_USER_DIAMOND_DETAILS).Insert(detail)
+	//3,保存数据
+	err = db.InsertMgoData(casinoConf.DBT_T_USER_DIAMOND_DETAILS,detail)
 	if err != nil {
 		log.E("保存用户交易记录的时候失败 error【%v】",err.Error())
-		return err
+		return Error.NewError(0,"创建交易记录失败")
 	}
 	return  nil
 }

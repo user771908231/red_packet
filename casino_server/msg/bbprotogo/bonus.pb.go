@@ -21,6 +21,8 @@ var _ = math.Inf
 
 // Ignoring public import of EProtoId from base.proto
 
+// Ignoring public import of ErrorCode from base.proto
+
 // 登陆转盘奖励,每天最多一次
 type LoginTurntableBonus struct {
 	Header           *ProtoHeader `protobuf:"bytes,1,opt,name=header" json:"header,omitempty"`

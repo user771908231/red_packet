@@ -1,35 +1,18 @@
-package mongodb
+package test
 
 import (
 	"testing"
-	"github.com/astaxie/beego/cache"
-	_ "github.com/astaxie/beego/cache/redis"
-	"time"
-	"casino_server/mode"
+	"casino_server/msg/bbprotogo"
+	"fmt"
+	"casino_server/utils/redisUtils"
 )
 
-func TestRedis(t *testing.T)  {
-	f1(t)
+func TestRedis(t *testing.T) {
+	fmt.Println("begin")
+
+	ret := redisUtils.GetObj("agent_session_10146", &bbproto.ThServerUserSession{})
+	fmt.Println("ret", ret)
+	p := ret.(*bbproto.ThServerUserSession)
+	fmt.Println("p", p)
+
 }
-
-func f1(t *testing.T){
-	redis, err := cache.NewCache("redis", `{"conn":"192.168.199.120:6379", "key":"casinoRedis"}`)
-	if err != nil {
-		t.Error(err)
-	}
-
-	user:=mode.T_user{
-		Name:"cacheuser",
-	}
-
-	v := "a,b,c,d"
-	err2 := redis.Put("key",v,10*time.Second)
-	if err2 !=nil{
-		t.Error(err2)
-	}
-	redis.Put("key",user,10*time.Second)
-	result := redis.Get("key")
-	t.Log("结果",string(result.([]byte)))
-}
-
-

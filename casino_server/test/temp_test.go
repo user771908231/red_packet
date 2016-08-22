@@ -1,31 +1,52 @@
-package mongodb
+package test
 
 import (
 	"testing"
-	"casino_server/mode"
-	"gopkg.in/mgo.v2/bson"
-	"casino_server/conf/casinoConf"
-	"github.com/name5566/leaf/db/mongodb"
 	"fmt"
+	"casino_server/utils/db"
+	"casino_server/conf/casinoConf"
+	"gopkg.in/mgo.v2/bson"
+	"casino_server/mode"
+	"github.com/name5566/leaf/db/mongodb"
+	"gopkg.in/mgo.v2"
 )
 
 func TestTemp(t *testing.T) {
-	userData := &mode.T_user{}
-	userData.Mid = bson.ObjectIdHex("57b6d0ba1ba69d3b3472e625")
-	userData.NickName = "dongbing333"
-	//err := db.InsertMgoData(casinoConf.DBT_T_USER,userData)
-	//err := db.UpdateMgoData(casinoConf.DBT_T_USER,userData)
-	//fmt.Println("是否出错:",err)
+	//testN()
+	//testMongoUtils()
+	testMongoUtils2()
+}
 
+func testN() {
 	c, err := mongodb.Dial(casinoConf.DB_IP, casinoConf.DB_PORT)
 	if err != nil {
-		fmt.Println(err)
 	}
 	defer c.Close()
 
-	// 获取回话 session
+	//获取session
 	s := c.Ref()
 	defer c.UnRef(s)
-	s.DB(casinoConf.DB_NAME).C(casinoConf.DBT_T_USER).Update(bson.M{"_id": userData.GetMid()},userData)
 
+	ret := []mode.T_user{}
+	s.DB(casinoConf.DB_NAME).C(casinoConf.DBT_T_USER).Find(bson.M{"nickname":"dongbing333"}).Sort("id").Limit(20).All(&ret)
+	fmt.Println("得到的结果:", ret)
+
+	tuser := &mode.T_user{}
+	s.DB(casinoConf.DB_NAME).C(casinoConf.DBT_T_USER).Find(bson.M{"nickname": "dongbing333"}).One(tuser)
+	fmt.Println("得到的结果2:", tuser)
 }
+
+func testMongoUtils2() {
+	fmt.Println("开始测试")
+
+	ret := []mode.T_user{}
+	db.Query(func(d *mgo.Database) {
+		d.C(casinoConf.DBT_T_USER).Find(bson.M{}).All(&ret)
+	})
+	fmt.Println("得到的结果.size():", len(ret))
+	fmt.Println("得到的结果:", ret)
+}
+
+
+
+

@@ -21,6 +21,8 @@ var _ = math.Inf
 
 // Ignoring public import of EProtoId from base.proto
 
+// Ignoring public import of ErrorCode from base.proto
+
 // Ignoring public import of ZjhRoom from zhajinhua.proto
 
 // Ignoring public import of ZjhBet from zhajinhua.proto

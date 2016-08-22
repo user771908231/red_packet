@@ -7,14 +7,14 @@ import (
 	"casino_server/common/log"
 	"casino_server/service/userService"
 	"errors"
-	"github.com/name5566/leaf/db/mongodb"
 	"casino_server/conf/casinoConf"
-	"fmt"
 	"gopkg.in/mgo.v2/bson"
 	"casino_server/mode"
 	"casino_server/conf/intCons"
 	"casino_server/utils/timeUtils"
 	"casino_server/utils/numUtils"
+	"casino_server/utils/db"
+	"gopkg.in/mgo.v2"
 )
 
 //联众德州,桌子状态
@@ -41,7 +41,7 @@ func HandlerCreateDesk(userId uint32,roomCoin int64,smallBlind int64,bigBlind in
 	roomKey := room.ThGameRoomIns.RandRoomKey()
 
 	//2,开始创建房间
-	desk,err := room.ThGameRoomIns.CreateDeskByUserIdAndRoomKey(userId,roomCoin,roomKey,smallBlind ,bigBlind ,jucount );
+	desk,err := room.ThGameRoomIns.CreateDeskByUserIdAndRoomKey(userId,roomCoin,roomKey,smallBlind ,bigBlind ,jucount);
 	if err != nil {
 		log.E("用户创建房间失败errMsg[%v]",err.Error())
 		return nil,err
@@ -114,23 +114,14 @@ func HandlerBegin(m *bbproto.Game_Begin,a gate.Agent) error{
 func HandlerGetGameRecords(m *bbproto.Game_GameRecord,a gate.Agent){
 	userId := m.GetUserId()
 
-	//1,获取数据库连接
-	c, err := mongodb.Dial(casinoConf.DB_IP, casinoConf.DB_PORT)
-	if err != nil {
-		fmt.Println(err)
-		panic(err)
-	}
-	defer c.Close()
-
-	s := c.Ref()
-	defer c.UnRef(s)
-
-	//v2 战绩查询
+	//1,战绩查询
 	var deskRecords []mode.T_th_desk_record
 	queryKey,_ := numUtils.Uint2String(userId)
-	s.DB(casinoConf.DB_NAME).C(casinoConf.DBT_T_TH_DESK_RECORD).Find(bson.M{"userids": bson.RegEx{queryKey,"."}}).Limit(20).All(&deskRecords)
-	log.T("查询到用户[%v]的战绩[%v]",userId,deskRecords)
+	db.Query(func(d *mgo.Database) {
+		d.C(casinoConf.DBT_T_TH_DESK_RECORD).Find(bson.M{"userids": bson.RegEx{queryKey,"."}}).Limit(20).All(&deskRecords)
+	})
 
+	log.T("查询到用户[%v]的战绩[%v]",userId,deskRecords)
 	//需要返回的数据
 	resDatav2 := &bbproto.Game_AckGameRecord{}
 	resDatav2.UserId = new(uint32)
@@ -169,8 +160,6 @@ func HandlerGetGameRecords(m *bbproto.Game_GameRecord,a gate.Agent){
 	//返回查询到的记录
 	a.WriteMsg(resDatav2)
 }
-
-
 
 
 //处理登录游戏的协议
@@ -424,4 +413,3 @@ func getUserIdByAgent( a gate.Agent) uint32{
 	//测试代码,返回10006
 	return 10006
 }
-

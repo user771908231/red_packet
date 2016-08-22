@@ -10,6 +10,7 @@ import (
 	"casino_server/conf/intCons"
 	"casino_server/service/room"
 	"casino_server/service/OGservice"
+	"casino_server/service/CSTHService"
 )
 
 func handler(m interface{}, h interface{}) {
@@ -57,6 +58,8 @@ func init() {
 	handler(&bbproto.Game_TounamentRewards{}, handlerGame_TounamentRewards)
 	handler(&bbproto.Game_TounamentRank{}, handlerGame_TounamentRank)
 	handler(&bbproto.Game_TounamentSummary{}, handlerGame_TounamentSummary)
+
+	handler(&bbproto.Game_MatchList{},handlerGame_MatchList)	//锦标赛列表
 
 }
 
@@ -231,7 +234,7 @@ func handlerCreateDesk(args []interface{}) {
 	desk, err := OGservice.HandlerCreateDesk(userId, initCoin, smallBlind, bigBlind, juCount)
 	if err != nil {
 		log.E("创建房间失败 errmsg [%v]", err)
-		*result.Result = -1
+		*result.Result = int32(bbproto.ErrorCode_ERRORCODE_CREATE_DESK_DIAMOND_NOTENOUGH)
 	} else {
 		*result.Result = 0
 		*result.DeskId = desk.Id
@@ -343,23 +346,80 @@ func handlerGetGameRecords(args []interface{}) {
 func handlerGame_TounamentBlind(args []interface{}) {
 	m := args[0].(*bbproto.Game_TounamentBlind)
 	a := args[1].(gate.Agent)
+	d1 := bbproto.NewGame_TounamentBlindBean()
+	*d1.Ante = 10
+	*d1.SmallBlind = 10
+	m.Data =  append(m.Data,d1)
+
+	d2 := bbproto.NewGame_TounamentBlindBean()
+	*d2.Ante = 20
+	*d2.SmallBlind = 20
+	m.Data =  append(m.Data,d2)
+
+	d3 := bbproto.NewGame_TounamentBlindBean()
+	*d3.Ante = 75
+	*d3.SmallBlind = 150
+	m.Data =  append(m.Data,d3)
+
 	a.WriteMsg(m)
 }
 
 func handlerGame_TounamentRewards(args []interface{}) {
 	m := args[0].(*bbproto.Game_TounamentRewards)
 	a := args[1].(gate.Agent)
+
+	d1 := bbproto.NewGame_TounamentRewardsBean()
+	*d1.IconPath = "1"
+	*d1.Rewards  = "100元红包"
+	m.Data = append(m.Data,d1)
+
+
+	d2 := bbproto.NewGame_TounamentRewardsBean()
+	*d2.IconPath = "2"
+	*d2.Rewards  = "50元红包"
+	m.Data = append(m.Data,d2)
+
+
+	d3 := bbproto.NewGame_TounamentRewardsBean()
+	*d3.IconPath = "3"
+	*d3.Rewards  = "30元红包"
+	m.Data = append(m.Data,d3)
 	a.WriteMsg(m)
 }
 
 func handlerGame_TounamentRank(args []interface{}) {
 	m := args[0].(*bbproto.Game_TounamentRank)
 	a := args[1].(gate.Agent)
+
+	d1 := bbproto.NewGame_TounamentRankBean()
+	*d1.PlayerName = "playerName"
+	*d1.PlayerImage = ""
+	*d1.Coin = 999
+	*d1.Place = 1
+
+	m.Data  = append(m.Data,d1)
 	a.WriteMsg(m)
 }
 
 func handlerGame_TounamentSummary(args []interface{}) {
 	m := args[0].(*bbproto.Game_TounamentSummary)
 	a := args[1].(gate.Agent)
+
+	m.Coin = new(string)
+	m.Fee  = new(string)
+	m.PersonCount = new(string)
+	m.Time = new(string)
+
+	*m.Fee = "免费"
+	*m.Time = "20分钟一场"
+	*m.PersonCount = "65-1000人"
+	*m.Coin = "5000"
 	a.WriteMsg(m)
+}
+
+//竞标赛列表
+func handlerGame_MatchList(args []interface{}){
+	a := args[1].(gate.Agent)
+	data := CSTHService.GetGameMatchList()
+	a.WriteMsg(data)
 }

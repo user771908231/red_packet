@@ -21,6 +21,8 @@ var _ = math.Inf
 
 // Ignoring public import of EProtoId from base.proto
 
+// Ignoring public import of ErrorCode from base.proto
+
 type EPaiType int32
 
 const (

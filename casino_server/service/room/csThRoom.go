@@ -9,6 +9,7 @@ import (
 	"casino_server/mode"
 	"gopkg.in/mgo.v2/bson"
 	"errors"
+	"casino_server/service/CSTHService"
 )
 
 var ChampionshipRoom CSThGameRoom 	//锦标赛的房间
@@ -45,15 +46,16 @@ func (r *CSThGameRoom) Run() {
 	//设置room属性
 	r.beginTime = time.Now()
 	r.endTime   = r.beginTime.Add(time.Second*60*20)		//一局游戏的时间是20分钟
-	r.matchId   = db.GetNextSeq(casinoConf.DBT_T_CS_TH_RECORD)	//生成游戏的matchId
+	r.matchId,_ = db.GetNextSeq(casinoConf.DBT_T_CS_TH_RECORD)	//生成游戏的matchId
 
-	//保存游戏数据
+	//保存游戏数据,1,保存数据到mongo,2,刷新redis中的信息
 	saveData := &mode.T_cs_th_record{}
 	saveData.Mid = bson.NewObjectId()
 	saveData.Id = r.matchId
 	saveData.BeginTime = r.beginTime
 	saveData.EndTime = r.endTime
 	db.InsertMgoData(casinoConf.DBT_T_CS_TH_RECORD,saveData)
+	CSTHService.RefreshRedisMatchList()	//这里刷新redis中的锦标赛数据
 
 
 	//这里定义一个计时器,每十秒钟检测一次游戏
@@ -100,6 +102,7 @@ func (r *CSThGameRoom) allStop() bool{
 func (r *CSThGameRoom) End(){
 	log.T("锦标赛游戏结束")
 }
+
 
 //游戏大厅增加一个玩家
 func (r *CSThGameRoom) AddUser(userId uint32, roomCoin int64, a gate.Agent) (*ThDesk, error) {

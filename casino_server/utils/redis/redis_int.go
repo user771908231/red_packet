@@ -214,6 +214,21 @@ func (t *Data) GetObj(key string,pb proto.Message) error{
 	return proto.Unmarshal(d,pb)
 }
 
+
+func (t *Data) GetObjv2(key string,pb proto.Message) proto.Message{
+	d,err := t.Gets(key)
+	if err != nil {
+		return nil
+	}
+	if d == nil {
+		return nil
+	}else{
+		proto.Unmarshal(d,pb)
+		return pb
+	}
+}
+
+
 func (t *Data) Del(key string) error {
 	if t.conn != nil {
 		_, err := redis.String(t.conn.Do("DEL", key))

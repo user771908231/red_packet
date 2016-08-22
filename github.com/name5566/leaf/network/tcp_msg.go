@@ -93,7 +93,7 @@ func (p *MsgParser) Read(conn *TCPConn) ([]byte, error) {
 		}
 	}
 
-	log.Debug("解析之后,得到的内容的长度msgLen: %v",msgLen)
+	//log.Debug("解析之后,得到的内容的长度msgLen: %v",msgLen)
 	// check len
 	if msgLen > p.maxMsgLen {
 		return nil, errors.New("message too long")
@@ -108,7 +108,7 @@ func (p *MsgParser) Read(conn *TCPConn) ([]byte, error) {
 		log.Debug("err: %v",err.Error())
 		return nil, err
 	}
-	log.Debug("解析之后,得到的数据: %v",msgData)
+	//log.Debug("解析之后,得到的数据: %v",msgData)
 	return msgData, nil
 }
 
@@ -153,7 +153,7 @@ func (p *MsgParser) Write(conn *TCPConn, args ...[]byte) error {
 		copy(msg[l:], args[i])
 		l += len(args[i])
 	}
-	log.Debug("msg.write data[%v]: %v", msgLen, msg)
+	//log.Debug("msg.write data[%v]: %v", msgLen, msg)
 
 	conn.Write(msg)
 
