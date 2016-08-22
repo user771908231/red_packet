@@ -1,4 +1,3 @@
-
 //author saplmm
 
 package db
@@ -14,12 +13,12 @@ import (
 
 
 //活的链接
-func GetMongoConn()(*mongodb.DialContext, error) {
-	return  mongodb.Dial(casinoConf.DB_IP, casinoConf.DB_PORT)
+func GetMongoConn() (*mongodb.DialContext, error) {
+	return mongodb.Dial(casinoConf.DB_IP, casinoConf.DB_PORT)
 }
 
 //保存数据
-func InsertMgoData(dbt string,data interface{}) error{
+func InsertMgoData(dbt string, data interface{}) error {
 	//得到连接
 	c, err := GetMongoConn()
 	if err != nil {
@@ -36,8 +35,8 @@ func InsertMgoData(dbt string,data interface{}) error{
 
 }
 
-//更新数据
-func UpdateMgoData(dbt string,data mode.BaseMode) error{
+//更新数据通过_id来更新
+func UpdateMgoData(dbt string, data mode.BaseMode) error {
 	c, err := mongodb.Dial(casinoConf.DB_IP, casinoConf.DB_PORT)
 	if err != nil {
 		return err
@@ -48,34 +47,34 @@ func UpdateMgoData(dbt string,data mode.BaseMode) error{
 	s := c.Ref()
 	defer c.UnRef(s)
 
-	error := s.DB(casinoConf.DB_NAME).C(dbt).Update(bson.M{"_id": data.GetMid()},data)
+	error := s.DB(casinoConf.DB_NAME).C(dbt).Update(bson.M{"_id": data.GetMid()}, data)
 	return error
 }
 
 
 //得到序列号
-func GetNextSeq(dbt string) (int32,error){
+func GetNextSeq(dbt string) (int32, error) {
 	//连接数据库
-	c,err := GetMongoConn()
-	if err != nil{
-		return 0,err
+	c, err := GetMongoConn()
+	if err != nil {
+		return 0, err
 	}
-	defer  c.Close()
+	defer c.Close()
 
 	//获取session
 	s := c.Ref()
 	defer c.UnRef(s)
-	id,_ :=  c.NextSeq(casinoConf.DB_NAME, dbt, casinoConf.DB_ENSURECOUNTER_KEY)
-	return int32(id),nil
+	id, _ := c.NextSeq(casinoConf.DB_NAME, dbt, casinoConf.DB_ENSURECOUNTER_KEY)
+	return int32(id), nil
 }
 
 
 //查询一个list
-func Query(f func(*mgo.Database)){
-	c,err := GetMongoConn()
-	if err != nil{
+func Query(f func(*mgo.Database)) {
+	c, err := GetMongoConn()
+	if err != nil {
 	}
-	defer  c.Close()
+	defer c.Close()
 
 	//获取session
 	s := c.Ref()

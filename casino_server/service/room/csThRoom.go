@@ -10,30 +10,51 @@ import (
 	"gopkg.in/mgo.v2/bson"
 	"errors"
 	"casino_server/service/CSTHService"
+	"sync/atomic"
 )
 
-var ChampionshipRoom CSThGameRoom 	//锦标赛的房间
+var ChampionshipRoom CSThGameRoom        //锦标赛的房间
 
 
-func init(){
-	ChampionshipRoom.OnInit()	//初始化,开始运行
+func init() {
+	ChampionshipRoom.OnInitConfig()
+	ChampionshipRoom.OnInit()        //初始化,开始运行
 	ChampionshipRoom.Run()
 }
+
+//对竞标赛的配置
+var CSTHGameRoomConfig struct {
+	gameDuration  time.Duration //一场比赛的时间周期
+	checkDuration time.Duration //检测的时间周期
+}
+
+//对配置对象进行配置,以后可以从配置文件读取
+func (r *CSThGameRoom) OnInitConfig() {
+	CSTHGameRoomConfig.gameDuration = time.Second * 60 * 20
+	CSTHGameRoomConfig.checkDuration = time.Second * 10
+
+}
+
+
 //锦标赛
 type CSThGameRoom struct {
 	ThGameRoom
-	//锦标赛房间的专有属性
-	matchId	int32		//比赛内容
-	beginTime	time.Time	//游戏开始的时间
-	endTime 	time.Time	//游戏结束的时间
+	matchId      int32         //比赛内容
+	beginTime    time.Time     //游戏开始的时间
+	endTime      time.Time     //游戏结束的时间
+	gameDuration time.Duration //游戏的时长
+	onlineCount  int32         //总的在线人数
 }
 
+
+
+
 //只有开始之后才能进入游戏房间
-func (r *CSThGameRoom) IsBegin() bool{
+func (r *CSThGameRoom) IsBegin() bool {
 	nowTime := time.Now()
 	if nowTime.Before(r.endTime) {
 		return true
-	}else{
+	} else {
 		return false
 	}
 }
@@ -45,8 +66,8 @@ func (r *CSThGameRoom) Run() {
 
 	//设置room属性
 	r.beginTime = time.Now()
-	r.endTime   = r.beginTime.Add(time.Second*60*20)		//一局游戏的时间是20分钟
-	r.matchId,_ = db.GetNextSeq(casinoConf.DBT_T_CS_TH_RECORD)	//生成游戏的matchId
+	r.endTime = r.beginTime.Add(CSTHGameRoomConfig.gameDuration)       //一局游戏的时间是20分钟
+	r.matchId, _ = db.GetNextSeq(casinoConf.DBT_T_CS_TH_RECORD)        //生成游戏的matchId
 
 	//保存游戏数据,1,保存数据到mongo,2,刷新redis中的信息
 	saveData := &mode.T_cs_th_record{}
@@ -54,15 +75,14 @@ func (r *CSThGameRoom) Run() {
 	saveData.Id = r.matchId
 	saveData.BeginTime = r.beginTime
 	saveData.EndTime = r.endTime
-	db.InsertMgoData(casinoConf.DBT_T_CS_TH_RECORD,saveData)
-	CSTHService.RefreshRedisMatchList()	//这里刷新redis中的锦标赛数据
-
+	db.InsertMgoData(casinoConf.DBT_T_CS_TH_RECORD, saveData)
+	CSTHService.RefreshRedisMatchList()        //这里刷新redis中的锦标赛数据
 
 	//这里定义一个计时器,每十秒钟检测一次游戏
-	ticker := time.NewTicker(time.Second * 10)
+	ticker := time.NewTicker(CSTHGameRoomConfig.checkDuration)
 	go func() {
 		for timeNow := range ticker.C {
-			log.T("开始time[%v]检测锦标赛matchId[%v]有没有结束...",timeNow,r.matchId)
+			log.T("开始time[%v]检测锦标赛matchId[%v]有没有结束...", timeNow, r.matchId)
 			if r.checkEnd() {
 				//重新开始
 				go r.Run()
@@ -72,25 +92,34 @@ func (r *CSThGameRoom) Run() {
 	}()
 }
 
+func (r *CSThGameRoom) AddOnlineCount() {
+	atomic.AddInt32(&r.onlineCount, 1)        //在线人数增加一人
+}
+
+func (r *CSThGameRoom) SubOnlineCount() {
+	atomic.AddInt32(&r.onlineCount, -1)        //在线人数减少一人
+
+}
+
 //检测结束
-func (r *CSThGameRoom) checkEnd() bool{
+func (r *CSThGameRoom) checkEnd() bool {
 	//如果时间已经过了,并且所有桌子的状态都是已经停止游戏,那么表示这一局结束
 	if r.endTime.Before(time.Now()) && r.allStop() {
 		//结算本局
 		return true
-	}else{
-		return  false
+	} else {
+		return false
 	}
 
 }
 
 
 //判断是否所有的desk停止游戏
-func (r *CSThGameRoom) allStop() bool{
+func (r *CSThGameRoom) allStop() bool {
 	result := true
 	for i := 0; i < len(r.ThDeskBuf); i++ {
 		desk := r.ThDeskBuf[i]
-		if  desk != nil && desk.Status != TH_DESK_STATUS_STOP{
+		if desk != nil && desk.Status != TH_DESK_STATUS_STOP {
 			result = false
 			break
 		}
@@ -99,7 +128,7 @@ func (r *CSThGameRoom) allStop() bool{
 
 }
 
-func (r *CSThGameRoom) End(){
+func (r *CSThGameRoom) End() {
 	log.T("锦标赛游戏结束")
 }
 
@@ -112,8 +141,8 @@ func (r *CSThGameRoom) AddUser(userId uint32, roomCoin int64, a gate.Agent) (*Th
 
 	//这里需要判断锦标赛是否可以开始游戏
 	if !r.IsBegin() {
-		log.T("用户[%v]进入锦标赛的房间失败,因为游戏还没有开始",userId)
-		return nil,errors.New("游戏还没有开始")
+		log.T("用户[%v]进入锦标赛的房间失败,因为游戏还没有开始", userId)
+		return nil, errors.New("游戏还没有开始")
 	}
 
 	var mydesk *ThDesk = nil                //为用户找到的desk
@@ -151,13 +180,14 @@ func (r *CSThGameRoom) AddUser(userId uint32, roomCoin int64, a gate.Agent) (*Th
 		return nil, err
 	}
 
+	r.AddOnlineCount()        //在线用户增加1
 	mydesk.LogString()        //答应当前房间的信息
 	return mydesk, nil
 }
 
 
 //是否可以进行下把游戏
-func (r *CSThGameRoom) CanNextDeskRun() bool{
+func (r *CSThGameRoom) CanNextDeskRun() bool {
 	nowTime := time.Now()
 	if r.endTime.Before(nowTime) {
 		//如果当前时间已经在结束时间之后,那么本局游戏结束

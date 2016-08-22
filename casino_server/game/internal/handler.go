@@ -36,21 +36,21 @@ func init() {
 	handler(&bbproto.THBet{}, handlerThBet)                //押注的协议
 
 	//联众的德州扑克
-	handler(&bbproto.Game_LoginGame{}, handlerGameLoginGame)                //登陆游戏
+	handler(&bbproto.Game_LoginGame{}, handlerGameLoginGame)          //登陆游戏
 	handler(&bbproto.Game_EnterMatch{}, handlerGameEnterMatch)        //进入房间
-	handler(&bbproto.Game_FollowBet{}, handlerFollowBet)                //处理押注的请求
-	handler(&bbproto.Game_RaiseBet{}, handlerRaise)                        //处理加注的请求
-	handler(&bbproto.Game_FoldBet{}, handlerFoldBet)                        //处理弃牌的请求
+	handler(&bbproto.Game_FollowBet{}, handlerFollowBet)              //处理押注的请求
+	handler(&bbproto.Game_RaiseBet{}, handlerRaise)                   //处理加注的请求
+	handler(&bbproto.Game_FoldBet{}, handlerFoldBet)                  //处理弃牌的请求
 	handler(&bbproto.Game_CheckBet{}, handlerCheckBet)                //处理让牌的请求
-	handler(&bbproto.Game_CreateDesk{}, handlerCreateDesk)                //创建房间
+	handler(&bbproto.Game_CreateDesk{}, handlerCreateDesk)            //创建房间
 	handler(&bbproto.Game_DissolveDesk{}, handlerDissolveDesk)        //解散房间
 
 
-	handler(&bbproto.Game_Ready{}, handlerReady)                        //准备游戏
-	handler(&bbproto.Game_Begin{}, handlerBegin)                        //开始游戏
+	handler(&bbproto.Game_Ready{}, handlerReady)                      //准备游戏
+	handler(&bbproto.Game_Begin{}, handlerBegin)                      //开始游戏
 
 	handler(&bbproto.Game_Message{}, handlerGameMessage)
-	handler(&bbproto.Game_LeaveDesk{}, handlerLeaveDesk)                //离开桌子
+	handler(&bbproto.Game_LeaveDesk{}, handlerLeaveDesk)              //离开桌子
 
 	handler(&bbproto.Game_GameRecord{}, handlerGetGameRecords)        //查询战绩的接口
 
@@ -59,7 +59,7 @@ func init() {
 	handler(&bbproto.Game_TounamentRank{}, handlerGame_TounamentRank)
 	handler(&bbproto.Game_TounamentSummary{}, handlerGame_TounamentSummary)
 
-	handler(&bbproto.Game_MatchList{},handlerGame_MatchList)	//锦标赛列表
+	handler(&bbproto.Game_MatchList{}, handlerGame_MatchList)         //锦标赛列表
 
 }
 
@@ -234,7 +234,7 @@ func handlerCreateDesk(args []interface{}) {
 	desk, err := OGservice.HandlerCreateDesk(userId, initCoin, smallBlind, bigBlind, juCount)
 	if err != nil {
 		log.E("创建房间失败 errmsg [%v]", err)
-		*result.Result = int32(bbproto.ErrorCode_ERRORCODE_CREATE_DESK_DIAMOND_NOTENOUGH)
+		*result.Result = int32(bbproto.DDErrorCode_ERRORCODE_CREATE_DESK_DIAMOND_NOTENOUGH)
 	} else {
 		*result.Result = 0
 		*result.DeskId = desk.Id
@@ -290,7 +290,7 @@ func handlerReady(args []interface{}) {
 //开始游戏的请求
 func handlerBegin(args []interface{}) {
 	m := args[0].(*bbproto.Game_Begin)
-	a := args[0].(gate.Agent)
+	a := args[1].(gate.Agent)
 	OGservice.HandlerBegin(m, a)
 }
 
@@ -349,17 +349,17 @@ func handlerGame_TounamentBlind(args []interface{}) {
 	d1 := bbproto.NewGame_TounamentBlindBean()
 	*d1.Ante = 10
 	*d1.SmallBlind = 10
-	m.Data =  append(m.Data,d1)
+	m.Data = append(m.Data, d1)
 
 	d2 := bbproto.NewGame_TounamentBlindBean()
 	*d2.Ante = 20
 	*d2.SmallBlind = 20
-	m.Data =  append(m.Data,d2)
+	m.Data = append(m.Data, d2)
 
 	d3 := bbproto.NewGame_TounamentBlindBean()
 	*d3.Ante = 75
 	*d3.SmallBlind = 150
-	m.Data =  append(m.Data,d3)
+	m.Data = append(m.Data, d3)
 
 	a.WriteMsg(m)
 }
@@ -370,20 +370,18 @@ func handlerGame_TounamentRewards(args []interface{}) {
 
 	d1 := bbproto.NewGame_TounamentRewardsBean()
 	*d1.IconPath = "1"
-	*d1.Rewards  = "100元红包"
-	m.Data = append(m.Data,d1)
-
+	*d1.Rewards = "100元红包"
+	m.Data = append(m.Data, d1)
 
 	d2 := bbproto.NewGame_TounamentRewardsBean()
 	*d2.IconPath = "2"
-	*d2.Rewards  = "50元红包"
-	m.Data = append(m.Data,d2)
-
+	*d2.Rewards = "50元红包"
+	m.Data = append(m.Data, d2)
 
 	d3 := bbproto.NewGame_TounamentRewardsBean()
 	*d3.IconPath = "3"
-	*d3.Rewards  = "30元红包"
-	m.Data = append(m.Data,d3)
+	*d3.Rewards = "30元红包"
+	m.Data = append(m.Data, d3)
 	a.WriteMsg(m)
 }
 
@@ -397,7 +395,7 @@ func handlerGame_TounamentRank(args []interface{}) {
 	*d1.Coin = 999
 	*d1.Place = 1
 
-	m.Data  = append(m.Data,d1)
+	m.Data = append(m.Data, d1)
 	a.WriteMsg(m)
 }
 
@@ -406,7 +404,7 @@ func handlerGame_TounamentSummary(args []interface{}) {
 	a := args[1].(gate.Agent)
 
 	m.Coin = new(string)
-	m.Fee  = new(string)
+	m.Fee = new(string)
 	m.PersonCount = new(string)
 	m.Time = new(string)
 
@@ -418,8 +416,9 @@ func handlerGame_TounamentSummary(args []interface{}) {
 }
 
 //竞标赛列表
-func handlerGame_MatchList(args []interface{}){
+func handlerGame_MatchList(args []interface{}) {
 	a := args[1].(gate.Agent)
 	data := CSTHService.GetGameMatchList()
+	log.T("得到的锦标赛列表[%v]", data)
 	a.WriteMsg(data)
 }

@@ -272,6 +272,7 @@ message game_SendGameInfo {
     //① 新增字段： repeated WeixinInfo  = 31;  //微信用户信息
     //② EnterMatch时、广播新进用户时，才需返回WeixinInfo；其它广播不需要。
     repeated WeixinInfo weixinInfos  = 31;
+    optional int32  ownerSeat   =32; //房主的seat
 
 }
 
@@ -1186,7 +1187,6 @@ message Game_AckCreateDesk{
     optional int32 deskId          =   2;  //用户id
     optional string password        =   3;  //房间密码
 }
-
 
 
 //解散房间
