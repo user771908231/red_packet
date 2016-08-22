@@ -261,6 +261,7 @@ func newGame_SendGameInfo() *bbproto.Game_SendGameInfo {
 	result.Seat = new(int32)
 	result.TurnMax = new(int64)
 	result.Result = new(int32)
+	result.OwnerSeat = new(int32)
 	return result
 }
 
@@ -286,6 +287,7 @@ func initGameSendgameInfoByDesk(mydesk *room.ThDesk, result *bbproto.Game_SendGa
 	result.SecondPool = mydesk.GetSecondPool()
 	*result.TurnMax = mydesk.BetAmountNow
 	result.WeixinInfos = mydesk.GetWeiXinInfos()
+	*result.OwnerSeat  = mydesk.GetUserIndex(mydesk.DeskOwner)
 
 	//循环User来处理
 	for i := 0; i < len(mydesk.Users); i++ {

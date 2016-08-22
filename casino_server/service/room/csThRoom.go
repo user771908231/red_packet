@@ -10,6 +10,7 @@ import (
 	"gopkg.in/mgo.v2/bson"
 	"errors"
 	"casino_server/service/CSTHService"
+	"sync/atomic"
 )
 
 var ChampionshipRoom CSThGameRoom        //锦标赛的房间
@@ -40,7 +41,7 @@ type CSThGameRoom struct {
 	beginTime    time.Time     //游戏开始的时间
 	endTime      time.Time     //游戏结束的时间
 	gameDuration time.Duration //游戏的时长
-	onlineCount  int32	//总的在线人数
+	onlineCount  int32         //总的在线人数
 }
 
 
@@ -87,6 +88,10 @@ func (r *CSThGameRoom) Run() {
 			}
 		}
 	}()
+}
+
+func (r *CSThGameRoom) AddOnlineCount() {
+	atomic.AddInt32(&r.onlineCount, 1)        //在线人数增加一人
 }
 
 //检测结束
