@@ -35,7 +35,7 @@ func InsertMgoData(dbt string, data interface{}) error {
 
 }
 
-//更新数据
+//更新数据通过_id来更新
 func UpdateMgoData(dbt string, data mode.BaseMode) error {
 	c, err := mongodb.Dial(casinoConf.DB_IP, casinoConf.DB_PORT)
 	if err != nil {

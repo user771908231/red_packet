@@ -3,8 +3,6 @@ package userService
 import (
 	"casino_server/conf/casinoConf"
 	"casino_server/msg/bbprotogo"
-	"fmt"
-	"github.com/name5566/leaf/db/mongodb"
 	"casino_server/common/config"
 	"gopkg.in/mgo.v2/bson"
 	"casino_server/common/log"
@@ -24,19 +22,9 @@ import (
 	3,缓存到redis
  */
 func NewUserAndSave(openId,wxNickName,headUrl string) (*bbproto.User, error) {
-	//1,获取数据库连接和回话
-	c, err := mongodb.Dial(casinoConf.DB_IP, casinoConf.DB_PORT)
-	if err != nil {
-		fmt.Println(err)
-		panic(err)
-	}
-	defer c.Close()
 
-	s := c.Ref()
-	defer c.UnRef(s)
-
-	//2,创建user获得自增主键
-	id, err := c.NextSeq(casinoConf.DB_NAME, casinoConf.DBT_T_USER, casinoConf.DB_ENSURECOUNTER_KEY)
+	//1,创建user获得自增主键
+	id,err := db.GetNextSeq(casinoConf.DBT_T_USER)
 	if err != nil {
 		return nil, err
 	}
@@ -54,8 +42,10 @@ func NewUserAndSave(openId,wxNickName,headUrl string) (*bbproto.User, error) {
 	nuser.OpenId = openId
 	nuser.HeadUrl = headUrl
 
-	//保存数据到数据库
-	err = s.DB(casinoConf.DB_NAME).C(casinoConf.DBT_T_USER).Insert(nuser)
+	//2保存数据到数据库
+	err = db.Query(func(d *mgo.Database) {
+		d.C(casinoConf.DBT_T_USER).Insert(nuser)
+	})
 	if err != nil {
 		log.E("保存用户的时候失败 error【%v】",err.Error())
 		return nil,err
@@ -96,17 +86,10 @@ func GetUserById(id uint32) *bbproto.User {
 	if result == nil || result.GetId() == 0 {
 		log.E("redis中没有找到user[%v],需要在mongo中查询,并且缓存在redis中。", id)
 		// 获取连接 connection
-		c, err := mongodb.Dial(casinoConf.DB_IP, casinoConf.DB_PORT)
-		if err != nil {
-			result = nil
-		}
-		defer c.Close()
-		s := c.Ref()
-		defer c.UnRef(s)
-
-		//从数据库中查询user
 		tuser := &mode.T_user{}
-		s.DB(casinoConf.DB_NAME).C(casinoConf.DBT_T_USER).Find(bson.M{"id": id}).One(tuser)
+		db.Query(func(d *mgo.Database) {
+			d.C(casinoConf.DBT_T_USER).Find(bson.M{"id": id}).One(tuser)
+		})
 		if tuser.Id < casinoConf.MIN_USER_ID {
 			log.T("在mongo中没有查询到user[%v].", id)
 			result = nil
@@ -230,21 +213,11 @@ func UpsertRUser2Mongo(u *bbproto.User){
 //保存用户到mongo
 func UpsertTUser2Mongo(tuser mode.T_user){
 	//得到数据库连接池
-	c, err := mongodb.Dial(casinoConf.DB_IP, casinoConf.DB_PORT)
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
-	defer c.Close()
-	s := c.Ref()
-	defer c.UnRef(s)
-
 	if tuser.Mid == ""{
-		s.DB(casinoConf.DB_NAME).C(casinoConf.DBT_T_USER).Insert(tuser)
+		db.InsertMgoData(casinoConf.DBT_T_USER,tuser)
 	}else{
-		s.DB(casinoConf.DB_NAME).C(casinoConf.DBT_T_USER).Update(bson.M{"_id": tuser.Mid},tuser)
+		db.UpdateMgoData(casinoConf.DBT_T_USER,tuser)
 	}
-
 }
 
 /**
