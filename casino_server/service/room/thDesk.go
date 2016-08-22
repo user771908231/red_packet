@@ -1585,7 +1585,7 @@ func (mydesk *ThDesk) Run() error {
 	*initCardB.NextUser = mydesk.GetUserByUserId(mydesk.BetUserNow).Seat                //	int32(mydesk.GetUserIndex(mydesk.BetUserNow))
 	*initCardB.ActionTime = TH_TIMEOUT_DURATION_INT
 	//initCardB.Seat = &mydesk.UserCount
-	mydesk.THBroadcastProto(initCardB, 0)
+	mydesk.OGTHBroadInitCard(initCardB)
 	log.T("广播Game_InitCard的信息完毕")
 
 	log.T("\n\n开始一局新的游戏,初始化完毕\n\n")

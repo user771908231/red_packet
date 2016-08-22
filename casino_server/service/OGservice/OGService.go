@@ -280,14 +280,14 @@ func initGameSendgameInfoByDesk(mydesk *room.ThDesk, result *bbproto.Game_SendGa
 	*result.MinRaise = mydesk.GetMinRaise()        //最低加注金额
 	*result.NInitActionTime = int32(room.TH_TIMEOUT_DURATION_INT)
 	*result.NInitDelayTime = int32(room.TH_TIMEOUT_DURATION_INT)
-	result.Handcard = mydesk.GetHandCard()                //用户手牌
+	//result.Handcard = mydesk.GetHandCard()                //用户手牌
 	result.HandCoin = mydesk.GetRoomCoin()        //带入金额
 	result.TurnCoin = getTurnCoin(mydesk)
 	*result.Seat = mydesk.GetUserByUserId(myUserId).Seat        //int32(mydesk.GetUserIndex(myUserId))	//我
 	result.SecondPool = mydesk.GetSecondPool()
 	*result.TurnMax = mydesk.BetAmountNow
 	result.WeixinInfos = mydesk.GetWeiXinInfos()
-	*result.OwnerSeat  = mydesk.GetUserIndex(mydesk.DeskOwner)
+	*result.OwnerSeat  = int32(mydesk.GetUserIndex(mydesk.DeskOwner))
 
 	//循环User来处理
 	for i := 0; i < len(mydesk.Users); i++ {
