@@ -16,9 +16,9 @@ var _ = math.Inf
 type Game_LeaveTable_Reason int32
 
 const (
-	Game_LeaveTable_quit_mormal            Game_LeaveTable_Reason = 0
-	Game_LeaveTable_quit_friendKick        Game_LeaveTable_Reason = 1
-	Game_LeaveTable_quit_adjustTable       Game_LeaveTable_Reason = 2
+	Game_LeaveTable_quit_mormal Game_LeaveTable_Reason = 0
+	Game_LeaveTable_quit_friendKick Game_LeaveTable_Reason = 1
+	Game_LeaveTable_quit_adjustTable Game_LeaveTable_Reason = 2
 	Game_LeaveTable_quit_friendTableDelete Game_LeaveTable_Reason = 3
 )
 
@@ -51,16 +51,18 @@ func (x *Game_LeaveTable_Reason) UnmarshalJSON(data []byte) error {
 	*x = Game_LeaveTable_Reason(value)
 	return nil
 }
-func (Game_LeaveTable_Reason) EnumDescriptor() ([]byte, []int) { return fileDescriptor1, []int{42, 0} }
+func (Game_LeaveTable_Reason) EnumDescriptor() ([]byte, []int) {
+	return fileDescriptor1, []int{42, 0}
+}
 
 type DDAckPayMsg_Reason int32
 
 const (
-	DDAckPayMsg_HORN_NOTHING    DDAckPayMsg_Reason = 0
-	DDAckPayMsg_HORN_NOCOIN     DDAckPayMsg_Reason = 1
-	DDAckPayMsg_HORN_GETCOIN    DDAckPayMsg_Reason = 2
+	DDAckPayMsg_HORN_NOTHING DDAckPayMsg_Reason = 0
+	DDAckPayMsg_HORN_NOCOIN DDAckPayMsg_Reason = 1
+	DDAckPayMsg_HORN_GETCOIN DDAckPayMsg_Reason = 2
 	DDAckPayMsg_HORN_UPDATECOIN DDAckPayMsg_Reason = 3
-	DDAckPayMsg_HORN_ENABLETXT  DDAckPayMsg_Reason = 4
+	DDAckPayMsg_HORN_ENABLETXT DDAckPayMsg_Reason = 4
 )
 
 var DDAckPayMsg_Reason_name = map[int32]string{
@@ -94,24 +96,26 @@ func (x *DDAckPayMsg_Reason) UnmarshalJSON(data []byte) error {
 	*x = DDAckPayMsg_Reason(value)
 	return nil
 }
-func (DDAckPayMsg_Reason) EnumDescriptor() ([]byte, []int) { return fileDescriptor1, []int{59, 0} }
+func (DDAckPayMsg_Reason) EnumDescriptor() ([]byte, []int) {
+	return fileDescriptor1, []int{59, 0}
+}
 
 type DDAckPresentCoins_Reason int32
 
 const (
-	DDAckPresentCoins_PC_NOTHING    DDAckPresentCoins_Reason = 0
-	DDAckPresentCoins_PC_UNKNOWN    DDAckPresentCoins_Reason = 1
-	DDAckPresentCoins_PC_CONNECTDB  DDAckPresentCoins_Reason = 2
-	DDAckPresentCoins_PC_DB         DDAckPresentCoins_Reason = 3
+	DDAckPresentCoins_PC_NOTHING DDAckPresentCoins_Reason = 0
+	DDAckPresentCoins_PC_UNKNOWN DDAckPresentCoins_Reason = 1
+	DDAckPresentCoins_PC_CONNECTDB DDAckPresentCoins_Reason = 2
+	DDAckPresentCoins_PC_DB DDAckPresentCoins_Reason = 3
 	DDAckPresentCoins_PC_SENDERINFO DDAckPresentCoins_Reason = 4
 	DDAckPresentCoins_PC_SENDERCOIN DDAckPresentCoins_Reason = 5
-	DDAckPresentCoins_PC_CONFIG     DDAckPresentCoins_Reason = 6
-	DDAckPresentCoins_PC_CLOSE      DDAckPresentCoins_Reason = 7
-	DDAckPresentCoins_PC_AMOUNT     DDAckPresentCoins_Reason = 8
-	DDAckPresentCoins_PC_TIMESUSER  DDAckPresentCoins_Reason = 9
-	DDAckPresentCoins_PC_TIMESDAY   DDAckPresentCoins_Reason = 10
-	DDAckPresentCoins_PC_SUBTRACT   DDAckPresentCoins_Reason = 11
-	DDAckPresentCoins_PC_ADD        DDAckPresentCoins_Reason = 12
+	DDAckPresentCoins_PC_CONFIG DDAckPresentCoins_Reason = 6
+	DDAckPresentCoins_PC_CLOSE DDAckPresentCoins_Reason = 7
+	DDAckPresentCoins_PC_AMOUNT DDAckPresentCoins_Reason = 8
+	DDAckPresentCoins_PC_TIMESUSER DDAckPresentCoins_Reason = 9
+	DDAckPresentCoins_PC_TIMESDAY DDAckPresentCoins_Reason = 10
+	DDAckPresentCoins_PC_SUBTRACT DDAckPresentCoins_Reason = 11
+	DDAckPresentCoins_PC_ADD DDAckPresentCoins_Reason = 12
 )
 
 var DDAckPresentCoins_Reason_name = map[int32]string{
@@ -161,17 +165,25 @@ func (x *DDAckPresentCoins_Reason) UnmarshalJSON(data []byte) error {
 	*x = DDAckPresentCoins_Reason(value)
 	return nil
 }
-func (DDAckPresentCoins_Reason) EnumDescriptor() ([]byte, []int) { return fileDescriptor1, []int{64, 0} }
+func (DDAckPresentCoins_Reason) EnumDescriptor() ([]byte, []int) {
+	return fileDescriptor1, []int{64, 0}
+}
 
 type Game_ACKConfirmConnect struct {
 	Result           *int32 `protobuf:"varint,1,opt,name=result" json:"result,omitempty"`
 	XXX_unrecognized []byte `json:"-"`
 }
 
-func (m *Game_ACKConfirmConnect) Reset()                    { *m = Game_ACKConfirmConnect{} }
-func (m *Game_ACKConfirmConnect) String() string            { return proto.CompactTextString(m) }
-func (*Game_ACKConfirmConnect) ProtoMessage()               {}
-func (*Game_ACKConfirmConnect) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{0} }
+func (m *Game_ACKConfirmConnect) Reset() {
+	*m = Game_ACKConfirmConnect{}
+}
+func (m *Game_ACKConfirmConnect) String() string {
+	return proto.CompactTextString(m)
+}
+func (*Game_ACKConfirmConnect) ProtoMessage() {}
+func (*Game_ACKConfirmConnect) Descriptor() ([]byte, []int) {
+	return fileDescriptor1, []int{0}
+}
 
 func (m *Game_ACKConfirmConnect) GetResult() int32 {
 	if m != nil && m.Result != nil {
@@ -186,10 +198,16 @@ type Game_LoginGame struct {
 	XXX_unrecognized []byte `json:"-"`
 }
 
-func (m *Game_LoginGame) Reset()                    { *m = Game_LoginGame{} }
-func (m *Game_LoginGame) String() string            { return proto.CompactTextString(m) }
-func (*Game_LoginGame) ProtoMessage()               {}
-func (*Game_LoginGame) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{1} }
+func (m *Game_LoginGame) Reset() {
+	*m = Game_LoginGame{}
+}
+func (m *Game_LoginGame) String() string {
+	return proto.CompactTextString(m)
+}
+func (*Game_LoginGame) ProtoMessage() {}
+func (*Game_LoginGame) Descriptor() ([]byte, []int) {
+	return fileDescriptor1, []int{1}
+}
 
 func (m *Game_LoginGame) GetLetter() []byte {
 	if m != nil {
@@ -215,10 +233,16 @@ type Game_EnterMatch struct {
 	XXX_unrecognized []byte  `json:"-"`
 }
 
-func (m *Game_EnterMatch) Reset()                    { *m = Game_EnterMatch{} }
-func (m *Game_EnterMatch) String() string            { return proto.CompactTextString(m) }
-func (*Game_EnterMatch) ProtoMessage()               {}
-func (*Game_EnterMatch) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{2} }
+func (m *Game_EnterMatch) Reset() {
+	*m = Game_EnterMatch{}
+}
+func (m *Game_EnterMatch) String() string {
+	return proto.CompactTextString(m)
+}
+func (*Game_EnterMatch) ProtoMessage() {}
+func (*Game_EnterMatch) Descriptor() ([]byte, []int) {
+	return fileDescriptor1, []int{2}
+}
 
 func (m *Game_EnterMatch) GetMatchID() []byte {
 	if m != nil {
@@ -263,10 +287,16 @@ type Game_AckEnterMatch struct {
 	XXX_unrecognized []byte `json:"-"`
 }
 
-func (m *Game_AckEnterMatch) Reset()                    { *m = Game_AckEnterMatch{} }
-func (m *Game_AckEnterMatch) String() string            { return proto.CompactTextString(m) }
-func (*Game_AckEnterMatch) ProtoMessage()               {}
-func (*Game_AckEnterMatch) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{3} }
+func (m *Game_AckEnterMatch) Reset() {
+	*m = Game_AckEnterMatch{}
+}
+func (m *Game_AckEnterMatch) String() string {
+	return proto.CompactTextString(m)
+}
+func (*Game_AckEnterMatch) ProtoMessage() {}
+func (*Game_AckEnterMatch) Descriptor() ([]byte, []int) {
+	return fileDescriptor1, []int{3}
+}
 
 func (m *Game_AckEnterMatch) GetResult() int32 {
 	if m != nil && m.Result != nil {
@@ -304,10 +334,16 @@ type Game_AddHandCoin struct {
 	XXX_unrecognized []byte `json:"-"`
 }
 
-func (m *Game_AddHandCoin) Reset()                    { *m = Game_AddHandCoin{} }
-func (m *Game_AddHandCoin) String() string            { return proto.CompactTextString(m) }
-func (*Game_AddHandCoin) ProtoMessage()               {}
-func (*Game_AddHandCoin) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{4} }
+func (m *Game_AddHandCoin) Reset() {
+	*m = Game_AddHandCoin{}
+}
+func (m *Game_AddHandCoin) String() string {
+	return proto.CompactTextString(m)
+}
+func (*Game_AddHandCoin) ProtoMessage() {}
+func (*Game_AddHandCoin) Descriptor() ([]byte, []int) {
+	return fileDescriptor1, []int{4}
+}
 
 func (m *Game_AddHandCoin) GetMatchid() []byte {
 	if m != nil {
@@ -343,10 +379,16 @@ type Game_CardInfo struct {
 	XXX_unrecognized []byte `json:"-"`
 }
 
-func (m *Game_CardInfo) Reset()                    { *m = Game_CardInfo{} }
-func (m *Game_CardInfo) String() string            { return proto.CompactTextString(m) }
-func (*Game_CardInfo) ProtoMessage()               {}
-func (*Game_CardInfo) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{5} }
+func (m *Game_CardInfo) Reset() {
+	*m = Game_CardInfo{}
+}
+func (m *Game_CardInfo) String() string {
+	return proto.CompactTextString(m)
+}
+func (*Game_CardInfo) ProtoMessage() {}
+func (*Game_CardInfo) Descriptor() ([]byte, []int) {
+	return fileDescriptor1, []int{5}
+}
 
 func (m *Game_CardInfo) GetColor() int32 {
 	if m != nil && m.Color != nil {
@@ -375,10 +417,16 @@ type Game_InitCard struct {
 	XXX_unrecognized []byte           `json:"-"`
 }
 
-func (m *Game_InitCard) Reset()                    { *m = Game_InitCard{} }
-func (m *Game_InitCard) String() string            { return proto.CompactTextString(m) }
-func (*Game_InitCard) ProtoMessage()               {}
-func (*Game_InitCard) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{6} }
+func (m *Game_InitCard) Reset() {
+	*m = Game_InitCard{}
+}
+func (m *Game_InitCard) String() string {
+	return proto.CompactTextString(m)
+}
+func (*Game_InitCard) ProtoMessage() {}
+func (*Game_InitCard) Descriptor() ([]byte, []int) {
+	return fileDescriptor1, []int{6}
+}
 
 func (m *Game_InitCard) GetMatchid() []byte {
 	if m != nil {
@@ -451,10 +499,16 @@ type Game_RaiseBet struct {
 	XXX_unrecognized []byte `json:"-"`
 }
 
-func (m *Game_RaiseBet) Reset()                    { *m = Game_RaiseBet{} }
-func (m *Game_RaiseBet) String() string            { return proto.CompactTextString(m) }
-func (*Game_RaiseBet) ProtoMessage()               {}
-func (*Game_RaiseBet) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{7} }
+func (m *Game_RaiseBet) Reset() {
+	*m = Game_RaiseBet{}
+}
+func (m *Game_RaiseBet) String() string {
+	return proto.CompactTextString(m)
+}
+func (*Game_RaiseBet) ProtoMessage() {}
+func (*Game_RaiseBet) Descriptor() ([]byte, []int) {
+	return fileDescriptor1, []int{7}
+}
 
 func (m *Game_RaiseBet) GetMatchid() []byte {
 	if m != nil {
@@ -497,10 +551,16 @@ type Game_AckRaiseBet struct {
 	XXX_unrecognized []byte `json:"-"`
 }
 
-func (m *Game_AckRaiseBet) Reset()                    { *m = Game_AckRaiseBet{} }
-func (m *Game_AckRaiseBet) String() string            { return proto.CompactTextString(m) }
-func (*Game_AckRaiseBet) ProtoMessage()               {}
-func (*Game_AckRaiseBet) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{8} }
+func (m *Game_AckRaiseBet) Reset() {
+	*m = Game_AckRaiseBet{}
+}
+func (m *Game_AckRaiseBet) String() string {
+	return proto.CompactTextString(m)
+}
+func (*Game_AckRaiseBet) ProtoMessage() {}
+func (*Game_AckRaiseBet) Descriptor() ([]byte, []int) {
+	return fileDescriptor1, []int{8}
+}
 
 func (m *Game_AckRaiseBet) GetMatchid() []byte {
 	if m != nil {
@@ -572,10 +632,16 @@ type Game_FollowBet struct {
 	XXX_unrecognized []byte `json:"-"`
 }
 
-func (m *Game_FollowBet) Reset()                    { *m = Game_FollowBet{} }
-func (m *Game_FollowBet) String() string            { return proto.CompactTextString(m) }
-func (*Game_FollowBet) ProtoMessage()               {}
-func (*Game_FollowBet) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{9} }
+func (m *Game_FollowBet) Reset() {
+	*m = Game_FollowBet{}
+}
+func (m *Game_FollowBet) String() string {
+	return proto.CompactTextString(m)
+}
+func (*Game_FollowBet) ProtoMessage() {}
+func (*Game_FollowBet) Descriptor() ([]byte, []int) {
+	return fileDescriptor1, []int{9}
+}
 
 func (m *Game_FollowBet) GetMatchid() []byte {
 	if m != nil {
@@ -611,10 +677,16 @@ type Game_AckFollowBet struct {
 	XXX_unrecognized []byte `json:"-"`
 }
 
-func (m *Game_AckFollowBet) Reset()                    { *m = Game_AckFollowBet{} }
-func (m *Game_AckFollowBet) String() string            { return proto.CompactTextString(m) }
-func (*Game_AckFollowBet) ProtoMessage()               {}
-func (*Game_AckFollowBet) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{10} }
+func (m *Game_AckFollowBet) Reset() {
+	*m = Game_AckFollowBet{}
+}
+func (m *Game_AckFollowBet) String() string {
+	return proto.CompactTextString(m)
+}
+func (*Game_AckFollowBet) ProtoMessage() {}
+func (*Game_AckFollowBet) Descriptor() ([]byte, []int) {
+	return fileDescriptor1, []int{10}
+}
 
 func (m *Game_AckFollowBet) GetMatchid() []byte {
 	if m != nil {
@@ -686,10 +758,16 @@ type Game_FoldBet struct {
 	XXX_unrecognized []byte `json:"-"`
 }
 
-func (m *Game_FoldBet) Reset()                    { *m = Game_FoldBet{} }
-func (m *Game_FoldBet) String() string            { return proto.CompactTextString(m) }
-func (*Game_FoldBet) ProtoMessage()               {}
-func (*Game_FoldBet) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{11} }
+func (m *Game_FoldBet) Reset() {
+	*m = Game_FoldBet{}
+}
+func (m *Game_FoldBet) String() string {
+	return proto.CompactTextString(m)
+}
+func (*Game_FoldBet) ProtoMessage() {}
+func (*Game_FoldBet) Descriptor() ([]byte, []int) {
+	return fileDescriptor1, []int{11}
+}
 
 func (m *Game_FoldBet) GetMatchid() []byte {
 	if m != nil {
@@ -725,10 +803,16 @@ type Game_AckFoldBet struct {
 	XXX_unrecognized []byte `json:"-"`
 }
 
-func (m *Game_AckFoldBet) Reset()                    { *m = Game_AckFoldBet{} }
-func (m *Game_AckFoldBet) String() string            { return proto.CompactTextString(m) }
-func (*Game_AckFoldBet) ProtoMessage()               {}
-func (*Game_AckFoldBet) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{12} }
+func (m *Game_AckFoldBet) Reset() {
+	*m = Game_AckFoldBet{}
+}
+func (m *Game_AckFoldBet) String() string {
+	return proto.CompactTextString(m)
+}
+func (*Game_AckFoldBet) ProtoMessage() {}
+func (*Game_AckFoldBet) Descriptor() ([]byte, []int) {
+	return fileDescriptor1, []int{12}
+}
 
 func (m *Game_AckFoldBet) GetMatchid() []byte {
 	if m != nil {
@@ -800,10 +884,16 @@ type Game_CheckBet struct {
 	XXX_unrecognized []byte `json:"-"`
 }
 
-func (m *Game_CheckBet) Reset()                    { *m = Game_CheckBet{} }
-func (m *Game_CheckBet) String() string            { return proto.CompactTextString(m) }
-func (*Game_CheckBet) ProtoMessage()               {}
-func (*Game_CheckBet) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{13} }
+func (m *Game_CheckBet) Reset() {
+	*m = Game_CheckBet{}
+}
+func (m *Game_CheckBet) String() string {
+	return proto.CompactTextString(m)
+}
+func (*Game_CheckBet) ProtoMessage() {}
+func (*Game_CheckBet) Descriptor() ([]byte, []int) {
+	return fileDescriptor1, []int{13}
+}
 
 func (m *Game_CheckBet) GetMatchid() []byte {
 	if m != nil {
@@ -839,10 +929,16 @@ type Game_AckCheckBet struct {
 	XXX_unrecognized []byte `json:"-"`
 }
 
-func (m *Game_AckCheckBet) Reset()                    { *m = Game_AckCheckBet{} }
-func (m *Game_AckCheckBet) String() string            { return proto.CompactTextString(m) }
-func (*Game_AckCheckBet) ProtoMessage()               {}
-func (*Game_AckCheckBet) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{14} }
+func (m *Game_AckCheckBet) Reset() {
+	*m = Game_AckCheckBet{}
+}
+func (m *Game_AckCheckBet) String() string {
+	return proto.CompactTextString(m)
+}
+func (*Game_AckCheckBet) ProtoMessage() {}
+func (*Game_AckCheckBet) Descriptor() ([]byte, []int) {
+	return fileDescriptor1, []int{14}
+}
 
 func (m *Game_AckCheckBet) GetMatchid() []byte {
 	if m != nil {
@@ -916,10 +1012,16 @@ type Game_SendFlopCard struct {
 	XXX_unrecognized []byte         `json:"-"`
 }
 
-func (m *Game_SendFlopCard) Reset()                    { *m = Game_SendFlopCard{} }
-func (m *Game_SendFlopCard) String() string            { return proto.CompactTextString(m) }
-func (*Game_SendFlopCard) ProtoMessage()               {}
-func (*Game_SendFlopCard) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{15} }
+func (m *Game_SendFlopCard) Reset() {
+	*m = Game_SendFlopCard{}
+}
+func (m *Game_SendFlopCard) String() string {
+	return proto.CompactTextString(m)
+}
+func (*Game_SendFlopCard) ProtoMessage() {}
+func (*Game_SendFlopCard) Descriptor() ([]byte, []int) {
+	return fileDescriptor1, []int{15}
+}
 
 func (m *Game_SendFlopCard) GetMatchid() []byte {
 	if m != nil {
@@ -963,10 +1065,16 @@ type Game_SendTurnCard struct {
 	XXX_unrecognized []byte         `json:"-"`
 }
 
-func (m *Game_SendTurnCard) Reset()                    { *m = Game_SendTurnCard{} }
-func (m *Game_SendTurnCard) String() string            { return proto.CompactTextString(m) }
-func (*Game_SendTurnCard) ProtoMessage()               {}
-func (*Game_SendTurnCard) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{16} }
+func (m *Game_SendTurnCard) Reset() {
+	*m = Game_SendTurnCard{}
+}
+func (m *Game_SendTurnCard) String() string {
+	return proto.CompactTextString(m)
+}
+func (*Game_SendTurnCard) ProtoMessage() {}
+func (*Game_SendTurnCard) Descriptor() ([]byte, []int) {
+	return fileDescriptor1, []int{16}
+}
 
 func (m *Game_SendTurnCard) GetMatchid() []byte {
 	if m != nil {
@@ -996,10 +1104,16 @@ type Game_SendRiverCard struct {
 	XXX_unrecognized []byte         `json:"-"`
 }
 
-func (m *Game_SendRiverCard) Reset()                    { *m = Game_SendRiverCard{} }
-func (m *Game_SendRiverCard) String() string            { return proto.CompactTextString(m) }
-func (*Game_SendRiverCard) ProtoMessage()               {}
-func (*Game_SendRiverCard) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{17} }
+func (m *Game_SendRiverCard) Reset() {
+	*m = Game_SendRiverCard{}
+}
+func (m *Game_SendRiverCard) String() string {
+	return proto.CompactTextString(m)
+}
+func (*Game_SendRiverCard) ProtoMessage() {}
+func (*Game_SendRiverCard) Descriptor() ([]byte, []int) {
+	return fileDescriptor1, []int{17}
+}
 
 func (m *Game_SendRiverCard) GetMatchid() []byte {
 	if m != nil {
@@ -1034,10 +1148,16 @@ type Game_SendOverTurn struct {
 	XXX_unrecognized []byte  `json:"-"`
 }
 
-func (m *Game_SendOverTurn) Reset()                    { *m = Game_SendOverTurn{} }
-func (m *Game_SendOverTurn) String() string            { return proto.CompactTextString(m) }
-func (*Game_SendOverTurn) ProtoMessage()               {}
-func (*Game_SendOverTurn) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{18} }
+func (m *Game_SendOverTurn) Reset() {
+	*m = Game_SendOverTurn{}
+}
+func (m *Game_SendOverTurn) String() string {
+	return proto.CompactTextString(m)
+}
+func (*Game_SendOverTurn) ProtoMessage() {}
+func (*Game_SendOverTurn) Descriptor() ([]byte, []int) {
+	return fileDescriptor1, []int{18}
+}
 
 func (m *Game_SendOverTurn) GetMatchid() []byte {
 	if m != nil {
@@ -1105,10 +1225,16 @@ type Game_CardType struct {
 	XXX_unrecognized []byte `json:"-"`
 }
 
-func (m *Game_CardType) Reset()                    { *m = Game_CardType{} }
-func (m *Game_CardType) String() string            { return proto.CompactTextString(m) }
-func (*Game_CardType) ProtoMessage()               {}
-func (*Game_CardType) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{19} }
+func (m *Game_CardType) Reset() {
+	*m = Game_CardType{}
+}
+func (m *Game_CardType) String() string {
+	return proto.CompactTextString(m)
+}
+func (*Game_CardType) ProtoMessage() {}
+func (*Game_CardType) Descriptor() ([]byte, []int) {
+	return fileDescriptor1, []int{19}
+}
 
 func (m *Game_CardType) GetCard1() int32 {
 	if m != nil && m.Card1 != nil {
@@ -1166,10 +1292,16 @@ type Game_WinCoin struct {
 	XXX_unrecognized []byte `json:"-"`
 }
 
-func (m *Game_WinCoin) Reset()                    { *m = Game_WinCoin{} }
-func (m *Game_WinCoin) String() string            { return proto.CompactTextString(m) }
-func (*Game_WinCoin) ProtoMessage()               {}
-func (*Game_WinCoin) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{20} }
+func (m *Game_WinCoin) Reset() {
+	*m = Game_WinCoin{}
+}
+func (m *Game_WinCoin) String() string {
+	return proto.CompactTextString(m)
+}
+func (*Game_WinCoin) ProtoMessage() {}
+func (*Game_WinCoin) Descriptor() ([]byte, []int) {
+	return fileDescriptor1, []int{20}
+}
 
 func (m *Game_WinCoin) GetSeat() int32 {
 	if m != nil && m.Seat != nil {
@@ -1254,10 +1386,16 @@ type Game_TestResult struct {
 	XXX_unrecognized []byte           `json:"-"`
 }
 
-func (m *Game_TestResult) Reset()                    { *m = Game_TestResult{} }
-func (m *Game_TestResult) String() string            { return proto.CompactTextString(m) }
-func (*Game_TestResult) ProtoMessage()               {}
-func (*Game_TestResult) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{21} }
+func (m *Game_TestResult) Reset() {
+	*m = Game_TestResult{}
+}
+func (m *Game_TestResult) String() string {
+	return proto.CompactTextString(m)
+}
+func (*Game_TestResult) ProtoMessage() {}
+func (*Game_TestResult) Descriptor() ([]byte, []int) {
+	return fileDescriptor1, []int{21}
+}
 
 func (m *Game_TestResult) GetMatchid() []byte {
 	if m != nil {
@@ -1322,10 +1460,16 @@ type Game_LeaveMatch struct {
 	XXX_unrecognized []byte `json:"-"`
 }
 
-func (m *Game_LeaveMatch) Reset()                    { *m = Game_LeaveMatch{} }
-func (m *Game_LeaveMatch) String() string            { return proto.CompactTextString(m) }
-func (*Game_LeaveMatch) ProtoMessage()               {}
-func (*Game_LeaveMatch) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{22} }
+func (m *Game_LeaveMatch) Reset() {
+	*m = Game_LeaveMatch{}
+}
+func (m *Game_LeaveMatch) String() string {
+	return proto.CompactTextString(m)
+}
+func (*Game_LeaveMatch) ProtoMessage() {}
+func (*Game_LeaveMatch) Descriptor() ([]byte, []int) {
+	return fileDescriptor1, []int{22}
+}
 
 func (m *Game_LeaveMatch) GetMatchid() []byte {
 	if m != nil {
@@ -1355,10 +1499,16 @@ type Game_UserInfo struct {
 	XXX_unrecognized []byte `json:"-"`
 }
 
-func (m *Game_UserInfo) Reset()                    { *m = Game_UserInfo{} }
-func (m *Game_UserInfo) String() string            { return proto.CompactTextString(m) }
-func (*Game_UserInfo) ProtoMessage()               {}
-func (*Game_UserInfo) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{23} }
+func (m *Game_UserInfo) Reset() {
+	*m = Game_UserInfo{}
+}
+func (m *Game_UserInfo) String() string {
+	return proto.CompactTextString(m)
+}
+func (*Game_UserInfo) ProtoMessage() {}
+func (*Game_UserInfo) Descriptor() ([]byte, []int) {
+	return fileDescriptor1, []int{23}
+}
 
 func (m *Game_UserInfo) GetUserName() []byte {
 	if m != nil {
@@ -1388,10 +1538,16 @@ type Game_SendUserInfo struct {
 	XXX_unrecognized []byte           `json:"-"`
 }
 
-func (m *Game_SendUserInfo) Reset()                    { *m = Game_SendUserInfo{} }
-func (m *Game_SendUserInfo) String() string            { return proto.CompactTextString(m) }
-func (*Game_SendUserInfo) ProtoMessage()               {}
-func (*Game_SendUserInfo) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{24} }
+func (m *Game_SendUserInfo) Reset() {
+	*m = Game_SendUserInfo{}
+}
+func (m *Game_SendUserInfo) String() string {
+	return proto.CompactTextString(m)
+}
+func (*Game_SendUserInfo) ProtoMessage() {}
+func (*Game_SendUserInfo) Descriptor() ([]byte, []int) {
+	return fileDescriptor1, []int{24}
+}
 
 func (m *Game_SendUserInfo) GetUserInfo() []*Game_UserInfo {
 	if m != nil {
@@ -1430,10 +1586,16 @@ type Game_SendRank struct {
 	XXX_unrecognized []byte `json:"-"`
 }
 
-func (m *Game_SendRank) Reset()                    { *m = Game_SendRank{} }
-func (m *Game_SendRank) String() string            { return proto.CompactTextString(m) }
-func (*Game_SendRank) ProtoMessage()               {}
-func (*Game_SendRank) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{25} }
+func (m *Game_SendRank) Reset() {
+	*m = Game_SendRank{}
+}
+func (m *Game_SendRank) String() string {
+	return proto.CompactTextString(m)
+}
+func (*Game_SendRank) ProtoMessage() {}
+func (*Game_SendRank) Descriptor() ([]byte, []int) {
+	return fileDescriptor1, []int{25}
+}
 
 func (m *Game_SendRank) GetMatchid() []byte {
 	if m != nil {
@@ -1525,10 +1687,16 @@ type Game_RestMatch struct {
 	XXX_unrecognized []byte `json:"-"`
 }
 
-func (m *Game_RestMatch) Reset()                    { *m = Game_RestMatch{} }
-func (m *Game_RestMatch) String() string            { return proto.CompactTextString(m) }
-func (*Game_RestMatch) ProtoMessage()               {}
-func (*Game_RestMatch) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{26} }
+func (m *Game_RestMatch) Reset() {
+	*m = Game_RestMatch{}
+}
+func (m *Game_RestMatch) String() string {
+	return proto.CompactTextString(m)
+}
+func (*Game_RestMatch) ProtoMessage() {}
+func (*Game_RestMatch) Descriptor() ([]byte, []int) {
+	return fileDescriptor1, []int{26}
+}
 
 func (m *Game_RestMatch) GetMatchid() []byte {
 	if m != nil {
@@ -1554,10 +1722,16 @@ type Game_ChangeTable struct {
 	XXX_unrecognized []byte `json:"-"`
 }
 
-func (m *Game_ChangeTable) Reset()                    { *m = Game_ChangeTable{} }
-func (m *Game_ChangeTable) String() string            { return proto.CompactTextString(m) }
-func (*Game_ChangeTable) ProtoMessage()               {}
-func (*Game_ChangeTable) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{27} }
+func (m *Game_ChangeTable) Reset() {
+	*m = Game_ChangeTable{}
+}
+func (m *Game_ChangeTable) String() string {
+	return proto.CompactTextString(m)
+}
+func (*Game_ChangeTable) ProtoMessage() {}
+func (*Game_ChangeTable) Descriptor() ([]byte, []int) {
+	return fileDescriptor1, []int{27}
+}
 
 func (m *Game_ChangeTable) GetMatchid() []byte {
 	if m != nil {
@@ -1603,46 +1777,52 @@ func (m *Game_ChangeTable) GetSCFUserName() []byte {
 
 // 发送游戏信息
 type Game_SendGameInfo struct {
-	Matchid         []byte           `protobuf:"bytes,1,opt,name=Matchid" json:"Matchid,omitempty"`
-	Tableid         *int32           `protobuf:"varint,2,opt,name=Tableid" json:"Tableid,omitempty"`
-	GameStatus      *int32           `protobuf:"varint,3,opt,name=GameStatus" json:"GameStatus,omitempty"`
-	ChipSeat        *int32           `protobuf:"varint,4,opt,name=ChipSeat" json:"ChipSeat,omitempty"`
-	Pool            *int64           `protobuf:"varint,5,opt,name=pool" json:"pool,omitempty"`
-	TablePlayer     *int32           `protobuf:"varint,6,opt,name=TablePlayer" json:"TablePlayer,omitempty"`
-	BankSeat        *int32           `protobuf:"varint,7,opt,name=BankSeat" json:"BankSeat,omitempty"`
-	Publiccard      []*Game_CardInfo `protobuf:"bytes,8,rep,name=publiccard" json:"publiccard,omitempty"`
-	Handcard        []*Game_CardInfo `protobuf:"bytes,9,rep,name=handcard" json:"handcard,omitempty"`
-	HandCoin        []int64          `protobuf:"varint,10,rep,name=HandCoin" json:"HandCoin,omitempty"`
-	TurnCoin        []int64          `protobuf:"varint,11,rep,name=TurnCoin" json:"TurnCoin,omitempty"`
-	ActionTime      *int32           `protobuf:"varint,12,opt,name=ActionTime" json:"ActionTime,omitempty"`
-	BEnable         []int32          `protobuf:"varint,13,rep,name=bEnable" json:"bEnable,omitempty"`
-	MinRaise        *int64           `protobuf:"varint,14,opt,name=MinRaise" json:"MinRaise,omitempty"`
-	BFold           []int32          `protobuf:"varint,15,rep,name=bFold" json:"bFold,omitempty"`
-	BAllIn          []int32          `protobuf:"varint,16,rep,name=bAllIn" json:"bAllIn,omitempty"`
-	BBreak          []int32          `protobuf:"varint,17,rep,name=bBreak" json:"bBreak,omitempty"`
-	BLeave          []int32          `protobuf:"varint,18,rep,name=bLeave" json:"bLeave,omitempty"`
-	DelayTime       *int32           `protobuf:"varint,19,opt,name=DelayTime" json:"DelayTime,omitempty"`
-	NRebuyCount     *int32           `protobuf:"varint,20,opt,name=nRebuyCount" json:"nRebuyCount,omitempty"`
-	NAddonCount     *int32           `protobuf:"varint,21,opt,name=nAddonCount" json:"nAddonCount,omitempty"`
-	BFinalAddon     *int32           `protobuf:"varint,22,opt,name=bFinalAddon" json:"bFinalAddon,omitempty"`
-	NInitActionTime *int32           `protobuf:"varint,23,opt,name=nInitActionTime" json:"nInitActionTime,omitempty"`
-	NInitDelayTime  *int32           `protobuf:"varint,24,opt,name=nInitDelayTime" json:"nInitDelayTime,omitempty"`
-	NickName        []string         `protobuf:"bytes,25,rep,name=nickName" json:"nickName,omitempty"`
-	SeatId          []int32          `protobuf:"varint,26,rep,name=seatId" json:"seatId,omitempty"`
-	Seat            *int32           `protobuf:"varint,27,opt,name=seat" json:"seat,omitempty"`
-	SecondPool      []int64          `protobuf:"varint,28,rep,name=secondPool" json:"secondPool,omitempty"`
-	TurnMax         *int64           `protobuf:"varint,29,opt,name=turnMax" json:"turnMax,omitempty"`
-	Result          *int32           `protobuf:"varint,30,opt,name=result" json:"result,omitempty"`
+	Matchid          []byte           `protobuf:"bytes,1,opt,name=Matchid" json:"Matchid,omitempty"`
+	Tableid          *int32           `protobuf:"varint,2,opt,name=Tableid" json:"Tableid,omitempty"`
+	GameStatus       *int32           `protobuf:"varint,3,opt,name=GameStatus" json:"GameStatus,omitempty"`
+	ChipSeat         *int32           `protobuf:"varint,4,opt,name=ChipSeat" json:"ChipSeat,omitempty"`
+	Pool             *int64           `protobuf:"varint,5,opt,name=pool" json:"pool,omitempty"`
+	TablePlayer      *int32           `protobuf:"varint,6,opt,name=TablePlayer" json:"TablePlayer,omitempty"`
+	BankSeat         *int32           `protobuf:"varint,7,opt,name=BankSeat" json:"BankSeat,omitempty"`
+	Publiccard       []*Game_CardInfo `protobuf:"bytes,8,rep,name=publiccard" json:"publiccard,omitempty"`
+	Handcard         []*Game_CardInfo `protobuf:"bytes,9,rep,name=handcard" json:"handcard,omitempty"`
+	HandCoin         []int64          `protobuf:"varint,10,rep,name=HandCoin" json:"HandCoin,omitempty"`
+	TurnCoin         []int64          `protobuf:"varint,11,rep,name=TurnCoin" json:"TurnCoin,omitempty"`
+	ActionTime       *int32           `protobuf:"varint,12,opt,name=ActionTime" json:"ActionTime,omitempty"`
+	BEnable          []int32          `protobuf:"varint,13,rep,name=bEnable" json:"bEnable,omitempty"`
+	MinRaise         *int64           `protobuf:"varint,14,opt,name=MinRaise" json:"MinRaise,omitempty"`
+	BFold            []int32          `protobuf:"varint,15,rep,name=bFold" json:"bFold,omitempty"`
+	BAllIn           []int32          `protobuf:"varint,16,rep,name=bAllIn" json:"bAllIn,omitempty"`
+	BBreak           []int32          `protobuf:"varint,17,rep,name=bBreak" json:"bBreak,omitempty"`
+	BLeave           []int32          `protobuf:"varint,18,rep,name=bLeave" json:"bLeave,omitempty"`
+	DelayTime        *int32           `protobuf:"varint,19,opt,name=DelayTime" json:"DelayTime,omitempty"`
+	NRebuyCount      *int32           `protobuf:"varint,20,opt,name=nRebuyCount" json:"nRebuyCount,omitempty"`
+	NAddonCount      *int32           `protobuf:"varint,21,opt,name=nAddonCount" json:"nAddonCount,omitempty"`
+	BFinalAddon      *int32           `protobuf:"varint,22,opt,name=bFinalAddon" json:"bFinalAddon,omitempty"`
+	NInitActionTime  *int32           `protobuf:"varint,23,opt,name=nInitActionTime" json:"nInitActionTime,omitempty"`
+	NInitDelayTime   *int32           `protobuf:"varint,24,opt,name=nInitDelayTime" json:"nInitDelayTime,omitempty"`
+	NickName         []string         `protobuf:"bytes,25,rep,name=nickName" json:"nickName,omitempty"`
+	SeatId           []int32          `protobuf:"varint,26,rep,name=seatId" json:"seatId,omitempty"`
+	Seat             *int32           `protobuf:"varint,27,opt,name=seat" json:"seat,omitempty"`
+	SecondPool       []int64          `protobuf:"varint,28,rep,name=secondPool" json:"secondPool,omitempty"`
+	TurnMax          *int64           `protobuf:"varint,29,opt,name=turnMax" json:"turnMax,omitempty"`
+	Result           *int32           `protobuf:"varint,30,opt,name=result" json:"result,omitempty"`
 	// ① 新增字段： repeated WeixinInfo  = 31;  //微信用户信息
 	// ② EnterMatch时、广播新进用户时，才需返回WeixinInfo；其它广播不需要。
 	WeixinInfos      []*WeixinInfo `protobuf:"bytes,31,rep,name=weixinInfos" json:"weixinInfos,omitempty"`
 	XXX_unrecognized []byte        `json:"-"`
 }
 
-func (m *Game_SendGameInfo) Reset()                    { *m = Game_SendGameInfo{} }
-func (m *Game_SendGameInfo) String() string            { return proto.CompactTextString(m) }
-func (*Game_SendGameInfo) ProtoMessage()               {}
-func (*Game_SendGameInfo) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{28} }
+func (m *Game_SendGameInfo) Reset() {
+	*m = Game_SendGameInfo{}
+}
+func (m *Game_SendGameInfo) String() string {
+	return proto.CompactTextString(m)
+}
+func (*Game_SendGameInfo) ProtoMessage() {}
+func (*Game_SendGameInfo) Descriptor() ([]byte, []int) {
+	return fileDescriptor1, []int{28}
+}
 
 func (m *Game_SendGameInfo) GetMatchid() []byte {
 	if m != nil {
@@ -1869,10 +2049,16 @@ type Game_ShowCard struct {
 	XXX_unrecognized []byte `json:"-"`
 }
 
-func (m *Game_ShowCard) Reset()                    { *m = Game_ShowCard{} }
-func (m *Game_ShowCard) String() string            { return proto.CompactTextString(m) }
-func (*Game_ShowCard) ProtoMessage()               {}
-func (*Game_ShowCard) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{29} }
+func (m *Game_ShowCard) Reset() {
+	*m = Game_ShowCard{}
+}
+func (m *Game_ShowCard) String() string {
+	return proto.CompactTextString(m)
+}
+func (*Game_ShowCard) ProtoMessage() {}
+func (*Game_ShowCard) Descriptor() ([]byte, []int) {
+	return fileDescriptor1, []int{29}
+}
 
 func (m *Game_ShowCard) GetMatchid() []byte {
 	if m != nil {
@@ -1909,10 +2095,16 @@ type Game_AckShowCard struct {
 	XXX_unrecognized []byte           `json:"-"`
 }
 
-func (m *Game_AckShowCard) Reset()                    { *m = Game_AckShowCard{} }
-func (m *Game_AckShowCard) String() string            { return proto.CompactTextString(m) }
-func (*Game_AckShowCard) ProtoMessage()               {}
-func (*Game_AckShowCard) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{30} }
+func (m *Game_AckShowCard) Reset() {
+	*m = Game_AckShowCard{}
+}
+func (m *Game_AckShowCard) String() string {
+	return proto.CompactTextString(m)
+}
+func (*Game_AckShowCard) ProtoMessage() {}
+func (*Game_AckShowCard) Descriptor() ([]byte, []int) {
+	return fileDescriptor1, []int{30}
+}
 
 func (m *Game_AckShowCard) GetMatchid() []byte {
 	if m != nil {
@@ -1940,10 +2132,16 @@ type Game_TestLogin struct {
 	XXX_unrecognized []byte `json:"-"`
 }
 
-func (m *Game_TestLogin) Reset()                    { *m = Game_TestLogin{} }
-func (m *Game_TestLogin) String() string            { return proto.CompactTextString(m) }
-func (*Game_TestLogin) ProtoMessage()               {}
-func (*Game_TestLogin) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{31} }
+func (m *Game_TestLogin) Reset() {
+	*m = Game_TestLogin{}
+}
+func (m *Game_TestLogin) String() string {
+	return proto.CompactTextString(m)
+}
+func (*Game_TestLogin) ProtoMessage() {}
+func (*Game_TestLogin) Descriptor() ([]byte, []int) {
+	return fileDescriptor1, []int{31}
+}
 
 func (m *Game_TestLogin) GetUserName() []byte {
 	if m != nil {
@@ -1959,10 +2157,16 @@ type Game_AckTestLogin struct {
 	XXX_unrecognized []byte `json:"-"`
 }
 
-func (m *Game_AckTestLogin) Reset()                    { *m = Game_AckTestLogin{} }
-func (m *Game_AckTestLogin) String() string            { return proto.CompactTextString(m) }
-func (*Game_AckTestLogin) ProtoMessage()               {}
-func (*Game_AckTestLogin) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{32} }
+func (m *Game_AckTestLogin) Reset() {
+	*m = Game_AckTestLogin{}
+}
+func (m *Game_AckTestLogin) String() string {
+	return proto.CompactTextString(m)
+}
+func (*Game_AckTestLogin) ProtoMessage() {}
+func (*Game_AckTestLogin) Descriptor() ([]byte, []int) {
+	return fileDescriptor1, []int{32}
+}
 
 func (m *Game_AckTestLogin) GetResult() int32 {
 	if m != nil && m.Result != nil {
@@ -1990,10 +2194,16 @@ type Game_TestStartMatch struct {
 	XXX_unrecognized []byte `json:"-"`
 }
 
-func (m *Game_TestStartMatch) Reset()                    { *m = Game_TestStartMatch{} }
-func (m *Game_TestStartMatch) String() string            { return proto.CompactTextString(m) }
-func (*Game_TestStartMatch) ProtoMessage()               {}
-func (*Game_TestStartMatch) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{33} }
+func (m *Game_TestStartMatch) Reset() {
+	*m = Game_TestStartMatch{}
+}
+func (m *Game_TestStartMatch) String() string {
+	return proto.CompactTextString(m)
+}
+func (*Game_TestStartMatch) ProtoMessage() {}
+func (*Game_TestStartMatch) Descriptor() ([]byte, []int) {
+	return fileDescriptor1, []int{33}
+}
 
 func (m *Game_TestStartMatch) GetMatchid() []byte {
 	if m != nil {
@@ -2010,10 +2220,16 @@ type Game_ReportPlayer struct {
 	XXX_unrecognized []byte `json:"-"`
 }
 
-func (m *Game_ReportPlayer) Reset()                    { *m = Game_ReportPlayer{} }
-func (m *Game_ReportPlayer) String() string            { return proto.CompactTextString(m) }
-func (*Game_ReportPlayer) ProtoMessage()               {}
-func (*Game_ReportPlayer) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{34} }
+func (m *Game_ReportPlayer) Reset() {
+	*m = Game_ReportPlayer{}
+}
+func (m *Game_ReportPlayer) String() string {
+	return proto.CompactTextString(m)
+}
+func (*Game_ReportPlayer) ProtoMessage() {}
+func (*Game_ReportPlayer) Descriptor() ([]byte, []int) {
+	return fileDescriptor1, []int{34}
+}
 
 func (m *Game_ReportPlayer) GetIp() int32 {
 	if m != nil && m.Ip != nil {
@@ -2051,10 +2267,16 @@ type Game_UseDelayTime struct {
 	XXX_unrecognized []byte `json:"-"`
 }
 
-func (m *Game_UseDelayTime) Reset()                    { *m = Game_UseDelayTime{} }
-func (m *Game_UseDelayTime) String() string            { return proto.CompactTextString(m) }
-func (*Game_UseDelayTime) ProtoMessage()               {}
-func (*Game_UseDelayTime) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{35} }
+func (m *Game_UseDelayTime) Reset() {
+	*m = Game_UseDelayTime{}
+}
+func (m *Game_UseDelayTime) String() string {
+	return proto.CompactTextString(m)
+}
+func (*Game_UseDelayTime) ProtoMessage() {}
+func (*Game_UseDelayTime) Descriptor() ([]byte, []int) {
+	return fileDescriptor1, []int{35}
+}
 
 func (m *Game_UseDelayTime) GetMatchid() []byte {
 	if m != nil {
@@ -2094,10 +2316,16 @@ type Game_LeaveSeat struct {
 	XXX_unrecognized []byte `json:"-"`
 }
 
-func (m *Game_LeaveSeat) Reset()                    { *m = Game_LeaveSeat{} }
-func (m *Game_LeaveSeat) String() string            { return proto.CompactTextString(m) }
-func (*Game_LeaveSeat) ProtoMessage()               {}
-func (*Game_LeaveSeat) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{36} }
+func (m *Game_LeaveSeat) Reset() {
+	*m = Game_LeaveSeat{}
+}
+func (m *Game_LeaveSeat) String() string {
+	return proto.CompactTextString(m)
+}
+func (*Game_LeaveSeat) ProtoMessage() {}
+func (*Game_LeaveSeat) Descriptor() ([]byte, []int) {
+	return fileDescriptor1, []int{36}
+}
 
 func (m *Game_LeaveSeat) GetMatchid() []byte {
 	if m != nil {
@@ -2143,10 +2371,16 @@ type Game_MatchChip struct {
 	XXX_unrecognized []byte `json:"-"`
 }
 
-func (m *Game_MatchChip) Reset()                    { *m = Game_MatchChip{} }
-func (m *Game_MatchChip) String() string            { return proto.CompactTextString(m) }
-func (*Game_MatchChip) ProtoMessage()               {}
-func (*Game_MatchChip) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{37} }
+func (m *Game_MatchChip) Reset() {
+	*m = Game_MatchChip{}
+}
+func (m *Game_MatchChip) String() string {
+	return proto.CompactTextString(m)
+}
+func (*Game_MatchChip) ProtoMessage() {}
+func (*Game_MatchChip) Descriptor() ([]byte, []int) {
+	return fileDescriptor1, []int{37}
+}
 
 func (m *Game_MatchChip) GetMatchid() []byte {
 	if m != nil {
@@ -2192,10 +2426,16 @@ type Game_SendUserRank struct {
 	XXX_unrecognized []byte `json:"-"`
 }
 
-func (m *Game_SendUserRank) Reset()                    { *m = Game_SendUserRank{} }
-func (m *Game_SendUserRank) String() string            { return proto.CompactTextString(m) }
-func (*Game_SendUserRank) ProtoMessage()               {}
-func (*Game_SendUserRank) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{38} }
+func (m *Game_SendUserRank) Reset() {
+	*m = Game_SendUserRank{}
+}
+func (m *Game_SendUserRank) String() string {
+	return proto.CompactTextString(m)
+}
+func (*Game_SendUserRank) ProtoMessage() {}
+func (*Game_SendUserRank) Descriptor() ([]byte, []int) {
+	return fileDescriptor1, []int{38}
+}
 
 func (m *Game_SendUserRank) GetMatchid() []byte {
 	if m != nil {
@@ -2241,10 +2481,16 @@ type Game_BlindChange struct {
 	XXX_unrecognized []byte `json:"-"`
 }
 
-func (m *Game_BlindChange) Reset()                    { *m = Game_BlindChange{} }
-func (m *Game_BlindChange) String() string            { return proto.CompactTextString(m) }
-func (*Game_BlindChange) ProtoMessage()               {}
-func (*Game_BlindChange) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{39} }
+func (m *Game_BlindChange) Reset() {
+	*m = Game_BlindChange{}
+}
+func (m *Game_BlindChange) String() string {
+	return proto.CompactTextString(m)
+}
+func (*Game_BlindChange) ProtoMessage() {}
+func (*Game_BlindChange) Descriptor() ([]byte, []int) {
+	return fileDescriptor1, []int{39}
+}
 
 func (m *Game_BlindChange) GetMatchid() []byte {
 	if m != nil {
@@ -2286,10 +2532,16 @@ type Game_NextBlindInfo struct {
 	XXX_unrecognized []byte `json:"-"`
 }
 
-func (m *Game_NextBlindInfo) Reset()                    { *m = Game_NextBlindInfo{} }
-func (m *Game_NextBlindInfo) String() string            { return proto.CompactTextString(m) }
-func (*Game_NextBlindInfo) ProtoMessage()               {}
-func (*Game_NextBlindInfo) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{40} }
+func (m *Game_NextBlindInfo) Reset() {
+	*m = Game_NextBlindInfo{}
+}
+func (m *Game_NextBlindInfo) String() string {
+	return proto.CompactTextString(m)
+}
+func (*Game_NextBlindInfo) ProtoMessage() {}
+func (*Game_NextBlindInfo) Descriptor() ([]byte, []int) {
+	return fileDescriptor1, []int{40}
+}
 
 func (m *Game_NextBlindInfo) GetMatchid() []byte {
 	if m != nil {
@@ -2350,10 +2602,16 @@ type Game_SendRestTime struct {
 	XXX_unrecognized []byte `json:"-"`
 }
 
-func (m *Game_SendRestTime) Reset()                    { *m = Game_SendRestTime{} }
-func (m *Game_SendRestTime) String() string            { return proto.CompactTextString(m) }
-func (*Game_SendRestTime) ProtoMessage()               {}
-func (*Game_SendRestTime) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{41} }
+func (m *Game_SendRestTime) Reset() {
+	*m = Game_SendRestTime{}
+}
+func (m *Game_SendRestTime) String() string {
+	return proto.CompactTextString(m)
+}
+func (*Game_SendRestTime) ProtoMessage() {}
+func (*Game_SendRestTime) Descriptor() ([]byte, []int) {
+	return fileDescriptor1, []int{41}
+}
 
 func (m *Game_SendRestTime) GetMatchid() []byte {
 	if m != nil {
@@ -2400,10 +2658,16 @@ type Game_LeaveTable struct {
 	XXX_unrecognized []byte                  `json:"-"`
 }
 
-func (m *Game_LeaveTable) Reset()                    { *m = Game_LeaveTable{} }
-func (m *Game_LeaveTable) String() string            { return proto.CompactTextString(m) }
-func (*Game_LeaveTable) ProtoMessage()               {}
-func (*Game_LeaveTable) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{42} }
+func (m *Game_LeaveTable) Reset() {
+	*m = Game_LeaveTable{}
+}
+func (m *Game_LeaveTable) String() string {
+	return proto.CompactTextString(m)
+}
+func (*Game_LeaveTable) ProtoMessage() {}
+func (*Game_LeaveTable) Descriptor() ([]byte, []int) {
+	return fileDescriptor1, []int{42}
+}
 
 func (m *Game_LeaveTable) GetMatchid() []byte {
 	if m != nil {
@@ -2450,10 +2714,16 @@ type Game_PreCoin struct {
 	XXX_unrecognized []byte  `json:"-"`
 }
 
-func (m *Game_PreCoin) Reset()                    { *m = Game_PreCoin{} }
-func (m *Game_PreCoin) String() string            { return proto.CompactTextString(m) }
-func (*Game_PreCoin) ProtoMessage()               {}
-func (*Game_PreCoin) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{43} }
+func (m *Game_PreCoin) Reset() {
+	*m = Game_PreCoin{}
+}
+func (m *Game_PreCoin) String() string {
+	return proto.CompactTextString(m)
+}
+func (*Game_PreCoin) ProtoMessage() {}
+func (*Game_PreCoin) Descriptor() ([]byte, []int) {
+	return fileDescriptor1, []int{43}
+}
 
 func (m *Game_PreCoin) GetMatchid() []byte {
 	if m != nil {
@@ -2505,10 +2775,16 @@ type Game_BlindCoin struct {
 	XXX_unrecognized []byte  `json:"-"`
 }
 
-func (m *Game_BlindCoin) Reset()                    { *m = Game_BlindCoin{} }
-func (m *Game_BlindCoin) String() string            { return proto.CompactTextString(m) }
-func (*Game_BlindCoin) ProtoMessage()               {}
-func (*Game_BlindCoin) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{44} }
+func (m *Game_BlindCoin) Reset() {
+	*m = Game_BlindCoin{}
+}
+func (m *Game_BlindCoin) String() string {
+	return proto.CompactTextString(m)
+}
+func (*Game_BlindCoin) ProtoMessage() {}
+func (*Game_BlindCoin) Descriptor() ([]byte, []int) {
+	return fileDescriptor1, []int{44}
+}
 
 func (m *Game_BlindCoin) GetMatchid() []byte {
 	if m != nil {
@@ -2588,10 +2864,16 @@ type Game_NowelterInfo struct {
 	XXX_unrecognized []byte `json:"-"`
 }
 
-func (m *Game_NowelterInfo) Reset()                    { *m = Game_NowelterInfo{} }
-func (m *Game_NowelterInfo) String() string            { return proto.CompactTextString(m) }
-func (*Game_NowelterInfo) ProtoMessage()               {}
-func (*Game_NowelterInfo) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{45} }
+func (m *Game_NowelterInfo) Reset() {
+	*m = Game_NowelterInfo{}
+}
+func (m *Game_NowelterInfo) String() string {
+	return proto.CompactTextString(m)
+}
+func (*Game_NowelterInfo) ProtoMessage() {}
+func (*Game_NowelterInfo) Descriptor() ([]byte, []int) {
+	return fileDescriptor1, []int{45}
+}
 
 func (m *Game_NowelterInfo) GetReusername() []byte {
 	if m != nil {
@@ -2625,10 +2907,16 @@ type DDReqSitdownSeat struct {
 	XXX_unrecognized []byte `json:"-"`
 }
 
-func (m *DDReqSitdownSeat) Reset()                    { *m = DDReqSitdownSeat{} }
-func (m *DDReqSitdownSeat) String() string            { return proto.CompactTextString(m) }
-func (*DDReqSitdownSeat) ProtoMessage()               {}
-func (*DDReqSitdownSeat) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{46} }
+func (m *DDReqSitdownSeat) Reset() {
+	*m = DDReqSitdownSeat{}
+}
+func (m *DDReqSitdownSeat) String() string {
+	return proto.CompactTextString(m)
+}
+func (*DDReqSitdownSeat) ProtoMessage() {}
+func (*DDReqSitdownSeat) Descriptor() ([]byte, []int) {
+	return fileDescriptor1, []int{46}
+}
 
 func (m *DDReqSitdownSeat) GetMatchID() []byte {
 	if m != nil {
@@ -2677,10 +2965,16 @@ type DDAckSitdownSeat struct {
 	XXX_unrecognized []byte `json:"-"`
 }
 
-func (m *DDAckSitdownSeat) Reset()                    { *m = DDAckSitdownSeat{} }
-func (m *DDAckSitdownSeat) String() string            { return proto.CompactTextString(m) }
-func (*DDAckSitdownSeat) ProtoMessage()               {}
-func (*DDAckSitdownSeat) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{47} }
+func (m *DDAckSitdownSeat) Reset() {
+	*m = DDAckSitdownSeat{}
+}
+func (m *DDAckSitdownSeat) String() string {
+	return proto.CompactTextString(m)
+}
+func (*DDAckSitdownSeat) ProtoMessage() {}
+func (*DDAckSitdownSeat) Descriptor() ([]byte, []int) {
+	return fileDescriptor1, []int{47}
+}
 
 func (m *DDAckSitdownSeat) GetResult() int32 {
 	if m != nil && m.Result != nil {
@@ -2748,10 +3042,16 @@ type DDReqBuyChip struct {
 	XXX_unrecognized []byte `json:"-"`
 }
 
-func (m *DDReqBuyChip) Reset()                    { *m = DDReqBuyChip{} }
-func (m *DDReqBuyChip) String() string            { return proto.CompactTextString(m) }
-func (*DDReqBuyChip) ProtoMessage()               {}
-func (*DDReqBuyChip) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{48} }
+func (m *DDReqBuyChip) Reset() {
+	*m = DDReqBuyChip{}
+}
+func (m *DDReqBuyChip) String() string {
+	return proto.CompactTextString(m)
+}
+func (*DDReqBuyChip) ProtoMessage() {}
+func (*DDReqBuyChip) Descriptor() ([]byte, []int) {
+	return fileDescriptor1, []int{48}
+}
 
 func (m *DDReqBuyChip) GetMatchID() []byte {
 	if m != nil {
@@ -2789,8 +3089,8 @@ func (m *DDReqBuyChip) GetNCurChip() int64 {
 }
 
 type DDAckBuyChip struct {
-	Result *int32 `protobuf:"varint,1,opt,name=Result" json:"Result,omitempty"`
-	Reason *int32 `protobuf:"varint,2,opt,name=reason" json:"reason,omitempty"`
+	Result           *int32 `protobuf:"varint,1,opt,name=Result" json:"Result,omitempty"`
+	Reason           *int32 `protobuf:"varint,2,opt,name=reason" json:"reason,omitempty"`
 	// 7没有该比赛,8数据库操作失败,9不符合强制带入条件,10不在最大最小带入范围内,11游戏中不能带人
 	MatchID          []byte `protobuf:"bytes,3,opt,name=MatchID" json:"MatchID,omitempty"`
 	SUserName        []byte `protobuf:"bytes,4,opt,name=sUserName" json:"sUserName,omitempty"`
@@ -2800,10 +3100,16 @@ type DDAckBuyChip struct {
 	XXX_unrecognized []byte `json:"-"`
 }
 
-func (m *DDAckBuyChip) Reset()                    { *m = DDAckBuyChip{} }
-func (m *DDAckBuyChip) String() string            { return proto.CompactTextString(m) }
-func (*DDAckBuyChip) ProtoMessage()               {}
-func (*DDAckBuyChip) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{49} }
+func (m *DDAckBuyChip) Reset() {
+	*m = DDAckBuyChip{}
+}
+func (m *DDAckBuyChip) String() string {
+	return proto.CompactTextString(m)
+}
+func (*DDAckBuyChip) ProtoMessage() {}
+func (*DDAckBuyChip) Descriptor() ([]byte, []int) {
+	return fileDescriptor1, []int{49}
+}
 
 func (m *DDAckBuyChip) GetResult() int32 {
 	if m != nil && m.Result != nil {
@@ -2861,10 +3167,16 @@ type DDNeetBugChip struct {
 	XXX_unrecognized []byte `json:"-"`
 }
 
-func (m *DDNeetBugChip) Reset()                    { *m = DDNeetBugChip{} }
-func (m *DDNeetBugChip) String() string            { return proto.CompactTextString(m) }
-func (*DDNeetBugChip) ProtoMessage()               {}
-func (*DDNeetBugChip) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{50} }
+func (m *DDNeetBugChip) Reset() {
+	*m = DDNeetBugChip{}
+}
+func (m *DDNeetBugChip) String() string {
+	return proto.CompactTextString(m)
+}
+func (*DDNeetBugChip) ProtoMessage() {}
+func (*DDNeetBugChip) Descriptor() ([]byte, []int) {
+	return fileDescriptor1, []int{50}
+}
 
 func (m *DDNeetBugChip) GetMatchID() []byte {
 	if m != nil {
@@ -2889,10 +3201,16 @@ type DDReqLeave struct {
 	XXX_unrecognized []byte  `json:"-"`
 }
 
-func (m *DDReqLeave) Reset()                    { *m = DDReqLeave{} }
-func (m *DDReqLeave) String() string            { return proto.CompactTextString(m) }
-func (*DDReqLeave) ProtoMessage()               {}
-func (*DDReqLeave) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{51} }
+func (m *DDReqLeave) Reset() {
+	*m = DDReqLeave{}
+}
+func (m *DDReqLeave) String() string {
+	return proto.CompactTextString(m)
+}
+func (*DDReqLeave) ProtoMessage() {}
+func (*DDReqLeave) Descriptor() ([]byte, []int) {
+	return fileDescriptor1, []int{51}
+}
 
 func (m *DDReqLeave) GetMatchID() []byte {
 	if m != nil {
@@ -2931,10 +3249,16 @@ type DDAckLeave struct {
 	XXX_unrecognized []byte `json:"-"`
 }
 
-func (m *DDAckLeave) Reset()                    { *m = DDAckLeave{} }
-func (m *DDAckLeave) String() string            { return proto.CompactTextString(m) }
-func (*DDAckLeave) ProtoMessage()               {}
-func (*DDAckLeave) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{52} }
+func (m *DDAckLeave) Reset() {
+	*m = DDAckLeave{}
+}
+func (m *DDAckLeave) String() string {
+	return proto.CompactTextString(m)
+}
+func (*DDAckLeave) ProtoMessage() {}
+func (*DDAckLeave) Descriptor() ([]byte, []int) {
+	return fileDescriptor1, []int{52}
+}
 
 func (m *DDAckLeave) GetResult() int32 {
 	if m != nil && m.Result != nil {
@@ -2981,10 +3305,16 @@ type DDGameRule struct {
 	XXX_unrecognized []byte `json:"-"`
 }
 
-func (m *DDGameRule) Reset()                    { *m = DDGameRule{} }
-func (m *DDGameRule) String() string            { return proto.CompactTextString(m) }
-func (*DDGameRule) ProtoMessage()               {}
-func (*DDGameRule) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{53} }
+func (m *DDGameRule) Reset() {
+	*m = DDGameRule{}
+}
+func (m *DDGameRule) String() string {
+	return proto.CompactTextString(m)
+}
+func (*DDGameRule) ProtoMessage() {}
+func (*DDGameRule) Descriptor() ([]byte, []int) {
+	return fileDescriptor1, []int{53}
+}
 
 func (m *DDGameRule) GetMatchID() []byte {
 	if m != nil {
@@ -3030,10 +3360,16 @@ type DDWaitBigBling struct {
 	XXX_unrecognized []byte `json:"-"`
 }
 
-func (m *DDWaitBigBling) Reset()                    { *m = DDWaitBigBling{} }
-func (m *DDWaitBigBling) String() string            { return proto.CompactTextString(m) }
-func (*DDWaitBigBling) ProtoMessage()               {}
-func (*DDWaitBigBling) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{54} }
+func (m *DDWaitBigBling) Reset() {
+	*m = DDWaitBigBling{}
+}
+func (m *DDWaitBigBling) String() string {
+	return proto.CompactTextString(m)
+}
+func (*DDWaitBigBling) ProtoMessage() {}
+func (*DDWaitBigBling) Descriptor() ([]byte, []int) {
+	return fileDescriptor1, []int{54}
+}
 
 func (m *DDWaitBigBling) GetMatchID() []byte {
 	if m != nil {
@@ -3072,10 +3408,16 @@ type DDNextBiglingWatch struct {
 	XXX_unrecognized []byte `json:"-"`
 }
 
-func (m *DDNextBiglingWatch) Reset()                    { *m = DDNextBiglingWatch{} }
-func (m *DDNextBiglingWatch) String() string            { return proto.CompactTextString(m) }
-func (*DDNextBiglingWatch) ProtoMessage()               {}
-func (*DDNextBiglingWatch) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{55} }
+func (m *DDNextBiglingWatch) Reset() {
+	*m = DDNextBiglingWatch{}
+}
+func (m *DDNextBiglingWatch) String() string {
+	return proto.CompactTextString(m)
+}
+func (*DDNextBiglingWatch) ProtoMessage() {}
+func (*DDNextBiglingWatch) Descriptor() ([]byte, []int) {
+	return fileDescriptor1, []int{55}
+}
 
 func (m *DDNextBiglingWatch) GetMatchID() []byte {
 	if m != nil {
@@ -3115,10 +3457,16 @@ type DDChatMsg struct {
 	XXX_unrecognized []byte `json:"-"`
 }
 
-func (m *DDChatMsg) Reset()                    { *m = DDChatMsg{} }
-func (m *DDChatMsg) String() string            { return proto.CompactTextString(m) }
-func (*DDChatMsg) ProtoMessage()               {}
-func (*DDChatMsg) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{56} }
+func (m *DDChatMsg) Reset() {
+	*m = DDChatMsg{}
+}
+func (m *DDChatMsg) String() string {
+	return proto.CompactTextString(m)
+}
+func (*DDChatMsg) ProtoMessage() {}
+func (*DDChatMsg) Descriptor() ([]byte, []int) {
+	return fileDescriptor1, []int{56}
+}
 
 func (m *DDChatMsg) GetMatchID() []byte {
 	if m != nil {
@@ -3164,10 +3512,16 @@ type DDProposalMsg struct {
 	XXX_unrecognized []byte `json:"-"`
 }
 
-func (m *DDProposalMsg) Reset()                    { *m = DDProposalMsg{} }
-func (m *DDProposalMsg) String() string            { return proto.CompactTextString(m) }
-func (*DDProposalMsg) ProtoMessage()               {}
-func (*DDProposalMsg) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{57} }
+func (m *DDProposalMsg) Reset() {
+	*m = DDProposalMsg{}
+}
+func (m *DDProposalMsg) String() string {
+	return proto.CompactTextString(m)
+}
+func (*DDProposalMsg) ProtoMessage() {}
+func (*DDProposalMsg) Descriptor() ([]byte, []int) {
+	return fileDescriptor1, []int{57}
+}
 
 func (m *DDProposalMsg) GetSName() []byte {
 	if m != nil {
@@ -3206,10 +3560,16 @@ type DDReqPayMsg struct {
 	XXX_unrecognized []byte `json:"-"`
 }
 
-func (m *DDReqPayMsg) Reset()                    { *m = DDReqPayMsg{} }
-func (m *DDReqPayMsg) String() string            { return proto.CompactTextString(m) }
-func (*DDReqPayMsg) ProtoMessage()               {}
-func (*DDReqPayMsg) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{58} }
+func (m *DDReqPayMsg) Reset() {
+	*m = DDReqPayMsg{}
+}
+func (m *DDReqPayMsg) String() string {
+	return proto.CompactTextString(m)
+}
+func (*DDReqPayMsg) ProtoMessage() {}
+func (*DDReqPayMsg) Descriptor() ([]byte, []int) {
+	return fileDescriptor1, []int{58}
+}
 
 func (m *DDReqPayMsg) GetSUserName() []byte {
 	if m != nil {
@@ -3253,10 +3613,16 @@ type DDAckPayMsg struct {
 	XXX_unrecognized []byte              `json:"-"`
 }
 
-func (m *DDAckPayMsg) Reset()                    { *m = DDAckPayMsg{} }
-func (m *DDAckPayMsg) String() string            { return proto.CompactTextString(m) }
-func (*DDAckPayMsg) ProtoMessage()               {}
-func (*DDAckPayMsg) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{59} }
+func (m *DDAckPayMsg) Reset() {
+	*m = DDAckPayMsg{}
+}
+func (m *DDAckPayMsg) String() string {
+	return proto.CompactTextString(m)
+}
+func (*DDAckPayMsg) ProtoMessage() {}
+func (*DDAckPayMsg) Descriptor() ([]byte, []int) {
+	return fileDescriptor1, []int{59}
+}
 
 func (m *DDAckPayMsg) GetSUserName() []byte {
 	if m != nil {
@@ -3338,10 +3704,16 @@ type DDReqExChangeHYD struct {
 	XXX_unrecognized []byte `json:"-"`
 }
 
-func (m *DDReqExChangeHYD) Reset()                    { *m = DDReqExChangeHYD{} }
-func (m *DDReqExChangeHYD) String() string            { return proto.CompactTextString(m) }
-func (*DDReqExChangeHYD) ProtoMessage()               {}
-func (*DDReqExChangeHYD) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{60} }
+func (m *DDReqExChangeHYD) Reset() {
+	*m = DDReqExChangeHYD{}
+}
+func (m *DDReqExChangeHYD) String() string {
+	return proto.CompactTextString(m)
+}
+func (*DDReqExChangeHYD) ProtoMessage() {}
+func (*DDReqExChangeHYD) Descriptor() ([]byte, []int) {
+	return fileDescriptor1, []int{60}
+}
 
 func (m *DDReqExChangeHYD) GetMatchID() []byte {
 	if m != nil {
@@ -3375,10 +3747,16 @@ type DDAckExChangeHYD struct {
 	XXX_unrecognized []byte `json:"-"`
 }
 
-func (m *DDAckExChangeHYD) Reset()                    { *m = DDAckExChangeHYD{} }
-func (m *DDAckExChangeHYD) String() string            { return proto.CompactTextString(m) }
-func (*DDAckExChangeHYD) ProtoMessage()               {}
-func (*DDAckExChangeHYD) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{61} }
+func (m *DDAckExChangeHYD) Reset() {
+	*m = DDAckExChangeHYD{}
+}
+func (m *DDAckExChangeHYD) String() string {
+	return proto.CompactTextString(m)
+}
+func (*DDAckExChangeHYD) ProtoMessage() {}
+func (*DDAckExChangeHYD) Descriptor() ([]byte, []int) {
+	return fileDescriptor1, []int{61}
+}
 
 func (m *DDAckExChangeHYD) GetNResult() int32 {
 	if m != nil && m.NResult != nil {
@@ -3439,10 +3817,16 @@ type DDNtfChangeHYD struct {
 	XXX_unrecognized []byte `json:"-"`
 }
 
-func (m *DDNtfChangeHYD) Reset()                    { *m = DDNtfChangeHYD{} }
-func (m *DDNtfChangeHYD) String() string            { return proto.CompactTextString(m) }
-func (*DDNtfChangeHYD) ProtoMessage()               {}
-func (*DDNtfChangeHYD) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{62} }
+func (m *DDNtfChangeHYD) Reset() {
+	*m = DDNtfChangeHYD{}
+}
+func (m *DDNtfChangeHYD) String() string {
+	return proto.CompactTextString(m)
+}
+func (*DDNtfChangeHYD) ProtoMessage() {}
+func (*DDNtfChangeHYD) Descriptor() ([]byte, []int) {
+	return fileDescriptor1, []int{62}
+}
 
 func (m *DDNtfChangeHYD) GetMatchID() []byte {
 	if m != nil {
@@ -3484,10 +3868,16 @@ type DDReqPresentCoins struct {
 	XXX_unrecognized []byte  `json:"-"`
 }
 
-func (m *DDReqPresentCoins) Reset()                    { *m = DDReqPresentCoins{} }
-func (m *DDReqPresentCoins) String() string            { return proto.CompactTextString(m) }
-func (*DDReqPresentCoins) ProtoMessage()               {}
-func (*DDReqPresentCoins) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{63} }
+func (m *DDReqPresentCoins) Reset() {
+	*m = DDReqPresentCoins{}
+}
+func (m *DDReqPresentCoins) String() string {
+	return proto.CompactTextString(m)
+}
+func (*DDReqPresentCoins) ProtoMessage() {}
+func (*DDReqPresentCoins) Descriptor() ([]byte, []int) {
+	return fileDescriptor1, []int{63}
+}
 
 func (m *DDReqPresentCoins) GetMatchID() []byte {
 	if m != nil {
@@ -3541,10 +3931,16 @@ type DDAckPresentCoins struct {
 	XXX_unrecognized []byte                    `json:"-"`
 }
 
-func (m *DDAckPresentCoins) Reset()                    { *m = DDAckPresentCoins{} }
-func (m *DDAckPresentCoins) String() string            { return proto.CompactTextString(m) }
-func (*DDAckPresentCoins) ProtoMessage()               {}
-func (*DDAckPresentCoins) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{64} }
+func (m *DDAckPresentCoins) Reset() {
+	*m = DDAckPresentCoins{}
+}
+func (m *DDAckPresentCoins) String() string {
+	return proto.CompactTextString(m)
+}
+func (*DDAckPresentCoins) ProtoMessage() {}
+func (*DDAckPresentCoins) Descriptor() ([]byte, []int) {
+	return fileDescriptor1, []int{64}
+}
 
 func (m *DDAckPresentCoins) GetMatchID() []byte {
 	if m != nil {
@@ -3598,10 +3994,16 @@ type DDReqPrivateChatMsg struct {
 	XXX_unrecognized []byte `json:"-"`
 }
 
-func (m *DDReqPrivateChatMsg) Reset()                    { *m = DDReqPrivateChatMsg{} }
-func (m *DDReqPrivateChatMsg) String() string            { return proto.CompactTextString(m) }
-func (*DDReqPrivateChatMsg) ProtoMessage()               {}
-func (*DDReqPrivateChatMsg) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{65} }
+func (m *DDReqPrivateChatMsg) Reset() {
+	*m = DDReqPrivateChatMsg{}
+}
+func (m *DDReqPrivateChatMsg) String() string {
+	return proto.CompactTextString(m)
+}
+func (*DDReqPrivateChatMsg) ProtoMessage() {}
+func (*DDReqPrivateChatMsg) Descriptor() ([]byte, []int) {
+	return fileDescriptor1, []int{65}
+}
 
 func (m *DDReqPrivateChatMsg) GetMatchID() []byte {
 	if m != nil {
@@ -3640,10 +4042,16 @@ type DDAckPrivateChatMsg struct {
 	XXX_unrecognized []byte `json:"-"`
 }
 
-func (m *DDAckPrivateChatMsg) Reset()                    { *m = DDAckPrivateChatMsg{} }
-func (m *DDAckPrivateChatMsg) String() string            { return proto.CompactTextString(m) }
-func (*DDAckPrivateChatMsg) ProtoMessage()               {}
-func (*DDAckPrivateChatMsg) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{66} }
+func (m *DDAckPrivateChatMsg) Reset() {
+	*m = DDAckPrivateChatMsg{}
+}
+func (m *DDAckPrivateChatMsg) String() string {
+	return proto.CompactTextString(m)
+}
+func (*DDAckPrivateChatMsg) ProtoMessage() {}
+func (*DDAckPrivateChatMsg) Descriptor() ([]byte, []int) {
+	return fileDescriptor1, []int{66}
+}
 
 func (m *DDAckPrivateChatMsg) GetMatchID() []byte {
 	if m != nil {
@@ -3690,10 +4098,16 @@ type DDReqAbleOrUnableChat struct {
 	XXX_unrecognized []byte `json:"-"`
 }
 
-func (m *DDReqAbleOrUnableChat) Reset()                    { *m = DDReqAbleOrUnableChat{} }
-func (m *DDReqAbleOrUnableChat) String() string            { return proto.CompactTextString(m) }
-func (*DDReqAbleOrUnableChat) ProtoMessage()               {}
-func (*DDReqAbleOrUnableChat) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{67} }
+func (m *DDReqAbleOrUnableChat) Reset() {
+	*m = DDReqAbleOrUnableChat{}
+}
+func (m *DDReqAbleOrUnableChat) String() string {
+	return proto.CompactTextString(m)
+}
+func (*DDReqAbleOrUnableChat) ProtoMessage() {}
+func (*DDReqAbleOrUnableChat) Descriptor() ([]byte, []int) {
+	return fileDescriptor1, []int{67}
+}
 
 func (m *DDReqAbleOrUnableChat) GetMatchID() []byte {
 	if m != nil {
@@ -3732,10 +4146,16 @@ type DDAckAbleOrUnableChat struct {
 	XXX_unrecognized []byte `json:"-"`
 }
 
-func (m *DDAckAbleOrUnableChat) Reset()                    { *m = DDAckAbleOrUnableChat{} }
-func (m *DDAckAbleOrUnableChat) String() string            { return proto.CompactTextString(m) }
-func (*DDAckAbleOrUnableChat) ProtoMessage()               {}
-func (*DDAckAbleOrUnableChat) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{68} }
+func (m *DDAckAbleOrUnableChat) Reset() {
+	*m = DDAckAbleOrUnableChat{}
+}
+func (m *DDAckAbleOrUnableChat) String() string {
+	return proto.CompactTextString(m)
+}
+func (*DDAckAbleOrUnableChat) ProtoMessage() {}
+func (*DDAckAbleOrUnableChat) Descriptor() ([]byte, []int) {
+	return fileDescriptor1, []int{68}
+}
 
 func (m *DDAckAbleOrUnableChat) GetMatchID() []byte {
 	if m != nil {
@@ -3782,10 +4202,16 @@ type DDReqKick struct {
 	XXX_unrecognized []byte `json:"-"`
 }
 
-func (m *DDReqKick) Reset()                    { *m = DDReqKick{} }
-func (m *DDReqKick) String() string            { return proto.CompactTextString(m) }
-func (*DDReqKick) ProtoMessage()               {}
-func (*DDReqKick) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{69} }
+func (m *DDReqKick) Reset() {
+	*m = DDReqKick{}
+}
+func (m *DDReqKick) String() string {
+	return proto.CompactTextString(m)
+}
+func (*DDReqKick) ProtoMessage() {}
+func (*DDReqKick) Descriptor() ([]byte, []int) {
+	return fileDescriptor1, []int{69}
+}
 
 func (m *DDReqKick) GetMatchID() []byte {
 	if m != nil {
@@ -3823,10 +4249,16 @@ type DDAckKick struct {
 	XXX_unrecognized []byte `json:"-"`
 }
 
-func (m *DDAckKick) Reset()                    { *m = DDAckKick{} }
-func (m *DDAckKick) String() string            { return proto.CompactTextString(m) }
-func (*DDAckKick) ProtoMessage()               {}
-func (*DDAckKick) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{70} }
+func (m *DDAckKick) Reset() {
+	*m = DDAckKick{}
+}
+func (m *DDAckKick) String() string {
+	return proto.CompactTextString(m)
+}
+func (*DDAckKick) ProtoMessage() {}
+func (*DDAckKick) Descriptor() ([]byte, []int) {
+	return fileDescriptor1, []int{70}
+}
 
 func (m *DDAckKick) GetMatchID() []byte {
 	if m != nil {
@@ -3866,10 +4298,16 @@ type DDUserInfos struct {
 	XXX_unrecognized []byte `json:"-"`
 }
 
-func (m *DDUserInfos) Reset()                    { *m = DDUserInfos{} }
-func (m *DDUserInfos) String() string            { return proto.CompactTextString(m) }
-func (*DDUserInfos) ProtoMessage()               {}
-func (*DDUserInfos) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{71} }
+func (m *DDUserInfos) Reset() {
+	*m = DDUserInfos{}
+}
+func (m *DDUserInfos) String() string {
+	return proto.CompactTextString(m)
+}
+func (*DDUserInfos) ProtoMessage() {}
+func (*DDUserInfos) Descriptor() ([]byte, []int) {
+	return fileDescriptor1, []int{71}
+}
 
 func (m *DDUserInfos) GetSUserName() []byte {
 	if m != nil {
@@ -3906,10 +4344,16 @@ type DDUserList struct {
 	XXX_unrecognized []byte         `json:"-"`
 }
 
-func (m *DDUserList) Reset()                    { *m = DDUserList{} }
-func (m *DDUserList) String() string            { return proto.CompactTextString(m) }
-func (*DDUserList) ProtoMessage()               {}
-func (*DDUserList) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{72} }
+func (m *DDUserList) Reset() {
+	*m = DDUserList{}
+}
+func (m *DDUserList) String() string {
+	return proto.CompactTextString(m)
+}
+func (*DDUserList) ProtoMessage() {}
+func (*DDUserList) Descriptor() ([]byte, []int) {
+	return fileDescriptor1, []int{72}
+}
 
 func (m *DDUserList) GetMatchID() []byte {
 	if m != nil {
@@ -3942,10 +4386,16 @@ type DDModifyConfig struct {
 	XXX_unrecognized []byte `json:"-"`
 }
 
-func (m *DDModifyConfig) Reset()                    { *m = DDModifyConfig{} }
-func (m *DDModifyConfig) String() string            { return proto.CompactTextString(m) }
-func (*DDModifyConfig) ProtoMessage()               {}
-func (*DDModifyConfig) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{73} }
+func (m *DDModifyConfig) Reset() {
+	*m = DDModifyConfig{}
+}
+func (m *DDModifyConfig) String() string {
+	return proto.CompactTextString(m)
+}
+func (*DDModifyConfig) ProtoMessage() {}
+func (*DDModifyConfig) Descriptor() ([]byte, []int) {
+	return fileDescriptor1, []int{73}
+}
 
 func (m *DDModifyConfig) GetMatchID() []byte {
 	if m != nil {
@@ -3983,10 +4433,16 @@ type DDUnAbleChatList struct {
 	XXX_unrecognized []byte   `json:"-"`
 }
 
-func (m *DDUnAbleChatList) Reset()                    { *m = DDUnAbleChatList{} }
-func (m *DDUnAbleChatList) String() string            { return proto.CompactTextString(m) }
-func (*DDUnAbleChatList) ProtoMessage()               {}
-func (*DDUnAbleChatList) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{74} }
+func (m *DDUnAbleChatList) Reset() {
+	*m = DDUnAbleChatList{}
+}
+func (m *DDUnAbleChatList) String() string {
+	return proto.CompactTextString(m)
+}
+func (*DDUnAbleChatList) ProtoMessage() {}
+func (*DDUnAbleChatList) Descriptor() ([]byte, []int) {
+	return fileDescriptor1, []int{74}
+}
 
 func (m *DDUnAbleChatList) GetMatchID() []byte {
 	if m != nil {
@@ -4011,10 +4467,16 @@ type DDShowPictrue struct {
 	XXX_unrecognized []byte `json:"-"`
 }
 
-func (m *DDShowPictrue) Reset()                    { *m = DDShowPictrue{} }
-func (m *DDShowPictrue) String() string            { return proto.CompactTextString(m) }
-func (*DDShowPictrue) ProtoMessage()               {}
-func (*DDShowPictrue) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{75} }
+func (m *DDShowPictrue) Reset() {
+	*m = DDShowPictrue{}
+}
+func (m *DDShowPictrue) String() string {
+	return proto.CompactTextString(m)
+}
+func (*DDShowPictrue) ProtoMessage() {}
+func (*DDShowPictrue) Descriptor() ([]byte, []int) {
+	return fileDescriptor1, []int{75}
+}
 
 func (m *DDShowPictrue) GetMatchID() []byte {
 	if m != nil {
@@ -4048,10 +4510,16 @@ type DDAddUserToList struct {
 	XXX_unrecognized []byte `json:"-"`
 }
 
-func (m *DDAddUserToList) Reset()                    { *m = DDAddUserToList{} }
-func (m *DDAddUserToList) String() string            { return proto.CompactTextString(m) }
-func (*DDAddUserToList) ProtoMessage()               {}
-func (*DDAddUserToList) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{76} }
+func (m *DDAddUserToList) Reset() {
+	*m = DDAddUserToList{}
+}
+func (m *DDAddUserToList) String() string {
+	return proto.CompactTextString(m)
+}
+func (*DDAddUserToList) ProtoMessage() {}
+func (*DDAddUserToList) Descriptor() ([]byte, []int) {
+	return fileDescriptor1, []int{76}
+}
 
 func (m *DDAddUserToList) GetMatchID() []byte {
 	if m != nil {
@@ -4096,10 +4564,16 @@ type DDDeleteUserFromList struct {
 	XXX_unrecognized []byte `json:"-"`
 }
 
-func (m *DDDeleteUserFromList) Reset()                    { *m = DDDeleteUserFromList{} }
-func (m *DDDeleteUserFromList) String() string            { return proto.CompactTextString(m) }
-func (*DDDeleteUserFromList) ProtoMessage()               {}
-func (*DDDeleteUserFromList) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{77} }
+func (m *DDDeleteUserFromList) Reset() {
+	*m = DDDeleteUserFromList{}
+}
+func (m *DDDeleteUserFromList) String() string {
+	return proto.CompactTextString(m)
+}
+func (*DDDeleteUserFromList) ProtoMessage() {}
+func (*DDDeleteUserFromList) Descriptor() ([]byte, []int) {
+	return fileDescriptor1, []int{77}
+}
 
 func (m *DDDeleteUserFromList) GetMatchID() []byte {
 	if m != nil {
@@ -4124,10 +4598,16 @@ type DDBroadCastPlayerGiftStatus struct {
 	XXX_unrecognized []byte `json:"-"`
 }
 
-func (m *DDBroadCastPlayerGiftStatus) Reset()                    { *m = DDBroadCastPlayerGiftStatus{} }
-func (m *DDBroadCastPlayerGiftStatus) String() string            { return proto.CompactTextString(m) }
-func (*DDBroadCastPlayerGiftStatus) ProtoMessage()               {}
-func (*DDBroadCastPlayerGiftStatus) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{78} }
+func (m *DDBroadCastPlayerGiftStatus) Reset() {
+	*m = DDBroadCastPlayerGiftStatus{}
+}
+func (m *DDBroadCastPlayerGiftStatus) String() string {
+	return proto.CompactTextString(m)
+}
+func (*DDBroadCastPlayerGiftStatus) ProtoMessage() {}
+func (*DDBroadCastPlayerGiftStatus) Descriptor() ([]byte, []int) {
+	return fileDescriptor1, []int{78}
+}
 
 func (m *DDBroadCastPlayerGiftStatus) GetRoleName() []byte {
 	if m != nil {
@@ -4159,10 +4639,16 @@ type DDGiveGift struct {
 	XXX_unrecognized []byte   `json:"-"`
 }
 
-func (m *DDGiveGift) Reset()                    { *m = DDGiveGift{} }
-func (m *DDGiveGift) String() string            { return proto.CompactTextString(m) }
-func (*DDGiveGift) ProtoMessage()               {}
-func (*DDGiveGift) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{79} }
+func (m *DDGiveGift) Reset() {
+	*m = DDGiveGift{}
+}
+func (m *DDGiveGift) String() string {
+	return proto.CompactTextString(m)
+}
+func (*DDGiveGift) ProtoMessage() {}
+func (*DDGiveGift) Descriptor() ([]byte, []int) {
+	return fileDescriptor1, []int{79}
+}
 
 func (m *DDGiveGift) GetCustomerName() []byte {
 	if m != nil {
@@ -4194,10 +4680,16 @@ type DDGiveItem struct {
 	XXX_unrecognized []byte `json:"-"`
 }
 
-func (m *DDGiveItem) Reset()                    { *m = DDGiveItem{} }
-func (m *DDGiveItem) String() string            { return proto.CompactTextString(m) }
-func (*DDGiveItem) ProtoMessage()               {}
-func (*DDGiveItem) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{80} }
+func (m *DDGiveItem) Reset() {
+	*m = DDGiveItem{}
+}
+func (m *DDGiveItem) String() string {
+	return proto.CompactTextString(m)
+}
+func (*DDGiveItem) ProtoMessage() {}
+func (*DDGiveItem) Descriptor() ([]byte, []int) {
+	return fileDescriptor1, []int{80}
+}
 
 func (m *DDGiveItem) GetCustomerName() []byte {
 	if m != nil {
@@ -4230,10 +4722,16 @@ type DDBroadCastFace struct {
 	XXX_unrecognized []byte  `json:"-"`
 }
 
-func (m *DDBroadCastFace) Reset()                    { *m = DDBroadCastFace{} }
-func (m *DDBroadCastFace) String() string            { return proto.CompactTextString(m) }
-func (*DDBroadCastFace) ProtoMessage()               {}
-func (*DDBroadCastFace) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{81} }
+func (m *DDBroadCastFace) Reset() {
+	*m = DDBroadCastFace{}
+}
+func (m *DDBroadCastFace) String() string {
+	return proto.CompactTextString(m)
+}
+func (*DDBroadCastFace) ProtoMessage() {}
+func (*DDBroadCastFace) Descriptor() ([]byte, []int) {
+	return fileDescriptor1, []int{81}
+}
 
 func (m *DDBroadCastFace) GetRoleName() []byte {
 	if m != nil {
@@ -4272,10 +4770,16 @@ type DDReqRebuy struct {
 	XXX_unrecognized []byte `json:"-"`
 }
 
-func (m *DDReqRebuy) Reset()                    { *m = DDReqRebuy{} }
-func (m *DDReqRebuy) String() string            { return proto.CompactTextString(m) }
-func (*DDReqRebuy) ProtoMessage()               {}
-func (*DDReqRebuy) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{82} }
+func (m *DDReqRebuy) Reset() {
+	*m = DDReqRebuy{}
+}
+func (m *DDReqRebuy) String() string {
+	return proto.CompactTextString(m)
+}
+func (*DDReqRebuy) ProtoMessage() {}
+func (*DDReqRebuy) Descriptor() ([]byte, []int) {
+	return fileDescriptor1, []int{82}
+}
 
 func (m *DDReqRebuy) GetRoleName() []byte {
 	if m != nil {
@@ -4325,10 +4829,16 @@ type DDAckRebuy struct {
 	XXX_unrecognized []byte `json:"-"`
 }
 
-func (m *DDAckRebuy) Reset()                    { *m = DDAckRebuy{} }
-func (m *DDAckRebuy) String() string            { return proto.CompactTextString(m) }
-func (*DDAckRebuy) ProtoMessage()               {}
-func (*DDAckRebuy) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{83} }
+func (m *DDAckRebuy) Reset() {
+	*m = DDAckRebuy{}
+}
+func (m *DDAckRebuy) String() string {
+	return proto.CompactTextString(m)
+}
+func (*DDAckRebuy) ProtoMessage() {}
+func (*DDAckRebuy) Descriptor() ([]byte, []int) {
+	return fileDescriptor1, []int{83}
+}
 
 func (m *DDAckRebuy) GetResult() int32 {
 	if m != nil && m.Result != nil {
@@ -4405,10 +4915,16 @@ type DDBroadCastMatchRank struct {
 	XXX_unrecognized []byte `json:"-"`
 }
 
-func (m *DDBroadCastMatchRank) Reset()                    { *m = DDBroadCastMatchRank{} }
-func (m *DDBroadCastMatchRank) String() string            { return proto.CompactTextString(m) }
-func (*DDBroadCastMatchRank) ProtoMessage()               {}
-func (*DDBroadCastMatchRank) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{84} }
+func (m *DDBroadCastMatchRank) Reset() {
+	*m = DDBroadCastMatchRank{}
+}
+func (m *DDBroadCastMatchRank) String() string {
+	return proto.CompactTextString(m)
+}
+func (*DDBroadCastMatchRank) ProtoMessage() {}
+func (*DDBroadCastMatchRank) Descriptor() ([]byte, []int) {
+	return fileDescriptor1, []int{84}
+}
 
 func (m *DDBroadCastMatchRank) GetRoleName() []byte {
 	if m != nil {
@@ -4470,10 +4986,16 @@ type REQSHENJINGReg struct {
 	XXX_unrecognized []byte  `json:"-"`
 }
 
-func (m *REQSHENJINGReg) Reset()                    { *m = REQSHENJINGReg{} }
-func (m *REQSHENJINGReg) String() string            { return proto.CompactTextString(m) }
-func (*REQSHENJINGReg) ProtoMessage()               {}
-func (*REQSHENJINGReg) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{85} }
+func (m *REQSHENJINGReg) Reset() {
+	*m = REQSHENJINGReg{}
+}
+func (m *REQSHENJINGReg) String() string {
+	return proto.CompactTextString(m)
+}
+func (*REQSHENJINGReg) ProtoMessage() {}
+func (*REQSHENJINGReg) Descriptor() ([]byte, []int) {
+	return fileDescriptor1, []int{85}
+}
 
 const Default_REQSHENJINGReg_RoomAdapte int32 = 0
 const Default_REQSHENJINGReg_Sex int32 = 0
@@ -4574,10 +5096,16 @@ type ACKSHENJINGReg struct {
 	XXX_unrecognized []byte        `json:"-"`
 }
 
-func (m *ACKSHENJINGReg) Reset()                    { *m = ACKSHENJINGReg{} }
-func (m *ACKSHENJINGReg) String() string            { return proto.CompactTextString(m) }
-func (*ACKSHENJINGReg) ProtoMessage()               {}
-func (*ACKSHENJINGReg) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{86} }
+func (m *ACKSHENJINGReg) Reset() {
+	*m = ACKSHENJINGReg{}
+}
+func (m *ACKSHENJINGReg) String() string {
+	return proto.CompactTextString(m)
+}
+func (*ACKSHENJINGReg) ProtoMessage() {}
+func (*ACKSHENJINGReg) Descriptor() ([]byte, []int) {
+	return fileDescriptor1, []int{86}
+}
 
 func (m *ACKSHENJINGReg) GetAckResult() int32 {
 	if m != nil && m.AckResult != nil {
@@ -4656,10 +5184,16 @@ type REQSHENJINGConn struct {
 	XXX_unrecognized []byte  `json:"-"`
 }
 
-func (m *REQSHENJINGConn) Reset()                    { *m = REQSHENJINGConn{} }
-func (m *REQSHENJINGConn) String() string            { return proto.CompactTextString(m) }
-func (*REQSHENJINGConn) ProtoMessage()               {}
-func (*REQSHENJINGConn) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{87} }
+func (m *REQSHENJINGConn) Reset() {
+	*m = REQSHENJINGConn{}
+}
+func (m *REQSHENJINGConn) String() string {
+	return proto.CompactTextString(m)
+}
+func (*REQSHENJINGConn) ProtoMessage() {}
+func (*REQSHENJINGConn) Descriptor() ([]byte, []int) {
+	return fileDescriptor1, []int{87}
+}
 
 const Default_REQSHENJINGConn_RoomAdapte int32 = 0
 const Default_REQSHENJINGConn_LoginType int32 = 0
@@ -4785,10 +5319,16 @@ type ACKSHENJINGConn struct {
 	XXX_unrecognized  []byte              `json:"-"`
 }
 
-func (m *ACKSHENJINGConn) Reset()                    { *m = ACKSHENJINGConn{} }
-func (m *ACKSHENJINGConn) String() string            { return proto.CompactTextString(m) }
-func (*ACKSHENJINGConn) ProtoMessage()               {}
-func (*ACKSHENJINGConn) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{88} }
+func (m *ACKSHENJINGConn) Reset() {
+	*m = ACKSHENJINGConn{}
+}
+func (m *ACKSHENJINGConn) String() string {
+	return proto.CompactTextString(m)
+}
+func (*ACKSHENJINGConn) ProtoMessage() {}
+func (*ACKSHENJINGConn) Descriptor() ([]byte, []int) {
+	return fileDescriptor1, []int{88}
+}
 
 func (m *ACKSHENJINGConn) GetAckResult() int32 {
 	if m != nil && m.AckResult != nil {
@@ -4893,10 +5433,16 @@ type REQSHENJINGShortCert struct {
 	XXX_unrecognized []byte  `json:"-"`
 }
 
-func (m *REQSHENJINGShortCert) Reset()                    { *m = REQSHENJINGShortCert{} }
-func (m *REQSHENJINGShortCert) String() string            { return proto.CompactTextString(m) }
-func (*REQSHENJINGShortCert) ProtoMessage()               {}
-func (*REQSHENJINGShortCert) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{89} }
+func (m *REQSHENJINGShortCert) Reset() {
+	*m = REQSHENJINGShortCert{}
+}
+func (m *REQSHENJINGShortCert) String() string {
+	return proto.CompactTextString(m)
+}
+func (*REQSHENJINGShortCert) ProtoMessage() {}
+func (*REQSHENJINGShortCert) Descriptor() ([]byte, []int) {
+	return fileDescriptor1, []int{89}
+}
 
 const Default_REQSHENJINGShortCert_RoomAdapte int32 = 0
 
@@ -5000,10 +5546,16 @@ type ACKSHENJINGShortCert struct {
 	XXX_unrecognized []byte        `json:"-"`
 }
 
-func (m *ACKSHENJINGShortCert) Reset()                    { *m = ACKSHENJINGShortCert{} }
-func (m *ACKSHENJINGShortCert) String() string            { return proto.CompactTextString(m) }
-func (*ACKSHENJINGShortCert) ProtoMessage()               {}
-func (*ACKSHENJINGShortCert) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{90} }
+func (m *ACKSHENJINGShortCert) Reset() {
+	*m = ACKSHENJINGShortCert{}
+}
+func (m *ACKSHENJINGShortCert) String() string {
+	return proto.CompactTextString(m)
+}
+func (*ACKSHENJINGShortCert) ProtoMessage() {}
+func (*ACKSHENJINGShortCert) Descriptor() ([]byte, []int) {
+	return fileDescriptor1, []int{90}
+}
 
 func (m *ACKSHENJINGShortCert) GetAckResult() int32 {
 	if m != nil && m.AckResult != nil {
@@ -5059,10 +5611,16 @@ type REQSHENJINGOpenId struct {
 	XXX_unrecognized []byte  `json:"-"`
 }
 
-func (m *REQSHENJINGOpenId) Reset()                    { *m = REQSHENJINGOpenId{} }
-func (m *REQSHENJINGOpenId) String() string            { return proto.CompactTextString(m) }
-func (*REQSHENJINGOpenId) ProtoMessage()               {}
-func (*REQSHENJINGOpenId) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{91} }
+func (m *REQSHENJINGOpenId) Reset() {
+	*m = REQSHENJINGOpenId{}
+}
+func (m *REQSHENJINGOpenId) String() string {
+	return proto.CompactTextString(m)
+}
+func (*REQSHENJINGOpenId) ProtoMessage() {}
+func (*REQSHENJINGOpenId) Descriptor() ([]byte, []int) {
+	return fileDescriptor1, []int{91}
+}
 
 const Default_REQSHENJINGOpenId_RoomAdapte int32 = 0
 
@@ -5172,10 +5730,16 @@ type ACKSHENJINGOpenId struct {
 	XXX_unrecognized []byte        `json:"-"`
 }
 
-func (m *ACKSHENJINGOpenId) Reset()                    { *m = ACKSHENJINGOpenId{} }
-func (m *ACKSHENJINGOpenId) String() string            { return proto.CompactTextString(m) }
-func (*ACKSHENJINGOpenId) ProtoMessage()               {}
-func (*ACKSHENJINGOpenId) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{92} }
+func (m *ACKSHENJINGOpenId) Reset() {
+	*m = ACKSHENJINGOpenId{}
+}
+func (m *ACKSHENJINGOpenId) String() string {
+	return proto.CompactTextString(m)
+}
+func (*ACKSHENJINGOpenId) ProtoMessage() {}
+func (*ACKSHENJINGOpenId) Descriptor() ([]byte, []int) {
+	return fileDescriptor1, []int{92}
+}
 
 func (m *ACKSHENJINGOpenId) GetAckResult() int32 {
 	if m != nil && m.AckResult != nil {
@@ -5266,10 +5830,16 @@ type REQSinaGame struct {
 	XXX_unrecognized []byte         `json:"-"`
 }
 
-func (m *REQSinaGame) Reset()                    { *m = REQSinaGame{} }
-func (m *REQSinaGame) String() string            { return proto.CompactTextString(m) }
-func (*REQSinaGame) ProtoMessage()               {}
-func (*REQSinaGame) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{93} }
+func (m *REQSinaGame) Reset() {
+	*m = REQSinaGame{}
+}
+func (m *REQSinaGame) String() string {
+	return proto.CompactTextString(m)
+}
+func (*REQSinaGame) ProtoMessage() {}
+func (*REQSinaGame) Descriptor() ([]byte, []int) {
+	return fileDescriptor1, []int{93}
+}
 
 func (m *REQSinaGame) GetThirdkey() string {
 	if m != nil && m.Thirdkey != nil {
@@ -5319,10 +5889,16 @@ type ACKSinaGame struct {
 	XXX_unrecognized []byte        `json:"-"`
 }
 
-func (m *ACKSinaGame) Reset()                    { *m = ACKSinaGame{} }
-func (m *ACKSinaGame) String() string            { return proto.CompactTextString(m) }
-func (*ACKSinaGame) ProtoMessage()               {}
-func (*ACKSinaGame) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{94} }
+func (m *ACKSinaGame) Reset() {
+	*m = ACKSinaGame{}
+}
+func (m *ACKSinaGame) String() string {
+	return proto.CompactTextString(m)
+}
+func (*ACKSinaGame) ProtoMessage() {}
+func (*ACKSinaGame) Descriptor() ([]byte, []int) {
+	return fileDescriptor1, []int{94}
+}
 
 func (m *ACKSinaGame) GetAckResult() int32 {
 	if m != nil && m.AckResult != nil {
@@ -5354,10 +5930,16 @@ type REQWeiBo struct {
 	XXX_unrecognized []byte  `json:"-"`
 }
 
-func (m *REQWeiBo) Reset()                    { *m = REQWeiBo{} }
-func (m *REQWeiBo) String() string            { return proto.CompactTextString(m) }
-func (*REQWeiBo) ProtoMessage()               {}
-func (*REQWeiBo) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{95} }
+func (m *REQWeiBo) Reset() {
+	*m = REQWeiBo{}
+}
+func (m *REQWeiBo) String() string {
+	return proto.CompactTextString(m)
+}
+func (*REQWeiBo) ProtoMessage() {}
+func (*REQWeiBo) Descriptor() ([]byte, []int) {
+	return fileDescriptor1, []int{95}
+}
 
 func (m *REQWeiBo) GetUserName() []byte {
 	if m != nil {
@@ -5434,10 +6016,16 @@ type ACKWeiBo struct {
 	XXX_unrecognized []byte `json:"-"`
 }
 
-func (m *ACKWeiBo) Reset()                    { *m = ACKWeiBo{} }
-func (m *ACKWeiBo) String() string            { return proto.CompactTextString(m) }
-func (*ACKWeiBo) ProtoMessage()               {}
-func (*ACKWeiBo) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{96} }
+func (m *ACKWeiBo) Reset() {
+	*m = ACKWeiBo{}
+}
+func (m *ACKWeiBo) String() string {
+	return proto.CompactTextString(m)
+}
+func (*ACKWeiBo) ProtoMessage() {}
+func (*ACKWeiBo) Descriptor() ([]byte, []int) {
+	return fileDescriptor1, []int{96}
+}
 
 func (m *ACKWeiBo) GetAckResult() int32 {
 	if m != nil && m.AckResult != nil {
@@ -5455,10 +6043,16 @@ type REQSHENJINGExit struct {
 	XXX_unrecognized []byte  `json:"-"`
 }
 
-func (m *REQSHENJINGExit) Reset()                    { *m = REQSHENJINGExit{} }
-func (m *REQSHENJINGExit) String() string            { return proto.CompactTextString(m) }
-func (*REQSHENJINGExit) ProtoMessage()               {}
-func (*REQSHENJINGExit) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{97} }
+func (m *REQSHENJINGExit) Reset() {
+	*m = REQSHENJINGExit{}
+}
+func (m *REQSHENJINGExit) String() string {
+	return proto.CompactTextString(m)
+}
+func (*REQSHENJINGExit) ProtoMessage() {}
+func (*REQSHENJINGExit) Descriptor() ([]byte, []int) {
+	return fileDescriptor1, []int{97}
+}
 
 func (m *REQSHENJINGExit) GetLoginId() int32 {
 	if m != nil && m.LoginId != nil {
@@ -5497,10 +6091,16 @@ type REQSHENJINGGameVersion struct {
 	XXX_unrecognized []byte  `json:"-"`
 }
 
-func (m *REQSHENJINGGameVersion) Reset()                    { *m = REQSHENJINGGameVersion{} }
-func (m *REQSHENJINGGameVersion) String() string            { return proto.CompactTextString(m) }
-func (*REQSHENJINGGameVersion) ProtoMessage()               {}
-func (*REQSHENJINGGameVersion) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{98} }
+func (m *REQSHENJINGGameVersion) Reset() {
+	*m = REQSHENJINGGameVersion{}
+}
+func (m *REQSHENJINGGameVersion) String() string {
+	return proto.CompactTextString(m)
+}
+func (*REQSHENJINGGameVersion) ProtoMessage() {}
+func (*REQSHENJINGGameVersion) Descriptor() ([]byte, []int) {
+	return fileDescriptor1, []int{98}
+}
 
 const Default_REQSHENJINGGameVersion_RoomAdapte int32 = 0
 
@@ -5595,10 +6195,16 @@ type ACKSHENJINGGameVersion struct {
 	XXX_unrecognized []byte                 `json:"-"`
 }
 
-func (m *ACKSHENJINGGameVersion) Reset()                    { *m = ACKSHENJINGGameVersion{} }
-func (m *ACKSHENJINGGameVersion) String() string            { return proto.CompactTextString(m) }
-func (*ACKSHENJINGGameVersion) ProtoMessage()               {}
-func (*ACKSHENJINGGameVersion) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{99} }
+func (m *ACKSHENJINGGameVersion) Reset() {
+	*m = ACKSHENJINGGameVersion{}
+}
+func (m *ACKSHENJINGGameVersion) String() string {
+	return proto.CompactTextString(m)
+}
+func (*ACKSHENJINGGameVersion) ProtoMessage() {}
+func (*ACKSHENJINGGameVersion) Descriptor() ([]byte, []int) {
+	return fileDescriptor1, []int{99}
+}
 
 func (m *ACKSHENJINGGameVersion) GetAckResult() int32 {
 	if m != nil && m.AckResult != nil {
@@ -5729,10 +6335,16 @@ type REQSHENJINGNewVerify struct {
 	XXX_unrecognized []byte  `json:"-"`
 }
 
-func (m *REQSHENJINGNewVerify) Reset()                    { *m = REQSHENJINGNewVerify{} }
-func (m *REQSHENJINGNewVerify) String() string            { return proto.CompactTextString(m) }
-func (*REQSHENJINGNewVerify) ProtoMessage()               {}
-func (*REQSHENJINGNewVerify) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{100} }
+func (m *REQSHENJINGNewVerify) Reset() {
+	*m = REQSHENJINGNewVerify{}
+}
+func (m *REQSHENJINGNewVerify) String() string {
+	return proto.CompactTextString(m)
+}
+func (*REQSHENJINGNewVerify) ProtoMessage() {}
+func (*REQSHENJINGNewVerify) Descriptor() ([]byte, []int) {
+	return fileDescriptor1, []int{100}
+}
 
 func (m *REQSHENJINGNewVerify) GetSecureID() string {
 	if m != nil && m.SecureID != nil {
@@ -5770,10 +6382,16 @@ type ACKSHENJINGNewVerify struct {
 	XXX_unrecognized []byte  `json:"-"`
 }
 
-func (m *ACKSHENJINGNewVerify) Reset()                    { *m = ACKSHENJINGNewVerify{} }
-func (m *ACKSHENJINGNewVerify) String() string            { return proto.CompactTextString(m) }
-func (*ACKSHENJINGNewVerify) ProtoMessage()               {}
-func (*ACKSHENJINGNewVerify) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{101} }
+func (m *ACKSHENJINGNewVerify) Reset() {
+	*m = ACKSHENJINGNewVerify{}
+}
+func (m *ACKSHENJINGNewVerify) String() string {
+	return proto.CompactTextString(m)
+}
+func (*ACKSHENJINGNewVerify) ProtoMessage() {}
+func (*ACKSHENJINGNewVerify) Descriptor() ([]byte, []int) {
+	return fileDescriptor1, []int{101}
+}
 
 func (m *ACKSHENJINGNewVerify) GetAckResult() int32 {
 	if m != nil && m.AckResult != nil {
@@ -5813,10 +6431,16 @@ type REQSHENJINGFindPwd struct {
 	XXX_unrecognized []byte  `json:"-"`
 }
 
-func (m *REQSHENJINGFindPwd) Reset()                    { *m = REQSHENJINGFindPwd{} }
-func (m *REQSHENJINGFindPwd) String() string            { return proto.CompactTextString(m) }
-func (*REQSHENJINGFindPwd) ProtoMessage()               {}
-func (*REQSHENJINGFindPwd) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{102} }
+func (m *REQSHENJINGFindPwd) Reset() {
+	*m = REQSHENJINGFindPwd{}
+}
+func (m *REQSHENJINGFindPwd) String() string {
+	return proto.CompactTextString(m)
+}
+func (*REQSHENJINGFindPwd) ProtoMessage() {}
+func (*REQSHENJINGFindPwd) Descriptor() ([]byte, []int) {
+	return fileDescriptor1, []int{102}
+}
 
 func (m *REQSHENJINGFindPwd) GetEmail() string {
 	if m != nil && m.Email != nil {
@@ -5837,10 +6461,16 @@ type ACKSHENJINGFindPwd struct {
 	XXX_unrecognized []byte `json:"-"`
 }
 
-func (m *ACKSHENJINGFindPwd) Reset()                    { *m = ACKSHENJINGFindPwd{} }
-func (m *ACKSHENJINGFindPwd) String() string            { return proto.CompactTextString(m) }
-func (*ACKSHENJINGFindPwd) ProtoMessage()               {}
-func (*ACKSHENJINGFindPwd) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{103} }
+func (m *ACKSHENJINGFindPwd) Reset() {
+	*m = ACKSHENJINGFindPwd{}
+}
+func (m *ACKSHENJINGFindPwd) String() string {
+	return proto.CompactTextString(m)
+}
+func (*ACKSHENJINGFindPwd) ProtoMessage() {}
+func (*ACKSHENJINGFindPwd) Descriptor() ([]byte, []int) {
+	return fileDescriptor1, []int{103}
+}
 
 func (m *ACKSHENJINGFindPwd) GetAckResult() int32 {
 	if m != nil && m.AckResult != nil {
@@ -5857,10 +6487,16 @@ type ACKSHENJINGHeart struct {
 	XXX_unrecognized []byte  `json:"-"`
 }
 
-func (m *ACKSHENJINGHeart) Reset()                    { *m = ACKSHENJINGHeart{} }
-func (m *ACKSHENJINGHeart) String() string            { return proto.CompactTextString(m) }
-func (*ACKSHENJINGHeart) ProtoMessage()               {}
-func (*ACKSHENJINGHeart) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{104} }
+func (m *ACKSHENJINGHeart) Reset() {
+	*m = ACKSHENJINGHeart{}
+}
+func (m *ACKSHENJINGHeart) String() string {
+	return proto.CompactTextString(m)
+}
+func (*ACKSHENJINGHeart) ProtoMessage() {}
+func (*ACKSHENJINGHeart) Descriptor() ([]byte, []int) {
+	return fileDescriptor1, []int{104}
+}
 
 func (m *ACKSHENJINGHeart) GetServTime() string {
 	if m != nil && m.ServTime != nil {
@@ -5878,10 +6514,16 @@ type SinaApiInfo struct {
 	XXX_unrecognized []byte  `json:"-"`
 }
 
-func (m *SinaApiInfo) Reset()                    { *m = SinaApiInfo{} }
-func (m *SinaApiInfo) String() string            { return proto.CompactTextString(m) }
-func (*SinaApiInfo) ProtoMessage()               {}
-func (*SinaApiInfo) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{105} }
+func (m *SinaApiInfo) Reset() {
+	*m = SinaApiInfo{}
+}
+func (m *SinaApiInfo) String() string {
+	return proto.CompactTextString(m)
+}
+func (*SinaApiInfo) ProtoMessage() {}
+func (*SinaApiInfo) Descriptor() ([]byte, []int) {
+	return fileDescriptor1, []int{105}
+}
 
 func (m *SinaApiInfo) GetApiType() int32 {
 	if m != nil && m.ApiType != nil {
@@ -5912,10 +6554,16 @@ type SinaApiRet struct {
 	XXX_unrecognized []byte  `json:"-"`
 }
 
-func (m *SinaApiRet) Reset()                    { *m = SinaApiRet{} }
-func (m *SinaApiRet) String() string            { return proto.CompactTextString(m) }
-func (*SinaApiRet) ProtoMessage()               {}
-func (*SinaApiRet) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{106} }
+func (m *SinaApiRet) Reset() {
+	*m = SinaApiRet{}
+}
+func (m *SinaApiRet) String() string {
+	return proto.CompactTextString(m)
+}
+func (*SinaApiRet) ProtoMessage() {}
+func (*SinaApiRet) Descriptor() ([]byte, []int) {
+	return fileDescriptor1, []int{106}
+}
 
 func (m *SinaApiRet) GetRetResult() int32 {
 	if m != nil && m.RetResult != nil {
@@ -5955,10 +6603,16 @@ type DDRoomInfo struct {
 	XXX_unrecognized []byte  `json:"-"`
 }
 
-func (m *DDRoomInfo) Reset()                    { *m = DDRoomInfo{} }
-func (m *DDRoomInfo) String() string            { return proto.CompactTextString(m) }
-func (*DDRoomInfo) ProtoMessage()               {}
-func (*DDRoomInfo) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{107} }
+func (m *DDRoomInfo) Reset() {
+	*m = DDRoomInfo{}
+}
+func (m *DDRoomInfo) String() string {
+	return proto.CompactTextString(m)
+}
+func (*DDRoomInfo) ProtoMessage() {}
+func (*DDRoomInfo) Descriptor() ([]byte, []int) {
+	return fileDescriptor1, []int{107}
+}
 
 func (m *DDRoomInfo) GetRoomId() string {
 	if m != nil && m.RoomId != nil {
@@ -6046,8 +6700,8 @@ func (m *DDRoomInfo) GetRoomName() string {
 
 // 比赛信息结构
 type DDSHENJINGMatchInfo struct {
-	MatchID   *int32  `protobuf:"varint,1,opt,name=MatchID" json:"MatchID,omitempty"`
-	MatchName *string `protobuf:"bytes,2,opt,name=MatchName" json:"MatchName,omitempty"`
+	MatchID          *int32  `protobuf:"varint,1,opt,name=MatchID" json:"MatchID,omitempty"`
+	MatchName        *string `protobuf:"bytes,2,opt,name=MatchName" json:"MatchName,omitempty"`
 	// 以下参数在斗地主比赛中应用
 	AwardName        *string `protobuf:"bytes,3,opt,name=AwardName" json:"AwardName,omitempty"`
 	AwardSum         *int32  `protobuf:"varint,4,opt,name=AwardSum" json:"AwardSum,omitempty"`
@@ -6065,10 +6719,16 @@ type DDSHENJINGMatchInfo struct {
 	XXX_unrecognized []byte  `json:"-"`
 }
 
-func (m *DDSHENJINGMatchInfo) Reset()                    { *m = DDSHENJINGMatchInfo{} }
-func (m *DDSHENJINGMatchInfo) String() string            { return proto.CompactTextString(m) }
-func (*DDSHENJINGMatchInfo) ProtoMessage()               {}
-func (*DDSHENJINGMatchInfo) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{108} }
+func (m *DDSHENJINGMatchInfo) Reset() {
+	*m = DDSHENJINGMatchInfo{}
+}
+func (m *DDSHENJINGMatchInfo) String() string {
+	return proto.CompactTextString(m)
+}
+func (*DDSHENJINGMatchInfo) ProtoMessage() {}
+func (*DDSHENJINGMatchInfo) Descriptor() ([]byte, []int) {
+	return fileDescriptor1, []int{108}
+}
 
 func (m *DDSHENJINGMatchInfo) GetMatchID() int32 {
 	if m != nil && m.MatchID != nil {
@@ -6191,10 +6851,16 @@ type SHENJINGRoomInfo struct {
 	XXX_unrecognized  []byte              `json:"-"`
 }
 
-func (m *SHENJINGRoomInfo) Reset()                    { *m = SHENJINGRoomInfo{} }
-func (m *SHENJINGRoomInfo) String() string            { return proto.CompactTextString(m) }
-func (*SHENJINGRoomInfo) ProtoMessage()               {}
-func (*SHENJINGRoomInfo) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{109} }
+func (m *SHENJINGRoomInfo) Reset() {
+	*m = SHENJINGRoomInfo{}
+}
+func (m *SHENJINGRoomInfo) String() string {
+	return proto.CompactTextString(m)
+}
+func (*SHENJINGRoomInfo) ProtoMessage() {}
+func (*SHENJINGRoomInfo) Descriptor() ([]byte, []int) {
+	return fileDescriptor1, []int{109}
+}
 
 const Default_SHENJINGRoomInfo_IsLock int32 = 0
 
@@ -6283,10 +6949,16 @@ type SHENJINGJSSInfo struct {
 	XXX_unrecognized []byte  `json:"-"`
 }
 
-func (m *SHENJINGJSSInfo) Reset()                    { *m = SHENJINGJSSInfo{} }
-func (m *SHENJINGJSSInfo) String() string            { return proto.CompactTextString(m) }
-func (*SHENJINGJSSInfo) ProtoMessage()               {}
-func (*SHENJINGJSSInfo) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{110} }
+func (m *SHENJINGJSSInfo) Reset() {
+	*m = SHENJINGJSSInfo{}
+}
+func (m *SHENJINGJSSInfo) String() string {
+	return proto.CompactTextString(m)
+}
+func (*SHENJINGJSSInfo) ProtoMessage() {}
+func (*SHENJINGJSSInfo) Descriptor() ([]byte, []int) {
+	return fileDescriptor1, []int{110}
+}
 
 func (m *SHENJINGJSSInfo) GetRoomIP() string {
 	if m != nil && m.RoomIP != nil {
@@ -6316,10 +6988,16 @@ type DDBulletinInfo struct {
 	XXX_unrecognized []byte `json:"-"`
 }
 
-func (m *DDBulletinInfo) Reset()                    { *m = DDBulletinInfo{} }
-func (m *DDBulletinInfo) String() string            { return proto.CompactTextString(m) }
-func (*DDBulletinInfo) ProtoMessage()               {}
-func (*DDBulletinInfo) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{111} }
+func (m *DDBulletinInfo) Reset() {
+	*m = DDBulletinInfo{}
+}
+func (m *DDBulletinInfo) String() string {
+	return proto.CompactTextString(m)
+}
+func (*DDBulletinInfo) ProtoMessage() {}
+func (*DDBulletinInfo) Descriptor() ([]byte, []int) {
+	return fileDescriptor1, []int{111}
+}
 
 func (m *DDBulletinInfo) GetTitle() []byte {
 	if m != nil {
@@ -6362,10 +7040,16 @@ type REQQuickConn struct {
 	XXX_unrecognized []byte      `json:"-"`
 }
 
-func (m *REQQuickConn) Reset()                    { *m = REQQuickConn{} }
-func (m *REQQuickConn) String() string            { return proto.CompactTextString(m) }
-func (*REQQuickConn) ProtoMessage()               {}
-func (*REQQuickConn) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{112} }
+func (m *REQQuickConn) Reset() {
+	*m = REQQuickConn{}
+}
+func (m *REQQuickConn) String() string {
+	return proto.CompactTextString(m)
+}
+func (*REQQuickConn) ProtoMessage() {}
+func (*REQQuickConn) Descriptor() ([]byte, []int) {
+	return fileDescriptor1, []int{112}
+}
 
 const Default_REQQuickConn_RoomAdapte int32 = 0
 const Default_REQQuickConn_LoginType int32 = 0
@@ -6535,10 +7219,16 @@ type ACKQuickConn struct {
 	XXX_unrecognized []byte                 `json:"-"`
 }
 
-func (m *ACKQuickConn) Reset()                    { *m = ACKQuickConn{} }
-func (m *ACKQuickConn) String() string            { return proto.CompactTextString(m) }
-func (*ACKQuickConn) ProtoMessage()               {}
-func (*ACKQuickConn) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{113} }
+func (m *ACKQuickConn) Reset() {
+	*m = ACKQuickConn{}
+}
+func (m *ACKQuickConn) String() string {
+	return proto.CompactTextString(m)
+}
+func (*ACKQuickConn) ProtoMessage() {}
+func (*ACKQuickConn) Descriptor() ([]byte, []int) {
+	return fileDescriptor1, []int{113}
+}
 
 const Default_ACKQuickConn_DdzActive int32 = 0
 const Default_ACKQuickConn_ErrorCode int32 = 0
@@ -6743,10 +7433,16 @@ type NullMsg struct {
 	XXX_unrecognized []byte `json:"-"`
 }
 
-func (m *NullMsg) Reset()                    { *m = NullMsg{} }
-func (m *NullMsg) String() string            { return proto.CompactTextString(m) }
-func (*NullMsg) ProtoMessage()               {}
-func (*NullMsg) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{114} }
+func (m *NullMsg) Reset() {
+	*m = NullMsg{}
+}
+func (m *NullMsg) String() string {
+	return proto.CompactTextString(m)
+}
+func (*NullMsg) ProtoMessage() {}
+func (*NullMsg) Descriptor() ([]byte, []int) {
+	return fileDescriptor1, []int{114}
+}
 
 // 新增用户的时候,发送广播
 type Game_SendAddUser struct {
@@ -6758,10 +7454,16 @@ type Game_SendAddUser struct {
 	XXX_unrecognized []byte  `json:"-"`
 }
 
-func (m *Game_SendAddUser) Reset()                    { *m = Game_SendAddUser{} }
-func (m *Game_SendAddUser) String() string            { return proto.CompactTextString(m) }
-func (*Game_SendAddUser) ProtoMessage()               {}
-func (*Game_SendAddUser) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{115} }
+func (m *Game_SendAddUser) Reset() {
+	*m = Game_SendAddUser{}
+}
+func (m *Game_SendAddUser) String() string {
+	return proto.CompactTextString(m)
+}
+func (*Game_SendAddUser) ProtoMessage() {}
+func (*Game_SendAddUser) Descriptor() ([]byte, []int) {
+	return fileDescriptor1, []int{115}
+}
 
 func (m *Game_SendAddUser) GetMatchid() []byte {
 	if m != nil {
@@ -6803,10 +7505,16 @@ type Game_Notice struct {
 	XXX_unrecognized []byte `json:"-"`
 }
 
-func (m *Game_Notice) Reset()                    { *m = Game_Notice{} }
-func (m *Game_Notice) String() string            { return proto.CompactTextString(m) }
-func (*Game_Notice) ProtoMessage()               {}
-func (*Game_Notice) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{116} }
+func (m *Game_Notice) Reset() {
+	*m = Game_Notice{}
+}
+func (m *Game_Notice) String() string {
+	return proto.CompactTextString(m)
+}
+func (*Game_Notice) ProtoMessage() {}
+func (*Game_Notice) Descriptor() ([]byte, []int) {
+	return fileDescriptor1, []int{116}
+}
 
 func (m *Game_Notice) GetNoticeType() int32 {
 	if m != nil && m.NoticeType != nil {
@@ -6826,10 +7534,16 @@ type Game_AckNotice struct {
 	XXX_unrecognized []byte   `json:"-"`
 }
 
-func (m *Game_AckNotice) Reset()                    { *m = Game_AckNotice{} }
-func (m *Game_AckNotice) String() string            { return proto.CompactTextString(m) }
-func (*Game_AckNotice) ProtoMessage()               {}
-func (*Game_AckNotice) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{117} }
+func (m *Game_AckNotice) Reset() {
+	*m = Game_AckNotice{}
+}
+func (m *Game_AckNotice) String() string {
+	return proto.CompactTextString(m)
+}
+func (*Game_AckNotice) ProtoMessage() {}
+func (*Game_AckNotice) Descriptor() ([]byte, []int) {
+	return fileDescriptor1, []int{117}
+}
 
 func (m *Game_AckNotice) GetNoticeType() int32 {
 	if m != nil && m.NoticeType != nil {
@@ -6884,10 +7598,16 @@ type Game_CreateDesk struct {
 	XXX_unrecognized []byte  `json:"-"`
 }
 
-func (m *Game_CreateDesk) Reset()                    { *m = Game_CreateDesk{} }
-func (m *Game_CreateDesk) String() string            { return proto.CompactTextString(m) }
-func (*Game_CreateDesk) ProtoMessage()               {}
-func (*Game_CreateDesk) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{118} }
+func (m *Game_CreateDesk) Reset() {
+	*m = Game_CreateDesk{}
+}
+func (m *Game_CreateDesk) String() string {
+	return proto.CompactTextString(m)
+}
+func (*Game_CreateDesk) ProtoMessage() {}
+func (*Game_CreateDesk) Descriptor() ([]byte, []int) {
+	return fileDescriptor1, []int{118}
+}
 
 func (m *Game_CreateDesk) GetUserId() uint32 {
 	if m != nil && m.UserId != nil {
@@ -6939,10 +7659,16 @@ type Game_AckCreateDesk struct {
 	XXX_unrecognized []byte  `json:"-"`
 }
 
-func (m *Game_AckCreateDesk) Reset()                    { *m = Game_AckCreateDesk{} }
-func (m *Game_AckCreateDesk) String() string            { return proto.CompactTextString(m) }
-func (*Game_AckCreateDesk) ProtoMessage()               {}
-func (*Game_AckCreateDesk) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{119} }
+func (m *Game_AckCreateDesk) Reset() {
+	*m = Game_AckCreateDesk{}
+}
+func (m *Game_AckCreateDesk) String() string {
+	return proto.CompactTextString(m)
+}
+func (*Game_AckCreateDesk) ProtoMessage() {}
+func (*Game_AckCreateDesk) Descriptor() ([]byte, []int) {
+	return fileDescriptor1, []int{119}
+}
 
 func (m *Game_AckCreateDesk) GetResult() int32 {
 	if m != nil && m.Result != nil {
@@ -6971,10 +7697,16 @@ type Game_DissolveDesk struct {
 	XXX_unrecognized []byte  `json:"-"`
 }
 
-func (m *Game_DissolveDesk) Reset()                    { *m = Game_DissolveDesk{} }
-func (m *Game_DissolveDesk) String() string            { return proto.CompactTextString(m) }
-func (*Game_DissolveDesk) ProtoMessage()               {}
-func (*Game_DissolveDesk) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{120} }
+func (m *Game_DissolveDesk) Reset() {
+	*m = Game_DissolveDesk{}
+}
+func (m *Game_DissolveDesk) String() string {
+	return proto.CompactTextString(m)
+}
+func (*Game_DissolveDesk) ProtoMessage() {}
+func (*Game_DissolveDesk) Descriptor() ([]byte, []int) {
+	return fileDescriptor1, []int{120}
+}
 
 func (m *Game_DissolveDesk) GetUserId() uint32 {
 	if m != nil && m.UserId != nil {
@@ -6992,10 +7724,16 @@ type Game_AckDissolveDesk struct {
 	XXX_unrecognized []byte  `json:"-"`
 }
 
-func (m *Game_AckDissolveDesk) Reset()                    { *m = Game_AckDissolveDesk{} }
-func (m *Game_AckDissolveDesk) String() string            { return proto.CompactTextString(m) }
-func (*Game_AckDissolveDesk) ProtoMessage()               {}
-func (*Game_AckDissolveDesk) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{121} }
+func (m *Game_AckDissolveDesk) Reset() {
+	*m = Game_AckDissolveDesk{}
+}
+func (m *Game_AckDissolveDesk) String() string {
+	return proto.CompactTextString(m)
+}
+func (*Game_AckDissolveDesk) ProtoMessage() {}
+func (*Game_AckDissolveDesk) Descriptor() ([]byte, []int) {
+	return fileDescriptor1, []int{121}
+}
 
 func (m *Game_AckDissolveDesk) GetUserId() uint32 {
 	if m != nil && m.UserId != nil {
@@ -7031,10 +7769,16 @@ type Game_LeaveDesk struct {
 	XXX_unrecognized []byte  `json:"-"`
 }
 
-func (m *Game_LeaveDesk) Reset()                    { *m = Game_LeaveDesk{} }
-func (m *Game_LeaveDesk) String() string            { return proto.CompactTextString(m) }
-func (*Game_LeaveDesk) ProtoMessage()               {}
-func (*Game_LeaveDesk) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{122} }
+func (m *Game_LeaveDesk) Reset() {
+	*m = Game_LeaveDesk{}
+}
+func (m *Game_LeaveDesk) String() string {
+	return proto.CompactTextString(m)
+}
+func (*Game_LeaveDesk) ProtoMessage() {}
+func (*Game_LeaveDesk) Descriptor() ([]byte, []int) {
+	return fileDescriptor1, []int{122}
+}
 
 func (m *Game_LeaveDesk) GetUserId() uint32 {
 	if m != nil && m.UserId != nil {
@@ -7049,10 +7793,16 @@ type Game_ACKLeaveDesk struct {
 	XXX_unrecognized []byte `json:"-"`
 }
 
-func (m *Game_ACKLeaveDesk) Reset()                    { *m = Game_ACKLeaveDesk{} }
-func (m *Game_ACKLeaveDesk) String() string            { return proto.CompactTextString(m) }
-func (*Game_ACKLeaveDesk) ProtoMessage()               {}
-func (*Game_ACKLeaveDesk) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{123} }
+func (m *Game_ACKLeaveDesk) Reset() {
+	*m = Game_ACKLeaveDesk{}
+}
+func (m *Game_ACKLeaveDesk) String() string {
+	return proto.CompactTextString(m)
+}
+func (*Game_ACKLeaveDesk) ProtoMessage() {}
+func (*Game_ACKLeaveDesk) Descriptor() ([]byte, []int) {
+	return fileDescriptor1, []int{123}
+}
 
 func (m *Game_ACKLeaveDesk) GetResult() int32 {
 	if m != nil && m.Result != nil {
@@ -7067,10 +7817,16 @@ type Game_Ready struct {
 	XXX_unrecognized []byte  `json:"-"`
 }
 
-func (m *Game_Ready) Reset()                    { *m = Game_Ready{} }
-func (m *Game_Ready) String() string            { return proto.CompactTextString(m) }
-func (*Game_Ready) ProtoMessage()               {}
-func (*Game_Ready) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{124} }
+func (m *Game_Ready) Reset() {
+	*m = Game_Ready{}
+}
+func (m *Game_Ready) String() string {
+	return proto.CompactTextString(m)
+}
+func (*Game_Ready) ProtoMessage() {}
+func (*Game_Ready) Descriptor() ([]byte, []int) {
+	return fileDescriptor1, []int{124}
+}
 
 func (m *Game_Ready) GetUserId() uint32 {
 	if m != nil && m.UserId != nil {
@@ -7085,10 +7841,16 @@ type Game_AckReady struct {
 	XXX_unrecognized []byte `json:"-"`
 }
 
-func (m *Game_AckReady) Reset()                    { *m = Game_AckReady{} }
-func (m *Game_AckReady) String() string            { return proto.CompactTextString(m) }
-func (*Game_AckReady) ProtoMessage()               {}
-func (*Game_AckReady) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{125} }
+func (m *Game_AckReady) Reset() {
+	*m = Game_AckReady{}
+}
+func (m *Game_AckReady) String() string {
+	return proto.CompactTextString(m)
+}
+func (*Game_AckReady) ProtoMessage() {}
+func (*Game_AckReady) Descriptor() ([]byte, []int) {
+	return fileDescriptor1, []int{125}
+}
 
 func (m *Game_AckReady) GetResult() int32 {
 	if m != nil && m.Result != nil {
@@ -7103,10 +7865,16 @@ type Game_Begin struct {
 	XXX_unrecognized []byte  `json:"-"`
 }
 
-func (m *Game_Begin) Reset()                    { *m = Game_Begin{} }
-func (m *Game_Begin) String() string            { return proto.CompactTextString(m) }
-func (*Game_Begin) ProtoMessage()               {}
-func (*Game_Begin) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{126} }
+func (m *Game_Begin) Reset() {
+	*m = Game_Begin{}
+}
+func (m *Game_Begin) String() string {
+	return proto.CompactTextString(m)
+}
+func (*Game_Begin) ProtoMessage() {}
+func (*Game_Begin) Descriptor() ([]byte, []int) {
+	return fileDescriptor1, []int{126}
+}
 
 func (m *Game_Begin) GetUserId() uint32 {
 	if m != nil && m.UserId != nil {
@@ -7122,10 +7890,16 @@ type Game_GameRecord struct {
 	XXX_unrecognized []byte  `json:"-"`
 }
 
-func (m *Game_GameRecord) Reset()                    { *m = Game_GameRecord{} }
-func (m *Game_GameRecord) String() string            { return proto.CompactTextString(m) }
-func (*Game_GameRecord) ProtoMessage()               {}
-func (*Game_GameRecord) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{127} }
+func (m *Game_GameRecord) Reset() {
+	*m = Game_GameRecord{}
+}
+func (m *Game_GameRecord) String() string {
+	return proto.CompactTextString(m)
+}
+func (*Game_GameRecord) ProtoMessage() {}
+func (*Game_GameRecord) Descriptor() ([]byte, []int) {
+	return fileDescriptor1, []int{127}
+}
 
 func (m *Game_GameRecord) GetId() int32 {
 	if m != nil && m.Id != nil {
@@ -7149,10 +7923,16 @@ type Game_BeanUserRecord struct {
 	XXX_unrecognized []byte  `json:"-"`
 }
 
-func (m *Game_BeanUserRecord) Reset()                    { *m = Game_BeanUserRecord{} }
-func (m *Game_BeanUserRecord) String() string            { return proto.CompactTextString(m) }
-func (*Game_BeanUserRecord) ProtoMessage()               {}
-func (*Game_BeanUserRecord) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{128} }
+func (m *Game_BeanUserRecord) Reset() {
+	*m = Game_BeanUserRecord{}
+}
+func (m *Game_BeanUserRecord) String() string {
+	return proto.CompactTextString(m)
+}
+func (*Game_BeanUserRecord) ProtoMessage() {}
+func (*Game_BeanUserRecord) Descriptor() ([]byte, []int) {
+	return fileDescriptor1, []int{128}
+}
 
 func (m *Game_BeanUserRecord) GetUserId() uint32 {
 	if m != nil && m.UserId != nil {
@@ -7184,10 +7964,16 @@ type Game_BeanGameRecord struct {
 	XXX_unrecognized []byte                 `json:"-"`
 }
 
-func (m *Game_BeanGameRecord) Reset()                    { *m = Game_BeanGameRecord{} }
-func (m *Game_BeanGameRecord) String() string            { return proto.CompactTextString(m) }
-func (*Game_BeanGameRecord) ProtoMessage()               {}
-func (*Game_BeanGameRecord) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{129} }
+func (m *Game_BeanGameRecord) Reset() {
+	*m = Game_BeanGameRecord{}
+}
+func (m *Game_BeanGameRecord) String() string {
+	return proto.CompactTextString(m)
+}
+func (*Game_BeanGameRecord) ProtoMessage() {}
+func (*Game_BeanGameRecord) Descriptor() ([]byte, []int) {
+	return fileDescriptor1, []int{129}
+}
 
 func (m *Game_BeanGameRecord) GetId() int32 {
 	if m != nil && m.Id != nil {
@@ -7225,10 +8011,16 @@ type Game_AckGameRecord struct {
 	XXX_unrecognized []byte                 `json:"-"`
 }
 
-func (m *Game_AckGameRecord) Reset()                    { *m = Game_AckGameRecord{} }
-func (m *Game_AckGameRecord) String() string            { return proto.CompactTextString(m) }
-func (*Game_AckGameRecord) ProtoMessage()               {}
-func (*Game_AckGameRecord) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{130} }
+func (m *Game_AckGameRecord) Reset() {
+	*m = Game_AckGameRecord{}
+}
+func (m *Game_AckGameRecord) String() string {
+	return proto.CompactTextString(m)
+}
+func (*Game_AckGameRecord) ProtoMessage() {}
+func (*Game_AckGameRecord) Descriptor() ([]byte, []int) {
+	return fileDescriptor1, []int{130}
+}
 
 func (m *Game_AckGameRecord) GetUserId() uint32 {
 	if m != nil && m.UserId != nil {
@@ -7259,10 +8051,16 @@ type WeixinInfo struct {
 	XXX_unrecognized []byte  `json:"-"`
 }
 
-func (m *WeixinInfo) Reset()                    { *m = WeixinInfo{} }
-func (m *WeixinInfo) String() string            { return proto.CompactTextString(m) }
-func (*WeixinInfo) ProtoMessage()               {}
-func (*WeixinInfo) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{131} }
+func (m *WeixinInfo) Reset() {
+	*m = WeixinInfo{}
+}
+func (m *WeixinInfo) String() string {
+	return proto.CompactTextString(m)
+}
+func (*WeixinInfo) ProtoMessage() {}
+func (*WeixinInfo) Descriptor() ([]byte, []int) {
+	return fileDescriptor1, []int{131}
+}
 
 func (m *WeixinInfo) GetOpenId() string {
 	if m != nil && m.OpenId != nil {
@@ -7296,10 +8094,16 @@ type Game_Message struct {
 	XXX_unrecognized []byte  `json:"-"`
 }
 
-func (m *Game_Message) Reset()                    { *m = Game_Message{} }
-func (m *Game_Message) String() string            { return proto.CompactTextString(m) }
-func (*Game_Message) ProtoMessage()               {}
-func (*Game_Message) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{132} }
+func (m *Game_Message) Reset() {
+	*m = Game_Message{}
+}
+func (m *Game_Message) String() string {
+	return proto.CompactTextString(m)
+}
+func (*Game_Message) ProtoMessage() {}
+func (*Game_Message) Descriptor() ([]byte, []int) {
+	return fileDescriptor1, []int{132}
+}
 
 func (m *Game_Message) GetMsgType() int32 {
 	if m != nil && m.MsgType != nil {
@@ -7353,10 +8157,16 @@ type Game_SendMessage struct {
 	XXX_unrecognized []byte  `json:"-"`
 }
 
-func (m *Game_SendMessage) Reset()                    { *m = Game_SendMessage{} }
-func (m *Game_SendMessage) String() string            { return proto.CompactTextString(m) }
-func (*Game_SendMessage) ProtoMessage()               {}
-func (*Game_SendMessage) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{133} }
+func (m *Game_SendMessage) Reset() {
+	*m = Game_SendMessage{}
+}
+func (m *Game_SendMessage) String() string {
+	return proto.CompactTextString(m)
+}
+func (*Game_SendMessage) ProtoMessage() {}
+func (*Game_SendMessage) Descriptor() ([]byte, []int) {
+	return fileDescriptor1, []int{133}
+}
 
 func (m *Game_SendMessage) GetMsgType() int32 {
 	if m != nil && m.MsgType != nil {
@@ -7402,10 +8212,16 @@ type Game_EndLottery struct {
 	XXX_unrecognized []byte  `json:"-"`
 }
 
-func (m *Game_EndLottery) Reset()                    { *m = Game_EndLottery{} }
-func (m *Game_EndLottery) String() string            { return proto.CompactTextString(m) }
-func (*Game_EndLottery) ProtoMessage()               {}
-func (*Game_EndLottery) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{134} }
+func (m *Game_EndLottery) Reset() {
+	*m = Game_EndLottery{}
+}
+func (m *Game_EndLottery) String() string {
+	return proto.CompactTextString(m)
+}
+func (*Game_EndLottery) ProtoMessage() {}
+func (*Game_EndLottery) Descriptor() ([]byte, []int) {
+	return fileDescriptor1, []int{134}
+}
 
 func (m *Game_EndLottery) GetCoin() int64 {
 	if m != nil && m.Coin != nil {
@@ -7442,10 +8258,16 @@ type Game_SendDeskEndLottery struct {
 	XXX_unrecognized []byte             `json:"-"`
 }
 
-func (m *Game_SendDeskEndLottery) Reset()                    { *m = Game_SendDeskEndLottery{} }
-func (m *Game_SendDeskEndLottery) String() string            { return proto.CompactTextString(m) }
-func (*Game_SendDeskEndLottery) ProtoMessage()               {}
-func (*Game_SendDeskEndLottery) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{135} }
+func (m *Game_SendDeskEndLottery) Reset() {
+	*m = Game_SendDeskEndLottery{}
+}
+func (m *Game_SendDeskEndLottery) String() string {
+	return proto.CompactTextString(m)
+}
+func (*Game_SendDeskEndLottery) ProtoMessage() {}
+func (*Game_SendDeskEndLottery) Descriptor() ([]byte, []int) {
+	return fileDescriptor1, []int{135}
+}
 
 func (m *Game_SendDeskEndLottery) GetResult() int32 {
 	if m != nil && m.Result != nil {
@@ -7467,10 +8289,16 @@ type Game_TounamentBlindBean struct {
 	XXX_unrecognized []byte `json:"-"`
 }
 
-func (m *Game_TounamentBlindBean) Reset()                    { *m = Game_TounamentBlindBean{} }
-func (m *Game_TounamentBlindBean) String() string            { return proto.CompactTextString(m) }
-func (*Game_TounamentBlindBean) ProtoMessage()               {}
-func (*Game_TounamentBlindBean) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{136} }
+func (m *Game_TounamentBlindBean) Reset() {
+	*m = Game_TounamentBlindBean{}
+}
+func (m *Game_TounamentBlindBean) String() string {
+	return proto.CompactTextString(m)
+}
+func (*Game_TounamentBlindBean) ProtoMessage() {}
+func (*Game_TounamentBlindBean) Descriptor() ([]byte, []int) {
+	return fileDescriptor1, []int{136}
+}
 
 func (m *Game_TounamentBlindBean) GetSmallBlind() int32 {
 	if m != nil && m.SmallBlind != nil {
@@ -7492,10 +8320,16 @@ type Game_TounamentBlind struct {
 	XXX_unrecognized []byte                     `json:"-"`
 }
 
-func (m *Game_TounamentBlind) Reset()                    { *m = Game_TounamentBlind{} }
-func (m *Game_TounamentBlind) String() string            { return proto.CompactTextString(m) }
-func (*Game_TounamentBlind) ProtoMessage()               {}
-func (*Game_TounamentBlind) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{137} }
+func (m *Game_TounamentBlind) Reset() {
+	*m = Game_TounamentBlind{}
+}
+func (m *Game_TounamentBlind) String() string {
+	return proto.CompactTextString(m)
+}
+func (*Game_TounamentBlind) ProtoMessage() {}
+func (*Game_TounamentBlind) Descriptor() ([]byte, []int) {
+	return fileDescriptor1, []int{137}
+}
 
 func (m *Game_TounamentBlind) GetData() []*Game_TounamentBlindBean {
 	if m != nil {
@@ -7510,10 +8344,16 @@ type Game_TounamentRewardsBean struct {
 	XXX_unrecognized []byte  `json:"-"`
 }
 
-func (m *Game_TounamentRewardsBean) Reset()                    { *m = Game_TounamentRewardsBean{} }
-func (m *Game_TounamentRewardsBean) String() string            { return proto.CompactTextString(m) }
-func (*Game_TounamentRewardsBean) ProtoMessage()               {}
-func (*Game_TounamentRewardsBean) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{138} }
+func (m *Game_TounamentRewardsBean) Reset() {
+	*m = Game_TounamentRewardsBean{}
+}
+func (m *Game_TounamentRewardsBean) String() string {
+	return proto.CompactTextString(m)
+}
+func (*Game_TounamentRewardsBean) ProtoMessage() {}
+func (*Game_TounamentRewardsBean) Descriptor() ([]byte, []int) {
+	return fileDescriptor1, []int{138}
+}
 
 func (m *Game_TounamentRewardsBean) GetIconPath() string {
 	if m != nil && m.IconPath != nil {
@@ -7534,10 +8374,16 @@ type Game_TounamentRewards struct {
 	XXX_unrecognized []byte                       `json:"-"`
 }
 
-func (m *Game_TounamentRewards) Reset()                    { *m = Game_TounamentRewards{} }
-func (m *Game_TounamentRewards) String() string            { return proto.CompactTextString(m) }
-func (*Game_TounamentRewards) ProtoMessage()               {}
-func (*Game_TounamentRewards) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{139} }
+func (m *Game_TounamentRewards) Reset() {
+	*m = Game_TounamentRewards{}
+}
+func (m *Game_TounamentRewards) String() string {
+	return proto.CompactTextString(m)
+}
+func (*Game_TounamentRewards) ProtoMessage() {}
+func (*Game_TounamentRewards) Descriptor() ([]byte, []int) {
+	return fileDescriptor1, []int{139}
+}
 
 func (m *Game_TounamentRewards) GetData() []*Game_TounamentRewardsBean {
 	if m != nil {
@@ -7554,10 +8400,16 @@ type Game_TounamentRankBean struct {
 	XXX_unrecognized []byte  `json:"-"`
 }
 
-func (m *Game_TounamentRankBean) Reset()                    { *m = Game_TounamentRankBean{} }
-func (m *Game_TounamentRankBean) String() string            { return proto.CompactTextString(m) }
-func (*Game_TounamentRankBean) ProtoMessage()               {}
-func (*Game_TounamentRankBean) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{140} }
+func (m *Game_TounamentRankBean) Reset() {
+	*m = Game_TounamentRankBean{}
+}
+func (m *Game_TounamentRankBean) String() string {
+	return proto.CompactTextString(m)
+}
+func (*Game_TounamentRankBean) ProtoMessage() {}
+func (*Game_TounamentRankBean) Descriptor() ([]byte, []int) {
+	return fileDescriptor1, []int{140}
+}
 
 func (m *Game_TounamentRankBean) GetPlace() int32 {
 	if m != nil && m.Place != nil {
@@ -7592,10 +8444,16 @@ type Game_TounamentRank struct {
 	XXX_unrecognized []byte                    `json:"-"`
 }
 
-func (m *Game_TounamentRank) Reset()                    { *m = Game_TounamentRank{} }
-func (m *Game_TounamentRank) String() string            { return proto.CompactTextString(m) }
-func (*Game_TounamentRank) ProtoMessage()               {}
-func (*Game_TounamentRank) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{141} }
+func (m *Game_TounamentRank) Reset() {
+	*m = Game_TounamentRank{}
+}
+func (m *Game_TounamentRank) String() string {
+	return proto.CompactTextString(m)
+}
+func (*Game_TounamentRank) ProtoMessage() {}
+func (*Game_TounamentRank) Descriptor() ([]byte, []int) {
+	return fileDescriptor1, []int{141}
+}
 
 func (m *Game_TounamentRank) GetData() []*Game_TounamentRankBean {
 	if m != nil {
@@ -7612,10 +8470,16 @@ type Game_TounamentSummary struct {
 	XXX_unrecognized []byte  `json:"-"`
 }
 
-func (m *Game_TounamentSummary) Reset()                    { *m = Game_TounamentSummary{} }
-func (m *Game_TounamentSummary) String() string            { return proto.CompactTextString(m) }
-func (*Game_TounamentSummary) ProtoMessage()               {}
-func (*Game_TounamentSummary) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{142} }
+func (m *Game_TounamentSummary) Reset() {
+	*m = Game_TounamentSummary{}
+}
+func (m *Game_TounamentSummary) String() string {
+	return proto.CompactTextString(m)
+}
+func (*Game_TounamentSummary) ProtoMessage() {}
+func (*Game_TounamentSummary) Descriptor() ([]byte, []int) {
+	return fileDescriptor1, []int{142}
+}
 
 func (m *Game_TounamentSummary) GetFee() string {
 	if m != nil && m.Fee != nil {
@@ -7655,10 +8519,16 @@ type Game_MatchItem struct {
 	XXX_unrecognized []byte  `json:"-"`
 }
 
-func (m *Game_MatchItem) Reset()                    { *m = Game_MatchItem{} }
-func (m *Game_MatchItem) String() string            { return proto.CompactTextString(m) }
-func (*Game_MatchItem) ProtoMessage()               {}
-func (*Game_MatchItem) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{143} }
+func (m *Game_MatchItem) Reset() {
+	*m = Game_MatchItem{}
+}
+func (m *Game_MatchItem) String() string {
+	return proto.CompactTextString(m)
+}
+func (*Game_MatchItem) ProtoMessage() {}
+func (*Game_MatchItem) Descriptor() ([]byte, []int) {
+	return fileDescriptor1, []int{143}
+}
 
 func (m *Game_MatchItem) GetType() int32 {
 	if m != nil && m.Type != nil {
@@ -7709,10 +8579,16 @@ type Game_MatchList struct {
 	XXX_unrecognized []byte            `json:"-"`
 }
 
-func (m *Game_MatchList) Reset()                    { *m = Game_MatchList{} }
-func (m *Game_MatchList) String() string            { return proto.CompactTextString(m) }
-func (*Game_MatchList) ProtoMessage()               {}
-func (*Game_MatchList) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{144} }
+func (m *Game_MatchList) Reset() {
+	*m = Game_MatchList{}
+}
+func (m *Game_MatchList) String() string {
+	return proto.CompactTextString(m)
+}
+func (*Game_MatchList) ProtoMessage() {}
+func (*Game_MatchList) Descriptor() ([]byte, []int) {
+	return fileDescriptor1, []int{144}
+}
 
 func (m *Game_MatchList) GetResult() int32 {
 	if m != nil && m.Result != nil {

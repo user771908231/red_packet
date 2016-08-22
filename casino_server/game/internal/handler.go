@@ -419,6 +419,6 @@ func handlerGame_TounamentSummary(args []interface{}) {
 func handlerGame_MatchList(args []interface{}) {
 	a := args[1].(gate.Agent)
 	data := CSTHService.GetGameMatchList()
-	log.T("得到的锦标赛列表[%v]",data)
+	log.T("得到的锦标赛列表[%v]", data)
 	a.WriteMsg(data)
 }
