@@ -86,8 +86,8 @@ enum  EProtoId{
 
 
 
-enum  ErrorCode{
-	ErrorCode_succ			=	0;	//表示成功
+enum  DDErrorCode{
+	ERRORCODE_SUCC			=	0;	//表示成功
 
 	//-1   -100 登陆异常
 
