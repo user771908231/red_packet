@@ -12,6 +12,21 @@ import (
 	"errors"
 )
 
+
+
+
+//德州扑克 玩家的状态
+var TH_USER_STATUS_WAITSEAT int32 = 1           //刚上桌子 等待开始的玩家
+var TH_USER_STATUS_SEATED int32 = 2                //刚上桌子 但是没有在游戏中
+var TH_USER_STATUS_READY int32 = 3
+var TH_USER_STATUS_BETING int32 = 4                //押注中
+var TH_USER_STATUS_ALLINING int32 = 5                //allIn
+var TH_USER_STATUS_FOLDED int32 = 6                //弃牌
+var TH_USER_STATUS_WAIT_CLOSED int32 = 7                 //等待结算
+var TH_USER_STATUS_CLOSED int32 = 8                //已经结算
+
+
+
 /**
 	正在玩德州的人
  */
@@ -71,7 +86,7 @@ func (t *ThUser) wait() error {
 	}
 
 	ticker := time.NewTicker(time.Second * 1)
-	t.waiTime = time.Now().Add(TH_TIMEOUT_DURATION)
+	t.waiTime = time.Now().Add(ThdeskConfig.TH_TIMEOUT_DURATION)
 	uuid, _ := uuid.NewV4()
 	t.waitUUID = uuid.String()                //设置出牌等待的标志
 	go func() {

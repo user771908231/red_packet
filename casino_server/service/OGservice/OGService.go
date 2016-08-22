@@ -279,14 +279,14 @@ func initGameSendgameInfoByDesk(mydesk *room.ThDesk, result *bbproto.Game_SendGa
 	*result.TablePlayer = mydesk.UserCount          //玩家总人数
 	*result.BankSeat = mydesk.GetUserByUserId(mydesk.Dealer).Seat //int32(mydesk.GetUserIndex(mydesk.Dealer))        //庄家
 	*result.ChipSeat = mydesk.GetUserByUserId(mydesk.BetUserNow).Seat //int32(mydesk.GetUserIndex(mydesk.BetUserNow))//当前活动玩家
-	*result.ActionTime = int32(room.TH_TIMEOUT_DURATION_INT)        //当前操作时间,服务器当前的时间
+	*result.ActionTime = room.ThdeskConfig.TH_TIMEOUT_DURATION_INT       //当前操作时间,服务器当前的时间
 	*result.DelayTime = int32(1000)        //当前延时时间
 	*result.GameStatus = deskStatus2OG(mydesk)
 	*result.Pool = int64(mydesk.Jackpot)                //奖池
 	result.Publiccard = mydesk.ThPublicCard2OGC()        //公共牌...
 	*result.MinRaise = mydesk.GetMinRaise()        //最低加注金额
-	*result.NInitActionTime = int32(room.TH_TIMEOUT_DURATION_INT)
-	*result.NInitDelayTime = int32(room.TH_TIMEOUT_DURATION_INT)
+	*result.NInitActionTime = room.ThdeskConfig.TH_TIMEOUT_DURATION_INT
+	*result.NInitDelayTime = room.ThdeskConfig.TH_TIMEOUT_DURATION_INT
 	//result.Handcard = mydesk.GetHandCard()                //用户手牌
 	result.HandCoin = mydesk.GetRoomCoin()        //带入金额
 	result.TurnCoin = getTurnCoin(mydesk)

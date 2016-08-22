@@ -22,6 +22,80 @@ import (
 )
 
 
+
+
+//德州扑克,牌桌的状态
+var TH_DESK_STATUS_STOP int32 = 1                //没有开始的状态
+var TH_DESK_STATUS_SART int32 = 2                //已经开始的状态
+var TH_DESK_STATUS_LOTTERY int32 = 3                //已经开始的状态
+
+var TH_DESK_ROUND1 int32 = 1                //第一轮押注
+var TH_DESK_ROUND2 int32 = 2                //第二轮押注
+var TH_DESK_ROUND3 int32 = 3                //第三轮押注
+var TH_DESK_ROUND4 int32 = 4                //第四轮押注
+var TH_DESK_ROUND_END int32 = 5                //完成押注
+
+
+//押注的类型
+var TH_DESK_BET_TYPE_BET int32 = 1                //押注
+var TH_DESK_BET_TYPE_CALL int32 = 2        //跟注,和别人下相同的筹码
+var TH_DESK_BET_TYPE_FOLD int32 = 3        //弃牌
+var TH_DESK_BET_TYPE_CHECK int32 = 4                //让牌
+var TH_DESK_BET_TYPE_RAISE int32 = 5                //加注
+var TH_DESK_BET_TYPE_RERRAISE int32 = 6                //再加注
+var TH_DESK_BET_TYPE_ALLIN int32 = 7                //全下
+
+
+func init() {
+	InitDeskConfig()
+}
+
+
+//桌子的一些配置
+var ThdeskConfig struct {
+					       //创建房间需要消耗的砖石
+	CreateJuCountUnit        int32         //没多少局消耗多少钻石
+	CreateFee                int64         //每多少局消耗多少砖石
+
+					       //每个人出牌的时间
+	TH_TIMEOUT_DURATION      time.Duration //德州出牌的超时时间
+	TH_TIMEOUT_DURATION_INT  int32         //德州出牌的超时时间
+
+
+					       //开奖的时间
+	TH_LOTTERY_DURATION      time.Duration
+
+	TH_DESK_LEAST_START_USER int32         //每局开始的最低人数
+
+	TH_DESK_MAX_START_USER   int32         //桌子上最多坐多少人
+
+	TH_GAME_SMALL_BLIND      int64         //默认小盲注是多少
+}
+
+//初始化桌子的配置参数
+func InitDeskConfig() {
+
+	//每4局消耗1颗砖石
+	ThdeskConfig.CreateJuCountUnit = 4
+	ThdeskConfig.CreateFee = 1
+
+	//每个人出牌的等待时间
+	ThdeskConfig.TH_TIMEOUT_DURATION = time.Second * 20
+	ThdeskConfig.TH_TIMEOUT_DURATION_INT = 20
+
+	//德州开奖的时间
+	ThdeskConfig.TH_LOTTERY_DURATION = time.Second * 5
+
+	ThdeskConfig.TH_DESK_LEAST_START_USER = 2
+	ThdeskConfig.TH_DESK_MAX_START_USER = 8
+
+	ThdeskConfig.TH_GAME_SMALL_BLIND = 10
+}
+
+
+
+
+
 /**
 	一个德州扑克的房间
  */
@@ -74,7 +148,7 @@ func NewThDesk() *ThDesk {
 	result.BetUserNow = 0
 	result.BigBlind = 0
 	result.SmallBlind = 0
-	result.Users = make([]*ThUser, TH_DESK_MAX_START_USER)
+	result.Users = make([]*ThUser, ThdeskConfig.TH_DESK_MAX_START_USER)
 	result.RaiseUserId = 0
 	result.RoundCount = 0
 	result.NewRoundFirstBetUser = 0
@@ -362,7 +436,7 @@ func (t *ThDesk) InitUserBeginStatus() error {
  */
 func (t *ThDesk) OnInitCards() error {
 	log.T("开始一局新的游戏,初始化牌的信息")
-	var total = int(2 * TH_DESK_MAX_START_USER + 5); //人数*手牌+5张公共牌
+	var total = int(2 * ThdeskConfig.TH_DESK_MAX_START_USER + 5); //人数*手牌+5张公共牌
 	totalCards := pokerService.RandomTHPorkCards(total)        //得到牌
 
 	//得到所有的牌,前五张为公共牌,后边的每两张为手牌
@@ -432,7 +506,7 @@ func (t *ThDesk) THBroadcastAddUser(newUserId, ignoreUserId uint32) error {
 	返回res需要的User实体
  */
 func (t *ThDesk) GetResUserModel() []*bbproto.THUser {
-	result := make([]*bbproto.THUser, TH_DESK_MAX_START_USER)
+	result := make([]*bbproto.THUser, ThdeskConfig.TH_DESK_MAX_START_USER)
 
 	//就坐的人
 	for i := 0; i < len(t.Users); i++ {
@@ -843,7 +917,7 @@ func (t *ThDesk) Lottery() error {
 
 	//判断是否可以继续啊下次游戏
 	if t.canNextRun() {
-		time.Sleep(TH_LOTTERY_DURATION)        //开奖的延迟
+		time.Sleep(ThdeskConfig.TH_LOTTERY_DURATION)        //开奖的延迟
 		go t.Run()
 	} else {
 		//表示不能继续开始游戏
@@ -1511,7 +1585,7 @@ func (t *ThDesk) IsTime2begin() bool {
 	//todo 金钱大于大盲注的人数必须要大于最低人数才可以玩
 	log.T("当前在线玩家的数量是[%v],当前desk的状态是[%v],1未开始,2游戏中,3,开奖中", t.UserCountOnline, t.Status)
 
-	if t.UserCountOnline >= TH_DESK_LEAST_START_USER  && t.Status == TH_DESK_STATUS_STOP {
+	if t.UserCountOnline >= ThdeskConfig.TH_DESK_LEAST_START_USER  && t.Status == TH_DESK_STATUS_STOP {
 		log.T("游戏到了开始的时候----begin----")
 		return true
 	} else {
@@ -1583,7 +1657,7 @@ func (mydesk *ThDesk) Run() error {
 	initCardB.PublicCard = mydesk.ThPublicCard2OGC()
 	*initCardB.MinRaise = mydesk.GetMinRaise()
 	*initCardB.NextUser = mydesk.GetUserByUserId(mydesk.BetUserNow).Seat                //	int32(mydesk.GetUserIndex(mydesk.BetUserNow))
-	*initCardB.ActionTime = TH_TIMEOUT_DURATION_INT
+	*initCardB.ActionTime = ThdeskConfig.TH_TIMEOUT_DURATION_INT
 	//initCardB.Seat = &mydesk.UserCount
 	mydesk.OGTHBroadInitCard(initCardB)
 	log.T("广播Game_InitCard的信息完毕")

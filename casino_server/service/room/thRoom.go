@@ -7,56 +7,13 @@ import (
 	"casino_server/common/log"
 	"errors"
 	"casino_server/service/userService"
-	"time"
 	"casino_server/mode"
 	"casino_server/utils/numUtils"
 	"casino_server/utils"
 	"casino_server/conf/intCons"
 )
-//config
-
-var TH_GAME_SMALL_BLIND int64 = 10              //小盲注的金额
-var TH_TIMEOUT_DURATION = time.Second * 20        //德州出牌的超时时间
-var TH_TIMEOUT_DURATION_INT int32 = 20                //德州出牌的超时时间
-var TH_LOTTERY_DURATION = time.Second * 5                //德州开奖的时间
-var TH_DESK_CREATE_DIAMOND int64 = 10; //创建牌桌需要的钻石数量
 
 
-//测试的时候 修改喂多人才可以游戏
-var TH_DESK_LEAST_START_USER int32 = 2        //最少多少人可以开始游戏
-var TH_DESK_MAX_START_USER int32 = 8                //玩德州扑克,每个房间最多多少人
-
-//德州扑克 玩家的状态
-var TH_USER_STATUS_WAITSEAT int32 = 1                //刚上桌子 等待开始的玩家
-var TH_USER_STATUS_SEATED int32 = 2                //刚上桌子 但是没有在游戏中
-var TH_USER_STATUS_READY int32 = 3
-var TH_USER_STATUS_BETING int32 = 4                //押注中
-var TH_USER_STATUS_ALLINING int32 = 5                //allIn
-var TH_USER_STATUS_FOLDED int32 = 6                //弃牌
-var TH_USER_STATUS_WAIT_CLOSED int32 = 7                 //等待结算
-var TH_USER_STATUS_CLOSED int32 = 8                //已经结算
-
-
-//德州扑克,牌桌的状态
-var TH_DESK_STATUS_STOP int32 = 1                //没有开始的状态
-var TH_DESK_STATUS_SART int32 = 2                //已经开始的状态
-var TH_DESK_STATUS_LOTTERY int32 = 3                //已经开始的状态
-
-var TH_DESK_ROUND1 int32 = 1                //第一轮押注
-var TH_DESK_ROUND2 int32 = 2                //第二轮押注
-var TH_DESK_ROUND3 int32 = 3                //第三轮押注
-var TH_DESK_ROUND4 int32 = 4                //第四轮押注
-var TH_DESK_ROUND_END int32 = 5                //完成押注
-
-
-//押注的类型
-var TH_DESK_BET_TYPE_BET int32 = 1                //押注
-var TH_DESK_BET_TYPE_CALL int32 = 2        //跟注,和别人下相同的筹码
-var TH_DESK_BET_TYPE_FOLD int32 = 3        //弃牌
-var TH_DESK_BET_TYPE_CHECK int32 = 4                //让牌
-var TH_DESK_BET_TYPE_RAISE int32 = 5                //加注
-var TH_DESK_BET_TYPE_RERRAISE int32 = 6                //再加注
-var TH_DESK_BET_TYPE_ALLIN int32 = 7                //全下
 
 
 var ThGameRoomIns ThGameRoom                //房间实例,在init函数中初始化
@@ -83,9 +40,9 @@ type ThGameRoom struct {
 
 //初始化游戏房间
 func (r *ThGameRoom) OnInit() {
-	r.ThRoomSeatMax = TH_DESK_MAX_START_USER
+	r.ThRoomSeatMax = ThdeskConfig.TH_DESK_MAX_START_USER
 	r.Id = 0
-	r.SmallBlindCoin = TH_GAME_SMALL_BLIND;
+	r.SmallBlindCoin = ThdeskConfig.TH_GAME_SMALL_BLIND;
 }
 
 
@@ -117,11 +74,18 @@ func (r *ThGameRoom) IsRoomKeyExist(roomkey string) bool {
 	return ret
 }
 
+
+//
+func (r *ThGameRoom) CalcCreateFee(jucount int32) int64 {
+	//通过局数来计算消耗的钻石数量
+	return (int64(jucount)) / (int64(ThdeskConfig.CreateJuCountUnit)) * ThdeskConfig.CreateFee
+}
+
 //创建一个房间
 func (r *ThGameRoom) CreateDeskByUserIdAndRoomKey(userId uint32, roomCoin int64, roomkey string, smallBlind int64, bigBlind int64, jucount int32) (*ThDesk, error) {
 
 	//1,创建房间成功之后,扣除user的钻石
-	upDianmond := 0 - TH_DESK_CREATE_DIAMOND
+	upDianmond := 0 - r.CalcCreateFee(jucount)
 	remainDiamond, err := userService.UpdateUserDiamond(userId, upDianmond)
 	if err != nil {
 		log.E("创建房间的时候出错,error", err.Error())
@@ -318,7 +282,7 @@ func GetCSTHroom(matchId int32) *CSThGameRoom {
 	if matchId < 0 {
 		return nil
 	} else {
-		return ChampionshipRoom
+		return &ChampionshipRoom
 	}
 }
 
