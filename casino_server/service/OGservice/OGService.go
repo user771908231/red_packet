@@ -57,6 +57,13 @@ func HandlerLeaveDesk(m *bbproto.Game_LeaveDesk, a gate.Agent) {
 	//deskId
 	desk := room.GetDeskByAgent(a)
 	desk.LeaveThuser(m.GetUserId())
+
+	//如果是竞标赛,在线人数-1
+	room := room.GetCSTHroom(1)
+	if room != nil {
+		room.SubOnlineCount()
+	}
+
 }
 
 ///用户发送消息
@@ -287,7 +294,7 @@ func initGameSendgameInfoByDesk(mydesk *room.ThDesk, result *bbproto.Game_SendGa
 	result.SecondPool = mydesk.GetSecondPool()
 	*result.TurnMax = mydesk.BetAmountNow
 	result.WeixinInfos = mydesk.GetWeiXinInfos()
-	*result.OwnerSeat  = int32(mydesk.GetUserIndex(mydesk.DeskOwner))
+	*result.OwnerSeat = int32(mydesk.GetUserIndex(mydesk.DeskOwner))
 
 	//循环User来处理
 	for i := 0; i < len(mydesk.Users); i++ {

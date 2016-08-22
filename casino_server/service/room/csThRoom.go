@@ -94,6 +94,11 @@ func (r *CSThGameRoom) AddOnlineCount() {
 	atomic.AddInt32(&r.onlineCount, 1)        //在线人数增加一人
 }
 
+func (r *CSThGameRoom) SubOnlineCount(){
+	atomic.AddInt32(&r.onlineCount, -1)        //在线人数减少一人
+
+}
+
 //检测结束
 func (r *CSThGameRoom) checkEnd() bool {
 	//如果时间已经过了,并且所有桌子的状态都是已经停止游戏,那么表示这一局结束
@@ -173,6 +178,7 @@ func (r *CSThGameRoom) AddUser(userId uint32, roomCoin int64, a gate.Agent) (*Th
 		return nil, err
 	}
 
+	r.AddOnlineCount()	//在线用户增加1
 	mydesk.LogString()        //答应当前房间的信息
 	return mydesk, nil
 }

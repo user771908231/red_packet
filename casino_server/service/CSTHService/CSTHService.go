@@ -47,7 +47,7 @@ func RefreshRedisMatchList() {
 			d := data[i]
 			sd := bbproto.NewGame_MatchItem()
 			*sd.CostFee = d.CostFee
-			*sd.Title = d.Title
+			*sd.Title = "神经德州锦标赛"
 			*sd.Status = d.Status
 			*sd.Type = d.GameType
 			*sd.Time = timeUtils.Format(d.BeginTime)

@@ -185,7 +185,7 @@ func (r *ThGameRoom) RmThroom(id int32) error {
 		if u != nil {
 			agent := u.agent
 			//更新agentData的数据
-			u.UpdateAgentUserData(agent,0,0)
+			u.UpdateAgentUserData(agent, 0, 0)
 		}
 	}
 
@@ -212,7 +212,7 @@ func (r *ThGameRoom) DissolveDeskByDeskOwner(userId uint32, a gate.Agent) error 
 	if desk == nil {
 		return errors.New("房间已经解散了")
 	}
-	
+
 	if desk.DeskOwner != userId {
 		return errors.New("不是房主,没有权限解散房间")
 	}
@@ -313,13 +313,16 @@ func (r *ThGameRoom) AddUserWithRoomKey(userId uint32, roomCoin int64, roomKey s
 
 }
 
-//退出房间,设置房间状态
-func (r *ThGameRoom) LeaveRoom(deskId, deskType int32, userId uint32) error {
-	//desk := r.GetDeskByUserId(userId)
-	//desk := GetDeskByIdAndType(deskId,deskType)
-	//desk.LeaveThuser(userId)
-	return nil
+//得到锦标赛房间
+func GetCSTHroom(matchId int32) *CSThGameRoom {
+	if matchId < 0 {
+		return nil
+	} else {
+		return ChampionshipRoom
+	}
 }
+
+
 
 //通过Id找到对应的桌子
 func (r *ThGameRoom) GetDeskById(id int32) *ThDesk {
@@ -332,6 +335,7 @@ func (r *ThGameRoom) GetDeskById(id int32) *ThDesk {
 	}
 	return result
 }
+
 
 //通过肘子的类型和Match得到thdesk
 func GetDeskByIdAndMatchId(deskId int32, matchId int32) *ThDesk {
@@ -369,5 +373,5 @@ func GetDeskByAgent(a gate.Agent) *ThDesk {
 	log.T("通过agent.userData()[%v]得到thdesk[%v]", userData, desk)
 
 	return desk
-
 }
+
