@@ -199,7 +199,7 @@ func (t *ThUser) UpdateAgentUserData(a gate.Agent, deskId int32, matchId int32) 
 
 //把用户数据保存到redis中
 func (u *ThUser) Update2redis(){
-	UpdateRedisThuser(u.deskId, u.GameNumber, u.UserId, u.RoomCoin, u.HandCoin, u.TurnCoin, u.TotalBet, u.TotalBet4calcAllin, u.winAmount)
+	UpdateRedisThuser(u)
 }
 
 //计算用户的各种金额

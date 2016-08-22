@@ -24,12 +24,14 @@ func init() {
 
 //对竞标赛的配置
 var CSTHGameRoomConfig struct {
-	gameDuration time.Duration //一场比赛的时间周期
+	gameDuration  time.Duration //一场比赛的时间周期
+	checkDuration time.Duration //检测的时间周期
 }
 
 //对配置对象进行配置,以后可以从配置文件读取
 func (r *CSThGameRoom) OnInitConfig() {
 	CSTHGameRoomConfig.gameDuration = time.Second * 60 * 20
+	CSTHGameRoomConfig.checkDuration = time.Second * 10
 
 }
 
@@ -77,7 +79,7 @@ func (r *CSThGameRoom) Run() {
 	CSTHService.RefreshRedisMatchList()        //这里刷新redis中的锦标赛数据
 
 	//这里定义一个计时器,每十秒钟检测一次游戏
-	ticker := time.NewTicker(time.Second * 10)
+	ticker := time.NewTicker(CSTHGameRoomConfig.checkDuration)
 	go func() {
 		for timeNow := range ticker.C {
 			log.T("开始time[%v]检测锦标赛matchId[%v]有没有结束...", timeNow, r.matchId)
@@ -94,7 +96,7 @@ func (r *CSThGameRoom) AddOnlineCount() {
 	atomic.AddInt32(&r.onlineCount, 1)        //在线人数增加一人
 }
 
-func (r *CSThGameRoom) SubOnlineCount(){
+func (r *CSThGameRoom) SubOnlineCount() {
 	atomic.AddInt32(&r.onlineCount, -1)        //在线人数减少一人
 
 }
@@ -178,7 +180,7 @@ func (r *CSThGameRoom) AddUser(userId uint32, roomCoin int64, a gate.Agent) (*Th
 		return nil, err
 	}
 
-	r.AddOnlineCount()	//在线用户增加1
+	r.AddOnlineCount()        //在线用户增加1
 	mydesk.LogString()        //答应当前房间的信息
 	return mydesk, nil
 }

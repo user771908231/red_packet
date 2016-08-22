@@ -234,6 +234,7 @@ func (t *ThDesk) AddThUser(userId uint32, roomCoin int64, userStatus int32, a ga
 	thUser.agent = a
 	thUser.Status = userStatus        //刚进房间的玩家
 	thUser.deskId = t.Id                //桌子的id
+	thUser.GameNumber = t.GameNumber
 	//thUser.NickName = *redisUser.NickName		//todo 测试阶段,把nickName显示成用户id
 	thUser.NickName, _ = numUtils.Uint2String(userId)
 	thUser.RoomCoin = roomCoin
@@ -248,6 +249,7 @@ func (t *ThDesk) AddThUser(userId uint32, roomCoin int64, userStatus int32, a ga
 
 	//4, 把用户的信息绑定到agent上
 	thUser.UpdateAgentUserData(a, t.Id, t.MatchId)
+	thUser.Update2redis()		//把数据保存到redis中去
 
 	//5,等待的用户加1
 	t.UserCount ++

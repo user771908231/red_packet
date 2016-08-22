@@ -44,10 +44,30 @@ func GetRedisThUser(deskId int32, gameNumber int32, userId uint32) *bbproto.ThSe
 }
 
 //新建立一个user放在redis中
-func NewRedisThuser(desk *ThDesk, userId uint32) {
-	user := NewThServerUser()
-	//初始化值
-	saveRedisThUser(user)
+func NewRedisThuser(desk *ThDesk, userId uint32,user *ThUser) {
+
+	//初始化值 user
+	ruser := NewThServerUser()
+	*ruser.UserId = user.UserId
+	*ruser.DeskId = user.deskId
+	*ruser.GameNumber = user.GameNumber
+	*ruser.Seat = user.Seat
+	*ruser.Status = user.Status
+	*ruser.IsBreak = user.IsBreak
+	*ruser.IsLeave = user.IsLeave
+	ruser.HandCards = user.HandCards
+	//*ruser.WaiTime = user.waiTime
+	*ruser.WaitUUID = user.waitUUID
+	*ruser.TotalBet = user.TotalBet
+	*ruser.TotalBet4CalcAllin = user.TotalBet4calcAllin
+	*ruser.WinAmount = user.winAmount
+	ruser.WinAmountDetail = user.winAmountDetail
+	*ruser.TurnCoin = user.TurnCoin
+	*ruser.HandCoin = user.HandCoin
+	*ruser.RoomCoin = user.RoomCoin
+
+	//保存
+	saveRedisThUser(ruser)
 }
 
 //返回一个初始化的user
@@ -67,7 +87,8 @@ func NewThServerUser() *bbproto.ThServerUser {
 	user.RoomCoin = new(int64)
 	user.UserId = new(uint32)
 	user.GameNumber = new(int32)
-
+	user.IsBreak = new(bool)
+	user.IsLeave = new(bool)
 	return user
 }
 
@@ -101,21 +122,23 @@ func DelRedisThUser(deskId int32, gameNumber int32, userId uint32) error {
 
 }
 
-func UpdateRedisThuser(deskId int32, gameNumber int32, userId uint32, roomCoin, handCoin, turnCoin, totalBet, totalBet4CalcAllin, winAmount int64) error {
+func UpdateRedisThuser(u *ThUser) error {
 	//1,得到user
-	user := GetRedisThUser(deskId, gameNumber, userId)
+	user := GetRedisThUser(u.deskId, u.GameNumber, u.UserId)
 	if user == nil {
 		return errors.New("没有找到用户")
 	}
 
 	//2,增加金额
-	*user.RoomCoin = roomCoin
-	*user.HandCoin = handCoin
-	*user.TurnCoin = turnCoin
-	*user.TotalBet = totalBet
-	*user.TotalBet4CalcAllin = totalBet4CalcAllin
-	*user.WinAmount = winAmount
-
+	*user.RoomCoin = u.RoomCoin
+	*user.HandCoin = u.HandCoin
+	*user.TurnCoin = u.TurnCoin
+	*user.TotalBet =u.TotalBet
+	*user.TotalBet4CalcAllin = u.TotalBet4calcAllin
+	*user.WinAmount = u.winAmount
+	*user.IsBreak = u.IsBreak
+	*user.IsLeave = u.IsLeave
+	*user.Status = u.Status
 	saveRedisThUser(user)
 	return nil
 }

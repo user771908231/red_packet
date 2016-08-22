@@ -55,7 +55,12 @@ message ThServerUser{
 	repeated int64 winAmountDetail	=14;		//手牌
     optional uint32	UserId 			=15;		//用户id
 	optional int32	GameNumber		=16;		//游戏编号(每一局游戏都有独立的编号)
+	optional bool IsBreak			=17;		//是否断线
+	optional bool IsLeave			=18;		//是否离开
+
 }
+
+
 
 //保存用户的会话信息
 message ThServerUserSession{
