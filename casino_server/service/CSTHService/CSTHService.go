@@ -9,6 +9,8 @@ import (
 	"gopkg.in/mgo.v2"
 	"casino_server/conf/casinoConf"
 	"gopkg.in/mgo.v2/bson"
+	"casino_server/common/log"
+	"casino_server/utils/timeUtils"
 )
 
 
@@ -19,10 +21,12 @@ func GetMatchListRedisKey() string {
 
 //竞标赛列表主要存放在标 t_cs_th_record中,但是一般都是在redis中取,如果redis中没有再从数据库中取
 func GetGameMatchList() *bbproto.Game_MatchList {
-	data := redisUtils.GetObj(GetMatchListRedisKey(),&bbproto.Game_MatchList{})
-	if data == nil{
+	data := redisUtils.GetObj(GetMatchListRedisKey(), &bbproto.Game_MatchList{})
+	if data == nil {
+		log.T("redis中没有找到竞标赛列表,需要在数据库中查找")
+		RefreshRedisMatchList()
 		return nil
-	}else{
+	} else {
 		return data.(*bbproto.Game_MatchList)
 	}
 }
@@ -43,14 +47,16 @@ func RefreshRedisMatchList() {
 			d := data[i]
 			sd := bbproto.NewGame_MatchItem()
 			*sd.CostFee = d.CostFee
-			*sd.Title   = d.Title
-			*sd.Status  = d.Status
-			*sd.Type    = d.GameType
-			sdata.Items = append(sdata.Items,sd)
+			*sd.Title = d.Title
+			*sd.Status = d.Status
+			*sd.Type = d.GameType
+			*sd.Time = timeUtils.Format(d.BeginTime)
+
+			sdata.Items = append(sdata.Items, sd)
 		}
 
 		//存储
-		redisUtils.SaveObj(GetMatchListRedisKey(),sdata)
+		redisUtils.SaveObj(GetMatchListRedisKey(), sdata)
 	}
 
 }
