@@ -236,15 +236,6 @@ func (t *ThDesk) GetMinRaise() int64 {
 	return result
 }
 
-//把用户信息保存到redis
-func (t *ThDesk) UpdateThuser2Redis(userId uint32) error {
-	u := t.GetUserByUserId(userId)
-	if u != nil {
-		UpdateRedisThuser(t.Id, t.GameNumber, u.UserId, u.RoomCoin, u.HandCoin, u.TurnCoin, u.TotalBet, u.TotalBet4calcAllin, u.winAmount)
-	}
-	return nil
-}
-
 //联众德州 让牌
 func (t *ThDesk) DDCheckBet(user *ThUser) error {
 

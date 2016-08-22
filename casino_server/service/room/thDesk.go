@@ -19,6 +19,7 @@ import (
 	"github.com/name5566/leaf/gate"
 	"github.com/golang/protobuf/proto"
 	"casino_server/utils/db"
+	"sync/atomic"
 )
 
 
@@ -225,7 +226,6 @@ func (t *ThDesk) IsrepeatIntoWithRoomKey(userId uint32, a gate.Agent) bool {
 	为桌子增加一个人
  */
 func (t *ThDesk) AddThUser(userId uint32, roomCoin int64, userStatus int32, a gate.Agent) error {
-
 	//1,从redis得到redisUser
 	//redisUser := userService.GetUserById(userId)
 	//2,通过userId 和agent 够做一个thuser
@@ -254,6 +254,7 @@ func (t *ThDesk) AddThUser(userId uint32, roomCoin int64, userStatus int32, a ga
 	t.UserCountOnline ++
 	return nil
 }
+
 
 //增加一个user实体
 func (t *ThDesk) addThuserBean(user *ThUser) error {
@@ -840,9 +841,10 @@ func (t *ThDesk) calcUserWinAmount() error {
 				if u.Status == TH_USER_STATUS_WAIT_CLOSED && u.thCards.IsWin {
 					//可以发送奖金
 					log.T("用户[%v].status[%v],iswin[%v]在allin.index[%v]活的奖金[%v]", u.UserId, u.Status, u.thCards.IsWin, i, bonus)
-					u.winAmount += bonus
-					u.RoomCoin += bonus
+					u.AddWinAmount(bonus)
+					u.AddRoomCoin(bonus)
 					u.winAmountDetail = append(u.winAmountDetail, bonus)
+					u.Update2redis()	//把数据保存到redis中
 				}
 
 				//如果用户是这个奖金池all in的用户,则此用户设置喂已经结清的状态
@@ -867,9 +869,10 @@ func (t *ThDesk) calcUserWinAmount() error {
 				//
 				//对这个用户做结算...
 				log.T("现在开始开奖,计算边池的奖励,user[%v]得到[%v]....", u.UserId, bbonus)
-				u.winAmount += bbonus
-				u.RoomCoin += bbonus
+				u.AddWinAmount(bbonus)
+				u.AddRoomCoin(bbonus)
 				u.winAmountDetail = append(u.winAmountDetail, bbonus)        //详细的奖励(边池主池分开)
+				u.Update2redis()
 			}
 
 			//设置为结算完了的状态
@@ -1298,12 +1301,20 @@ func (t *ThDesk) GetUserByUserId(userId uint32) *ThUser {
 // 用户加注,跟住,allin 之后对他的各种余额属性进行计算
 func (t *ThDesk) caclUserCoin(userId uint32, coin int64) error {
 	user := t.GetUserByUserId(userId)
-	user.TurnCoin += coin
-	user.HandCoin += coin
-	user.TotalBet4calcAllin += coin
-	user.TotalBet += coin
-	user.RoomCoin -= coin                //这里暂时不处理roomCoin,roomCoin是在每一轮结束的时候来结算
-	userService.DecreaseUserCoin(userId, coin)
+
+	atomic.AddInt64(&user.TurnCoin,coin)
+	atomic.AddInt64(&user.HandCoin,coin)
+	atomic.AddInt64(&user.TotalBet4calcAllin,coin)
+	atomic.AddInt64(&user.TotalBet,coin)
+	user.AddRoomCoin(-coin)
+
+	//user.TurnCoin += coin
+	//user.HandCoin += coin
+	//user.TotalBet4calcAllin += coin
+	//user.TotalBet += coin
+	//user.RoomCoin -= coin                //这里暂时不处理roomCoin,roomCoin是在每一轮结束的时候来结算
+
+	UpdateRedisThUserRoomCoin(t.Id,t.GameNumber,user.UserId,user.RoomCoin)
 	return nil
 }
 

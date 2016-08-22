@@ -10,6 +10,7 @@ import (
 	"github.com/name5566/leaf/gate"
 	"casino_server/common/log"
 	"errors"
+	"sync/atomic"
 )
 
 
@@ -26,7 +27,6 @@ var TH_USER_STATUS_WAIT_CLOSED int32 = 7                 //等待结算
 var TH_USER_STATUS_CLOSED int32 = 8                //已经结算
 
 
-
 /**
 	正在玩德州的人
  */
@@ -34,6 +34,9 @@ type ThUser struct {
 	sync.Mutex
 	UserId             uint32                //用户id
 	NickName           string                //用户昵称
+
+	deskId             int32                 //用户所在的桌子的编号
+	GameNumber         int32                 //游戏编号
 	Seat               int32                 //用户的座位号
 	agent              gate.Agent            //agent
 	Status             int32                 //当前的状态
@@ -43,7 +46,6 @@ type ThUser struct {
 	thCards            *pokerService.ThCards //手牌加公共牌取出来的值,这个值可以实在结算的时候来取
 	waiTime            time.Time             //等待时间
 	waitUUID           string                //等待标志
-	deskId             int32                 //用户所在的桌子的编号
 	TotalBet           int64                 //计算用户总共押注的多少钱
 	TotalBet4calcAllin int64                 //押注总额 ***注意,目前这个值是用来计算all in 的
 	winAmount          int64                 //总共赢了多少钱
@@ -180,10 +182,10 @@ func NewThUser() *ThUser {
 }
 
 //更新用户的agentUserData数据
-func (t *ThUser) UpdateAgentUserData(a gate.Agent,deskId int32,matchId int32){
+func (t *ThUser) UpdateAgentUserData(a gate.Agent, deskId int32, matchId int32) {
 
 	//保存回话信息
-	userAgentData := bbproto.NewThServerUserSession()		//绑定参数
+	userAgentData := bbproto.NewThServerUserSession()                //绑定参数
 	*userAgentData.UserId = t.UserId
 	*userAgentData.DeskId = deskId
 	*userAgentData.MatchId = matchId
@@ -193,7 +195,35 @@ func (t *ThUser) UpdateAgentUserData(a gate.Agent,deskId int32,matchId int32){
 
 	//回话信息保存到redis
 	userService.SaveUserSession(userAgentData)
-
 }
+
+//把用户数据保存到redis中
+func (u *ThUser) Update2redis(){
+	UpdateRedisThuser(u.deskId, u.GameNumber, u.UserId, u.RoomCoin, u.HandCoin, u.TurnCoin, u.TotalBet, u.TotalBet4calcAllin, u.winAmount)
+}
+
+//计算用户的各种金额
+
+func (t *ThUser) AddRoomCoin(coin int64) {
+	atomic.AddInt64(&t.RoomCoin, coin)
+}
+
+func (t *ThUser) AddWinAmount(coin int64) {
+	atomic.AddInt64(&t.winAmount, coin)
+}
+
+func (t *ThUser) AddTurnCoin(coin int64) {
+	atomic.AddInt64(&t.TurnCoin, coin)
+}
+
+func (t *ThUser) AddHandCoin(coin int64) {
+	atomic.AddInt64(&t.HandCoin, coin)
+}
+
+func (t *ThUser) AddTotalBet4calcAllin(coin int64) {
+	atomic.AddInt64(&t.TotalBet4calcAllin, coin)
+}
+
+
 
 
