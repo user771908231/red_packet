@@ -228,6 +228,11 @@ func (t *ThUser) AddTotalBet(coin int64) {
 	atomic.AddInt64(&t.TotalBet, coin)
 }
 
+//判断用户是否正在押注中
+func (t *ThUser) IsBetting() bool{
+	//正在押注中 是否需要判断是否断线,是否离线?
+	return t.Status == TH_USER_STATUS_BETING
 
+}
 
 

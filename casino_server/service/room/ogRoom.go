@@ -329,18 +329,6 @@ func ThCard2OGCard(pai *bbproto.Pai) *bbproto.Game_CardInfo {
 	return result
 }
 
-func (mydesk *ThDesk) GetCoin() []int64 {
-	var result []int64
-	for i := 0; i < len(mydesk.Users); i++ {
-		u := mydesk.Users[i]
-		if u != nil {
-			result = append(result, int64(u.GetCoin()))
-		}
-	}
-	return result
-}
-
-
 //得到roomCoin
 func (mydesk *ThDesk) GetRoomCoin() []int64 {
 	var result []int64

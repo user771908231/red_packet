@@ -80,7 +80,7 @@ func (r *ThGameRoom) CalcCreateFee(jucount int32) int64 {
 }
 
 //创建一个房间
-func (r *ThGameRoom) CreateDeskByUserIdAndRoomKey(userId uint32, roomCoin int64, roomkey string, smallBlind int64, bigBlind int64, jucount int32) (*ThDesk, error) {
+func (r *ThGameRoom) CreateDeskByUserIdAndRoomKey(userId uint32, roomCoin int64, roomkey string,preCoin int64, smallBlind int64, bigBlind int64, jucount int32) (*ThDesk, error) {
 
 	//1,创建房间成功之后,扣除user的钻石
 	upDianmond := 0 - r.CalcCreateFee(jucount)
@@ -100,6 +100,7 @@ func (r *ThGameRoom) CreateDeskByUserIdAndRoomKey(userId uint32, roomCoin int64,
 	desk.JuCount = jucount
 	desk.GetRoomCoin()
 	desk.DeskType = intCons.GAME_TYPE_TH        //表示是自定义的房间
+	desk.PreCoin = preCoin
 	r.AddThDesk(desk)
 
 
@@ -159,7 +160,6 @@ func (r *ThGameRoom) DissolveDeskByDeskOwner(userId uint32, a gate.Agent) error 
 	result.PassWord = new(string)
 
 	//1,找到桌子
-	//desk := r.GetDeskByDeskOwner(userId)        //
 	desk := GetDeskByAgent(a)
 
 	if desk == nil {
@@ -176,7 +176,6 @@ func (r *ThGameRoom) DissolveDeskByDeskOwner(userId uint32, a gate.Agent) error 
 		a.WriteMsg(result)
 		return errors.New("游戏正在进行中,不能解散")
 	}
-
 
 	//3,解散
 	r.RmThroom(desk)

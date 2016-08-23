@@ -13,7 +13,6 @@ import (
 	"strings"
 	"sort"
 	"casino_server/common/log"
-	"casino_server/msg/bbprotoFuncs"
 	"errors"
 	"github.com/name5566/leaf/gate"
 	"github.com/golang/protobuf/proto"
@@ -34,10 +33,6 @@ var (
 	GAME_STATUS_LAST_TURN int32 = 6        //第四轮
 	GAME_STATUS_SHOW_RESULT int32 = 7        //完成
 )
-
-
-
-
 
 //德州扑克,牌桌的状态
 var TH_DESK_STATUS_STOP int32 = 1                //没有开始的状态
@@ -124,6 +119,7 @@ type ThDesk struct {
 	InitRoomCoin         int64                        //进入这个房间的roomCoin 带入金额标准是多少
 	JuCount              int32                        //这个桌子最多能打多少局
 	JuCountNow           int32                        //这个桌子已经玩了多少局
+	PreCoin              int64                        //前注的金额
 	SmallBlindCoin       int64                        //小盲注的押注金额
 	BigBlindCoin         int64                        //大盲注的押注金额
 	BeginTime            time.Time                    //游戏开始时间
@@ -345,15 +341,24 @@ func (t *ThDesk) OinitPreCoin() error {
 	log.T("开始一局新的游戏,现在开始初始化前注的信息")
 
 	//每个都减少前注的金额
-
+	for i := 0; i < len(t.Users); i++ {
+		u := t.Users[i]
+		if u != nil && u.IsBetting() {
+			t.caclUserCoin(u.UserId, t.PreCoin)
+		}
+	}
 
 	//发送前主的广播
 	ret := &bbproto.Game_PreCoin{}
 	ret.Pool = new(int64)
-	ret.Coin = t.GetCoin()
+	ret.Tableid = new(int32)
+	//ret.Precoin = new(int64)
+
 	ret.Coin = t.GetRoomCoin()
 	*ret.Pool = 0
-	//ret.Precoin
+	*ret.Tableid = t.Id
+	//*ret.Precoin = t.PreCoin
+
 	t.THBroadcastProtoAll(ret)
 	log.T("开始一局新的游戏,现在开始初始化前注的信息完毕....")
 	return nil

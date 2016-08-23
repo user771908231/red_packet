@@ -25,13 +25,13 @@ import (
 	//新修改:创建房间的时候roomKey 系统指定,不需要用户输入
  */
 
-func HandlerCreateDesk(userId uint32, roomCoin int64, smallBlind int64, bigBlind int64, jucount int32) (*room.ThDesk, error) {
+func HandlerCreateDesk(userId uint32, roomCoin int64, preCoin int64,smallBlind int64, bigBlind int64, jucount int32) (*room.ThDesk, error) {
 
 	//1,得到一个随机的密钥
 	roomKey := room.ThGameRoomIns.RandRoomKey()
 
 	//2,开始创建房间
-	desk, err := room.ThGameRoomIns.CreateDeskByUserIdAndRoomKey(userId, roomCoin, roomKey, smallBlind, bigBlind, jucount);
+	desk, err := room.ThGameRoomIns.CreateDeskByUserIdAndRoomKey(userId, roomCoin, roomKey,preCoin, smallBlind, bigBlind, jucount);
 	if err != nil {
 		log.E("用户创建房间失败errMsg[%v]", err.Error())
 		return nil, err
@@ -221,10 +221,8 @@ func HandlerGameEnterMatch(m *bbproto.Game_EnterMatch, a gate.Agent) error {
 		return err
 	}
 
-	//3 发送进入游戏房间的广播
 	mydesk.OGTHBroadAddUser()
 
-	//4,最后:确定是否开始游戏, 上了牌桌之后,如果玩家人数大于1,并且游戏处于stop的状态,则直接开始游戏
 
 	//5,如果是朋友桌的话,需要房主点击开始才能开始...,如果是锦标赛,则自动开始游戏
 	if mydesk.DeskType == intCons.GAME_TYPE_TH_CS {

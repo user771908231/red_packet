@@ -1179,6 +1179,7 @@ message Game_CreateDesk{
     optional int64  bigBlind        =   4;  //大盲注
     optional int64  initCoin        =   5;  //出事筹码
     optional int32  initCount       =   6;  //初始的局数
+    optional int64  preCoin         =   7;  //前注
 }
 
 //创建房间回复的信息
