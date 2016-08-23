@@ -14,7 +14,6 @@ import (
 	"sort"
 	"casino_server/common/log"
 	"casino_server/msg/bbprotoFuncs"
-	"casino_server/utils/numUtils"
 	"errors"
 	"github.com/name5566/leaf/gate"
 	"github.com/golang/protobuf/proto"
@@ -231,7 +230,7 @@ func (t *ThDesk) IsrepeatIntoWithRoomKey(userId uint32, a gate.Agent) bool {
  */
 func (t *ThDesk) AddThUser(userId uint32, roomCoin int64, userStatus int32, a gate.Agent) error {
 	//1,从redis得到redisUser
-	//redisUser := userService.GetUserById(userId)
+	redisUser := userService.GetUserById(userId)
 	//2,通过userId 和agent 够做一个thuser
 	thUser := NewThUser()
 	thUser.UserId = userId
@@ -239,8 +238,7 @@ func (t *ThDesk) AddThUser(userId uint32, roomCoin int64, userStatus int32, a ga
 	thUser.Status = userStatus        //刚进房间的玩家
 	thUser.deskId = t.Id                //桌子的id
 	thUser.GameNumber = t.GameNumber
-	//thUser.NickName = *redisUser.NickName		//todo 测试阶段,把nickName显示成用户id
-	thUser.NickName, _ = numUtils.Uint2String(userId)
+	thUser.NickName = *redisUser.NickName		//todo 测试阶段,把nickName显示成用户id
 	thUser.RoomCoin = roomCoin
 	log.T("初始化thuser的时候coin[%v]:,roomCoin[%v]", thUser.GetCoin(), thUser.GetRoomCoin())
 

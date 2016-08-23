@@ -403,6 +403,8 @@ func handlerGame_TounamentSummary(args []interface{}) {
 	m := args[0].(*bbproto.Game_TounamentSummary)
 	a := args[1].(gate.Agent)
 
+	log.T("用户请求handlerGame_TounamentSummarym[%v]",m)
+
 	m.Coin = new(string)
 	m.Fee = new(string)
 	m.PersonCount = new(string)
