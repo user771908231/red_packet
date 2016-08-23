@@ -8,6 +8,7 @@ import (
 	"gopkg.in/mgo.v2/bson"
 	"casino_server/mode"
 	"gopkg.in/mgo.v2"
+	"casino_server/common/log"
 )
 
 
@@ -19,6 +20,7 @@ func GetMongoConn() (*mongodb.DialContext, error) {
 
 //保存数据
 func InsertMgoData(dbt string, data interface{}) error {
+	log.T("insert数据到数据库[%v]",data)
 	//得到连接
 	c, err := GetMongoConn()
 	if err != nil {

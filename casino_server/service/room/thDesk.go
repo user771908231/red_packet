@@ -1320,19 +1320,13 @@ func (t *ThDesk) GetUserByUserId(userId uint32) *ThUser {
 func (t *ThDesk) caclUserCoin(userId uint32, coin int64) error {
 	user := t.GetUserByUserId(userId)
 
-	atomic.AddInt64(&user.TurnCoin, coin)
-	atomic.AddInt64(&user.HandCoin, coin)
-	atomic.AddInt64(&user.TotalBet4calcAllin, coin)
-	atomic.AddInt64(&user.TotalBet, coin)
+	user.AddTurnCoin(coin)
+	user.AddHandCoin(coin)
+	user.AddTotalBet4calcAllin(coin)
+	user.AddTotalBet(coin)
 	user.AddRoomCoin(-coin)
+	user.Update2redis()		//用户信息更新之后,保存到数据库
 
-	//user.TurnCoin += coin
-	//user.HandCoin += coin
-	//user.TotalBet4calcAllin += coin
-	//user.TotalBet += coin
-	//user.RoomCoin -= coin                //这里暂时不处理roomCoin,roomCoin是在每一轮结束的时候来结算
-
-	UpdateRedisThUserRoomCoin(t.Id, t.GameNumber, user.UserId, user.RoomCoin)
 	return nil
 }
 
@@ -1603,12 +1597,19 @@ func (t *ThDesk) IsTime2begin() bool {
 	 */
 
 
-	log.T("当前玩家的状态://1,等待开始,2,游戏中,3,押注中,5,allin,6,弃牌,7,等待结算,8,已经结算,9,裂开,10,掉线")
+	log.T("当前玩家的状态://1,等待开始,2,坐下,3,已经准备,4,beting5,allin,6,弃牌,7,等待结算,8,已经结算,9,裂开,10,掉线")
 	for i := 0; i < len(t.Users); i++ {
 		u := t.Users[i]
 		if u != nil {
 			log.T("用户[%v].seat[%v]的状态是[%v]", u.UserId, u.Seat, u.Status)
 		}
+	}
+
+
+	//所有人都准备好了之后才能开始游戏
+	if !t.IsAllReady() {
+		log.T("还有玩家没有准备好")
+		return false
 	}
 
 	//todo 金钱大于大盲注的人数必须要大于最低人数才可以玩

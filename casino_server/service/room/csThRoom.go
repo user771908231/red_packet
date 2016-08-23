@@ -30,7 +30,7 @@ var CSTHGameRoomConfig struct {
 
 //对配置对象进行配置,以后可以从配置文件读取
 func (r *CSThGameRoom) OnInitConfig() {
-	CSTHGameRoomConfig.gameDuration = time.Second * 60 * 20
+	CSTHGameRoomConfig.gameDuration = time.Second * 60 * 2
 	CSTHGameRoomConfig.checkDuration = time.Second * 10
 
 }
@@ -75,14 +75,15 @@ func (r *CSThGameRoom) Run() {
 	saveData.Id = r.matchId
 	saveData.BeginTime = r.beginTime
 	saveData.EndTime = r.endTime
+
 	db.InsertMgoData(casinoConf.DBT_T_CS_TH_RECORD, saveData)
 	CSTHService.RefreshRedisMatchList()        //这里刷新redis中的锦标赛数据
 
 	//这里定义一个计时器,每十秒钟检测一次游戏
 	ticker := time.NewTicker(CSTHGameRoomConfig.checkDuration)
 	go func() {
-		for timeNow := range ticker.C {
-			log.T("开始time[%v]检测锦标赛matchId[%v]有没有结束...", timeNow, r.matchId)
+		for _ = range ticker.C {
+			//log.T("开始time[%v]检测锦标赛matchId[%v]有没有结束...", timeNow, r.matchId)
 			if r.checkEnd() {
 				//重新开始
 				go r.Run()
@@ -106,6 +107,7 @@ func (r *CSThGameRoom) checkEnd() bool {
 	//如果时间已经过了,并且所有桌子的状态都是已经停止游戏,那么表示这一局结束
 	if r.endTime.Before(time.Now()) && r.allStop() {
 		//结算本局
+		log.T("锦标赛matchid[%v]已经结束.",r.matchId)
 		return true
 	} else {
 		return false
@@ -115,7 +117,13 @@ func (r *CSThGameRoom) checkEnd() bool {
 
 
 //判断是否所有的desk停止游戏
+//如果没有desk 是代表停止游戏还是游戏未开始?
 func (r *CSThGameRoom) allStop() bool {
+	//if len(r.ThDeskBuf) <= 0 {
+	//	//表示游戏还没有开始
+	//	return false
+	//}
+
 	result := true
 	for i := 0; i < len(r.ThDeskBuf); i++ {
 		desk := r.ThDeskBuf[i]

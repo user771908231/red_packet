@@ -115,9 +115,7 @@ func HandlerReady(m *bbproto.Game_Ready, a gate.Agent) error {
 	a.WriteMsg(result)
 
 	//如果全部的人都准备好了,那么可以开始游戏
-	if desk.IsAllReady() {
-		desk.Run()
-	}
+	desk.Run()
 
 	return nil
 }
