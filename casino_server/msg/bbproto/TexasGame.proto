@@ -1083,10 +1083,19 @@ message DDBulletinInfo {
     optional bytes Title = 1; //标题
     optional bytes Content = 2; //内容
 }
+
+
+//服务器信息
+message ServerInfo {
+    optional string Ip = 1; 
+    optional int32  Port = 2;
+    optional int32  Status = 3; //0开启 1关闭
+    optional int32  Type = 4;
+}
+
+
 //***************************************************************//
-//modify at 20120516
 //快速登录
-//SHENJINGID_SVR_QUICKCONN = 0x00001006;//快速登录
 message REQQuickConn {
     optional bytes UserName = 1; //用户名  (第三方接入必填，为用户原始帐号或数字id),
     optional string Pwd = 2; //密码	8-15位
@@ -1133,7 +1142,7 @@ message ACKQuickConn {
     optional string VersionInfo = 21; //版本信息（更新原因）
     repeated DDRoomInfo MatchSvrList = 22; //所有的比赛服务器列表
     optional int32 Sex = 23; //性别
-    repeated DDRoomInfo RoomSvrList = 24; //所有的房间列表，把所有的的房间都放入列表 。
+    repeated ServerInfo ServerList = 24; //服务器列表
     optional int32 DdzActive = 25 [default = 0]; //是否为斗地主活动(签到，抽奖等),0否，1是
     optional string MsgUrl = 26; //用户消息的URL  ,请求访问url参数type=1 统计未读消息，type=2 显示所有消息。
     optional int32 ErrorCode = 27 [default = 0]; //0为无错误；1 用户名密码错误，其它为系统级别错误，待定。
