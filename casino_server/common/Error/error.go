@@ -14,11 +14,11 @@ import (
 
 // New returns an error that formats as the given text.
 func New(vlist ...interface{}) Error {
-	errno := 0
+	errno := int32(0)
 	errstr := ""
 	for _, vv := range vlist {
 		switch v := vv.(type) {
-		case int:
+		case int32:
 			{
 				errno = v //vlist[0].(int)
 			}
@@ -43,7 +43,7 @@ func New(vlist ...interface{}) Error {
 	return Error{errno, errstr}
 }
 
-func NewError(errCode int, errStr string) error {
+func NewError(errCode int32, errStr string) error {
 	return &Error{errCode, errStr}
 }
 
@@ -53,7 +53,7 @@ func OK() Error {
 
 // errorString is a trivial implementation of error.
 type Error struct {
-	errCode int
+	errCode int32
 	errStr  string
 }
 
@@ -67,7 +67,7 @@ func (e *Error) Error() string {
 	return fmt.Sprintf("[%v] %v", e.errCode, e.errStr)
 }
 
-func (e *Error) Code() int {
+func (e *Error) Code() int32 {
 	if e == nil {
 		return 0
 	}
@@ -94,7 +94,21 @@ func (e *Error) Assign(err error) Error {
 	return *e
 }
 
-func (e *Error) SetError(code int, err error) {
+func (e *Error) SetError(code int32, err error) {
 	e.errCode = code
 	e.errStr = ""
+}
+
+
+//返回errorCode
+func GetErrorCode(e error) (ret int32) {
+	defer func() {
+		if r := recover(); r != nil {
+			fmt.Println("[W]", r)
+			ret = -1
+		}
+	}()
+	ee := e.(*Error)
+	ret = ee.errCode
+	return ret
 }

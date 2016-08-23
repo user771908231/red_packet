@@ -224,6 +224,10 @@ func (t *ThUser) AddTotalBet4calcAllin(coin int64) {
 	atomic.AddInt64(&t.TotalBet4calcAllin, coin)
 }
 
+func (t *ThUser) AddTotalBet(coin int64) {
+	atomic.AddInt64(&t.TotalBet, coin)
+}
+
 
 
 

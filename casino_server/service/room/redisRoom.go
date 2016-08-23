@@ -143,13 +143,7 @@ func UpdateRedisThuser(u *ThUser) error {
 	return nil
 }
 
-//减少用户的余额
-func UpdateRedisThUserRoomCoin(deskId int32, gameNumber int32, userId uint32, roomCoin int64) error {
-	user := GetRedisThUser(deskId, gameNumber, userId)
-	*user.RoomCoin = roomCoin
-	saveRedisThUser(user)
-	return nil
-}
+
 
 //减少用户的金额
 
