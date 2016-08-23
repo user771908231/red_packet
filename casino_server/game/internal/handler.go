@@ -247,7 +247,7 @@ func handlerCreateDesk(args []interface{}) {
 }
 
 
-//解散房间
+//解散房间..这个协议只有自定义的房间可以使用
 func handlerDissolveDesk(args []interface{}) {
 	//解散房间
 	m := args[0].(*bbproto.Game_DissolveDesk)

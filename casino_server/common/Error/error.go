@@ -6,6 +6,7 @@ package Error
 
 import (
 	"fmt"
+	"casino_server/conf/intCons"
 )
 
 //func New(errCode int, errStr string) Error {
@@ -105,7 +106,7 @@ func GetErrorCode(e error) (ret int32) {
 	defer func() {
 		if r := recover(); r != nil {
 			fmt.Println("[W]", r)
-			ret = -1
+			ret = intCons.ACK_RESULT_ERROR
 		}
 	}()
 	ee := e.(*Error)
