@@ -15,6 +15,7 @@ import (
 	"casino_server/utils/numUtils"
 	"casino_server/utils/db"
 	"gopkg.in/mgo.v2"
+	"casino_server/common/Error"
 )
 
 //联众德州,桌子状态
@@ -88,6 +89,8 @@ func HandlerMessage(m *bbproto.Game_Message, a gate.Agent) {
 func HandlerReady(m *bbproto.Game_Ready, a gate.Agent) error {
 	log.T("用户开始准备游戏m[%v]", m)
 	//1,找到userId
+	result := &bbproto.Game_AckReady{}
+	result.Result = new(int32)
 	userId := m.GetUserId()
 
 	//2,通过userId 找到桌子
@@ -100,11 +103,15 @@ func HandlerReady(m *bbproto.Game_Ready, a gate.Agent) error {
 	}
 
 	//3,用户开始准备
-	desk.Ready(userId)
+	err := desk.Ready(userId)
+	if err != nil {
+		*result.Result = Error.GetErrorCode(err)
+		a.WriteMsg(result)
+		return err
+	}
 
 	//4,返回准备的结果
-	result := &bbproto.Game_AckReady{}
-	result.Result = &intCons.ACK_RESULT_SUCC
+	*result.Result = intCons.ACK_RESULT_SUCC
 	a.WriteMsg(result)
 
 	//如果全部的人都准备好了,那么可以开始游戏

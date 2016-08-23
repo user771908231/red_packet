@@ -20,6 +20,7 @@ import (
 	"github.com/golang/protobuf/proto"
 	"casino_server/utils/db"
 	"sync/atomic"
+	"casino_server/common/Error"
 )
 
 
@@ -214,10 +215,10 @@ func (t *ThDesk) IsrepeatIntoWithRoomKey(userId uint32, a gate.Agent) bool {
 		u := t.Users[i]
 		if u != nil && u.UserId == userId {
 			//如果u!=nil 那么
-			log.T("用户[%v]断线重连",userId)
+			log.T("用户[%v]断线重连", userId)
 			u.agent = a                                                //设置用户的连接
 			u.IsBreak = false                //设置用户的离线状态
-			u.UpdateAgentUserData(a,t.Id,t.MatchId)
+			u.UpdateAgentUserData(a, t.Id, t.MatchId)
 			t.AddUserCountOnline()
 			return true
 		}
@@ -282,6 +283,10 @@ func (t *ThDesk) addThuserBean(user *ThUser) error {
 //用户准备
 func (t *ThDesk) Ready(userId uint32) error {
 	user := t.GetUserByUserId(userId)
+	if user.Status == TH_USER_STATUS_READY {
+		return Error.NewError(int32(bbproto.DDErrorCode_ERRORCODE_GAME_READY_REPEAT),"已经准备了")
+	}
+
 	user.Status = TH_USER_STATUS_READY
 	return nil
 }
@@ -322,9 +327,17 @@ func (t *ThDesk) SetOfflineStatus(userId uint32) error {
 //初始化前注的信息
 func (t *ThDesk) OinitPreCoin() error {
 	log.T("开始一局新的游戏,现在开始初始化前注的信息")
+
+	//每个都减少前注的金额
+
+
+
+
+
+	//发送前主的广播
 	ret := &bbproto.Game_PreCoin{}
 	ret.Pool = new(int64)
-	//ret.Coin = t.GetCoin()
+	ret.Coin = t.GetCoin()
 	ret.Coin = t.GetRoomCoin()
 	*ret.Pool = 0
 	//ret.Precoin
@@ -849,7 +862,7 @@ func (t *ThDesk) calcUserWinAmount() error {
 					u.AddWinAmount(bonus)
 					u.AddRoomCoin(bonus)
 					u.winAmountDetail = append(u.winAmountDetail, bonus)
-					u.Update2redis()	//把数据保存到redis中
+					u.Update2redis()        //把数据保存到redis中
 				}
 
 				//如果用户是这个奖金池all in的用户,则此用户设置喂已经结清的状态
@@ -1307,10 +1320,10 @@ func (t *ThDesk) GetUserByUserId(userId uint32) *ThUser {
 func (t *ThDesk) caclUserCoin(userId uint32, coin int64) error {
 	user := t.GetUserByUserId(userId)
 
-	atomic.AddInt64(&user.TurnCoin,coin)
-	atomic.AddInt64(&user.HandCoin,coin)
-	atomic.AddInt64(&user.TotalBet4calcAllin,coin)
-	atomic.AddInt64(&user.TotalBet,coin)
+	atomic.AddInt64(&user.TurnCoin, coin)
+	atomic.AddInt64(&user.HandCoin, coin)
+	atomic.AddInt64(&user.TotalBet4calcAllin, coin)
+	atomic.AddInt64(&user.TotalBet, coin)
 	user.AddRoomCoin(-coin)
 
 	//user.TurnCoin += coin
@@ -1319,7 +1332,7 @@ func (t *ThDesk) caclUserCoin(userId uint32, coin int64) error {
 	//user.TotalBet += coin
 	//user.RoomCoin -= coin                //这里暂时不处理roomCoin,roomCoin是在每一轮结束的时候来结算
 
-	UpdateRedisThUserRoomCoin(t.Id,t.GameNumber,user.UserId,user.RoomCoin)
+	UpdateRedisThUserRoomCoin(t.Id, t.GameNumber, user.UserId, user.RoomCoin)
 	return nil
 }
 
@@ -1734,11 +1747,11 @@ func (t *ThDesk) GetCanRise() int32 {
 	}
 }
 
-func (t *ThDesk) AddUserCountOnline(){
-	atomic.AddInt32(&t.UserCountOnline,1)
+func (t *ThDesk) AddUserCountOnline() {
+	atomic.AddInt32(&t.UserCountOnline, 1)
 }
 
-func (t *ThDesk) SubUserCountOnline(){
-	atomic.AddInt32(&t.UserCountOnline,-1)
+func (t *ThDesk) SubUserCountOnline() {
+	atomic.AddInt32(&t.UserCountOnline, -1)
 
 }
