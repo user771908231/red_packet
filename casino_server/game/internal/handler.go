@@ -218,11 +218,6 @@ func handlerCreateDesk(args []interface{}) {
 	m := args[0].(*bbproto.Game_CreateDesk)
 	a := args[1].(gate.Agent)
 	log.T("玩家请求创建房间m[%v]", m)
-	userId := m.GetUserId()
-	initCoin := m.GetInitCoin()        //房卡就是钻石...
-	smallBlind := m.GetSmallBlind()
-	bigBlind := m.GetBigBlind()
-	juCount := m.GetInitCount()
 
 	//需要返回的信息
 	result := &bbproto.Game_AckCreateDesk{}
@@ -231,7 +226,7 @@ func handlerCreateDesk(args []interface{}) {
 	result.DeskId = new(int32)
 
 	//开始创建房间
-	desk, err := OGservice.HandlerCreateDesk(userId, initCoin, smallBlind, bigBlind, juCount)
+	desk, err := OGservice.HandlerCreateDesk(m.GetUserId(), m.GetInitCoin(),m.GetPreCoin(), m.GetSmallBlind(), m.GetBigBlind(),m.GetInitCount())
 	if err != nil {
 		log.E("创建房间失败 errmsg [%v]", err)
 		*result.Result = int32(bbproto.DDErrorCode_ERRORCODE_CREATE_DESK_DIAMOND_NOTENOUGH)
@@ -247,7 +242,7 @@ func handlerCreateDesk(args []interface{}) {
 }
 
 
-//解散房间
+//解散房间..这个协议只有自定义的房间可以使用
 func handlerDissolveDesk(args []interface{}) {
 	//解散房间
 	m := args[0].(*bbproto.Game_DissolveDesk)
@@ -402,6 +397,8 @@ func handlerGame_TounamentRank(args []interface{}) {
 func handlerGame_TounamentSummary(args []interface{}) {
 	m := args[0].(*bbproto.Game_TounamentSummary)
 	a := args[1].(gate.Agent)
+
+	log.T("用户请求handlerGame_TounamentSummarym[%v]",m)
 
 	m.Coin = new(string)
 	m.Fee = new(string)

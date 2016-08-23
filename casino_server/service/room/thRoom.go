@@ -11,10 +11,8 @@ import (
 	"casino_server/utils/numUtils"
 	"casino_server/utils"
 	"casino_server/conf/intCons"
+	"casino_server/common/Error"
 )
-
-
-
 
 var ThGameRoomIns ThGameRoom                //房间实例,在init函数中初始化
 
@@ -82,7 +80,7 @@ func (r *ThGameRoom) CalcCreateFee(jucount int32) int64 {
 }
 
 //创建一个房间
-func (r *ThGameRoom) CreateDeskByUserIdAndRoomKey(userId uint32, roomCoin int64, roomkey string, smallBlind int64, bigBlind int64, jucount int32) (*ThDesk, error) {
+func (r *ThGameRoom) CreateDeskByUserIdAndRoomKey(userId uint32, roomCoin int64, roomkey string,preCoin int64, smallBlind int64, bigBlind int64, jucount int32) (*ThDesk, error) {
 
 	//1,创建房间成功之后,扣除user的钻石
 	upDianmond := 0 - r.CalcCreateFee(jucount)
@@ -102,6 +100,7 @@ func (r *ThGameRoom) CreateDeskByUserIdAndRoomKey(userId uint32, roomCoin int64,
 	desk.JuCount = jucount
 	desk.GetRoomCoin()
 	desk.DeskType = intCons.GAME_TYPE_TH        //表示是自定义的房间
+	desk.PreCoin = preCoin
 	r.AddThDesk(desk)
 
 
@@ -123,25 +122,16 @@ func (r *ThGameRoom) AddThDesk(throom *ThDesk) error {
 
 
 //删除一个throom
-func (r *ThGameRoom) RmThroom(id int32) error {
-
-	var desk *ThDesk
+func (r *ThGameRoom) RmThroom(desk *ThDesk) error {
 	//第一步找到index
 	var index int = -1
 	for i := 0; i < len(r.ThDeskBuf); i++ {
 		desk = r.ThDeskBuf[i]
-		if desk != nil && desk.Id == id {
+		if desk != nil && desk.Id == desk.Id {
 			index = i
 			break
 		}
 	}
-
-	//判断是否找到对应的desk
-	if index == -1 {
-		log.E("没有找到对应desk.id[%v]的桌子", id)
-		return errors.New("没有找到对应的desk")
-	}
-
 
 	//修改用户session状态,因为seession中存在desk相关的信息
 	for i := 0; i < len(desk.Users); i++ {
@@ -170,7 +160,6 @@ func (r *ThGameRoom) DissolveDeskByDeskOwner(userId uint32, a gate.Agent) error 
 	result.PassWord = new(string)
 
 	//1,找到桌子
-	//desk := r.GetDeskByDeskOwner(userId)        //
 	desk := GetDeskByAgent(a)
 
 	if desk == nil {
@@ -188,9 +177,8 @@ func (r *ThGameRoom) DissolveDeskByDeskOwner(userId uint32, a gate.Agent) error 
 		return errors.New("游戏正在进行中,不能解散")
 	}
 
-
 	//3,解散
-	r.RmThroom(desk.Id)
+	r.RmThroom(desk)
 
 	//4,发送解散的广播
 	*result.Result = intCons.ACK_RESULT_SUCC
@@ -255,7 +243,7 @@ func (r *ThGameRoom) AddUserWithRoomKey(userId uint32, roomCoin int64, roomKey s
 	//2,如果roomKey 不是为""
 	mydesk := r.GetDeskByRoomKey(roomKey)
 	if mydesk == nil {
-		return nil, errors.New("没有找到对应的房间")
+		return nil, Error.NewError(int32(bbproto.DDErrorCode_ERRORCODE_INTO_DESK_NOTFOUND),"没有找到对应的房间")
 	}
 
 	//3,判断用户是否是掉线重连
@@ -337,5 +325,16 @@ func GetDeskByAgent(a gate.Agent) *ThDesk {
 	log.T("通过agent.userData()[%v]得到thdesk[%v]", userData, desk)
 
 	return desk
+}
+
+//删除房间
+func RmThdesk(desk *ThDesk) error{
+	if desk.DeskType == intCons.GAME_TYPE_TH_CS  {
+		//锦标赛
+		ChampionshipRoom.RmThroom(desk)
+	}else if desk.DeskType == intCons.GAME_TYPE_TH {
+		ThGameRoomIns.RmThroom(desk)
+	}
+	return nil
 }
 

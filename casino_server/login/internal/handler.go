@@ -52,15 +52,7 @@ func HandlerREQQuickConn(args []interface{}) {
 	var resultUser *bbproto.User
 
 	//首先判断是否是微信登陆
-	if m.GetWx() == nil || m.GetWx().GetOpenId() == "" {
-		//普通登陆,通过userId来判断是登录还是注册,如果userId ==0 ,重新注册一个,如果userId !=0 从数据库查询
-		//log.T("用户是普通登陆")
-		//if m.GetUserId() == 0 {
-		//	resultUser, _ = userService.NewUserAndSave("","","")
-		//} else {
-		//	resultUser = userService.GetUserById(m.GetUserId())
-		//}
-	}else{
+	if m.GetWx() != nil && m.GetWx().GetOpenId() != "" {
 		log.T("用户是使用微信登陆")
 		//微信登陆,如果是微信新用户,则创建一个user,并且保存
 		openId := m.GetWx().GetOpenId()
@@ -82,8 +74,8 @@ func HandlerREQQuickConn(args []interface{}) {
 		a.WriteMsg(result)
 		return
 	} else {
-		*result.AckResult = intCons.ACK_RESULT_SUCC                                //返回结果
-		*result.CoinCnt = resultUser.GetCoin()                                //用户金币
+		*result.AckResult = intCons.ACK_RESULT_SUCC                           //返回结果
+		*result.CoinCnt = resultUser.GetDiamond()                             //用户金币--> 这里返回用户砖石的数量
 		*result.UserName, _ = numUtils.Uint2String(resultUser.GetId())        //
 		*result.UserId = resultUser.GetId()
 		*result.NickName = resultUser.GetNickName()
@@ -95,7 +87,7 @@ func HandlerREQQuickConn(args []interface{}) {
 
 //空协议
 func handlerNullMsg(args []interface{}) {
-	log.T("收到一条空消息")
+	//log.T("收到一条空消息")
 	a := args[1].(gate.Agent)
 	a.WriteMsg(&bbproto.NullMsg{})
 }

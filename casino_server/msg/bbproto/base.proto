@@ -96,6 +96,8 @@ enum  DDErrorCode{
 	ERRORCODE_CREATE_DESK_DIAMOND_NOTENOUGH		=	-101;	//创建房间的时候余额不足
 	ERRORCODE_CREATE_DESK_USER_NOTFOUND			=	-102;	//创建房间的时候余额不足
 
+	ERRORCODE_INTO_DESK_NOTFOUND				=	-103;	//进入房间的时候没有找到房间
+
 	ERRORCODE_GAME_READY_REPEAT					=	-110;	//重复准备
 
 }
