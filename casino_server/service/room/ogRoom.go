@@ -431,19 +431,19 @@ func newGame_SendGameInfo() *bbproto.Game_SendGameInfo {
 func (mydesk *ThDesk) initGameSendgameInfoByDesk() *bbproto.Game_SendGameInfo {
 	result := newGame_SendGameInfo()
 	//初始化桌子相关的信息
-	*result.Tableid = int32(mydesk.Id)        			//桌子的Id
-	*result.TablePlayer = mydesk.UserCount          		//玩家总人数
-	*result.BankSeat = mydesk.GetUserByUserId(mydesk.Dealer).Seat 	//int32(mydesk.GetUserIndex(mydesk.Dealer))        //庄家
+	*result.Tableid = int32(mydesk.Id)                                //桌子的Id
+	*result.TablePlayer = mydesk.UserCount                        //玩家总人数
+	*result.BankSeat = mydesk.GetUserByUserId(mydesk.Dealer).Seat        //int32(mydesk.GetUserIndex(mydesk.Dealer))        //庄家
 	*result.ChipSeat = mydesk.GetUserByUserId(mydesk.BetUserNow).Seat //int32(mydesk.GetUserIndex(mydesk.BetUserNow))//当前活动玩家
 	*result.ActionTime = ThdeskConfig.TH_TIMEOUT_DURATION_INT       //当前操作时间,服务器当前的时间
-	*result.DelayTime = int32(1000)       				//当前延时时间
+	*result.DelayTime = int32(1000)                                //当前延时时间
 	*result.GameStatus = deskStatus2OG(mydesk)
-	*result.Pool = int64(mydesk.Jackpot)                		//奖池
-	result.Publiccard = mydesk.ThPublicCard2OGC()        		//公共牌...
-	*result.MinRaise = mydesk.GetMinRaise()        			//最低加注金额
+	*result.Pool = int64(mydesk.Jackpot)                                //奖池
+	result.Publiccard = mydesk.ThPublicCard2OGC()                        //公共牌...
+	*result.MinRaise = mydesk.GetMinRaise()                                //最低加注金额
 	*result.NInitActionTime = ThdeskConfig.TH_TIMEOUT_DURATION_INT
 	*result.NInitDelayTime = ThdeskConfig.TH_TIMEOUT_DURATION_INT
-	result.HandCoin = mydesk.GetRoomCoin()       			//带入金额
+	result.HandCoin = mydesk.GetRoomCoin()                        //带入金额
 	result.TurnCoin = getTurnCoin(mydesk)
 	result.SecondPool = mydesk.GetSecondPool()
 	*result.TurnMax = mydesk.BetAmountNow
@@ -718,7 +718,7 @@ func (t *ThDesk) getCoinInfo() []*bbproto.Game_WinCoin {
 			*gwc.Card4 = paicards[3].GetMapKey()
 			*gwc.Card5 = paicards[4].GetMapKey()
 			*gwc.Cardtype = u.thCards.GetOGCardType()
-			*gwc.Coin = u.TotalBet - u.winAmount                        //表示除去押注的金额,净赚多少钱
+			*gwc.Coin = u.winAmount - u.TotalBet                      //表示除去押注的金额,净赚多少钱
 			*gwc.Seat = u.Seat
 			*gwc.PoolIndex = int32(0)
 			gwc.Rolename = []byte(u.NickName)
