@@ -1366,9 +1366,15 @@ message Game_MatchItem {
     optional int32  person  =6  ;   //在线人数
 }
 
-//竞标赛场次列表，每条包括信息：
+//锦标赛场次列表，每条包括信息：
 message Game_MatchList {
     optional int32     result       = 1;
     repeated Game_MatchItem items   = 2;
+}
+
+//锦标赛牌局结束：弹窗显示我的名次
+message Game_TounamentPlayerRank{
+  optional int32 playerRank     = 1;   //我的排名名次
+  optional string message       = 2;   //前10名显示：恭喜获得xxx奖，请联系客服微信xxxxx领奖！10名之后：很遗憾您就差一点就杀入奖励圈！没关系，再接再厉，继续战斗！
 }
 
