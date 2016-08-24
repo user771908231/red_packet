@@ -1382,3 +1382,14 @@ message Game_TounamentPlayerRank{
   optional string message       = 2;   //前10名显示：恭喜获得xxx奖，请联系客服微信xxxxx领奖！10名之后：很遗憾您就差一点就杀入奖励圈！没关系，再接再厉，继续战斗！
 }
 
+
+message Game_Rebuy {
+    optional bytes userId = 1;
+    optional int32 type = 2;   //0:朋友桌  1:锦标赛
+}
+
+message Game_AckRebuy {
+    optional int32 result       = 1; //0表示成功，非0表示失败
+    optional int32 remainCount  = 2; //剩余可rebuy次数
+    optional int64 chip         = 3; //rebuy成功后的筹码数
+}
