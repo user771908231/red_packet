@@ -245,3 +245,16 @@ func (t *ThUser) GetCsRank() int64 {
 	return GetCSTHuserRank(t.MatchId,t.UserId)
 }
 
+//通过agent得到session
+func GetUserDataByAgent(a gate.Agent) *bbproto.ThServerUserSession{
+	//获取agent中的userData
+	ad := a.UserData()
+	if ad == nil {
+		log.E("agent中的userData为nil")
+		return nil
+	}
+
+	userData := ad.(*bbproto.ThServerUserSession)
+	log.T("得到的UserAgent中的userId是[%v]", userData.UserId)
+	return userData
+}

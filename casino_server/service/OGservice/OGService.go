@@ -25,13 +25,13 @@ import (
 	//新修改:创建房间的时候roomKey 系统指定,不需要用户输入
  */
 
-func HandlerCreateDesk(userId uint32, roomCoin int64, preCoin int64,smallBlind int64, bigBlind int64, jucount int32) (*room.ThDesk, error) {
+func HandlerCreateDesk(userId uint32, roomCoin int64, preCoin int64, smallBlind int64, bigBlind int64, jucount int32) (*room.ThDesk, error) {
 
 	//1,得到一个随机的密钥
 	roomKey := room.ThGameRoomIns.RandRoomKey()
 
 	//2,开始创建房间
-	desk, err := room.ThGameRoomIns.CreateDeskByUserIdAndRoomKey(userId, roomCoin, roomKey,preCoin, smallBlind, bigBlind, jucount);
+	desk, err := room.ThGameRoomIns.CreateDeskByUserIdAndRoomKey(userId, roomCoin, roomKey, preCoin, smallBlind, bigBlind, jucount);
 	if err != nil {
 		log.E("用户创建房间失败errMsg[%v]", err.Error())
 		return nil, err
@@ -109,15 +109,16 @@ func HandlerReady(m *bbproto.Game_Ready, a gate.Agent) error {
 	a.WriteMsg(result)
 
 	//如果全部的人都准备好了,那么可以开始游戏
-	desk.Run()
-
+	//1.1,所有人都准备好了,并且不是第一局的时候,才能开始游戏, 第一句必须要房主点击开始,才能开始
+	if desk.JuCountNow > 1 && desk.IsAllReady() {
+		desk.Run()
+	}
 	return nil
 }
 
 //开始游戏
 func HandlerBegin(m *bbproto.Game_Begin, a gate.Agent) error {
 	userId := m.GetUserId()
-	//desk := room.ThGameRoomIns.GetDeskByDeskOwner(userId)
 	desk := room.GetDeskByAgent(a)
 	if desk == nil || desk.DeskOwner != userId {
 		log.E("没有找到房主为[%v]的desk", userId)
@@ -241,18 +242,3 @@ func HandlerGameEnterMatch(m *bbproto.Game_EnterMatch, a gate.Agent) error {
 
 
 
-//通过agent返回UserId
-func getUserIdByAgent(a gate.Agent) uint32 {
-	//获取agent中的userData
-	ad := a.UserData()
-	if ad == nil {
-		log.E("agent中的userData为nil")
-		return uint32(0)
-	}
-
-	userData := ad.(*bbproto.ThServerUserSession)
-	log.T("得到的UserAgent中的userId是[%v]", userData.UserId)
-	//return userData.UserId
-	//测试代码,返回10006
-	return 10006
-}

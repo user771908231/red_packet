@@ -1590,19 +1590,13 @@ func (t *ThDesk) IsTime2begin() bool {
 		}
 	}
 
-	//1.1,所有人都准备好了之后才能开始游戏
-	if !t.IsAllReady() {
-		log.T("desk[%v]还有玩家没有准备好,所以不能开始游戏", t.Id)
-		return false
-	}
-
-	//1.2,判断桌子当前的状态
+	//1.1,判断桌子当前的状态
 	if !t.IsStop() {
 		log.T("desk[%v]的状态不是stop[%v]的状态,所以不能开始游戏", t.Id, t.Status)
 		return false
 	}
 
-	//1.3,判断在线的用户数是否达到标准
+	//1.2,判断在线的用户数是否达到标准
 	if t.ReadyCount < ThdeskConfig.TH_DESK_LEAST_START_USER {
 		log.T("desk[%v]的准备用户数量[%v]不够", t.Id, t.ReadyCount)
 		return false
