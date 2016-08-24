@@ -136,6 +136,8 @@ func (r *CSThGameRoom) allStop() bool {
 
 }
 
+
+//本场锦标赛 结束的处理
 func (r *CSThGameRoom) End() {
 	log.T("锦标赛游戏结束")
 }

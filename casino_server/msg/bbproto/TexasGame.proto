@@ -1185,8 +1185,10 @@ message Game_CreateDesk{
 //创建房间回复的信息
 message Game_AckCreateDesk{
     optional int32  result          =   1;  //返回的结果
-    optional int32 deskId          =   2;  //用户id
+    optional int32 deskId           =   2;  //用户id
     optional string password        =   3;  //房间密码
+    optional int64 userBalance      =   4;  //用户的余额
+    optional int64 createFee        =   5;  //创建房间的费用
 }
 
 

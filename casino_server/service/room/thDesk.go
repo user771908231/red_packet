@@ -19,6 +19,7 @@ import (
 	"casino_server/utils/db"
 	"sync/atomic"
 	"casino_server/common/Error"
+	"casino_server/utils/numUtils"
 )
 
 
@@ -115,6 +116,7 @@ type ThDesk struct {
 	MatchId              int32                        //matchId
 	DeskOwner            uint32                       //房主的id
 	RoomKey              string                       //room 自定义房间的钥匙
+	CreateFee            int64                        //创建房间的费用
 	DeskType             int32                        //桌子的类型,1,表示自定义房间,2表示锦标赛的
 	InitRoomCoin         int64                        //进入这个房间的roomCoin 带入金额标准是多少
 	JuCount              int32                        //这个桌子最多能打多少局
@@ -338,7 +340,7 @@ func (t *ThDesk) SetOfflineStatus(userId uint32) error {
 
 //初始化前注的信息
 func (t *ThDesk) OinitPreCoin() error {
-	log.T("开始一局新的游戏,现在开始初始化前注的信息")
+	log.T("开始一局新的游戏,现在开始初始化前注的信息[%v]", t.PreCoin)
 
 	//每个都减少前注的金额
 	for i := 0; i < len(t.Users); i++ {
@@ -1069,7 +1071,8 @@ func (t *ThDesk) SaveLotteryDatath() error {
 		userRecord.WinAmount = u.winAmount - u.TotalBet
 
 		deskRecord.Records = append(deskRecord.Records, userRecord)
-		deskRecord.UserIds = strings.Join([]string{deskRecord.UserIds, u.NickName}, ",")
+		idStr, _ := numUtils.Uint2String(u.UserId)
+		deskRecord.UserIds = strings.Join([]string{deskRecord.UserIds, idStr}, ",")
 	}
 
 	log.T("开始保存DBT_T_TH_DESK_RECORD的信息")

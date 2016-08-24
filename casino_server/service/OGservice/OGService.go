@@ -46,6 +46,11 @@ func HandlerCreateDesk(userId uint32, roomCoin int64, preCoin int64,smallBlind i
 func HandlerLeaveDesk(m *bbproto.Game_LeaveDesk, a gate.Agent) {
 	//deskId
 	desk := room.GetDeskByAgent(a)
+	if desk == nil {
+		log.E("HandlerLeaveDesk,失败,因为desk不存在...")
+		return
+	}
+
 	desk.LeaveThuser(m.GetUserId())
 
 	//如果是竞标赛,在线人数-1
