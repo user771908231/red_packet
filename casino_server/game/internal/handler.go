@@ -11,6 +11,7 @@ import (
 	"casino_server/service/room"
 	"casino_server/service/OGservice"
 	"casino_server/service/CSTHService"
+	"casino_server/service/userService"
 )
 
 func handler(m interface{}, h interface{}) {
@@ -60,7 +61,6 @@ func init() {
 	handler(&bbproto.Game_TounamentSummary{}, handlerGame_TounamentSummary)
 
 	handler(&bbproto.Game_MatchList{}, handlerGame_MatchList)         //锦标赛列表
-
 }
 
 /**
@@ -224,6 +224,8 @@ func handlerCreateDesk(args []interface{}) {
 	result.Result = new(int32)
 	result.Password = new(string)
 	result.DeskId = new(int32)
+	result.CreateFee = new(int64)
+	result.UserBalance = new(int64)
 
 	//开始创建房间
 	desk, err := OGservice.HandlerCreateDesk(m.GetUserId(), m.GetInitCoin(),m.GetPreCoin(), m.GetSmallBlind(), m.GetBigBlind(),m.GetInitCount())
@@ -234,10 +236,12 @@ func handlerCreateDesk(args []interface{}) {
 		*result.Result = 0
 		*result.DeskId = desk.Id
 		*result.Password = desk.RoomKey
+		*result.CreateFee = desk.CreateFee
+		*result.UserBalance = userService.GetUserById(desk.DeskOwner).GetDiamond()		//得到用户的余额
 	}
 
 	//返回信息
-	log.T("创建房间成功,房间的数据[%v]", result)
+	log.T("创建房间成功,返回的数据[%v]", result)
 	a.WriteMsg(result)
 }
 

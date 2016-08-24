@@ -5,9 +5,8 @@ import (
 	"strings"
 	"casino_server/common/log"
 	"casino_server/msg/bbprotogo"
-	"casino_server/utils/redis"
 	"errors"
-	"casino_server/conf/casinoConf"
+	"casino_server/utils/redisUtils"
 )
 
 //关于thuser的redis存储
@@ -26,21 +25,14 @@ func getRedisThUserKey(deskId int32, gameNumber int32, userId uint32) string {
 //通过桌子id,游戏编号,用户id来唯一确定一个thuser
 func GetRedisThUser(deskId int32, gameNumber int32, userId uint32) *bbproto.ThServerUser {
 	key := getRedisThUserKey(deskId, gameNumber, userId)
-
-	//获取redis的连接
-	conn := data.Data{}
-	conn.Open(casinoConf.REDIS_DB_NAME)
-	defer conn.Close()
-
-	//开始获取obj
-	rthuser := &bbproto.ThServerUser{}
-	err := conn.GetObj(key, rthuser)
-	if err != nil {
+	p := redisUtils.GetObj(key, &bbproto.ThServerUser{})
+	if p == nil {
 		log.E("获取用户数据失败with key [%v]", key)
 		return nil
+	} else {
+		return p.(*bbproto.ThServerUser)
 	}
 
-	return rthuser
 }
 
 //新建立一个user放在redis中
@@ -96,30 +88,13 @@ func NewThServerUser() *bbproto.ThServerUser {
 func saveRedisThUser(user *bbproto.ThServerUser) error {
 	//获取redis连接
 	key := getRedisThUserKey(user.GetDeskId(), user.GetGameNumber(), user.GetUserId())
-	conn := data.Data{}
-	conn.Open(casinoConf.REDIS_DB_NAME)
-	defer conn.Close()
-
-	//保存数据
-	conn.SetObj(key, user)
+	redisUtils.SaveObj(key, user)
 	return nil
 }
 
 //删除一个用户
 func DelRedisThUser(deskId int32, gameNumber int32, userId uint32) error {
-
-	//得到key
-	key := getRedisThUserKey(deskId, gameNumber, userId)
-
-	//获取redis连接
-	conn := data.Data{}
-	conn.Open(casinoConf.REDIS_DB_NAME)
-	defer conn.Close()
-
-	//删除数据
-	conn.Del(key)
 	return nil
-
 }
 
 func UpdateRedisThuser(u *ThUser) error {
@@ -129,29 +104,52 @@ func UpdateRedisThuser(u *ThUser) error {
 		return errors.New("没有找到用户")
 	}
 
-	log.T("UpdateRedisThuser--thsuer[%v]",u)
-	log.T("UpdateRedisThuser--rhsuer[%v]",user)
-	log.T("UpdateRedisThuser--*user[%v]",*user)
-	log.T("UpdateRedisThuser--*user.RoomCoin",*user.RoomCoin)
-	log.T("UpdateRedisThuser--u.RoomCoin",u.RoomCoin)
+	log.T("UpdateRedisThuser--thsuer[%v]", u)
+	log.T("UpdateRedisThuser--rhsuer[%v]", user)
+	log.T("UpdateRedisThuser--*user[%v]", *user)
+	log.T("UpdateRedisThuser--*user.RoomCoin", *user.RoomCoin)
+	log.T("UpdateRedisThuser--u.RoomCoin", u.RoomCoin)
 
 	//2,增加金额
 	*user.RoomCoin = u.RoomCoin
 	*user.HandCoin = u.HandCoin
 	*user.TurnCoin = u.TurnCoin
-	*user.TotalBet =u.TotalBet
+	*user.TotalBet = u.TotalBet
 	*user.TotalBet4CalcAllin = u.TotalBet4calcAllin
 	*user.WinAmount = u.winAmount
 	*user.IsBreak = u.IsBreak
 	*user.IsLeave = u.IsLeave
 	*user.Status = u.Status
 	saveRedisThUser(user)
+
+	//更新排名需要的分数
+	AddCSTHuserRankScore(u.MatchId, u.UserId, u.RoomCoin)
 	return nil
 }
 
 
+//--------------------------------------------------------锦标赛战绩排名-----------------------------------------------
 
-//减少用户的金额
+var CSTH_REDIS_MEMBER_PRE = "csth_redis_member"
 
-//关于thdesk的redis存储
-var REDIS_TH_DESK_KEY_PRE = "redis_th_desk_key"
+func GetCsthMenberKey(matchId int32) string {
+	matchIdStr, _ := numUtils.Int2String(matchId)
+	return strings.Join([]string{CSTH_REDIS_MEMBER_PRE, matchIdStr}, "_")
+}
+
+//得到一个用户的排名, todo  这里还需要处理当redis中数据丢失的时候的排名
+func GetCSTHuserRank(matchId int32, userId uint32) int64 {
+	csMember := GetCsthMenberKey(matchId)
+	userIdStr, _ := numUtils.Uint2String(userId)
+	redisRank := redisUtils.ZREVRANK(csMember, userIdStr)
+
+	//由于redis中的排名是从0开始的,所以需要+1 之后再返回
+	return redisRank + 1
+}
+
+//更新用户的排名分数,每次用户的积分变动的时候,都需要更新
+func AddCSTHuserRankScore(matchId int32, userId uint32, score int64) {
+	csMember := GetCsthMenberKey(matchId)
+	userIdStr, _ := numUtils.Uint2String(userId)
+	redisUtils.ZADD(csMember, userIdStr, score)
+}

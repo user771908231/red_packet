@@ -348,7 +348,7 @@ func (t *Data) HMDel(key string, field []string) (num int, err error) {
 }
 
 //================= ZSET ==================
-func (t *Data) ZAdd(key string, member string, score int32) (err error) {
+func (t *Data) ZAdd(key string, member string, score int64) (err error) {
 	_, err = t.conn.Do("ZADD", key, score, member)
 	return err
 }
@@ -372,4 +372,9 @@ func (t *Data) ZCount(key string, min int, max int) (count int, err error) {
 func (t *Data) ZRemRangeByRank(key string, start, stop int) (err error) {
 	_, err = t.conn.Do("ZREMRANGEBYRANK", key, start, stop)
 	return err
+}
+
+func (t *Data) ZREVRANK(key string,mem string)(interface{},error){
+	values,err := t.conn.Do("ZREVRANK",key,mem)
+	return values,err
 }

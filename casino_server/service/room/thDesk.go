@@ -19,6 +19,7 @@ import (
 	"casino_server/utils/db"
 	"sync/atomic"
 	"casino_server/common/Error"
+	"casino_server/utils/numUtils"
 )
 
 
@@ -115,6 +116,7 @@ type ThDesk struct {
 	MatchId              int32                        //matchId
 	DeskOwner            uint32                       //房主的id
 	RoomKey              string                       //room 自定义房间的钥匙
+	CreateFee            int64                        //创建房间的费用
 	DeskType             int32                        //桌子的类型,1,表示自定义房间,2表示锦标赛的
 	InitRoomCoin         int64                        //进入这个房间的roomCoin 带入金额标准是多少
 	JuCount              int32                        //这个桌子最多能打多少局
@@ -239,7 +241,7 @@ func (t *ThDesk) IsrepeatIntoWithRoomKey(userId uint32, a gate.Agent) bool {
 /**
 	为桌子增加一个人
  */
-func (t *ThDesk) AddThUser(userId uint32, roomCoin int64, userStatus int32, a gate.Agent) error {
+func (t *ThDesk) AddThUser(userId uint32, userStatus int32, a gate.Agent) error {
 	//1,从redis得到redisUser
 	redisUser := userService.GetUserById(userId)
 	//2,通过userId 和agent 够做一个thuser
@@ -248,9 +250,10 @@ func (t *ThDesk) AddThUser(userId uint32, roomCoin int64, userStatus int32, a ga
 	thUser.agent = a
 	thUser.Status = userStatus        //刚进房间的玩家
 	thUser.deskId = t.Id                //桌子的id
+	thUser.MatchId = t.MatchId
 	thUser.GameNumber = t.GameNumber
 	thUser.NickName = *redisUser.NickName                //todo 测试阶段,把nickName显示成用户id
-	thUser.RoomCoin = roomCoin
+	thUser.RoomCoin = t.InitRoomCoin
 	log.T("初始化thuser的时候coin[%v]:,roomCoin[%v]", thUser.GetCoin(), thUser.GetRoomCoin())
 
 	//3,添加thuser
@@ -338,7 +341,7 @@ func (t *ThDesk) SetOfflineStatus(userId uint32) error {
 
 //初始化前注的信息
 func (t *ThDesk) OinitPreCoin() error {
-	log.T("开始一局新的游戏,现在开始初始化前注的信息")
+	log.T("开始一局新的游戏,现在开始初始化前注的信息[%v]", t.PreCoin)
 
 	//每个都减少前注的金额
 	for i := 0; i < len(t.Users); i++ {
@@ -512,6 +515,7 @@ func (t *ThDesk) THBroadcastProto(p proto.Message, ignoreUserId uint32) error {
 func (t *ThDesk) THBroadcastProtoAll(p proto.Message) error {
 	return t.THBroadcastProto(p, 0)
 }
+
 
 /**
 	返回res需要的User实体
@@ -964,6 +968,8 @@ func (t *ThDesk) canNextRun() bool {
 
 //广播开奖的结果
 func (t *ThDesk) broadLotteryResult() error {
+
+	//1.发送输赢结果
 	result := &bbproto.Game_TestResult{}
 	result.Tableid = &t.Id                           //桌子
 	result.BCanShowCard = t.GetBshowCard()           //
@@ -972,9 +978,19 @@ func (t *ThDesk) broadLotteryResult() error {
 	result.WinCoinInfo = t.getWinCoinInfo()
 	result.HandCoin = t.GetHandCoin()
 	result.CoinInfo = t.getCoinInfo()                //每个人的输赢情况
-
-	//开始广播
 	t.THBroadcastProtoAll(result)
+
+
+	//2.发送每个人在锦标赛中目前的排名
+	for i := 0; i < len(t.Users); i++ {
+		u := t.Users[i]
+		if u != nil {
+			//开始风别给每个人发送自己的排名信息
+
+
+		}
+	}
+
 	return nil
 
 }
@@ -1069,7 +1085,8 @@ func (t *ThDesk) SaveLotteryDatath() error {
 		userRecord.WinAmount = u.winAmount - u.TotalBet
 
 		deskRecord.Records = append(deskRecord.Records, userRecord)
-		deskRecord.UserIds = strings.Join([]string{deskRecord.UserIds, u.NickName}, ",")
+		idStr, _ := numUtils.Uint2String(u.UserId)
+		deskRecord.UserIds = strings.Join([]string{deskRecord.UserIds, idStr}, ",")
 	}
 
 	log.T("开始保存DBT_T_TH_DESK_RECORD的信息")
@@ -1127,7 +1144,7 @@ func (t *ThDesk) SaveLotteryDatacsth() error {
 
 	log.T("开始保存DBT_T_TH_DESK_RECORD的信息")
 	//保存桌子的用户信息
-	db.InsertMgoData(casinoConf.DBT_T_TH_DESK_RECORD, deskRecord)
+	db.InsertMgoData(casinoConf.DBT_T_CS_TH_DESK_RECORD, deskRecord)
 	return nil
 
 }
@@ -1700,16 +1717,21 @@ func (t *ThDesk) End() {
 	result := &bbproto.Game_SendDeskEndLottery{}
 	result.Result = &intCons.ACK_RESULT_SUCC
 
+	maxWin := int64(0)
+	maxUserid := uint32(0)
 	for i := 0; i < len(t.Users); i++ {
 		u := t.Users[i]
 		if u != nil {
 			//
 			gel := &bbproto.Game_EndLottery{}
+			gel.UserId = new(uint32)
 			gel.Coin = new(int64)
 			gel.BigWin = new(bool)
 			gel.Owner = new(bool)
 			gel.Rolename = new(string)
 
+
+			//赋值
 			*gel.Coin = u.winAmount
 
 			if t.DeskOwner == u.UserId {
@@ -1719,9 +1741,26 @@ func (t *ThDesk) End() {
 			}
 
 			*gel.Rolename = u.NickName
+			*gel.UserId = u.UserId
+
+			if u.winAmount > maxWin {
+				maxWin = u.winAmount
+				maxUserid = u.UserId
+			}
 			result.CoinInfo = append(result.CoinInfo, gel)
 		}
 	}
+
+
+	//赋值大赢家
+	for i := 0; i < len(result.CoinInfo); i++ {
+		ci := result.CoinInfo[i]
+		if ci != nil && ci.GetUserId() == maxUserid {
+			*ci.BigWin = true                //设置大赢家
+		}
+	}
+
+
 	//设置bigWin
 	//广播消息
 	t.THBroadcastProtoAll(result)

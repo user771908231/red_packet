@@ -10,8 +10,8 @@ import (
 	"os"
 	"strconv"
 	"casino_server/utils/redis"
-	"github.com/name5566/leaf/db/mongodb"
 	"casino_server/conf/casinoConf"
+	"casino_server/utils/db"
 )
 
 var (
@@ -123,7 +123,7 @@ func InitMongoDb() error{
 	//return errors.New("初始化数据库失败")
 
 	//0,活的数据库连接
-	c, err := mongodb.Dial(casinoConf.DB_IP, casinoConf.DB_PORT)
+	c, err := db.GetMongoConn()
 	if err != nil {
 		fmt.Println(err)
 		panic(err)

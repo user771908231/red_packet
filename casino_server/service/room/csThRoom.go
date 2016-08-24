@@ -32,7 +32,6 @@ var CSTHGameRoomConfig struct {
 func (r *CSThGameRoom) OnInitConfig() {
 	CSTHGameRoomConfig.gameDuration = time.Second * 60 * 2
 	CSTHGameRoomConfig.checkDuration = time.Second * 10
-
 }
 
 
@@ -45,7 +44,6 @@ type CSThGameRoom struct {
 	gameDuration time.Duration //游戏的时长
 	onlineCount  int32         //总的在线人数
 }
-
 
 
 
@@ -107,7 +105,7 @@ func (r *CSThGameRoom) checkEnd() bool {
 	//如果时间已经过了,并且所有桌子的状态都是已经停止游戏,那么表示这一局结束
 	if r.endTime.Before(time.Now()) && r.allStop() {
 		//结算本局
-		log.T("锦标赛matchid[%v]已经结束.",r.matchId)
+		log.T("锦标赛matchid[%v]已经结束.", r.matchId)
 		return true
 	} else {
 		return false
@@ -136,13 +134,15 @@ func (r *CSThGameRoom) allStop() bool {
 
 }
 
+
+//本场锦标赛 结束的处理
 func (r *CSThGameRoom) End() {
 	log.T("锦标赛游戏结束")
 }
 
 
 //游戏大厅增加一个玩家
-func (r *CSThGameRoom) AddUser(userId uint32, roomCoin int64, a gate.Agent) (*ThDesk, error) {
+func (r *CSThGameRoom) AddUser(userId uint32, a gate.Agent) (*ThDesk, error) {
 	r.Lock()
 	defer r.Unlock()
 	log.T("userid【%v】进入德州扑克的房间", userId)
@@ -182,7 +182,7 @@ func (r *CSThGameRoom) AddUser(userId uint32, roomCoin int64, a gate.Agent) (*Th
 	}
 
 	//3,进入房间,竞标赛进入房间的时候,默认就是准备的状态
-	err := mydesk.AddThUser(userId, roomCoin, TH_USER_STATUS_READY, a)
+	err := mydesk.AddThUser(userId, TH_USER_STATUS_READY, a)
 	if err != nil {
 		log.E("用户上德州扑克的桌子 失败...")
 		return nil, err

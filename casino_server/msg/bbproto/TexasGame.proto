@@ -1194,8 +1194,10 @@ message Game_CreateDesk{
 //创建房间回复的信息
 message Game_AckCreateDesk{
     optional int32  result          =   1;  //返回的结果
-    optional int32 deskId          =   2;  //用户id
+    optional int32 deskId           =   2;  //用户id
     optional string password        =   3;  //房间密码
+    optional int64 userBalance      =   4;  //用户的余额
+    optional int64 createFee        =   5;  //创建房间的费用
 }
 
 
@@ -1309,6 +1311,7 @@ message Game_EndLottery {
     optional bool bigWin    = 2;       //是否为大赢家
     optional bool owner     = 3;        //是否为房主
     optional string rolename = 4;    //玩家姓名
+    optional uint32 userId  = 5;    //用户的Id
 
 }
 
@@ -1372,6 +1375,7 @@ message Game_MatchList {
     repeated Game_MatchItem items   = 2;
 }
 
+ 
 //锦标赛牌局结束：弹窗显示我的名次
 message Game_TounamentPlayerRank{
   optional int32 playerRank     = 1;   //我的排名名次

@@ -83,8 +83,8 @@ func (r *ThGameRoom) CalcCreateFee(jucount int32) int64 {
 func (r *ThGameRoom) CreateDeskByUserIdAndRoomKey(userId uint32, roomCoin int64, roomkey string,preCoin int64, smallBlind int64, bigBlind int64, jucount int32) (*ThDesk, error) {
 
 	//1,创建房间成功之后,扣除user的钻石
-	upDianmond := 0 - r.CalcCreateFee(jucount)
-	remainDiamond, err := userService.UpdateUserDiamond(userId, upDianmond)
+	upDianmond := r.CalcCreateFee(jucount)
+	remainDiamond, err := userService.UpdateUserDiamond(userId, -upDianmond)
 	if err != nil {
 		log.E("创建房间的时候出错,error", err.Error())
 		return nil, err
@@ -93,6 +93,7 @@ func (r *ThGameRoom) CreateDeskByUserIdAndRoomKey(userId uint32, roomCoin int64,
 	//2,创建房间
 	desk := NewThDesk()
 	desk.RoomKey = roomkey
+	desk.CreateFee = upDianmond
 	desk.InitRoomCoin = roomCoin
 	desk.DeskOwner = userId
 	desk.SmallBlindCoin = smallBlind
@@ -102,7 +103,6 @@ func (r *ThGameRoom) CreateDeskByUserIdAndRoomKey(userId uint32, roomCoin int64,
 	desk.DeskType = intCons.GAME_TYPE_TH        //表示是自定义的房间
 	desk.PreCoin = preCoin
 	r.AddThDesk(desk)
-
 
 	//3,生成一条交易记录
 	err = userService.CreateDiamonDetail(userId, mode.T_USER_DIAMOND_DETAILS_TYPE_CREATEDESK, upDianmond, remainDiamond, "创建房间消耗钻石");
@@ -233,7 +233,7 @@ func (r *ThGameRoom) GetDeskByRoomKey(roomKey string) *ThDesk {
 /**
 	给指定的房间增加用户
  */
-func (r *ThGameRoom) AddUserWithRoomKey(userId uint32, roomCoin int64, roomKey string, a gate.Agent) (*ThDesk, error) {
+func (r *ThGameRoom) AddUserWithRoomKey(userId uint32, roomKey string, a gate.Agent) (*ThDesk, error) {
 	log.T("玩家[%v]通过roomkey[%v]进入房间", userId, roomKey)
 	//1,首先判断roomKey 是否喂空
 	if roomKey == "" {
@@ -253,7 +253,7 @@ func (r *ThGameRoom) AddUserWithRoomKey(userId uint32, roomCoin int64, roomKey s
 	}
 
 	//4,进入房间
-	err := mydesk.AddThUser(userId, roomCoin, TH_USER_STATUS_SEATED, a)
+	err := mydesk.AddThUser(userId, TH_USER_STATUS_SEATED, a)
 	if err != nil {
 		log.E("用户上德州扑克的桌子 失败...")
 		return nil, err
