@@ -127,7 +127,8 @@ type ThDesk struct {
 	Users                []*ThUser                    //坐下的人
 	PublicPai            []*bbproto.Pai               //公共牌的部分
 	UserCount            int32                        //玩游戏的总人数
-	UserCountOnline      int32                        //在先人数
+	UserCountOnline      int32                        //在线的人数
+	ReadyCount           int32                        //已经准备的用户数
 	Status               int32                        //牌桌的状态
 	BetAmountNow         int64                        //当前的押注金额是多少
 	RoundCount           int32                        //第几轮
@@ -257,8 +258,11 @@ func (t *ThDesk) AddThUser(userId uint32, userStatus int32, a gate.Agent) error 
 	NewRedisThuser(thUser)
 
 	//5,等待的用户加1
-	t.UserCount ++
+	t.AddUserCount()
 	t.AddUserCountOnline()
+	if userStatus == TH_USER_STATUS_READY {
+		t.AddReadyCount()
+	}
 	return nil
 }
 
@@ -289,6 +293,7 @@ func (t *ThDesk) Ready(userId uint32) error {
 	}
 
 	user.Status = TH_USER_STATUS_READY
+	t.AddReadyCount()
 	return nil
 }
 
@@ -311,6 +316,7 @@ func (t *ThDesk) LeaveThuser(userId uint32) error {
 	user := t.GetUserByUserId(userId)
 	user.IsLeave = true     //设置状态为离开
 	t.SubUserCountOnline()
+	t.SubUserCount()
 
 	//需要广播一次sendGameInfo
 	t.OGTHBroadAddUser()
@@ -415,7 +421,7 @@ func (t *ThDesk) InitUserBeginStatus() error {
 		u.winAmountDetail = nil
 
 		//如果用户的余额不足或者用户的状态是属于断线的状态,则设置用户为等待入座
-		if u.RoomCoin <= t.BigBlindCoin || u.IsBreak == true {
+		if u.RoomCoin <= (t.BigBlindCoin + t.PreCoin) || u.IsBreak == true {
 			log.T("由于用户[%v] status[%v],的roomCoin[%v] <= desk.BigBlindCoin 所以设置用户为TH_USER_STATUS_WAITSEAT", u.UserId, u.IsBreak, u.RoomCoin, t.BigBlindCoin)
 			u.Status = TH_USER_STATUS_WAITSEAT        //只是坐下,没有游戏中
 			continue
@@ -969,23 +975,28 @@ func (t *ThDesk) broadLotteryResult() error {
 func (t *ThDesk) afterLottery() error {
 	//1,设置游戏竹子的状态
 	log.T("开奖结束,设置desk的状态为stop")
-	t.Status = TH_DESK_STATUS_STOP        //设置喂没有开始开始游戏
+	t.Status = TH_DESK_STATUS_STOP        //设置为没有开始开始游戏
+	t.ReadyCount = 0; //准备的人数为0
 	t.JuCountNow ++
 
 	//2,设置用户的状态
 	for i := 0; i < len(t.Users); i++ {
 		u := t.Users[i]
-
 		if u != nil && u.IsBreak == false {
 			if t.DeskType == intCons.GAME_TYPE_TH {
 				//如果是自定义的房间,设置每个人都是坐下的状态
 				u.Status = TH_USER_STATUS_SEATED
-			} else {
-				//如果是锦标赛的房间
-				u.Status = TH_USER_STATUS_READY
+			} else if t.DeskType == intCons.GAME_TYPE_TH_CS {
+				if t.IsUserCoinEnough(u) {
+					//如果是锦标赛的房间,用户的钱足够
+					u.Status = TH_USER_STATUS_READY
+					t.AddReadyCount()
+				} else {
+					//如果是锦标赛的房间,用户的钱不够
+					u.Status = TH_USER_STATUS_SEATED
+				}
 			}
 		}
-
 	}
 
 	//3,
@@ -993,6 +1004,14 @@ func (t *ThDesk) afterLottery() error {
 	return nil
 }
 
+//判断用户的余额是否足够开始下一场游戏
+func (t *ThDesk) IsUserCoinEnough(u *ThUser) bool {
+	if u.RoomCoin < t.PreCoin + t.BigBlindCoin {
+		return false
+	} else {
+		return true
+	}
+}
 
 //保存数据到数据库
 
@@ -1552,29 +1571,18 @@ func (t *ThDesk) CheckBetUserBySeat(user *ThUser) bool {
 }
 
 //是不是可以开始游戏了
+/**
+	1,通用的判断
+	2,如果是锦标赛,判断锦标赛的逻辑
+	3,如果是自定义,判断自定义的逻辑
+
+ */
 func (t *ThDesk) IsTime2begin() bool {
+	log.T("现在开始判断是否可以开始一局新的游戏:")
 
-	log.T("判断是否可以开始一局新的游戏")
+	log.T("现在开始判断是否可以开始一局新的游戏,1,判断通用的逻辑:")
 
-
-	//1, 锦标赛开始的逻辑限制
-	if t.DeskType == intCons.GAME_TYPE_TH_CS {
-		//如果是锦标赛:1,房间的状态是正在游戏中
-		if !ChampionshipRoom.CanNextDeskRun() {
-			return false
-		}
-	}
-
-
-	//2,通用的开始逻辑限制
-	/**
-		开始游戏的要求:
-		1,[在线]用户的人数达到了最低可玩人数
-		2,当前的状态是游戏停止的状态
-	 */
-
-
-	log.T("当前玩家的状态://1,等待开始,2,坐下,3,已经准备,4,beting5,allin,6,弃牌,7,等待结算,8,已经结算,9,裂开,10,掉线")
+	log.T("测试信息,打印每个玩家的状态://1,等待开始,2,坐下,3,已经准备,4,beting5,allin,6,弃牌,7,等待结算,8,已经结算,9,裂开,10,掉线")
 	for i := 0; i < len(t.Users); i++ {
 		u := t.Users[i]
 		if u != nil {
@@ -1582,24 +1590,47 @@ func (t *ThDesk) IsTime2begin() bool {
 		}
 	}
 
-
-	//所有人都准备好了之后才能开始游戏
+	//1.1,所有人都准备好了之后才能开始游戏
 	if !t.IsAllReady() {
-		log.T("还有玩家没有准备好")
+		log.T("desk[%v]还有玩家没有准备好,所以不能开始游戏", t.Id)
 		return false
 	}
 
-	//todo 金钱大于大盲注的人数必须要大于最低人数才可以玩
-	log.T("当前在线玩家的数量是[%v],当前desk的状态是[%v],1未开始,2游戏中,3,开奖中", t.UserCountOnline, t.Status)
-
-	if t.UserCountOnline >= ThdeskConfig.TH_DESK_LEAST_START_USER  && t.Status == TH_DESK_STATUS_STOP {
-		log.T("游戏到了开始的时候----begin----")
-		return true
-	} else {
-		log.T("游戏还不到开始的时候")
+	//1.2,判断桌子当前的状态
+	if !t.IsStop() {
+		log.T("desk[%v]的状态不是stop[%v]的状态,所以不能开始游戏", t.Id, t.Status)
 		return false
 	}
+
+	//1.3,判断在线的用户数是否达到标准
+	if t.ReadyCount < ThdeskConfig.TH_DESK_LEAST_START_USER {
+		log.T("desk[%v]的准备用户数量[%v]不够", t.Id, t.ReadyCount)
+		return false
+	}
+
+	log.T("现在开始判断是否可以开始一局新的游戏,2,判断锦标赛的逻辑:")
+	if t.DeskType == intCons.GAME_TYPE_TH_CS {
+		//锦标赛游戏房间的状态
+		if !ChampionshipRoom.CanNextDeskRun() {
+			log.T("锦标赛的逻辑,判断不能开始下一局")
+			return false
+		}
+	}
+
+	log.T("现在开始判断是否可以开始一局新的游戏,1,判断自定义的逻辑:")
+	if t.DeskType == intCons.GAME_TYPE_TH {
+		//自定义房间的标准
+	}
+
+	return true
+
 }
+
+//判断桌子是否是stop的状态
+func (t *ThDesk) IsStop() bool {
+	return t.Status == TH_DESK_STATUS_STOP
+}
+
 
 //开始游戏
 func (mydesk *ThDesk) Run() error {
@@ -1632,7 +1663,6 @@ func (mydesk *ThDesk) Run() error {
 		log.E("开始德州扑克游戏,初始化房间的状态的时候报错")
 		return err
 	}
-
 
 	//3, 初始化前注的信息
 	err = mydesk.OinitPreCoin()
@@ -1764,5 +1794,20 @@ func (t *ThDesk) AddUserCountOnline() {
 
 func (t *ThDesk) SubUserCountOnline() {
 	atomic.AddInt32(&t.UserCountOnline, -1)
+}
 
+func (t *ThDesk) AddReadyCount() {
+	atomic.AddInt32(&t.ReadyCount, 1)
+}
+
+func (t *ThDesk) SubReadyCount() {
+	atomic.AddInt32(&t.ReadyCount, -1)
+}
+
+func (t *ThDesk) AddUserCount() {
+	atomic.AddInt32(&t.UserCount, 1)
+}
+
+func (t *ThDesk) SubUserCount() {
+	atomic.AddInt32(&t.UserCount, -1)
 }
