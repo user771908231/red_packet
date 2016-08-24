@@ -1131,10 +1131,10 @@ message ACKQuickConn {
     optional bytes Cert = 9; //含角色的证书数据
     optional bytes CertNoCert = 10; //含角色的证书数据
     optional int32 CurVersion = 11; //服务器的当前最新版本号
-    optional string PlayEnable = 12; //不更新是否能继续游戏 "y"可以游戏 "n"不可以，必须更新
+    optional int32 ForceUpdate = 12; //1=必须升级App
     optional string DownloadUrl = 13; //下载地址
-    optional string IfPreserve = 14; //斗地主是否停服维护 "y"停服维护中 "n"没有维护，达人麻将相反。
-    optional string PreserveMsg = 16; //系统提示消息（维护状态中，为维护信息）
+    optional int32 IsMaintain = 14; //是否停服维护 1=停服维护中
+    optional string MaintainMsg = 16; //系统提示消息
     optional int32 GameId = 17; //游戏ID
     repeated SHENJINGJSSInfo JssList = 18; // jss服务器，小商城的代理服务器。
     optional string IfSearch = 19; //是否显示搜索（斗地主用）"y"显示 "n"不显示。

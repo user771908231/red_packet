@@ -40,10 +40,10 @@ func GoID() int {
 }
 
 
-///处理联众游戏,登陆的协议
+///处理登陆协议
 func HandlerREQQuickConn(args []interface{}) {
 	m := args[0].(*bbproto.REQQuickConn)
-	log.T("联众游戏登陆的时候发送的请求的协议内容login.handler.HandlerREQQuickConn()[%v]", m)
+	log.T("游戏登陆的时候发送的请求的协议内容login.handler.HandlerREQQuickConn()[%v]", m)
 	a := args[1].(gate.Agent)
 	//需要返回的结果
 
@@ -67,6 +67,28 @@ func HandlerREQQuickConn(args []interface{}) {
 		}
 	}
 
+	//处理客户端版本升级
+	LatestClientVersion := 1 //当前已发布客户端版本, TODO:放到配置文件中
+	result.ForceUpdate = new(int32)
+	*result.ForceUpdate = 0
+	if m.GetCurVersion() < LatestClientVersion {
+		log.T("客户端需要升级, 版本为:%v", m.GetCurVersion() )
+		*result.ForceUpdate = 1 //1=强制升级 0=可选升级
+		result.DownloadUrl = new(string)
+		*result.DownloadUrl = "http://d.tondeen.com/sjtexas.html" //TODO:放入配置文件中
+	}
+	result.CurVersion = new(int32)
+	*result.CurVersion = LatestClientVersion
+
+	//服务器停服维护公告
+	result.IsMaintain = new(int32)
+	result.MaintainMsg = new(string)
+	*result.IsMaintain = 1 //TODO:从配置中读取停服维护公告
+	if *result.IsMaintain == 1 {
+		*result.MaintainMsg = "服务器正在例行维护中，请于今日5:00后再登录游戏!"
+	}
+
+	
 	//如果得到的user ==nil 或者 用密码登陆的时候密码不正确
 	if resultUser == nil || (resultUser.GetPwd() != "" && m.GetPwd() != resultUser.GetPwd()) {
 		log.E("没有找到用户,返回登陆失败...")
@@ -137,6 +159,15 @@ func newACKQuickConn() * bbproto.ACKQuickConn{
 	tslist[0] = thranSjjInfo
 	result.JssList = tslist
 	result.MatchSvrList = oglist
+
+
+	//返回客户端服务器IP
+	serverInfo := &bbproto.ServerInfo{}
+	serverInfo.Ip = &ip
+	serverInfo.Port = &port
+	svrlist := make([]*bbproto.ServerInfo, 1)
+	svrlist[0] = serverInfo
+	result.ServerList = svrlist
 
 	return result
 }
