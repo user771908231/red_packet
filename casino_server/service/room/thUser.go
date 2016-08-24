@@ -84,9 +84,11 @@ func (t *ThUser) trans2bbprotoThuser() *bbproto.THUser {
 func (t *ThUser) wait() error {
 	//如果不是押注中的状态,不用wait任务
 	log.T("用户当前的状态[%v]", t.Status)
-	if t.Status != TH_USER_STATUS_BETING {
-		return nil
-	}
+
+	//这一步其实可以不用验证,因为出牌的游标滑动到这里的时候,已经验证过了
+	//if !t.IsBetting() {
+	//	return nil
+	//}
 
 	ticker := time.NewTicker(time.Second * 1)
 	t.waiTime = time.Now().Add(ThdeskConfig.TH_TIMEOUT_DURATION)
@@ -108,7 +110,6 @@ func (t *ThUser) wait() error {
 			}
 		}
 	}()
-
 	return nil
 
 }
@@ -125,13 +126,12 @@ func (t *ThUser) TimeOut(timeNow time.Time) (bool, error) {
 	defer t.Unlock()
 
 	//没有超时标志,直接返回
-	if t.waitUUID == "" {
-		//不需要等待
+	if !t.IsWaiting() {
 		log.T("用户[%v]的waitUUID==空,不用超时", t.UserId)
 		return true, nil
 	}
 
-	//如果用户超市,或者用户选择离线,那么直接做弃牌的操作
+	//如果用户超时,或者用户已经离开,那么直接做弃牌的操作
 	if t.waiTime.Before(timeNow) || t.IsLeave {
 		log.T("玩家[%v]超时,现在做超时的处理", t.UserId)
 		err := t.GetDesk().DDBet(t.Seat, TH_DESK_BET_TYPE_FOLD, 0)
@@ -233,7 +233,10 @@ func (t *ThUser) AddTotalBet(coin int64) {
 func (t *ThUser) IsBetting() bool {
 	//正在押注中 是否需要判断是否断线,是否离线?
 	return t.Status == TH_USER_STATUS_BETING
+}
 
+func (t *ThUser) IsClose() bool{
+	return t.Status == TH_USER_STATUS_CLOSED
 }
 
 //得到自己在当前锦标赛中的名次
@@ -242,3 +245,16 @@ func (t *ThUser) GetCsRank() int64 {
 	return GetCSTHuserRank(t.MatchId,t.UserId)
 }
 
+//通过agent得到session
+func GetUserDataByAgent(a gate.Agent) *bbproto.ThServerUserSession{
+	//获取agent中的userData
+	ad := a.UserData()
+	if ad == nil {
+		log.E("agent中的userData为nil")
+		return nil
+	}
+
+	userData := ad.(*bbproto.ThServerUserSession)
+	log.T("得到的UserAgent中的userId是[%v]", userData.UserId)
+	return userData
+}
