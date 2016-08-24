@@ -102,6 +102,7 @@ enum  DDErrorCode{
 
 	ERRORCODE_GAME_READY_REPEAT					=	-110;	//重复准备
 
+	ERRORCODE_GAME_READY_CHIP_NOT_ENOUGH		=	-111;	//筹码不足
 }
 
 //general response protocol
