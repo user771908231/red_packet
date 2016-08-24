@@ -55,9 +55,6 @@ func (t *ThDesk) DDBet(seatId int32, betType int32, coin int64) error {
 	}
 
 	switch betType {
-	case TH_DESK_BET_TYPE_BET:
-	//押注:大盲注之后的第一个人,这个类型不会使用到
-
 	case TH_DESK_BET_TYPE_CALL:
 		t.DDFollowBet(user)
 
@@ -121,8 +118,7 @@ func (t *ThDesk) DDFollowBet(user *ThUser) error {
 	*result.Coin = user.GetRoomCoin()
 	*result.Seat = user.Seat                                //座位id
 	*result.Tableid = t.Id
-	//*result.CanRaise	= t.CanRaise		     		//是否能加注
-	*result.CanRaise = int32(1)                                //是否能加注
+	*result.CanRaise = t.GetCanRise()                               //是否能加注
 	*result.MinRaise = t.GetMinRaise()
 	*result.Pool = t.Jackpot
 	*result.NextSeat = t.GetUserByUserId(t.BetUserNow).Seat //int32(t.GetUserIndex(t.BetUserNow))		//下一个押注的人

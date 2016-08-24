@@ -67,19 +67,11 @@ var ThdeskConfig struct {
 					       //创建房间需要消耗的砖石
 	CreateJuCountUnit        int32         //没多少局消耗多少钻石
 	CreateFee                int64         //每多少局消耗多少砖石
-
-					       //每个人出牌的时间
 	TH_TIMEOUT_DURATION      time.Duration //德州出牌的超时时间
 	TH_TIMEOUT_DURATION_INT  int32         //德州出牌的超时时间
-
-
-					       //开奖的时间
-	TH_LOTTERY_DURATION      time.Duration
-
+	TH_LOTTERY_DURATION      time.Duration //开奖的时间
 	TH_DESK_LEAST_START_USER int32         //每局开始的最低人数
-
 	TH_DESK_MAX_START_USER   int32         //桌子上最多坐多少人
-
 	TH_GAME_SMALL_BLIND      int64         //默认小盲注是多少
 }
 
@@ -102,9 +94,6 @@ func InitDeskConfig() {
 
 	ThdeskConfig.TH_GAME_SMALL_BLIND = 10
 }
-
-
-
 
 
 /**
@@ -725,24 +714,6 @@ func (t *ThDesk) CalcThcardsWin() error {
 		}
 	}
 
-	//1去牌最大的user,需要满足条件1,牌最大,2,状态是等待开奖
-	//var userWin *ThUser
-	//
-	////1.1, 去第一个状态是等待开奖的那个人
-	//for i := 1; i < len(t.Users); i++ {
-	//	if t.Users[i].Status == TH_USER_STATUS_WAIT_CLOSED {
-	//		userWin = t.Users[i]
-	//		break;
-	//	}
-	//}
-	//
-	////1.2 比较得到牌是最大的,并且状态是等待开奖的那个人
-	//for i := 1; i < len(t.Users); i++ {
-	//	if t.Less(userWin, t.Users[i]) && t.Users[0].Status == TH_USER_STATUS_WAIT_CLOSED {
-	//		userWin = t.Users[i]
-	//	}
-	//}
-
 	userWin := t.Users[0]                //最大的牌的userId
 	for i := 1; i < len(t.Users); i++ {
 		if t.Less(userWin, t.Users[i]) {
@@ -906,7 +877,6 @@ func (t *ThDesk) Lottery() error {
 	log.T("现在开始开奖,并且发放奖励....")
 
 	//todo 开奖之前 是否需要把剩下的牌 全部发完**** 目前是不可能
-	//设置桌子的状态为开奖中
 	t.Status = TH_DESK_STATUS_LOTTERY
 
 	//设置用户的状态都为的等待开奖
@@ -1112,7 +1082,7 @@ func (t *ThDesk) SaveLotteryDatacsth() error {
 			continue
 		}
 
-		if u.Status != TH_USER_STATUS_CLOSED {
+		if !u.IsClose() {
 			log.E("保存用户[%v]信息到数据库的时候出错,状态[%v]不正确", u.UserId, u.Status)
 			continue
 		}
