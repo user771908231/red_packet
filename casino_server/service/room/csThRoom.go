@@ -144,7 +144,7 @@ func (r *CSThGameRoom) End() {
 
 
 //游戏大厅增加一个玩家
-func (r *CSThGameRoom) AddUser(userId uint32, roomCoin int64, a gate.Agent) (*ThDesk, error) {
+func (r *CSThGameRoom) AddUser(userId uint32, a gate.Agent) (*ThDesk, error) {
 	r.Lock()
 	defer r.Unlock()
 	log.T("userid【%v】进入德州扑克的房间", userId)
@@ -184,7 +184,7 @@ func (r *CSThGameRoom) AddUser(userId uint32, roomCoin int64, a gate.Agent) (*Th
 	}
 
 	//3,进入房间,竞标赛进入房间的时候,默认就是准备的状态
-	err := mydesk.AddThUser(userId, roomCoin, TH_USER_STATUS_READY, a)
+	err := mydesk.AddThUser(userId, TH_USER_STATUS_READY, a)
 	if err != nil {
 		log.E("用户上德州扑克的桌子 失败...")
 		return nil, err

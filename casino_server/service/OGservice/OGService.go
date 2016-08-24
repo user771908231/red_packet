@@ -195,7 +195,6 @@ func HandlerGameEnterMatch(m *bbproto.Game_EnterMatch, a gate.Agent) error {
 	var err error                                   //错误信息
 	var mydesk *room.ThDesk                         //用户需要进入的房间
 	userId := m.GetUserId()                         //进入游戏房间的user
-	roomCoin := int64(1000)                         //to do 暂时设置为1000
 	roomKey := string(m.GetPassWord())              //房间的roomkey
 
 
@@ -208,9 +207,9 @@ func HandlerGameEnterMatch(m *bbproto.Game_EnterMatch, a gate.Agent) error {
 
 	//1.2,进入房间,返回房间和错误信息
 	if roomKey == "" {
-		mydesk, err = room.ChampionshipRoom.AddUser(userId, roomCoin, a)
+		mydesk, err = room.ChampionshipRoom.AddUser(userId, a)
 	} else {
-		mydesk, err = room.ThGameRoomIns.AddUserWithRoomKey(userId, roomCoin, roomKey, a)
+		mydesk, err = room.ThGameRoomIns.AddUserWithRoomKey(userId, roomKey, a)
 	}
 
 	//2 判断进入房间是否失败...

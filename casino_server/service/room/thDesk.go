@@ -241,7 +241,7 @@ func (t *ThDesk) IsrepeatIntoWithRoomKey(userId uint32, a gate.Agent) bool {
 /**
 	为桌子增加一个人
  */
-func (t *ThDesk) AddThUser(userId uint32, roomCoin int64, userStatus int32, a gate.Agent) error {
+func (t *ThDesk) AddThUser(userId uint32, userStatus int32, a gate.Agent) error {
 	//1,从redis得到redisUser
 	redisUser := userService.GetUserById(userId)
 	//2,通过userId 和agent 够做一个thuser
@@ -252,7 +252,7 @@ func (t *ThDesk) AddThUser(userId uint32, roomCoin int64, userStatus int32, a ga
 	thUser.deskId = t.Id                //桌子的id
 	thUser.GameNumber = t.GameNumber
 	thUser.NickName = *redisUser.NickName                //todo 测试阶段,把nickName显示成用户id
-	thUser.RoomCoin = roomCoin
+	thUser.RoomCoin = t.InitRoomCoin
 	log.T("初始化thuser的时候coin[%v]:,roomCoin[%v]", thUser.GetCoin(), thUser.GetRoomCoin())
 
 	//3,添加thuser
@@ -1130,7 +1130,7 @@ func (t *ThDesk) SaveLotteryDatacsth() error {
 
 	log.T("开始保存DBT_T_TH_DESK_RECORD的信息")
 	//保存桌子的用户信息
-	db.InsertMgoData(casinoConf.DBT_T_TH_DESK_RECORD, deskRecord)
+	db.InsertMgoData(casinoConf.DBT_T_CS_TH_DESK_RECORD, deskRecord)
 	return nil
 
 }

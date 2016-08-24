@@ -233,7 +233,7 @@ func (r *ThGameRoom) GetDeskByRoomKey(roomKey string) *ThDesk {
 /**
 	给指定的房间增加用户
  */
-func (r *ThGameRoom) AddUserWithRoomKey(userId uint32, roomCoin int64, roomKey string, a gate.Agent) (*ThDesk, error) {
+func (r *ThGameRoom) AddUserWithRoomKey(userId uint32, roomKey string, a gate.Agent) (*ThDesk, error) {
 	log.T("玩家[%v]通过roomkey[%v]进入房间", userId, roomKey)
 	//1,首先判断roomKey 是否喂空
 	if roomKey == "" {
@@ -253,7 +253,7 @@ func (r *ThGameRoom) AddUserWithRoomKey(userId uint32, roomCoin int64, roomKey s
 	}
 
 	//4,进入房间
-	err := mydesk.AddThUser(userId, roomCoin, TH_USER_STATUS_SEATED, a)
+	err := mydesk.AddThUser(userId, TH_USER_STATUS_SEATED, a)
 	if err != nil {
 		log.E("用户上德州扑克的桌子 失败...")
 		return nil, err

@@ -15,6 +15,7 @@ const (
 	DBT_T_BONUS_TURNTABLE	= "t_bonus_turntable"	//转盘奖励的表
 	DBT_T_TH_RECORD 	= "t_th_record"		//德州扑克
 	DBT_T_CS_TH_RECORD	= "t_cs_th_rercord"	//锦标赛的记录
+	DBT_T_CS_TH_DESK_RECORD = "t_cs_th_desk_record"	//德州扑克
 	DBT_T_TH_DESK_RECORD 	= "t_th_desk_record"	//德州扑克
 	DBT_T_TH_DESK		= "t_th_desk"		//德州桌子
 	DBT_T_TH_NOTICE		= "t_th_notice"
