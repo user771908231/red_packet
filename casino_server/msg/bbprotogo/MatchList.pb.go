@@ -214,6 +214,7 @@ It has these top-level messages:
 	SHENJINGRoomInfo
 	SHENJINGJSSInfo
 	DDBulletinInfo
+	ServerInfo
 	REQQuickConn
 	ACKQuickConn
 	NullMsg

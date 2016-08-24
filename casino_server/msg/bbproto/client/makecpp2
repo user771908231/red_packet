@@ -1,9 +1,0 @@
-#!/bin/sh
-rm -f OutCpp/*
-cp ../OGTexasPokerMatchListProtocol.proto ./
-cp ../OGTexasPokerProtocol.proto ./
-sed -i '' 's/package bbproto;//g' *.proto
-protoc --proto_path=./ --cpp_out=./OutCpp *.proto
-cd OutCpp
-ls -lrt *
-cp -vf * /Users/kory/Documents/Dev/cocos2d-x-2.1.4/projects/casino/TexasPoker/Protocols/
