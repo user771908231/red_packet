@@ -1366,3 +1366,9 @@ message Game_MatchList {
     repeated Game_MatchItem items   = 2;
 }
 
+//每一局完了,显示自己的排名
+message Game_TounamentPlayerRank{
+    optional int32 playerRank = 1;   //玩家排名名次
+    optional string message   = 2;  //显示信息
+}
+

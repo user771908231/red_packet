@@ -61,7 +61,6 @@ func init() {
 	handler(&bbproto.Game_TounamentSummary{}, handlerGame_TounamentSummary)
 
 	handler(&bbproto.Game_MatchList{}, handlerGame_MatchList)         //锦标赛列表
-
 }
 
 /**

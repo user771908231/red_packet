@@ -515,6 +515,7 @@ func (t *ThDesk) THBroadcastProtoAll(p proto.Message) error {
 	return t.THBroadcastProto(p, 0)
 }
 
+
 /**
 	返回res需要的User实体
  */
@@ -966,6 +967,8 @@ func (t *ThDesk) canNextRun() bool {
 
 //广播开奖的结果
 func (t *ThDesk) broadLotteryResult() error {
+
+	//1.发送输赢结果
 	result := &bbproto.Game_TestResult{}
 	result.Tableid = &t.Id                           //桌子
 	result.BCanShowCard = t.GetBshowCard()           //
@@ -974,9 +977,19 @@ func (t *ThDesk) broadLotteryResult() error {
 	result.WinCoinInfo = t.getWinCoinInfo()
 	result.HandCoin = t.GetHandCoin()
 	result.CoinInfo = t.getCoinInfo()                //每个人的输赢情况
-
-	//开始广播
 	t.THBroadcastProtoAll(result)
+
+
+	//2.发送每个人在锦标赛中目前的排名
+	for i := 0; i < len(t.Users); i++ {
+		u := t.Users[i]
+		if u != nil {
+			//开始风别给每个人发送自己的排名信息
+			
+
+		}
+	}
+
 	return nil
 
 }
