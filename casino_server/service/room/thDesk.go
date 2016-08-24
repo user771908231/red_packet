@@ -1640,6 +1640,7 @@ func (mydesk *ThDesk) Run() error {
 	log.T("\n\n开始一局新的游戏\n\n")
 	//1,判断是否可以开始游戏
 	if !mydesk.IsTime2begin() {
+		log.T("\n\n不能开始一局新的游戏\n\n")
 		return nil
 	}
 
