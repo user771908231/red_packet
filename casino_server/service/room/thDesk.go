@@ -1703,16 +1703,21 @@ func (t *ThDesk) End() {
 	result := &bbproto.Game_SendDeskEndLottery{}
 	result.Result = &intCons.ACK_RESULT_SUCC
 
+	maxWin := int64(0)
+	maxUserid := uint32(0)
 	for i := 0; i < len(t.Users); i++ {
 		u := t.Users[i]
 		if u != nil {
 			//
 			gel := &bbproto.Game_EndLottery{}
+			gel.UserId = new(uint32)
 			gel.Coin = new(int64)
 			gel.BigWin = new(bool)
 			gel.Owner = new(bool)
 			gel.Rolename = new(string)
 
+
+			//赋值
 			*gel.Coin = u.winAmount
 
 			if t.DeskOwner == u.UserId {
@@ -1722,9 +1727,26 @@ func (t *ThDesk) End() {
 			}
 
 			*gel.Rolename = u.NickName
+			*gel.UserId = u.UserId
+
+			if u.winAmount > maxWin {
+				maxWin = u.winAmount
+				maxUserid = u.UserId
+			}
 			result.CoinInfo = append(result.CoinInfo, gel)
 		}
 	}
+
+
+	//赋值大赢家
+	for i:=0;i<len(result.CoinInfo);i++{
+		ci := result.CoinInfo[i]
+		if ci != nil && ci.GetUserId() == maxUserid {
+			*ci.BigWin = true		//设置大赢家
+		}
+	}
+
+
 	//设置bigWin
 	//广播消息
 	t.THBroadcastProtoAll(result)
