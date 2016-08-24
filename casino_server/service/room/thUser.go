@@ -36,6 +36,7 @@ type ThUser struct {
 	NickName           string                //用户昵称
 
 	deskId             int32                 //用户所在的桌子的编号
+	MatchId            int32                 //matchId
 	GameNumber         int32                 //游戏编号
 	Seat               int32                 //用户的座位号
 	agent              gate.Agent            //agent
@@ -198,7 +199,7 @@ func (t *ThUser) UpdateAgentUserData(a gate.Agent, deskId int32, matchId int32) 
 }
 
 //把用户数据保存到redis中
-func (u *ThUser) Update2redis(){
+func (u *ThUser) Update2redis() {
 	UpdateRedisThuser(u)
 }
 
@@ -229,10 +230,15 @@ func (t *ThUser) AddTotalBet(coin int64) {
 }
 
 //判断用户是否正在押注中
-func (t *ThUser) IsBetting() bool{
+func (t *ThUser) IsBetting() bool {
 	//正在押注中 是否需要判断是否断线,是否离线?
 	return t.Status == TH_USER_STATUS_BETING
 
 }
 
+//得到自己在当前锦标赛中的名次
+func (t *ThUser) GetCsRank() int64 {
+	//todo 获取名词之前,需要判断用户正在玩的游戏的类型
+	return GetCSTHuserRank(t.MatchId,t.UserId)
+}
 

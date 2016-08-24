@@ -18,7 +18,7 @@ func TestTemp(t *testing.T) {
 }
 
 func testN() {
-	c, err := mongodb.Dial(casinoConf.DB_IP, casinoConf.DB_PORT)
+	c, err := db.GetMongoConn()
 	if err != nil {
 	}
 	defer c.Close()

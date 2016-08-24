@@ -11,9 +11,8 @@ import (
 	"casino_server/utils/numUtils"
 	"casino_server/utils/timeUtils"
 	"casino_server/msg/bbprotoFuncs"
-	"github.com/name5566/leaf/db/mongodb"
-	"fmt"
 	"casino_server/conf/casinoConf"
+	"casino_server/utils/db"
 )
 
 func init() {
@@ -119,24 +118,14 @@ func (r *zjhRoom) saveZjhRound() error {
 	d.ZoneWinAmount = r.zoneWinAmount
 
 	// 获取连接 connection
-	c, err := mongodb.Dial(casinoConf.DB_IP, casinoConf.DB_PORT)
-	if err != nil {
-		fmt.Println(err)
-		return err
-	}
-	defer c.Close()
 
-	// 获取回话 session
-	s := c.Ref()
-	defer c.UnRef(s)
-
-	id, _ := c.NextSeq(casinoConf.DB_NAME, casinoConf.DBT_T_ZJH_ROUND, casinoConf.DB_ENSURECOUNTER_KEY)
+	id, _ := db.GetNextSeq(casinoConf.DBT_T_ZJH_ROUND)
 	log.T("通过数据库获取到的 t_zjh_round seq[%v]", id)
 	r.id = uint32(id)
 	d.Id = &r.id
 	r.OnInitRoundNumber()                //初始化编号
 	d.Number = &r.ZjhRoundNumber        //编号也要保存到数据库
-	e := s.DB(casinoConf.DB_NAME).C(casinoConf.DBT_T_ZJH_ROUND).Insert(d)
+	e := db.InsertMgoData(casinoConf.DBT_T_ZJH_ROUND, d)
 	if e != nil {
 		log.Error(e.Error())
 		return e

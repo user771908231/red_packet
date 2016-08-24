@@ -250,6 +250,7 @@ func (t *ThDesk) AddThUser(userId uint32, userStatus int32, a gate.Agent) error 
 	thUser.agent = a
 	thUser.Status = userStatus        //刚进房间的玩家
 	thUser.deskId = t.Id                //桌子的id
+	thUser.MatchId = t.MatchId
 	thUser.GameNumber = t.GameNumber
 	thUser.NickName = *redisUser.NickName                //todo 测试阶段,把nickName显示成用户id
 	thUser.RoomCoin = t.InitRoomCoin
@@ -985,7 +986,7 @@ func (t *ThDesk) broadLotteryResult() error {
 		u := t.Users[i]
 		if u != nil {
 			//开始风别给每个人发送自己的排名信息
-			
+
 
 		}
 	}
@@ -1752,10 +1753,10 @@ func (t *ThDesk) End() {
 
 
 	//赋值大赢家
-	for i:=0;i<len(result.CoinInfo);i++{
+	for i := 0; i < len(result.CoinInfo); i++ {
 		ci := result.CoinInfo[i]
 		if ci != nil && ci.GetUserId() == maxUserid {
-			*ci.BigWin = true		//设置大赢家
+			*ci.BigWin = true                //设置大赢家
 		}
 	}
 

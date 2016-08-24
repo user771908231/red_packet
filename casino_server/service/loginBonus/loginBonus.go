@@ -10,11 +10,10 @@ import (
 	"casino_server/mode"
 	"gopkg.in/mgo.v2/bson"
 	"time"
-	"github.com/name5566/leaf/db/mongodb"
 	"casino_server/conf/casinoConf"
-	"fmt"
 	"casino_server/common/log"
 	"casino_server/utils/timeUtils"
+	"casino_server/utils/db"
 )
 
 //转盘的格子
@@ -116,20 +115,9 @@ func updateTurntableBonus(userId uint32,amount int64) error{
 		log.E("用户[%v]领取转盘奖励失败,因为今天已经领取过了...",userId)
 		return errors.New("领取失败,今日奖励已经领取过了")
 	}
-	//2,保存转盘记录
-
-	c, err := mongodb.Dial(casinoConf.DB_IP, casinoConf.DB_PORT)
-	if err != nil {
-		fmt.Println(err)
-		panic(err)
-	}
-	defer c.Close()
-
-	s := c.Ref()
-	defer c.UnRef(s)
 
 	//2,创建user获得自增主键
-	tid, err := c.NextSeq(casinoConf.DB_NAME, casinoConf.DBT_T_BONUS_TURNTABLE, casinoConf.DB_ENSURECOUNTER_KEY)
+	tid, err :=db.GetNextSeq(casinoConf.DBT_T_BONUS_TURNTABLE)
 	if err != nil {
 		return err
 	}
@@ -139,7 +127,8 @@ func updateTurntableBonus(userId uint32,amount int64) error{
 	t.Time = time.Now()
 	t.UserId = userId
 	t.Id =uint32(tid)
-	err = s.DB(casinoConf.DB_NAME).C(casinoConf.DBT_T_BONUS_TURNTABLE).Insert(t)
+
+	err = db.InsertMgoData(casinoConf.DBT_T_BONUS_TURNTABLE,t)
 	if err != nil {
 		log.E("给用户发送转盘奖励的时候,出错:",err.Error())
 		return err

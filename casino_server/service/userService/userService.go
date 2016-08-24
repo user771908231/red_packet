@@ -6,7 +6,6 @@ import (
 	"casino_server/common/config"
 	"gopkg.in/mgo.v2/bson"
 	"casino_server/common/log"
-	"casino_server/utils/redis"
 	"casino_server/utils/numUtils"
 	"strings"
 	"casino_server/mode"
@@ -14,6 +13,7 @@ import (
 	"casino_server/utils/db"
 	"gopkg.in/mgo.v2"
 	"casino_server/common/Error"
+	"casino_server/utils/redisUtils"
 )
 
 /**
@@ -28,12 +28,10 @@ func NewUserAndSave(openId, wxNickName, headUrl string) (*bbproto.User, error) {
 	if err != nil {
 		return nil, err
 	}
-	userId := uint32(id)
-
 	//构造user
 	nuser := &mode.T_user{}
 	nuser.Mid = bson.NewObjectId()
-	nuser.Id = userId
+	nuser.Id = uint32(id)
 	if wxNickName == "" {
 		nuser.NickName = config.RandNickname()
 	} else {
@@ -73,20 +71,16 @@ func GetRedisUserSeesionKey(userid uint32) string {
  */
 func GetUserById(id uint32) *bbproto.User {
 	//1,首先在 redis中去的数据
-	conn := data.Data{}
-	conn.Open(casinoConf.REDIS_DB_NAME)
-	defer conn.Close()
-
 	key := GetRedisUserKey(id)
-	result := &bbproto.User{}
-	conn.GetObj(key, result)
-	if result == nil || result.GetId() == 0 {
+	result := redisUtils.GetObj(key,&bbproto.User{})
+	if result == nil {
 		log.E("redis中没有找到user[%v],需要在mongo中查询,并且缓存在redis中。", id)
 		// 获取连接 connection
 		tuser := &mode.T_user{}
 		db.Query(func(d *mgo.Database) {
 			d.C(casinoConf.DBT_T_USER).Find(bson.M{"id": id}).One(tuser)
 		})
+
 		if tuser.Id < casinoConf.MIN_USER_ID {
 			log.T("在mongo中没有查询到user[%v].", id)
 			result = nil
@@ -95,7 +89,7 @@ func GetUserById(id uint32) *bbproto.User {
 			//把从数据获得的结果填充到redis的model中
 			result, _ = Tuser2Ruser(tuser)
 			if result != nil {
-				SaveUser2Redis(result)
+				SaveUser2Redis(result.(*bbproto.User))
 			}
 		}
 	}
@@ -104,40 +98,26 @@ func GetUserById(id uint32) *bbproto.User {
 	if result == nil {
 		return nil
 	} else {
-		result.OninitLoginTurntableState()        //初始化登录转盘之后的奖励
-		return result
+		ret := result.(*bbproto.User)
+		ret.OninitLoginTurntableState()        //初始化登录转盘之后的奖励
+		return ret
 	}
 }
 
 //返回session信息
 func GetUserSessionByUserId(id uint32) *bbproto.ThServerUserSession {
-	conn := data.Data{}
-	conn.Open(casinoConf.REDIS_DB_NAME)
-	defer conn.Close()
-
-	key := GetRedisUserSeesionKey(id)
-	result := &bbproto.ThServerUserSession{}
-	conn.GetObj(key, result)
-
-	if result == nil || result.GetUserId() == 0 {
+	result := redisUtils.GetObj(GetRedisUserSeesionKey(id),&bbproto.ThServerUserSession{})
+	if result == nil{
+		log.T("没有找到user[%v]的thserverUserSession",id)
 		return nil
 	} else {
-		return result
+		return result.(*bbproto.ThServerUserSession)
 	}
 }
 
-
 //保存回话信息
 func SaveUserSession(userData *bbproto.ThServerUserSession) {
-
-	//获取连接
-	conn := data.Data{}
-	conn.Open(casinoConf.REDIS_DB_NAME)
-	defer conn.Close()
-
-	//保存数据
-	key := GetRedisUserSeesionKey(userData.GetUserId())
-	conn.SetObj(key, userData)
+	redisUtils.SaveObj(GetRedisUserSeesionKey(userData.GetUserId()),userData)
 }
 
 func GetUserByOpenId(openId  string) *bbproto.User {
@@ -176,11 +156,7 @@ func GetUserByOpenId(openId  string) *bbproto.User {
 	将用户model保存在redis中
  */
 func SaveUser2Redis(u *bbproto.User) {
-	conn := data.Data{}
-	conn.Open(casinoConf.REDIS_DB_NAME)
-	defer conn.Close()
-	key := GetRedisUserKey(u.GetId())
-	conn.SetObj(key, u)
+	redisUtils.SaveObj(GetRedisUserKey(u.GetId()),u)
 }
 
 /**

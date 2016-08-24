@@ -6,9 +6,15 @@ import (
 	"github.com/golang/protobuf/proto"
 )
 
-
-func init(){
+func init() {
 	data.InitRedis()
+}
+
+//在需要的地方,需要自己关闭连接
+func GetConn() data.Data {
+	conn := data.Data{}
+	conn.Open(casinoConf.REDIS_DB_NAME)
+	return conn
 }
 
 /**
@@ -23,9 +29,8 @@ func init(){
 		}
  */
 
-func GetObj(key string,p proto.Message) proto.Message{
-	conn := data.Data{}
-	conn.Open(casinoConf.REDIS_DB_NAME)
+func GetObj(key string, p proto.Message) proto.Message {
+	conn := GetConn()
 	defer conn.Close()
 	return conn.GetObjv2(key, p)
 }
@@ -33,11 +38,26 @@ func GetObj(key string,p proto.Message) proto.Message{
 /**
 	保存一个对象到redis
  */
-func SaveObj(key string,p proto.Message){
-	conn := data.Data{}
-	conn.Open(casinoConf.REDIS_DB_NAME)
+func SaveObj(key string, p proto.Message) {
+	conn := GetConn()
 	defer conn.Close()
-	conn.SetObj(key,p)
+	conn.SetObj(key, p)
 }
 
+func ZADD(key string, member string, score int64) {
+	conn := GetConn()
+	defer conn.Close()
+	conn.ZAdd(key, member, score)
+}
+
+func ZREVRANK(key string, member string) int64 {
+	conn := GetConn()
+	defer conn.Close()
+	values, err := conn.ZREVRANK(key, member)
+	if values == nil || err != nil {
+		return -1
+	}
+	return values.(int64)
+
+}
 
