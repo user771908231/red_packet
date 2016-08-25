@@ -79,6 +79,7 @@ func HandlerReady(m *bbproto.Game_Ready, a gate.Agent) error {
 	result := &bbproto.Game_AckReady{}
 	result.Result = new(int32)
 	result.Msg = new(string)
+	result.SeatId = new(int32)
 
 	userId := m.GetUserId()
 	//2,通过userId 找到桌子
@@ -100,12 +101,14 @@ func HandlerReady(m *bbproto.Game_Ready, a gate.Agent) error {
 	}
 
 	//4,返回准备的结果
+	*result.SeatId = desk.GetUserByUserId(userId).Seat
 	*result.Result = intCons.ACK_RESULT_SUCC
-	a.WriteMsg(result)
+	//a.WriteMsg(result)
+	desk.THBroadcastProtoAll(result)	//广播用户准备的协议
 
 	//如果全部的人都准备好了,那么可以开始游戏
 	//1.1,所有人都准备好了,并且不是第一局的时候,才能开始游戏, 第一句必须要房主点击开始,才能开始
-	if desk.JuCountNow > 1 && desk.IsAllReady() {
+	if desk.JuCountNow > 0 && desk.IsAllReady() {
 		desk.Run()
 	}
 	return nil

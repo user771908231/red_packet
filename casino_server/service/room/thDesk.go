@@ -252,7 +252,7 @@ func (t *ThDesk) AddThUser(userId uint32, userStatus int32, a gate.Agent) (*ThUs
 	err := t.addThuserBean(thUser)
 	if err != nil {
 		log.E("增加user【%v】到desk【%v】失败", thUser.UserId, t.Id)
-		return errors.New("增加user失败")
+		return nil,errors.New("增加user失败")
 	}
 
 	//4, 把用户的信息绑定到agent上
@@ -265,7 +265,7 @@ func (t *ThDesk) AddThUser(userId uint32, userStatus int32, a gate.Agent) (*ThUs
 	if userStatus == TH_USER_STATUS_READY {
 		t.AddReadyCount()
 	}
-	return nil
+	return thUser,nil
 }
 
 
@@ -407,11 +407,11 @@ func (t *ThDesk) InitBlindBet() error {
 	//初始化默认值
 	blindB.Tableid = &t.Id        //deskid
 	//blindB.Matchid = &room.ThGameRoomIns.Id //roomId
-	*blindB.Banker = t.GetUserByUserId(t.Dealer).Seat        //int32(t.GetUserIndex(t.Dealer))        //庄
+	*blindB.Banker = t.GetUserByUserId(t.Dealer).Seat        //庄
 	blindB.Bigblind = &t.BigBlindCoin        //大盲注
 	blindB.Smallblind = &t.SmallBlindCoin        //小盲注
-	*blindB.Bigblindseat = t.GetUserByUserId(t.BigBlind).Seat        //	int32(t.GetUserIndex(t.BigBlind))        //大盲注座位号
-	*blindB.Smallblindseat = t.GetUserByUserId(t.SmallBlind).Seat        //int32(t.GetUserIndex(t.SmallBlind))        //小盲注座位号
+	*blindB.Bigblindseat = t.GetUserByUserId(t.BigBlind).Seat        //      //大盲注座位号
+	*blindB.Smallblindseat = t.GetUserByUserId(t.SmallBlind).Seat        //     //小盲注座位号
 	//blindB.Coin = t.GetCoin()        //每个人手中的coin
 	blindB.Coin = t.GetRoomCoin()
 	blindB.Handcoin = t.GetHandCoin()        //每个人下注的coin

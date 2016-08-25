@@ -1235,6 +1235,7 @@ message Game_Ready{
 message Game_AckReady{
     optional int32 result       =1; //准备游戏的结果
     optional string msg         =2; //提示信息
+    optional int32 seatId       =3; //searId,发送准备的人的座位号
 }
 
 //开始游戏

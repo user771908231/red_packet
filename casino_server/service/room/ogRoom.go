@@ -444,7 +444,7 @@ func (mydesk *ThDesk) initGameSendgameInfoByDesk() *bbproto.Game_SendGameInfo {
 	result.SecondPool = mydesk.GetSecondPool()
 	*result.TurnMax = mydesk.BetAmountNow
 	result.WeixinInfos = mydesk.GetWeiXinInfos()
-	*result.OwnerSeat = int32(mydesk.GetUserIndex(mydesk.DeskOwner))
+	*result.OwnerSeat = mydesk.GetUserByUserId(mydesk.DeskOwner).Seat
 
 	//循环User来处理
 	for i := 0; i < len(mydesk.Users); i++ {
