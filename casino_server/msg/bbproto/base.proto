@@ -84,6 +84,8 @@ enum  EProtoId{
 	PID_GAME_TOUNAMENTPLAYERRANK=	70;		//锦标赛牌局结束显示个人名次
 	PID_GAME_REBUY				=	71;		//rebuy
 	PID_GAME_ACKREBUY			=	72;		//rebuy回复
+	PID_GAME_LOBBY				=	73;		//大厅协议
+	PID_GAME_ACKLOBBY			=	74;		//大厅回复
 }
 
 

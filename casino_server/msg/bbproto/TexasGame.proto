@@ -236,6 +236,11 @@ message game_ChangeTable {
     optional bytes sCFUserName = 6; //该渠道特有昵称（现在专指360）
 }
 
+enum RoomType {
+    RT_FRIENDDESK       = 1;  //
+    RT_TOUNAMENTMATCH   = 2;  //
+}
+
 //发送游戏信息
 message game_SendGameInfo {
     optional bytes Matchid = 1;
@@ -273,7 +278,7 @@ message game_SendGameInfo {
     //② EnterMatch时、广播新进用户时，才需返回WeixinInfo；其它广播不需要。
     repeated WeixinInfo weixinInfos  = 31;
     optional int32  ownerSeat   =32; //房主的seat
-
+    optional int32  roomType    =33; //1=朋友桌， 2=锦标赛
 }
 
 message game_ShowCard {
@@ -834,7 +839,7 @@ message ACKSHENJINGConn {
     optional int32 LoginId = 9; //登录id
     repeated DDRoomInfo MatchRoomList = 10; //比赛房间列表
     optional bytes CertNoRole = 11; //不含角色的证书数据
-    repeated SHENJINGRoomInfo SHENJINGRoomItems = 12; //下发的房间服务器列表。 modify at 20120217  索蓝酒吧骰子用
+    repeated SHENJINGRoomInfo SHENJINGRoomItems = 12; //下发的房间服务器列表
 }
 
 // 获取短证书  modify at 20120109  获取短证书
@@ -937,7 +942,7 @@ message REQSHENJINGExit {
 }
 
 // 获取游戏版本信息
-// SHENJINGID_SVR_VERSION = 0x00003001;//索蓝游戏版本消息
+// SHENJINGID_SVR_VERSION = 0x00003001;//游戏版本消息
 message REQSHENJINGGameVersion {
     optional int32 CurVersion = 1; //当前版本号
     optional int32 GameId = 2; //游戏ID
@@ -954,8 +959,8 @@ message ACKSHENJINGGameVersion {
     optional int32 AckResult = 1; //登录结果  "-1"错误 不为-1表示为当前最新版本号
     optional string PlayEnable = 2; //不更新是否能继续游戏 "y"可以游戏 "n"不可以，必须更新
     optional string DownloadUrl = 3; //下载地址
-    optional string GameServerIp = 4; //索蓝游戏服务器地址
-    optional string GameServerPort = 5; //索蓝游戏服务器端口
+    optional string GameServerIp = 4; //游戏服务器地址
+    optional string GameServerPort = 5; //游戏服务器端口
     optional string GameRankEnable = 6; //是否从SHENJING服务器读取 游戏等级设置 "y"是 "n"不是
     optional string GameRankDef = 7; //游戏等级设置 格式：最小金币数/最大金币数/最少盘数/是否开放_最小金币数/最大金币数/最少盘数/是否开放；多个等级以"_"分隔；是否开放 “0”不开放 “1”开放
     optional string IfPreserve = 8; //当前是否停服维护 "y"停服维护中 "n"没有维护
@@ -1056,7 +1061,7 @@ message DDSHENJINGMatchInfo {
     optional string Description = 15; //比赛描述,包括奖金等内容
 }
 
-//索蓝服务器的房间基本信息 modify at 20120217  索蓝酒吧骰子用
+//服务器的房间基本信息 
 message SHENJINGRoomInfo {
     optional int32 GameID = 1; //游戏ID
     optional int32 GroupID = 2; //组ID 场ID 每个游戏内的组ID不能相同
@@ -1071,7 +1076,7 @@ message SHENJINGRoomInfo {
     repeated SHENJINGRoomInfo SHENJINGRoomItems = 11; //组下配置的场(或场下配置的组)
 }
 
-//索蓝服务器配置的jss服务器  modify at 20120321
+//服务器配置的jss服务器
 message SHENJINGJSSInfo {
     optional string RoomIP = 1; //服务器IP
     optional string RoomPort = 2; // 服务器端口
@@ -1161,6 +1166,20 @@ message Game_SendAddUser{
     optional string NickName    =3 ;//昵称
     optional int64  Coin    =  4;   //用户的经济
     optional int32  seat    =  5;   //用户的座位号
+}
+
+//显示大厅时请求
+message Game_Lobby{
+    optional int32  userId      =   1;  //用户id
+}
+
+//大厅回复
+message Game_AckLobby{
+    optional string notice          =   1;  //滚动公告的内容
+    optional int32  gameStatus      =   2;  //0：未游戏  1：正在朋友桌  2：正在锦标赛
+    optional int32  matchId         =   3;
+    optional int32  tableId         =   4;
+    optional string roomPassword    =   5;  //朋友桌房间密码
 }
 
 
@@ -1309,7 +1328,7 @@ message Game_EndLottery {
     optional bool owner     = 3;        //是否为房主
     optional string rolename = 4;    //玩家姓名
     optional uint32 userId  = 5;    //用户的Id
-
+    optional int32 seat  = 6;    //用户座位号
 }
 
 //几局完成之后的情况
