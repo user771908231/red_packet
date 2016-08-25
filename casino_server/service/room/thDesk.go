@@ -1750,10 +1750,12 @@ func (t *ThDesk) End() {
 			gel.BigWin = new(bool)
 			gel.Owner = new(bool)
 			gel.Rolename = new(string)
+			gel.Seat = new(int32)
 
 
 			//赋值
 			*gel.Coin = u.winAmount
+			*gel.Seat = u.Seat
 
 			if t.DeskOwner == u.UserId {
 				*gel.Owner = true
