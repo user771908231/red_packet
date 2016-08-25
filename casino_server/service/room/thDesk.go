@@ -301,7 +301,7 @@ func (t *ThDesk) Ready(userId uint32) error {
 	}
 
 
-
+	//3,准备成功
 	user.Status = TH_USER_STATUS_READY
 	t.AddReadyCount()
 	return nil

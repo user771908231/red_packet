@@ -85,8 +85,9 @@ func HandlerReady(m *bbproto.Game_Ready, a gate.Agent) error {
 	//1,找到userId
 	result := &bbproto.Game_AckReady{}
 	result.Result = new(int32)
-	userId := m.GetUserId()
+	result.Msg = new(string)
 
+	userId := m.GetUserId()
 	//2,通过userId 找到桌子
 	//desk := room.ThGameRoomIns.GetDeskByUserId(userId)
 	//
@@ -100,6 +101,7 @@ func HandlerReady(m *bbproto.Game_Ready, a gate.Agent) error {
 	err := desk.Ready(userId)
 	if err != nil {
 		*result.Result = Error.GetErrorCode(err)
+		*result.Msg = Error.GetErrorMsg(err)
 		a.WriteMsg(result)
 		return err
 	}
