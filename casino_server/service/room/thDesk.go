@@ -162,6 +162,7 @@ func NewThDesk() *ThDesk {
 	result.Status = TH_DESK_STATUS_STOP        //游戏还没有开始的状态
 	result.DeskType = intCons.GAME_TYPE_TH_CS                          //游戏桌子的类型
 	result.JuCount = 0
+	result.JuCountNow = 1		//默认从第一局开始
 	return result
 }
 
@@ -695,7 +696,6 @@ func (t *ThDesk) OninitThDeskBeginStatus() error {
 	t.edgeJackpot = 0
 	t.AllInJackpot = nil                          // 初始化allInJackpot 为空
 
-
 	log.T("初始化游戏之后,庄家[%v]", t.Dealer)
 	log.T("初始化游戏之后,小盲注[%v]", t.SmallBlind)
 	log.T("初始化游戏之后,大盲注[%v]", t.BigBlind)
@@ -963,11 +963,11 @@ func (t *ThDesk) Lottery() error {
 
 	//判断游戏是否结束
 	if t.isEnd() {
-		time.Sleep(ThdeskConfig.TH_LOTTERY_DURATION)        //开奖的延迟
-		go t.Run()
+		t.End()
 	} else {
 		//表示不能继续开始游戏
-		t.End()
+		time.Sleep(ThdeskConfig.TH_LOTTERY_DURATION)        //开奖的延迟
+		go t.Run()
 	}
 	return nil
 }
@@ -980,8 +980,11 @@ func (t *ThDesk) isEnd() bool {
 		//如果是自定义房间
 		//1,局数
 		//2,人数
-		if t.JuCountNow >= t.JuCount {
+		log.T("判断自定义的desk是否结束游戏t.jucount[%v],t.jucountnow[%v],",t.JuCount,t.JuCountNow)
+		if t.JuCountNow <= t.JuCount {
 			return false
+		}else{
+			return true
 		}
 	} else if t.DeskType == intCons.GAME_TYPE_TH_CS {
 		//判断锦标赛有没有结束,如果所有的desk都已经stop了,则表示游戏结束
@@ -990,9 +993,9 @@ func (t *ThDesk) isEnd() bool {
 		} else {
 			return false
 		}
+	}else{
+		return true
 	}
-
-	return true
 }
 
 

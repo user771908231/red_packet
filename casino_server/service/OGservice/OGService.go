@@ -87,7 +87,7 @@ func HandlerReady(m *bbproto.Game_Ready, a gate.Agent) error {
 	//
 	desk := room.GetDeskByAgent(a)
 	if desk == nil {
-		log.E("房间不存在")
+		log.E("用户id[%v]准备的时候,房间不存在",userId)
 		return errors.New("房间不存在")
 	}
 
@@ -108,7 +108,7 @@ func HandlerReady(m *bbproto.Game_Ready, a gate.Agent) error {
 
 	//如果全部的人都准备好了,那么可以开始游戏
 	//1.1,所有人都准备好了,并且不是第一局的时候,才能开始游戏, 第一句必须要房主点击开始,才能开始
-	if desk.JuCountNow > 0 && desk.IsAllReady() {
+	if desk.JuCountNow > 1 && desk.IsAllReady() {
 		desk.Run()
 	}
 	return nil
