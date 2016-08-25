@@ -300,7 +300,9 @@ func handlerFollowBet(args []interface{}) {
 	a := args[1].(gate.Agent)
 	seatId := m.GetSeat()
 	desk := room.GetDeskByAgent(a)
-	desk.DDBet(seatId, room.TH_DESK_BET_TYPE_CALL, 0)
+	if desk!=nil {
+		desk.DDBet(seatId, room.TH_DESK_BET_TYPE_CALL, 0)
+	}
 }
 
 // 处理加注
@@ -310,8 +312,9 @@ func handlerRaise(args []interface{}) {
 	seatId := m.GetSeat()
 	coin := m.GetCoin()
 	desk := room.GetDeskByAgent(a)
-
-	desk.DDBet(seatId, room.TH_DESK_BET_TYPE_RAISE, coin)
+	if desk!=nil {
+		desk.DDBet(seatId, room.TH_DESK_BET_TYPE_RAISE, coin)
+	}
 }
 
 // 处理弃牌
@@ -320,8 +323,9 @@ func handlerFoldBet(args []interface{}) {
 	a := args[1].(gate.Agent)
 	seatId := m.GetSeat()
 	desk := room.GetDeskByAgent(a)
-
-	desk.DDBet(seatId, room.TH_DESK_BET_TYPE_FOLD, 0)
+	if desk!=nil {
+		desk.DDBet(seatId, room.TH_DESK_BET_TYPE_FOLD, 0)
+	}
 }
 
 // 处理让牌
@@ -331,8 +335,9 @@ func handlerCheckBet(args []interface{}) {
 
 	seatId := m.GetSeat()
 	desk := room.GetDeskByAgent(a)
-
-	desk.DDBet(seatId, room.TH_DESK_BET_TYPE_CHECK, 0)
+	if desk!=nil {
+		desk.DDBet(seatId, room.TH_DESK_BET_TYPE_CHECK, 0)
+	}
 }
 
 //获得个人的战绩,并且按照时间排序

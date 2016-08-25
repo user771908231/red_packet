@@ -187,6 +187,8 @@ message game_TestResult {
     repeated game_WinCoin WinCoinInfo = 6;
     repeated int64 HandCoin = 7;
     repeated game_WinCoin CoinInfo = 8;
+    optional int32 rank     = 9;        //查看自己的排名
+
 }
 
 message game_LeaveMatch {

@@ -179,7 +179,7 @@ func (r *ThGameRoom) DissolveDeskByDeskOwner(userId uint32, a gate.Agent) error 
 	}
 
 	//3,解散
-	r.RmThroom(desk)
+	RmThdesk(desk)
 
 	//4,发送解散的广播
 	*result.Result = intCons.ACK_RESULT_SUCC
@@ -330,6 +330,7 @@ func GetDeskByAgent(a gate.Agent) *ThDesk {
 
 //删除房间
 func RmThdesk(desk *ThDesk) error {
+	log.T("开始解散房间id[%v],desk[%v]",desk.Id,desk)
 	if desk.DeskType == intCons.GAME_TYPE_TH_CS {
 		//锦标赛
 		ChampionshipRoom.RmThroom(desk)

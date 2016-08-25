@@ -293,7 +293,7 @@ func (t *ThDesk) Ready(userId uint32) error {
 
 	//1,如果是在游戏的过程中,则准备失败
 	if t.Status == TH_DESK_STATUS_RUN {
-		log.E("desk[%v]已经在游戏中了,user[%v]不能准备",t.Id,userId)
+		log.E("desk[%v]已经在游戏中了,user[%v]不能准备", t.Id, userId)
 		return Error.NewError(int32(bbproto.DDErrorCode_ERRORCODE_GAME_READY_REPEAT), "已经在游戏中,不能准备")
 	}
 
@@ -334,7 +334,7 @@ func (t *ThDesk) LeaveThuser(userId uint32) error {
 	//离线的时候,桌子统一的处理
 	user := t.GetUserByUserId(userId)
 	user.IsLeave = true     //设置状态为离开
-	t.SubUserCountOnline()	//房间的在线人数减一
+	t.SubUserCountOnline()        //房间的在线人数减一
 
 	//根据不同的游戏类型做不同的处理
 	if t.DeskType == intCons.GAME_TYPE_TH {
@@ -543,6 +543,25 @@ func (t *ThDesk) THBroadcastProto(p proto.Message, ignoreUserId uint32) error {
 	return nil
 }
 
+
+
+
+//给全部人发送广播
+func (t *ThDesk) THBroadcastTestResult(p *bbproto.Game_TestResult) error {
+	//发送的时候,初始化自己的排名
+	for i := 0; i < len(t.Users); i++ {
+		u := t.Users[i]                //给这个玩家发送广播信息
+		if u != nil && u.IsLeave != true {
+
+
+
+			a := t.Users[i].agent
+			a.WriteMsg(p)
+		}
+	}
+	return nil
+}
+
 //给全部人发送广播
 func (t *ThDesk) THBroadcastProtoAll(p proto.Message) error {
 	return t.THBroadcastProto(p, 0)
@@ -554,7 +573,6 @@ func (t *ThDesk) THBroadcastProtoAll(p proto.Message) error {
  */
 func (t *ThDesk) GetResUserModel() []*bbproto.THUser {
 	result := make([]*bbproto.THUser, ThdeskConfig.TH_DESK_MAX_START_USER)
-
 	//就坐的人
 	for i := 0; i < len(t.Users); i++ {
 		if t.Users[i] != nil {
@@ -983,6 +1001,7 @@ func (t *ThDesk) broadLotteryResult() error {
 
 	//1.发送输赢结果
 	result := &bbproto.Game_TestResult{}
+
 	result.Tableid = &t.Id                           //桌子
 	result.BCanShowCard = t.GetBshowCard()           //
 	result.BShowCard = t.GetBshowCard()              //亮牌
@@ -990,7 +1009,7 @@ func (t *ThDesk) broadLotteryResult() error {
 	result.WinCoinInfo = t.getWinCoinInfo()
 	result.HandCoin = t.GetHandCoin()
 	result.CoinInfo = t.getCoinInfo()                //每个人的输赢情况
-	t.THBroadcastProtoAll(result)
+	t.THBroadcastTestResult(result)
 
 	//2.发送每个人在锦标赛中目前的排名
 	for i := 0; i < len(t.Users); i++ {
