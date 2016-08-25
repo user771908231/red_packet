@@ -219,6 +219,7 @@ func (t *ThDesk) IsrepeatIntoWithRoomKey(userId uint32, a gate.Agent) bool {
 			log.T("用户[%v]断线重连", userId)
 			u.agent = a                                                //设置用户的连接
 			u.IsBreak = false                //设置用户的离线状态
+			u.IsLeave = false
 			u.UpdateAgentUserData(a, t.Id, t.MatchId)
 			u.Update2redis()                //更新用户数据到redis
 			t.AddUserCountOnline()
@@ -285,12 +286,21 @@ func (t *ThDesk) addThuserBean(user *ThUser) error {
 	return nil
 }
 
-//用户准备
+//用户准备的时候需要判断
 func (t *ThDesk) Ready(userId uint32) error {
 	user := t.GetUserByUserId(userId)
+
+	//1,如果用户已经准备,则返回重复准备
 	if user.Status == TH_USER_STATUS_READY {
 		return Error.NewError(int32(bbproto.DDErrorCode_ERRORCODE_GAME_READY_REPEAT), "已经准备了")
 	}
+
+	//2,如果用户余额不足,则准备失败
+	if !t.IsUserCoinEnough(user) {
+		return Error.NewError(int32(bbproto.DDErrorCode_ERRORCODE_GAME_READY_CHIP_NOT_ENOUGH),"筹码不足")
+	}
+
+
 
 	user.Status = TH_USER_STATUS_READY
 	t.AddReadyCount()
@@ -316,7 +326,7 @@ func (t *ThDesk) LeaveThuser(userId uint32) error {
 	user := t.GetUserByUserId(userId)
 	user.IsLeave = true     //设置状态为离开
 	t.SubUserCountOnline()
-	t.SubUserCount()
+	//t.SubUserCount()
 
 	//需要广播一次sendGameInfo
 	t.OGTHBroadAddUser()

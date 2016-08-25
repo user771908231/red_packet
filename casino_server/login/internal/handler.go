@@ -68,7 +68,7 @@ func HandlerREQQuickConn(args []interface{}) {
 	}
 
 	//处理客户端版本升级
-	LatestClientVersion := 1 //当前已发布客户端版本, TODO:放到配置文件中
+	LatestClientVersion := int32(1) //当前已发布客户端版本, TODO:放到配置文件中
 	result.ForceUpdate = new(int32)
 	*result.ForceUpdate = 0
 	if m.GetCurVersion() < LatestClientVersion {
@@ -164,7 +164,9 @@ func newACKQuickConn() * bbproto.ACKQuickConn{
 	//返回客户端服务器IP
 	serverInfo := &bbproto.ServerInfo{}
 	serverInfo.Ip = &ip
-	serverInfo.Port = &port
+
+	portStr := numUtils.String2Int32(port)
+	serverInfo.Port = &portStr
 	svrlist := make([]*bbproto.ServerInfo, 1)
 	svrlist[0] = serverInfo
 	result.ServerList = svrlist
