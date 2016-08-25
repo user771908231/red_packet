@@ -252,7 +252,7 @@ func (t *ThDesk) AddThUser(userId uint32, userStatus int32, a gate.Agent) (*ThUs
 	err := t.addThuserBean(thUser)
 	if err != nil {
 		log.E("增加user【%v】到desk【%v】失败", thUser.UserId, t.Id)
-		return nil,errors.New("增加user失败")
+		return nil, errors.New("增加user失败")
 	}
 
 	//4, 把用户的信息绑定到agent上
@@ -265,7 +265,7 @@ func (t *ThDesk) AddThUser(userId uint32, userStatus int32, a gate.Agent) (*ThUs
 	if userStatus == TH_USER_STATUS_READY {
 		t.AddReadyCount()
 	}
-	return thUser,nil
+	return thUser, nil
 }
 
 
@@ -366,7 +366,7 @@ func (t *ThDesk) OinitPreCoin() error {
 	for i := 0; i < len(t.Users); i++ {
 		u := t.Users[i]
 		if u != nil && u.IsBetting() {
-			t.caclUserCoin(u.UserId, t.PreCoin)
+			t.calcBetCoin(u.UserId, t.PreCoin)
 		}
 	}
 
@@ -390,12 +390,10 @@ func (t *ThDesk) OinitPreCoin() error {
 func (t *ThDesk) InitBlindBet() error {
 	log.T("开始一局新的游戏,现在开始初始化盲注的信息")
 	//小盲注押注
-	t.AddBetCoin(t.SmallBlindCoin)
-	t.caclUserCoin(t.SmallBlind, t.SmallBlindCoin)
+	t.calcBetCoin(t.SmallBlind, t.SmallBlindCoin)
 
 	//大盲注押注
-	t.AddBetCoin(t.BigBlindCoin)
-	t.caclUserCoin(t.BigBlind, t.BigBlindCoin)
+	t.calcBetCoin(t.BigBlind, t.BigBlindCoin)
 
 	//发送盲注的信息
 	log.T("开始广播盲注的信息")
@@ -446,7 +444,7 @@ func (t *ThDesk) InitUserBeginStatus() error {
 
 		//如果用户的余额不足或者用户的状态是属于断线的状态,则设置用户为等待入座
 		//if u.RoomCoin <= (t.BigBlindCoin + t.PreCoin) || u.IsBreak == true {
-		if u.RoomCoin <= (t.BigBlindCoin + t.PreCoin){
+		if u.RoomCoin <= (t.BigBlindCoin + t.PreCoin) {
 			log.T("由于用户[%v] status[%v],的roomCoin[%v] <= desk.BigBlindCoin 所以设置用户为TH_USER_STATUS_WAITSEAT", u.UserId, u.IsBreak, u.RoomCoin, t.BigBlindCoin)
 			u.Status = TH_USER_STATUS_WAITSEAT        //只是坐下,没有游戏中
 			continue
@@ -1209,16 +1207,8 @@ func (t *ThDesk) BetUserCall(user  *ThUser) error {
 		t.BetUserAllIn(user.UserId, user.RoomCoin)
 	} else {
 		//1,增加奖池的金额
-		t.AddBetCoin(followCoin)
-		//2,增加用户本轮投注的金额
-		t.caclUserCoin(user.UserId, followCoin)
+		t.calcBetCoin(user.UserId, followCoin)
 	}
-	return nil
-}
-
-func (t *ThDesk) AddBetCoin(coin int64) error {
-	t.Jackpot += coin                        //底池 增加
-	t.edgeJackpot += coin                        //边池 增加
 	return nil
 }
 
@@ -1279,9 +1269,8 @@ func (t *ThDesk) BetUserRaise(user *ThUser, coin int64) error {
 		//普通加注的情况
 		t.BetAmountNow = user.HandCoin + coin
 		//1,增加奖池的金额
-		t.AddBetCoin(coin)                                //desk-coin
 		//2,减少用户的金额
-		t.caclUserCoin(user.UserId, coin)                        //thuser
+		t.calcBetCoin(user.UserId, coin)                        //thuser
 		//3,设置状态:设置为第一个加注的人,如果后边所有人都是跟注,可由这个人判断一轮是否结束
 		t.RaiseUserId = user.UserId
 	}
@@ -1292,11 +1281,8 @@ func (t *ThDesk) BetUserRaise(user *ThUser, coin int64) error {
 //用户AllIn
 func (t *ThDesk) BetUserAllIn(userId uint32, coin int64) error {
 	log.T("用户[%v]开始allin[%v]", userId, coin)
-	//1,增加奖池的金额
-	t.AddBetCoin(coin)
-
 	//2,减少用户的金额
-	t.caclUserCoin(userId, coin)
+	t.calcBetCoin(userId, coin)
 
 	//3,设置用户的状态
 	t.GetUserByUserId(userId).Status = TH_USER_STATUS_ALLINING        //设置用户的状态为all-in
@@ -1338,7 +1324,7 @@ func (t *ThDesk) GetUserByUserId(userId uint32) *ThUser {
 }
 
 // 用户加注,跟住,allin 之后对他的各种余额属性进行计算
-func (t *ThDesk) caclUserCoin(userId uint32, coin int64) error {
+func (t *ThDesk) calcBetCoin(userId uint32, coin int64) error {
 	user := t.GetUserByUserId(userId)
 
 	user.AddTurnCoin(coin)
@@ -1347,7 +1333,8 @@ func (t *ThDesk) caclUserCoin(userId uint32, coin int64) error {
 	user.AddTotalBet(coin)
 	user.AddRoomCoin(-coin)
 	user.Update2redis()                //用户信息更新之后,保存到数据库
-
+	t.AddJackpot(coin)                   //底池 增加
+	t.AddedgeJackpot(coin)
 	return nil
 }
 
@@ -1830,4 +1817,12 @@ func (t *ThDesk) AddUserCount() {
 
 func (t *ThDesk) SubUserCount() {
 	atomic.AddInt32(&t.UserCount, -1)
+}
+
+func (t *ThDesk) AddJackpot(coin int64) {
+	atomic.AddInt64(&t.Jackpot, coin)
+}
+
+func (t *ThDesk) AddedgeJackpot(coin int64) {
+	atomic.AddInt64(&t.edgeJackpot, coin)
 }
