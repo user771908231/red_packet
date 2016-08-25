@@ -11,6 +11,7 @@ import (
 	"casino_server/common/log"
 	"errors"
 	"sync/atomic"
+	"github.com/golang/protobuf/proto"
 )
 
 
@@ -243,6 +244,19 @@ func (t *ThUser) IsClose() bool{
 func (t *ThUser) GetCsRank() int64 {
 	//todo 获取名词之前,需要判断用户正在玩的游戏的类型
 	return GetCSTHuserRank(t.MatchId,t.UserId)
+}
+
+
+func (t *ThUser) WriteMsg(p proto.Message) error{
+	agent := t.agent
+	if agent!=nil {
+		agent.WriteMsg(p)
+		return  nil
+	}else{
+		log.T("用户[%v]的agent为nil,不能发送信息",t.UserId)
+		return errors.New("用户的agent为nil,不能发送信息")
+	}
+
 }
 
 //通过agent得到session

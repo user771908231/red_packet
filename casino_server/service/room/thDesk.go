@@ -294,8 +294,7 @@ func (t *ThDesk) Ready(userId uint32) error {
 	//1,如果是在游戏的过程中,则准备失败
 	if t.Status == TH_DESK_STATUS_RUN {
 		log.E("desk[%v]已经在游戏中了,user[%v]不能准备",t.Id,userId)
-		return Error.NewError(int32(bbprot
-		o.DDErrorCode_ERRORCODE_GAME_READY_REPEAT), "已经在游戏中,不能准备")
+		return Error.NewError(int32(bbproto.DDErrorCode_ERRORCODE_GAME_READY_REPEAT), "已经在游戏中,不能准备")
 	}
 
 	//1,如果用户已经准备,则返回重复准备
@@ -335,7 +334,7 @@ func (t *ThDesk) LeaveThuser(userId uint32) error {
 	//离线的时候,桌子统一的处理
 	user := t.GetUserByUserId(userId)
 	user.IsLeave = true     //设置状态为离开
-	t.SubUserCountOnline()
+	t.SubUserCountOnline()	//房间的在线人数减一
 
 	//根据不同的游戏类型做不同的处理
 	if t.DeskType == intCons.GAME_TYPE_TH {
@@ -349,8 +348,16 @@ func (t *ThDesk) LeaveThuser(userId uint32) error {
 		ChampionshipRoom.SubOnlineCount()        //竞标赛的在线人数-1
 	}
 
+
+
+	//给离开的人发送信息
+	ret := &bbproto.Game_ACKLeaveDesk{}
+	ret.Result = &intCons.ACK_RESULT_SUCC
+	user.WriteMsg(ret)
+
+
 	//离开之后,需要广播一次sendGameInfo
-	t.OGTHBroadAddUser()
+	t.OGTHBroadGameInfo(userId)
 	return nil
 }
 

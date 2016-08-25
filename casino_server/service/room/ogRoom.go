@@ -380,8 +380,24 @@ func (t *ThDesk) GetSecondPool() []int64 {
 	return ret
 }
 
+
+//
+func (t *ThDesk) OGTHBroadGameInfo(ignoreUserId uint32) {
+	msg := t.initGameSendgameInfoByDesk()
+	for i := 0; i < len(t.Users); i++ {
+		if t.Users[i] != nil && t.Users[i].UserId != ignoreUserId{
+			//给用户发送广播的时候需要判断自己的座位号是多少
+			a := t.Users[i].agent
+			*msg.Seat = t.Users[i].Seat
+			msg.Handcard = t.GetMyHandCard(t.Users[i].UserId)
+			a.WriteMsg(msg)
+		}
+	}
+}
+
+
 //发送新增用户的广播
-func (t *ThDesk) OGTHBroadAddUser() {
+func (t *ThDesk) OGTHBroadGameInfoAll() {
 	msg := t.initGameSendgameInfoByDesk()
 	for i := 0; i < len(t.Users); i++ {
 		if t.Users[i] != nil {

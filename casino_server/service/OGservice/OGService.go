@@ -224,7 +224,7 @@ func HandlerGameEnterMatch(m *bbproto.Game_EnterMatch, a gate.Agent) error {
 		return err
 	}
 
-	mydesk.OGTHBroadAddUser()
+	mydesk.OGTHBroadGameInfoAll()
 
 
 	//5,如果是朋友桌的话,需要房主点击开始才能开始...,如果是锦标赛,则自动开始游戏
