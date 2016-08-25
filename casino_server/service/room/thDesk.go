@@ -316,7 +316,7 @@ func (t *ThDesk) LeaveThuser(userId uint32) error {
 	user := t.GetUserByUserId(userId)
 	user.IsLeave = true     //设置状态为离开
 	t.SubUserCountOnline()
-	t.SubUserCount()
+	//t.SubUserCount()
 
 	//需要广播一次sendGameInfo
 	t.OGTHBroadAddUser()

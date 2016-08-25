@@ -249,6 +249,8 @@ It has these top-level messages:
 	Game_MatchItem
 	Game_MatchList
 	Game_TounamentPlayerRank
+	Game_Rebuy
+	Game_AckRebuy
 	ProtoHeader
 	TerminalInfo
 	User
