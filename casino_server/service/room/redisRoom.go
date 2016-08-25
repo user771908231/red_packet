@@ -18,7 +18,7 @@ func getRedisThUserKey(deskId int32, gameNumber int32, userId uint32) string {
 	userIdStr, _ := numUtils.Uint2String(userId)
 
 	result := strings.Join([]string{REDIS_TH_USER_KEY_PRE, deskIdStr, gameNumberStr, userIdStr}, "_")
-	log.T("通过deskId[%v],gameNumber[%v],userId[%v]得到的redis_key是[%v]", deskId, gameNumber, userId, result)
+	//log.T("通过deskId[%v],gameNumber[%v],userId[%v]得到的redis_key是[%v]", deskId, gameNumber, userId, result)
 	return result
 }
 
@@ -104,11 +104,11 @@ func UpdateRedisThuser(u *ThUser) error {
 		return errors.New("没有找到用户")
 	}
 
-	log.T("UpdateRedisThuser--thsuer[%v]", u)
-	log.T("UpdateRedisThuser--rhsuer[%v]", user)
-	log.T("UpdateRedisThuser--*user[%v]", *user)
-	log.T("UpdateRedisThuser--*user.RoomCoin", *user.RoomCoin)
-	log.T("UpdateRedisThuser--u.RoomCoin", u.RoomCoin)
+	//log.T("UpdateRedisThuser--thsuer[%v]", u)
+	//log.T("UpdateRedisThuser--rhsuer[%v]", user)
+	//log.T("UpdateRedisThuser--*user[%v]", *user)
+	//log.T("UpdateRedisThuser--*user.RoomCoin", *user.RoomCoin)
+	//log.T("UpdateRedisThuser--u.RoomCoin", u.RoomCoin)
 
 	//2,增加金额
 	*user.RoomCoin = u.RoomCoin

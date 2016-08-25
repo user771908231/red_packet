@@ -546,7 +546,7 @@ func deskStatus2OG(desk *ThDesk) int32 {
 	if status == TH_DESK_STATUS_STOP {
 		//没有开始
 		result = GAME_STATUS_READY
-	} else if status == TH_DESK_STATUS_SART {
+	} else if status == TH_DESK_STATUS_RUN {
 		switch round {
 		case TH_DESK_ROUND1:
 			result = GAME_STATUS_FIRST_TURN
@@ -624,7 +624,6 @@ func (mydesk *ThDesk ) GetMyHandCard(userId uint32) []*bbproto.Game_CardInfo {
 	for i := 0; i < len(mydesk.Users); i++ {
 		u := mydesk.Users[i]
 		if u != nil {
-			log.T("开始给玩家[%v]解析手牌", u.UserId)
 			result := make([]*bbproto.Game_CardInfo, 0)
 			//用户手牌
 			if len(u.HandCards) == 2 && u.UserId == userId {

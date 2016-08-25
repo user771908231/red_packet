@@ -1092,7 +1092,7 @@ message DDBulletinInfo {
 
 //服务器信息
 message ServerInfo {
-    optional string Ip = 1; 
+    optional string Ip = 1;
     optional int32  Port = 2;
     optional int32  Status = 3; //0开启 1关闭
     optional int32  Type = 4;
@@ -1392,7 +1392,7 @@ message Game_MatchList {
     repeated Game_MatchItem items   = 2;
 }
 
- 
+
 //锦标赛牌局结束：弹窗显示我的名次
 message Game_TounamentPlayerRank{
   optional int32 playerRank     = 1;   //我的排名名次

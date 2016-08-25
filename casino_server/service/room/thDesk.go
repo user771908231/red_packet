@@ -38,7 +38,7 @@ var (
 //德州扑克,牌桌的状态
 var TH_DESK_STATUS_STOP int32 = 1                //没有开始的状态
 var TH_DESK_STATUS_READY int32 = 2                 //游戏处于准备的状态
-var TH_DESK_STATUS_SART int32 = 3                //已经开始的状态
+var TH_DESK_STATUS_RUN int32 = 3                //已经开始的状态
 var TH_DESK_STATUS_LOTTERY int32 = 4             //已经开始的状态
 
 var TH_DESK_ROUND1 int32 = 1                //第一轮押注
@@ -290,6 +290,13 @@ func (t *ThDesk) addThuserBean(user *ThUser) error {
 //用户准备的时候需要判断
 func (t *ThDesk) Ready(userId uint32) error {
 	user := t.GetUserByUserId(userId)
+
+	//1,如果是在游戏的过程中,则准备失败
+	if t.Status == TH_DESK_STATUS_RUN {
+		log.E("desk[%v]已经在游戏中了,user[%v]不能准备",t.Id,userId)
+		return Error.NewError(int32(bbprot
+		o.DDErrorCode_ERRORCODE_GAME_READY_REPEAT), "已经在游戏中,不能准备")
+	}
 
 	//1,如果用户已经准备,则返回重复准备
 	if user.Status == TH_USER_STATUS_READY {
@@ -596,7 +603,7 @@ func (t *ThDesk) GetResUserModelClieSeq(userId uint32) []*bbproto.THUser {
 func (t *ThDesk) OninitThDeskBeginStatus() error {
 	log.T("开始一局游戏,现在初始化desk的信息")
 	//设置德州desk状态//设置状态为开始游戏
-	t.Status = TH_DESK_STATUS_SART
+	t.Status = TH_DESK_STATUS_RUN
 
 	userTemp := make([]*ThUser, len(t.Users))
 	copy(userTemp, t.Users)
@@ -1452,7 +1459,7 @@ func (t *ThDesk) nextRoundInfo() {
 func (t *ThDesk) isNewRound() bool {
 	//
 	log.T("判断是否是新的一轮t.BetUserRaiseUserId[%v],t.BetUserNow(%v),t.status[%v].//status:1,stop,2,start,3,lottery", t.RaiseUserId, t.BetUserNow, t.Status)
-	if t.RaiseUserId == t.BetUserNow &&  t.Status == TH_DESK_STATUS_SART {
+	if t.RaiseUserId == t.BetUserNow &&  t.Status == TH_DESK_STATUS_RUN {
 		log.T("t.BetUserRaiseUserId[%v] == t.BetUserNow[%v],新的一局开始", t.RaiseUserId, t.BetUserNow)
 		return true
 	} else {
