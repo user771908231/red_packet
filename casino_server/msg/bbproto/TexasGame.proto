@@ -1309,7 +1309,6 @@ message Game_EndLottery {
     optional bool owner     = 3;        //是否为房主
     optional string rolename = 4;    //玩家姓名
     optional uint32 userId  = 5;    //用户的Id
-
 }
 
 //几局完成之后的情况

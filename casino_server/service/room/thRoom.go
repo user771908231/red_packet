@@ -38,6 +38,7 @@ type ThGameRoom struct {
 
 //初始化游戏房间
 func (r *ThGameRoom) OnInit() {
+	log.T("初始化thgameroom.oninit()")
 	r.ThRoomSeatMax = ThdeskConfig.TH_DESK_MAX_START_USER
 	r.Id = 0
 	r.SmallBlindCoin = ThdeskConfig.TH_GAME_SMALL_BLIND;
@@ -80,7 +81,7 @@ func (r *ThGameRoom) CalcCreateFee(jucount int32) int64 {
 }
 
 //创建一个房间
-func (r *ThGameRoom) CreateDeskByUserIdAndRoomKey(userId uint32, roomCoin int64, roomkey string,preCoin int64, smallBlind int64, bigBlind int64, jucount int32) (*ThDesk, error) {
+func (r *ThGameRoom) CreateDeskByUserIdAndRoomKey(userId uint32, roomCoin int64, roomkey string, preCoin int64, smallBlind int64, bigBlind int64, jucount int32) (*ThDesk, error) {
 
 	//1,创建房间成功之后,扣除user的钻石
 	upDianmond := r.CalcCreateFee(jucount)
@@ -243,7 +244,7 @@ func (r *ThGameRoom) AddUserWithRoomKey(userId uint32, roomKey string, a gate.Ag
 	//2,如果roomKey 不是为""
 	mydesk := r.GetDeskByRoomKey(roomKey)
 	if mydesk == nil {
-		return nil, Error.NewError(int32(bbproto.DDErrorCode_ERRORCODE_INTO_DESK_NOTFOUND),"没有找到对应的房间")
+		return nil, Error.NewError(int32(bbproto.DDErrorCode_ERRORCODE_INTO_DESK_NOTFOUND), "没有找到对应的房间")
 	}
 
 	//3,判断用户是否是掉线重连
@@ -253,7 +254,7 @@ func (r *ThGameRoom) AddUserWithRoomKey(userId uint32, roomKey string, a gate.Ag
 	}
 
 	//4,进入房间
-	err := mydesk.AddThUser(userId, TH_USER_STATUS_SEATED, a)
+	_,err := mydesk.AddThUser(userId, TH_USER_STATUS_SEATED, a)
 	if err != nil {
 		log.E("用户上德州扑克的桌子 失败...")
 		return nil, err
@@ -328,11 +329,11 @@ func GetDeskByAgent(a gate.Agent) *ThDesk {
 }
 
 //删除房间
-func RmThdesk(desk *ThDesk) error{
-	if desk.DeskType == intCons.GAME_TYPE_TH_CS  {
+func RmThdesk(desk *ThDesk) error {
+	if desk.DeskType == intCons.GAME_TYPE_TH_CS {
 		//锦标赛
 		ChampionshipRoom.RmThroom(desk)
-	}else if desk.DeskType == intCons.GAME_TYPE_TH {
+	} else if desk.DeskType == intCons.GAME_TYPE_TH {
 		ThGameRoomIns.RmThroom(desk)
 	}
 	return nil

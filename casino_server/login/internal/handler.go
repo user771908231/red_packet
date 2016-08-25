@@ -68,12 +68,12 @@ func HandlerREQQuickConn(args []interface{}) {
 	}
 
 	//处理客户端版本升级
-	LatestClientVersion := int32(1) //当前已发布客户端版本, TODO:放到配置文件中
+	LatestClientVersion := int32(0) //当前已发布客户端版本, TODO:放到配置文件中
 	result.ForceUpdate = new(int32)
 	*result.ForceUpdate = 0
 	if m.GetCurVersion() < LatestClientVersion {
 		log.T("客户端需要升级, 版本为:%v", m.GetCurVersion() )
-		*result.ForceUpdate = 1 //1=强制升级 0=可选升级
+		*result.ForceUpdate = 0 //1=强制升级 0=可选升级
 		result.DownloadUrl = new(string)
 		*result.DownloadUrl = "http://d.tondeen.com/sjtexas.html" //TODO:放入配置文件中
 	}
@@ -83,7 +83,7 @@ func HandlerREQQuickConn(args []interface{}) {
 	//服务器停服维护公告
 	result.IsMaintain = new(int32)
 	result.MaintainMsg = new(string)
-	*result.IsMaintain = 1 //TODO:从配置中读取停服维护公告
+	*result.IsMaintain = 0 //TODO:从配置中读取停服维护公告
 	if *result.IsMaintain == 1 {
 		*result.MaintainMsg = "服务器正在例行维护中，请于今日5:00后再登录游戏!"
 	}

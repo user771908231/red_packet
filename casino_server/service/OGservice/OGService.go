@@ -52,13 +52,6 @@ func HandlerLeaveDesk(m *bbproto.Game_LeaveDesk, a gate.Agent) {
 	}
 
 	desk.LeaveThuser(m.GetUserId())
-
-	//如果是竞标赛,在线人数-1
-	room := room.GetCSTHroom(1)
-	if room != nil {
-		room.SubOnlineCount()
-	}
-
 }
 
 ///用户发送消息

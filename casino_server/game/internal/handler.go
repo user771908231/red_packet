@@ -228,7 +228,7 @@ func handlerCreateDesk(args []interface{}) {
 	result.UserBalance = new(int64)
 
 	//开始创建房间
-	desk, err := OGservice.HandlerCreateDesk(m.GetUserId(), m.GetInitCoin(),m.GetPreCoin(), m.GetSmallBlind(), m.GetBigBlind(),m.GetInitCount())
+	desk, err := OGservice.HandlerCreateDesk(m.GetUserId(), m.GetInitCoin(), m.GetPreCoin(), m.GetSmallBlind(), m.GetBigBlind(), m.GetInitCount())
 	if err != nil {
 		log.E("创建房间失败 errmsg [%v]", err)
 		*result.Result = int32(bbproto.DDErrorCode_ERRORCODE_CREATE_DESK_DIAMOND_NOTENOUGH)
@@ -237,7 +237,7 @@ func handlerCreateDesk(args []interface{}) {
 		*result.DeskId = desk.Id
 		*result.Password = desk.RoomKey
 		*result.CreateFee = desk.CreateFee
-		*result.UserBalance = userService.GetUserById(desk.DeskOwner).GetDiamond()		//得到用户的余额
+		*result.UserBalance = userService.GetUserById(desk.DeskOwner).GetDiamond()                //得到用户的余额
 	}
 
 	//返回信息
@@ -402,7 +402,7 @@ func handlerGame_TounamentSummary(args []interface{}) {
 	m := args[0].(*bbproto.Game_TounamentSummary)
 	a := args[1].(gate.Agent)
 
-	log.T("用户请求handlerGame_TounamentSummarym[%v]",m)
+	log.T("用户请求handlerGame_TounamentSummarym[%v]", m)
 
 	m.Coin = new(string)
 	m.Fee = new(string)

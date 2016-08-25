@@ -265,6 +265,7 @@ It has these top-level messages:
 	ThServerUserSession
 	ThServerAllInJackpot
 	ThServerDesk
+	CsThRankInfo
 	Shuiguoji
 	ShuiguojiHilomp
 	ShuiguojiRes

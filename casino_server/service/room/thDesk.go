@@ -26,7 +26,7 @@ import (
 //联众德州,桌子状态
 var (
 	GAME_STATUS_READY int32 = 0        //准备
-	GAME_STATUS_DEAL_CARDS int32 = 1        //发牌
+	GAME_STATUS_DEAL_CARDS int32 = 1   //发牌
 	GAME_STATUS_PRECHIP int32 = 2        //盲注
 	GAME_STATUS_FIRST_TURN int32 = 3        //第一轮
 	GAME_STATUS_SECOND_TURN int32 = 4        //第二轮
@@ -37,8 +37,9 @@ var (
 
 //德州扑克,牌桌的状态
 var TH_DESK_STATUS_STOP int32 = 1                //没有开始的状态
-var TH_DESK_STATUS_SART int32 = 2                //已经开始的状态
-var TH_DESK_STATUS_LOTTERY int32 = 3                //已经开始的状态
+var TH_DESK_STATUS_READY int32 = 2                 //游戏处于准备的状态
+var TH_DESK_STATUS_SART int32 = 3                //已经开始的状态
+var TH_DESK_STATUS_LOTTERY int32 = 4             //已经开始的状态
 
 var TH_DESK_ROUND1 int32 = 1                //第一轮押注
 var TH_DESK_ROUND2 int32 = 2                //第二轮押注
@@ -232,7 +233,7 @@ func (t *ThDesk) IsrepeatIntoWithRoomKey(userId uint32, a gate.Agent) bool {
 /**
 	为桌子增加一个人
  */
-func (t *ThDesk) AddThUser(userId uint32, userStatus int32, a gate.Agent) error {
+func (t *ThDesk) AddThUser(userId uint32, userStatus int32, a gate.Agent) (*ThUser, error) {
 	//1,从redis得到redisUser
 	redisUser := userService.GetUserById(userId)
 	//2,通过userId 和agent 够做一个thuser
@@ -297,7 +298,7 @@ func (t *ThDesk) Ready(userId uint32) error {
 
 	//2,如果用户余额不足,则准备失败
 	if !t.IsUserCoinEnough(user) {
-		return Error.NewError(int32(bbproto.DDErrorCode_ERRORCODE_GAME_READY_CHIP_NOT_ENOUGH),"筹码不足")
+		return Error.NewError(int32(bbproto.DDErrorCode_ERRORCODE_GAME_READY_CHIP_NOT_ENOUGH), "筹码不足")
 	}
 
 
@@ -321,14 +322,27 @@ func (t *ThDesk) IsAllReady() bool {
 	return true
 }
 
-//  用户退出德州游戏的房间,rmUser 需要在事物中进行
+//  用户退出德州游戏的房间,rmUser 需要在事物中进行,离开德州需要更具桌子的类型来做不同的处理
 func (t *ThDesk) LeaveThuser(userId uint32) error {
+
+	//离线的时候,桌子统一的处理
 	user := t.GetUserByUserId(userId)
 	user.IsLeave = true     //设置状态为离开
 	t.SubUserCountOnline()
-	//t.SubUserCount()
 
-	//需要广播一次sendGameInfo
+	//根据不同的游戏类型做不同的处理
+	if t.DeskType == intCons.GAME_TYPE_TH {
+		//自定义房间
+
+	} else if t.DeskType == intCons.GAME_TYPE_TH_CS {
+		//用户直接放弃游戏,设置roomCoin=0,并且更新rankxin
+		user.AddRoomCoin(user.RoomCoin)
+		ChampionshipRoom.UpdateUserRankInfo(user.UserId, user.MatchId, user.RoomCoin)
+		//竞标赛的房间
+		ChampionshipRoom.SubOnlineCount()        //竞标赛的在线人数-1
+	}
+
+	//离开之后,需要广播一次sendGameInfo
 	t.OGTHBroadAddUser()
 	return nil
 }
@@ -431,7 +445,8 @@ func (t *ThDesk) InitUserBeginStatus() error {
 		u.winAmountDetail = nil
 
 		//如果用户的余额不足或者用户的状态是属于断线的状态,则设置用户为等待入座
-		if u.RoomCoin <= (t.BigBlindCoin + t.PreCoin) || u.IsBreak == true {
+		//if u.RoomCoin <= (t.BigBlindCoin + t.PreCoin) || u.IsBreak == true {
+		if u.RoomCoin <= (t.BigBlindCoin + t.PreCoin){
 			log.T("由于用户[%v] status[%v],的roomCoin[%v] <= desk.BigBlindCoin 所以设置用户为TH_USER_STATUS_WAITSEAT", u.UserId, u.IsBreak, u.RoomCoin, t.BigBlindCoin)
 			u.Status = TH_USER_STATUS_WAITSEAT        //只是坐下,没有游戏中
 			continue
@@ -916,8 +931,8 @@ func (t *ThDesk) Lottery() error {
 	//开奖之后,设置状态为 没有开始游戏
 	t.afterLottery()
 
-	//判断是否可以继续啊下次游戏
-	if t.canNextRun() {
+	//判断游戏是否结束
+	if t.isEnd() {
 		time.Sleep(ThdeskConfig.TH_LOTTERY_DURATION)        //开奖的延迟
 		go t.Run()
 	} else {
@@ -930,8 +945,7 @@ func (t *ThDesk) Lottery() error {
 
 
 //判断开奖之后是否可以继续游戏
-func (t *ThDesk) canNextRun() bool {
-
+func (t *ThDesk) isEnd() bool {
 	if t.DeskType == intCons.GAME_TYPE_TH {
 		//如果是自定义房间
 		//1,局数
@@ -940,8 +954,8 @@ func (t *ThDesk) canNextRun() bool {
 			return false
 		}
 	} else if t.DeskType == intCons.GAME_TYPE_TH_CS {
-		//锦标赛
-		if ChampionshipRoom.CanNextDeskRun() {
+		//判断锦标赛有没有结束,如果所有的desk都已经stop了,则表示游戏结束
+		if ChampionshipRoom.allStop() {
 			return true
 		} else {
 			return false
@@ -966,13 +980,11 @@ func (t *ThDesk) broadLotteryResult() error {
 	result.CoinInfo = t.getCoinInfo()                //每个人的输赢情况
 	t.THBroadcastProtoAll(result)
 
-
 	//2.发送每个人在锦标赛中目前的排名
 	for i := 0; i < len(t.Users); i++ {
 		u := t.Users[i]
 		if u != nil {
 			//开始风别给每个人发送自己的排名信息
-
 
 		}
 	}
@@ -983,7 +995,7 @@ func (t *ThDesk) broadLotteryResult() error {
 
 //开奖之后的处理
 func (t *ThDesk) afterLottery() error {
-	//1,设置游戏竹子的状态
+	//1,设置游戏桌子的状态
 	log.T("开奖结束,设置desk的状态为stop")
 	t.Status = TH_DESK_STATUS_STOP        //设置为没有开始开始游戏
 	t.ReadyCount = 0; //准备的人数为0
@@ -1139,6 +1151,9 @@ func (t *ThDesk) SaveLotteryDatacsth() error {
 
 		deskRecord.Records = append(deskRecord.Records, userRecord)
 		deskRecord.UserIds = strings.Join([]string{deskRecord.UserIds, u.NickName}, ",")
+
+		//保存锦标赛用户的排名信息
+		ChampionshipRoom.UpdateUserRankInfo(u.UserId, u.MatchId, u.RoomCoin)
 	}
 
 	log.T("开始保存DBT_T_TH_DESK_RECORD的信息")
