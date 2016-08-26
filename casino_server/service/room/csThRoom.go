@@ -13,6 +13,7 @@ import (
 	"sync/atomic"
 	"casino_server/msg/bbprotogo"
 	"casino_server/utils/jobUtils"
+	"sort"
 )
 
 var ChampionshipRoom CSThGameRoom        //锦标赛的房间
@@ -324,5 +325,56 @@ func (r *CSThGameRoom) AddUserRankInfo(userId uint32, matchId int32, balance int
 
 
 
-
 //------------------------------------------------------关于排名的排序-------------------------------------------------
+type RankList []*bbproto.CsThRankInfo
+
+func ( list RankList) Len() int {
+	return len(list)
+}
+
+//由大到小的排序
+func ( list RankList) Less(i, j int) bool {
+	if list[i].GetBalance() > list[j].GetBalance() {
+		return false
+	} else if list[i].GetBalance() == list[j].GetBalance() {
+		if list[i].GetEndTime() > list[i].GetEndTime() {
+			return false
+		} else {
+			return true
+		}
+	} else {
+		return true
+	}
+}
+
+//交换函数
+func ( list RankList) Swap(i, j int) {
+	var temp *bbproto.CsThRankInfo = list[i]
+	list[i] = list[j]
+	list[j] = temp
+}
+
+//更具用户信息得到排名
+func (r *CSThGameRoom) GetRankByuserId(userId uint32) int32{
+	var tempList RankList = make([]*bbproto.CsThRankInfo,len(r.rankInfo))
+	copy(tempList,r.rankInfo)
+	sort.Sort(tempList)		//开始排序
+
+	index := 0
+	for i := 0; i < len(tempList); i++ {
+		info := tempList[i]
+		if  info != nil && info.GetUserId() == userId{
+			index = i
+			break
+		}
+
+	}
+
+	rank := len(tempList)-index
+	log.T("查询用户[%v]的锦标赛rank排名是[%v]",userId,rank)
+	return int32(rank)
+}
+//------------------------------------------------------关于排名的排序-end---------------------------------------------
+
+
+

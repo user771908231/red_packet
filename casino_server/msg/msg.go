@@ -103,6 +103,9 @@ func init() {
 	ProtoProcessor.Register(&bbproto.Game_TounamentSummary{})	//68	//描述
 	ProtoProcessor.Register(&bbproto.Game_MatchList{})	//69	竞标赛列表
 	ProtoProcessor.Register(&bbproto.Game_TounamentPlayerRank{})	//70 每一局锦标赛完成之后的排名
-
+	ProtoProcessor.Register(&bbproto.Game_Rebuy{})		//71
+	ProtoProcessor.Register(&bbproto.Game_AckRebuy{})	//72
+	ProtoProcessor.Register(&bbproto.Game_Login{})		//73	登陆大厅的协议
+	ProtoProcessor.Register(&bbproto.Game_AckLogin{})	//74	回复的协议
 
 }

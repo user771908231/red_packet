@@ -36,8 +36,9 @@ func init() {
 	handler(&bbproto.ThRoom{}, handlerThRoom)
 	handler(&bbproto.THBet{}, handlerThBet)                //押注的协议
 
-	//联众的德州扑克
+	//----------------------------------------------神经德州------------------------------------------------------
 	handler(&bbproto.Game_LoginGame{}, handlerGameLoginGame)          //登陆游戏
+	handler(&bbproto.Game_Login{},handlerGameLogin)
 	handler(&bbproto.Game_EnterMatch{}, handlerGameEnterMatch)        //进入房间
 	handler(&bbproto.Game_FollowBet{}, handlerFollowBet)              //处理押注的请求
 	handler(&bbproto.Game_RaiseBet{}, handlerRaise)                   //处理加注的请求
@@ -45,7 +46,6 @@ func init() {
 	handler(&bbproto.Game_CheckBet{}, handlerCheckBet)                //处理让牌的请求
 	handler(&bbproto.Game_CreateDesk{}, handlerCreateDesk)            //创建房间
 	handler(&bbproto.Game_DissolveDesk{}, handlerDissolveDesk)        //解散房间
-
 
 	handler(&bbproto.Game_Ready{}, handlerReady)                      //准备游戏
 	handler(&bbproto.Game_Begin{}, handlerBegin)                      //开始游戏
@@ -61,6 +61,7 @@ func init() {
 	handler(&bbproto.Game_TounamentSummary{}, handlerGame_TounamentSummary)
 
 	handler(&bbproto.Game_MatchList{}, handlerGame_MatchList)         //锦标赛列表
+
 }
 
 /**
@@ -210,6 +211,11 @@ func handlerGameLoginGame(args []interface{}) {
 	result := &bbproto.Game_LoginGame{}
 	result.Result = new(int32)                //默认是0表示成功
 	a.WriteMsg(result)
+}
+
+//登陆大厅的协议
+func handlerGameLogin(args []interface{}){
+
 }
 
 

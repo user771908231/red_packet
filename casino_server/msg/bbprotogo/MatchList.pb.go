@@ -219,8 +219,8 @@ It has these top-level messages:
 	ACKQuickConn
 	NullMsg
 	Game_SendAddUser
-	Game_Lobby
-	Game_AckLobby
+	Game_Login
+	Game_AckLogin
 	Game_Notice
 	Game_AckNotice
 	Game_CreateDesk

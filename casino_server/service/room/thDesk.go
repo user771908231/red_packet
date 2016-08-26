@@ -107,7 +107,7 @@ type ThDesk struct {
 	DeskOwner            uint32                       //房主的id
 	RoomKey              string                       //room 自定义房间的钥匙
 	CreateFee            int64                        //创建房间的费用
-	DeskType             int32                        //桌子的类型,1,表示自定义房间,2表示锦标赛的
+	GameType             int32                        //桌子的类型,1,表示自定义房间,2表示锦标赛的
 	InitRoomCoin         int64                        //进入这个房间的roomCoin 带入金额标准是多少
 	JuCount              int32                        //这个桌子最多能打多少局
 	JuCountNow           int32                        //这个桌子已经玩了多少局
@@ -160,7 +160,7 @@ func NewThDesk() *ThDesk {
 	result.SmallBlindCoin = ThGameRoomIns.SmallBlindCoin
 	result.BigBlindCoin = 2 * ThGameRoomIns.SmallBlindCoin
 	result.Status = TH_DESK_STATUS_STOP        //游戏还没有开始的状态
-	result.DeskType = intCons.GAME_TYPE_TH_CS                          //游戏桌子的类型
+	result.GameType = intCons.GAME_TYPE_TH_CS                          //游戏桌子的类型
 	result.JuCount = 0
 	result.JuCountNow = 1                //默认从第一局开始
 	return result
@@ -339,10 +339,10 @@ func (t *ThDesk) LeaveThuser(userId uint32) error {
 	t.SubUserCountOnline()        //房间的在线人数减一
 
 	//根据不同的游戏类型做不同的处理
-	if t.DeskType == intCons.GAME_TYPE_TH {
+	if t.GameType == intCons.GAME_TYPE_TH {
 		//自定义房间
 
-	} else if t.DeskType == intCons.GAME_TYPE_TH_CS {
+	} else if t.GameType == intCons.GAME_TYPE_TH_CS {
 		//用户直接放弃游戏,设置roomCoin=0,并且更新rankxin
 		user.AddRoomCoin(user.RoomCoin)
 		ChampionshipRoom.UpdateUserRankInfo(user.UserId, user.MatchId, user.RoomCoin)
@@ -547,14 +547,17 @@ func (t *ThDesk) THBroadcastProto(p proto.Message, ignoreUserId uint32) error {
 
 
 
-
 //给全部人发送广播
-func (t *ThDesk) THBroadcastTestResult(p *bbproto.Game_TestResult) error {
+func (t *ThDesk) BroadcastTestResult(p *bbproto.Game_TestResult) error {
 	//发送的时候,初始化自己的排名
 	for i := 0; i < len(t.Users); i++ {
 		u := t.Users[i]                //给这个玩家发送广播信息
 		if u != nil && u.IsLeave != true {
 
+			//只有锦标赛的时候才可以有排名
+			if t.GameType == intCons.GAME_TYPE_TH_CS {
+				*p.Rank = ChampionshipRoom.GetRankByuserId(u.UserId)
+			}
 			a := t.Users[i].agent
 			a.WriteMsg(p)
 		}
@@ -975,7 +978,7 @@ func (t *ThDesk) Lottery() error {
 
 //判断开奖之后是否可以继续游戏
 func (t *ThDesk) isEnd() bool {
-	if t.DeskType == intCons.GAME_TYPE_TH {
+	if t.GameType == intCons.GAME_TYPE_TH {
 		//如果是自定义房间
 		//1,局数
 		//2,人数
@@ -985,7 +988,7 @@ func (t *ThDesk) isEnd() bool {
 		} else {
 			return true
 		}
-	} else if t.DeskType == intCons.GAME_TYPE_TH_CS {
+	} else if t.GameType == intCons.GAME_TYPE_TH_CS {
 		//判断锦标赛有没有结束,如果所有的desk都已经stop了,则表示游戏结束
 		if ChampionshipRoom.allStop() {
 			return true
@@ -1011,7 +1014,8 @@ func (t *ThDesk) broadLotteryResult() error {
 	result.WinCoinInfo = t.getWinCoinInfo()
 	result.HandCoin = t.GetHandCoin()
 	result.CoinInfo = t.getCoinInfo()                //每个人的输赢情况
-	t.THBroadcastTestResult(result)
+	result.Rank = new(int32)
+	t.BroadcastTestResult(result)
 
 	//2.发送每个人在锦标赛中目前的排名
 	for i := 0; i < len(t.Users); i++ {
@@ -1038,10 +1042,10 @@ func (t *ThDesk) afterLottery() error {
 	for i := 0; i < len(t.Users); i++ {
 		u := t.Users[i]
 		if u != nil && u.IsBreak == false {
-			if t.DeskType == intCons.GAME_TYPE_TH {
+			if t.GameType == intCons.GAME_TYPE_TH {
 				//如果是自定义的房间,设置每个人都是坐下的状态
 				u.Status = TH_USER_STATUS_SEATED
-			} else if t.DeskType == intCons.GAME_TYPE_TH_CS {
+			} else if t.GameType == intCons.GAME_TYPE_TH_CS {
 				if t.IsUserCoinEnough(u) {
 					//如果是锦标赛的房间,用户的钱足够
 					u.Status = TH_USER_STATUS_READY
@@ -1074,10 +1078,10 @@ func (t *ThDesk) IsUserCoinEnough(u *ThUser) bool {
 
 func (t *ThDesk)  SaveLotteryData() error {
 
-	if t.DeskType == intCons.GAME_TYPE_TH {
+	if t.GameType == intCons.GAME_TYPE_TH {
 		//自定义房间
 		return t.SaveLotteryDatath()
-	} else if t.DeskType == intCons.GAME_TYPE_TH_CS {
+	} else if t.GameType == intCons.GAME_TYPE_TH_CS {
 		//锦标赛
 		return t.SaveLotteryDatacsth()
 	}
@@ -1650,7 +1654,7 @@ func (t *ThDesk) IsTime2begin() bool {
 	}
 
 	log.T("现在开始判断是否可以开始一局新的游戏,2,判断锦标赛的逻辑:")
-	if t.DeskType == intCons.GAME_TYPE_TH_CS {
+	if t.GameType == intCons.GAME_TYPE_TH_CS {
 		//锦标赛游戏房间的状态
 		if !ChampionshipRoom.CanNextDeskRun() {
 			log.T("锦标赛的逻辑,判断不能开始下一局")
@@ -1659,7 +1663,7 @@ func (t *ThDesk) IsTime2begin() bool {
 	}
 
 	log.T("现在开始判断是否可以开始一局新的游戏,1,判断自定义的逻辑:")
-	if t.DeskType == intCons.GAME_TYPE_TH {
+	if t.GameType == intCons.GAME_TYPE_TH {
 		//自定义房间的标准
 	}
 
@@ -1787,14 +1791,13 @@ func (t *ThDesk) End() {
 			*gel.Rolename = u.NickName
 			*gel.UserId = u.UserId
 
-			if u.winAmount > maxWin {
-				maxWin = u.winAmount
+			if *gel.Coin > maxWin {
+				maxWin = *gel.Coin
 				maxUserid = u.UserId
 			}
 			result.CoinInfo = append(result.CoinInfo, gel)
 		}
 	}
-
 
 	//赋值大赢家
 	for i := 0; i < len(result.CoinInfo); i++ {
@@ -1803,7 +1806,6 @@ func (t *ThDesk) End() {
 			*ci.BigWin = true                //设置大赢家
 		}
 	}
-
 
 	//设置bigWin
 	//广播消息

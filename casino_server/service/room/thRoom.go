@@ -101,7 +101,7 @@ func (r *ThGameRoom) CreateDeskByUserIdAndRoomKey(userId uint32, roomCoin int64,
 	desk.BigBlindCoin = bigBlind
 	desk.JuCount = jucount
 	desk.GetRoomCoin()
-	desk.DeskType = intCons.GAME_TYPE_TH        //表示是自定义的房间
+	desk.GameType = intCons.GAME_TYPE_TH        //表示是自定义的房间
 	desk.PreCoin = preCoin
 	r.AddThDesk(desk)
 
@@ -331,10 +331,10 @@ func GetDeskByAgent(a gate.Agent) *ThDesk {
 //删除房间
 func RmThdesk(desk *ThDesk) error {
 	log.T("开始解散房间id[%v],desk[%v]",desk.Id,desk)
-	if desk.DeskType == intCons.GAME_TYPE_TH_CS {
+	if desk.GameType == intCons.GAME_TYPE_TH_CS {
 		//锦标赛
 		ChampionshipRoom.RmThroom(desk)
-	} else if desk.DeskType == intCons.GAME_TYPE_TH {
+	} else if desk.GameType == intCons.GAME_TYPE_TH {
 		ThGameRoomIns.RmThroom(desk)
 	}
 	return nil
