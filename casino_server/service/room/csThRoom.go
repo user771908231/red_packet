@@ -107,7 +107,7 @@ func (r *CSThGameRoom) Begin() {
 			r.Run()
 			return true        //表示终止任务
 		} else {
-			log.T("room的玩家数量[%v]不够,暂时不开始游戏.", r.gamingUserCount)
+			log.T("锦标赛玩家数量[%v]不够,暂时不开始游戏.", r.gamingUserCount)
 			return false
 		}
 	})

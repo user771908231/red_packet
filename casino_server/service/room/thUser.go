@@ -146,7 +146,7 @@ func (t *ThUser) TimeOut(timeNow time.Time) (bool, error) {
 		return true, err
 	} else {
 		//没有超时,继续等待
-		log.T("玩家[%v]nickname[%v]出牌中还没有超时", t.UserId, t.NickName)
+		log.T("desk[%v]玩家[%v]nickname[%v]出牌中还没有超时",t.deskId,t.UserId, t.NickName)
 		return false, nil
 	}
 }
@@ -203,6 +203,7 @@ func (t *ThUser) UpdateAgentUserData(a gate.Agent, deskId int32, matchId int32) 
 
 //把用户数据保存到redis中
 func (u *ThUser) Update2redis() {
+	log.T("用户数据改变之后的值,需要保存在rendis中[%v]",*u)
 	UpdateRedisThuser(u)
 }
 
