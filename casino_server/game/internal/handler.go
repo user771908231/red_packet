@@ -38,7 +38,7 @@ func init() {
 
 	//----------------------------------------------神经德州------------------------------------------------------
 	handler(&bbproto.Game_LoginGame{}, handlerGameLoginGame)          //登陆游戏
-	handler(&bbproto.Game_Login{},handlerGameLogin)
+	handler(&bbproto.Game_Login{}, handlerGameLogin)
 	handler(&bbproto.Game_EnterMatch{}, handlerGameEnterMatch)        //进入房间
 	handler(&bbproto.Game_FollowBet{}, handlerFollowBet)              //处理押注的请求
 	handler(&bbproto.Game_RaiseBet{}, handlerRaise)                   //处理加注的请求
@@ -214,10 +214,10 @@ func handlerGameLoginGame(args []interface{}) {
 }
 
 //登陆大厅的协议
-func handlerGameLogin(args []interface{}){
+func handlerGameLogin(args []interface{}) {
 	m := args[0].(*bbproto.Game_Login)
 	a := args[1].(gate.Agent)
-	OGservice.HandlerGameLogin(m.GetUserId(),a)
+	OGservice.HandlerGameLogin(m.GetUserId(), a)
 }
 
 
@@ -308,7 +308,7 @@ func handlerFollowBet(args []interface{}) {
 	a := args[1].(gate.Agent)
 	seatId := m.GetSeat()
 	desk := room.GetDeskByAgent(a)
-	if desk!=nil {
+	if desk != nil {
 		desk.DDBet(seatId, room.TH_DESK_BET_TYPE_CALL, 0)
 	}
 }
@@ -320,7 +320,7 @@ func handlerRaise(args []interface{}) {
 	seatId := m.GetSeat()
 	coin := m.GetCoin()
 	desk := room.GetDeskByAgent(a)
-	if desk!=nil {
+	if desk != nil {
 		desk.DDBet(seatId, room.TH_DESK_BET_TYPE_RAISE, coin)
 	}
 }
@@ -331,7 +331,7 @@ func handlerFoldBet(args []interface{}) {
 	a := args[1].(gate.Agent)
 	seatId := m.GetSeat()
 	desk := room.GetDeskByAgent(a)
-	if desk!=nil {
+	if desk != nil {
 		desk.DDBet(seatId, room.TH_DESK_BET_TYPE_FOLD, 0)
 	}
 }
@@ -343,7 +343,7 @@ func handlerCheckBet(args []interface{}) {
 
 	seatId := m.GetSeat()
 	desk := room.GetDeskByAgent(a)
-	if desk!=nil {
+	if desk != nil {
 		desk.DDBet(seatId, room.TH_DESK_BET_TYPE_CHECK, 0)
 	}
 }

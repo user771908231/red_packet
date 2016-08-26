@@ -18,6 +18,8 @@ import (
 
 
 //德州扑克 玩家的状态
+
+var TH_USER_STATUS_NOGAME int32 = 0           //刚上桌子 等待开始的玩家
 var TH_USER_STATUS_WAITSEAT int32 = 1           //刚上桌子 等待开始的玩家
 var TH_USER_STATUS_SEATED int32 = 2                //刚上桌子 但是没有在游戏中
 var TH_USER_STATUS_READY int32 = 3
@@ -48,6 +50,7 @@ type ThUser struct {
 	thCards            *pokerService.ThCards //手牌加公共牌取出来的值,这个值可以实在结算的时候来取
 	waiTime            time.Time             //等待时间
 	waitUUID           string                //等待标志
+	PreCoin            int64                 //前注
 	TotalBet           int64                 //计算用户总共押注的多少钱
 	TotalBet4calcAllin int64                 //押注总额 ***注意,目前这个值是用来计算all in 的
 	winAmount          int64                 //总共赢了多少钱
@@ -73,7 +76,6 @@ func (t *ThUser) GetRoomCoin() int64 {
 
 //
 func (t *ThUser) trans2bbprotoThuser() *bbproto.THUser {
-
 	thuserTemp := &bbproto.THUser{}
 	thuserTemp.Status = &(t.Status)        //已经就做
 	thuserTemp.User = userService.GetUserById(t.UserId)        //得到user
@@ -85,8 +87,6 @@ func (t *ThUser) trans2bbprotoThuser() *bbproto.THUser {
 //等待用户出牌
 func (t *ThUser) wait() error {
 	//如果不是押注中的状态,不用wait任务
-	log.T("用户当前的状态[%v]", t.Status)
-
 	//这一步其实可以不用验证,因为出牌的游标滑动到这里的时候,已经验证过了
 	//if !t.IsBetting() {
 	//	return nil
@@ -145,7 +145,7 @@ func (t *ThUser) TimeOut(timeNow time.Time) (bool, error) {
 		return true, err
 	} else {
 		//没有超时,继续等待
-		log.T("玩家[%v]nickname[%v]出牌中还没有超时", t.UserId, t.NickName)
+		log.T("desk[%v]玩家[%v]nickname[%v]出牌中还没有超时",t.deskId,t.UserId, t.NickName)
 		return false, nil
 	}
 }
@@ -185,16 +185,18 @@ func NewThUser() *ThUser {
 }
 
 //更新用户的agentUserData数据
-func (t *ThUser) UpdateAgentUserData(a gate.Agent, deskId int32, matchId int32) {
+func (t *ThUser) UpdateAgentUserData(a gate.Agent) {
 
 	//保存回话信息
 	userAgentData := bbproto.NewThServerUserSession()                //绑定参数
 	*userAgentData.UserId = t.UserId
-	*userAgentData.DeskId = deskId
-	*userAgentData.MatchId = matchId
+	*userAgentData.DeskId = t.deskId
+	*userAgentData.MatchId = t.MatchId
+	*userAgentData.GameStatus = t.Status
 	a.SetUserData(userAgentData)
 	t.agent = a
 	t.IsBreak = false
+	t.IsLeave = false
 
 	//回话信息保存到redis
 	userService.SaveUserSession(userAgentData)
@@ -202,10 +204,16 @@ func (t *ThUser) UpdateAgentUserData(a gate.Agent, deskId int32, matchId int32) 
 
 //把用户数据保存到redis中
 func (u *ThUser) Update2redis() {
+	log.T("用户数据改变之后的值,需要保存在rendis中[%v]",*u)
 	UpdateRedisThuser(u)
 }
 
 //计算用户的各种金额
+
+
+func (t *ThUser) AddPreCoin(coin int64) {
+	atomic.AddInt64(&t.PreCoin, coin)
+}
 
 func (t *ThUser) AddRoomCoin(coin int64) {
 	atomic.AddInt64(&t.RoomCoin, coin)
@@ -250,6 +258,7 @@ func (t *ThUser) GetCsRank() int64 {
 func (t *ThUser) WriteMsg(p proto.Message) error {
 	agent := t.agent
 	if agent != nil {
+		log.T("开始给用户[%v]发送信息:", t.UserId)
 		agent.WriteMsg(p)
 		return nil
 	} else {
