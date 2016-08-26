@@ -183,20 +183,37 @@ func (t *ThDesk) LogString() {
 	for i := 0; i < len(t.Users); i++ {
 		u := t.Users[i]
 		if u != nil {
-			log.T("当前desk[%v]的user[%v]的状态status[%v],牌的信息[%v]", t.Id, u.UserId, u.Status, u.HandCards)
+			//log.T("当前desk[%v]的user[%v]的状态status[%v],牌的信息[%v]", t.Id, u.UserId, u.Status, u.HandCards)
+			log.T("当前desk[%v]的user[%v]的状态status[%v]", t.Id, u.UserId, u.Status)
+
 		}
 	}
 	log.T("当前desk[%v]的信息的状态,MatchId[%v]", t.Id, t.MatchId)
-	log.T("当前desk[%v]的信息的状态,总人数SeatedCount[%v],在线人数[%v]", t.Id, t.UserCount, t.UserCountOnline)
+	log.T("当前desk[%v]的信息的状态,DeskOwner[%v]", t.Id, t.DeskOwner)
+	log.T("当前desk[%v]的信息的状态,RoomKey[%v]", t.Id, t.RoomKey)
+	log.T("当前desk[%v]的信息的状态,CreateFee[%v]", t.Id, t.CreateFee)
+	log.T("当前desk[%v]的信息的状态,GameType[%v]", t.Id, t.GameType)
+	log.T("当前desk[%v]的信息的状态,InitRoomCoin[%v]", t.Id, t.InitRoomCoin)
+	log.T("当前desk[%v]的信息的状态,JuCount[%v]", t.Id, t.JuCount)
+	log.T("当前desk[%v]的信息的状态,JuCountNow[%v]", t.Id, t.JuCountNow)
+	log.T("当前desk[%v]的信息的状态,PreCoin[%v]", t.Id, t.PreCoin)
+	log.T("当前desk[%v]的信息的状态,SmallBlindCoin[%v]", t.Id, t.SmallBlindCoin)
+	log.T("当前desk[%v]的信息的状态,BigBlindCoin[%v]", t.Id, t.BigBlindCoin)
 	log.T("当前desk[%v]的信息的状态,小盲注[%v]", t.Id, t.SmallBlind)
 	log.T("当前desk[%v]的信息的状态,大盲注[%v]", t.Id, t.BigBlind)
+	log.T("当前desk[%v]的信息的状态,BeginTime[%v]", t.Id, t.BeginTime)
+	log.T("当前desk[%v]的信息的状态,EndTime[%v]", t.Id, t.EndTime)
+	log.T("当前desk[%v]的信息的状态,RaiseUserId[%v]", t.Id, t.RaiseUserId)
+	log.T("当前desk[%v]的信息的状态,BetUserNow[%v]", t.Id, t.BetUserNow)
+	log.T("当前desk[%v]的信息的状态,GameNumber[%v]", t.Id, t.GameNumber)
+	log.T("当前desk[%v]的信息的状态,ReadyCount[%v]", t.Id, t.ReadyCount)
+	log.T("当前desk[%v]的信息的状态,总人数SeatedCount[%v],在线人数[%v]", t.Id, t.UserCount, t.UserCountOnline)
 	log.T("当前desk[%v]的信息的状态,压注人[%v]", t.Id, t.BetUserNow)
 	log.T("当前desk[%v]的信息的状态,压注轮次[%v]", t.Id, t.RoundCount)
 	log.T("当前desk[%v]的信息的状态,NewRoundFirstBetUser[%v]", t.Id, t.NewRoundFirstBetUser)
 	log.T("当前desk[%v]的信息的状态,总共押注Jackpot[%v]", t.Id, t.Jackpot)
-	log.T("当前desk[%v]的信息的状态,边池bianJackpot[%v]", t.Id, t.edgeJackpot)
+	log.T("当前desk[%v]的信息的状态,edgeJackpot[%v]", t.Id, t.edgeJackpot)
 	log.T("当前desk[%v]的信息的状态,当前加注的人BetUserRaiseUserId[%v]", t.Id, t.RaiseUserId)
-
 	log.T("当前desk[%v]的信息:-----------------------------------end----------------------------------", t.Id)
 }
 
@@ -379,15 +396,16 @@ func (t *ThDesk) OinitPreCoin() error {
 	for i := 0; i < len(t.Users); i++ {
 		u := t.Users[i]
 		if u != nil && u.IsBetting() {
-			t.calcBetCoin(u.UserId, t.PreCoin)
+			t.calcPreCoin(u.UserId, t.PreCoin)
 		}
 	}
 
 	//发送前主的广播
 	ret := bbproto.NewGame_PreCoin()
 	ret.Coin = t.GetRoomCoin()
-	*ret.Pool = 0
+	*ret.Pool = t.Jackpot
 	*ret.Tableid = t.Id
+	ret.Precoin = t.GetPreCoin()
 
 	t.THBroadcastProtoAll(ret)
 	log.T("开始一局新的游戏,现在开始初始化前注的信息完毕....")
@@ -1267,11 +1285,7 @@ func (t *ThDesk) BetUserCheck(userId uint32) error {
 func (t *ThDesk) BetUserRaise(user *ThUser, coin int64) error {
 	log.T("开始[%v],nickname[%v]操作用户加注[%v]的操作,user.RoomCoin[%v],user.handcoin[%v].t.BetAmountNow[%v]", user.UserId, user.NickName, coin, user.RoomCoin, user.HandCoin, t.BetAmountNow)
 
-	/**
-		判断allin的条件
-		1,加注的金额coin 和受伤的余额一样多的情况	coin == user.RoomCoin
-	 */
-
+	//1,加注的时候判断用户金额是否足够
 	if (coin > user.RoomCoin) {
 		return errors.New("用户加注的金额,比自己手中的金额还要多,出错!")
 	}
@@ -1292,10 +1306,7 @@ func (t *ThDesk) BetUserRaise(user *ThUser, coin int64) error {
 
 	} else {
 		t.MinRaise = user.HandCoin + coin - t.BetAmountNow
-		//普通加注的情况
 		t.BetAmountNow = user.HandCoin + coin
-		//1,增加奖池的金额
-		//2,减少用户的金额
 		t.calcBetCoin(user.UserId, coin)                        //thuser
 		//3,设置状态:设置为第一个加注的人,如果后边所有人都是跟注,可由这个人判断一轮是否结束
 		t.RaiseUserId = user.UserId
@@ -1348,6 +1359,26 @@ func (t *ThDesk) GetUserByUserId(userId uint32) *ThUser {
 	index := t.GetUserIndex(userId)
 	return t.Users[index]
 }
+
+// 用户加注,跟住,allin 之后对他的各种余额属性进行计算
+func (t *ThDesk) calcPreCoin(userId uint32, coin int64) error {
+	user := t.GetUserByUserId(userId)
+
+	//这里是前注的信息,handCoin 是否还需要?
+	user.AddPreCoin(coin)
+
+	user.AddTurnCoin(coin)
+	//user.AddHandCoin(coin)
+	user.AddTotalBet4calcAllin(coin)
+	user.AddTotalBet(coin)
+	user.AddRoomCoin(-coin)
+	user.Update2redis()                //用户信息更新之后,保存到数据库
+	t.AddJackpot(coin)                   //底池 增加
+	t.AddedgeJackpot(coin)
+	return nil
+}
+
+
 
 // 用户加注,跟住,allin 之后对他的各种余额属性进行计算
 func (t *ThDesk) calcBetCoin(userId uint32, coin int64) error {

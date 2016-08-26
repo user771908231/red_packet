@@ -219,16 +219,12 @@ func (t *ThDesk) DDRaiseBet(user *ThUser, coin int64) error {
 
 //得到当前用户需要加注的金额
 func (t *ThDesk) GetMinRaise() int64 {
-	//无限加注,上次加注额度的两倍,加上追平的金额
-	//return t.MinRaise*2+t.BetAmountNow-t.GetUserByUserId(t.BetUserNow).HandCoin
-
 	log.T("获取用户[%v]的最低加注金额,handCoin[%v],t.MinRaise[%v],t.BetAmountNow[%v]", t.BetUserNow, t.GetUserByUserId(t.BetUserNow).HandCoin, t.MinRaise, t.BetAmountNow)
 	result := t.MinRaise + t.BetAmountNow - t.GetUserByUserId(t.BetUserNow).TurnCoin
 	if result < 0 {
 		//现在处理的有可能是新的一局开始
 		result = t.BigBlindCoin
 	}
-
 	return result
 }
 
@@ -322,6 +318,19 @@ func ThCard2OGCard(pai *bbproto.Pai) *bbproto.Game_CardInfo {
 
 	}
 
+	return result
+}
+
+
+//获得前注的信息
+func ( t *ThDesk) GetPreCoin()[]int64{
+	var result []int64
+	for i := 0; i < len(t.Users); i++ {
+		u := t.Users[i]
+		if u != nil {
+			result = append(result, int64(u.PreCoin))
+		}
+	}
 	return result
 }
 
@@ -584,8 +593,6 @@ func (mydesk *ThDesk ) GetHandCard() []*bbproto.Game_CardInfo {
 				result = append(result, gc)
 			}
 			handCard = append(handCard, result...)
-		} else {
-
 		}
 
 	}
@@ -610,7 +617,7 @@ func (mydesk *ThDesk ) GetMyHandCard(userId uint32) []*bbproto.Game_CardInfo {
 					result = append(result, gc)
 				}
 			} else {
-				log.T("玩家[%v]的手牌为空", u.UserId)
+				//log.T("玩家[%v]的手牌为空", u.UserId)
 				gc := &bbproto.Game_CardInfo{}
 				gc.Color = new(int32)
 				gc.Value = new(int32)

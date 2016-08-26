@@ -48,6 +48,7 @@ type ThUser struct {
 	thCards            *pokerService.ThCards //手牌加公共牌取出来的值,这个值可以实在结算的时候来取
 	waiTime            time.Time             //等待时间
 	waitUUID           string                //等待标志
+	PreCoin            int64                 //前注
 	TotalBet           int64                 //计算用户总共押注的多少钱
 	TotalBet4calcAllin int64                 //押注总额 ***注意,目前这个值是用来计算all in 的
 	winAmount          int64                 //总共赢了多少钱
@@ -206,6 +207,11 @@ func (u *ThUser) Update2redis() {
 }
 
 //计算用户的各种金额
+
+
+func (t *ThUser) AddPreCoin(coin int64) {
+	atomic.AddInt64(&t.PreCoin, coin)
+}
 
 func (t *ThUser) AddRoomCoin(coin int64) {
 	atomic.AddInt64(&t.RoomCoin, coin)

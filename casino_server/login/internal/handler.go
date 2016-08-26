@@ -53,7 +53,7 @@ func HandlerREQQuickConn(args []interface{}) {
 
 	//首先判断是否是微信登陆
 	if m.GetWx() != nil && m.GetWx().GetOpenId() != "" {
-		log.T("用户是使用微信登陆")
+		//log.T("用户是使用微信登陆")
 		//微信登陆,如果是微信新用户,则创建一个user,并且保存
 		openId := m.GetWx().GetOpenId()
 		resultUser = userService.GetUserByOpenId(openId)
