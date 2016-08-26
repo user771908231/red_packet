@@ -215,7 +215,9 @@ func handlerGameLoginGame(args []interface{}) {
 
 //登陆大厅的协议
 func handlerGameLogin(args []interface{}){
-
+	m := args[0].(*bbproto.Game_Login)
+	a := args[1].(gate.Agent)
+	OGservice.HandlerGameLogin(m.GetUserId(),a)
 }
 
 

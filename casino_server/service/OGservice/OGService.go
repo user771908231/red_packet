@@ -16,6 +16,7 @@ import (
 	"casino_server/utils/db"
 	"gopkg.in/mgo.v2"
 	"casino_server/common/Error"
+	"casino_server/service/noticeServer"
 )
 
 
@@ -87,7 +88,7 @@ func HandlerReady(m *bbproto.Game_Ready, a gate.Agent) error {
 	//
 	desk := room.GetDeskByAgent(a)
 	if desk == nil {
-		log.E("用户id[%v]准备的时候,房间不存在",userId)
+		log.E("用户id[%v]准备的时候,房间不存在", userId)
 		return errors.New("房间不存在")
 	}
 
@@ -104,7 +105,7 @@ func HandlerReady(m *bbproto.Game_Ready, a gate.Agent) error {
 	*result.SeatId = desk.GetUserByUserId(userId).Seat
 	*result.Result = intCons.ACK_RESULT_SUCC
 	//a.WriteMsg(result)
-	desk.THBroadcastProtoAll(result)	//广播用户准备的协议
+	desk.THBroadcastProtoAll(result)        //广播用户准备的协议
 
 	//如果全部的人都准备好了,那么可以开始游戏
 	//1.1,所有人都准备好了,并且不是第一局的时候,才能开始游戏, 第一句必须要房主点击开始,才能开始
@@ -233,6 +234,19 @@ func HandlerGameEnterMatch(m *bbproto.Game_EnterMatch, a gate.Agent) error {
 	}
 
 	return nil
+}
+
+//处理bbproto.Game_login
+func HandlerGameLogin(userId uint32,a gate.Agent){
+	log.T("用户[%v]请求gameLogin",userId)
+	session := userService.GetUserSessionByUserId(userId)
+	log.T("用户的回话信息:session[%v]",session)
+	ret := bbproto.NewGame_AckLogin()
+	*ret.MatchId = session.GetMatchId()
+	*ret.TableId = session.GetDeskId()
+	*ret.GameStatus = session.GetGameStatus()
+	*ret.Notice = noticeServer.GetNoticeByType(noticeServer.NOTICE_TYPE_GUNDONG).GetNoticeContent()	//滚动信息
+	a.WriteMsg(ret)
 }
 
 

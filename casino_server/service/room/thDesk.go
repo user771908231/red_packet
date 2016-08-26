@@ -384,15 +384,10 @@ func (t *ThDesk) OinitPreCoin() error {
 	}
 
 	//发送前主的广播
-	ret := &bbproto.Game_PreCoin{}
-	ret.Pool = new(int64)
-	ret.Tableid = new(int32)
-	//ret.Precoin = new(int64)
-
+	ret := bbproto.NewGame_PreCoin()
 	ret.Coin = t.GetRoomCoin()
 	*ret.Pool = 0
 	*ret.Tableid = t.Id
-	//*ret.Precoin = t.PreCoin
 
 	t.THBroadcastProtoAll(ret)
 	log.T("开始一局新的游戏,现在开始初始化前注的信息完毕....")
@@ -410,10 +405,7 @@ func (t *ThDesk) InitBlindBet() error {
 
 	//发送盲注的信息
 	log.T("开始广播盲注的信息")
-	blindB := &bbproto.Game_BlindCoin{}
-	blindB.Banker = new(int32)
-	blindB.Bigblindseat = new(int32)
-	blindB.Smallblindseat = new(int32)
+	blindB := bbproto.NewGame_BlindCoin()
 
 	//初始化默认值
 	blindB.Tableid = &t.Id        //deskid
@@ -1002,16 +994,14 @@ func (t *ThDesk) isEnd() bool {
 func (t *ThDesk) broadLotteryResult() error {
 
 	//1.发送输赢结果
-	result := &bbproto.Game_TestResult{}
-
-	result.Tableid = &t.Id                           //桌子
+	result := bbproto.NewGame_TestResult()
+	*result.Tableid = t.Id                           //桌子
 	result.BCanShowCard = t.GetBshowCard()           //
 	result.BShowCard = t.GetBshowCard()              //亮牌
 	result.Handcard = t.GetHandCard()                //手牌
 	result.WinCoinInfo = t.getWinCoinInfo()
 	result.HandCoin = t.GetHandCoin()
 	result.CoinInfo = t.getCoinInfo()                //每个人的输赢情况
-	result.Rank = new(int32)
 	t.BroadcastTestResult(result)
 
 	//2.发送每个人在锦标赛中目前的排名
@@ -1729,16 +1719,7 @@ func (mydesk *ThDesk) Run() error {
 	waitUser.wait()
 
 	log.T("广播Game_InitCard的信息")
-	initCardB := &bbproto.Game_InitCard{}
-
-	//设置默认值
-	initCardB.Tableid = new(int32)
-	initCardB.ActionTime = new(int32)
-	initCardB.DelayTime = new(int32)
-	initCardB.NextUser = new(int32)
-	initCardB.MinRaise = new(int64)
-
-	//设置初始化值
+	initCardB := bbproto.NewGame_InitCard()
 	*initCardB.Tableid = int32(mydesk.Id)
 	initCardB.HandCard = mydesk.GetHandCard()
 	initCardB.PublicCard = mydesk.ThPublicCard2OGC()
@@ -1765,17 +1746,7 @@ func (t *ThDesk) End() {
 	for i := 0; i < len(t.Users); i++ {
 		u := t.Users[i]
 		if u != nil {
-			//
-			gel := &bbproto.Game_EndLottery{}
-			gel.UserId = new(uint32)
-			gel.Coin = new(int64)
-			gel.BigWin = new(bool)
-			gel.Owner = new(bool)
-			gel.Rolename = new(string)
-			gel.Seat = new(int32)
-
-
-			//赋值
+			gel := bbproto.NewGame_EndLottery()
 			*gel.Coin = u.RoomCoin - u.InitialRoomCoin        //这里不是u.winamount,u.winamount  表示本局赢得底池的金额
 			*gel.Seat = u.Seat
 
