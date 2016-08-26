@@ -384,7 +384,7 @@ func (t *ThDesk) GetSecondPool() []int64 {
 func (t *ThDesk) BroadGameInfo() {
 	msg := t.initGameSendgameInfoByDesk()
 	for i := 0; i < len(t.Users); i++ {
-		if t.Users[i] != nil && t.Users[i].IsLeave == false && t.Users[i].IsBreak ==false  {
+		if t.Users[i] != nil && t.Users[i].IsLeave == false && t.Users[i].IsBreak == false {
 			//给用户发送广播的时候需要判断自己的座位号是多少
 			a := t.Users[i].agent
 			*msg.Seat = t.Users[i].Seat
@@ -394,38 +394,11 @@ func (t *ThDesk) BroadGameInfo() {
 	}
 }
 
-//初始化一个Game_SendGameInfo
-func newGame_SendGameInfo() *bbproto.Game_SendGameInfo {
-	result := &bbproto.Game_SendGameInfo{}
-	result.TablePlayer = new(int32)
-	result.Tableid = new(int32)
-	result.BankSeat = new(int32)
-	result.ChipSeat = new(int32)
-	result.ActionTime = new(int32)
-	result.DelayTime = new(int32)
-	result.GameStatus = new(int32)
-	//result.NRebuyCount
-	//result.NAddonCount
-	result.Pool = new(int64)
-	result.MinRaise = new(int64)
-	result.NInitActionTime = new(int32)
-	result.NInitDelayTime = new(int32)
-	result.Handcard = make([]*bbproto.Game_CardInfo, 0)
-	result.TurnCoin = make([]int64, 0)
-	result.BFold = make([]int32, 0)
-	result.BAllIn = make([]int32, 0)
-	result.BBreak = make([]int32, 0)
-	result.BLeave = make([]int32, 0)
-	result.Seat = new(int32)
-	result.TurnMax = new(int64)
-	result.Result = new(int32)
-	result.OwnerSeat = new(int32)
-	return result
-}
+
 
 //返回房间的信息 todo 登陆成功的处理,给请求登陆的玩家返回登陆结果的消息
 func (mydesk *ThDesk) initGameSendgameInfoByDesk() *bbproto.Game_SendGameInfo {
-	result := newGame_SendGameInfo()
+	result := bbproto.NewGame_SendGameInfo()
 	//初始化桌子相关的信息
 	*result.Tableid = int32(mydesk.Id)                                //桌子的Id
 	*result.TablePlayer = mydesk.UserCount                        //玩家总人数
@@ -445,6 +418,10 @@ func (mydesk *ThDesk) initGameSendgameInfoByDesk() *bbproto.Game_SendGameInfo {
 	*result.TurnMax = mydesk.BetAmountNow
 	result.WeixinInfos = mydesk.GetWeiXinInfos()
 	*result.OwnerSeat = mydesk.GetUserByUserId(mydesk.DeskOwner).Seat
+	*result.PreCoin = mydesk.PreCoin
+	*result.SmallBlind = mydesk.SmallBlindCoin
+	*result.BigBlind = mydesk.BigBlindCoin
+	*result.RoomType = mydesk.GameType
 
 	//循环User来处理
 	for i := 0; i < len(mydesk.Users); i++ {
@@ -464,7 +441,6 @@ func (mydesk *ThDesk) initGameSendgameInfoByDesk() *bbproto.Game_SendGameInfo {
 
 		}
 	}
-
 	return result
 
 }
@@ -587,7 +563,7 @@ func (mydesk *ThDesk ) GetHandCard() []*bbproto.Game_CardInfo {
 	for i := 0; i < len(mydesk.Users); i++ {
 		u := mydesk.Users[i]
 		if u != nil {
-			log.T("开始给玩家[%v]解析手牌", u.UserId)
+			//log.T("开始给玩家[%v]解析手牌", u.UserId)
 			result := make([]*bbproto.Game_CardInfo, 0)
 			//用户手牌
 			if len(u.HandCards) == 2 {

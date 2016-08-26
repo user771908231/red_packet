@@ -248,9 +248,3 @@ func HandlerGameLogin(userId uint32,a gate.Agent){
 	*ret.Notice = noticeServer.GetNoticeByType(noticeServer.NOTICE_TYPE_GUNDONG).GetNoticeContent()	//滚动信息
 	a.WriteMsg(ret)
 }
-
-
-
-
-
-

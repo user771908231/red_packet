@@ -5,7 +5,6 @@ func NewGame_TounamentBlindBean() *Game_TounamentBlindBean {
 	ret := &Game_TounamentBlindBean{}
 	ret.Ante = new(int32)
 	ret.SmallBlind = new(int32)
-
 	return ret
 }
 
@@ -96,4 +95,31 @@ func NewGame_BlindCoin() *Game_BlindCoin {
 	blindB.Bigblindseat = new(int32)
 	blindB.Smallblindseat = new(int32)
 	return blindB
+}
+
+func NewGame_SendGameInfo() *Game_SendGameInfo {
+	result := &Game_SendGameInfo{}
+	result.TablePlayer = new(int32)
+	result.Tableid = new(int32)
+	result.BankSeat = new(int32)
+	result.ChipSeat = new(int32)
+	result.ActionTime = new(int32)
+	result.DelayTime = new(int32)
+	result.GameStatus = new(int32)
+	//result.NRebuyCount
+	//result.NAddonCount
+	result.Pool = new(int64)
+	result.MinRaise = new(int64)
+	result.NInitActionTime = new(int32)
+	result.NInitDelayTime = new(int32)
+	result.Seat = new(int32)
+	result.TurnMax = new(int64)
+	result.Result = new(int32)
+	result.OwnerSeat = new(int32)
+	result.PreCoin = new(int64)
+	result.SmallBlind = new(int64)
+	result.BigBlind = new(int64)
+	result.RoomType = new(int32)
+
+	return result
 }
