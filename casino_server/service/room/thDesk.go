@@ -91,7 +91,7 @@ func InitDeskConfig() {
 	ThdeskConfig.TH_LOTTERY_DURATION = time.Second * 5
 
 	ThdeskConfig.TH_DESK_LEAST_START_USER = 2
-	ThdeskConfig.TH_DESK_MAX_START_USER = 8
+	ThdeskConfig.TH_DESK_MAX_START_USER = 9
 
 	ThdeskConfig.TH_GAME_SMALL_BLIND = 10
 }

@@ -281,6 +281,10 @@ message game_SendGameInfo {
     repeated WeixinInfo weixinInfos  = 31;
     optional int32  ownerSeat   =32; //房主的seat
     optional int32  roomType    =33; //1=朋友桌， 2=锦标赛
+
+    optional int64 preCoin      =34;    //前注的大小
+    optional int64 smallBlind   =35;    //小盲的大小
+    optional int64 bigBlind     =36;    //大盲的大小
 }
 
 message game_ShowCard {
