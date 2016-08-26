@@ -219,6 +219,8 @@ It has these top-level messages:
 	ACKQuickConn
 	NullMsg
 	Game_SendAddUser
+	Game_Login
+	Game_AckLogin
 	Game_Notice
 	Game_AckNotice
 	Game_CreateDesk
@@ -265,6 +267,7 @@ It has these top-level messages:
 	ThServerUserSession
 	ThServerAllInJackpot
 	ThServerDesk
+	CsThRankInfo
 	Shuiguoji
 	ShuiguojiHilomp
 	ShuiguojiRes

@@ -16,6 +16,7 @@ import (
 	"casino_server/utils/db"
 	"gopkg.in/mgo.v2"
 	"casino_server/common/Error"
+	"casino_server/service/noticeServer"
 )
 
 
@@ -52,13 +53,6 @@ func HandlerLeaveDesk(m *bbproto.Game_LeaveDesk, a gate.Agent) {
 	}
 
 	desk.LeaveThuser(m.GetUserId())
-
-	//如果是竞标赛,在线人数-1
-	room := room.GetCSTHroom(1)
-	if room != nil {
-		room.SubOnlineCount()
-	}
-
 }
 
 ///用户发送消息
@@ -85,14 +79,16 @@ func HandlerReady(m *bbproto.Game_Ready, a gate.Agent) error {
 	//1,找到userId
 	result := &bbproto.Game_AckReady{}
 	result.Result = new(int32)
-	userId := m.GetUserId()
+	result.Msg = new(string)
+	result.SeatId = new(int32)
 
+	userId := m.GetUserId()
 	//2,通过userId 找到桌子
 	//desk := room.ThGameRoomIns.GetDeskByUserId(userId)
 	//
 	desk := room.GetDeskByAgent(a)
 	if desk == nil {
-		log.E("房间不存在")
+		log.E("用户id[%v]准备的时候,房间不存在", userId)
 		return errors.New("房间不存在")
 	}
 
@@ -100,13 +96,16 @@ func HandlerReady(m *bbproto.Game_Ready, a gate.Agent) error {
 	err := desk.Ready(userId)
 	if err != nil {
 		*result.Result = Error.GetErrorCode(err)
+		*result.Msg = Error.GetErrorMsg(err)
 		a.WriteMsg(result)
 		return err
 	}
 
 	//4,返回准备的结果
+	*result.SeatId = desk.GetUserByUserId(userId).Seat
 	*result.Result = intCons.ACK_RESULT_SUCC
-	a.WriteMsg(result)
+	//a.WriteMsg(result)
+	desk.THBroadcastProtoAll(result)        //广播用户准备的协议
 
 	//如果全部的人都准备好了,那么可以开始游戏
 	//1.1,所有人都准备好了,并且不是第一局的时候,才能开始游戏, 第一句必须要房主点击开始,才能开始
@@ -226,15 +225,28 @@ func HandlerGameEnterMatch(m *bbproto.Game_EnterMatch, a gate.Agent) error {
 		return err
 	}
 
-	mydesk.OGTHBroadAddUser()
+	mydesk.BroadGameInfo()
 
 
 	//5,如果是朋友桌的话,需要房主点击开始才能开始...,如果是锦标赛,则自动开始游戏
-	if mydesk.DeskType == intCons.GAME_TYPE_TH_CS {
+	if mydesk.GameType == intCons.GAME_TYPE_TH_CS {
 		go mydesk.Run()
 	}
 
 	return nil
+}
+
+//处理bbproto.Game_login
+func HandlerGameLogin(userId uint32,a gate.Agent){
+	log.T("用户[%v]请求gameLogin",userId)
+	session := userService.GetUserSessionByUserId(userId)
+	log.T("用户的回话信息:session[%v]",session)
+	ret := bbproto.NewGame_AckLogin()
+	*ret.MatchId = session.GetMatchId()
+	*ret.TableId = session.GetDeskId()
+	*ret.GameStatus = session.GetGameStatus()
+	*ret.Notice = noticeServer.GetNoticeByType(noticeServer.NOTICE_TYPE_GUNDONG).GetNoticeContent()	//滚动信息
+	a.WriteMsg(ret)
 }
 
 

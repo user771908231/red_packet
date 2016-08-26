@@ -187,6 +187,8 @@ message game_TestResult {
     repeated game_WinCoin WinCoinInfo = 6;
     repeated int64 HandCoin = 7;
     repeated game_WinCoin CoinInfo = 8;
+    optional int32 rank     = 9;        //查看自己的排名
+
 }
 
 message game_LeaveMatch {
@@ -1092,7 +1094,7 @@ message DDBulletinInfo {
 
 //服务器信息
 message ServerInfo {
-    optional string Ip = 1; 
+    optional string Ip = 1;
     optional int32  Port = 2;
     optional int32  Status = 3; //0开启 1关闭
     optional int32  Type = 4;
@@ -1169,12 +1171,12 @@ message Game_SendAddUser{
 }
 
 //显示大厅时请求
-message Game_Lobby{
-    optional int32  userId      =   1;  //用户id
+message Game_Login{
+    optional uint32  userId      =   1;  //用户id
 }
 
 //大厅回复
-message Game_AckLobby{
+message Game_AckLogin{
     optional string notice          =   1;  //滚动公告的内容
     optional int32  gameStatus      =   2;  //0：未游戏  1：正在朋友桌  2：正在锦标赛
     optional int32  matchId         =   3;
@@ -1254,6 +1256,7 @@ message Game_Ready{
 message Game_AckReady{
     optional int32 result       =1; //准备游戏的结果
     optional string msg         =2; //提示信息
+    optional int32 seatId       =3; //searId,发送准备的人的座位号
 }
 
 //开始游戏
@@ -1391,7 +1394,7 @@ message Game_MatchList {
     repeated Game_MatchItem items   = 2;
 }
 
- 
+
 //锦标赛牌局结束：弹窗显示我的名次
 message Game_TounamentPlayerRank{
   optional int32 playerRank     = 1;   //我的排名名次

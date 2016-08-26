@@ -381,10 +381,10 @@ func (t *ThDesk) GetSecondPool() []int64 {
 }
 
 //发送新增用户的广播
-func (t *ThDesk) OGTHBroadAddUser() {
+func (t *ThDesk) BroadGameInfo() {
 	msg := t.initGameSendgameInfoByDesk()
 	for i := 0; i < len(t.Users); i++ {
-		if t.Users[i] != nil {
+		if t.Users[i] != nil && t.Users[i].IsLeave == false && t.Users[i].IsBreak ==false  {
 			//给用户发送广播的时候需要判断自己的座位号是多少
 			a := t.Users[i].agent
 			*msg.Seat = t.Users[i].Seat
@@ -444,7 +444,7 @@ func (mydesk *ThDesk) initGameSendgameInfoByDesk() *bbproto.Game_SendGameInfo {
 	result.SecondPool = mydesk.GetSecondPool()
 	*result.TurnMax = mydesk.BetAmountNow
 	result.WeixinInfos = mydesk.GetWeiXinInfos()
-	*result.OwnerSeat = int32(mydesk.GetUserIndex(mydesk.DeskOwner))
+	*result.OwnerSeat = mydesk.GetUserByUserId(mydesk.DeskOwner).Seat
 
 	//循环User来处理
 	for i := 0; i < len(mydesk.Users); i++ {
@@ -546,7 +546,7 @@ func deskStatus2OG(desk *ThDesk) int32 {
 	if status == TH_DESK_STATUS_STOP {
 		//没有开始
 		result = GAME_STATUS_READY
-	} else if status == TH_DESK_STATUS_SART {
+	} else if status == TH_DESK_STATUS_RUN {
 		switch round {
 		case TH_DESK_ROUND1:
 			result = GAME_STATUS_FIRST_TURN
@@ -624,7 +624,6 @@ func (mydesk *ThDesk ) GetMyHandCard(userId uint32) []*bbproto.Game_CardInfo {
 	for i := 0; i < len(mydesk.Users); i++ {
 		u := mydesk.Users[i]
 		if u != nil {
-			log.T("开始给玩家[%v]解析手牌", u.UserId)
 			result := make([]*bbproto.Game_CardInfo, 0)
 			//用户手牌
 			if len(u.HandCards) == 2 && u.UserId == userId {

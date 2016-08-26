@@ -11,6 +11,7 @@ import (
 	"casino_server/common/log"
 	"errors"
 	"sync/atomic"
+	"github.com/golang/protobuf/proto"
 )
 
 
@@ -54,6 +55,7 @@ type ThUser struct {
 	TurnCoin           int64                 //单轮押注(总共四轮)的金额
 	HandCoin           int64                 //用户下注多少钱、指单局
 	RoomCoin           int64                 //用户上分的金额
+	InitialRoomCoin    int64                 //进房间的时候,手上的roomCoin, 实现rebuy协议之后,需要增加这个字段的值
 }
 
 func (t *ThUser) GetCoin() int64 {
@@ -235,18 +237,30 @@ func (t *ThUser) IsBetting() bool {
 	return t.Status == TH_USER_STATUS_BETING
 }
 
-func (t *ThUser) IsClose() bool{
+func (t *ThUser) IsClose() bool {
 	return t.Status == TH_USER_STATUS_CLOSED
 }
 
 //得到自己在当前锦标赛中的名次
 func (t *ThUser) GetCsRank() int64 {
 	//todo 获取名词之前,需要判断用户正在玩的游戏的类型
-	return GetCSTHuserRank(t.MatchId,t.UserId)
+	return GetCSTHuserRank(t.MatchId, t.UserId)
+}
+
+func (t *ThUser) WriteMsg(p proto.Message) error {
+	agent := t.agent
+	if agent != nil {
+		agent.WriteMsg(p)
+		return nil
+	} else {
+		log.T("用户[%v]的agent为nil,不能发送信息", t.UserId)
+		return errors.New("用户的agent为nil,不能发送信息")
+	}
+
 }
 
 //通过agent得到session
-func GetUserDataByAgent(a gate.Agent) *bbproto.ThServerUserSession{
+func GetUserDataByAgent(a gate.Agent) *bbproto.ThServerUserSession {
 	//获取agent中的userData
 	ad := a.UserData()
 	if ad == nil {

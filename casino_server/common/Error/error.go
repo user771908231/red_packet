@@ -113,3 +113,14 @@ func GetErrorCode(e error) (ret int32) {
 	ret = ee.errCode
 	return ret
 }
+func GetErrorMsg(e error) (ret string) {
+	defer func() {
+		if r := recover(); r != nil {
+			fmt.Println("[W]", r)
+			ret = ""
+		}
+	}()
+	ee := e.(*Error)
+	ret = ee.errStr
+	return ret
+}

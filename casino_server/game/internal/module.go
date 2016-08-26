@@ -4,6 +4,7 @@ import (
 	"github.com/name5566/leaf/module"
 	"casino_server/base"
 	"casino_server/common/log"
+	"casino_server/service/room"
 )
 
 
@@ -25,6 +26,10 @@ type Module struct {
 func (m *Module) OnInit() {
 	log.T("game internal OnInit()")
 	m.Skeleton = skeleton
+	//开始锦标赛的游戏
+	room.ChampionshipRoom.Begin()
+
+
 }
 
 func (m *Module) OnDestroy() {

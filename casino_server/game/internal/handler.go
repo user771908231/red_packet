@@ -36,8 +36,9 @@ func init() {
 	handler(&bbproto.ThRoom{}, handlerThRoom)
 	handler(&bbproto.THBet{}, handlerThBet)                //押注的协议
 
-	//联众的德州扑克
+	//----------------------------------------------神经德州------------------------------------------------------
 	handler(&bbproto.Game_LoginGame{}, handlerGameLoginGame)          //登陆游戏
+	handler(&bbproto.Game_Login{},handlerGameLogin)
 	handler(&bbproto.Game_EnterMatch{}, handlerGameEnterMatch)        //进入房间
 	handler(&bbproto.Game_FollowBet{}, handlerFollowBet)              //处理押注的请求
 	handler(&bbproto.Game_RaiseBet{}, handlerRaise)                   //处理加注的请求
@@ -45,7 +46,6 @@ func init() {
 	handler(&bbproto.Game_CheckBet{}, handlerCheckBet)                //处理让牌的请求
 	handler(&bbproto.Game_CreateDesk{}, handlerCreateDesk)            //创建房间
 	handler(&bbproto.Game_DissolveDesk{}, handlerDissolveDesk)        //解散房间
-
 
 	handler(&bbproto.Game_Ready{}, handlerReady)                      //准备游戏
 	handler(&bbproto.Game_Begin{}, handlerBegin)                      //开始游戏
@@ -61,6 +61,7 @@ func init() {
 	handler(&bbproto.Game_TounamentSummary{}, handlerGame_TounamentSummary)
 
 	handler(&bbproto.Game_MatchList{}, handlerGame_MatchList)         //锦标赛列表
+
 }
 
 /**
@@ -212,6 +213,13 @@ func handlerGameLoginGame(args []interface{}) {
 	a.WriteMsg(result)
 }
 
+//登陆大厅的协议
+func handlerGameLogin(args []interface{}){
+	m := args[0].(*bbproto.Game_Login)
+	a := args[1].(gate.Agent)
+	OGservice.HandlerGameLogin(m.GetUserId(),a)
+}
+
 
 //用户创建一个房间
 func handlerCreateDesk(args []interface{}) {
@@ -228,7 +236,7 @@ func handlerCreateDesk(args []interface{}) {
 	result.UserBalance = new(int64)
 
 	//开始创建房间
-	desk, err := OGservice.HandlerCreateDesk(m.GetUserId(), m.GetInitCoin(),m.GetPreCoin(), m.GetSmallBlind(), m.GetBigBlind(),m.GetInitCount())
+	desk, err := OGservice.HandlerCreateDesk(m.GetUserId(), m.GetInitCoin(), m.GetPreCoin(), m.GetSmallBlind(), m.GetBigBlind(), m.GetInitCount())
 	if err != nil {
 		log.E("创建房间失败 errmsg [%v]", err)
 		*result.Result = int32(bbproto.DDErrorCode_ERRORCODE_CREATE_DESK_DIAMOND_NOTENOUGH)
@@ -237,7 +245,7 @@ func handlerCreateDesk(args []interface{}) {
 		*result.DeskId = desk.Id
 		*result.Password = desk.RoomKey
 		*result.CreateFee = desk.CreateFee
-		*result.UserBalance = userService.GetUserById(desk.DeskOwner).GetDiamond()		//得到用户的余额
+		*result.UserBalance = userService.GetUserById(desk.DeskOwner).GetDiamond()                //得到用户的余额
 	}
 
 	//返回信息
@@ -300,7 +308,9 @@ func handlerFollowBet(args []interface{}) {
 	a := args[1].(gate.Agent)
 	seatId := m.GetSeat()
 	desk := room.GetDeskByAgent(a)
-	desk.DDBet(seatId, room.TH_DESK_BET_TYPE_CALL, 0)
+	if desk!=nil {
+		desk.DDBet(seatId, room.TH_DESK_BET_TYPE_CALL, 0)
+	}
 }
 
 // 处理加注
@@ -310,8 +320,9 @@ func handlerRaise(args []interface{}) {
 	seatId := m.GetSeat()
 	coin := m.GetCoin()
 	desk := room.GetDeskByAgent(a)
-
-	desk.DDBet(seatId, room.TH_DESK_BET_TYPE_RAISE, coin)
+	if desk!=nil {
+		desk.DDBet(seatId, room.TH_DESK_BET_TYPE_RAISE, coin)
+	}
 }
 
 // 处理弃牌
@@ -320,8 +331,9 @@ func handlerFoldBet(args []interface{}) {
 	a := args[1].(gate.Agent)
 	seatId := m.GetSeat()
 	desk := room.GetDeskByAgent(a)
-
-	desk.DDBet(seatId, room.TH_DESK_BET_TYPE_FOLD, 0)
+	if desk!=nil {
+		desk.DDBet(seatId, room.TH_DESK_BET_TYPE_FOLD, 0)
+	}
 }
 
 // 处理让牌
@@ -331,8 +343,9 @@ func handlerCheckBet(args []interface{}) {
 
 	seatId := m.GetSeat()
 	desk := room.GetDeskByAgent(a)
-
-	desk.DDBet(seatId, room.TH_DESK_BET_TYPE_CHECK, 0)
+	if desk!=nil {
+		desk.DDBet(seatId, room.TH_DESK_BET_TYPE_CHECK, 0)
+	}
 }
 
 //获得个人的战绩,并且按照时间排序
@@ -402,7 +415,7 @@ func handlerGame_TounamentSummary(args []interface{}) {
 	m := args[0].(*bbproto.Game_TounamentSummary)
 	a := args[1].(gate.Agent)
 
-	log.T("用户请求handlerGame_TounamentSummarym[%v]",m)
+	log.T("用户请求handlerGame_TounamentSummarym[%v]", m)
 
 	m.Coin = new(string)
 	m.Fee = new(string)

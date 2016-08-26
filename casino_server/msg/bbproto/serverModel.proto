@@ -60,8 +60,6 @@ message ThServerUser{
 
 }
 
-
-
 //保存用户的会话信息
 message ThServerUserSession{
 	optional uint32		userId		 = 1;	//用户Id
@@ -109,4 +107,12 @@ message ThServerDesk{
     optional int64	MinRaise			=25;	//座位号
     optional ThServerAllInJackpot	AllInJackpot		=26;	//座位号
 
+}
+
+//
+message CsThRankInfo{
+	optional uint32 userId	=	1;	//用户id
+	optional int32 matchId	=	2;	//锦标赛场次的信息
+	optional int64 balance 	=	3;	//用户的余额
+	optional int64 endTime	=	4;	//用户的结束时间
 }

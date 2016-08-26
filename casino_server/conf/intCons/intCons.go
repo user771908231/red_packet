@@ -1,5 +1,7 @@
 package intCons
 
+import "casino_server/msg/bbprotogo"
+
 var (
 	//--------------------------------统一返回码------------------------------------------------------------------
 	CODE_SUCC			int32		=	0		//成功时候的代码
@@ -41,7 +43,7 @@ var GAME_TYPE_TH_CS	int32 =	2		//锦标赛德州
 //返回值
 var(
 	ACK_RESULT_ERROR	int32 =	-1
-	ACK_RESULT_SUCC		int32 =	0
+	ACK_RESULT_SUCC		int32 = 	int32(bbproto.DDErrorCode_ERRORCODE_SUCC)
 	ACK_RESULT_FAIL		int32 =	-2
 )
 
