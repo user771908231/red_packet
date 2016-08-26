@@ -162,7 +162,7 @@ func NewThDesk() *ThDesk {
 	result.Status = TH_DESK_STATUS_STOP        //游戏还没有开始的状态
 	result.DeskType = intCons.GAME_TYPE_TH_CS                          //游戏桌子的类型
 	result.JuCount = 0
-	result.JuCountNow = 1		//默认从第一局开始
+	result.JuCountNow = 1                //默认从第一局开始
 	return result
 }
 
@@ -247,6 +247,7 @@ func (t *ThDesk) AddThUser(userId uint32, userStatus int32, a gate.Agent) (*ThUs
 	thUser.GameNumber = t.GameNumber
 	thUser.NickName = *redisUser.NickName                //todo 测试阶段,把nickName显示成用户id
 	thUser.RoomCoin = t.InitRoomCoin
+	thUser.InitialRoomCoin = thUser.RoomCoin
 	log.T("初始化thuser的时候coin[%v]:,roomCoin[%v]", thUser.GetCoin(), thUser.GetRoomCoin())
 
 	//3,添加thuser
@@ -553,8 +554,6 @@ func (t *ThDesk) THBroadcastTestResult(p *bbproto.Game_TestResult) error {
 	for i := 0; i < len(t.Users); i++ {
 		u := t.Users[i]                //给这个玩家发送广播信息
 		if u != nil && u.IsLeave != true {
-
-
 
 			a := t.Users[i].agent
 			a.WriteMsg(p)
@@ -980,10 +979,10 @@ func (t *ThDesk) isEnd() bool {
 		//如果是自定义房间
 		//1,局数
 		//2,人数
-		log.T("判断自定义的desk是否结束游戏t.jucount[%v],t.jucountnow[%v],",t.JuCount,t.JuCountNow)
+		log.T("判断自定义的desk是否结束游戏t.jucount[%v],t.jucountnow[%v],", t.JuCount, t.JuCountNow)
 		if t.JuCountNow <= t.JuCount {
 			return false
-		}else{
+		} else {
 			return true
 		}
 	} else if t.DeskType == intCons.GAME_TYPE_TH_CS {
@@ -993,7 +992,7 @@ func (t *ThDesk) isEnd() bool {
 		} else {
 			return false
 		}
-	}else{
+	} else {
 		return true
 	}
 }
@@ -1755,7 +1754,7 @@ func (mydesk *ThDesk) Run() error {
 
 //表示游戏结束
 func (t *ThDesk) End() {
-	log.T("整句(多场游戏)已经结束...)")
+	log.T("整局(多场游戏)已经结束...)")
 	//广播结算的信息
 	result := &bbproto.Game_SendDeskEndLottery{}
 	result.Result = &intCons.ACK_RESULT_SUCC
@@ -1776,7 +1775,7 @@ func (t *ThDesk) End() {
 
 
 			//赋值
-			*gel.Coin = u.winAmount
+			*gel.Coin = u.RoomCoin - u.InitialRoomCoin        //这里不是u.winamount,u.winamount  表示本局赢得底池的金额
 			*gel.Seat = u.Seat
 
 			if t.DeskOwner == u.UserId {

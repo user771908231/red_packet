@@ -1171,12 +1171,12 @@ message Game_SendAddUser{
 }
 
 //显示大厅时请求
-message Game_Lobby{
+message Game_Login{
     optional int32  userId      =   1;  //用户id
 }
 
 //大厅回复
-message Game_AckLobby{
+message Game_AckLogin{
     optional string notice          =   1;  //滚动公告的内容
     optional int32  gameStatus      =   2;  //0：未游戏  1：正在朋友桌  2：正在锦标赛
     optional int32  matchId         =   3;
