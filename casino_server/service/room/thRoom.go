@@ -140,7 +140,9 @@ func (r *ThGameRoom) RmThroom(desk *ThDesk) error {
 		if u != nil {
 			agent := u.agent
 			//更新agentData的数据
-			u.UpdateAgentUserData(agent, 0, 0)
+			u.deskId = 0
+			u.MatchId = 0
+			u.UpdateAgentUserData(agent)
 		}
 	}
 
@@ -207,10 +209,10 @@ func (r *ThGameRoom) IsRepeatIntoRoom(userId uint32, a gate.Agent) *ThDesk {
 	}
 
 	//3,重新设置用户的信息
-	log.T("用户[%v]重新进入房间了", userId)
-	desk.GetUserByUserId(userId).UpdateAgentUserData(a, desk.Id, desk.MatchId)
+	desk.GetUserByUserId(userId).UpdateAgentUserData(a)
 	desk.AddUserCountOnline()
 
+	log.T("用户[%v]重新进入房间了", userId)
 	return desk
 }
 

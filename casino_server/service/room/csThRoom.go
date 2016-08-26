@@ -14,6 +14,7 @@ import (
 	"casino_server/msg/bbprotogo"
 	"casino_server/utils/jobUtils"
 	"sort"
+	"casino_server/service/userService"
 )
 
 var ChampionshipRoom CSThGameRoom        //锦标赛的房间
@@ -27,23 +28,27 @@ func init() {
 
 //对竞标赛的配置
 var CSTHGameRoomConfig struct {
-	gameDuration      time.Duration //一场比赛的时间周期
-	checkDuration     time.Duration //检测的时间周期
-	leastCount        int32         //游戏开始的最少人数
-	nextRunDuration   time.Duration //开始下一场的间隔
-	riseBlindDuration time.Duration //生盲的时间间隔
-	blinds            []int64       //盲注
+	gameDuration           time.Duration //一场比赛的时间周期
+	checkDuration          time.Duration //检测的时间周期
+	leastCount             int32         //游戏开始的最少人数
+	nextRunDuration        time.Duration //开始下一场的间隔
+	riseBlindDuration      time.Duration //生盲的时间间隔
+	blinds                 []int64       //盲注
+	initRoomCoin           int64         //初始的带入金额
+	TH_DESK_MAX_START_USER int32         //最多多少人
 }
 
 //对配置对象进行配置,以后可以从配置文件读取
 func (r *CSThGameRoom) OnInitConfig() {
 	log.T("初始化csthgameroom.config")
-	CSTHGameRoomConfig.gameDuration = time.Second * 60 * 2
+	CSTHGameRoomConfig.gameDuration = time.Second * 60 * 20                //游戏是20分钟异常
 	CSTHGameRoomConfig.checkDuration = time.Second * 10
-	CSTHGameRoomConfig.leastCount = 20; //最少要20人才可以开始游戏
+	CSTHGameRoomConfig.leastCount = 3; //最少要20人才可以开始游戏
 	CSTHGameRoomConfig.nextRunDuration = time.Second * 60 * 1        //1 分钟之后开始下一场
 	CSTHGameRoomConfig.riseBlindDuration = time.Second * 150        //每150秒生一次忙
 	CSTHGameRoomConfig.blinds = []int64{5, 10, 20, 40, 80, 160, 320, 640, 1280, 2000, 10000, 100000, 1000000}
+	CSTHGameRoomConfig.initRoomCoin = 1000;
+	CSTHGameRoomConfig.TH_DESK_MAX_START_USER = 9
 }
 
 //锦标赛的状态
@@ -67,17 +72,20 @@ type CSThGameRoom struct {
 	status          int32                   //锦标赛的状态
 	rankInfo        []*bbproto.CsThRankInfo //排名信息
 	blindLevel      int32                   //盲注的等级
+	initRoomCoin    int64                   //房间默认的带入金额
 }
 
 //只有开始之后才能进入游戏房间
 func (r *CSThGameRoom) IsCanIntoRoom() bool {
 	//时间过了不能进入
-	if time.Now().After(r.endTime) {
+	if r.status == CSTHGAMEROOM_STATUS_RUN && time.Now().After(r.endTime) {
+		log.T("进入锦标赛的游戏房间失败,因为time.mow[].after (r.endTime[%v])", r.endTime)
 		return false
 	}
 
 	//游戏开始之后,用户只剩10人不能进入游戏 todo 这里的10人需要放置在配置文件中
 	if r.status == CSTHGAMEROOM_STATUS_RUN && r.gamingUserCount <= 10 {
+		log.T("因为竞标赛已经是run的状态,并且游戏中的人数小于10,所以不能开始")
 		return false
 	}
 
@@ -97,6 +105,8 @@ func (r *CSThGameRoom) Begin() {
 	//开始一局游戏的时候,生成一个matchId
 	r.matchId, _ = db.GetNextSeq(casinoConf.DBT_T_CS_TH_RECORD)        //生成游戏的matchId
 	r.status = CSTHGAMEROOM_STATUS_READY
+	r.initRoomCoin = CSTHGameRoomConfig.initRoomCoin
+	r.ThRoomSeatMax = CSTHGameRoomConfig.TH_DESK_MAX_START_USER
 	log.T("开始锦标赛的游戏matchId[%v]", r.matchId)
 	//判断是否可以开始run
 
@@ -107,7 +117,7 @@ func (r *CSThGameRoom) Begin() {
 			r.Run()
 			return true        //表示终止任务
 		} else {
-			log.T("锦标赛玩家数量[%v]不够,暂时不开始游戏.", r.gamingUserCount)
+			log.T("锦标赛[%v]玩家数量[%v]不够,暂时不开始游戏.", r.matchId, r.gamingUserCount)
 			return false
 		}
 	})
@@ -214,11 +224,37 @@ func (r *CSThGameRoom) End() {
 }
 
 
+//判断锦标赛是否重新进入房间
+func (r *CSThGameRoom) IsRepeatIntoRoom(userId uint32, a gate.Agent) *ThDesk {
+	//1,取回话信息,如果回话信息为nil,直接返回nil
+	userData := userService.GetUserSessionByUserId(userId)
+
+	//如果会话信息为nil,或者没有在游戏状态中,则返回nil
+	if userData == nil || userData.GetGameStatus() == TH_USER_STATUS_NOGAME {
+		return nil
+	}
+
+
+	//2,取桌子的信息,如果桌子为nil,则直接返回nil
+	desk := GetDeskByIdAndMatchId(userData.GetDeskId(), userData.GetMatchId())
+	if desk == nil {
+		return nil
+	}
+
+	//3,重新设置用户的信息
+	desk.GetUserByUserId(userId).UpdateAgentUserData(a)
+	desk.AddUserCountOnline()
+
+	log.T("用户[%v]重新进入房间了", userId)
+	return desk
+}
+
+
 //游戏大厅增加一个玩家
 func (r *CSThGameRoom) AddUser(userId uint32, a gate.Agent) (*ThDesk, error) {
 	r.Lock()
 	defer r.Unlock()
-	log.T("userid【%v】进入德州扑克的房间", userId)
+	log.T("userid【%v】进入锦标赛的游戏房间", userId)
 
 	//这里需要判断锦标赛是否可以开始游戏
 	if !r.IsCanIntoRoom() {
@@ -227,7 +263,8 @@ func (r *CSThGameRoom) AddUser(userId uint32, a gate.Agent) (*ThDesk, error) {
 	}
 
 	var mydesk *ThDesk = nil                //为用户找到的desk
-	//1,判断用户是否已经在房间里了,如果是在房间里,那么替换现有的agent,
+	//1,判断用户是否已经在房间里了,如果是在房间里,那么替换现有的agent
+	//重新进入房间,如果是锦标赛,那么只有断线重连,如果是
 	mydesk = r.IsRepeatIntoRoom(userId, a)
 	if mydesk != nil {
 		return mydesk, nil
@@ -235,11 +272,13 @@ func (r *CSThGameRoom) AddUser(userId uint32, a gate.Agent) (*ThDesk, error) {
 
 	//2,查询哪个德州的房间缺人:循环每个德州的房间,然后查询哪个房间缺人
 	for deskIndex := 0; deskIndex < len(r.ThDeskBuf); deskIndex++ {
+		log.T("查找竞标赛index=[%v]的房间", deskIndex)
 		tempDesk := r.ThDeskBuf[deskIndex]
 		if tempDesk == nil {
 			log.E("找到房间为nil,出错")
 			break
 		}
+		log.T("查找竞标赛index=[%v]的房间:tempDesk.UserCount[%v],r.ThRoomSeatMax", tempDesk.UserCount, r.ThRoomSeatMax)
 		if tempDesk.UserCount < r.ThRoomSeatMax {
 			mydesk = tempDesk        //通过roomId找到德州的room
 			break;
@@ -248,9 +287,9 @@ func (r *CSThGameRoom) AddUser(userId uint32, a gate.Agent) (*ThDesk, error) {
 
 	//如果没有可以使用的桌子,那么重新创建一个,并且放进游戏大厅
 	if mydesk == nil {
-		log.T("没有多余的desk可以用,重新创建一个desk")
 		mydesk = NewThDesk()
 		mydesk.MatchId = r.matchId
+		mydesk.InitRoomCoin = r.initRoomCoin
 		r.AddThDesk(mydesk)
 	}
 
@@ -262,6 +301,7 @@ func (r *CSThGameRoom) AddUser(userId uint32, a gate.Agent) (*ThDesk, error) {
 	}
 
 	r.AddOnlineCount()        //在线用户增加1
+	r.AddgamingUserCount()    //游戏玩家数量+1
 	r.AddUserRankInfo(user.UserId, user.MatchId, user.RoomCoin)
 	mydesk.LogString()        //打印当前房间的信息
 	return mydesk, nil
@@ -355,26 +395,33 @@ func ( list RankList) Swap(i, j int) {
 }
 
 //更具用户信息得到排名
-func (r *CSThGameRoom) GetRankByuserId(userId uint32) int32{
-	var tempList RankList = make([]*bbproto.CsThRankInfo,len(r.rankInfo))
-	copy(tempList,r.rankInfo)
-	sort.Sort(tempList)		//开始排序
+func (r *CSThGameRoom) GetRankByuserId(userId uint32) int32 {
+	var tempList RankList = make([]*bbproto.CsThRankInfo, len(r.rankInfo))
+	copy(tempList, r.rankInfo)
+	sort.Sort(tempList)                //开始排序
 
 	index := 0
 	for i := 0; i < len(tempList); i++ {
 		info := tempList[i]
-		if  info != nil && info.GetUserId() == userId{
+		if info != nil && info.GetUserId() == userId {
 			index = i
 			break
 		}
 
 	}
 
-	rank := len(tempList)-index
-	log.T("查询用户[%v]的锦标赛rank排名是[%v]",userId,rank)
+	rank := len(tempList) - index
+	log.T("查询用户[%v]的锦标赛rank排名是[%v]", userId, rank)
 	return int32(rank)
 }
 //------------------------------------------------------关于排名的排序-end---------------------------------------------
 
+func (r *CSThGameRoom) AddgamingUserCount() {
+	atomic.AddInt32(&r.gamingUserCount, 1)
+}
 
+func (r *CSThGameRoom) SubgamingUserCount() {
+	atomic.AddInt32(&r.gamingUserCount, -1)
+
+}
 

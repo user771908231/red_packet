@@ -141,6 +141,7 @@ func newACKQuickConn() * bbproto.ACKQuickConn{
 	*result.ReleaseTag = 1			///todo  这里需要修改
 
 	arrs := strings.Split(conf.Server.TCPAddr, ":")
+	log.T("quickConn arrs[%v]",arrs)
 	var ip string = arrs[0]
 	var port string = arrs[1]
 
@@ -165,7 +166,9 @@ func newACKQuickConn() * bbproto.ACKQuickConn{
 	serverInfo := &bbproto.ServerInfo{}
 	serverInfo.Ip = &ip
 
-	portStr := numUtils.String2Int32(port)
+	log.T("quickConn port[%v]",port)
+	portStr := int32(numUtils.String2Int(port))
+	log.T("quickConn portStr[%v]",portStr)
 	serverInfo.Port = &portStr
 	svrlist := make([]*bbproto.ServerInfo, 1)
 	svrlist[0] = serverInfo

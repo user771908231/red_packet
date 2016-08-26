@@ -18,6 +18,8 @@ import (
 
 
 //德州扑克 玩家的状态
+
+var TH_USER_STATUS_NOGAME int32 = 0           //刚上桌子 等待开始的玩家
 var TH_USER_STATUS_WAITSEAT int32 = 1           //刚上桌子 等待开始的玩家
 var TH_USER_STATUS_SEATED int32 = 2                //刚上桌子 但是没有在游戏中
 var TH_USER_STATUS_READY int32 = 3
@@ -74,7 +76,6 @@ func (t *ThUser) GetRoomCoin() int64 {
 
 //
 func (t *ThUser) trans2bbprotoThuser() *bbproto.THUser {
-
 	thuserTemp := &bbproto.THUser{}
 	thuserTemp.Status = &(t.Status)        //已经就做
 	thuserTemp.User = userService.GetUserById(t.UserId)        //得到user
@@ -86,8 +87,6 @@ func (t *ThUser) trans2bbprotoThuser() *bbproto.THUser {
 //等待用户出牌
 func (t *ThUser) wait() error {
 	//如果不是押注中的状态,不用wait任务
-	log.T("用户当前的状态[%v]", t.Status)
-
 	//这一步其实可以不用验证,因为出牌的游标滑动到这里的时候,已经验证过了
 	//if !t.IsBetting() {
 	//	return nil
@@ -186,16 +185,18 @@ func NewThUser() *ThUser {
 }
 
 //更新用户的agentUserData数据
-func (t *ThUser) UpdateAgentUserData(a gate.Agent, deskId int32, matchId int32) {
+func (t *ThUser) UpdateAgentUserData(a gate.Agent) {
 
 	//保存回话信息
 	userAgentData := bbproto.NewThServerUserSession()                //绑定参数
 	*userAgentData.UserId = t.UserId
-	*userAgentData.DeskId = deskId
-	*userAgentData.MatchId = matchId
+	*userAgentData.DeskId = t.deskId
+	*userAgentData.MatchId = t.MatchId
+	*userAgentData.GameStatus = t.Status
 	a.SetUserData(userAgentData)
 	t.agent = a
 	t.IsBreak = false
+	t.IsLeave = false
 
 	//回话信息保存到redis
 	userService.SaveUserSession(userAgentData)
@@ -257,6 +258,7 @@ func (t *ThUser) GetCsRank() int64 {
 func (t *ThUser) WriteMsg(p proto.Message) error {
 	agent := t.agent
 	if agent != nil {
+		log.T("开始给用户[%v]发送信息:", t.UserId)
 		agent.WriteMsg(p)
 		return nil
 	} else {

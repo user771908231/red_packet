@@ -92,7 +92,7 @@ func ThCard2OGCard(pai *bbproto.Pai) *bbproto.Game_CardInfo {
 
 
 //获得前注的信息
-func ( t *ThDesk) GetPreCoin()[]int64{
+func ( t *ThDesk) GetPreCoin() []int64 {
 	var result []int64
 	for i := 0; i < len(t.Users); i++ {
 		u := t.Users[i]
@@ -160,14 +160,16 @@ func (t *ThDesk) GetSecondPool() []int64 {
 
 //发送新增用户的广播
 func (t *ThDesk) BroadGameInfo() {
+	log.T("开始发送用户fameinfo的广播")
 	msg := t.initGameSendgameInfoByDesk()
 	for i := 0; i < len(t.Users); i++ {
-		if t.Users[i] != nil && t.Users[i].IsLeave == false && t.Users[i].IsBreak == false {
+		u := t.Users[i]
+		if u != nil && u.IsLeave == false && u.IsBreak == false {
 			//给用户发送广播的时候需要判断自己的座位号是多少
-			a := t.Users[i].agent
 			*msg.Seat = t.Users[i].Seat
 			msg.Handcard = t.GetMyHandCard(t.Users[i].UserId)
-			a.WriteMsg(msg)
+			//给用户发送信息
+			u.WriteMsg(msg)
 		}
 	}
 }

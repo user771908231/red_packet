@@ -84,8 +84,8 @@ func InitDeskConfig() {
 	ThdeskConfig.CreateFee = 1
 
 	//每个人出牌的等待时间
-	ThdeskConfig.TH_TIMEOUT_DURATION = time.Second * 200
-	ThdeskConfig.TH_TIMEOUT_DURATION_INT = 200
+	ThdeskConfig.TH_TIMEOUT_DURATION = time.Second * 20
+	ThdeskConfig.TH_TIMEOUT_DURATION_INT = 20
 
 	//德州开奖的时间
 	ThdeskConfig.TH_LOTTERY_DURATION = time.Second * 5
@@ -238,7 +238,7 @@ func (t *ThDesk) IsrepeatIntoWithRoomKey(userId uint32, a gate.Agent) bool {
 			u.agent = a                                                //设置用户的连接
 			u.IsBreak = false                //设置用户的离线状态
 			u.IsLeave = false
-			u.UpdateAgentUserData(a, t.Id, t.MatchId)
+			u.UpdateAgentUserData(a)
 			u.Update2redis()                //更新用户数据到redis
 			t.AddUserCountOnline()
 			return true
@@ -264,7 +264,6 @@ func (t *ThDesk) AddThUser(userId uint32, userStatus int32, a gate.Agent) (*ThUs
 	thUser.NickName = *redisUser.NickName                //todo 测试阶段,把nickName显示成用户id
 	thUser.RoomCoin = t.InitRoomCoin
 	thUser.InitialRoomCoin = thUser.RoomCoin
-	log.T("初始化thuser的时候coin[%v]:,roomCoin[%v]", thUser.GetCoin(), thUser.GetRoomCoin())
 
 	//3,添加thuser
 	err := t.addThuserBean(thUser)
@@ -274,7 +273,7 @@ func (t *ThDesk) AddThUser(userId uint32, userStatus int32, a gate.Agent) (*ThUs
 	}
 
 	//4, 把用户的信息绑定到agent上
-	thUser.UpdateAgentUserData(a, t.Id, t.MatchId)
+	thUser.UpdateAgentUserData(a)
 	NewRedisThuser(thUser)
 
 	//5,等待的用户加1
