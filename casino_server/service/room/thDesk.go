@@ -350,16 +350,13 @@ func (t *ThDesk) LeaveThuser(userId uint32) error {
 		ChampionshipRoom.SubOnlineCount()        //竞标赛的在线人数-1
 	}
 
-
-
 	//给离开的人发送信息
 	ret := &bbproto.Game_ACKLeaveDesk{}
 	ret.Result = &intCons.ACK_RESULT_SUCC
 	user.WriteMsg(ret)
 
-
 	//离开之后,需要广播一次sendGameInfo
-	t.OGTHBroadGameInfo(userId)
+	t.BroadGameInfo()
 	return nil
 }
 
@@ -537,7 +534,7 @@ func (t *ThDesk) THBroadcastProto(p proto.Message, ignoreUserId uint32) error {
 	log.Normal("开始广播proto消息【%v】", p)
 	for i := 0; i < len(t.Users); i++ {
 		u := t.Users[i]                //给这个玩家发送广播信息
-		if u != nil && u.UserId != ignoreUserId && u.IsLeave != true {
+		if u != nil && u.UserId != ignoreUserId && u.IsLeave == false && u.IsBreak == false {
 			a := t.Users[i].agent
 			a.WriteMsg(p)
 		}
