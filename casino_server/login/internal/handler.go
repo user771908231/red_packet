@@ -26,8 +26,6 @@ func init() {
 	handleMsg(&bbproto.Game_Notice{}, handlerNotice)
 }
 
-
-
 func GoID() int {
 	var buf [64]byte
 	n := runtime.Stack(buf[:], false)
@@ -59,10 +57,10 @@ func HandlerREQQuickConn(args []interface{}) {
 		resultUser = userService.GetUserByOpenId(openId)
 		if resultUser == nil {
 			//重新生成一个并保存到数据库
-			if m.GetWx().GetHeadUrl()==""||m.GetWx().GetNickName()==""||m.GetWx().GetOpenId()==""{
+			if m.GetWx().GetHeadUrl() == "" || m.GetWx().GetNickName() == "" || m.GetWx().GetOpenId() == "" {
 				//表示参数非法 返回错误
-			}else{
-				resultUser, _ = userService.NewUserAndSave(m.GetWx().GetOpenId(),m.GetWx().GetNickName(),m.GetWx().GetHeadUrl())
+			} else {
+				resultUser, _ = userService.NewUserAndSave(m.GetWx().GetOpenId(), m.GetWx().GetNickName(), m.GetWx().GetHeadUrl())
 			}
 		}
 	}
@@ -72,7 +70,7 @@ func HandlerREQQuickConn(args []interface{}) {
 	result.ForceUpdate = new(int32)
 	*result.ForceUpdate = 0
 	if m.GetCurVersion() < LatestClientVersion {
-		log.T("客户端需要升级, 版本为:%v", m.GetCurVersion() )
+		log.T("客户端需要升级, 版本为:%v", m.GetCurVersion())
 		*result.ForceUpdate = 0 //1=强制升级 0=可选升级
 		result.DownloadUrl = new(string)
 		*result.DownloadUrl = "http://d.tondeen.com/sjtexas.html" //TODO:放入配置文件中
@@ -88,7 +86,7 @@ func HandlerREQQuickConn(args []interface{}) {
 		*result.MaintainMsg = "服务器正在例行维护中，请于今日5:00后再登录游戏!"
 	}
 
-	
+
 	//如果得到的user ==nil 或者 用密码登陆的时候密码不正确
 	if resultUser == nil || (resultUser.GetPwd() != "" && m.GetPwd() != resultUser.GetPwd()) {
 		log.E("没有找到用户,返回登陆失败...")
@@ -117,9 +115,9 @@ func handlerNullMsg(args []interface{}) {
 
 //请求当前的公告
 func handlerNotice(args []interface{}) {
-	m :=  args[0].(*bbproto.Game_Notice)
-	a :=  args[1].(gate.Agent)
-	log.T("开始查询公告的信息m[%v]",m)
+	m := args[0].(*bbproto.Game_Notice)
+	a := args[1].(gate.Agent)
+	log.T("开始查询公告的信息m[%v]", m)
 	tnotice := noticeServer.GetNoticeByType(m.GetNoticeType())
 	a.WriteMsg(tnotice)
 }
@@ -127,7 +125,7 @@ func handlerNotice(args []interface{}) {
 
 
 //返回登陆信息
-func newACKQuickConn() * bbproto.ACKQuickConn{
+func newACKQuickConn() *bbproto.ACKQuickConn {
 	result := &bbproto.ACKQuickConn{}
 
 	result.CoinCnt = new(int64)
@@ -137,7 +135,7 @@ func newACKQuickConn() * bbproto.ACKQuickConn{
 	result.AckResult = new(int32)
 	result.ReleaseTag = new(int32)
 	//默认发布版本是1
-	*result.ReleaseTag = 1			///todo  这里需要修改
+	*result.ReleaseTag = 1                        ///todo  这里需要修改
 
 	arrs := strings.Split(conf.Server.TCPAddr, ":")
 	var ip string = arrs[0]

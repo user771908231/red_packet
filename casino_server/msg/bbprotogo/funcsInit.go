@@ -49,6 +49,9 @@ func NewGame_AckLogin() *Game_AckLogin {
 	ret.Notice = new(string)
 	ret.RoomPassword = new(string)
 	ret.TableId = new(int32)
+	ret.CostCreateRoom = new(int64)
+	ret.CostRebuy = new(int64)
+	ret.Championship = new(bool)
 	return ret
 
 }
@@ -135,4 +138,41 @@ func NewGame_AckRebuy() *Game_AckRebuy {
 	ret.RemainCount = new(int32)
 	ret.Result = new(int32)
 	return ret
+}
+
+func NewGame_ACKLeaveDesk() *Game_ACKLeaveDesk {
+	ret := &Game_ACKLeaveDesk{}
+	ret.Result = new(int32)
+	return ret
+}
+
+func NewThServerUserSession() *ThServerUserSession {
+	result := &ThServerUserSession{}
+	result.DeskId = new(int32)
+	result.MatchId = new(int32)
+	result.UserId = new(uint32)
+	result.GameType = new(int32)
+	result.GameStatus = new(int32)
+	return result
+}
+
+func NewThServerUser() *ThServerUser {
+	user := &ThServerUser{}
+	user.Seat = new(int32)
+	user.Status = new(int32)
+	user.BreakStatus = new(int32)
+	user.WaiTime = new(string)
+	user.WaitUUID = new(string)
+	user.DeskId = new(int32)
+	user.TotalBet = new(int64)
+	user.TotalBet4CalcAllin = new(int64)
+	user.WinAmount = new(int64)
+	user.TurnCoin = new(int64)
+	user.HandCoin = new(int64)
+	user.RoomCoin = new(int64)
+	user.UserId = new(uint32)
+	user.GameNumber = new(int32)
+	user.IsBreak = new(bool)
+	user.IsLeave = new(bool)
+	return user
 }

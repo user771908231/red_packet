@@ -244,7 +244,7 @@ func (t *ThDesk) IsrepeatIntoWithRoomKey(userId uint32, a gate.Agent) bool {
 			u.agent = a                                                //设置用户的连接
 			u.IsBreak = false                //设置用户的离线状态
 			u.IsLeave = false
-			u.UpdateAgentUserData(a)
+			u.UpdateAgentUserData()
 			u.Update2redis()                //更新用户数据到redis
 			t.AddUserCountOnline()
 			return true
@@ -270,6 +270,17 @@ func (t *ThDesk) AddThUser(userId uint32, userStatus int32, a gate.Agent) (*ThUs
 	thUser.NickName = *redisUser.NickName                //todo 测试阶段,把nickName显示成用户id
 	thUser.RoomCoin = t.InitRoomCoin
 	thUser.InitialRoomCoin = thUser.RoomCoin
+	thUser.IsBreak = false
+	thUser.IsLeave = false
+
+	//根据桌子的状态 设置用户的游戏状态
+	if t.IsChampionship() {
+		thUser.GameStatus = TH_USER_GAME_STATUS_CHAMPIONSHIP        //新加入游戏的时候设置用户的游戏状态为锦标赛
+	} else if t.IsFriend() {
+		thUser.GameStatus = TH_USER_GAME_STATUS_FRIEND
+	} else {
+		thUser.GameStatus = TH_USER_GAME_STATUS_NOGAME
+	}
 
 	//3,添加thuser
 	err := t.addThuserBean(thUser)
@@ -279,8 +290,8 @@ func (t *ThDesk) AddThUser(userId uint32, userStatus int32, a gate.Agent) (*ThUs
 	}
 
 	//4, 把用户的信息绑定到agent上
-	thUser.UpdateAgentUserData(a)
-	NewRedisThuser(thUser)
+	thUser.UpdateAgentUserData()
+	thUser.Update2redis()
 
 	//5,等待的用户加1
 	t.AddUserCount()
@@ -289,6 +300,39 @@ func (t *ThDesk) AddThUser(userId uint32, userStatus int32, a gate.Agent) (*ThUs
 		t.AddReadyCount()
 	}
 	return thUser, nil
+}
+
+
+//对游戏中的user进行排序
+func (t *ThDesk) sortDDThuser() error {
+	usersTemp := make([]*ThUser, len(t.Users))
+	copy(usersTemp, t.Users)
+	log.T("原来的thsuers:[%v]", t.Users)
+
+
+	//初始化之前的用户为nil
+	for i := 0; i < len(t.Users); i++ {
+		t.Users[i] = nil
+	}
+
+	//排序游戏中的玩家
+	for i := 0; i < len(usersTemp); i++ {
+		u := usersTemp[i]
+		if u != nil && u.IsBetting() {
+			t.addThuserBean(u)
+		}
+	}
+
+	//排序没有在游戏中玩家
+	for i := 0; i < len(usersTemp); i++ {
+		u := usersTemp[i]
+		if u != nil && !u.IsBetting() {
+			t.addThuserBean(u)
+		}
+	}
+	log.T("排序之后的thusers【%v】", t.Users)
+	return nil
+
 }
 
 
@@ -321,7 +365,7 @@ func (t *ThDesk) Ready(userId uint32) error {
 	}
 
 	//1,如果用户已经准备,则返回重复准备
-	if user.Status == TH_USER_STATUS_READY {
+	if user.IsReady() {
 		return Error.NewError(int32(bbproto.DDErrorCode_ERRORCODE_GAME_READY_REPEAT), "已经准备了")
 	}
 
@@ -342,7 +386,8 @@ func (t *ThDesk) IsAllReady() bool {
 	for i := 0; i < len(t.Users); i++ {
 		u := t.Users[i]
 		if u != nil {
-			if u.Status != TH_USER_STATUS_READY {
+			//用户既没有掉线,也没有离开的情况下,如果没有准备,那么返回false
+			if !u.IsReady() && !u.IsLeave && !u.IsBreak {
 				return false
 			}
 		}
@@ -354,15 +399,23 @@ func (t *ThDesk) IsAllReady() bool {
 //  用户退出德州游戏的房间,rmUser 需要在事物中进行,离开德州需要更具桌子的类型来做不同的处理
 func (t *ThDesk) LeaveThuser(userId uint32) error {
 
-	//1,离线的时候,桌子统一的处理
+	//1,离开之后,设置用户的信息
 	user := t.GetUserByUserId(userId)
 	user.IsLeave = true     //设置状态为离开
-	t.SubUserCountOnline()        //房间的在线人数减一
+	user.GameStatus = TH_USER_GAME_STATUS_NOGAME        //用户离开之后,设置用户的游戏状态为没有游戏中
+	user.UpdateAgentUserData()
+
+	//离开之后设置桌子在线人数-1
+	t.SubUserCountOnline()        //leaveDesk之后,房间的在线人数减一
 
 	//2,根据不同的游戏类型做不同的处理
-	if t.IsPengYou() {
-		//自定义房间,离开的时候不用做特殊处理...
-
+	if t.IsFriend() {
+		//自定义房间,如果其他人都准备了,那么开始游戏,离开房间和准备的处理是一样的
+		//这样处理的作用是,防止最后一个未准备的人,离开房间以后游戏不能开始
+		if t.JuCountNow > 1 && t.IsAllReady() {
+			//用户离开之后,判断游戏是否开始
+			go t.Run()
+		}
 	} else if t.IsChampionship() {
 		//用户直接放弃游戏,设置roomCoin=0,并且更新rankxin
 		user.RoomCoin = 0
@@ -372,11 +425,9 @@ func (t *ThDesk) LeaveThuser(userId uint32) error {
 		ChampionshipRoom.RmCopyUser(user.UserId)        //已经明确退出房间的,删除buf中的user
 	}
 
-	//3,发送信息
-
-	//给离开的人发送信息
-	ret := &bbproto.Game_ACKLeaveDesk{}
-	ret.Result = &intCons.ACK_RESULT_SUCC
+	//3,返回离开房间之后的信息
+	ret := bbproto.NewGame_ACKLeaveDesk()
+	*ret.Result = intCons.ACK_RESULT_SUCC
 	user.WriteMsg(ret)
 
 	//离开之后,需要广播一次sendGameInfo
@@ -456,6 +507,7 @@ func (t *ThDesk) InitBlindBet() error {
  */
 func (t *ThDesk) InitUserBeginStatus() error {
 	log.T("开始一局新的游戏,开始初始化用户的状态")
+
 	for i := 0; i < len(t.Users); i++ {
 		u := t.Users[i]
 		//判断用户是否为空
@@ -473,47 +525,23 @@ func (t *ThDesk) InitUserBeginStatus() error {
 		u.winAmountDetail = nil
 
 		//如果用户的余额不足或者用户的状态是属于断线的状态,则设置用户为等待入座
-		//if u.RoomCoin <= (t.BigBlindCoin + t.PreCoin) || u.IsBreak == true {
-		if u.RoomCoin <= (t.BigBlindCoin + t.PreCoin) {
+		if !t.IsUserRoomCoinEnough(u) {
 			log.T("由于用户[%v] status[%v],的roomCoin[%v] <= desk.BigBlindCoin 所以设置用户为TH_USER_STATUS_WAITSEAT", u.UserId, u.IsBreak, u.RoomCoin, t.BigBlindCoin)
 			u.Status = TH_USER_STATUS_WAITSEAT        //只是坐下,没有游戏中
 			continue
 		}
 
 		//用户不是离线的状态,并且,用户已经准备好了,则可以开始游戏
-		if u.IsBreak == false && u.Status == TH_USER_STATUS_READY {
+		if !u.IsBreak && !u.IsLeave && u.IsReady() {
 			log.T("由于用户[%v]的status[%v]BreakStatus[%v],所以设置状态为TH_USER_STATUS_BETING", u.UserId, u.Status, u.IsBreak)
 			u.Status = TH_USER_STATUS_BETING
 		}
+
+		u.Update2redis()
 	}
 
 	//------------------------------------由于联众前端设计的问题...这里的user需要重新排列user的顺序------------------------------------
-	usersTemp := make([]*ThUser, len(t.Users))
-	copy(usersTemp, t.Users)
-	log.T("原来的thsuers:[%v]", t.Users)
-	log.T("复制的thsuers:[%v]", usersTemp)
-	log.T("排序之前的thusers【%v】", t.Users)
-
-	//是原来的thusers置为nil
-	for i := 0; i < len(t.Users); i++ {
-		t.Users[i] = nil
-	}
-
-	//排序游戏中的玩家
-	for i := 0; i < len(usersTemp); i++ {
-		u := usersTemp[i]
-		if u != nil && u.Status == TH_USER_STATUS_BETING {
-			t.addThuserBean(u)
-		}
-	}
-
-	for i := 0; i < len(usersTemp); i++ {
-		u := usersTemp[i]
-		if u != nil && u.Status != TH_USER_STATUS_BETING {
-			t.addThuserBean(u)
-		}
-	}
-	log.T("排序之后的thusers【%v】", t.Users)
+	t.sortDDThuser()
 
 	log.T("开始一局新的游戏,初始化用户的状态完毕")
 	return nil
@@ -681,7 +709,7 @@ func (t *ThDesk) OninitThDeskBeginStatus() error {
 		dealerIndex = t.GetUserIndex(t.Dealer)
 		for i := dealerIndex; i < len(t.Users); i++ {
 			u := t.Users[(i + 1) % len(t.Users)]
-			if u != nil && u.Status == TH_USER_STATUS_BETING {
+			if u != nil && u.IsBetting() {
 				t.Dealer = u.UserId
 			}
 		}
@@ -690,7 +718,7 @@ func (t *ThDesk) OninitThDeskBeginStatus() error {
 	//设置小盲注
 	for i := dealerIndex; i < len(userTemp) + dealerIndex; i++ {
 		u := userTemp[(i + 1) % len(userTemp)]
-		if u != nil && u.Status == TH_USER_STATUS_BETING {
+		if u != nil && u.IsBetting() {
 			t.SmallBlind = u.UserId
 			userTemp[(i + 1) % len(userTemp)] = nil
 			break
@@ -713,6 +741,7 @@ func (t *ThDesk) OninitThDeskBeginStatus() error {
 
 	if t.UserCountOnline == int32(2) {
 		//如果只有两个人,当前押注的人是小盲注
+		log.T("由于当前游戏中的t.userCountOnline==2,所以设置betUserNow 是盲注", )
 		t.BetUserNow = t.SmallBlind
 	} else {
 		//设置当前押注的人
@@ -747,7 +776,7 @@ func (t *ThDesk) OninitThDeskBeginStatus() error {
 }
 
 //判断是不是朋友桌
-func (t *ThDesk) IsPengYou() bool {
+func (t *ThDesk) IsFriend() bool {
 	return t.GameType == intCons.GAME_TYPE_TH
 }
 
@@ -1016,7 +1045,7 @@ func (t *ThDesk) Lottery() error {
 
 //判断是否可以开始下一句游戏
 func (t *ThDesk) end() bool {
-	if t.IsPengYou() {
+	if t.IsFriend() {
 		//朋友桌是否结束游戏
 		return t.EndTh()
 	} else if t.IsChampionship() {
@@ -1626,6 +1655,7 @@ func (t *ThDesk) CalcAllInJackpot() error {
 func (t *ThDesk) CheckBetUserBySeat(user *ThUser) bool {
 	//2,判断押注的用户是否是当前的用户
 	if t.BetUserNow != user.UserId {
+		log.T("user[%v]不是desk的betUserNow[%v],押注状态不正确", user.UserId, t.BetUserNow)
 		return false
 	}
 
@@ -1687,7 +1717,7 @@ func (t *ThDesk) IsTime2begin() bool {
 	}
 
 	log.T("现在开始判断是否可以开始一局新的游戏,1,判断自定义的逻辑:")
-	if t.GameType == intCons.GAME_TYPE_TH {
+	if t.IsFriend() {
 		//自定义房间的标准
 	}
 
@@ -1876,7 +1906,7 @@ func (t *ThDesk) clearAgentData(ignoreUserId uint32) {
 		if u != nil && u.UserId != ignoreUserId {
 			u.deskId = 0
 			u.MatchId = 0
-			u.UpdateAgentUserData(u.agent)
+			u.UpdateAgentUserData()
 		}
 	}
 }
@@ -1938,7 +1968,7 @@ func (t *ThDesk) Rebuy(userId uint32) error {
 
 	*ret.Result = intCons.ACK_RESULT_SUCC                        //错误码
 	*ret.CurrChip = user.RoomCoin
-	if t.GameType == intCons.GAME_TYPE_TH {
+	if t.IsFriend() {
 		///朋友桌直接返回-1
 		*ret.RemainCount = -1
 	} else if t.IsChampionship() {
