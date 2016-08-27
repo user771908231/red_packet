@@ -202,6 +202,8 @@ func (mydesk *ThDesk) initGameSendgameInfoByDesk() *bbproto.Game_SendGameInfo {
 	*result.SmallBlind = mydesk.SmallBlindCoin
 	*result.BigBlind = mydesk.BigBlindCoin
 	*result.RoomType = mydesk.GameType
+	*result.InitRoomCoin = mydesk.InitRoomCoin
+
 
 	//循环User来处理
 	for i := 0; i < len(mydesk.Users); i++ {

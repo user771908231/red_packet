@@ -123,6 +123,7 @@ func NewGame_SendGameInfo() *Game_SendGameInfo {
 	result.SmallBlind = new(int64)
 	result.BigBlind = new(int64)
 	result.RoomType = new(int32)
+	result.InitRoomCoin = new(int64)
 	return result
 }
 

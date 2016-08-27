@@ -288,6 +288,8 @@ message game_SendGameInfo {
     optional int64 preCoin = 34; //前注的大小
     optional int64 smallBlind = 35; //小盲的大小
     optional int64 bigBlind = 36; //大盲的大小
+    optional int64 initRoomCoin = 37;   //房间的初始带入金额
+
 }
 
 message game_ShowCard {
