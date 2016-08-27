@@ -20,7 +20,6 @@ import (
 	"sync/atomic"
 	"casino_server/common/Error"
 	"casino_server/utils/numUtils"
-	"client/a"
 )
 
 
@@ -588,7 +587,7 @@ func (t *ThDesk) getCanRebuyByUserId(user *ThUser) bool {
 	//用户的金额不足的时候并且重构的次数小于desk的重购限制的时候
 	if !t.IsUserRoomCoinEnough(user) && user.RebuyCount < t.RebuyCountLimit {
 		return true
-	}else{
+	} else {
 		return false
 	}
 }
@@ -1833,6 +1832,47 @@ func (t *ThDesk) GetCanRise() int32 {
 //通过座位号来找到user
 func (t *ThDesk) getUserBySeat(seatId int32) *ThUser {
 	return t.Users[seatId]
+}
+
+//这个加注
+func (t *ThDesk) Rebuy(userId uint32) error {
+
+	ret := bbproto.NewGame_AckRebuy()        //返回的解雇
+	user := t.GetUserByUserId(userId)        //要操作的用户
+	//1,为用户增加金额
+	user.AddRoomCoin(t.InitRoomCoin)
+	user.Update2redis()
+
+	//得到需要扣除的砖石
+	var feeDiamond int64 = -1
+	banlance, err := userService.UpdateUserDiamond(userId, feeDiamond)
+	if err != nil {
+		log.E("rebuy的时候出错,error", err.Error())
+		*ret.Result = intCons.ACK_RESULT_ERROR                                //错误码
+		user.WriteMsg(ret)
+		return err
+	}
+	//2,生成一条交易记录
+	err = userService.CreateDiamonDetail(userId, mode.T_USER_DIAMOND_DETAILS_TYPE_REBUY, feeDiamond, banlance, "rebuy消耗钻石");
+	if err != nil {
+		log.E("创建用户的钻石交易记录(rebuy)失败")
+		*ret.Result = intCons.ACK_RESULT_ERROR                                //错误码
+		user.WriteMsg(ret)
+		return err
+	}
+	//3,返回交易结果
+
+	*ret.Result = intCons.ACK_RESULT_SUCC                        //错误码
+	*ret.CurrChip = user.RoomCoin
+	if t.GameType == intCons.GAME_TYPE_TH {
+		///朋友桌直接返回-1
+		*ret.RemainCount = -1
+
+	} else if t.GameType == intCons.GAME_TYPE_TH_CS {
+		*ret.RemainCount = t.RebuyCountLimit - user.RebuyCount
+	}
+	user.WriteMsg(ret)
+	return nil
 }
 
 //押注的通用接口

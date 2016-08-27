@@ -1393,7 +1393,7 @@ message Game_TounamentPlayerRank {
 
 
 message Game_Rebuy {
-    optional int32 userId = 1;
+    optional uint32 userId = 1;
     optional int32 type = 2; //0:朋友桌  1:锦标赛
 }
 
@@ -1404,7 +1404,7 @@ message Game_AckRebuy {
 }
 
 message Game_Feedback {
-    optional int32 userId = 1;
+    optional uint32 userId = 1;
     optional string message = 2; //用户提交的反馈内容
 }
 

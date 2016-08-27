@@ -8,6 +8,8 @@ import "time"
 
 
 var T_USER_DIAMOND_DETAILS_TYPE_CREATEDESK int32 = 2
+var T_USER_DIAMOND_DETAILS_TYPE_REBUY int32 = 3
+
 
 type T_user_diamond_details struct {
 	Id            uint32    //id
