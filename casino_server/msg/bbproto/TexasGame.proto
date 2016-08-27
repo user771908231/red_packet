@@ -242,8 +242,8 @@ message game_ChangeTable {
 }
 
 enum RoomType {
-    RT_FRIENDDESK = 1; //
-    RT_TOUNAMENTMATCH = 2; //
+    RT_FRIENDDESK = 1;      //朋友桌
+    RT_TOUNAMENTMATCH = 2;  //锦标赛
 }
 
 //发送游戏信息
