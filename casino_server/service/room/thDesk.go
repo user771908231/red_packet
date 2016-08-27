@@ -20,6 +20,7 @@ import (
 	"sync/atomic"
 	"casino_server/common/Error"
 	"casino_server/utils/numUtils"
+	"client/a"
 )
 
 
@@ -116,6 +117,7 @@ type ThDesk struct {
 	BigBlindCoin         int64                        //大盲注的押注金额
 	BeginTime            time.Time                    //游戏开始时间
 	EndTime              time.Time                    //游戏结束时间
+	RebuyCountLimit      int32                        //重购的次数
 
 	Dealer               uint32                       //庄家
 	BigBlind             uint32                       //大盲注
@@ -184,7 +186,7 @@ func (t *ThDesk) LogString() {
 		u := t.Users[i]
 		if u != nil {
 			//log.T("当前desk[%v]的user[%v]的状态status[%v],牌的信息[%v]", t.Id, u.UserId, u.Status, u.HandCards)
-			log.T("当前desk[%v]的user[%v]的状态status[%v],HandCoin[%v],TurnCoin[%v],RoomCoin[%v]", t.Id, u.UserId, u.Status,u.HandCoin,u.TurnCoin,u.RoomCoin)
+			log.T("当前desk[%v]的user[%v]的状态status[%v],HandCoin[%v],TurnCoin[%v],RoomCoin[%v]", t.Id, u.UserId, u.Status, u.HandCoin, u.TurnCoin, u.RoomCoin)
 		}
 	}
 	log.T("当前desk[%v]的信息的状态,MatchId[%v]", t.Id, t.MatchId)
@@ -320,7 +322,7 @@ func (t *ThDesk) Ready(userId uint32) error {
 	}
 
 	//2,如果用户余额不足,则准备失败
-	if !t.IsUserCoinEnough(user) {
+	if !t.IsUserRoomCoinEnough(user) {
 		return Error.NewError(int32(bbproto.DDErrorCode_ERRORCODE_GAME_READY_CHIP_NOT_ENOUGH), "筹码不足")
 	}
 
@@ -348,12 +350,12 @@ func (t *ThDesk) IsAllReady() bool {
 //  用户退出德州游戏的房间,rmUser 需要在事物中进行,离开德州需要更具桌子的类型来做不同的处理
 func (t *ThDesk) LeaveThuser(userId uint32) error {
 
-	//离线的时候,桌子统一的处理
+	//1,离线的时候,桌子统一的处理
 	user := t.GetUserByUserId(userId)
 	user.IsLeave = true     //设置状态为离开
 	t.SubUserCountOnline()        //房间的在线人数减一
 
-	//根据不同的游戏类型做不同的处理
+	//2,根据不同的游戏类型做不同的处理
 	if t.GameType == intCons.GAME_TYPE_TH {
 		//自定义房间
 
@@ -364,6 +366,8 @@ func (t *ThDesk) LeaveThuser(userId uint32) error {
 		//竞标赛的房间
 		ChampionshipRoom.SubOnlineCount()        //竞标赛的在线人数-1
 	}
+
+	//3,发送信息
 
 	//给离开的人发送信息
 	ret := &bbproto.Game_ACKLeaveDesk{}
@@ -558,16 +562,35 @@ func (t *ThDesk) BroadcastTestResult(p *bbproto.Game_TestResult) error {
 	for i := 0; i < len(t.Users); i++ {
 		u := t.Users[i]                //给这个玩家发送广播信息
 		if u != nil && u.IsLeave != true {
+			*p.Rank = t.getRankByUserId(u)        //获取用户的排名
+			*p.CanRebuy = t.getCanRebuyByUserId(u)        //是否可以重构
+			*p.RebuyCount = u.RebuyCount        //重购的次数
 
-			//只有锦标赛的时候才可以有排名
-			if t.GameType == intCons.GAME_TYPE_TH_CS {
-				*p.Rank = ChampionshipRoom.GetRankByuserId(u.UserId)
-			}
+			//判断是否可以
 			a := t.Users[i].agent
 			a.WriteMsg(p)
 		}
 	}
 	return nil
+}
+
+//获取用户的排名
+func (t *ThDesk) getRankByUserId(user *ThUser) int32 {
+	if t.GameType == intCons.GAME_TYPE_TH_CS {
+		return ChampionshipRoom.GetRankByuserId(user.UserId)
+	} else {
+		return 0
+	}
+}
+
+//得到这个用户是可以重购
+func (t *ThDesk) getCanRebuyByUserId(user *ThUser) bool {
+	//用户的金额不足的时候并且重构的次数小于desk的重购限制的时候
+	if !t.IsUserRoomCoinEnough(user) && user.RebuyCount < t.RebuyCountLimit {
+		return true
+	}else{
+		return false
+	}
 }
 
 //给全部人发送广播
@@ -995,7 +1018,6 @@ func (t *ThDesk) isEnd() bool {
 
 //广播开奖的结果
 func (t *ThDesk) broadLotteryResult() error {
-
 	//1.发送输赢结果
 	result := bbproto.NewGame_TestResult()
 	*result.Tableid = t.Id                           //桌子
@@ -1006,16 +1028,6 @@ func (t *ThDesk) broadLotteryResult() error {
 	result.HandCoin = t.GetHandCoin()
 	result.CoinInfo = t.getCoinInfo()                //每个人的输赢情况
 	t.BroadcastTestResult(result)
-
-	//2.发送每个人在锦标赛中目前的排名
-	for i := 0; i < len(t.Users); i++ {
-		u := t.Users[i]
-		if u != nil {
-			//开始风别给每个人发送自己的排名信息
-
-		}
-	}
-
 	return nil
 
 }
@@ -1036,7 +1048,7 @@ func (t *ThDesk) afterLottery() error {
 				//如果是自定义的房间,设置每个人都是坐下的状态
 				u.Status = TH_USER_STATUS_SEATED
 			} else if t.GameType == intCons.GAME_TYPE_TH_CS {
-				if t.IsUserCoinEnough(u) {
+				if t.IsUserRoomCoinEnough(u) {
 					//如果是锦标赛的房间,用户的钱足够
 					u.Status = TH_USER_STATUS_READY
 					t.AddReadyCount()
@@ -1054,7 +1066,7 @@ func (t *ThDesk) afterLottery() error {
 }
 
 //判断用户的余额是否足够开始下一场游戏
-func (t *ThDesk) IsUserCoinEnough(u *ThUser) bool {
+func (t *ThDesk) IsUserRoomCoinEnough(u *ThUser) bool {
 	if u.RoomCoin < t.PreCoin + t.BigBlindCoin {
 		return false
 	} else {
@@ -1268,7 +1280,7 @@ func (t *ThDesk) BetUserCheck(userId uint32) error {
 
 //用户加注
 func (t *ThDesk) BetUserRaise(user *ThUser, coin int64) error {
-	log.T("开始[%v],nickname[%v]操作用户加注[%v]的操作,user.RoomCoin[%v],user.handcoin[%v].,user.turnCoin[%v].,t.BetAmountNow[%v]", user.UserId, user.NickName, coin, user.RoomCoin, user.HandCoin,user.TurnCoin, t.BetAmountNow)
+	log.T("开始[%v],nickname[%v]操作用户加注[%v]的操作,user.RoomCoin[%v],user.handcoin[%v].,user.turnCoin[%v].,t.BetAmountNow[%v]", user.UserId, user.NickName, coin, user.RoomCoin, user.HandCoin, user.TurnCoin, t.BetAmountNow)
 
 	//1,加注的时候判断用户金额是否足够
 	if (coin > user.RoomCoin) {
@@ -2004,7 +2016,7 @@ func (t *ThDesk) GetMinRaise() int64 {
 		//现在处理的有可能是新的一局开始
 		result = t.BigBlindCoin
 	}
-	log.T("获取用户[%v]的最低加注金额是[%v]", t.BetUserNow,result)
+	log.T("获取用户[%v]的最低加注金额是[%v]", t.BetUserNow, result)
 	return result
 }
 
@@ -2044,10 +2056,6 @@ func (t *ThDesk) DDCheckBet(user *ThUser) error {
 
 	return nil
 }
-
-
-
-
 
 func (t *ThDesk) AddUserCountOnline() {
 	atomic.AddInt32(&t.UserCountOnline, 1)

@@ -17,7 +17,7 @@ message game_EnterMatch {
     optional int32 Tableid = 2;
     optional bytes PassWord = 3; //密码(朋友桌新增)
     optional bytes sCFUserName = 4; //该渠道特有昵称（现在专指360）
-    optional uint32 userId = 5 ;    //请求的userId
+    optional uint32 userId = 5; //请求的userId
 }
 
 message game_AckEnterMatch {
@@ -187,7 +187,10 @@ message game_TestResult {
     repeated game_WinCoin WinCoinInfo = 6;
     repeated int64 HandCoin = 7;
     repeated game_WinCoin CoinInfo = 8;
-    optional int32 rank     = 9;        //查看自己的排名
+    optional int32 rank = 9; //查看自己的排名
+    optional bool CanRebuy = 10; //是否可以重购买
+    optional int32 RebuyCount = 11; //重购的次数
+
 
 }
 
@@ -239,8 +242,8 @@ message game_ChangeTable {
 }
 
 enum RoomType {
-    RT_FRIENDDESK       = 1;  //
-    RT_TOUNAMENTMATCH   = 2;  //
+    RT_FRIENDDESK = 1; //
+    RT_TOUNAMENTMATCH = 2; //
 }
 
 //发送游戏信息
@@ -271,20 +274,20 @@ message game_SendGameInfo {
     optional int32 nInitDelayTime = 24; //初始延时时间
     repeated string nickName = 25; //昵称
     repeated int32 seatId = 26; //座位号
-    optional int32 seat = 27;   //我的座位号
-    repeated int64 secondPool = 28;    //池子
-    optional int64 turnMax = 29;    //返回最大的押注值
-    optional int32 result  = 30;      //进入房间的结果
+    optional int32 seat = 27; //我的座位号
+    repeated int64 secondPool = 28; //池子
+    optional int64 turnMax = 29; //返回最大的押注值
+    optional int32 result = 30; //进入房间的结果
 
     //① 新增字段： repeated WeixinInfo  = 31;  //微信用户信息
     //② EnterMatch时、广播新进用户时，才需返回WeixinInfo；其它广播不需要。
-    repeated WeixinInfo weixinInfos  = 31;
-    optional int32  ownerSeat   =32; //房主的seat
-    optional int32  roomType    =33; //1=朋友桌， 2=锦标赛
+    repeated WeixinInfo weixinInfos = 31;
+    optional int32 ownerSeat = 32; //房主的seat
+    optional int32 roomType = 33; //1=朋友桌， 2=锦标赛
 
-    optional int64 preCoin      =34;    //前注的大小
-    optional int64 smallBlind   =35;    //小盲的大小
-    optional int64 bigBlind     =36;    //大盲的大小
+    optional int64 preCoin = 34; //前注的大小
+    optional int64 smallBlind = 35; //小盲的大小
+    optional int64 bigBlind = 36; //大盲的大小
 }
 
 message game_ShowCard {
@@ -781,10 +784,6 @@ message DDBroadCastMatchRank {
     optional bytes RewardName = 6; //奖品描述
 }
 
-
-
-
-
 ////
 
 // 注册
@@ -1095,15 +1094,13 @@ message DDBulletinInfo {
     optional bytes Content = 2; //内容
 }
 
-
 //服务器信息
 message ServerInfo {
     optional string Ip = 1;
-    optional int32  Port = 2;
-    optional int32  Status = 3; //0开启 1关闭
-    optional int32  Type = 4;
+    optional int32 Port = 2;
+    optional int32 Status = 3; //0开启 1关闭
+    optional int32 Type = 4;
 }
-
 
 //***************************************************************//
 //快速登录
@@ -1125,8 +1122,8 @@ message REQQuickConn {
     optional string ThirdDigitalName = 15; //第三方的用户数字ID等 (第三方接入必填，第三方数字id)
     optional string Thirdkey = 16; // 第三方下发客户端的session key  (第三方接入必填，用于校验合法性)
     optional string ThirdAppId = 17; //申请的第三方的AppId,解决多个APPID 接入同一个OPENID的问题。  (第三方接入必填)
-    optional uint32 userId = 18;    //用户Id
-    optional WeixinInfo wx = 19;    //微信登录信息
+    optional uint32 userId = 18; //用户Id
+    optional WeixinInfo wx = 19; //微信登录信息
 
 }
 
@@ -1157,8 +1154,8 @@ message ACKQuickConn {
     optional int32 DdzActive = 25 [default = 0]; //是否为斗地主活动(签到，抽奖等),0否，1是
     optional string MsgUrl = 26; //用户消息的URL  ,请求访问url参数type=1 统计未读消息，type=2 显示所有消息。
     optional int32 ErrorCode = 27 [default = 0]; //0为无错误；1 用户名密码错误，其它为系统级别错误，待定。
-    optional string NickName    =   28; //昵称
-    optional int32  releaseTag  = 29;    //发布版本标志
+    optional string NickName = 28; //昵称
+    optional int32 releaseTag = 29; //发布版本标志
 }
 
 message NullMsg {
@@ -1166,255 +1163,244 @@ message NullMsg {
 }
 
 //新增用户的时候,发送广播
-message Game_SendAddUser{
+message Game_SendAddUser {
     optional bytes Matchid = 1;
     optional int32 Tableid = 2;
-    optional string NickName    =3 ;//昵称
-    optional int64  Coin    =  4;   //用户的经济
-    optional int32  seat    =  5;   //用户的座位号
+    optional string NickName = 3; //昵称
+    optional int64 Coin = 4; //用户的经济
+    optional int32 seat = 5; //用户的座位号
 }
 
 //显示大厅时请求
-message Game_Login{
-    optional uint32  userId      =   1;  //用户id
+message Game_Login {
+    optional uint32 userId = 1; //用户id
 }
 
 //大厅回复
-message Game_AckLogin{
-    optional string notice          =   1;  //滚动公告的内容
-    optional int32  gameStatus      =   2;  //0：未游戏  1：正在朋友桌  2：正在锦标赛
-    optional int32  matchId         =   3;
-    optional int32  tableId         =   4;
-    optional string roomPassword    =   5;  //朋友桌房间密码
+message Game_AckLogin {
+    optional string notice = 1; //滚动公告的内容
+    optional int32 gameStatus = 2; //0：未游戏  1：正在朋友桌  2：正在锦标赛
+    optional int32 matchId = 3;
+    optional int32 tableId = 4;
+    optional string roomPassword = 5; //朋友桌房间密码
 }
 
 
-message Game_Notice{
-    optional int32  noticeType      =   1;  //公告的类型
+message Game_Notice {
+    optional int32 noticeType = 1; //公告的类型
 }
-
 
 //公告的内容
-message Game_AckNotice{
-    optional int32  noticeType      =   1;  //公告的类型:1,滚动信息,2,充值信息,3,公告信息
-    optional string noticeTitle     =   2;  //公告的标题
-    optional string noticeContent   =   3;  //公告的内容
-    optional string noticeMemo      =   4;  //公告的备注
-    optional int32  id              =   5;  //公告的id
-    repeated string fileds          =   6;  //公告的字段,目前子还是给充值的协议使用
+message Game_AckNotice {
+    optional int32 noticeType = 1; //公告的类型:1,滚动信息,2,充值信息,3,公告信息
+    optional string noticeTitle = 2; //公告的标题
+    optional string noticeContent = 3; //公告的内容
+    optional string noticeMemo = 4; //公告的备注
+    optional int32 id = 5; //公告的id
+    repeated string fileds = 6; //公告的字段,目前子还是给充值的协议使用
 }
 
-
 //创建房间
-message Game_CreateDesk{
-    optional uint32 userId          =   1;  //用户id
-    optional string password        =   2;  //房间密码
-    optional int64  smallBlind      =   3;  //小盲注
-    optional int64  bigBlind        =   4;  //大盲注
-    optional int64  initCoin        =   5;  //出事筹码
-    optional int32  initCount       =   6;  //初始的局数
-    optional int64  preCoin         =   7;  //前注
+message Game_CreateDesk {
+    optional uint32 userId = 1; //用户id
+    optional string password = 2; //房间密码
+    optional int64 smallBlind = 3; //小盲注
+    optional int64 bigBlind = 4; //大盲注
+    optional int64 initCoin = 5; //出事筹码
+    optional int32 initCount = 6; //初始的局数
+    optional int64 preCoin = 7; //前注
 }
 
 //创建房间回复的信息
-message Game_AckCreateDesk{
-    optional int32  result          =   1;  //返回的结果
-    optional int32 deskId           =   2;  //用户id
-    optional string password        =   3;  //房间密码
-    optional int64 userBalance      =   4;  //用户的余额
-    optional int64 createFee        =   5;  //创建房间的费用
+message Game_AckCreateDesk {
+    optional int32 result = 1; //返回的结果
+    optional int32 deskId = 2; //用户id
+    optional string password = 3; //房间密码
+    optional int64 userBalance = 4; //用户的余额
+    optional int64 createFee = 5; //创建房间的费用
 }
 
-
 //解散房间
-message Game_DissolveDesk{
-    optional uint32 userId          =   1;  //解散房间
+message Game_DissolveDesk {
+    optional uint32 userId = 1; //解散房间
 }
 
 //解散房间回复
-message Game_AckDissolveDesk{
-    optional uint32 userId          =   1;  //解散房间
-    optional int32  result          =   2;  //
-    optional int32  deskId          =   3;  //房间Id
-    optional string passWord        =   4;  //房间密钥
+message Game_AckDissolveDesk {
+    optional uint32 userId = 1; //解散房间
+    optional int32 result = 2; //
+    optional int32 deskId = 3; //房间Id
+    optional string passWord = 4; //房间密钥
 }
-
 
 //离开房间
-message Game_LeaveDesk{
-    optional uint32 userId          =   1;  //用户Id
+message Game_LeaveDesk {
+    optional uint32 userId = 1; //用户Id
 }
 
-
 //离开房间的回复
-message Game_ACKLeaveDesk{
-    optional int32  result          =   1;  //离开房间的结果
+message Game_ACKLeaveDesk {
+    optional int32 result = 1; //离开房间的结果
 }
 
 //准备游戏
-message Game_Ready{
-    optional uint32 userId      =1; //userId
+message Game_Ready {
+    optional uint32 userId = 1; //userId
 }
 
 //准备游戏的结果
-message Game_AckReady{
-    optional int32 result       =1; //准备游戏的结果
-    optional string msg         =2; //提示信息
-    optional int32 seatId       =3; //searId,发送准备的人的座位号
+message Game_AckReady {
+    optional int32 result = 1; //准备游戏的结果
+    optional string msg = 2; //提示信息
+    optional int32 seatId = 3; //searId,发送准备的人的座位号
 }
 
 //开始游戏
-message Game_Begin{
-    optional uint32 userId      =1; //房主的userId
+message Game_Begin {
+    optional uint32 userId = 1; //房主的userId
 }
-
 
 //游戏战绩
-message Game_GameRecord{
-    optional int32  id          =1; //战绩id
-    optional uint32 userId      =2; //用户id
-}
-
-
-//message
-message Game_BeanUserRecord{
-    optional uint32 UserId      =1;    //用户id
-    optional string NickName    =2;    //用户昵称
-    optional int64 WinAmount    =3;     //用户输赢金额
+message Game_GameRecord {
+    optional int32 id = 1; //战绩id
+    optional uint32 userId = 2; //用户id
 }
 
 //message
-message Game_BeanGameRecord{
-    optional int32  id          =1; //战绩id
-    optional int32  deskId      =2; //关联的桌子的Id
-    optional string  beginTime  =3; //游戏开始的时间
-    repeated Game_BeanUserRecord users  = 4;   //用户
+message Game_BeanUserRecord {
+    optional uint32 UserId = 1; //用户id
+    optional string NickName = 2; //用户昵称
+    optional int64 WinAmount = 3; //用户输赢金额
+}
+
+//message
+message Game_BeanGameRecord {
+    optional int32 id = 1; //战绩id
+    optional int32 deskId = 2; //关联的桌子的Id
+    optional string beginTime = 3; //游戏开始的时间
+    repeated Game_BeanUserRecord users = 4; //用户
 }
 
 //
-message Game_AckGameRecord{
-    optional uint32 userId      =1; //用户id
-    optional int32  result      =2; //查询结果
-    repeated Game_BeanGameRecord records  = 3;//结果
+message Game_AckGameRecord {
+    optional uint32 userId = 1; //用户id
+    optional int32 result = 2; //查询结果
+    repeated Game_BeanGameRecord records = 3; //结果
 }
 
 // 微信信息
 message WeixinInfo {
-    optional string openId      = 1; // 微信授权用户唯一id
-    optional string nickName    = 2; // 微信昵称
-    optional string headUrl      = 3; // 微信头像
+    optional string openId = 1; // 微信授权用户唯一id
+    optional string nickName = 2; // 微信昵称
+    optional string headUrl = 3; // 微信头像
 }
-
 
 //聊天的内容
-message Game_Message{
-    optional int32  msgType     = 1;    //消息的类型,1,快捷,2,表情,3,自定义
-    optional int32  id          =2;     //只有快捷和表情的时候有用
-    optional string msg         =3;     //自定义的时候使用
-    optional uint32 userId      =4;     //发消息的人是谁
-    optional int32  deskId      =5;     //desk的id
-    optional int32  seat        =6;     //发信息人的座位号
+message Game_Message {
+    optional int32 msgType = 1; //消息的类型,1,快捷,2,表情,3,自定义
+    optional int32 id = 2; //只有快捷和表情的时候有用
+    optional string msg = 3; //自定义的时候使用
+    optional uint32 userId = 4; //发消息的人是谁
+    optional int32 deskId = 5; //desk的id
+    optional int32 seat = 6; //发信息人的座位号
 
 }
-
 
 //消息广播
-message Game_SendMessage{
-    optional int32  msgType     = 1;    //消息的类型,1,快捷,2,表情,3,自定义
-    optional int32  id          =2;     //只有快捷和表情的时候有用
-    optional string msg         =3;     //自定义的时候使用
-    optional uint32 userId      =4;     //发消息的人是谁
-    optional int32  seat        =5;     //发信息人的座位号
+message Game_SendMessage {
+    optional int32 msgType = 1; //消息的类型,1,快捷,2,表情,3,自定义
+    optional int32 id = 2; //只有快捷和表情的时候有用
+    optional string msg = 3; //自定义的时候使用
+    optional uint32 userId = 4; //发消息的人是谁
+    optional int32 seat = 5; //发信息人的座位号
 }
-
 
 //几局游戏完了之后的广播信息
 message Game_EndLottery {
-    optional int64 coin     = 1;        //总共输赢筹码
-    optional bool bigWin    = 2;       //是否为大赢家
-    optional bool owner     = 3;        //是否为房主
-    optional string rolename = 4;    //玩家姓名
-    optional uint32 userId  = 5;    //用户的Id
-    optional int32 seat  = 6;    //用户座位号
+    optional int64 coin = 1; //总共输赢筹码
+    optional bool bigWin = 2; //是否为大赢家
+    optional bool owner = 3; //是否为房主
+    optional string rolename = 4; //玩家姓名
+    optional uint32 userId = 5; //用户的Id
+    optional int32 seat = 6; //用户座位号
 }
 
 //几局完成之后的情况
-message Game_SendDeskEndLottery{
-    optional int32  result              = 1;  //
-    repeated Game_EndLottery   coinInfo = 2;   //胜负的情况
+message Game_SendDeskEndLottery {
+    optional int32 result = 1; //
+    repeated Game_EndLottery coinInfo = 2; //胜负的情况
 }
 
 
-message Game_TounamentBlindBean{
-    optional int32 smallBlind      =   1;//盲注
-    optional int32 ante            =   2;//前注
+message Game_TounamentBlindBean {
+    optional int32 smallBlind = 1; //盲注
+    optional int32 ante = 2; //前注
 }
 
 //盲注的信息
-message Game_TounamentBlind{
-    repeated Game_TounamentBlindBean data      =   1;//数据
+message Game_TounamentBlind {
+    repeated Game_TounamentBlindBean data = 1; //数据
 }
 
-message Game_TounamentRewardsBean{
-    optional string iconPath        =   1;//图标名称,将牌的icon
-    optional string rewards         =   2; //奖励,的说明
+message Game_TounamentRewardsBean {
+    optional string iconPath = 1; //图标名称,将牌的icon
+    optional string rewards = 2; //奖励,的说明
 }
 
 message Game_TounamentRewards {
-    repeated Game_TounamentRewardsBean data =   1;
+    repeated Game_TounamentRewardsBean data = 1;
 }
 
 message Game_TounamentRankBean {
-    optional int32 place        =   1 ;//名次
-    optional string playerImage =   2 ; //玩家头像
-    optional string playerName  =   3 ; //玩家姓名
-    optional int64 coin         =   4 ; //筹码
+    optional int32 place = 1; //名次
+    optional string playerImage = 2; //玩家头像
+    optional string playerName = 3; //玩家姓名
+    optional int64 coin = 4; //筹码
 }
 
 message Game_TounamentRank {
-    repeated Game_TounamentRankBean data        =   1 ;//名次
+    repeated Game_TounamentRankBean data = 1; //名次
 }
 
-message Game_TounamentSummary{
-    optional string fee     =   1   ; //图标名称
-    optional string time    =   2   ; //比赛的时间
-    optional string personCount =   3   ;   //参赛人数
-    optional string coin    =   4   ;   //参赛筹码
+message Game_TounamentSummary {
+    optional string fee = 1; //图标名称
+    optional string time = 2; //比赛的时间
+    optional string personCount = 3; //参赛人数
+    optional string coin = 4; //参赛筹码
 }
 
 
 message Game_MatchItem {
-    optional int32 type     =1  ;   //1=送话费场、2=送代金券场、3=送流量包场
-    optional string  title  =2  ;   //比赛标题：100元话费争夺赛
-    optional string  time   =3  ;   //开始时间
-    optional int32 status   =4  ;   //比赛状态：1=进行中  2=已结束
-    optional int64 costFee  =5  ;   //参赛费用
-    optional int32  person  =6  ;   //在线人数
+    optional int32 type = 1; //1=送话费场、2=送代金券场、3=送流量包场
+    optional string title = 2; //比赛标题：100元话费争夺赛
+    optional string time = 3; //开始时间
+    optional int32 status = 4; //比赛状态：1=进行中  2=已结束
+    optional int64 costFee = 5; //参赛费用
+    optional int32 person = 6; //在线人数
 }
 
 //锦标赛场次列表，每条包括信息：
 message Game_MatchList {
-    optional int32     result       = 1;
-    repeated Game_MatchItem items   = 2;
+    optional int32 result = 1;
+    repeated Game_MatchItem items = 2;
 }
 
-
 //锦标赛牌局结束：弹窗显示我的名次
-message Game_TounamentPlayerRank{
-  optional int32 playerRank     = 1;   //我的排名名次
-  optional string message       = 2;   //前10名显示：恭喜获得xxx奖，请联系客服微信xxxxx领奖！10名之后：很遗憾您就差一点就杀入奖励圈！没关系，再接再厉，继续战斗！
+message Game_TounamentPlayerRank {
+    optional int32 playerRank = 1; //我的排名名次
+    optional string message = 2; //前10名显示：恭喜获得xxx奖，请联系客服微信xxxxx领奖！10名之后：很遗憾您就差一点就杀入奖励圈！没关系，再接再厉，继续战斗！
 }
 
 
 message Game_Rebuy {
     optional int32 userId = 1;
-    optional int32 type = 2;   //0:朋友桌  1:锦标赛
+    optional int32 type = 2; //0:朋友桌  1:锦标赛
 }
 
 message Game_AckRebuy {
-    optional int32 result       = 1; //0表示成功，非0表示失败
-    optional int32 remainCount  = 2; //剩余可rebuy次数
-    optional int64 currChip     = 3; //rebuy成功后的筹码数
+    optional int32 result = 1; //0表示成功，非0表示失败
+    optional int32 remainCount = 2; //剩余可rebuy次数
+    optional int64 currChip = 3; //rebuy成功后的筹码数
 }
 
 message Game_Feedback {

@@ -27,12 +27,13 @@ func init() {
 //游戏房间
 type ThGameRoom struct {
 	sync.Mutex
-	RoomStatus     int32 //游戏大厅的状态
-	ThDeskBuf      []*ThDesk
-	ThRoomSeatMax  int32 //每个房间的座位数目
-	ThRoomCount    int32 //房间数目
-	Id             int32 //房间的id
-	SmallBlindCoin int64 //小盲注的金额
+	RoomStatus      int32 //游戏大厅的状态
+	ThDeskBuf       []*ThDesk
+	ThRoomSeatMax   int32 //每个房间的座位数目
+	ThRoomCount     int32 //房间数目
+	Id              int32 //房间的id
+	SmallBlindCoin  int64 //小盲注的金额
+	RebuyCountLimit int32 //重购的次数限制
 }
 
 
@@ -42,6 +43,7 @@ func (r *ThGameRoom) OnInit() {
 	r.ThRoomSeatMax = ThdeskConfig.TH_DESK_MAX_START_USER
 	r.Id = 0
 	r.SmallBlindCoin = ThdeskConfig.TH_GAME_SMALL_BLIND;
+	r.RebuyCountLimit = 10000; //朋友桌可以一直重购
 }
 
 
@@ -256,7 +258,7 @@ func (r *ThGameRoom) AddUserWithRoomKey(userId uint32, roomKey string, a gate.Ag
 	}
 
 	//4,进入房间
-	_,err := mydesk.AddThUser(userId, TH_USER_STATUS_SEATED, a)
+	_, err := mydesk.AddThUser(userId, TH_USER_STATUS_SEATED, a)
 	if err != nil {
 		log.E("用户上德州扑克的桌子 失败...")
 		return nil, err
@@ -332,7 +334,7 @@ func GetDeskByAgent(a gate.Agent) *ThDesk {
 
 //删除房间
 func RmThdesk(desk *ThDesk) error {
-	log.T("开始解散房间id[%v],desk[%v]",desk.Id,desk)
+	log.T("开始解散房间id[%v],desk[%v]", desk.Id, desk)
 	if desk.GameType == intCons.GAME_TYPE_TH_CS {
 		//锦标赛
 		ChampionshipRoom.RmThroom(desk)
