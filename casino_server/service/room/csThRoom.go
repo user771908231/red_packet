@@ -15,6 +15,8 @@ import (
 	"casino_server/utils/jobUtils"
 	"sort"
 	"casino_server/conf/intCons"
+	"casino_server/common/Error"
+	"gopkg.in/mgo.v2"
 )
 
 var ChampionshipRoom CSThGameRoom        //锦标赛的房间
@@ -58,7 +60,7 @@ func (r *CSThGameRoom) OnInitConfig() {
 
 
 //锦标赛的状态
-var CSTHGAMEROOM_STATUS_STOP int32 = 1;
+var CSTHGAMEROOM_STATUS_STOP int32 = 1;		//竞标赛已经停止
 
 var CSTHGAMEROOM_STATUS_READY int32 = 2;
 
@@ -100,21 +102,28 @@ func (r *CSThGameRoom) IsOutofEndTime() bool {
 }
 
 //只有开始之后才能进入游戏房间
-func (r *CSThGameRoom) IsCanIntoRoom() bool {
+func (r *CSThGameRoom) CheckIntoRoom(matchId int32) error {
+
+	if r.matchId != matchId {
+		log.T("进入锦标赛失败,游戏场次matchId[%v]不正确", matchId)
+		return Error.NewError(int32(bbproto.DDErrorCode_ERRORCODE_INTO_DESK_NOTFOUND), "游戏已经过期")
+	}
+
 	//时间过了不能进入
 	if r.status == CSTHGAMEROOM_STATUS_RUN && r.IsOutofEndTime() {
 		log.T("进入锦标赛的游戏房间失败,因为time.mow[].after (r.endTime[%v])", r.endTime)
-		return false
+		return Error.NewError(int32(bbproto.DDErrorCode_ERRORCODE_INTO_DESK_NOTFOUND), "游戏已经过期")
+
 	}
 
 	//游戏开始之后,用户只剩10人不能进入游戏 todo 这里的10人需要放置在配置文件中
 	if r.status == CSTHGAMEROOM_STATUS_RUN && r.gamingUserCount <= CSTHGameRoomConfig.quotaLimit {
 		log.T("因为竞标赛已经是run的状态,并且游戏中的人数小于10,所以不能开始")
-		return false
+		return Error.NewError(int32(bbproto.DDErrorCode_ERRORCODE_INTO_DESK_NOTFOUND), "游戏已经过期")
 	}
 
 	//以上情况都不满足的时候,表示可以进入游戏房间
-	return true
+	return nil
 }
 
 
@@ -234,7 +243,7 @@ func (r *CSThGameRoom) checkEnd() bool {
 	if r.IsOutofEndTime() && r.allStop() {
 		//结算本局
 		log.T("锦标赛matchid[%v]已经结束.现在开始保存数据", r.matchId)
-		r.status = CSTHGAMEROOM_STATUS_STOP
+		r.End()
 		//这里需要保存每一个人锦标赛的结果信息
 		log.T("保存每一个人竞标赛的信息")
 
@@ -265,6 +274,13 @@ func (r *CSThGameRoom) allStop() bool {
 //本场锦标赛 结束的处理
 func (r *CSThGameRoom) End() {
 	log.T("锦标赛游戏结束")
+	r.status = CSTHGAMEROOM_STATUS_STOP
+	saveData := &mode.T_cs_th_record{}
+	db.Query(func(d *mgo.Database) {
+		d.C(casinoConf.DBT_T_CS_TH_RECORD).Find(bson.M{"Id":r.matchId}).One(saveData)
+	})
+	saveData.Status = r.status
+	db.UpdateMgoData(casinoConf.DBT_T_CS_TH_RECORD,saveData)
 }
 
 
@@ -274,47 +290,47 @@ func (r *CSThGameRoom) End() {
 	1,在csthroom的buf中来寻找thusers,找到之后看其状态
 
  */
-func (r *CSThGameRoom) IsRepeatIntoRoom(userId uint32, a gate.Agent) (*ThDesk,error) {
+func (r *CSThGameRoom) IsRepeatIntoRoom(userId uint32, a gate.Agent) (*ThDesk, error) {
 
 	user := r.GetCopyUserById(userId)
 	if user == nil {
 		//表示没有进入过锦标赛
-		return nil,nil
+		return nil, nil
 	}
 
 	if user.IsLeave {
 		//表示用户已经离开,不能进入游戏
-		return nil,errors.New("用户已经离开了")
+		return nil, errors.New("用户已经离开了")
 	}
 
 	//设置用户的状态
 	user.IsBreak = false
-	user.UpdateAgentUserData()	//更新用户的session信息
+	user.UpdateAgentUserData()        //更新用户的session信息
 
-	log.T("用户【%v】断线重连...",userId)
-	desk :=  r.GetDeskById(user.deskId)
-	return desk,nil
+	log.T("用户【%v】断线重连...", userId)
+	desk := r.GetDeskById(user.deskId)
+	return desk, nil
 }
 
 
 //游戏大厅增加一个玩家
-func (r *CSThGameRoom) AddUser(userId uint32, a gate.Agent) (*ThDesk, error) {
+func (r *CSThGameRoom) AddUser(userId uint32, matchId int32, a gate.Agent) (*ThDesk, error) {
 	r.Lock()
 	defer r.Unlock()
 	log.T("userid【%v】进入锦标赛的游戏房间", userId)
 
 	//这里需要判断锦标赛是否可以开始游戏
-	if !r.IsCanIntoRoom() {
-		log.T("用户[%v]进入锦标赛的房间失败,因为游戏还没有开始", userId)
-		return nil, errors.New("游戏还没有开始")
+	e := r.CheckIntoRoom(matchId)
+	if e != nil {
+		return nil, errors.New("游戏已经过期")
 	}
 
 	//1,判断用户是否已经在房间里了,如果是在房间里,那么替换现有的agent
 	//重新进入房间,如果是锦标赛,那么只有断线重连,如果是
-	mydesk,err := r.IsRepeatIntoRoom(userId, a)
+	mydesk, err := r.IsRepeatIntoRoom(userId, a)
 	if err != nil {
 		//直接不能进入游戏
-		return nil,err
+		return nil, err
 	}
 
 	if mydesk != nil {
@@ -339,7 +355,7 @@ func (r *CSThGameRoom) AddUser(userId uint32, a gate.Agent) (*ThDesk, error) {
 	r.AddrankUserCount()
 	r.AddgamingUserCount()    //游戏玩家数量+1
 	r.AddUserRankInfo(user.UserId, user.MatchId, user.RoomCoin)
-	r.AddCopyUser(user)	//用户列表总增加一个用户
+	r.AddCopyUser(user)        //用户列表总增加一个用户
 
 	mydesk.LogString()        //打印当前房间的信息
 	return mydesk, nil
@@ -548,6 +564,6 @@ func (t *CSThGameRoom) AddCopyUser(user *ThUser) {
 }
 
 //得到buf中的thusr
-func (t *CSThGameRoom) GetCopyUserById(userId uint32) *ThUser{
-	return  t.UsersCopy[userId]
+func (t *CSThGameRoom) GetCopyUserById(userId uint32) *ThUser {
+	return t.UsersCopy[userId]
 }

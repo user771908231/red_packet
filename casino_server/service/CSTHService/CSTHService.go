@@ -51,7 +51,6 @@ func RefreshRedisMatchList() {
 			*sd.Status = d.Status
 			*sd.Type = d.GameType
 			*sd.Time = timeUtils.Format(d.BeginTime)
-
 			sdata.Items = append(sdata.Items, sd)
 		}
 
