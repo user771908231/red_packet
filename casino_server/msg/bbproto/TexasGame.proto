@@ -1416,3 +1416,9 @@ message Game_AckRebuy {
     optional int32 remainCount  = 2; //剩余可rebuy次数
     optional int64 currChip     = 3; //rebuy成功后的筹码数
 }
+
+message Game_Feedback {
+    optional int32 userId = 1;
+    optional string message = 2; //用户提交的反馈内容
+}
+
