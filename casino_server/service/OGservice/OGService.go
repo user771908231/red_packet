@@ -109,7 +109,7 @@ func HandlerReady(m *bbproto.Game_Ready, a gate.Agent) error {
 
 	//如果全部的人都准备好了,那么可以开始游戏
 	//1.1,所有人都准备好了,并且不是第一局的时候,才能开始游戏, 第一句必须要房主点击开始,才能开始
-	if desk.JuCountNow > 1 && desk.IsAllReady() {
+	if desk.JuCountNow > 1 && desk.IsAllReady() {	//准备之后判断游戏是否开始
 		desk.Run()
 	}
 	return nil
@@ -239,5 +239,8 @@ func HandlerGameLogin(userId uint32, a gate.Agent) {
 	*ret.TableId = session.GetDeskId()
 	*ret.GameStatus = session.GetGameStatus()
 	*ret.Notice = noticeServer.GetNoticeByType(noticeServer.NOTICE_TYPE_GUNDONG).GetNoticeContent()        //滚动信息
+	*ret.CostRebuy = int64(1)
+	*ret.Championship = false                //锦标赛是否开启
+
 	a.WriteMsg(ret)
 }

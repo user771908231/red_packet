@@ -342,7 +342,8 @@ func (t *ThDesk) IsAllReady() bool {
 	for i := 0; i < len(t.Users); i++ {
 		u := t.Users[i]
 		if u != nil {
-			if u.Status != TH_USER_STATUS_READY {
+			//用户既没有掉线,也没有离开的情况下,如果没有准备,那么返回false
+			if !u.IsReady() && !u.IsLeave && !u.IsBreak {
 				return false
 			}
 		}
@@ -360,9 +361,12 @@ func (t *ThDesk) LeaveThuser(userId uint32) error {
 	t.SubUserCountOnline()        //房间的在线人数减一
 
 	//2,根据不同的游戏类型做不同的处理
-	if t.IsPengYou() {
-		//自定义房间,离开的时候不用做特殊处理...
-
+	if t.IsFriend() {
+		//自定义房间,如果其他人都准备了,那么开始游戏,离开房间和准备的处理是一样的
+		//这样处理的作用是,防止最后一个未准备的人,离开房间以后游戏不能开始
+		if t.JuCountNow > 1 && t.IsAllReady() {		//用户离开之后,判断游戏是否开始
+			go t.Run()
+		}
 	} else if t.IsChampionship() {
 		//用户直接放弃游戏,设置roomCoin=0,并且更新rankxin
 		user.RoomCoin = 0
@@ -375,8 +379,8 @@ func (t *ThDesk) LeaveThuser(userId uint32) error {
 	//3,发送信息
 
 	//给离开的人发送信息
-	ret := &bbproto.Game_ACKLeaveDesk{}
-	ret.Result = &intCons.ACK_RESULT_SUCC
+	ret := bbproto.NewGame_ACKLeaveDesk()
+	*ret.Result = intCons.ACK_RESULT_SUCC
 	user.WriteMsg(ret)
 
 	//离开之后,需要广播一次sendGameInfo
@@ -747,7 +751,7 @@ func (t *ThDesk) OninitThDeskBeginStatus() error {
 }
 
 //判断是不是朋友桌
-func (t *ThDesk) IsPengYou() bool {
+func (t *ThDesk) IsFriend() bool {
 	return t.GameType == intCons.GAME_TYPE_TH
 }
 
@@ -1016,7 +1020,7 @@ func (t *ThDesk) Lottery() error {
 
 //判断是否可以开始下一句游戏
 func (t *ThDesk) end() bool {
-	if t.IsPengYou() {
+	if t.IsFriend() {
 		//朋友桌是否结束游戏
 		return t.EndTh()
 	} else if t.IsChampionship() {

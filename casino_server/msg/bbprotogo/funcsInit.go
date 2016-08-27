@@ -49,6 +49,9 @@ func NewGame_AckLogin() *Game_AckLogin {
 	ret.Notice = new(string)
 	ret.RoomPassword = new(string)
 	ret.TableId = new(int32)
+	ret.CostCreateRoom = new(int64)
+	ret.CostRebuy = new(int64)
+	ret.Championship = new(bool)
 	return ret
 
 }
@@ -133,6 +136,12 @@ func NewGame_AckRebuy() *Game_AckRebuy {
 	ret := &Game_AckRebuy{}
 	ret.CurrChip = new(int64)
 	ret.RemainCount = new(int32)
+	ret.Result = new(int32)
+	return ret
+}
+
+func NewGame_ACKLeaveDesk() *Game_ACKLeaveDesk {
+	ret := &Game_ACKLeaveDesk{}
 	ret.Result = new(int32)
 	return ret
 }

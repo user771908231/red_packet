@@ -250,6 +250,12 @@ func (t *ThUser) IsClose() bool {
 	return t.Status == TH_USER_STATUS_CLOSED
 }
 
+
+//查看用户是否准备
+func (t *ThUser) IsReady() bool {
+	return t.Status == TH_USER_STATUS_READY
+}
+
 //得到自己在当前锦标赛中的名次
 func (t *ThUser) GetCsRank() int64 {
 	//todo 获取名词之前,需要判断用户正在玩的游戏的类型
