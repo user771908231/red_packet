@@ -4,6 +4,7 @@ import (
 	"casino_server/common/log"
 	"casino_server/msg/bbprotogo"
 	"casino_server/service/pokerService"
+	"github.com/go-sql-driver/mysql"
 )
 
 //牌的花色 和值
@@ -203,6 +204,8 @@ func (mydesk *ThDesk) initGameSendgameInfoByDesk() *bbproto.Game_SendGameInfo {
 	*result.BigBlind = mydesk.BigBlindCoin
 	*result.RoomType = mydesk.GameType
 	*result.InitRoomCoin = mydesk.InitRoomCoin
+	*result.CurrPlayCount = mydesk.JuCountNow
+	*result.TotalPlayCount = mydesk.JuCount
 
 
 	//循环User来处理
