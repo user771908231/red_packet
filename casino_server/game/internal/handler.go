@@ -447,9 +447,11 @@ func handlerGame_Feedback(args []interface{}){
 
 //重构的协议
 func handlerGame_Rebuy(args []interface{}){
-	m := args[0].(*bbproto.Game_Feedback)
+	m := args[0].(*bbproto.Game_Rebuy)
 	log.T("重购的信息m[%v]",m)
 	a := args[1].(gate.Agent)
-	//开始重购
+	//开始rebuy
+	desk := room.GetDeskByAgent(a)
+	desk.Rebuy(m.GetUserId())
 
 }

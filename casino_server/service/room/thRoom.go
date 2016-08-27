@@ -105,6 +105,7 @@ func (r *ThGameRoom) CreateDeskByUserIdAndRoomKey(userId uint32, roomCoin int64,
 	desk.GetRoomCoin()
 	desk.GameType = intCons.GAME_TYPE_TH        //表示是自定义的房间
 	desk.PreCoin = preCoin
+	desk.RebuyCountLimit = r.RebuyCountLimit	//加注的限制
 	r.AddThDesk(desk)
 
 	//3,生成一条交易记录
