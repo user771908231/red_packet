@@ -105,7 +105,7 @@ func (r *ThGameRoom) CreateDeskByUserIdAndRoomKey(userId uint32, roomCoin int64,
 	desk.GetRoomCoin()
 	desk.GameType = intCons.GAME_TYPE_TH        //表示是自定义的房间
 	desk.PreCoin = preCoin
-	desk.RebuyCountLimit = r.RebuyCountLimit	//加注的限制
+	desk.RebuyCountLimit = r.RebuyCountLimit        //加注的限制
 	r.AddThDesk(desk)
 
 	//3,生成一条交易记录
@@ -336,8 +336,7 @@ func GetDeskByAgent(a gate.Agent) *ThDesk {
 //删除房间
 func RmThdesk(desk *ThDesk) error {
 	log.T("开始解散房间id[%v],desk[%v]", desk.Id, desk)
-	if desk.GameType == intCons.GAME_TYPE_TH_CS {
-		//锦标赛
+	if desk.IsChampionship() {
 		ChampionshipRoom.RmThroom(desk)
 	} else if desk.GameType == intCons.GAME_TYPE_TH {
 		ThGameRoomIns.RmThroom(desk)

@@ -188,9 +188,9 @@ message game_TestResult {
     repeated int64 HandCoin = 7;
     repeated game_WinCoin CoinInfo = 8;
     optional int32 rank = 9; //查看自己的排名
-    optional bool CanRebuy = 10; //是否可以重购买
-    optional int32 RebuyCount = 11; //重购的次数
-
+    optional int32 RankUserCount = 10; //查看自己的排名
+    optional bool CanRebuy = 11; //是否可以重购买
+    optional int32 RebuyCount = 12; //重购的次数
 
 }
 

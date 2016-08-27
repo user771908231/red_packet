@@ -71,6 +71,7 @@ type CSThGameRoom struct {
 	beginTime       time.Time               //游戏开始的时间
 	endTime         time.Time               //游戏结束的时间
 	gameDuration    time.Duration           //游戏的时长
+	rankUserCount	int32			//游戏总人数
 	onlineCount     int32                   //总的在线人数
 	gamingUserCount int32                   //游戏总的人数--正在玩,没有输掉比赛的
 	status          int32                   //锦标赛的状态
@@ -124,12 +125,13 @@ func (r *CSThGameRoom) Begin() {
 
 	jobUtils.DoAsynJob(CSTHGameRoomConfig.checkDuration, func() bool {
 		//判断人数是否足够
-		if r.gamingUserCount > CSTHGameRoomConfig.leastCount {
+		if r.gamingUserCount >= CSTHGameRoomConfig.leastCount {
 			//开始游戏
 			r.Run()
+			r.BroadCastDeskRunGame()
 			return true        //表示终止任务
 		} else {
-			log.T("锦标赛[%v]玩家数量[%v]不够,暂时不开始游戏.", r.matchId, r.gamingUserCount)
+			log.T("锦标赛[%v]玩家数量[%v]不够[%v],暂时不开始游戏.", r.matchId, r.gamingUserCount,CSTHGameRoomConfig.leastCount)
 			return false
 		}
 	})
@@ -154,6 +156,10 @@ func (r *CSThGameRoom) Run() {
 	saveData.EndTime = r.endTime
 	db.InsertMgoData(casinoConf.DBT_T_CS_TH_RECORD, saveData)
 	CSTHService.RefreshRedisMatchList()        //这里刷新redis中的锦标赛数据
+
+	//通知desk游戏开始
+
+
 
 	//这里定义一个计时器,每十秒钟检测一次游戏
 	jobUtils.DoAsynJob(CSTHGameRoomConfig.checkDuration, func() bool {
@@ -184,6 +190,26 @@ func (r *CSThGameRoom) Run() {
 	})
 }
 
+//通过所有的desk可以开始游戏了
+func (r *CSThGameRoom) BroadCastDeskRunGame() {
+	log.T("通知所有的desk开始游戏")
+	for i := 0; i < len(r.ThDeskBuf); i++ {
+		desk := r.ThDeskBuf[i]
+		if desk != nil {
+			go desk.Run()
+		}
+	}
+}
+
+func (r *CSThGameRoom) AddrankUserCount() {
+	atomic.AddInt32(&r.rankUserCount, 1)        //在线人数增加一人
+}
+
+func (r *CSThGameRoom) SubrankUserCount() {
+	atomic.AddInt32(&r.rankUserCount, -1)        //在线人数减少一人
+
+}
+
 func (r *CSThGameRoom) AddOnlineCount() {
 	atomic.AddInt32(&r.onlineCount, 1)        //在线人数增加一人
 }
@@ -199,7 +225,9 @@ func (r *CSThGameRoom) checkEnd() bool {
 	if r.endTime.Before(time.Now()) && r.allStop() {
 		//结算本局
 		log.T("锦标赛matchid[%v]已经结束.现在开始保存数据", r.matchId)
+		r.status = CSTHGAMEROOM_STATUS_STOP
 		//这里需要保存每一个人锦标赛的结果信息
+		log.T("保存每一个人竞标赛的信息")
 
 		return true
 	} else {
@@ -220,7 +248,7 @@ func (r *CSThGameRoom) allStop() bool {
 	result := true
 	for i := 0; i < len(r.ThDeskBuf); i++ {
 		desk := r.ThDeskBuf[i]
-		if desk != nil && desk.Status != TH_DESK_STATUS_STOP {
+		if desk != nil && desk.CStatus != CSTH_DESK_STATUS_STOP {
 			result = false
 			break
 		}
@@ -314,6 +342,7 @@ func (r *CSThGameRoom) AddUser(userId uint32, a gate.Agent) (*ThDesk, error) {
 	}
 
 	r.AddOnlineCount()        //在线用户增加1
+	r.AddrankUserCount()
 	r.AddgamingUserCount()    //游戏玩家数量+1
 	r.AddUserRankInfo(user.UserId, user.MatchId, user.RoomCoin)
 	mydesk.LogString()        //打印当前房间的信息
@@ -324,6 +353,7 @@ func (r *CSThGameRoom) AddUser(userId uint32, a gate.Agent) (*ThDesk, error) {
 func (r *CSThGameRoom) CanNextDeskRun() bool {
 	//如果当前时间已经在结束时间之后,那么本局游戏结束
 	if r.endTime.Before(time.Now()) {
+		log.T("游戏时间已经到了,不能开始游戏")
 		return false
 	}
 
