@@ -226,13 +226,6 @@ func HandlerGameEnterMatch(m *bbproto.Game_EnterMatch, a gate.Agent) error {
 	}
 
 	mydesk.BroadGameInfo()
-
-
-	//5,如果是朋友桌的话,需要房主点击开始才能开始...,如果是锦标赛,则自动开始游戏
-	if mydesk.GameType == intCons.GAME_TYPE_TH_CS {
-		go mydesk.Run()
-	}
-
 	return nil
 }
 

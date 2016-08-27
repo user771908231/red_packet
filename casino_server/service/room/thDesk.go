@@ -41,6 +41,11 @@ var TH_DESK_STATUS_READY int32 = 2                 //游戏处于准备的状态
 var TH_DESK_STATUS_RUN int32 = 3                //已经开始的状态
 var TH_DESK_STATUS_LOTTERY int32 = 4             //已经开始的状态
 
+//桌子相关的竞标赛的逻辑
+var CSTH_DESK_STATUS_RUN int32 = 1                //没有开始的状态
+var CSTH_DESK_STATUS_STOP int32 = 2                //没有开始的状态
+
+
 var TH_DESK_ROUND1 int32 = 1                //第一轮押注
 var TH_DESK_ROUND2 int32 = 2                //第二轮押注
 var TH_DESK_ROUND3 int32 = 3                //第三轮押注
@@ -132,6 +137,7 @@ type ThDesk struct {
 	UserCountOnline      int32                        //在线的人数
 	ReadyCount           int32                        //已经准备的用户数
 	Status               int32                        //牌桌的状态
+	CStatus              int32                        //竞标赛的状态
 	BetAmountNow         int64                        //当前的押注金额是多少
 	RoundCount           int32                        //第几轮
 	Jackpot              int64                        //奖金池
@@ -358,7 +364,7 @@ func (t *ThDesk) LeaveThuser(userId uint32) error {
 	if t.GameType == intCons.GAME_TYPE_TH {
 		//自定义房间
 
-	} else if t.GameType == intCons.GAME_TYPE_TH_CS {
+	} else if t.IsChampionship() {
 		//用户直接放弃游戏,设置roomCoin=0,并且更新rankxin
 		user.AddRoomCoin(user.RoomCoin)
 		ChampionshipRoom.UpdateUserRankInfo(user.UserId, user.MatchId, user.RoomCoin)
@@ -575,7 +581,7 @@ func (t *ThDesk) BroadcastTestResult(p *bbproto.Game_TestResult) error {
 
 //获取用户的排名
 func (t *ThDesk) getRankByUserId(user *ThUser) int32 {
-	if t.GameType == intCons.GAME_TYPE_TH_CS {
+	if t.IsChampionship() {
 		return ChampionshipRoom.GetRankByuserId(user.UserId)
 	} else {
 		return 0
@@ -725,11 +731,21 @@ func (t *ThDesk) OninitThDeskBeginStatus() error {
 	t.edgeJackpot = 0
 	t.AllInJackpot = nil                          // 初始化allInJackpot 为空
 
+	if t.IsChampionship() {
+		t.CStatus = CSTH_DESK_STATUS_RUN
+	}else{
+		t.CStatus = CSTH_DESK_STATUS_STOP
+	}
+
 	t.LogString()
 	log.T("开始一局游戏,现在初始化desk的信息完毕...")
 	return nil
 }
 
+//判断是否是锦标赛
+func (t *ThDesk) IsChampionship() bool{
+	return t.GameType == intCons.GAME_TYPE_TH_CS
+}
 
 //判断是否是开奖的时刻
 /**
@@ -978,20 +994,18 @@ func (t *ThDesk) Lottery() error {
 	t.afterLottery()
 
 	//判断游戏是否结束
-	if t.isEnd() {
-		t.End()
-	} else {
+	if !t.end() {
 		//表示不能继续开始游戏
 		time.Sleep(ThdeskConfig.TH_LOTTERY_DURATION)        //开奖的延迟
+		log.T("desk[%v]开始下一局游戏...", t.Id)
 		go t.Run()
 	}
 	return nil
 }
 
 
-
 //判断开奖之后是否可以继续游戏
-func (t *ThDesk) isEnd() bool {
+func (t *ThDesk) end() bool {
 	if t.GameType == intCons.GAME_TYPE_TH {
 		//如果是自定义房间
 		//1,局数
@@ -1000,11 +1014,13 @@ func (t *ThDesk) isEnd() bool {
 		if t.JuCountNow <= t.JuCount {
 			return false
 		} else {
+			t.EndTh()        //自定义房间结束
 			return true
 		}
-	} else if t.GameType == intCons.GAME_TYPE_TH_CS {
+	} else if t.IsChampionship() {
 		//判断锦标赛有没有结束,如果所有的desk都已经stop了,则表示游戏结束
 		if ChampionshipRoom.allStop() {
+			log.T("竞标赛[%v]desk[%v]已经停止了", t.MatchId, t.Id)
 			return true
 		} else {
 			return false
@@ -1046,7 +1062,7 @@ func (t *ThDesk) afterLottery() error {
 			if t.GameType == intCons.GAME_TYPE_TH {
 				//如果是自定义的房间,设置每个人都是坐下的状态
 				u.Status = TH_USER_STATUS_SEATED
-			} else if t.GameType == intCons.GAME_TYPE_TH_CS {
+			} else if t.IsChampionship() {
 				if t.IsUserRoomCoinEnough(u) {
 					//如果是锦标赛的房间,用户的钱足够
 					u.Status = TH_USER_STATUS_READY
@@ -1082,7 +1098,7 @@ func (t *ThDesk)  SaveLotteryData() error {
 	if t.GameType == intCons.GAME_TYPE_TH {
 		//自定义房间
 		return t.SaveLotteryDatath()
-	} else if t.GameType == intCons.GAME_TYPE_TH_CS {
+	} else if t.IsChampionship() {
 		//锦标赛
 		return t.SaveLotteryDatacsth()
 	}
@@ -1665,7 +1681,7 @@ func (t *ThDesk) IsTime2begin() bool {
 	}
 
 	log.T("现在开始判断是否可以开始一局新的游戏,2,判断锦标赛的逻辑:")
-	if t.GameType == intCons.GAME_TYPE_TH_CS {
+	if t.IsChampionship() {
 		//锦标赛游戏房间的状态
 		if !ChampionshipRoom.CanNextDeskRun() {
 			log.T("锦标赛的逻辑,判断不能开始下一局")
@@ -1758,8 +1774,11 @@ func (mydesk *ThDesk) Run() error {
 	return nil
 }
 
-//表示游戏结束
-func (t *ThDesk) End() {
+//锦标赛结束
+func (t *ThDesk) EndCsTh() {}
+
+//表示游戏结束,自定义房间结束
+func (t *ThDesk) EndTh() {
 	log.T("整局(多场游戏)已经结束...)")
 	//广播结算的信息
 	result := &bbproto.Game_SendDeskEndLottery{}
@@ -1867,8 +1886,7 @@ func (t *ThDesk) Rebuy(userId uint32) error {
 	if t.GameType == intCons.GAME_TYPE_TH {
 		///朋友桌直接返回-1
 		*ret.RemainCount = -1
-
-	} else if t.GameType == intCons.GAME_TYPE_TH_CS {
+	} else if t.IsChampionship() {
 		*ret.RemainCount = t.RebuyCountLimit - user.RebuyCount
 	}
 	user.WriteMsg(ret)

@@ -336,8 +336,7 @@ func GetDeskByAgent(a gate.Agent) *ThDesk {
 //删除房间
 func RmThdesk(desk *ThDesk) error {
 	log.T("开始解散房间id[%v],desk[%v]", desk.Id, desk)
-	if desk.GameType == intCons.GAME_TYPE_TH_CS {
-		//锦标赛
+	if desk.IsChampionship() {
 		ChampionshipRoom.RmThroom(desk)
 	} else if desk.GameType == intCons.GAME_TYPE_TH {
 		ThGameRoomIns.RmThroom(desk)
