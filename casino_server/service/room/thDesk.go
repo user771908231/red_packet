@@ -360,15 +360,16 @@ func (t *ThDesk) LeaveThuser(userId uint32) error {
 	t.SubUserCountOnline()        //房间的在线人数减一
 
 	//2,根据不同的游戏类型做不同的处理
-	if t.GameType == intCons.GAME_TYPE_TH {
-		//自定义房间
+	if t.IsPengYou() {
+		//自定义房间,离开的时候不用做特殊处理...
 
 	} else if t.IsChampionship() {
 		//用户直接放弃游戏,设置roomCoin=0,并且更新rankxin
-		user.AddRoomCoin(user.RoomCoin)
+		user.RoomCoin = 0
 		ChampionshipRoom.UpdateUserRankInfo(user.UserId, user.MatchId, user.RoomCoin)
 		//竞标赛的房间
 		ChampionshipRoom.SubOnlineCount()        //竞标赛的在线人数-1
+		ChampionshipRoom.RmCopyUser(user.UserId)        //已经明确退出房间的,删除buf中的user
 	}
 
 	//3,发送信息

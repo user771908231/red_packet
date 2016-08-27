@@ -129,7 +129,7 @@ func NewGame_SendGameInfo() *Game_SendGameInfo {
 	return result
 }
 
-func NewGame_AckRebuy() *Game_AckRebuy{
+func NewGame_AckRebuy() *Game_AckRebuy {
 	ret := &Game_AckRebuy{}
 	ret.CurrChip = new(int64)
 	ret.RemainCount = new(int32)

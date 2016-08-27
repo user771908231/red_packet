@@ -37,7 +37,7 @@ var CSTHGameRoomConfig struct {
 	blinds            []int64       //盲注
 	initRoomCoin      int64         //初始的带入金额
 	deskMaxUserCount  int32         //最多多少人
-	roomMaxUserCount  int32		//room里最多能有多少人
+	roomMaxUserCount  int32         //room里最多能有多少人
 	RebuyCountLimit   int32         //重构次数的限制
 	quotaLimit        int32         //名额的限制
 }
@@ -91,7 +91,7 @@ func (r *CSThGameRoom) OnInit() {
 	r.initRoomCoin = CSTHGameRoomConfig.initRoomCoin
 	r.ThRoomSeatMax = CSTHGameRoomConfig.deskMaxUserCount
 	r.RebuyCountLimit = CSTHGameRoomConfig.RebuyCountLimit                        //重购的次数
-	r.UsersCopy = make(map[uint32]*ThUser,)
+	r.UsersCopy = make(map[uint32]*ThUser, )
 
 }
 
@@ -269,29 +269,27 @@ func (r *CSThGameRoom) End() {
 }
 
 
-//判断锦标赛是否重新进入房间
-func (r *CSThGameRoom) IsRepeatIntoRoom(userId uint32, a gate.Agent) *ThDesk {
-	//1,取回话信息,如果回话信息为nil,直接返回nil
-	userData := userService.GetUserSessionByUserId(userId)
+//锦标赛: 判断锦标赛是否重新进入房间
+/**
+	锦标赛的特殊性:锦标赛有可能没了桌子,但是人也是在游戏中的,所以不能通过agent来寻找桌子
+	1,在csthroom的buf中来寻找thusers,找到之后看其状态
 
-	//如果会话信息为nil,或者没有在游戏状态中,则返回nil
-	if userData == nil || userData.GetGameStatus() == TH_USER_STATUS_NOGAME {
-		return nil
+ */
+func (r *CSThGameRoom) IsRepeatIntoRoom(userId uint32, a gate.Agent) (*ThDesk,error) {
+
+	user := r.GetCopyUserById(userId)
+	if user == nil {
+		//表示没有进入过锦标赛
+		return nil,nil
 	}
 
-
-	//2,取桌子的信息,如果桌子为nil,则直接返回nil
-	desk := GetDeskByIdAndMatchId(userData.GetDeskId(), userData.GetMatchId())
-	if desk == nil {
-		return nil
+	if user.IsLeave {
+		//表示用户已经离开,不能进入游戏
+		return nil,errors.New("用户已经离开了")
 	}
 
-	//3,重新设置用户的信息
-	desk.GetUserByUserId(userId).UpdateAgentUserData(a)
-	desk.AddUserCountOnline()
-
-	log.T("用户[%v]重新进入房间了", userId)
-	return desk
+	log.T("用户【%v】断线重连...",userId)
+	return r.GetDeskById(user.deskId)
 }
 
 
@@ -329,12 +327,12 @@ func (r *CSThGameRoom) AddUser(userId uint32, a gate.Agent) (*ThDesk, error) {
 		return nil, err
 	}
 
-	r.UsersCopy[user.UserId] = user
-
 	r.AddOnlineCount()        //在线用户增加1
 	r.AddrankUserCount()
 	r.AddgamingUserCount()    //游戏玩家数量+1
 	r.AddUserRankInfo(user.UserId, user.MatchId, user.RoomCoin)
+	r.AddCopyUser(user)	//用户列表总增加一个用户
+
 	mydesk.LogString()        //打印当前房间的信息
 	return mydesk, nil
 }
@@ -531,4 +529,17 @@ func (t *CSThGameRoom) Join(user *ThUser) error {
 	}
 
 	return nil
+}
+
+func (t *CSThGameRoom) RmCopyUser(userId uint32) {
+	delete(t.UsersCopy, userId)
+}
+
+func (t *CSThGameRoom) AddCopyUser(user *ThUser) {
+	t.UsersCopy[user.UserId] = user
+}
+
+//得到buf中的thusr
+func (t *CSThGameRoom) GetCopyUserById(userId uint32) *ThUser{
+	return  t.UsersCopy[userId]
 }
