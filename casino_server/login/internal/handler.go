@@ -119,9 +119,8 @@ func handlerNullMsg(args []interface{}) {
 func handlerNotice(args []interface{}) {
 	m :=  args[0].(*bbproto.Game_Notice)
 	a :=  args[1].(gate.Agent)
-	log.T("查询公告type[%v]",m.GetNoticeType())
+	log.T("开始查询公告的信息m[%v]",m)
 	tnotice := noticeServer.GetNoticeByType(m.GetNoticeType())
-	log.T("查询到了notice[%v]",tnotice)
 	a.WriteMsg(tnotice)
 }
 
@@ -141,7 +140,6 @@ func newACKQuickConn() * bbproto.ACKQuickConn{
 	*result.ReleaseTag = 1			///todo  这里需要修改
 
 	arrs := strings.Split(conf.Server.TCPAddr, ":")
-	log.T("quickConn arrs[%v]",arrs)
 	var ip string = arrs[0]
 	var port string = arrs[1]
 
@@ -166,9 +164,7 @@ func newACKQuickConn() * bbproto.ACKQuickConn{
 	serverInfo := &bbproto.ServerInfo{}
 	serverInfo.Ip = &ip
 
-	log.T("quickConn port[%v]",port)
 	portStr := int32(numUtils.String2Int(port))
-	log.T("quickConn portStr[%v]",portStr)
 	serverInfo.Port = &portStr
 	svrlist := make([]*bbproto.ServerInfo, 1)
 	svrlist[0] = serverInfo

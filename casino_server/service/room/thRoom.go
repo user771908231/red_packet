@@ -126,7 +126,7 @@ func (r *ThGameRoom) AddThDesk(throom *ThDesk) error {
 
 
 //删除一个throom
-func (r *ThGameRoom) RmThroom(desk *ThDesk) error {
+func (r *ThGameRoom) RmThDesk(desk *ThDesk) error {
 	//第一步找到index
 	var index int = -1
 	for i := 0; i < len(r.ThDeskBuf); i++ {
@@ -137,24 +137,10 @@ func (r *ThGameRoom) RmThroom(desk *ThDesk) error {
 		}
 	}
 
-	//修改用户session状态,因为seession中存在desk相关的信息
-	for i := 0; i < len(desk.Users); i++ {
-		u := desk.Users[i]
-		if u != nil {
-			agent := u.agent
-			//更新agentData的数据
-			u.deskId = 0
-			u.MatchId = 0
-			u.UpdateAgentUserData(agent)
-		}
-	}
-
-
 	//删除对应的desk
 	r.ThDeskBuf = append(r.ThDeskBuf[:index], r.ThDeskBuf[index + 1:]...)
 	return nil
 }
-
 
 //通过房主id解散房间
 func (r *ThGameRoom) DissolveDeskByDeskOwner(userId uint32, a gate.Agent) error {
@@ -184,7 +170,8 @@ func (r *ThGameRoom) DissolveDeskByDeskOwner(userId uint32, a gate.Agent) error 
 	}
 
 	//3,解散
-	RmThdesk(desk)
+	desk.clearAgentData(0)        //清空别人的会话信息
+	r.RmThDesk(desk)
 
 	//4,发送解散的广播
 	*result.Result = intCons.ACK_RESULT_SUCC
@@ -332,15 +319,3 @@ func GetDeskByAgent(a gate.Agent) *ThDesk {
 
 	return desk
 }
-
-//删除房间
-func RmThdesk(desk *ThDesk) error {
-	log.T("开始解散房间id[%v],desk[%v]", desk.Id, desk)
-	if desk.IsChampionship() {
-		ChampionshipRoom.RmThroom(desk)
-	} else if desk.GameType == intCons.GAME_TYPE_TH {
-		ThGameRoomIns.RmThroom(desk)
-	}
-	return nil
-}
-
