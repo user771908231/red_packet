@@ -48,6 +48,9 @@ message game_InitCard {
     optional int64 MinRaise = 7;
     optional int32 ActionTime = 8;
     optional int32 DelayTime = 9;
+
+    optional int32 currPlayCount    = 10; //朋友桌:当前第几局
+    optional int32 totalPlayCount   = 11; //朋友桌:总共几局
 }
 
 message game_RaiseBet {
@@ -188,10 +191,9 @@ message game_TestResult {
     repeated int64 HandCoin = 7;
     repeated game_WinCoin CoinInfo = 8;
     optional int32 rank = 9; //查看自己的排名
-    optional int32 RankUserCount = 10; //查看自己的排名
+    optional int32 RankUserCount = 10; //参赛总人数
     optional bool CanRebuy = 11; //是否可以重购买
     optional int32 RebuyCount = 12; //重购的次数
-
 }
 
 message game_LeaveMatch {
@@ -288,6 +290,9 @@ message game_SendGameInfo {
     optional int64 preCoin = 34; //前注的大小
     optional int64 smallBlind = 35; //小盲的大小
     optional int64 bigBlind = 36; //大盲的大小
+
+    optional int32 currPlayCount    = 37; //朋友桌:当前第几局
+    optional int32 totalPlayCount   = 38; //朋友桌:总共几局
 }
 
 message game_ShowCard {
@@ -1183,6 +1188,8 @@ message Game_AckLogin {
     optional int32 matchId = 3;
     optional int32 tableId = 4;
     optional string roomPassword = 5; //朋友桌房间密码
+    optional int32 costCreateRoom = 6;  //建房消耗钻石数
+    optional int32 costRebuy = 7;       //Rebuy消耗钻石数(锦标赛)
 }
 
 
