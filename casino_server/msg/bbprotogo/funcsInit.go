@@ -59,6 +59,7 @@ func NewGame_TestResult() *Game_TestResult {
 	ret.Rank = new(int32)
 	ret.CanRebuy = new(bool)
 	ret.RebuyCount = new(int32)
+	ret.RankUserCount = new(int32)
 	return ret
 }
 

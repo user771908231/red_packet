@@ -71,6 +71,7 @@ type CSThGameRoom struct {
 	beginTime       time.Time               //游戏开始的时间
 	endTime         time.Time               //游戏结束的时间
 	gameDuration    time.Duration           //游戏的时长
+	rankUserCount	int32			//游戏总人数
 	onlineCount     int32                   //总的在线人数
 	gamingUserCount int32                   //游戏总的人数--正在玩,没有输掉比赛的
 	status          int32                   //锦标赛的状态
@@ -200,6 +201,14 @@ func (r *CSThGameRoom) BroadCastDeskRunGame() {
 	}
 }
 
+func (r *CSThGameRoom) AddrankUserCount() {
+	atomic.AddInt32(&r.rankUserCount, 1)        //在线人数增加一人
+}
+
+func (r *CSThGameRoom) SubrankUserCount() {
+	atomic.AddInt32(&r.rankUserCount, -1)        //在线人数减少一人
+
+}
 
 func (r *CSThGameRoom) AddOnlineCount() {
 	atomic.AddInt32(&r.onlineCount, 1)        //在线人数增加一人
@@ -333,6 +342,7 @@ func (r *CSThGameRoom) AddUser(userId uint32, a gate.Agent) (*ThDesk, error) {
 	}
 
 	r.AddOnlineCount()        //在线用户增加1
+	r.AddrankUserCount()
 	r.AddgamingUserCount()    //游戏玩家数量+1
 	r.AddUserRankInfo(user.UserId, user.MatchId, user.RoomCoin)
 	mydesk.LogString()        //打印当前房间的信息

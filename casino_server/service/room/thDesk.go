@@ -588,6 +588,10 @@ func (t *ThDesk) getRankByUserId(user *ThUser) int32 {
 	}
 }
 
+func (t *ThDesk) getRankUserCount() int32{
+	return ChampionshipRoom.onlineCount
+}
+
 //得到这个用户是可以重购
 func (t *ThDesk) getCanRebuyByUserId(user *ThUser) bool {
 	//用户的金额不足的时候并且重构的次数小于desk的重购限制的时候
@@ -733,7 +737,7 @@ func (t *ThDesk) OninitThDeskBeginStatus() error {
 
 	if t.IsChampionship() {
 		t.CStatus = CSTH_DESK_STATUS_RUN
-	}else{
+	} else {
 		t.CStatus = CSTH_DESK_STATUS_STOP
 	}
 
@@ -742,8 +746,13 @@ func (t *ThDesk) OninitThDeskBeginStatus() error {
 	return nil
 }
 
+//判断是不是朋友桌
+func (t *ThDesk) IsPengYou() bool{
+	return t.GameType == intCons.GAME_TYPE_TH
+}
+
 //判断是否是锦标赛
-func (t *ThDesk) IsChampionship() bool{
+func (t *ThDesk) IsChampionship() bool {
 	return t.GameType == intCons.GAME_TYPE_TH_CS
 }
 
@@ -1004,19 +1013,11 @@ func (t *ThDesk) Lottery() error {
 }
 
 
-//判断开奖之后是否可以继续游戏
+//判断是否可以开始下一句游戏
 func (t *ThDesk) end() bool {
-	if t.GameType == intCons.GAME_TYPE_TH {
-		//如果是自定义房间
-		//1,局数
-		//2,人数
-		log.T("判断自定义的desk是否结束游戏t.jucount[%v],t.jucountnow[%v],", t.JuCount, t.JuCountNow)
-		if t.JuCountNow <= t.JuCount {
-			return false
-		} else {
-			t.EndTh()        //自定义房间结束
-			return true
-		}
+	if t.IsPengYou() {
+		return t.EndTh()
+
 	} else if t.IsChampionship() {
 		//判断锦标赛有没有结束,如果所有的desk都已经stop了,则表示游戏结束
 		if ChampionshipRoom.allStop() {
@@ -1042,6 +1043,7 @@ func (t *ThDesk) broadLotteryResult() error {
 	result.WinCoinInfo = t.getWinCoinInfo()
 	result.HandCoin = t.GetHandCoin()
 	result.CoinInfo = t.getCoinInfo()                //每个人的输赢情况
+	*result.RankUserCount = t.getRankUserCount()
 	t.BroadcastTestResult(result)
 	return nil
 
@@ -1778,7 +1780,14 @@ func (mydesk *ThDesk) Run() error {
 func (t *ThDesk) EndCsTh() {}
 
 //表示游戏结束,自定义房间结束
-func (t *ThDesk) EndTh() {
+func (t *ThDesk) EndTh() bool{
+	//如果是自定义房间
+	log.T("判断自定义的desk是否结束游戏t.jucount[%v],t.jucountnow[%v],", t.JuCount, t.JuCountNow)
+	if t.JuCountNow <= t.JuCount {
+		return false
+	}
+
+
 	log.T("整局(多场游戏)已经结束...)")
 	//广播结算的信息
 	result := &bbproto.Game_SendDeskEndLottery{}
@@ -1824,6 +1833,7 @@ func (t *ThDesk) EndTh() {
 
 	//整局游戏结束之后,解散游戏房间
 	RmThdesk(t)
+	return true	//已经结束了本场游戏
 }
 
 
