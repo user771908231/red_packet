@@ -115,7 +115,7 @@ func HandlerReady(m *bbproto.Game_Ready, a gate.Agent) error {
 	return nil
 }
 
-//开始游戏
+//房主强制开始游戏
 func HandlerBegin(m *bbproto.Game_Begin, a gate.Agent) error {
 	userId := m.GetUserId()
 	desk := room.GetDeskByAgent(a)

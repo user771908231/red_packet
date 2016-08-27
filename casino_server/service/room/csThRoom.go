@@ -287,6 +287,10 @@ func (r *CSThGameRoom) IsRepeatIntoRoom(userId uint32, a gate.Agent) (*ThDesk,er
 		return nil,errors.New("用户已经离开了")
 	}
 
+	//设置用户的状态
+	user.IsBreak = false
+	user.UpdateAgentUserData()	//更新用户的session信息
+
 	log.T("用户【%v】断线重连...",userId)
 	desk :=  r.GetDeskById(user.deskId)
 	return desk,nil

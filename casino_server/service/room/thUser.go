@@ -30,6 +30,11 @@ var TH_USER_STATUS_WAIT_CLOSED int32 = 7                 //等待结算
 var TH_USER_STATUS_CLOSED int32 = 8                //已经结算
 
 
+var TH_USER_GAME_STATUS_NOGAME int32 = 0                //不在游戏中
+var TH_USER_GAME_STATUS_FRIEND int32 = 1                //朋友桌
+var TH_USER_GAME_STATUS_CHAMPIONSHIP int32 = 2        //锦标赛
+
+
 /**
 	正在玩德州的人
  */
@@ -44,6 +49,7 @@ type ThUser struct {
 	Seat               int32                 //用户的座位号
 	agent              gate.Agent            //agent
 	Status             int32                 //当前的状态
+	GameStatus         int32                 //用户的游戏状态
 	IsBreak            bool                  //用户断线的状态,这里判断用户是否断线
 	IsLeave            bool                  //用户是否处于离开的状态
 	HandCards          []*bbproto.Pai        //手牌
@@ -186,18 +192,16 @@ func NewThUser() *ThUser {
 }
 
 //更新用户的agentUserData数据
-func (t *ThUser) UpdateAgentUserData(a gate.Agent) {
+func (u *ThUser) UpdateAgentUserData() {
 
 	//保存回话信息
 	userAgentData := bbproto.NewThServerUserSession()                //绑定参数
-	*userAgentData.UserId = t.UserId
-	*userAgentData.DeskId = t.deskId
-	*userAgentData.MatchId = t.MatchId
-	*userAgentData.GameStatus = t.Status
-	a.SetUserData(userAgentData)
-	t.agent = a
-	t.IsBreak = false
-	t.IsLeave = false
+	*userAgentData.UserId = u.UserId
+	*userAgentData.DeskId = u.deskId
+	*userAgentData.MatchId = u.MatchId
+
+	*userAgentData.GameStatus = u.GameStatus //返回用户当前的状态 0：未游戏  1：正在朋友桌  2：正在锦标赛
+	u.agent.SetUserData(userAgentData)        //设置用户的agentData
 
 	//回话信息保存到redis
 	userService.SaveUserSession(userAgentData)
@@ -258,8 +262,7 @@ func (t *ThUser) IsReady() bool {
 
 //得到自己在当前锦标赛中的名次
 func (t *ThUser) GetCsRank() int64 {
-	//todo 获取名词之前,需要判断用户正在玩的游戏的类型
-	return GetCSTHuserRank(t.MatchId, t.UserId)
+	return int64(0)
 }
 
 func (t *ThUser) WriteMsg(p proto.Message) error {
