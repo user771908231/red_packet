@@ -4,7 +4,6 @@ import (
 	"casino_server/common/log"
 	"casino_server/msg/bbprotogo"
 	"casino_server/service/pokerService"
-	"github.com/go-sql-driver/mysql"
 )
 
 //牌的花色 和值
