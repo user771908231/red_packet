@@ -61,6 +61,7 @@ func init() {
 	handler(&bbproto.Game_TounamentSummary{}, handlerGame_TounamentSummary)
 
 	handler(&bbproto.Game_MatchList{}, handlerGame_MatchList)         //锦标赛列表
+	handler(&bbproto.Game_Feedback{},handlerGame_Feedback)		//处理返回的信息
 
 }
 
@@ -435,4 +436,10 @@ func handlerGame_MatchList(args []interface{}) {
 	data := CSTHService.GetGameMatchList()
 	log.T("得到的锦标赛列表[%v]", data)
 	a.WriteMsg(data)
+}
+
+//反馈信息
+func handlerGame_Feedback(args []interface{}){
+	m := args[0].(*bbproto.Game_Feedback)
+	log.T("有用户发来反馈的信息m",m)
 }

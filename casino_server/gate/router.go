@@ -62,4 +62,5 @@ func init() {
 	msg.ProtoProcessor.SetRouter(&bbproto.Game_MatchList{}, game.ChanRPC)        //锦标赛 列表
 	msg.ProtoProcessor.SetRouter(&bbproto.Game_Rebuy{}, game.ChanRPC)                        //重新买入的协议
 	msg.ProtoProcessor.SetRouter(&bbproto.Game_Login{}, game.ChanRPC)                        //登陆大厅的协议
+	msg.ProtoProcessor.SetRouter(&bbproto.Game_Feedback{},game.ChanRPC)		//游戏回馈
 }

@@ -107,5 +107,6 @@ func init() {
 	ProtoProcessor.Register(&bbproto.Game_AckRebuy{})	//72
 	ProtoProcessor.Register(&bbproto.Game_Login{})		//73	登陆大厅的协议
 	ProtoProcessor.Register(&bbproto.Game_AckLogin{})	//74	回复的协议
+	ProtoProcessor.Register(&bbproto.Game_Feedback{})	//75	反馈
 
 }
