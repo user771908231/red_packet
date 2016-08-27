@@ -59,6 +59,7 @@ type ThUser struct {
 	HandCoin           int64                 //用户下注多少钱、指单局
 	RoomCoin           int64                 //用户上分的金额
 	InitialRoomCoin    int64                 //进房间的时候,手上的roomCoin, 实现rebuy协议之后,需要增加这个字段的值
+	RebuyCount         int32                 //重购的次数
 }
 
 func (t *ThUser) GetCoin() int64 {
@@ -145,7 +146,7 @@ func (t *ThUser) TimeOut(timeNow time.Time) (bool, error) {
 		return true, err
 	} else {
 		//没有超时,继续等待
-		log.T("desk[%v]玩家[%v]nickname[%v]出牌中还没有超时",t.deskId,t.UserId, t.NickName)
+		log.T("desk[%v]玩家[%v]nickname[%v]出牌中还没有超时", t.deskId, t.UserId, t.NickName)
 		return false, nil
 	}
 }
@@ -204,7 +205,7 @@ func (t *ThUser) UpdateAgentUserData(a gate.Agent) {
 
 //把用户数据保存到redis中
 func (u *ThUser) Update2redis() {
-	log.T("用户数据改变之后的值,需要保存在rendis中[%v]",*u)
+	log.T("用户数据改变之后的值,需要保存在rendis中[%v]", *u)
 	UpdateRedisThuser(u)
 }
 

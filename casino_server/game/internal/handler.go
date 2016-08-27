@@ -50,6 +50,7 @@ func init() {
 	handler(&bbproto.Game_Ready{}, handlerReady)                      //准备游戏
 	handler(&bbproto.Game_Begin{}, handlerBegin)                      //开始游戏
 
+	handler(&bbproto.Game_Rebuy{},handlerGame_Rebuy)		//重构的协议
 	handler(&bbproto.Game_Message{}, handlerGameMessage)
 	handler(&bbproto.Game_LeaveDesk{}, handlerLeaveDesk)              //离开桌子
 
@@ -442,4 +443,13 @@ func handlerGame_MatchList(args []interface{}) {
 func handlerGame_Feedback(args []interface{}){
 	m := args[0].(*bbproto.Game_Feedback)
 	log.T("有用户发来反馈的信息m",m)
+}
+
+//重构的协议
+func handlerGame_Rebuy(args []interface{}){
+	m := args[0].(*bbproto.Game_Feedback)
+	log.T("重购的信息m[%v]",m)
+	a := args[1].(gate.Agent)
+	//开始重购
+
 }

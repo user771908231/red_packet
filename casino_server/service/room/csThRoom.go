@@ -28,14 +28,15 @@ func init() {
 
 //对竞标赛的配置
 var CSTHGameRoomConfig struct {
-	gameDuration           time.Duration //一场比赛的时间周期
-	checkDuration          time.Duration //检测的时间周期
-	leastCount             int32         //游戏开始的最少人数
-	nextRunDuration        time.Duration //开始下一场的间隔
-	riseBlindDuration      time.Duration //生盲的时间间隔
-	blinds                 []int64       //盲注
-	initRoomCoin           int64         //初始的带入金额
-	TH_DESK_MAX_START_USER int32         //最多多少人
+	gameDuration      time.Duration //一场比赛的时间周期
+	checkDuration     time.Duration //检测的时间周期
+	leastCount        int32         //游戏开始的最少人数
+	nextRunDuration   time.Duration //开始下一场的间隔
+	riseBlindDuration time.Duration //生盲的时间间隔
+	blinds            []int64       //盲注
+	initRoomCoin      int64         //初始的带入金额
+	masxGameUserCount int32         //最多多少人
+	RebuyCountLimit   int32         //重构次数的限制
 }
 
 //对配置对象进行配置,以后可以从配置文件读取
@@ -48,7 +49,8 @@ func (r *CSThGameRoom) OnInitConfig() {
 	CSTHGameRoomConfig.riseBlindDuration = time.Second * 150        //每150秒生一次忙
 	CSTHGameRoomConfig.blinds = []int64{5, 10, 20, 40, 80, 160, 320, 640, 1280, 2000, 10000, 100000, 1000000}
 	CSTHGameRoomConfig.initRoomCoin = 1000;
-	CSTHGameRoomConfig.TH_DESK_MAX_START_USER = 9
+	CSTHGameRoomConfig.masxGameUserCount = 9
+	CSTHGameRoomConfig.RebuyCountLimit = 5                //最多重构5次
 }
 
 //锦标赛的状态
@@ -59,6 +61,8 @@ var CSTHGAMEROOM_STATUS_READY int32 = 2;
 var CSTHGAMEROOM_STATUS_RUN int32 = 3;
 
 var CSTHGAMEROOM_STATUS_LOTTERY int32 = 4;
+
+
 
 //锦标赛
 type CSThGameRoom struct {
@@ -75,6 +79,15 @@ type CSThGameRoom struct {
 	initRoomCoin    int64                   //房间默认的带入金额
 }
 
+
+func (r *CSThGameRoom) OnInit(){
+	log.T("初始化锦标赛的房间.oninit()")
+	r.SmallBlindCoin =CSTHGameRoomConfig.blinds[r.blindLevel];
+	r.initRoomCoin = CSTHGameRoomConfig.initRoomCoin
+	r.ThRoomSeatMax = CSTHGameRoomConfig.masxGameUserCount
+	r.RebuyCountLimit = CSTHGameRoomConfig.RebuyCountLimit                        //重购的次数
+
+}
 //只有开始之后才能进入游戏房间
 func (r *CSThGameRoom) IsCanIntoRoom() bool {
 	//时间过了不能进入
@@ -105,8 +118,7 @@ func (r *CSThGameRoom) Begin() {
 	//开始一局游戏的时候,生成一个matchId
 	r.matchId, _ = db.GetNextSeq(casinoConf.DBT_T_CS_TH_RECORD)        //生成游戏的matchId
 	r.status = CSTHGAMEROOM_STATUS_READY
-	r.initRoomCoin = CSTHGameRoomConfig.initRoomCoin
-	r.ThRoomSeatMax = CSTHGameRoomConfig.TH_DESK_MAX_START_USER
+
 	log.T("开始锦标赛的游戏matchId[%v]", r.matchId)
 	//判断是否可以开始run
 
@@ -290,6 +302,7 @@ func (r *CSThGameRoom) AddUser(userId uint32, a gate.Agent) (*ThDesk, error) {
 		mydesk = NewThDesk()
 		mydesk.MatchId = r.matchId
 		mydesk.InitRoomCoin = r.initRoomCoin
+		mydesk.RebuyCountLimit = r.RebuyCountLimit
 		r.AddThDesk(mydesk)
 	}
 
