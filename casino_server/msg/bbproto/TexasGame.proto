@@ -290,9 +290,9 @@ message game_SendGameInfo {
     optional int64 preCoin = 34; //前注的大小
     optional int64 smallBlind = 35; //小盲的大小
     optional int64 bigBlind = 36; //大盲的大小
-
-    optional int32 currPlayCount    = 37; //朋友桌:当前第几局
-    optional int32 totalPlayCount   = 38; //朋友桌:总共几局
+    optional int64 initRoomCoin = 37;   //房间的初始带入金额
+    optional int32 currPlayCount    = 38; //朋友桌:当前第几局
+    optional int32 totalPlayCount   = 39; //朋友桌:总共几局
 }
 
 message game_ShowCard {

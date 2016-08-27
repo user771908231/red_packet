@@ -36,7 +36,8 @@ var CSTHGameRoomConfig struct {
 	riseBlindDuration time.Duration //生盲的时间间隔
 	blinds            []int64       //盲注
 	initRoomCoin      int64         //初始的带入金额
-	masxGameUserCount int32         //最多多少人
+	deskMaxUserCount  int32         //最多多少人
+	roomMaxUserCount  int32		//room里最多能有多少人
 	RebuyCountLimit   int32         //重构次数的限制
 	quotaLimit        int32         //名额的限制
 }
@@ -51,7 +52,7 @@ func (r *CSThGameRoom) OnInitConfig() {
 	CSTHGameRoomConfig.riseBlindDuration = time.Second * 150        //每150秒生一次忙
 	CSTHGameRoomConfig.blinds = []int64{5, 10, 20, 40, 80, 160, 320, 640, 1280, 2000, 10000, 100000, 1000000}
 	CSTHGameRoomConfig.initRoomCoin = 1000;
-	CSTHGameRoomConfig.masxGameUserCount = 9
+	CSTHGameRoomConfig.deskMaxUserCount = 9
 	CSTHGameRoomConfig.RebuyCountLimit = 5                //最多重构5次
 	CSTHGameRoomConfig.quotaLimit = 2                        //能得到奖励的人
 }
@@ -81,14 +82,16 @@ type CSThGameRoom struct {
 	rankInfo        []*bbproto.CsThRankInfo //排名信息
 	blindLevel      int32                   //盲注的等级
 	initRoomCoin    int64                   //房间默认的带入金额
+	UsersCopy       map[uint32]*ThUser      //这里是所有玩家信息的一份拷贝,只有当用户放弃之后,才会删除用户
 }
 
 func (r *CSThGameRoom) OnInit() {
 	log.T("初始化锦标赛的房间.oninit()")
 	r.SmallBlindCoin = CSTHGameRoomConfig.blinds[r.blindLevel];
 	r.initRoomCoin = CSTHGameRoomConfig.initRoomCoin
-	r.ThRoomSeatMax = CSTHGameRoomConfig.masxGameUserCount
+	r.ThRoomSeatMax = CSTHGameRoomConfig.deskMaxUserCount
 	r.RebuyCountLimit = CSTHGameRoomConfig.RebuyCountLimit                        //重购的次数
+	r.UsersCopy = make(map[uint32]*ThUser,)
 
 }
 
@@ -313,7 +316,11 @@ func (r *CSThGameRoom) AddUser(userId uint32, a gate.Agent) (*ThDesk, error) {
 	}
 
 	//2,找到可以进入游戏的桌子
-	mydesk = r.GetAbleintoDesk()	//找到可以进入的桌子,如果没有找到合适的desk,则新生成一个并且返回
+	mydesk = r.GetAbleintoDesk()        //找到可以进入的桌子,如果没有找到合适的desk,则新生成一个并且返回
+	if mydesk == nil {
+		//如果没有找到合适的桌子,那么新生成一个并且返回
+		mydesk = r.NewThdeskAndSave()
+	}
 
 	//3,进入房间,竞标赛进入房间的时候,默认就是准备的状态
 	user, err := mydesk.AddThUser(userId, TH_USER_STATUS_READY, a)
@@ -321,6 +328,8 @@ func (r *CSThGameRoom) AddUser(userId uint32, a gate.Agent) (*ThDesk, error) {
 		log.E("用户上德州扑克的桌子 失败...")
 		return nil, err
 	}
+
+	r.UsersCopy[user.UserId] = user
 
 	r.AddOnlineCount()        //在线用户增加1
 	r.AddrankUserCount()
@@ -330,7 +339,16 @@ func (r *CSThGameRoom) AddUser(userId uint32, a gate.Agent) (*ThDesk, error) {
 	return mydesk, nil
 }
 
-func (r *CSThGameRoom) GetAbleintoDesk() *ThDesk{
+func (r *CSThGameRoom) NewThdeskAndSave() *ThDesk {
+	mydesk := NewThDesk()
+	mydesk.MatchId = r.matchId
+	mydesk.InitRoomCoin = r.initRoomCoin
+	mydesk.RebuyCountLimit = r.RebuyCountLimit
+	r.AddThDesk(mydesk)
+	return mydesk
+}
+
+func (r *CSThGameRoom) GetAbleintoDesk() *ThDesk {
 	var mydesk *ThDesk = nil
 	//2,查询哪个德州的房间缺人:循环每个德州的房间,然后查询哪个房间缺人
 	for deskIndex := 0; deskIndex < len(r.ThDeskBuf); deskIndex++ {
@@ -345,15 +363,6 @@ func (r *CSThGameRoom) GetAbleintoDesk() *ThDesk{
 			mydesk = tempDesk        //通过roomId找到德州的room
 			break;
 		}
-	}
-
-	//如果没有可以使用的桌子,那么重新创建一个,并且放进游戏大厅
-	if mydesk == nil {
-		mydesk = NewThDesk()
-		mydesk.MatchId = r.matchId
-		mydesk.InitRoomCoin = r.initRoomCoin
-		mydesk.RebuyCountLimit = r.RebuyCountLimit
-		r.AddThDesk(mydesk)
 	}
 	return mydesk
 
@@ -502,7 +511,7 @@ func (r *CSThGameRoom) DissolveDesk(desk *ThDesk, reserveUser *ThUser) error {
 	}
 
 	//2,解散
-	desk.clearAgentData(reserveUser.UserId)		//清空其他人的回话信息
+	desk.clearAgentData(reserveUser.UserId)                //清空其他人的回话信息
 	ChampionshipRoom.RmThDesk(desk)
 
 	//3,发送解散的广播

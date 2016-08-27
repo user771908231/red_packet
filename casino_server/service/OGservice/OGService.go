@@ -230,14 +230,14 @@ func HandlerGameEnterMatch(m *bbproto.Game_EnterMatch, a gate.Agent) error {
 }
 
 //处理bbproto.Game_login
-func HandlerGameLogin(userId uint32,a gate.Agent){
-	log.T("用户[%v]请求gameLogin",userId)
+func HandlerGameLogin(userId uint32, a gate.Agent) {
+	log.T("用户[%v]请求gameLogin", userId)
 	session := userService.GetUserSessionByUserId(userId)
-	log.T("用户的回话信息:session[%v]",session)
+	log.T("用户的回话信息:session[%v]", session)
 	ret := bbproto.NewGame_AckLogin()
 	*ret.MatchId = session.GetMatchId()
 	*ret.TableId = session.GetDeskId()
 	*ret.GameStatus = session.GetGameStatus()
-	*ret.Notice = noticeServer.GetNoticeByType(noticeServer.NOTICE_TYPE_GUNDONG).GetNoticeContent()	//滚动信息
+	*ret.Notice = noticeServer.GetNoticeByType(noticeServer.NOTICE_TYPE_GUNDONG).GetNoticeContent()        //滚动信息
 	a.WriteMsg(ret)
 }
