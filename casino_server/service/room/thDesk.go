@@ -588,7 +588,7 @@ func (t *ThDesk) getRankByUserId(user *ThUser) int32 {
 	}
 }
 
-func (t *ThDesk) getRankUserCount() int32{
+func (t *ThDesk) getRankUserCount() int32 {
 	return ChampionshipRoom.onlineCount
 }
 
@@ -747,7 +747,7 @@ func (t *ThDesk) OninitThDeskBeginStatus() error {
 }
 
 //判断是不是朋友桌
-func (t *ThDesk) IsPengYou() bool{
+func (t *ThDesk) IsPengYou() bool {
 	return t.GameType == intCons.GAME_TYPE_TH
 }
 
@@ -1009,6 +1009,7 @@ func (t *ThDesk) Lottery() error {
 		log.T("desk[%v]开始下一局游戏...", t.Id)
 		go t.Run()
 	}
+
 	return nil
 }
 
@@ -1016,16 +1017,10 @@ func (t *ThDesk) Lottery() error {
 //判断是否可以开始下一句游戏
 func (t *ThDesk) end() bool {
 	if t.IsPengYou() {
+		//朋友桌是否结束游戏
 		return t.EndTh()
-
 	} else if t.IsChampionship() {
-		//判断锦标赛有没有结束,如果所有的desk都已经stop了,则表示游戏结束
-		if ChampionshipRoom.allStop() {
-			log.T("竞标赛[%v]desk[%v]已经停止了", t.MatchId, t.Id)
-			return true
-		} else {
-			return false
-		}
+		return t.EndCsTh()        //锦标赛进入游戏
 	} else {
 		return true
 	}
@@ -1777,16 +1772,54 @@ func (mydesk *ThDesk) Run() error {
 }
 
 //锦标赛结束
-func (t *ThDesk) EndCsTh() {}
+/**
+	关于本桌子的是否还能进入下一轮游戏
+	1,如果锦标赛的游戏时间已经到了,表示锦标赛结束
+	2,如果本次桌子只剩下一个人可以继续游戏,则解散
+ */
+func (t *ThDesk) EndCsTh() bool {
+
+	//1,如果锦标赛的时间已经过了,表示游戏已经结束
+	if ChampionshipRoom.IsOutofEndTime() {
+		t.CStatus = CSTHGAMEROOM_STATUS_STOP
+		return true
+	}
+
+	//2,判断人数是否符合规则
+	//找到符合下一局游戏的user
+	var nextUsers []*ThUser
+	for i := 0; i < len(t.Users); i++ {
+		u := t.Users[i]
+		if u != nil && t.IsUserRoomCoinEnough(u) {
+			nextUsers = append(nextUsers, u)
+		}
+	}
+
+	//判断人数:如果只有一个人满足下一次游戏的结果,那解散这个房间,并且把user安插到其他的房间去
+	if len(nextUsers) == 1 {
+		t.CStatus = CSTHGAMEROOM_STATUS_STOP
+		//如果不是锦标赛的第一个房间,那么解散这个房间
+		if ChampionshipRoom.ThDeskBuf[0] != t {
+			err := ChampionshipRoom.DissolveDesk(t, nextUsers[0])
+			if err != nil {
+				log.E("解散房间失败")
+			}
+			ChampionshipRoom.Join(nextUsers[0])
+		}
+
+		return true
+	}
+
+	return false
+}
 
 //表示游戏结束,自定义房间结束
-func (t *ThDesk) EndTh() bool{
+func (t *ThDesk) EndTh() bool {
 	//如果是自定义房间
 	log.T("判断自定义的desk是否结束游戏t.jucount[%v],t.jucountnow[%v],", t.JuCount, t.JuCountNow)
 	if t.JuCountNow <= t.JuCount {
 		return false
 	}
-
 
 	log.T("整局(多场游戏)已经结束...)")
 	//广播结算的信息
@@ -1831,9 +1864,21 @@ func (t *ThDesk) EndTh() bool{
 	//广播消息
 	t.THBroadcastProtoAll(result)
 
-	//整局游戏结束之后,解散游戏房间
-	RmThdesk(t)
-	return true	//已经结束了本场游戏
+	//整局游戏结束之后,解散游戏房间,并且更新每个人的agent信息
+	t.clearAgentData(0)
+	ThGameRoomIns.RmThDesk(t) //自定义房间解散
+	return true        //已经结束了本场游戏
+}
+
+func (t *ThDesk) clearAgentData(ignoreUserId uint32) {
+	for i := 0; i < len(t.Users); i++ {
+		u := t.Users[i]
+		if u != nil && u.UserId != ignoreUserId {
+			u.deskId = 0
+			u.MatchId = 0
+			u.UpdateAgentUserData(u.agent)
+		}
+	}
 }
 
 
