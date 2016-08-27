@@ -275,10 +275,10 @@ func (t *ThDesk) AddThUser(userId uint32, userStatus int32, a gate.Agent) (*ThUs
 
 	//根据桌子的状态 设置用户的游戏状态
 	if t.IsChampionship() {
-		thUser.GameStatus = TH_USER_GAME_STATUS_CHAMPIONSHIP	//新加入游戏的时候设置用户的游戏状态为锦标赛
-	}else if t.IsFriend() {
+		thUser.GameStatus = TH_USER_GAME_STATUS_CHAMPIONSHIP        //新加入游戏的时候设置用户的游戏状态为锦标赛
+	} else if t.IsFriend() {
 		thUser.GameStatus = TH_USER_GAME_STATUS_FRIEND
-	}else{
+	} else {
 		thUser.GameStatus = TH_USER_GAME_STATUS_NOGAME
 	}
 
@@ -304,7 +304,7 @@ func (t *ThDesk) AddThUser(userId uint32, userStatus int32, a gate.Agent) (*ThUs
 
 
 //对游戏中的user进行排序
-func (t *ThDesk) sortDDThuser() error{
+func (t *ThDesk) sortDDThuser() error {
 	usersTemp := make([]*ThUser, len(t.Users))
 	copy(usersTemp, t.Users)
 	log.T("原来的thsuers:[%v]", t.Users)
@@ -365,7 +365,7 @@ func (t *ThDesk) Ready(userId uint32) error {
 	}
 
 	//1,如果用户已经准备,则返回重复准备
-	if user.Status == TH_USER_STATUS_READY {
+	if user.IsReady() {
 		return Error.NewError(int32(bbproto.DDErrorCode_ERRORCODE_GAME_READY_REPEAT), "已经准备了")
 	}
 
@@ -402,7 +402,7 @@ func (t *ThDesk) LeaveThuser(userId uint32) error {
 	//1,离开之后,设置用户的信息
 	user := t.GetUserByUserId(userId)
 	user.IsLeave = true     //设置状态为离开
-	user.GameStatus = TH_USER_GAME_STATUS_NOGAME	//用户离开之后,设置用户的游戏状态为没有游戏中
+	user.GameStatus = TH_USER_GAME_STATUS_NOGAME        //用户离开之后,设置用户的游戏状态为没有游戏中
 	user.UpdateAgentUserData()
 
 	//离开之后设置桌子在线人数-1
@@ -525,7 +525,7 @@ func (t *ThDesk) InitUserBeginStatus() error {
 		u.winAmountDetail = nil
 
 		//如果用户的余额不足或者用户的状态是属于断线的状态,则设置用户为等待入座
-		if t.IsUserRoomCoinEnough(u){
+		if !t.IsUserRoomCoinEnough(u) {
 			log.T("由于用户[%v] status[%v],的roomCoin[%v] <= desk.BigBlindCoin 所以设置用户为TH_USER_STATUS_WAITSEAT", u.UserId, u.IsBreak, u.RoomCoin, t.BigBlindCoin)
 			u.Status = TH_USER_STATUS_WAITSEAT        //只是坐下,没有游戏中
 			continue
@@ -542,7 +542,6 @@ func (t *ThDesk) InitUserBeginStatus() error {
 
 	//------------------------------------由于联众前端设计的问题...这里的user需要重新排列user的顺序------------------------------------
 	t.sortDDThuser()
-
 
 	log.T("开始一局新的游戏,初始化用户的状态完毕")
 	return nil
@@ -710,7 +709,7 @@ func (t *ThDesk) OninitThDeskBeginStatus() error {
 		dealerIndex = t.GetUserIndex(t.Dealer)
 		for i := dealerIndex; i < len(t.Users); i++ {
 			u := t.Users[(i + 1) % len(t.Users)]
-			if u != nil && u.Status == TH_USER_STATUS_BETING {
+			if u != nil && u.IsBetting() {
 				t.Dealer = u.UserId
 			}
 		}
@@ -719,7 +718,7 @@ func (t *ThDesk) OninitThDeskBeginStatus() error {
 	//设置小盲注
 	for i := dealerIndex; i < len(userTemp) + dealerIndex; i++ {
 		u := userTemp[(i + 1) % len(userTemp)]
-		if u != nil && u.Status == TH_USER_STATUS_BETING {
+		if u != nil && u.IsBetting() {
 			t.SmallBlind = u.UserId
 			userTemp[(i + 1) % len(userTemp)] = nil
 			break
@@ -742,6 +741,7 @@ func (t *ThDesk) OninitThDeskBeginStatus() error {
 
 	if t.UserCountOnline == int32(2) {
 		//如果只有两个人,当前押注的人是小盲注
+		log.T("由于当前游戏中的t.userCountOnline==2,所以设置betUserNow 是盲注", )
 		t.BetUserNow = t.SmallBlind
 	} else {
 		//设置当前押注的人
@@ -1655,6 +1655,7 @@ func (t *ThDesk) CalcAllInJackpot() error {
 func (t *ThDesk) CheckBetUserBySeat(user *ThUser) bool {
 	//2,判断押注的用户是否是当前的用户
 	if t.BetUserNow != user.UserId {
+		log.T("user[%v]不是desk的betUserNow[%v],押注状态不正确", user.UserId, t.BetUserNow)
 		return false
 	}
 

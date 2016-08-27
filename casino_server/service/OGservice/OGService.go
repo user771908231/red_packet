@@ -84,8 +84,6 @@ func HandlerReady(m *bbproto.Game_Ready, a gate.Agent) error {
 
 	userId := m.GetUserId()
 	//2,通过userId 找到桌子
-	//desk := room.ThGameRoomIns.GetDeskByUserId(userId)
-	//
 	desk := room.GetDeskByAgent(a)
 	if desk == nil {
 		log.E("用户id[%v]准备的时候,房间不存在", userId)
@@ -95,6 +93,7 @@ func HandlerReady(m *bbproto.Game_Ready, a gate.Agent) error {
 	//3,用户开始准备
 	err := desk.Ready(userId)
 	if err != nil {
+		log.T("用户【%v】准备失败,err[%v]",err.Error())
 		*result.Result = Error.GetErrorCode(err)
 		*result.Msg = Error.GetErrorMsg(err)
 		a.WriteMsg(result)
@@ -104,7 +103,6 @@ func HandlerReady(m *bbproto.Game_Ready, a gate.Agent) error {
 	//4,返回准备的结果
 	*result.SeatId = desk.GetUserByUserId(userId).Seat
 	*result.Result = intCons.ACK_RESULT_SUCC
-	//a.WriteMsg(result)
 	desk.THBroadcastProtoAll(result)        //广播用户准备的协议
 
 	//如果全部的人都准备好了,那么可以开始游戏
