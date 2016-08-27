@@ -14,7 +14,6 @@ import (
 	"casino_server/msg/bbprotogo"
 	"casino_server/utils/jobUtils"
 	"sort"
-	"casino_server/service/userService"
 	"casino_server/conf/intCons"
 )
 
@@ -289,7 +288,8 @@ func (r *CSThGameRoom) IsRepeatIntoRoom(userId uint32, a gate.Agent) (*ThDesk,er
 	}
 
 	log.T("用户【%v】断线重连...",userId)
-	return r.GetDeskById(user.deskId)
+	desk :=  r.GetDeskById(user.deskId)
+	return desk,nil
 }
 
 
@@ -305,10 +305,14 @@ func (r *CSThGameRoom) AddUser(userId uint32, a gate.Agent) (*ThDesk, error) {
 		return nil, errors.New("游戏还没有开始")
 	}
 
-	var mydesk *ThDesk = nil                //为用户找到的desk
 	//1,判断用户是否已经在房间里了,如果是在房间里,那么替换现有的agent
 	//重新进入房间,如果是锦标赛,那么只有断线重连,如果是
-	mydesk = r.IsRepeatIntoRoom(userId, a)
+	mydesk,err := r.IsRepeatIntoRoom(userId, a)
+	if err != nil {
+		//直接不能进入游戏
+		return nil,err
+	}
+
 	if mydesk != nil {
 		return mydesk, nil
 	}
