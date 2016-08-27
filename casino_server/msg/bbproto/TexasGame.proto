@@ -13,7 +13,7 @@ message game_LoginGame {
 
 //客户端请求进入match
 message game_EnterMatch {
-    optional bytes MatchID = 1;
+    optional int32 MatchID = 1;
     optional int32 Tableid = 2;
     optional bytes PassWord = 3; //密码(朋友桌新增)
     optional bytes sCFUserName = 4; //该渠道特有昵称（现在专指360）
