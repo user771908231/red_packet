@@ -135,7 +135,7 @@ func newACKQuickConn() *bbproto.ACKQuickConn {
 	result.AckResult = new(int32)
 	result.ReleaseTag = new(int32)
 	//默认发布版本是1
-	*result.ReleaseTag = 1                        ///todo  这里需要修改
+	*result.ReleaseTag = 0                        ///todo  需要把这个值加入到配置文件读取
 
 	arrs := strings.Split(conf.Server.TCPAddr, ":")
 	var ip string = arrs[0]
