@@ -13,7 +13,7 @@ message game_LoginGame {
 
 //客户端请求进入match
 message game_EnterMatch {
-    optional int32 MatchID = 1;
+    optional bytes MatchID = 1;
     optional int32 Tableid = 2;
     optional bytes PassWord = 3; //密码(朋友桌新增)
     optional bytes sCFUserName = 4; //该渠道特有昵称（现在专指360）
@@ -293,6 +293,8 @@ message game_SendGameInfo {
     optional int64 initRoomCoin = 37;   //房间的初始带入金额
     optional int32 currPlayCount    = 38; //朋友桌:当前第几局
     optional int32 totalPlayCount   = 39; //朋友桌:总共几局
+    repeated int32 bReady           = 40; //是否已准备
+
 }
 
 message game_ShowCard {
@@ -1191,6 +1193,7 @@ message Game_AckLogin {
     optional int64 costCreateRoom = 6;  //建房消耗钻石数
     optional int64 costRebuy = 7;       //Rebuy消耗钻石数(锦标赛)
     optional bool championship = 8;
+    optional int32 chip = 9; //用户钻石余额
 }
 
 
@@ -1341,8 +1344,9 @@ message Game_SendDeskEndLottery {
 
 
 message Game_TounamentBlindBean {
-    optional int32 smallBlind = 1; //盲注
-    optional int32 ante = 2; //前注
+    optional string smallBlind = 1; //盲注
+    optional string ante = 2; //前注
+    optional string raiseTime = 3; //升盲时间
 }
 
 //盲注的信息
