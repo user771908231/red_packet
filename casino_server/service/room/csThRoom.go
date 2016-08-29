@@ -83,7 +83,7 @@ type CSThGameRoom struct {
 	gamingUserCount      int32                   //游戏总的人数--正在玩,没有输掉比赛的
 	status               int32                   //锦标赛的状态
 	rankInfo             []*bbproto.CsThRankInfo //排名信息
-	blindLevel           int32                   //盲注的等级
+	BlindLevel           int32                   //盲注的等级
 	initRoomCoin         int64                   //房间默认的带入金额
 	UsersCopy            map[uint32]*ThUser      //这里是所有玩家信息的一份拷贝,只有当用户放弃之后,才会删除用户
 	RebuyBlindLevelLimit int32                   //盲注可以购买的级别
@@ -91,13 +91,12 @@ type CSThGameRoom struct {
 
 func (r *CSThGameRoom) OnInit() {
 	log.T("初始化锦标赛的房间.oninit()")
-	r.SmallBlindCoin = CSTHGameRoomConfig.blinds[r.blindLevel];
+	r.SmallBlindCoin = CSTHGameRoomConfig.blinds[r.BlindLevel];
 	r.initRoomCoin = CSTHGameRoomConfig.initRoomCoin
 	r.ThRoomSeatMax = CSTHGameRoomConfig.deskMaxUserCount
 	r.RebuyCountLimit = CSTHGameRoomConfig.RebuyCountLimit                        //重购的次数
 	r.RebuyBlindLevelLimit = CSTHGameRoomConfig.RebuyBlindLevelLimit
 	r.UsersCopy = make(map[uint32]*ThUser, )
-
 }
 
 //判断当前时间是否已经超过了endtime
@@ -210,13 +209,13 @@ func (r *CSThGameRoom) Run() {
 	jobUtils.DoAsynJob(CSTHGameRoomConfig.riseBlindDuration, func() bool {
 		//开始生盲注
 		log.T("锦标赛[%v]开始生盲", r.MatchId)
-		if r.blindLevel == int32(len(CSTHGameRoomConfig.blinds) - 1) {
+		if r.BlindLevel == int32(len(CSTHGameRoomConfig.blinds) - 1) {
 			log.T("由于锦标赛[%v]的盲注已经达到了最大的级别[%v],所以不生了", r.MatchId, r.SmallBlindCoin)
 			return true
 		} else {
-			r.blindLevel ++
-			r.SmallBlindCoin = CSTHGameRoomConfig.blinds[r.blindLevel]
-			log.T("由于锦标赛[%v]的盲注达到了级别[%v],盲注【%v】", r.MatchId, r.blindLevel, r.SmallBlindCoin)
+			r.BlindLevel ++
+			r.SmallBlindCoin = CSTHGameRoomConfig.blinds[r.BlindLevel]
+			log.T("由于锦标赛[%v]的盲注达到了级别[%v],盲注【%v】", r.MatchId, r.BlindLevel, r.SmallBlindCoin)
 
 			return false
 		}
@@ -384,7 +383,7 @@ func (r *CSThGameRoom) NewThdeskAndSave() *ThDesk {
 	mydesk.MatchId = r.MatchId
 	mydesk.InitRoomCoin = r.initRoomCoin
 	mydesk.RebuyCountLimit = r.RebuyCountLimit
-	mydesk.blindLevel = r.blindLevel
+	mydesk.blindLevel = r.BlindLevel
 	mydesk.RebuyBlindLevelLimit = r.RebuyBlindLevelLimit
 	r.AddThDesk(mydesk)
 	return mydesk
@@ -465,6 +464,7 @@ func (r *CSThGameRoom) AddUserRankInfo(userId uint32, matchId int32, balance int
 	*rank.Balance = balance
 	*rank.EndTime = time.Now().UnixNano()
 
+	r.rankInfo = append(r.rankInfo,rank)	//保存到rankInfo中去
 }
 
 

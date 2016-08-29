@@ -57,7 +57,7 @@ func gameInfo(w http.ResponseWriter, r *http.Request) {
 }
 
 func gameInfocs(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprint(w, "锦标赛房间的信息:\n")
+	fmt.Fprint(w, "锦标赛房间【%v】的信息,matchId[%v],盲注等级[%v]:\n",room.ChampionshipRoom.MatchId,room.ChampionshipRoom.BlindLevel)
 	for i := 0; i < len(room.ChampionshipRoom.ThDeskBuf); i++ {
 		desk := room.ChampionshipRoom.ThDeskBuf[i]
 		if desk != nil {
@@ -75,11 +75,12 @@ func gameInfocs(w http.ResponseWriter, r *http.Request) {
 			"边池:%v\n" +
 			"最低加注额度:%v\n" +
 			"总游戏玩家:%v\n" +
-			"已经准备的玩家:%v\n" +
+			"已经准备的玩家数量:%v\n" +
+			"正在出牌的玩家:%v\n" +
 			"------------------所有玩家的信息:\n"
 			fmt.Fprintf(w, deskInfo, desk.Id, desk.RoomKey, desk.DeskOwner, desk.GameType, desk.SmallBlind, desk.BigBlind,
 				desk.InitRoomCoin, desk.RoundCount, desk.JuCountNow, desk.JuCount, desk.Jackpot, desk.EdgeJackpot, desk.MinRaise,
-				desk.UserCount, desk.GetGameReadyCount())
+				desk.UserCount, desk.GetGameReadyCount(),desk.BetUserNow)
 
 			for j := 0; j < len(desk.Users); j++ {
 				u := desk.Users[j]

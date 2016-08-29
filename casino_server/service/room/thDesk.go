@@ -634,16 +634,27 @@ func (t *ThDesk) getRankUserCount() int32 {
 	return ChampionshipRoom.onlineCount
 }
 
-//得到这个用户是可以重购
+//得到这个用户是可以重购,不同的桌子,来判断的逻辑不用
 func (t *ThDesk) getCanRebuyByUserId(user *ThUser) bool {
-	//用户的金额不足的时候并且重构的次数小于desk的重购限制的时候
-	if !t.IsUserRoomCoinEnough(user) &&
-	user.RebuyCount < t.RebuyCountLimit &&
-	t.blindLevel < t.RebuyBlindLevelLimit {
-		return true
-	} else {
-		return false
+	if t.IsFriend() {
+		if !t.IsUserRoomCoinEnough(user) {
+			return true
+		}else{
+			return false
+		}
+	}else if t.IsChampionship(){
+		//用户的金额不足的时候并且重构的次数小于desk的重购限制的时候
+		if !t.IsUserRoomCoinEnough(user) &&
+		user.RebuyCount < t.RebuyCountLimit &&
+		t.blindLevel < t.RebuyBlindLevelLimit {
+			return true
+		} else {
+			return false
+		}
 	}
+
+	return false
+
 }
 
 //给全部人发送广播
