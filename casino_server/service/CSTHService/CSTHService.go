@@ -25,8 +25,10 @@ func GetGameMatchList() *bbproto.Game_MatchList {
 	if data == nil {
 		log.T("redis中没有找到竞标赛列表,需要在数据库中查找")
 		RefreshRedisMatchList()
-		return nil
+		result  := bbproto.NewGame_MatchList()
+		return result
 	} else {
+		//更新其状态
 		return data.(*bbproto.Game_MatchList)
 	}
 }
@@ -36,7 +38,7 @@ func RefreshRedisMatchList() {
 	//1,获取数据库中的近20场次的信息(通过时间来排序)
 	data := []mode.T_cs_th_record{}
 	db.Query(func(d *mgo.Database) {
-		d.C(casinoConf.DBT_T_CS_TH_RECORD).Find(bson.M{}).Sort("-id").Limit(20).All(&data)
+		d.C(casinoConf.DBT_T_CS_TH_RECORD).Find(bson.M{"id":bson.M{"$gt":0}}).Sort("-id").Limit(20).All(&data)
 	})
 
 	//把得到的数据保存在数据库中
@@ -51,6 +53,7 @@ func RefreshRedisMatchList() {
 			*sd.Status = d.Status
 			*sd.Type = d.GameType
 			*sd.Time = timeUtils.Format(d.BeginTime)
+			*sd.MatchId = d.Id
 			sdata.Items = append(sdata.Items, sd)
 		}
 

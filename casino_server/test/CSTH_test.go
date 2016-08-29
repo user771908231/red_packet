@@ -22,7 +22,7 @@ func testGetMatchList() {
 	//从数据库查询
 	data1 := []mode.T_cs_th_record{}
 	db.Query(func(d *mgo.Database) {
-		d.C(casinoConf.DBT_T_CS_TH_RECORD).Find(bson.M{}).Sort("-id").Limit(20).All(&data1)
+		d.C(casinoConf.DBT_T_CS_TH_RECORD).Find(bson.M{"id":bson.M{"$gt":0}}).Sort("-id").Limit(20).All(&data1)
 	})
 	log.T("从数据库中查询的结果[%v]", data1)
 

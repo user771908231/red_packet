@@ -442,6 +442,15 @@ func handlerGame_TounamentSummary(args []interface{}) {
 func handlerGame_MatchList(args []interface{}) {
 	a := args[1].(gate.Agent)
 	data := CSTHService.GetGameMatchList()
+
+	//初始化状态
+	for i := 0; i < len(data.Items); i++ {
+		if room.ChampionshipRoom.MatchId == data.Items[i].GetMatchId() {
+			*data.Items[i].CanInto = true
+		} else {
+			*data.Items[i].CanInto = false
+		}
+	}
 	log.T("得到的锦标赛列表[%v]", data)
 	a.WriteMsg(data)
 }

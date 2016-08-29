@@ -74,7 +74,7 @@ var CSTHGAMEROOM_STATUS_LOTTERY int32 = 4;
 //锦标赛
 type CSThGameRoom struct {
 	ThGameRoom
-	matchId              int32                   //比赛内容
+	MatchId              int32                   //比赛内容
 	beginTime            time.Time               //游戏开始的时间
 	endTime              time.Time               //游戏结束的时间
 	gameDuration         time.Duration           //游戏的时长
@@ -108,7 +108,7 @@ func (r *CSThGameRoom) IsOutofEndTime() bool {
 //只有开始之后才能进入游戏房间
 func (r *CSThGameRoom) CheckIntoRoom(matchId int32) error {
 
-	if r.matchId != matchId {
+	if r.MatchId != matchId {
 		log.T("进入锦标赛失败,游戏场次matchId[%v]不正确", matchId)
 		return Error.NewError(int32(bbproto.DDErrorCode_ERRORCODE_INTO_DESK_NOTFOUND), "游戏已经过期")
 	}
@@ -140,10 +140,21 @@ func (r *CSThGameRoom) CheckIntoRoom(matchId int32) error {
 
 func (r *CSThGameRoom) Begin() {
 	//开始一局游戏的时候,生成一个matchId
-	r.matchId, _ = db.GetNextSeq(casinoConf.DBT_T_CS_TH_RECORD)        //生成游戏的matchId
+	r.MatchId, _ = db.GetNextSeq(casinoConf.DBT_T_CS_TH_RECORD)        //生成游戏的matchId
 	r.status = CSTHGAMEROOM_STATUS_READY
 
-	log.T("开始锦标赛的游戏matchId[%v]", r.matchId)
+	//保存游戏数据,1,保存数据到mongo,2,刷新redis中的信息
+	saveData := &mode.T_cs_th_record{}
+	saveData.Mid = bson.NewObjectId()
+	saveData.Id = r.MatchId
+	saveData.BeginTime = r.beginTime
+	saveData.EndTime = r.endTime
+	saveData.Status = r.status
+	db.InsertMgoData(casinoConf.DBT_T_CS_TH_RECORD, saveData)
+	CSTHService.RefreshRedisMatchList()        //这里刷新redis中的锦标赛数据
+
+
+	log.T("开始锦标赛的游戏matchId[%v]", r.MatchId)
 	//判断是否可以开始run
 
 	jobUtils.DoAsynJob(CSTHGameRoomConfig.checkDuration, func() bool {
@@ -154,42 +165,42 @@ func (r *CSThGameRoom) Begin() {
 			r.BroadCastDeskRunGame()
 			return true        //表示终止任务
 		} else {
-			log.T("锦标赛[%v]玩家数量[%v]不够[%v],暂时不开始游戏.", r.matchId, r.gamingUserCount, CSTHGameRoomConfig.leastCount)
+			log.T("锦标赛[%v]玩家数量[%v]不够[%v],暂时不开始游戏.", r.MatchId, r.gamingUserCount, CSTHGameRoomConfig.leastCount)
 			return false
 		}
 	})
 }
+
 
 //run游戏房间
 func (r *CSThGameRoom) Run() {
 	log.T("锦标赛游戏开始...")
 
 	//设置room属性
+	r.status = CSTHGAMEROOM_STATUS_RUN        //竞标赛当前的状态
 	r.beginTime = time.Now()
 	r.endTime = r.beginTime.Add(CSTHGameRoomConfig.gameDuration)       //一局游戏的时间是20分钟
-	r.status = CSTHGAMEROOM_STATUS_RUN        //竞标赛当前的状态
 
-	//通知desk开始游戏
-
-	//保存游戏数据,1,保存数据到mongo,2,刷新redis中的信息
+	//update 锦标赛的数据
 	saveData := &mode.T_cs_th_record{}
-	saveData.Mid = bson.NewObjectId()
-	saveData.Id = r.matchId
+	db.Query(func(d *mgo.Database) {
+		d.C(casinoConf.DBT_T_CS_TH_RECORD).Find(bson.M{"id":r.MatchId}).One(saveData)
+	})
+
 	saveData.BeginTime = r.beginTime
 	saveData.EndTime = r.endTime
-	db.InsertMgoData(casinoConf.DBT_T_CS_TH_RECORD, saveData)
-	CSTHService.RefreshRedisMatchList()        //这里刷新redis中的锦标赛数据
+	saveData.Status = r.status
+	db.UpdateMgoData(casinoConf.DBT_T_CS_TH_RECORD, saveData)
+
 
 	//通知desk游戏开始
-
-
 	//这里定义一个计时器,每十秒钟检测一次游戏
 	jobUtils.DoAsynJob(CSTHGameRoomConfig.checkDuration, func() bool {
 		//log.T("开始time[%v]检测锦标赛matchId[%v]有没有结束...", timeNow, r.matchId)
 		if r.checkEnd() {
 			//重新开始
 			time.Sleep(CSTHGameRoomConfig.nextRunDuration)        //开始下一场的延时
-			go r.Run()
+			go r.Begin()
 			return true
 		}
 		return false
@@ -198,14 +209,14 @@ func (r *CSThGameRoom) Run() {
 	//这里需要做生盲的逻辑
 	jobUtils.DoAsynJob(CSTHGameRoomConfig.riseBlindDuration, func() bool {
 		//开始生盲注
-		log.T("锦标赛[%v]开始生盲", r.matchId)
+		log.T("锦标赛[%v]开始生盲", r.MatchId)
 		if r.blindLevel == int32(len(CSTHGameRoomConfig.blinds) - 1) {
-			log.T("由于锦标赛[%v]的盲注已经达到了最大的级别[%v],所以不生了", r.matchId, r.SmallBlindCoin)
+			log.T("由于锦标赛[%v]的盲注已经达到了最大的级别[%v],所以不生了", r.MatchId, r.SmallBlindCoin)
 			return true
 		} else {
 			r.blindLevel ++
 			r.SmallBlindCoin = CSTHGameRoomConfig.blinds[r.blindLevel]
-			log.T("由于锦标赛[%v]的盲注达到了级别[%v],盲注【%v】", r.matchId, r.blindLevel, r.SmallBlindCoin)
+			log.T("由于锦标赛[%v]的盲注达到了级别[%v],盲注【%v】", r.MatchId, r.blindLevel, r.SmallBlindCoin)
 
 			return false
 		}
@@ -246,7 +257,7 @@ func (r *CSThGameRoom) checkEnd() bool {
 	//如果时间已经过了,并且所有桌子的状态都是已经停止游戏,那么表示这一局结束,为什么是所有的桌子?因为有可能时间到了,有很多桌子还在游戏中
 	if r.IsOutofEndTime() && r.allStop() {
 		//结算本局
-		log.T("锦标赛matchid[%v]已经结束.现在开始保存数据", r.matchId)
+		log.T("锦标赛matchid[%v]已经结束.现在开始保存数据", r.MatchId)
 		r.End()
 		//这里需要保存每一个人锦标赛的结果信息
 		log.T("保存每一个人竞标赛的信息")
@@ -281,7 +292,7 @@ func (r *CSThGameRoom) End() {
 	r.status = CSTHGAMEROOM_STATUS_STOP
 	saveData := &mode.T_cs_th_record{}
 	db.Query(func(d *mgo.Database) {
-		d.C(casinoConf.DBT_T_CS_TH_RECORD).Find(bson.M{"Id":r.matchId}).One(saveData)
+		d.C(casinoConf.DBT_T_CS_TH_RECORD).Find(bson.M{"Id":r.MatchId}).One(saveData)
 	})
 	saveData.Status = r.status
 	db.UpdateMgoData(casinoConf.DBT_T_CS_TH_RECORD, saveData)
@@ -369,7 +380,7 @@ func (r *CSThGameRoom) AddUser(userId uint32, matchId int32, a gate.Agent) (*ThD
 //新建一个desk并且加入 到锦标赛的房间
 func (r *CSThGameRoom) NewThdeskAndSave() *ThDesk {
 	mydesk := NewThDesk()
-	mydesk.MatchId = r.matchId
+	mydesk.MatchId = r.MatchId
 	mydesk.InitRoomCoin = r.initRoomCoin
 	mydesk.RebuyCountLimit = r.RebuyCountLimit
 	mydesk.blindLevel = r.blindLevel

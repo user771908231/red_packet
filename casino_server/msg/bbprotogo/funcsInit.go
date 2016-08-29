@@ -40,7 +40,16 @@ func NewGame_MatchItem() *Game_MatchItem {
 	ret.Time = new(string)
 	ret.Title = new(string)
 	ret.Type = new(int32)
+	ret.CanInto = new(bool)
+	ret.MatchId = new(int32)
 	return ret
+}
+
+func NewGame_MatchList() *Game_MatchList {
+	ret := &Game_MatchList{}
+	ret.Result = new(int32)
+	return ret
+
 }
 
 func NewGame_AckLogin() *Game_AckLogin {
