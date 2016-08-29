@@ -26,6 +26,10 @@ func init() {
 	handleMsg(&bbproto.Game_Notice{}, handlerNotice)
 }
 
+var RELEAS_TAG_MAJIA int32 = 0        //现实的是马甲,还没有发布
+var RELEAS_TAG_DEZHOU int32 = 1        //现实的是游戏
+
+
 func GoID() int {
 	var buf [64]byte
 	n := runtime.Stack(buf[:], false)
@@ -90,7 +94,14 @@ func HandlerREQQuickConn(args []interface{}) {
 	//如果得到的user ==nil 或者 用密码登陆的时候密码不正确
 	if resultUser == nil || (resultUser.GetPwd() != "" && m.GetPwd() != resultUser.GetPwd()) {
 		log.E("没有找到用户,返回登陆失败...")
-		*result.AckResult = intCons.ACK_RESULT_ERROR
+
+		//todo 这里是特殊处理,以后要修改
+		if result.GetReleaseTag() == RELEAS_TAG_MAJIA {
+			*result.AckResult = intCons.ACK_RESULT_SUCC
+		} else {
+			*result.AckResult = intCons.ACK_RESULT_ERROR
+		}
+
 		a.WriteMsg(result)
 		return
 	} else {
@@ -135,7 +146,7 @@ func newACKQuickConn() *bbproto.ACKQuickConn {
 	result.AckResult = new(int32)
 	result.ReleaseTag = new(int32)
 	//默认发布版本是1
-	*result.ReleaseTag = 0                        ///todo  需要把这个值加入到配置文件读取
+	*result.ReleaseTag = RELEAS_TAG_MAJIA                    ///todo  需要把这个值加入到配置文件读取
 
 	arrs := strings.Split(conf.Server.TCPAddr, ":")
 	var ip string = arrs[0]
