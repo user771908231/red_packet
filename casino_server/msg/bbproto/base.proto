@@ -103,6 +103,10 @@ enum  DDErrorCode{
 
 	ERRORCODE_INTO_DESK_NOTFOUND				=	-103;	//进入房间的时候没有找到房间
 
+	ERRORCODE_TOURNAMENT_CANNOT_JOIN			=	-104;	//锦标赛入场时间已过，不能加入
+	ERRORCODE_TOURNAMENT_CANNOT_REBUY			=	-105;	//锦标赛:当前不能rebuy
+
+
 	ERRORCODE_GAME_READY_REPEAT					=	-110;	//重复准备
 
 	ERRORCODE_GAME_READY_CHIP_NOT_ENOUGH		=	-111;	//筹码不足
