@@ -169,7 +169,7 @@ func NewThDesk() *ThDesk {
 	result.Status = TH_DESK_STATUS_STOP        //游戏还没有开始的状态
 	result.GameType = intCons.GAME_TYPE_TH_CS                          //游戏桌子的类型
 	result.JuCount = 0
-	result.JuCountNow = 0                //默认值是0,游戏run的时候+1
+	result.JuCountNow = 1                //默认值是0,游戏run的时候+1
 	return result
 }
 
@@ -416,9 +416,7 @@ func (t *ThDesk) LeaveThuser(userId uint32) error {
 		//用户直接放弃游戏,设置roomCoin=0,并且更新rankxin
 		user.RoomCoin = 0
 		ChampionshipRoom.UpdateUserRankInfo(user.UserId, user.MatchId, user.RoomCoin)
-		//竞标赛的房间
 		ChampionshipRoom.SubOnlineCount()        //竞标赛的在线人数-1
-		ChampionshipRoom.RmCopyUser(user.UserId)        //已经明确退出房间的,删除buf中的user
 	}
 
 	//3,返回离开房间之后的信息
@@ -427,7 +425,7 @@ func (t *ThDesk) LeaveThuser(userId uint32) error {
 	user.WriteMsg(ret)
 
 	//离开之后,需要广播一次sendGameInfo
-	t.BroadGameInfo()
+	t.BroadGameInfo(userId)
 	return nil
 }
 
@@ -636,16 +634,27 @@ func (t *ThDesk) getRankUserCount() int32 {
 	return ChampionshipRoom.onlineCount
 }
 
-//得到这个用户是可以重购
+//得到这个用户是可以重购,不同的桌子,来判断的逻辑不用
 func (t *ThDesk) getCanRebuyByUserId(user *ThUser) bool {
-	//用户的金额不足的时候并且重构的次数小于desk的重购限制的时候
-	if !t.IsUserRoomCoinEnough(user) &&
-	user.RebuyCount < t.RebuyCountLimit &&
-	t.blindLevel < t.RebuyBlindLevelLimit {
-		return true
-	} else {
-		return false
+	if t.IsFriend() {
+		if !t.IsUserRoomCoinEnough(user) {
+			return true
+		}else{
+			return false
+		}
+	}else if t.IsChampionship(){
+		//用户的金额不足的时候并且重构的次数小于desk的重购限制的时候
+		if !t.IsUserRoomCoinEnough(user) &&
+		user.RebuyCount < t.RebuyCountLimit &&
+		t.blindLevel < t.RebuyBlindLevelLimit {
+			return true
+		} else {
+			return false
+		}
 	}
+
+	return false
+
 }
 
 //给全部人发送广播
@@ -1859,7 +1868,7 @@ func (t *ThDesk) EndCsTh() bool {
 func (t *ThDesk) EndTh() bool {
 	//如果是自定义房间
 	log.T("判断自定义的desk是否结束游戏t.jucount[%v],t.jucountnow[%v],", t.JuCount, t.JuCountNow)
-	if t.JuCountNow < t.JuCount {
+	if t.JuCountNow <= t.JuCount {
 		return false
 	}
 

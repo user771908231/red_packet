@@ -296,7 +296,7 @@ message game_SendGameInfo {
     optional int32 currPlayCount    = 38; //朋友桌:当前第几局
     optional int32 totalPlayCount   = 39; //朋友桌:总共几局
     repeated int32 bReady           = 40; //是否已准备
-    optional int32 senderUserId     = 41; //发起请求的人
+    optional uint32 senderUserId     = 41; //发起请求的人
 
 }
 

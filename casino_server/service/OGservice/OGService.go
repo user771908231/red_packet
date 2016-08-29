@@ -223,7 +223,7 @@ func HandlerGameEnterMatch(m *bbproto.Game_EnterMatch, a gate.Agent) error {
 		return err
 	}
 
-	mydesk.BroadGameInfo()
+	mydesk.BroadGameInfo(userId)
 	return nil
 }
 
