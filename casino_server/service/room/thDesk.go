@@ -425,7 +425,7 @@ func (t *ThDesk) LeaveThuser(userId uint32) error {
 	user.WriteMsg(ret)
 
 	//离开之后,需要广播一次sendGameInfo
-	t.BroadGameInfo()
+	t.BroadGameInfo(userId)
 	return nil
 }
 

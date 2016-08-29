@@ -157,9 +157,9 @@ func (t *ThDesk) GetSecondPool() []int64 {
 }
 
 //发送新增用户的广播
-func (t *ThDesk) BroadGameInfo() {
+func (t *ThDesk) BroadGameInfo(reqUserId uint32) {
 	log.T("开始发送用户fameinfo的广播")
-	msg := t.initGameSendgameInfoByDesk()
+	msg := t.initGameSendgameInfoByDesk(reqUserId)
 	for i := 0; i < len(t.Users); i++ {
 		u := t.Users[i]
 		if u != nil && !u.IsLeave && !u.IsBreak {
@@ -175,7 +175,7 @@ func (t *ThDesk) BroadGameInfo() {
 
 
 //返回房间的信息 todo 登陆成功的处理,给请求登陆的玩家返回登陆结果的消息
-func (mydesk *ThDesk) initGameSendgameInfoByDesk() *bbproto.Game_SendGameInfo {
+func (mydesk *ThDesk) initGameSendgameInfoByDesk(reqUserId uint32) *bbproto.Game_SendGameInfo {
 	result := bbproto.NewGame_SendGameInfo()
 	//初始化桌子相关的信息
 	*result.Tableid = int32(mydesk.Id)                                //桌子的Id
