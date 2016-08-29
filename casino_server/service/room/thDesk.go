@@ -170,7 +170,7 @@ func NewThDesk() *ThDesk {
 	result.Status = TH_DESK_STATUS_STOP        //游戏还没有开始的状态
 	result.GameType = intCons.GAME_TYPE_TH_CS                          //游戏桌子的类型
 	result.JuCount = 0
-	result.JuCountNow = 1                //默认从第一局开始
+	result.JuCountNow = 0                //默认值是0,游戏run的时候+1
 	return result
 }
 
@@ -787,7 +787,7 @@ func (t *ThDesk) OninitThDeskBeginStatus() error {
 	t.Jackpot = 0
 	t.EdgeJackpot = 0
 	t.AllInJackpot = nil                          // 初始化allInJackpot 为空
-
+	t.JuCountNow ++
 
 	if t.IsChampionship() {
 		t.CStatus = CSTH_DESK_STATUS_RUN
@@ -929,14 +929,18 @@ func (t *ThDesk) Less(u1, u2 *ThUser) bool {
 }
 
 //设置用户的状态喂等待开奖
-func (t *ThDesk) SetStatusWaitClose() error {
+func (t *ThDesk) InitLotteryStatus() error {
+
+	//1,设置desk当前的状态为开奖中
+	t.Status = TH_DESK_STATUS_LOTTERY
+
 	log.T("开奖之前答应每个人的状态,并且修改为等待结算")
-	//设置用户的状态为等待开奖
+	//2,设置用户的状态为等待开奖
 	for i := 0; i < len(t.Users); i++ {
 		u := t.Users[i]
 		if u != nil {
 			log.T("用户[%v].nickname[%v]的status[%v]", u.UserId, u.NickName, u.Status)
-			u.InitWait()        //不再等待
+			u.FinishtWait()        //不再等待
 			if u.Status == TH_USER_STATUS_ALLINING || u.Status == TH_USER_STATUS_BETING {
 				//如果用户当前的状态是押注中,或者all in,那么设置用户的状态喂等待结算
 				u.Status = TH_USER_STATUS_WAIT_CLOSED
@@ -1033,19 +1037,15 @@ func (t *ThDesk) Lottery() error {
 	log.T("现在开始开奖,并且发放奖励....")
 
 	//todo 开奖之前 是否需要把剩下的牌 全部发完**** 目前是不可能
-	t.Status = TH_DESK_STATUS_LOTTERY
 
 	//设置用户的状态都为的等待开奖
-	t.SetStatusWaitClose()
+	t.InitLotteryStatus()
 
 	//需要计算本局allin的奖金池
 	t.CalcAllInJackpot()
 
 	//计算用户输赢情况
 	t.calcUserWinAmount()
-
-	//todo 这里需要删除 打印测试信息的代码
-	t.LogStirngWinCoin()
 
 	//保存数据到数据库
 	t.SaveLotteryData()
@@ -1100,10 +1100,12 @@ func (t *ThDesk) broadLotteryResult() error {
 func (t *ThDesk) afterLottery() error {
 	//1,设置游戏桌子的状态
 	log.T("开奖结束,设置desk的状态为stop")
-	t.Status = TH_DESK_STATUS_STOP        //设置为没有开始开始游戏
+	t.Status = TH_DESK_STATUS_STOP                //设置为没有开始开始游戏
 	t.ReadyCount = 0; //准备的人数为0
-	t.JuCountNow ++
-
+	t.Jackpot = 0; //主池设置为0
+	t.EdgeJackpot = 0; //边池设置为0
+	t.AllInJackpot = nil;
+	t.blindLevel = 0;
 
 	//2,设置用户的状态
 	for i := 0; i < len(t.Users); i++ {
@@ -1693,7 +1695,7 @@ func (t *ThDesk) CheckBetUserBySeat(user *ThUser) bool {
 	}
 
 	//用户合法,设置等待状态
-	user.InitWait()
+	user.FinishtWait()
 	return true
 }
 
@@ -1851,7 +1853,7 @@ func (t *ThDesk) EndCsTh() bool {
 func (t *ThDesk) EndTh() bool {
 	//如果是自定义房间
 	log.T("判断自定义的desk是否结束游戏t.jucount[%v],t.jucountnow[%v],", t.JuCount, t.JuCountNow)
-	if t.JuCountNow <= t.JuCount {
+	if t.JuCountNow < t.JuCount {
 		return false
 	}
 

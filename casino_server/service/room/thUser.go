@@ -157,7 +157,8 @@ func (t *ThUser) TimeOut(timeNow time.Time) (bool, error) {
 	}
 }
 
-func (t *ThUser) InitWait() {
+//用户结束等待
+func (t *ThUser) FinishtWait() {
 	t.waitUUID = ""
 }
 
@@ -170,7 +171,6 @@ func (t *ThUser) IsWaiting() bool {
 //操作押注时的waiting 状态
 func (t *ThUser) CheckBetWaitStatus() error {
 	if t.IsWaiting() {
-		t.InitWait()
 		return nil
 	} else {
 		return errors.New("用户状态错误")
