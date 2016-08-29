@@ -142,7 +142,7 @@ func NewGame_SendGameInfo() *Game_SendGameInfo {
 	result.InitRoomCoin = new(int64)
 	result.CurrPlayCount = new(int32)
 	result.TotalPlayCount = new(int32)
-	result.SenderUserId = new(int32)
+	result.SenderUserId = new(uint32)
 	return result
 }
 
