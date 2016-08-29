@@ -320,6 +320,7 @@ func (r *CSThGameRoom) IsRepeatIntoRoom(userId uint32, a gate.Agent) (*ThDesk, e
 
 	//设置用户的状态
 	user.IsBreak = false
+	user.agent = a
 	user.UpdateAgentUserData()        //更新用户的session信息
 
 	log.T("用户【%v】断线重连...", userId)

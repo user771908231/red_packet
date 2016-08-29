@@ -59,7 +59,7 @@ func gameInfo(w http.ResponseWriter, r *http.Request) {
 func gameInfocs(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprint(w, "锦标赛房间的信息:\n")
 	for i := 0; i < len(room.ChampionshipRoom.ThDeskBuf); i++ {
-		desk := room.ThGameRoomIns.ThDeskBuf[i]
+		desk := room.ChampionshipRoom.ThDeskBuf[i]
 		if desk != nil {
 			deskInfo := "开始打印desk.id[%v],roomKey[%v]的信息:\n" +
 			"房主:%v\n" +

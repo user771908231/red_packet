@@ -416,9 +416,7 @@ func (t *ThDesk) LeaveThuser(userId uint32) error {
 		//用户直接放弃游戏,设置roomCoin=0,并且更新rankxin
 		user.RoomCoin = 0
 		ChampionshipRoom.UpdateUserRankInfo(user.UserId, user.MatchId, user.RoomCoin)
-		//竞标赛的房间
 		ChampionshipRoom.SubOnlineCount()        //竞标赛的在线人数-1
-		ChampionshipRoom.RmCopyUser(user.UserId)        //已经明确退出房间的,删除buf中的user
 	}
 
 	//3,返回离开房间之后的信息

@@ -25,7 +25,7 @@ func GetGameMatchList() *bbproto.Game_MatchList {
 	if data == nil {
 		log.T("redis中没有找到竞标赛列表,需要在数据库中查找")
 		RefreshRedisMatchList()
-		result  := bbproto.NewGame_MatchList()
+		result := bbproto.NewGame_MatchList()
 		return result
 	} else {
 		//更新其状态
