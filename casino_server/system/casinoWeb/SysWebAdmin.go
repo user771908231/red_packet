@@ -36,7 +36,7 @@ func gameInfo(w http.ResponseWriter, r *http.Request) {
 			"总游戏玩家:%v\n" +
 			"已经准备的玩家:%v\n" +
 			"------------------所有玩家的信息:\n"
-			fmt.Fprintf(w, deskInfo, desk.Id, desk.RoomKey, desk.DeskOwner, desk.GameType, desk.SmallBlind, desk.BigBlind,
+			fmt.Fprintf(w, deskInfo, desk.Id, desk.RoomKey, desk.DeskOwner, desk.GameType,desk.Dealer, desk.SmallBlind, desk.BigBlind,
 				desk.InitRoomCoin, desk.RoundCount, desk.JuCountNow, desk.JuCount, desk.Jackpot, desk.EdgeJackpot, desk.MinRaise,
 				desk.UserCount, desk.GetGameReadyCount())
 
@@ -78,7 +78,7 @@ func gameInfocs(w http.ResponseWriter, r *http.Request) {
 			"已经准备的玩家数量:%v\n" +
 			"正在出牌的玩家:%v\n" +
 			"------------------所有玩家的信息:\n"
-			fmt.Fprintf(w, deskInfo, desk.Id, desk.RoomKey, desk.DeskOwner, desk.GameType, desk.SmallBlind, desk.BigBlind,
+			fmt.Fprintf(w, deskInfo, desk.Id, desk.RoomKey, desk.DeskOwner, desk.GameType,desk.Dealer, desk.SmallBlind, desk.BigBlind,
 				desk.InitRoomCoin, desk.RoundCount, desk.JuCountNow, desk.JuCount, desk.Jackpot, desk.EdgeJackpot, desk.MinRaise,
 				desk.UserCount, desk.GetGameReadyCount(),desk.BetUserNow)
 
