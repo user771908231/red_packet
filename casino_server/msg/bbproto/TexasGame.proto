@@ -1348,6 +1348,7 @@ message Game_TounamentBlindBean {
     optional string smallBlind = 2; //盲注
     optional string ante = 3; //前注
     optional string raiseTime = 4; //升盲时间
+    optional bool   canRebuy  = 5; //当前盲注级别是否可重购
 }
 
 //盲注的信息
