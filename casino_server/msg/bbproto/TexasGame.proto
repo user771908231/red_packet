@@ -18,6 +18,8 @@ message game_EnterMatch {
     optional bytes PassWord = 3; //密码(朋友桌新增)
     optional bytes sCFUserName = 4; //该渠道特有昵称（现在专指360）
     optional uint32 userId = 5; //请求的userId
+    optional int32  MatchIdInt = 6; //matchId int类型
+
 }
 
 message game_AckEnterMatch {
@@ -1192,8 +1194,8 @@ message Game_AckLogin {
     optional string roomPassword = 5; //朋友桌房间密码
     optional int64 costCreateRoom = 6;  //建房消耗钻石数
     optional int64 costRebuy = 7;       //Rebuy消耗钻石数(锦标赛)
-    optional bool championship = 8;
-    optional int32 chip = 9; //用户钻石余额
+    optional bool championship = 8;     //是否是锦标赛
+    optional int64 chip = 9; //用户钻石余额
 }
 
 

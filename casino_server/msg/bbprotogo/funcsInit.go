@@ -3,8 +3,9 @@ package bbproto
 //初始化盲注bean
 func NewGame_TounamentBlindBean() *Game_TounamentBlindBean {
 	ret := &Game_TounamentBlindBean{}
-	ret.Ante = new(int32)
-	ret.SmallBlind = new(int32)
+	ret.Ante = new(string)
+	ret.SmallBlind = new(string)
+	ret.RaiseTime = new(string)
 	return ret
 }
 

@@ -322,7 +322,7 @@ func (r *CSThGameRoom) AddUser(userId uint32, matchId int32, a gate.Agent) (*ThD
 	//这里需要判断锦标赛是否可以开始游戏
 	e := r.CheckIntoRoom(matchId)
 	if e != nil {
-		return nil, errors.New("游戏已经过期")
+		return nil, Error.NewError(int32(bbproto.DDErrorCode_ERRORCODE_TOURNAMENT_CANNOT_JOIN),"锦标赛入场时间已过,不能加入")
 	}
 
 	//1,判断用户是否已经在房间里了,如果是在房间里,那么替换现有的agent

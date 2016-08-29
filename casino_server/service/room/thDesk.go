@@ -763,6 +763,7 @@ func (t *ThDesk) OninitThDeskBeginStatus() error {
 	t.Jackpot = 0
 	t.edgeJackpot = 0
 	t.AllInJackpot = nil                          // 初始化allInJackpot 为空
+	
 
 	if t.IsChampionship() {
 		t.CStatus = CSTH_DESK_STATUS_RUN

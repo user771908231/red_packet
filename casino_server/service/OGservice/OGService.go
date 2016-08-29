@@ -93,7 +93,7 @@ func HandlerReady(m *bbproto.Game_Ready, a gate.Agent) error {
 	//3,用户开始准备
 	err := desk.Ready(userId)
 	if err != nil {
-		log.T("用户【%v】准备失败,err[%v]",err.Error())
+		log.T("用户【%v】准备失败,err[%v]", err.Error())
 		*result.Result = Error.GetErrorCode(err)
 		*result.Msg = Error.GetErrorMsg(err)
 		a.WriteMsg(result)
@@ -107,7 +107,8 @@ func HandlerReady(m *bbproto.Game_Ready, a gate.Agent) error {
 
 	//如果全部的人都准备好了,那么可以开始游戏
 	//1.1,所有人都准备好了,并且不是第一局的时候,才能开始游戏, 第一句必须要房主点击开始,才能开始
-	if desk.JuCountNow > 1 && desk.IsAllReady() {	//准备之后判断游戏是否开始
+	if desk.JuCountNow > 1 && desk.IsAllReady() {
+		//准备之后判断游戏是否开始
 		desk.Run()
 	}
 	return nil
@@ -194,7 +195,7 @@ func HandlerGameEnterMatch(m *bbproto.Game_EnterMatch, a gate.Agent) error {
 	var mydesk *room.ThDesk                         //用户需要进入的房间
 	userId := m.GetUserId()                         //进入游戏房间的user
 	roomKey := string(m.GetPassWord())              //房间的roomkey
-	matchId := m.GetMatchID()			//进入锦标赛的时候检测锦标赛的matchId
+	matchId := m.GetMatchIdInt()                        //进入锦标赛的时候检测锦标赛的matchId
 
 
 	//1.1 检测参数是否正确,判断userId 是否合法
@@ -206,19 +207,16 @@ func HandlerGameEnterMatch(m *bbproto.Game_EnterMatch, a gate.Agent) error {
 
 	//1.2,进入房间,返回房间和错误信息
 	if roomKey == "" {
-		mydesk, err = room.ChampionshipRoom.AddUser(userId,matchId, a)
+		mydesk, err = room.ChampionshipRoom.AddUser(userId, matchId, a)
 	} else {
 		mydesk, err = room.ThGameRoomIns.AddUserWithRoomKey(userId, roomKey, a)
 	}
 
 	//2 判断进入房间是否失败...
 	if err != nil || mydesk == nil {
-		errMsg := err.Error()
-		log.E("用户[%v]进入房间失败,errMsg[%v]", userId, errMsg)
-
+		log.E("用户[%v]进入房间失败,err[%v]", userId, err)
 		//返回错误信息
-		result := &bbproto.Game_SendGameInfo{}
-		result.Result = new(int32)
+		result := bbproto.NewGame_SendGameInfo()
 		*result.Result = Error.GetErrorCode(err)
 		a.WriteMsg(result)
 		return err
@@ -240,6 +238,6 @@ func HandlerGameLogin(userId uint32, a gate.Agent) {
 	*ret.Notice = noticeServer.GetNoticeByType(noticeServer.NOTICE_TYPE_GUNDONG).GetNoticeContent()        //滚动信息
 	*ret.CostRebuy = int64(1)
 	*ret.Championship = false                //锦标赛是否开启
-
+	*ret.Chip = userService.GetUserById(userId).GetDiamond()
 	a.WriteMsg(ret)
 }
