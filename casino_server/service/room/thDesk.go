@@ -1697,7 +1697,7 @@ func (t *ThDesk) GetGameReadyCount() int32 {
 	var count int32 = 0
 	for i := 0; i < len(t.Users); i++ {
 		u := t.Users[i]
-		if u != nil && !u.IsBreak && !u.IsLeave {
+		if u != nil && u.IsReady() && !u.IsBreak && !u.IsLeave {
 			count ++
 		}
 	}
