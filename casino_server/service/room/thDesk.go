@@ -169,7 +169,7 @@ func NewThDesk() *ThDesk {
 	result.Status = TH_DESK_STATUS_STOP        //游戏还没有开始的状态
 	result.GameType = intCons.GAME_TYPE_TH_CS                          //游戏桌子的类型
 	result.JuCount = 0
-	result.JuCountNow = 0                //默认值是0,游戏run的时候+1
+	result.JuCountNow = 1                //默认值是0,游戏run的时候+1
 	return result
 }
 
@@ -1857,7 +1857,7 @@ func (t *ThDesk) EndCsTh() bool {
 func (t *ThDesk) EndTh() bool {
 	//如果是自定义房间
 	log.T("判断自定义的desk是否结束游戏t.jucount[%v],t.jucountnow[%v],", t.JuCount, t.JuCountNow)
-	if t.JuCountNow < t.JuCount {
+	if t.JuCountNow <= t.JuCount {
 		return false
 	}
 
