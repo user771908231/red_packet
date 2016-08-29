@@ -118,9 +118,11 @@ type ThDesk struct {
 	PreCoin              int64                        //前注的金额
 	SmallBlindCoin       int64                        //小盲注的押注金额
 	BigBlindCoin         int64                        //大盲注的押注金额
+	blindLevel           int32                        //当前盲注的级别
 	BeginTime            time.Time                    //游戏开始时间
 	EndTime              time.Time                    //游戏结束时间
 	RebuyCountLimit      int32                        //重购的次数
+	RebuyBlindLevelLimit int32                        //rebuy盲注的限制
 
 	Dealer               uint32                       //庄家
 	BigBlind             uint32                       //大盲注
@@ -643,7 +645,9 @@ func (t *ThDesk) getRankUserCount() int32 {
 //得到这个用户是可以重购
 func (t *ThDesk) getCanRebuyByUserId(user *ThUser) bool {
 	//用户的金额不足的时候并且重构的次数小于desk的重购限制的时候
-	if !t.IsUserRoomCoinEnough(user) && user.RebuyCount < t.RebuyCountLimit {
+	if !t.IsUserRoomCoinEnough(user) &&
+	user.RebuyCount < t.RebuyCountLimit &&
+	t.blindLevel < t.RebuyBlindLevelLimit {
 		return true
 	} else {
 		return false
@@ -1100,6 +1104,7 @@ func (t *ThDesk) afterLottery() error {
 	t.ReadyCount = 0; //准备的人数为0
 	t.JuCountNow ++
 
+
 	//2,设置用户的状态
 	for i := 0; i < len(t.Users); i++ {
 		u := t.Users[i]
@@ -1119,8 +1124,6 @@ func (t *ThDesk) afterLottery() error {
 			}
 		}
 	}
-
-	//3,
 
 	return nil
 }

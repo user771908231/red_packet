@@ -30,17 +30,18 @@ func init() {
 
 //对竞标赛的配置
 var CSTHGameRoomConfig struct {
-	gameDuration      time.Duration //一场比赛的时间周期
-	checkDuration     time.Duration //检测的时间周期
-	leastCount        int32         //游戏开始的最少人数
-	nextRunDuration   time.Duration //开始下一场的间隔
-	riseBlindDuration time.Duration //生盲的时间间隔
-	blinds            []int64       //盲注
-	initRoomCoin      int64         //初始的带入金额
-	deskMaxUserCount  int32         //最多多少人
-	roomMaxUserCount  int32         //room里最多能有多少人
-	RebuyCountLimit   int32         //重构次数的限制
-	quotaLimit        int32         //名额的限制
+	gameDuration         time.Duration //一场比赛的时间周期
+	checkDuration        time.Duration //检测的时间周期
+	leastCount           int32         //游戏开始的最少人数
+	nextRunDuration      time.Duration //开始下一场的间隔
+	riseBlindDuration    time.Duration //生盲的时间间隔
+	blinds               []int64       //盲注
+	initRoomCoin         int64         //初始的带入金额
+	deskMaxUserCount     int32         //最多多少人
+	roomMaxUserCount     int32         //room里最多能有多少人
+	RebuyCountLimit      int32         //重构次数的限制
+	RebuyBlindLevelLimit int32         //可以购买的盲注级别
+	quotaLimit           int32         //名额的限制
 }
 
 //对配置对象进行配置,以后可以从配置文件读取
@@ -56,11 +57,12 @@ func (r *CSThGameRoom) OnInitConfig() {
 	CSTHGameRoomConfig.deskMaxUserCount = 9
 	CSTHGameRoomConfig.RebuyCountLimit = 5                //最多重构5次
 	CSTHGameRoomConfig.quotaLimit = 2                        //能得到奖励的人
+	CSTHGameRoomConfig.RebuyBlindLevelLimit = 7                //7级盲注以前可以购买
 }
 
 
 //锦标赛的状态
-var CSTHGAMEROOM_STATUS_STOP int32 = 1;		//竞标赛已经停止
+var CSTHGAMEROOM_STATUS_STOP int32 = 1; //竞标赛已经停止
 
 var CSTHGAMEROOM_STATUS_READY int32 = 2;
 
@@ -72,18 +74,19 @@ var CSTHGAMEROOM_STATUS_LOTTERY int32 = 4;
 //锦标赛
 type CSThGameRoom struct {
 	ThGameRoom
-	matchId         int32                   //比赛内容
-	beginTime       time.Time               //游戏开始的时间
-	endTime         time.Time               //游戏结束的时间
-	gameDuration    time.Duration           //游戏的时长
-	rankUserCount   int32                   //游戏总人数
-	onlineCount     int32                   //总的在线人数
-	gamingUserCount int32                   //游戏总的人数--正在玩,没有输掉比赛的
-	status          int32                   //锦标赛的状态
-	rankInfo        []*bbproto.CsThRankInfo //排名信息
-	blindLevel      int32                   //盲注的等级
-	initRoomCoin    int64                   //房间默认的带入金额
-	UsersCopy       map[uint32]*ThUser      //这里是所有玩家信息的一份拷贝,只有当用户放弃之后,才会删除用户
+	matchId              int32                   //比赛内容
+	beginTime            time.Time               //游戏开始的时间
+	endTime              time.Time               //游戏结束的时间
+	gameDuration         time.Duration           //游戏的时长
+	rankUserCount        int32                   //游戏总人数
+	onlineCount          int32                   //总的在线人数
+	gamingUserCount      int32                   //游戏总的人数--正在玩,没有输掉比赛的
+	status               int32                   //锦标赛的状态
+	rankInfo             []*bbproto.CsThRankInfo //排名信息
+	blindLevel           int32                   //盲注的等级
+	initRoomCoin         int64                   //房间默认的带入金额
+	UsersCopy            map[uint32]*ThUser      //这里是所有玩家信息的一份拷贝,只有当用户放弃之后,才会删除用户
+	RebuyBlindLevelLimit int32                   //盲注可以购买的级别
 }
 
 func (r *CSThGameRoom) OnInit() {
@@ -92,6 +95,7 @@ func (r *CSThGameRoom) OnInit() {
 	r.initRoomCoin = CSTHGameRoomConfig.initRoomCoin
 	r.ThRoomSeatMax = CSTHGameRoomConfig.deskMaxUserCount
 	r.RebuyCountLimit = CSTHGameRoomConfig.RebuyCountLimit                        //重购的次数
+	r.RebuyBlindLevelLimit = CSTHGameRoomConfig.RebuyBlindLevelLimit
 	r.UsersCopy = make(map[uint32]*ThUser, )
 
 }
@@ -280,7 +284,7 @@ func (r *CSThGameRoom) End() {
 		d.C(casinoConf.DBT_T_CS_TH_RECORD).Find(bson.M{"Id":r.matchId}).One(saveData)
 	})
 	saveData.Status = r.status
-	db.UpdateMgoData(casinoConf.DBT_T_CS_TH_RECORD,saveData)
+	db.UpdateMgoData(casinoConf.DBT_T_CS_TH_RECORD, saveData)
 }
 
 
@@ -322,7 +326,7 @@ func (r *CSThGameRoom) AddUser(userId uint32, matchId int32, a gate.Agent) (*ThD
 	//这里需要判断锦标赛是否可以开始游戏
 	e := r.CheckIntoRoom(matchId)
 	if e != nil {
-		return nil, Error.NewError(int32(bbproto.DDErrorCode_ERRORCODE_TOURNAMENT_CANNOT_JOIN),"锦标赛入场时间已过,不能加入")
+		return nil, Error.NewError(int32(bbproto.DDErrorCode_ERRORCODE_TOURNAMENT_CANNOT_JOIN), "锦标赛入场时间已过,不能加入")
 	}
 
 	//1,判断用户是否已经在房间里了,如果是在房间里,那么替换现有的agent
@@ -361,11 +365,15 @@ func (r *CSThGameRoom) AddUser(userId uint32, matchId int32, a gate.Agent) (*ThD
 	return mydesk, nil
 }
 
+
+//新建一个desk并且加入 到锦标赛的房间
 func (r *CSThGameRoom) NewThdeskAndSave() *ThDesk {
 	mydesk := NewThDesk()
 	mydesk.MatchId = r.matchId
 	mydesk.InitRoomCoin = r.initRoomCoin
 	mydesk.RebuyCountLimit = r.RebuyCountLimit
+	mydesk.blindLevel = r.blindLevel
+	mydesk.RebuyBlindLevelLimit = r.RebuyBlindLevelLimit
 	r.AddThDesk(mydesk)
 	return mydesk
 }
