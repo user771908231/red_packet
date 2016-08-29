@@ -167,6 +167,7 @@ func NewThServerUserSession() *ThServerUserSession {
 	result.UserId = new(uint32)
 	result.GameType = new(int32)
 	result.GameStatus = new(int32)
+	result.RoomKey = new(string)
 	return result
 }
 
