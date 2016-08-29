@@ -152,9 +152,7 @@ func (t *ThDesk) GetSecondPool() []int64 {
 	}
 
 	//边池
-	ret = append(ret, t.edgeJackpot)
-
-	log.T("下一句开始,返回的secondPool【%v】", ret)
+	ret = append(ret, t.EdgeJackpot)
 	return ret
 }
 
@@ -164,7 +162,7 @@ func (t *ThDesk) BroadGameInfo() {
 	msg := t.initGameSendgameInfoByDesk()
 	for i := 0; i < len(t.Users); i++ {
 		u := t.Users[i]
-		if u != nil && u.IsLeave == false && u.IsBreak == false {
+		if u != nil && !u.IsLeave && !u.IsBreak {
 			//给用户发送广播的时候需要判断自己的座位号是多少
 			*msg.Seat = t.Users[i].Seat
 			msg.Handcard = t.GetMyHandCard(t.Users[i].UserId)
@@ -193,7 +191,7 @@ func (mydesk *ThDesk) initGameSendgameInfoByDesk() *bbproto.Game_SendGameInfo {
 	*result.NInitActionTime = ThdeskConfig.TH_TIMEOUT_DURATION_INT
 	*result.NInitDelayTime = ThdeskConfig.TH_TIMEOUT_DURATION_INT
 	result.HandCoin = mydesk.GetRoomCoin()                        //带入金额
-	result.TurnCoin = getTurnCoin(mydesk)
+	result.TurnCoin = mydesk.getTurnCoin()
 	result.SecondPool = mydesk.GetSecondPool()
 	*result.TurnMax = mydesk.BetAmountNow
 	result.WeixinInfos = mydesk.GetWeiXinInfos()
@@ -220,7 +218,7 @@ func (mydesk *ThDesk) initGameSendgameInfoByDesk() *bbproto.Game_SendGameInfo {
 			//nickName			//seatId
 			result.NickName = append(result.NickName, u.NickName)
 			result.SeatId = append(result.SeatId, int32(i))
-
+			result.BReady = append(result.BReady, isReady(u))
 		} else {
 
 		}
@@ -229,6 +227,13 @@ func (mydesk *ThDesk) initGameSendgameInfoByDesk() *bbproto.Game_SendGameInfo {
 
 }
 
+func isReady(u *ThUser) int32 {
+	if u.IsReady() {
+		return 1
+	} else {
+		return 0
+	}
+}
 
 //判断是否allIn
 func isAllIn(u *ThUser) int32 {
@@ -284,7 +289,7 @@ func isFold(u *ThUser) int32 {
 }
 
 //解析TurnCoin
-func getTurnCoin(mydesk *ThDesk) []int64 {
+func (mydesk *ThDesk) getTurnCoin() []int64 {
 	var result []int64
 	for i := 0; i < len(mydesk.Users); i++ {
 		u := mydesk.Users[i]

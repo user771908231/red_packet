@@ -3,8 +3,9 @@ package bbproto
 //初始化盲注bean
 func NewGame_TounamentBlindBean() *Game_TounamentBlindBean {
 	ret := &Game_TounamentBlindBean{}
-	ret.Ante = new(int32)
-	ret.SmallBlind = new(int32)
+	ret.Ante = new(string)
+	ret.SmallBlind = new(string)
+	ret.RaiseTime = new(string)
 	return ret
 }
 
@@ -39,6 +40,15 @@ func NewGame_MatchItem() *Game_MatchItem {
 	ret.Time = new(string)
 	ret.Title = new(string)
 	ret.Type = new(int32)
+	ret.CanInto = new(bool)
+	ret.MatchId = new(int32)
+	return ret
+}
+
+func NewGame_MatchList() *Game_MatchList {
+	ret := &Game_MatchList{}
+	ret.Result = new(int32)
+	ret.HelpMessage = new(string)
 	return ret
 }
 
@@ -52,6 +62,7 @@ func NewGame_AckLogin() *Game_AckLogin {
 	ret.CostCreateRoom = new(int64)
 	ret.CostRebuy = new(int64)
 	ret.Championship = new(bool)
+	ret.Chip = new(int64)
 	return ret
 
 }
@@ -74,6 +85,8 @@ func NewGame_InitCard() *Game_InitCard {
 	ret.DelayTime = new(int32)
 	ret.NextUser = new(int32)
 	ret.MinRaise = new(int64)
+	ret.CurrPlayCount = new(int32)
+	ret.TotalPlayCount = new(int32)
 	return ret
 }
 

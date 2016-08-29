@@ -104,7 +104,7 @@ func (r *ThGameRoom) CreateDeskByUserIdAndRoomKey(userId uint32, roomCoin int64,
 	desk.JuCount = jucount
 	desk.GetRoomCoin()
 	desk.GameType = intCons.GAME_TYPE_TH        //表示是自定义的房间
-	desk.PreCoin = preCoin
+	desk.PreCoin = preCoin				//前注的信息
 	desk.RebuyCountLimit = r.RebuyCountLimit        //加注的限制
 	r.AddThDesk(desk)
 
@@ -284,7 +284,6 @@ func (r *ThGameRoom) GetDeskById(id int32) *ThDesk {
 	}
 	return result
 }
-
 
 //通过肘子的类型和Match得到thdesk
 func GetDeskByIdAndMatchId(deskId int32, matchId int32) *ThDesk {

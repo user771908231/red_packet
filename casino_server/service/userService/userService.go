@@ -41,7 +41,7 @@ func NewUserAndSave(openId, wxNickName, headUrl string) (*bbproto.User, error) {
 	nuser.HeadUrl = headUrl
 
 	//2保存数据到数据库
-	err = db.InsertMgoData(casinoConf.DBT_T_USER,nuser)
+	err = db.InsertMgoData(casinoConf.DBT_T_USER, nuser)
 	if err != nil {
 		log.E("保存用户的时候失败 error【%v】", err.Error())
 		return nil, err
@@ -72,7 +72,7 @@ func GetRedisUserSeesionKey(userid uint32) string {
 func GetUserById(id uint32) *bbproto.User {
 	//1,首先在 redis中去的数据
 	key := GetRedisUserKey(id)
-	result := redisUtils.GetObj(key,&bbproto.User{})
+	result := redisUtils.GetObj(key, &bbproto.User{})
 	if result == nil {
 		log.E("redis中没有找到user[%v],需要在mongo中查询,并且缓存在redis中。", id)
 		// 获取连接 connection
@@ -106,9 +106,9 @@ func GetUserById(id uint32) *bbproto.User {
 
 //返回session信息
 func GetUserSessionByUserId(id uint32) *bbproto.ThServerUserSession {
-	result := redisUtils.GetObj(GetRedisUserSeesionKey(id),&bbproto.ThServerUserSession{})
-	if result == nil{
-		log.T("没有找到user[%v]的thserverUserSession",id)
+	result := redisUtils.GetObj(GetRedisUserSeesionKey(id), &bbproto.ThServerUserSession{})
+	if result == nil {
+		log.T("没有找到user[%v]的thserverUserSession", id)
 		return nil
 	} else {
 		return result.(*bbproto.ThServerUserSession)
@@ -117,7 +117,7 @@ func GetUserSessionByUserId(id uint32) *bbproto.ThServerUserSession {
 
 //保存回话信息
 func SaveUserSession(userData *bbproto.ThServerUserSession) {
-	redisUtils.SaveObj(GetRedisUserSeesionKey(userData.GetUserId()),userData)
+	redisUtils.SaveObj(GetRedisUserSeesionKey(userData.GetUserId()), userData)
 }
 
 func GetUserByOpenId(openId  string) *bbproto.User {
@@ -156,7 +156,7 @@ func GetUserByOpenId(openId  string) *bbproto.User {
 	将用户model保存在redis中
  */
 func SaveUser2Redis(u *bbproto.User) {
-	redisUtils.SaveObj(GetRedisUserKey(u.GetId()),u)
+	redisUtils.SaveObj(GetRedisUserKey(u.GetId()), u)
 }
 
 /**
@@ -261,11 +261,13 @@ func UpdateUserDiamond(userId uint32, diamond int64) (int64, error) {
 	//2,修改用户redis和mongo中的数据
 	user := GetUserById(userId)
 	if user == nil {
-		return -1, Error.NewError(int32(bbproto.DDErrorCode_ERRORCODE_CREATE_DESK_USER_NOTFOUND), "余额不足")
+		return -1, Error.NewError(int32(bbproto.DDErrorCode_ERRORCODE_CREATE_DESK_USER_NOTFOUND), "用户不存在")
 	}
 
+
+	//见转砖石的时候,如果user.getDianmond + diamond < 0 表示余额不足
 	//判断用户的钻石是否足够
-	if user.GetDiamond() <= diamond {
+	if user.GetDiamond() + diamond <= 0 {
 		return user.GetDiamond(), Error.NewError(int32(bbproto.DDErrorCode_ERRORCODE_CREATE_DESK_DIAMOND_NOTENOUGH), "余额不足")
 	}
 
