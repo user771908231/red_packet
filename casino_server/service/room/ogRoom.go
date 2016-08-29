@@ -203,6 +203,7 @@ func (mydesk *ThDesk) initGameSendgameInfoByDesk(reqUserId uint32) *bbproto.Game
 	*result.InitRoomCoin = mydesk.InitRoomCoin
 	*result.CurrPlayCount = mydesk.JuCountNow
 	*result.TotalPlayCount = mydesk.JuCount
+	*result.SenderUserId = reqUserId
 
 
 	//循环User来处理
