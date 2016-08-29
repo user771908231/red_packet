@@ -44,7 +44,8 @@ func RefreshRedisMatchList() {
 	//把得到的数据保存在数据库中
 	if len(data) > 0 {
 		//表示有数据,需要存储在redis中
-		sdata := &bbproto.Game_MatchList{}
+		sdata := bbproto.NewGame_MatchList()
+		*sdata.HelpMessage = "帮助信息"
 		for i := 0; i < len(data); i++ {
 			d := data[i]
 			sd := bbproto.NewGame_MatchItem()

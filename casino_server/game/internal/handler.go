@@ -451,6 +451,9 @@ func handlerGame_MatchList(args []interface{}) {
 			*data.Items[i].CanInto = false
 		}
 	}
+	//帮助信息
+	*data.HelpMessage = "帮助信息"
+
 	log.T("得到的锦标赛列表[%v]", data)
 	a.WriteMsg(data)
 }

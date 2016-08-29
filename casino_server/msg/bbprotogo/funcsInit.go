@@ -48,8 +48,8 @@ func NewGame_MatchItem() *Game_MatchItem {
 func NewGame_MatchList() *Game_MatchList {
 	ret := &Game_MatchList{}
 	ret.Result = new(int32)
+	ret.HelpMessage = new(string)
 	return ret
-
 }
 
 func NewGame_AckLogin() *Game_AckLogin {
