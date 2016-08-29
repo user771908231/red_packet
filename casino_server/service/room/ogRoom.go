@@ -153,8 +153,6 @@ func (t *ThDesk) GetSecondPool() []int64 {
 
 	//边池
 	ret = append(ret, t.edgeJackpot)
-
-	log.T("下一句开始,返回的secondPool【%v】", ret)
 	return ret
 }
 
@@ -220,7 +218,7 @@ func (mydesk *ThDesk) initGameSendgameInfoByDesk() *bbproto.Game_SendGameInfo {
 			//nickName			//seatId
 			result.NickName = append(result.NickName, u.NickName)
 			result.SeatId = append(result.SeatId, int32(i))
-			result.BReady = append(result.BReady,isReady(u))
+			result.BReady = append(result.BReady, isReady(u))
 		} else {
 
 		}
@@ -229,10 +227,10 @@ func (mydesk *ThDesk) initGameSendgameInfoByDesk() *bbproto.Game_SendGameInfo {
 
 }
 
-func isReady(u *ThUser) int32{
+func isReady(u *ThUser) int32 {
 	if u.IsReady() {
 		return 1
-	}else{
+	} else {
 		return 0
 	}
 }

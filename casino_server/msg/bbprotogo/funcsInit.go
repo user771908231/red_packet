@@ -53,6 +53,7 @@ func NewGame_AckLogin() *Game_AckLogin {
 	ret.CostCreateRoom = new(int64)
 	ret.CostRebuy = new(int64)
 	ret.Championship = new(bool)
+	ret.Chip = new(int64)
 	return ret
 
 }
@@ -75,6 +76,8 @@ func NewGame_InitCard() *Game_InitCard {
 	ret.DelayTime = new(int32)
 	ret.NextUser = new(int32)
 	ret.MinRaise = new(int64)
+	ret.CurrPlayCount = new(int32)
+	ret.TotalPlayCount = new(int32)
 	return ret
 }
 

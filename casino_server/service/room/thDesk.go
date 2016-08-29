@@ -88,8 +88,8 @@ func InitDeskConfig() {
 	ThdeskConfig.CreateFee = 1
 
 	//每个人出牌的等待时间
-	ThdeskConfig.TH_TIMEOUT_DURATION = time.Second * 20
-	ThdeskConfig.TH_TIMEOUT_DURATION_INT = 20
+	ThdeskConfig.TH_TIMEOUT_DURATION = time.Second * 200
+	ThdeskConfig.TH_TIMEOUT_DURATION_INT = 200
 
 	//德州开奖的时间
 	ThdeskConfig.TH_LOTTERY_DURATION = time.Second * 5
@@ -763,7 +763,7 @@ func (t *ThDesk) OninitThDeskBeginStatus() error {
 	t.Jackpot = 0
 	t.edgeJackpot = 0
 	t.AllInJackpot = nil                          // 初始化allInJackpot 为空
-	
+
 
 	if t.IsChampionship() {
 		t.CStatus = CSTH_DESK_STATUS_RUN
@@ -1426,7 +1426,7 @@ func (t *ThDesk) calcBetCoin(userId uint32, coin int64) error {
 	user.AddTotalBet(coin)
 	user.AddRoomCoin(-coin)
 	user.Update2redis()                //用户信息更新之后,保存到数据库
-	t.AddJackpot(coin)                   //底池 增加
+	t.AddJackpot(coin)                   //底池 增加,
 	t.AddedgeJackpot(coin)
 	return nil
 }
@@ -1795,6 +1795,8 @@ func (mydesk *ThDesk) Run() error {
 	*initCardB.NextUser = mydesk.GetUserByUserId(mydesk.BetUserNow).Seat                //	int32(mydesk.GetUserIndex(mydesk.BetUserNow))
 	*initCardB.ActionTime = ThdeskConfig.TH_TIMEOUT_DURATION_INT
 	//initCardB.Seat = &mydesk.UserCount
+	*initCardB.CurrPlayCount mydesk.JuCountNow
+	*initCardB.TotalPlayCount = mydesk.JuCount
 	mydesk.OGTHBroadInitCard(initCardB)
 	log.T("广播Game_InitCard的信息完毕")
 

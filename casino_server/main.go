@@ -15,6 +15,7 @@ import (
 	"casino_server/common/log"
 	"math/rand"
 	"casino_server/bonus"
+	"casino_server/system/casinoWeb"
 )
 
 func init() {
@@ -42,7 +43,7 @@ func main() {
 	//后台管理
 	go func() {
 		log.T("web start...")
-		//casinoWeb.InitCms()
+		casinoWeb.InitCms()
 	}()
 
 	//初始化三个模块,主函数入口
