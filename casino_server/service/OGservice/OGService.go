@@ -240,5 +240,6 @@ func HandlerGameLogin(userId uint32, a gate.Agent) {
 	*ret.CostRebuy = int64(1)
 	*ret.Championship = false                //锦标赛是否开启
 	*ret.Chip = userService.GetUserById(userId).GetDiamond()
+	*ret.RoomPassword = session.GetRoomKey()
 	a.WriteMsg(ret)
 }

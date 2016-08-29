@@ -272,6 +272,7 @@ func (t *ThDesk) AddThUser(userId uint32, userStatus int32, a gate.Agent) (*ThUs
 	thUser.InitialRoomCoin = thUser.RoomCoin
 	thUser.IsBreak = false
 	thUser.IsLeave = false
+	thUser.RoomKey = t.RoomKey
 
 	//根据桌子的状态 设置用户的游戏状态
 	if t.IsChampionship() {
@@ -639,10 +640,10 @@ func (t *ThDesk) getCanRebuyByUserId(user *ThUser) bool {
 	if t.IsFriend() {
 		if !t.IsUserRoomCoinEnough(user) {
 			return true
-		}else{
+		} else {
 			return false
 		}
-	}else if t.IsChampionship(){
+	} else if t.IsChampionship() {
 		//用户的金额不足的时候并且重构的次数小于desk的重购限制的时候
 		if !t.IsUserRoomCoinEnough(user) &&
 		user.RebuyCount < t.RebuyCountLimit &&

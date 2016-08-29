@@ -67,6 +67,7 @@ message ThServerUserSession{
 	optional int32 		gameType	 = 3;	//游戏类型
 	optional int32 		deskId		 = 4;	//房间的Id
 	optional int32		matchId		 = 5;	//matchId
+	optional string 	roomKey	 	 = 6;	//房间号
 }
 
 message ThServerAllInJackpot{

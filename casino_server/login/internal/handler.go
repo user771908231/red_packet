@@ -96,7 +96,7 @@ func HandlerREQQuickConn(args []interface{}) {
 		log.E("没有找到用户,返回登陆失败...")
 
 		//todo 这里是特殊处理,以后要修改
-		if result.GetReleaseTag() == RELEAS_TAG_MAJIA {
+		if m.GetWx().GetOpenId() == "" {
 			*result.AckResult = intCons.ACK_RESULT_SUCC
 		} else {
 			*result.AckResult = intCons.ACK_RESULT_ERROR
@@ -146,7 +146,7 @@ func newACKQuickConn() *bbproto.ACKQuickConn {
 	result.AckResult = new(int32)
 	result.ReleaseTag = new(int32)
 	//默认发布版本是1
-	*result.ReleaseTag = RELEAS_TAG_MAJIA                    ///todo  需要把这个值加入到配置文件读取
+	*result.ReleaseTag = RELEAS_TAG_DEZHOU                   ///todo  需要把这个值加入到配置文件读取
 
 	arrs := strings.Split(conf.Server.TCPAddr, ":")
 	var ip string = arrs[0]

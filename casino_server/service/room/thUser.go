@@ -45,6 +45,7 @@ type ThUser struct {
 
 	deskId             int32                 //用户所在的桌子的编号
 	MatchId            int32                 //matchId
+	RoomKey            string                //房间号
 	GameNumber         int32                 //游戏编号
 	Seat               int32                 //用户的座位号
 	agent              gate.Agent            //agent
@@ -199,7 +200,7 @@ func (u *ThUser) UpdateAgentUserData() {
 	*userAgentData.UserId = u.UserId
 	*userAgentData.DeskId = u.deskId
 	*userAgentData.MatchId = u.MatchId
-
+	*userAgentData.RoomKey = u.RoomKey
 	*userAgentData.GameStatus = u.GameStatus //返回用户当前的状态 0：未游戏  1：正在朋友桌  2：正在锦标赛
 	u.agent.SetUserData(userAgentData)        //设置用户的agentData
 
