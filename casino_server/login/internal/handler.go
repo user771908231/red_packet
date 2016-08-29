@@ -96,7 +96,7 @@ func HandlerREQQuickConn(args []interface{}) {
 		log.E("没有找到用户,返回登陆失败...")
 
 		//todo 这里是特殊处理,以后要修改
-		if m.GetWx().GetOpenId() != "" {
+		if m.GetWx().GetOpenId() == "" {
 			*result.AckResult = intCons.ACK_RESULT_SUCC
 		} else {
 			*result.AckResult = intCons.ACK_RESULT_ERROR
