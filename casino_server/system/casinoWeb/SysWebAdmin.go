@@ -3,8 +3,6 @@ package casinoWeb
 import (
 	"net/http"
 	"casino_server/common/log"
-	"casino_server/service/room"
-	"fmt"
 )
 
 func InitCms() {
@@ -16,15 +14,13 @@ func InitCms() {
 
 
 func gameInfo(w http.ResponseWriter,r *http.Request) {
-	w.Write([]byte("朋友桌房间的信息:\n"))
-	for i:=0;i<room.ThGameRoomIns ;i++ {
-		desk := room.ThGameRoomIns.ThDeskBuf[i]
-		deskTitle := "开始打印desk.id[%v],roomKey[%v]的信息:\n"+"sfsfl"
-		fmt.Printf(deskTitle,desk.Id,desk.RoomKey)
-
-		w.Write([]byte(deskTitle)
-
-
-
-	}
+	//w.Write([]byte("朋友桌房间的信息:\n"))
+	//for i:=0;i<room.ThGameRoomIns ;i++ {
+	//	desk := room.ThGameRoomIns.ThDeskBuf[i]
+	//	deskTitle := "开始打印desk.id[%v],roomKey[%v]的信息:\n"+"sfsfl"
+	//	fmt.Printf(deskTitle,desk.Id,desk.RoomKey)
+	//
+	//	//w.Write([]byte(deskTitle)
+	//
+	//}
 }
