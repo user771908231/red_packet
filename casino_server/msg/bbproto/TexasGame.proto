@@ -1397,6 +1397,7 @@ message Game_MatchItem {
 message Game_MatchList {
     optional int32 result = 1;
     repeated Game_MatchItem items = 2;
+    optional string helpMessage = 3;
 }
 
 //锦标赛牌局结束：弹窗显示我的名次
