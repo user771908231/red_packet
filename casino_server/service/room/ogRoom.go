@@ -152,7 +152,7 @@ func (t *ThDesk) GetSecondPool() []int64 {
 	}
 
 	//边池
-	ret = append(ret, t.edgeJackpot)
+	ret = append(ret, t.EdgeJackpot)
 	return ret
 }
 

@@ -5,6 +5,7 @@ import (
 	"casino_server/base"
 	"casino_server/common/log"
 	"casino_server/service/room"
+	"fmt"
 )
 
 
@@ -33,5 +34,6 @@ func (m *Module) OnInit() {
 }
 
 func (m *Module) OnDestroy() {
-
+	fmt.Print("game module onDestroy--")
+	// todo 这里需要做一些异常保存的操作... 现在还不知道crash的时候,是否可以保存
 }

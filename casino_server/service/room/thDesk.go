@@ -140,7 +140,7 @@ type ThDesk struct {
 	BetAmountNow         int64                        //当前的押注金额是多少
 	RoundCount           int32                        //第几轮
 	Jackpot              int64                        //奖金池
-	edgeJackpot          int64                        //边池
+	EdgeJackpot          int64                        //边池
 	MinRaise             int64                        //最低加注金额
 	AllInJackpot         []*pokerService.AllInJackpot //allin的标记
 }
@@ -162,7 +162,7 @@ func NewThDesk() *ThDesk {
 	result.RaiseUserId = 0
 	result.RoundCount = 0
 	result.NewRoundFirstBetUser = 0
-	result.edgeJackpot = 0
+	result.EdgeJackpot = 0
 	result.SmallBlindCoin = ThGameRoomIns.SmallBlindCoin
 	result.BigBlindCoin = 2 * ThGameRoomIns.SmallBlindCoin
 	result.Status = TH_DESK_STATUS_STOP        //游戏还没有开始的状态
@@ -217,7 +217,7 @@ func (t *ThDesk) LogString() {
 	log.T("当前desk[%v]的信息的状态,压注轮次[%v]", t.Id, t.RoundCount)
 	log.T("当前desk[%v]的信息的状态,NewRoundFirstBetUser[%v]", t.Id, t.NewRoundFirstBetUser)
 	log.T("当前desk[%v]的信息的状态,总共押注Jackpot[%v]", t.Id, t.Jackpot)
-	log.T("当前desk[%v]的信息的状态,edgeJackpot[%v]", t.Id, t.edgeJackpot)
+	log.T("当前desk[%v]的信息的状态,edgeJackpot[%v]", t.Id, t.EdgeJackpot)
 	log.T("当前desk[%v]的信息的状态,当前加注的人BetUserRaiseUserId[%v]", t.Id, t.RaiseUserId)
 	log.T("当前desk[%v]的信息:-----------------------------------end----------------------------------", t.Id)
 }
@@ -570,7 +570,27 @@ func (t *ThDesk) OnInitCards() error {
 			log.T("用户[%v]的:拍类型,所有牌[%v],th[%v]", t.Users[i].UserId, t.Users[i].thCards.ThType, t.Users[i].thCards.Cards, t.Users[i].thCards)
 		}
 	}
+
+	log.T("用户开始等待")
+	//本次押注的热开始等待
+	waitUser := t.GetUserByUserId(t.BetUserNow)
+	log.T("用户开始等待,等待之前桌子的状态[%v]:", t.Status)
+	waitUser.wait()
+
+	log.T("广播Game_InitCard的信息")
+	initCardB := bbproto.NewGame_InitCard()
+	*initCardB.Tableid = t.Id
+	initCardB.HandCard = t.GetHandCard()
+	initCardB.PublicCard = t.ThPublicCard2OGC()
+	*initCardB.MinRaise = t.GetMinRaise()
+	*initCardB.NextUser = t.GetUserByUserId(t.BetUserNow).Seat                //	int32(mydesk.GetUserIndex(mydesk.BetUserNow))
+	*initCardB.ActionTime = ThdeskConfig.TH_TIMEOUT_DURATION_INT
+	*initCardB.CurrPlayCount = t.JuCountNow
+	*initCardB.TotalPlayCount = t.JuCount
+
+	t.OGTHBroadInitCard(initCardB)
 	log.T("开始一局新的游戏,初始化牌的信息完毕...")
+
 	return nil
 }
 
@@ -761,7 +781,7 @@ func (t *ThDesk) OninitThDeskBeginStatus() error {
 	t.BetAmountNow = t.BigBlindCoin                   //设置第一次跟住时的跟注金额应该是多少
 	t.MinRaise = t.BigBlindCoin
 	t.Jackpot = 0
-	t.edgeJackpot = 0
+	t.EdgeJackpot = 0
 	t.AllInJackpot = nil                          // 初始化allInJackpot 为空
 
 
@@ -976,7 +996,7 @@ func (t *ThDesk) calcUserWinAmount() error {
 
 	log.T("获奖的人数:[%v]", bwinCount)
 	if bwinCount != 0 {
-		var bbonus int64 = t.edgeJackpot / int64(bwinCount)
+		var bbonus int64 = t.EdgeJackpot / int64(bwinCount)
 		for i := 0; i < len(t.Users); i++ {
 			u := t.Users[i]
 
@@ -1035,8 +1055,6 @@ func (t *ThDesk) Lottery() error {
 	//判断游戏是否结束
 	if !t.end() {
 		//表示不能继续开始游戏
-		time.Sleep(ThdeskConfig.TH_LOTTERY_DURATION)        //开奖的延迟
-		log.T("desk[%v]开始下一局游戏...", t.Id)
 		go t.Run()
 	}
 
@@ -1643,9 +1661,9 @@ func (t *ThDesk) CalcAllInJackpot() error {
 				allk.AllInAmount -= all.AllInAmount
 			}
 		}
-		t.edgeJackpot -= all.Jackpopt
+		t.EdgeJackpot -= all.Jackpopt
 		log.T("开始给allIn[%v]计算all in 时的池子金额---------------------------------end---------------", i)
-		log.T("目前t.bianJackPot 的剩余值是[%v]", t.edgeJackpot)
+		log.T("目前t.bianJackPot 的剩余值是[%v]", t.EdgeJackpot)
 	}
 	log.T("计算出来的allIn:【%v】", t.AllInJackpot)
 	log.T("开始计算allin将近池子end")
@@ -1751,12 +1769,6 @@ func (mydesk *ThDesk) Run() error {
 		return err
 	}
 
-	//2,初始化牌的信息
-	err = mydesk.OnInitCards()
-	if err != nil {
-		log.E("开始德州扑克游戏,初始化扑克牌的时候出错")
-		return err
-	}
 
 	//3,初始化游戏房间的状态
 	err = mydesk.OninitThDeskBeginStatus()
@@ -1765,40 +1777,26 @@ func (mydesk *ThDesk) Run() error {
 		return err
 	}
 
-	//3, 初始化前注的信息
+	//4, 初始化前注的信息
 	err = mydesk.OinitPreCoin()
 	if err != nil {
 		log.E("开始德州扑克游戏,初始化房间的状态的时候报错")
 		return err
 	}
 
-	//4 初始化盲注开始押注
+	//5 初始化盲注开始押注
 	err = mydesk.InitBlindBet()
 	if err != nil {
 		log.E("盲注下注的时候出错errMsg[%v]", err.Error())
 		return err
 	}
 
-	//
-	log.T("用户开始等待")
-	//本次押注的热开始等待
-	waitUser := mydesk.GetUserByUserId(mydesk.BetUserNow)
-	log.T("用户开始等待,等待之前桌子的状态[%v]:", mydesk.Status)
-	waitUser.wait()
-
-	log.T("广播Game_InitCard的信息")
-	initCardB := bbproto.NewGame_InitCard()
-	*initCardB.Tableid = int32(mydesk.Id)
-	initCardB.HandCard = mydesk.GetHandCard()
-	initCardB.PublicCard = mydesk.ThPublicCard2OGC()
-	*initCardB.MinRaise = mydesk.GetMinRaise()
-	*initCardB.NextUser = mydesk.GetUserByUserId(mydesk.BetUserNow).Seat                //	int32(mydesk.GetUserIndex(mydesk.BetUserNow))
-	*initCardB.ActionTime = ThdeskConfig.TH_TIMEOUT_DURATION_INT
-	//initCardB.Seat = &mydesk.UserCount
-	*initCardB.CurrPlayCount = mydesk.JuCountNow
-	*initCardB.TotalPlayCount = mydesk.JuCount
-	mydesk.OGTHBroadInitCard(initCardB)
-	log.T("广播Game_InitCard的信息完毕")
+	//6,初始化牌的信息
+	err = mydesk.OnInitCards()
+	if err != nil {
+		log.E("开始德州扑克游戏,初始化扑克牌的时候出错")
+		return err
+	}
 
 	log.T("\n\n开始一局新的游戏,初始化完毕\n\n")
 	return nil
@@ -2232,7 +2230,7 @@ func (t *ThDesk) AddJackpot(coin int64) {
 }
 
 func (t *ThDesk) AddedgeJackpot(coin int64) {
-	atomic.AddInt64(&t.edgeJackpot, coin)
+	atomic.AddInt64(&t.EdgeJackpot, coin)
 }
 
 
