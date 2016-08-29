@@ -1344,9 +1344,10 @@ message Game_SendDeskEndLottery {
 
 
 message Game_TounamentBlindBean {
-    optional string smallBlind = 1; //盲注
-    optional string ante = 2; //前注
-    optional string raiseTime = 3; //升盲时间
+    optional string blindLevel = 1; //盲注级别
+    optional string smallBlind = 2; //盲注
+    optional string ante = 3; //前注
+    optional string raiseTime = 4; //升盲时间
 }
 
 //盲注的信息
