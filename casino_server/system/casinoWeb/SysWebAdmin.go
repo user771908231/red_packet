@@ -38,13 +38,13 @@ func gameInfo(w http.ResponseWriter, r *http.Request) {
 			"------------------所有玩家的信息:\n"
 			fmt.Fprintf(w, deskInfo, desk.Id, desk.RoomKey, desk.DeskOwner, desk.GameType, desk.SmallBlind, desk.BigBlind,
 				desk.InitRoomCoin, desk.RoundCount, desk.JuCountNow, desk.JuCount, desk.Jackpot, desk.EdgeJackpot, desk.MinRaise,
-				desk.UserCount, desk.ReadyCount)
+				desk.UserCount, desk.GetGameReadyCount())
 
 			for j := 0; j < len(desk.Users); j++ {
 				u := desk.Users[j]
 				if u != nil {
-					userInfo := "当前desk[%v]的user[%v],seatId[%v]的状态status[%v],HandCoin[%v],TurnCoin[%v],RoomCoin[%v]\n"
-					fmt.Fprintf(w, userInfo, desk.Id, u.UserId, u.Seat, u.Status, u.HandCoin, u.TurnCoin, u.RoomCoin)
+					userInfo := "当前desk[%v]的user[%v],seatId[%v],nickname[%v]的状态status[%v],HandCoin[%v],TurnCoin[%v],RoomCoin[%v],isBreak[%v],isLeave[%v]\n"
+					fmt.Fprintf(w, userInfo, desk.Id, u.UserId, u.Seat, u.NickName, u.Status, u.HandCoin, u.TurnCoin, u.RoomCoin, u.IsBreak, u.IsLeave)
 				}
 			}
 			fmt.Fprint(w, "------------------所有玩家的信息打印完毕\n", desk.Id)
@@ -79,20 +79,20 @@ func gameInfocs(w http.ResponseWriter, r *http.Request) {
 			"------------------所有玩家的信息:\n"
 			fmt.Fprintf(w, deskInfo, desk.Id, desk.RoomKey, desk.DeskOwner, desk.GameType, desk.SmallBlind, desk.BigBlind,
 				desk.InitRoomCoin, desk.RoundCount, desk.JuCountNow, desk.JuCount, desk.Jackpot, desk.EdgeJackpot, desk.MinRaise,
-				desk.UserCount, desk.ReadyCount)
+				desk.UserCount, desk.GetGameReadyCount())
 
 			for j := 0; j < len(desk.Users); j++ {
 				u := desk.Users[j]
 				if u != nil {
-					userInfo := "当前desk[%v]的user[%v],seatId[%v]的状态status[%v],HandCoin[%v],TurnCoin[%v],RoomCoin[%v]\n"
-					fmt.Fprintf(w, userInfo, desk.Id, u.UserId, u.Seat, u.Status, u.HandCoin, u.TurnCoin, u.RoomCoin)
+					userInfo := "当前desk[%v]的user[%v],seatId[%v],nickname[%v]的状态status[%v],HandCoin[%v],TurnCoin[%v],RoomCoin[%v],isBreak[%v],isLeave[%v]\n"
+					fmt.Fprintf(w, userInfo, desk.Id, u.UserId, u.Seat, u.NickName, u.Status, u.HandCoin, u.TurnCoin, u.RoomCoin, u.IsBreak, u.IsLeave)
 				}
 			}
 			fmt.Fprint(w, "------------------所有玩家的信息打印完毕\n", desk.Id)
 
-			fmt.Fprint(w, "desk[%v]的信息打印完毕:\n\n\n\n", desk.Id)
+			fmt.Fprint(w, "desk[%v]的信息打印完毕:\n", desk.Id)
 
 		}
 	}
-	fmt.Fprint(w, "锦标赛房间的信息打印完毕:\n")
+	fmt.Fprint(w, "锦标赛房间的信息打印完毕:\n\n\n\n")
 }

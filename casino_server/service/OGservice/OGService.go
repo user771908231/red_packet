@@ -118,12 +118,13 @@ func HandlerReady(m *bbproto.Game_Ready, a gate.Agent) error {
 func HandlerBegin(m *bbproto.Game_Begin, a gate.Agent) error {
 	userId := m.GetUserId()
 	desk := room.GetDeskByAgent(a)
+
 	if desk == nil || desk.DeskOwner != userId {
 		log.E("没有找到房主为[%v]的desk", userId)
 		return errors.New("没有找到房间")
 	} else {
 		//开始游戏
-		desk.Run()
+		go desk.Run()
 		return nil
 	}
 }
