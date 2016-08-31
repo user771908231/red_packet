@@ -3,10 +3,13 @@ package test
 import (
 	"testing"
 	"fmt"
+	"casino_server/utils/security"
 )
 
 func TestTemp(t *testing.T) {
-	testN()
+	//testN()
+	fmt.Println("md5key:",security.SECRET_KEY)
+
 }
 
 type s struct {
