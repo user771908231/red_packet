@@ -254,7 +254,7 @@ func (r *CSThGameRoom) SubOnlineCount() {
 //检测结束
 func (r *CSThGameRoom) checkEnd() bool {
 	//如果时间已经过了,并且所有桌子的状态都是已经停止游戏,那么表示这一局结束,为什么是所有的桌子?因为有可能时间到了,有很多桌子还在游戏中
-	if r.IsOutofEndTime() && r.allStop() {
+	if r.IsOutofEndTime() || r.allStop() {
 		//结算本局
 		log.T("锦标赛matchid[%v]已经结束.现在开始保存数据", r.MatchId)
 		r.End()

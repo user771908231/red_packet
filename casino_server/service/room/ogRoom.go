@@ -441,14 +441,25 @@ func (t *ThDesk) getWinCoinInfo() []*bbproto.Game_WinCoin {
 			gwc := NewGame_WinCoin()
 
 			//这里需要先对牌进行排序
-			paicards := OGTHCardPaixu(u.thCards)
+			if t.RoundCount != TH_DESK_ROUND_END {
+				//只发送手牌
+				*gwc.Card1 = u.HandCards[0].GetMapKey()
+				*gwc.Card2 = u.HandCards[1].GetMapKey()
+				*gwc.Card3 = 53
+				*gwc.Card4 = 53
+				*gwc.Card5 = 53
+				*gwc.Cardtype = 0
 
-			*gwc.Card1 = paicards[0].GetMapKey()
-			*gwc.Card2 = paicards[1].GetMapKey()
-			*gwc.Card3 = paicards[2].GetMapKey()
-			*gwc.Card4 = paicards[3].GetMapKey()
-			*gwc.Card5 = paicards[4].GetMapKey()
-			*gwc.Cardtype = u.thCards.GetOGCardType()
+			} else {
+				paicards := OGTHCardPaixu(u.thCards)
+				*gwc.Card1 = paicards[0].GetMapKey()
+				*gwc.Card2 = paicards[1].GetMapKey()
+				*gwc.Card3 = paicards[2].GetMapKey()
+				*gwc.Card4 = paicards[3].GetMapKey()
+				*gwc.Card5 = paicards[4].GetMapKey()
+				*gwc.Cardtype = u.thCards.GetOGCardType()
+			}
+
 			*gwc.Coin = u.winAmount                                        //这个表示的是赢得的底池多少钱
 			*gwc.Seat = u.Seat
 			*gwc.PoolIndex = int32(0)
@@ -458,6 +469,8 @@ func (t *ThDesk) getWinCoinInfo() []*bbproto.Game_WinCoin {
 	return ret
 }
 
+
+//得到coinInfo 的数据
 func (t *ThDesk) getCoinInfo() []*bbproto.Game_WinCoin {
 	var ret []*bbproto.Game_WinCoin
 	//对每个人做计算
@@ -468,15 +481,31 @@ func (t *ThDesk) getCoinInfo() []*bbproto.Game_WinCoin {
 			//开是对这个人计算
 			gwc := NewGame_WinCoin()
 
-			//这里需要先对牌进行排序
-			paicards := OGTHCardPaixu(u.thCards)
 
-			*gwc.Card1 = paicards[0].GetMapKey()
-			*gwc.Card2 = paicards[1].GetMapKey()
-			*gwc.Card3 = paicards[2].GetMapKey()
-			*gwc.Card4 = paicards[3].GetMapKey()
-			*gwc.Card5 = paicards[4].GetMapKey()
-			*gwc.Cardtype = u.thCards.GetOGCardType()
+			//如果是在五轮,那么返回所有的牌的信息,如果是提前结束,那么不需要发送所有的牌
+
+			if t.RoundCount != TH_DESK_ROUND_END {
+				//只发送手牌
+				*gwc.Card1 = u.HandCards[0].GetMapKey()
+				*gwc.Card2 = u.HandCards[1].GetMapKey()
+				*gwc.Card3 = 53
+				*gwc.Card4 = 53
+				*gwc.Card5 = 53
+
+
+				*gwc.Cardtype = 0
+
+			} else {
+				paicards := OGTHCardPaixu(u.thCards)
+				*gwc.Card1 = paicards[0].GetMapKey()
+				*gwc.Card2 = paicards[1].GetMapKey()
+				*gwc.Card3 = paicards[2].GetMapKey()
+				*gwc.Card4 = paicards[3].GetMapKey()
+				*gwc.Card5 = paicards[4].GetMapKey()
+				*gwc.Cardtype = u.thCards.GetOGCardType()
+			}
+
+			//这里需要先对牌进行排序
 			*gwc.Coin = u.winAmount - u.TotalBet                      //表示除去押注的金额,净赚多少钱
 			*gwc.Seat = u.Seat
 			*gwc.PoolIndex = int32(0)

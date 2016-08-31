@@ -823,7 +823,6 @@ func (t *ThDesk) IsChampionship() bool {
  */
 func (t *ThDesk) Tiem2Lottery() bool {
 	//如果处于押注状态的人只有一个人了,那么是开奖的时刻
-	//
 
 	log.T("判断是否应该开奖,打印每个人的信息://1,刚上桌子,2,坐下,3,ready 4 押注中,5,allin,6,弃牌,7,等待结算,8,已经结算,9,离开")
 	for i := 0; i < len(t.Users); i++ {
@@ -1462,12 +1461,12 @@ func (t *ThDesk) calcBetCoin(userId uint32, coin int64) error {
  */
 func (t *ThDesk) NextBetUser() error {
 
-	log.T("开始计算下一个押注的人是睡,当前押注的人是userId[%v]", t.BetUserNow)
+	log.T("开始计算下一个押注的人是谁,当前押注的人是userId[%v]", t.BetUserNow)
 	index := t.GetUserIndex(t.BetUserNow)
 	t.BetUserNow = 0        //这里设置为-1是为了方便判断找不到下一个人的时候,设置为新的一局
 	for i := index; i < len(t.Users) + index; i++ {
 		u := t.Users[(i + 1) % len(t.Users)]
-		if u != nil && u.Status == TH_USER_STATUS_BETING {
+		if u != nil && u.IsBetting() {
 			log.T("计算出下一个押注的人,设置betUserNow 为[%v]", u.UserId)
 			t.BetUserNow = u.UserId
 			break
