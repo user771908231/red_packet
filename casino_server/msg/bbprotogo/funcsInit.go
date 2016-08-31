@@ -6,6 +6,7 @@ func NewGame_TounamentBlindBean() *Game_TounamentBlindBean {
 	ret.Ante = new(string)
 	ret.SmallBlind = new(string)
 	ret.RaiseTime = new(string)
+	ret.BlindLevel = new(string)
 	return ret
 }
 

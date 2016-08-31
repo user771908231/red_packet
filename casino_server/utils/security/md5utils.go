@@ -44,11 +44,11 @@ func CheckTcpData(data []byte)([]byte,error){
 	sign := data[len(data)-4:]
 	cmd5 := Md5(md5data)
 
-	log.Debug("校验数据全%v",data)
-	log.Debug("校验数据信息部分%v",md5data)
-	log.Debug("校验数据全sign %v",sign)
-	log.Debug("cmd5 %v",cmd5)
-
+	//log.T("校验数据全%v",data)
+	//log.T("校验数据信息部分%v",md5data)
+	//log.T("校验数据全sign %v",sign)
+	//log.T("cmd5 %v",cmd5)
+	//
 	result := true
 	for i:= 0;i<len(sign) ;i++ {
 		if sign[i] != cmd5[i] {
