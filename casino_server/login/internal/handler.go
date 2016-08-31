@@ -26,7 +26,6 @@ func init() {
 	handleMsg(&bbproto.Game_Notice{}, handlerNotice)
 }
 
-var RELEAS_TAG_MAJIA int32 = 0        //现实的是马甲,还没有发布
 var RELEAS_TAG_DEZHOU int32 = 1        //现实的是游戏
 
 
