@@ -16,6 +16,9 @@ import (
 	"casino_server/utils/redisUtils"
 )
 
+var NEW_USER_DIAMOND_REWARD int64 = 20		//新用户登陆的时候,默认的砖石数量
+
+
 /**
 	1,create 一个user
 	2,保存mongo
@@ -32,6 +35,7 @@ func NewUserAndSave(openId, wxNickName, headUrl string) (*bbproto.User, error) {
 	nuser := &mode.T_user{}
 	nuser.Mid = bson.NewObjectId()
 	nuser.Id = uint32(id)
+	nuser.Diamond = NEW_USER_DIAMOND_REWARD		//新用户注册的时候,默认的钻石数量
 	if wxNickName == "" {
 		nuser.NickName = config.RandNickname()
 	} else {
