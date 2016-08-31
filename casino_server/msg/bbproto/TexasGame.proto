@@ -1184,6 +1184,7 @@ message Game_SendAddUser {
 //显示大厅时请求
 message Game_Login {
     optional uint32 userId = 1; //用户id
+    optional int32 protoVersion = 2; //客户端proto version
 }
 
 //大厅回复
