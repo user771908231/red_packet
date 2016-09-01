@@ -109,4 +109,8 @@ func init() {
 	ProtoProcessor.Register(&bbproto.Game_AckLogin{})	//74	回复的协议
 	ProtoProcessor.Register(&bbproto.Game_Feedback{})	//75	反馈
 
+	ProtoProcessor.Register(&bbproto.Game_NotRebuy{})	//76	反馈
+	ProtoProcessor.Register(&bbproto.Game_AckNotRebuy{})	//77	反馈
+	ProtoProcessor.Register(&bbproto.Game_SendChangeDeskOwner{})	//78	反馈
+
 }
