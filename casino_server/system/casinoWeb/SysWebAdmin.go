@@ -19,41 +19,7 @@ func gameInfo(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprint(w, "朋友桌房间的信息:\n")
 	for i := 0; i < len(room.ThGameRoomIns.ThDeskBuf); i++ {
 		desk := room.ThGameRoomIns.ThDeskBuf[i]
-		if desk != nil {
-			deskInfo := "开始打印desk.id[%v],roomKey[%v]的信息:\n" +
-			"房主:%v\n" +
-			"游戏类型:%v\n" +
-			"庄家:%v\n" +
-			"小盲注:%v\n" +
-			"大盲注:%v\n" +
-			"带入金额:%v\n" +
-			"第几轮:%v\n" +
-			"第几局:%v\n" +
-			"总局数:%v\n" +
-			"主奖池:%v\n" +
-			"边池:%v\n" +
-			"最低加注额度:%v\n" +
-			"总游戏玩家:%v\n" +
-			"已经准备的玩家:%v\n" +
-			"getlotteryCheckFalseCount:%v \n" +
-			"RaiseUserId :%v \n" +
-			"------------------所有玩家的信息:\n"
-			fmt.Fprintf(w, deskInfo, desk.Id, desk.RoomKey, desk.DeskOwner, desk.GameType, desk.Dealer, desk.SmallBlind, desk.BigBlind,
-				desk.InitRoomCoin, desk.RoundCount, desk.JuCountNow, desk.JuCount, desk.Jackpot, desk.EdgeJackpot, desk.MinRaise,
-				desk.UserCount, desk.GetGameReadyCount(), desk.GetLotteryCheckFalseCount(), desk.RaiseUserId)
-
-			for j := 0; j < len(desk.Users); j++ {
-				u := desk.Users[j]
-				if u != nil {
-					userInfo := "当前desk[%v]的user[%v],seatId[%v],nickname[%v]的状态status[%v],HandCoin[%v],TurnCoin[%v],RoomCoin[%v],isBreak[%v],isLeave[%v],LotteryCheck[%v]\n"
-					fmt.Fprintf(w, userInfo, desk.Id, u.UserId, u.Seat, u.NickName, u.Status, u.HandCoin, u.TurnCoin, u.RoomCoin, u.IsBreak, u.IsLeave, u.LotteryCheck)
-				}
-			}
-			fmt.Fprint(w, "------------------所有玩家的信息打印完毕\n", desk.Id)
-
-			fmt.Fprint(w, "desk[%v]的信息打印完毕:\n\n\n\n", desk.Id)
-
-		}
+		printDeskInfo(w, desk)
 	}
 	fmt.Fprint(w, "朋友桌房间的信息打印完毕:\n")
 }
@@ -62,40 +28,42 @@ func gameInfocs(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprint(w, "锦标赛房间【%v】的信息,matchId[%v],盲注等级[%v]:\n", room.ChampionshipRoom.MatchId, room.ChampionshipRoom.BlindLevel)
 	for i := 0; i < len(room.ChampionshipRoom.ThDeskBuf); i++ {
 		desk := room.ChampionshipRoom.ThDeskBuf[i]
-		if desk != nil {
-			deskInfo := "开始打印desk.id[%v],roomKey[%v]的信息:\n" +
-			"房主:%v\n" +
-			"游戏类型:%v\n" +
-			"庄家:%v\n" +
-			"小盲注:%v\n" +
-			"大盲注:%v\n" +
-			"带入金额:%v\n" +
-			"第几轮:%v\n" +
-			"第几局:%v\n" +
-			"总局数:%v\n" +
-			"主奖池:%v\n" +
-			"边池:%v\n" +
-			"最低加注额度:%v\n" +
-			"总游戏玩家:%v\n" +
-			"已经准备的玩家数量:%v\n" +
-			"正在出牌的玩家:%v\n" +
-			"------------------所有玩家的信息:\n"
-			fmt.Fprintf(w, deskInfo, desk.Id, desk.RoomKey, desk.DeskOwner, desk.GameType, desk.Dealer, desk.SmallBlind, desk.BigBlind,
-				desk.InitRoomCoin, desk.RoundCount, desk.JuCountNow, desk.JuCount, desk.Jackpot, desk.EdgeJackpot, desk.MinRaise,
-				desk.UserCount, desk.GetGameReadyCount(), desk.BetUserNow)
-
-			for j := 0; j < len(desk.Users); j++ {
-				u := desk.Users[j]
-				if u != nil {
-					userInfo := "当前desk[%v]的user[%v],seatId[%v],nickname[%v]的状态status[%v],HandCoin[%v],TurnCoin[%v],RoomCoin[%v],isBreak[%v],isLeave[%v]\n"
-					fmt.Fprintf(w, userInfo, desk.Id, u.UserId, u.Seat, u.NickName, u.Status, u.HandCoin, u.TurnCoin, u.RoomCoin, u.IsBreak, u.IsLeave)
-				}
-			}
-			fmt.Fprint(w, "------------------所有玩家的信息打印完毕\n", desk.Id)
-
-			fmt.Fprint(w, "desk[%v]的信息打印完毕:\n", desk.Id)
-
-		}
+		printDeskInfo(w, desk)
 	}
 	fmt.Fprint(w, "锦标赛房间的信息打印完毕:\n\n\n\n")
+}
+
+func printDeskInfo(w http.ResponseWriter, desk *room.ThDesk) {
+	if desk != nil {
+		deskInfo := "开始打印desk.id[%v],roomKey[%v]的信息:\n" +
+		"房主:%v  游戏类型:%v 带入金额:%v  总局数:%v\n " +
+		"庄家:%v  小盲注:%v  大盲注:%v\n" +
+		"第几轮:%v  第几局:%v\n" +
+		"sendFlop[%v]	,sendTurn[%v],	sendRive[%v]" +
+		"主奖池:%v  边池:%v 最低加注额度:%v\n" +
+		"总游戏玩家:%v 已经准备的玩家:%v getlotteryCheckFalseCount:%v \n" +
+		"RaiseUserId :%v \n" +
+		"------------------所有玩家的信息:\n"
+		fmt.Fprintf(w, deskInfo,
+			desk.Id, desk.RoomKey,
+			desk.DeskOwner, desk.GameType, desk.InitRoomCoin, desk.JuCount,
+			desk.Dealer, desk.SmallBlind, desk.BigBlind,
+			desk.RoundCount, desk.JuCountNow,
+			desk.SendFlop, desk.SendTurn, desk.SendRive,
+			desk.Jackpot, desk.EdgeJackpot, desk.MinRaise,
+			desk.UserCount, desk.GetGameReadyCount(), desk.GetLotteryCheckFalseCount(),
+			desk.RaiseUserId)
+
+		for j := 0; j < len(desk.Users); j++ {
+			u := desk.Users[j]
+			if u != nil {
+				userInfo := "当前desk[%v]的user[%v],seatId[%v],nickname[%v]的状态status[%v],HandCoin[%v],TurnCoin[%v],RoomCoin[%v],isBreak[%v],isLeave[%v],LotteryCheck[%v]\n"
+				fmt.Fprintf(w, userInfo, desk.Id, u.UserId, u.Seat, u.NickName, u.Status, u.HandCoin, u.TurnCoin, u.RoomCoin, u.IsBreak, u.IsLeave, u.LotteryCheck)
+			}
+		}
+		fmt.Fprint(w, "------------------所有玩家的信息打印完毕\n", desk.Id)
+
+		fmt.Fprint(w, "desk[%v]的信息打印完毕:\n\n\n\n", desk.Id)
+
+	}
 }

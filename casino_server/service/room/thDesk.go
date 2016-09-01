@@ -144,6 +144,10 @@ type ThDesk struct {
 	EdgeJackpot          int64                        //边池
 	MinRaise             int64                        //最低加注金额
 	AllInJackpot         []*pokerService.AllInJackpot //allin的标记
+
+	SendFlop             bool                         //公共底牌
+	SendTurn             bool                         //第四章牌
+	SendRive             bool                         //第五章牌
 }
 
 /**
@@ -793,6 +797,10 @@ func (t *ThDesk) OninitThDeskBeginStatus() error {
 	t.EdgeJackpot = 0
 	t.AllInJackpot = nil                          // 初始化allInJackpot 为空
 	t.JuCountNow ++
+	t.SendFlop = false        //是否已经发了三张底牌
+	t.SendTurn = false        //是否已经发了第四张牌
+	t.SendRive = false        //是否已经发了第五张牌
+
 
 	if t.IsChampionship() {
 		t.CStatus = CSTH_DESK_STATUS_RUN
@@ -829,17 +837,30 @@ func (t *ThDesk) GetLotteryCheckFalseCount() int32 {
 	return count
 }
 
+
 //
 func (t *ThDesk) GetBettingCount() int32 {
 	var count int32 = 0
 	for i := 0; i < len(t.Users); i++ {
 		u := t.Users[i]
-		if u != nil && !u.IsBetting() {
+		if u != nil && u.IsBetting() {
 			count ++
 		}
 	}
 	return count
 }
+
+func (t *ThDesk) GetBettingOrAllinCount() int32 {
+	var count int32 = 0
+	for i := 0; i < len(t.Users); i++ {
+		u := t.Users[i]
+		if u != nil && (u.IsBetting() || u.IsAllIn()) {
+			count ++
+		}
+	}
+	return count
+}
+
 
 
 //判断是否是开奖的时刻
@@ -1078,6 +1099,9 @@ func (t *ThDesk) Lottery() error {
 
 	//todo 开奖之前 是否需要把剩下的牌 全部发完**** 目前是不可能
 
+	//发送还没有发送的牌
+	t.sendReaminCard()
+
 	//设置用户的状态都为的等待开奖
 	t.InitLotteryStatus()
 
@@ -1177,8 +1201,30 @@ func (t *ThDesk) IsUserRoomCoinEnough(u *ThUser) bool {
 	}
 }
 
-//保存数据到数据库
 
+//发送没有发送玩的牌
+func (t *ThDesk) sendReaminCard() error {
+	log.T("判断是否需要发送剩余的牌GetBettingOrAllinCount[%v]", t.GetBettingOrAllinCount())
+	if t.GetBettingOrAllinCount() > 1 {
+		//大于一个人则需要发送剩余的牌
+		if !t.SendFlop {
+			t.sendFlopCard()
+		}
+
+		if !t.SendTurn {
+			t.sendTurnCard()
+		}
+
+		if !t.SendRive {
+			t.sendRiverCard()
+		}
+	}
+	return nil
+}
+
+
+
+//保存数据到数据库
 //这里需要根据游戏类型的不同来分别存醋
 
 func (t *ThDesk)  SaveLotteryData() error {
@@ -1503,7 +1549,7 @@ func (t *ThDesk) NextBetUser() error {
 	t.BetUserNow = 0        //这里设置为-1是为了方便判断找不到下一个人的时候,设置为新的一局
 	for i := index; i < len(t.Users) + index; i++ {
 		u := t.Users[(i + 1) % len(t.Users)]
-		if u != nil && (u.IsBetting() || u.IsAllIn()) {
+		if u != nil && (u.IsBetting() || (u.IsAllIn() && t.RaiseUserId == u.UserId)) {
 			log.T("计算出下一个押注的人,设置betUserNow 为[%v]", u.UserId)
 			t.BetUserNow = u.UserId
 			break
@@ -1614,6 +1660,7 @@ func (t *ThDesk) sendFlopCard() error {
 	result.Card0 = ThCard2OGCard(t.PublicPai[0])
 	result.Card1 = ThCard2OGCard(t.PublicPai[1])
 	result.Card2 = ThCard2OGCard(t.PublicPai[2])
+	t.SendFlop = true
 
 	//广播消息
 	t.THBroadcastProto(result, 0)
@@ -1630,6 +1677,7 @@ func (t *ThDesk) sendTurnCard() error {
 	result := &bbproto.Game_SendTurnCard{}
 	result.Tableid = &t.Id
 	result.Card = ThCard2OGCard(t.PublicPai[3])
+	t.SendTurn = true
 
 	t.THBroadcastProto(result, 0)
 	log.T("发送第四张公共牌end")
@@ -1644,6 +1692,7 @@ func (t *ThDesk) sendRiverCard() error {
 	result := &bbproto.Game_SendRiverCard{}
 	result.Tableid = &t.Id
 	result.Card = ThCard2OGCard(t.PublicPai[4])
+	t.SendRive = true
 
 	t.THBroadcastProto(result, 0)
 	log.T("发送第五张公共牌end")
