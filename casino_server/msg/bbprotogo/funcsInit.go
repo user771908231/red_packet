@@ -192,3 +192,13 @@ func NewThServerUser() *ThServerUser {
 	user.IsLeave = new(bool)
 	return user
 }
+
+func NewGame_SendChangeDeskOwner() *Game_SendChangeDeskOwner {
+	result := &Game_SendChangeDeskOwner{}
+	result.DeskId = new(int32)
+	result.OldOwner = new(uint32)
+	result.NewOwner = new(uint32)
+	result.OldOwnerSeat = new(int32)
+	result.NewOwnerSeat = new(int32)
+	return result
+}

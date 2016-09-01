@@ -51,6 +51,8 @@ func init() {
 	handler(&bbproto.Game_Begin{}, handlerBegin)                      //开始游戏
 
 	handler(&bbproto.Game_Rebuy{}, handlerGame_Rebuy)                //重构的协议
+	handler(&bbproto.Game_NotRebuy{}, handlerGame_NotRebuy)                //重构的协议
+
 	handler(&bbproto.Game_Message{}, handlerGameMessage)
 	handler(&bbproto.Game_LeaveDesk{}, handlerLeaveDesk)              //离开桌子
 
@@ -366,14 +368,14 @@ func handlerGame_TounamentBlind(args []interface{}) {
 	*d1.Ante = "10"
 	*d1.SmallBlind = "10"
 	*d1.RaiseTime = "150"
-	*d1.BlindLevel =  "1"
+	*d1.BlindLevel = "1"
 	m.Data = append(m.Data, d1)
 
 	d2 := bbproto.NewGame_TounamentBlindBean()
 	*d2.Ante = "20"
 	*d2.SmallBlind = "20"
 	*d2.RaiseTime = "150"
-	*d2.BlindLevel =  "2"
+	*d2.BlindLevel = "2"
 
 	m.Data = append(m.Data, d2)
 
@@ -381,7 +383,7 @@ func handlerGame_TounamentBlind(args []interface{}) {
 	*d3.Ante = "75"
 	*d3.SmallBlind = "150"
 	*d3.RaiseTime = "150"
-	*d3.BlindLevel =  "3"
+	*d3.BlindLevel = "3"
 
 	m.Data = append(m.Data, d3)
 
@@ -470,10 +472,26 @@ func handlerGame_Feedback(args []interface{}) {
 //重构的协议
 func handlerGame_Rebuy(args []interface{}) {
 	m := args[0].(*bbproto.Game_Rebuy)
-	log.T("重购的信息m[%v]", m)
 	a := args[1].(gate.Agent)
+
+	log.T("重购的信息m[%v]", m)
 	//开始rebuy
 	desk := room.GetDeskByAgent(a)
-	desk.Rebuy(m.GetUserId())
+	if desk != nil {
+		//做非空判断,防止服务器crash
+		log.E("重购的时候,desk==nil重购失败")
+		desk.Rebuy(m.GetUserId())
+	}
+}
 
+//不重购的协议
+func handlerGame_NotRebuy(args []interface{}) {
+	m := args[0].(*bbproto.Game_NotRebuy)
+	a := args[1].(gate.Agent)
+	desk := room.GetDeskByAgent(a)
+	if desk != nil {
+		//做非空判断,防止服务器crash
+		log.E("not重购的时候,desk==nil重购失败")
+		desk.NotRebuy(m.GetUserId())
+	}
 }

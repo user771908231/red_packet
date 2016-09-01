@@ -588,7 +588,7 @@ func (t *ThDesk) OnInitCards() error {
 	initCardB.HandCard = t.GetHandCard()
 	initCardB.PublicCard = t.ThPublicCard2OGC()
 	*initCardB.MinRaise = t.GetMinRaise()
-	*initCardB.NextUser = t.GetUserByUserId(t.BetUserNow).Seat                //	int32(mydesk.GetUserIndex(mydesk.BetUserNow))
+	*initCardB.NextUser = t.GetUserByUserId(t.BetUserNow).Seat
 	*initCardB.ActionTime = ThdeskConfig.TH_TIMEOUT_DURATION_INT
 	*initCardB.CurrPlayCount = t.JuCountNow
 	*initCardB.TotalPlayCount = t.JuCount
@@ -1507,8 +1507,14 @@ func (t *ThDesk) GetUserIndex(userId uint32) int {
 
 //通过UserId找到User
 func (t *ThDesk) GetUserByUserId(userId uint32) *ThUser {
-	index := t.GetUserIndex(userId)
-	return t.Users[index]
+	for i := 0; i < len(t.Users); i++ {
+		u := t.Users[i]
+		if u != nil && u.UserId == userId {
+			return u
+		}
+	}
+
+	return nil
 }
 
 // 用户加注,跟住,allin 之后对他的各种余额属性进行计算
@@ -1599,7 +1605,7 @@ func (t *ThDesk) nextRoundInfo() {
 	sendData := NewGame_SendOverTurn()
 	*sendData.Tableid = t.Id
 	*sendData.MinRaise = t.GetMinRaise()
-	*sendData.NextSeat = t.GetUserByUserId(t.BetUserNow).Seat        //int32(t.GetUserIndex(t.BetUserNow))
+	*sendData.NextSeat = t.GetUserByUserId(t.BetUserNow).Seat        //
 	sendData.Handcoin = t.GetHandCoin()
 	sendData.Coin = t.GetRoomCoin()
 	*sendData.Pool = t.Jackpot
@@ -2044,6 +2050,7 @@ func (t *ThDesk) getUserBySeat(seatId int32) *ThUser {
 	return t.Users[seatId]
 }
 
+
 //这个加注
 func (t *ThDesk) Rebuy(userId uint32) error {
 
@@ -2082,6 +2089,86 @@ func (t *ThDesk) Rebuy(userId uint32) error {
 	}
 	user.WriteMsg(ret)
 	return nil
+}
+
+
+//用户放弃购买
+func (t *ThDesk) NotRebuy(userId uint32) error {
+	//分两种情况
+	if t.IsFriend() {
+		//朋友桌
+		t.FNotRebuy(userId)
+	} else if t.IsChampionship() {
+		//锦标赛
+		t.CSNotRebuy(userId)
+	}
+	return nil
+}
+
+func (t *ThDesk) FNotRebuy(userId uint32) {
+
+	//房主和非房主之间的处理方式是不同的
+	if t.IsOwner(userId) {
+		//是房主的处理方式
+
+		//1,房主易主
+
+
+	} else {
+		//不是房主的处理方式
+		//1,检测是否可以开始
+		if t.JuCountNow > 1 && t.IsAllReady() {
+			//用户离开之后,判断游戏是否开始
+			go t.Run()
+		}
+	}
+
+
+	//2,返回信息
+
+}
+
+func (t *ThDesk) ChangeOwner() error {
+
+	var ouId uint32 = 0
+	for i := 0; i < len(t.Users); i++ {
+		u := t.Users[i]
+		if u != nil && t.IsUserRoomCoinEnough(u) {
+			ouId = u.UserId
+			break
+		}
+	}
+
+	//没有找到合适房主的请求
+	if ouId == 0 {
+		return errors.New("没有找到合适的房主")
+	}
+
+	oldOwnerUserId := t.DeskOwner        //旧的房主
+	t.DeskOwner = ouId        //设置新的房主
+
+	result := bbproto.NewGame_SendChangeDeskOwner()
+	*result.DeskId = t.Id
+	*result.OldOwner = oldOwnerUserId
+	*result.OldOwnerSeat = t.GetUserByUserId(oldOwnerUserId).Seat
+
+	*result.NewOwner = t.DeskOwner
+	*result.NewOwnerSeat = t.GetUserByUserId(t.DeskOwner).Seat
+
+	//发送房主变更的广播
+	t.THBroadcastProtoAll(result)
+	return nil
+
+}
+
+
+//判断这个userId 是不是房主
+func (t *ThDesk) IsOwner(userId uint32) bool {
+	return t.DeskOwner == userId
+}
+
+func (t *ThDesk) CSNotRebuy(userId uint32) {
+
 }
 
 //押注的通用接口
@@ -2163,7 +2250,7 @@ func (t *ThDesk) DDFollowBet(user *ThUser) error {
 	*result.CanRaise = t.GetCanRise()                               //是否能加注
 	*result.MinRaise = t.GetMinRaise()
 	*result.Pool = t.Jackpot
-	*result.NextSeat = t.GetUserByUserId(t.BetUserNow).Seat //int32(t.GetUserIndex(t.BetUserNow))		//下一个押注的人
+	*result.NextSeat = t.GetUserByUserId(t.BetUserNow).Seat //		//下一个押注的人
 	*result.HandCoin = user.HandCoin
 
 	t.THBroadcastProtoAll(result)
@@ -2210,7 +2297,7 @@ func (t *ThDesk) DDFoldBet(user  *ThUser) error {
 	result.Tableid = &t.Id
 	*result.MinRaise = t.GetMinRaise()
 	*result.CanRaise = t.GetCanRise()                                //是否能加注
-	*result.NextSeat = t.GetUserByUserId(t.BetUserNow).Seat        //int32(t.GetUserIndex(t.BetUserNow))		//下一个押注的人
+	*result.NextSeat = t.GetUserByUserId(t.BetUserNow).Seat        //		//下一个押注的人
 
 	t.THBroadcastProto(result, 0)
 	return nil
@@ -2248,7 +2335,7 @@ func (t *ThDesk) DDRaiseBet(user *ThUser, coin int64) error {
 	result.Tableid = &t.Id
 	*result.CanRaise = t.GetCanRise()                //是否能加注
 	*result.MinRaise = t.GetMinRaise()
-	*result.NextSeat = t.GetUserByUserId(t.BetUserNow).Seat        //int32(t.GetUserIndex(t.BetUserNow))		//下一个押注的人
+	*result.NextSeat = t.GetUserByUserId(t.BetUserNow).Seat        //		//下一个押注的人
 	*result.HandCoin = user.HandCoin                        //表示需要加注多少
 
 	//给所有人广播信息
@@ -2300,7 +2387,7 @@ func (t *ThDesk) DDCheckBet(user *ThUser) error {
 	result.Tableid = &t.Id
 	*result.CanRaise = t.GetCanRise()                                //是否能加注
 	*result.MinRaise = t.GetMinRaise()                                //最低加注金额
-	*result.NextSeat = t.GetUserByUserId(t.BetUserNow).Seat        //int32(t.GetUserIndex(t.BetUserNow))		//下一个押注的人
+	*result.NextSeat = t.GetUserByUserId(t.BetUserNow).Seat        //		//下一个押注的人
 	*result.HandCoin = user.HandCoin
 
 	t.THBroadcastProtoAll(result)

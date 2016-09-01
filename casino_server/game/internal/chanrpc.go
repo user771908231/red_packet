@@ -7,8 +7,6 @@ import (
 	"casino_server/msg/bbprotogo"
 )
 
-
-
 func init() {
 	skeleton.RegisterChanRPC("NewAgent", rpcNewAgent)
 	skeleton.RegisterChanRPC("CloseAgent", rpcCloseAgent)
@@ -31,13 +29,13 @@ func rpcCloseAgent(args []interface{}) {
 	//,如果UserId是10006的话,连接断开的时候,desk 删除user
 	agentData := a.UserData()
 	if agentData == nil {
-		log.T("通过agent[%v]取出来的userData 是nil",a)
-	}else{
+		log.T("通过agent[%v]取出来的userData 是nil", a)
+	} else {
 		//用户数据还在,设置用户为掉线的状态
 		userData := agentData.(*bbproto.ThServerUserSession)
-		log.T("用户[%v]现在掉线了,现在设置用户为掉线的状态",userData.GetUserId())
+		log.T("用户[%v]现在掉线了,现在设置用户为掉线的状态", userData.GetUserId())
 		//desk := room.ThGameRoomIns.GetDeskByUserId(userData.GetUserId())
-		desk := room.GetDeskByIdAndMatchId(userData.GetDeskId(),userData.GetMatchId())
+		desk := room.GetDeskByIdAndMatchId(userData.GetDeskId(), userData.GetMatchId())
 		if desk != nil {
 			//这里一般不存在desk==nil的情况
 			desk.SetOfflineStatus(userData.GetUserId())
