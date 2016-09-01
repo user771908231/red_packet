@@ -35,16 +35,18 @@ func gameInfo(w http.ResponseWriter, r *http.Request) {
 			"最低加注额度:%v\n" +
 			"总游戏玩家:%v\n" +
 			"已经准备的玩家:%v\n" +
+			"getlotteryCheckFalseCount:%v \n" +
+			"RaiseUserId :%v \n" +
 			"------------------所有玩家的信息:\n"
-			fmt.Fprintf(w, deskInfo, desk.Id, desk.RoomKey, desk.DeskOwner, desk.GameType,desk.Dealer, desk.SmallBlind, desk.BigBlind,
+			fmt.Fprintf(w, deskInfo, desk.Id, desk.RoomKey, desk.DeskOwner, desk.GameType, desk.Dealer, desk.SmallBlind, desk.BigBlind,
 				desk.InitRoomCoin, desk.RoundCount, desk.JuCountNow, desk.JuCount, desk.Jackpot, desk.EdgeJackpot, desk.MinRaise,
-				desk.UserCount, desk.GetGameReadyCount())
+				desk.UserCount, desk.GetGameReadyCount(), desk.GetLotteryCheckFalseCount(), desk.RaiseUserId)
 
 			for j := 0; j < len(desk.Users); j++ {
 				u := desk.Users[j]
 				if u != nil {
-					userInfo := "当前desk[%v]的user[%v],seatId[%v],nickname[%v]的状态status[%v],HandCoin[%v],TurnCoin[%v],RoomCoin[%v],isBreak[%v],isLeave[%v]\n"
-					fmt.Fprintf(w, userInfo, desk.Id, u.UserId, u.Seat, u.NickName, u.Status, u.HandCoin, u.TurnCoin, u.RoomCoin, u.IsBreak, u.IsLeave)
+					userInfo := "当前desk[%v]的user[%v],seatId[%v],nickname[%v]的状态status[%v],HandCoin[%v],TurnCoin[%v],RoomCoin[%v],isBreak[%v],isLeave[%v],LotteryCheck[%v]\n"
+					fmt.Fprintf(w, userInfo, desk.Id, u.UserId, u.Seat, u.NickName, u.Status, u.HandCoin, u.TurnCoin, u.RoomCoin, u.IsBreak, u.IsLeave, u.LotteryCheck)
 				}
 			}
 			fmt.Fprint(w, "------------------所有玩家的信息打印完毕\n", desk.Id)
@@ -57,7 +59,7 @@ func gameInfo(w http.ResponseWriter, r *http.Request) {
 }
 
 func gameInfocs(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprint(w, "锦标赛房间【%v】的信息,matchId[%v],盲注等级[%v]:\n",room.ChampionshipRoom.MatchId,room.ChampionshipRoom.BlindLevel)
+	fmt.Fprint(w, "锦标赛房间【%v】的信息,matchId[%v],盲注等级[%v]:\n", room.ChampionshipRoom.MatchId, room.ChampionshipRoom.BlindLevel)
 	for i := 0; i < len(room.ChampionshipRoom.ThDeskBuf); i++ {
 		desk := room.ChampionshipRoom.ThDeskBuf[i]
 		if desk != nil {
@@ -78,9 +80,9 @@ func gameInfocs(w http.ResponseWriter, r *http.Request) {
 			"已经准备的玩家数量:%v\n" +
 			"正在出牌的玩家:%v\n" +
 			"------------------所有玩家的信息:\n"
-			fmt.Fprintf(w, deskInfo, desk.Id, desk.RoomKey, desk.DeskOwner, desk.GameType,desk.Dealer, desk.SmallBlind, desk.BigBlind,
+			fmt.Fprintf(w, deskInfo, desk.Id, desk.RoomKey, desk.DeskOwner, desk.GameType, desk.Dealer, desk.SmallBlind, desk.BigBlind,
 				desk.InitRoomCoin, desk.RoundCount, desk.JuCountNow, desk.JuCount, desk.Jackpot, desk.EdgeJackpot, desk.MinRaise,
-				desk.UserCount, desk.GetGameReadyCount(),desk.BetUserNow)
+				desk.UserCount, desk.GetGameReadyCount(), desk.BetUserNow)
 
 			for j := 0; j < len(desk.Users); j++ {
 				u := desk.Users[j]
