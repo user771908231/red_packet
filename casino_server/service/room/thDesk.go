@@ -74,7 +74,11 @@ var ThdeskConfig struct {
 	CreateFee                int64         //每多少局消耗多少砖石
 	TH_TIMEOUT_DURATION      time.Duration //德州出牌的超时时间
 	TH_TIMEOUT_DURATION_INT  int32         //德州出牌的超时时间
+
 	TH_LOTTERY_DURATION      time.Duration //开奖的时间
+
+	TH_DONGHUA_DURATION      time.Duration //动画的延时
+
 	TH_DESK_LEAST_START_USER int32         //每局开始的最低人数
 	TH_DESK_MAX_START_USER   int32         //桌子上最多坐多少人
 	TH_GAME_SMALL_BLIND      int64         //默认小盲注是多少
@@ -98,6 +102,7 @@ func InitDeskConfig() {
 	ThdeskConfig.TH_DESK_MAX_START_USER = 9
 
 	ThdeskConfig.TH_GAME_SMALL_BLIND = 10
+	ThdeskConfig.TH_DONGHUA_DURATION = time.Second * 1        //发牌之后的动画,延时2秒
 }
 
 
@@ -1664,6 +1669,7 @@ func (t *ThDesk) sendFlopCard() error {
 
 	//广播消息
 	t.THBroadcastProto(result, 0)
+	time.Sleep(ThdeskConfig.TH_DONGHUA_DURATION)
 	log.T("发送三张公共牌end")
 
 	return nil
@@ -1680,6 +1686,8 @@ func (t *ThDesk) sendTurnCard() error {
 	t.SendTurn = true
 
 	t.THBroadcastProto(result, 0)
+	time.Sleep(ThdeskConfig.TH_DONGHUA_DURATION)
+
 	log.T("发送第四张公共牌end")
 
 	return nil
@@ -1695,6 +1703,8 @@ func (t *ThDesk) sendRiverCard() error {
 	t.SendRive = true
 
 	t.THBroadcastProto(result, 0)
+	time.Sleep(ThdeskConfig.TH_DONGHUA_DURATION)
+
 	log.T("发送第五张公共牌end")
 
 	return nil
