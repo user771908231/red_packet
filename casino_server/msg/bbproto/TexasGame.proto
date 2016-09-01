@@ -18,7 +18,7 @@ message game_EnterMatch {
     optional bytes PassWord = 3; //密码(朋友桌新增)
     optional bytes sCFUserName = 4; //该渠道特有昵称（现在专指360）
     optional uint32 userId = 5; //请求的userId
-    optional int32  MatchIdInt = 6; //matchId int类型
+    optional int32 MatchIdInt = 6; //matchId int类型
 
 }
 
@@ -51,8 +51,8 @@ message game_InitCard {
     optional int32 ActionTime = 8;
     optional int32 DelayTime = 9;
 
-    optional int32 currPlayCount    = 10; //朋友桌:当前第几局
-    optional int32 totalPlayCount   = 11; //朋友桌:总共几局
+    optional int32 currPlayCount = 10; //朋友桌:当前第几局
+    optional int32 totalPlayCount = 11; //朋友桌:总共几局
 }
 
 message game_RaiseBet {
@@ -246,8 +246,8 @@ message game_ChangeTable {
 }
 
 enum RoomType {
-    RT_FRIENDDESK = 1;      //朋友桌
-    RT_TOUNAMENTMATCH = 2;  //锦标赛
+    RT_FRIENDDESK = 1; //朋友桌
+    RT_TOUNAMENTMATCH = 2; //锦标赛
 }
 
 //发送游戏信息
@@ -292,11 +292,11 @@ message game_SendGameInfo {
     optional int64 preCoin = 34; //前注的大小
     optional int64 smallBlind = 35; //小盲的大小
     optional int64 bigBlind = 36; //大盲的大小
-    optional int64 initRoomCoin = 37;   //房间的初始带入金额
-    optional int32 currPlayCount    = 38; //朋友桌:当前第几局
-    optional int32 totalPlayCount   = 39; //朋友桌:总共几局
-    repeated int32 bReady           = 40; //是否已准备
-    optional uint32 senderUserId     = 41; //发起请求的人
+    optional int64 initRoomCoin = 37; //房间的初始带入金额
+    optional int32 currPlayCount = 38; //朋友桌:当前第几局
+    optional int32 totalPlayCount = 39; //朋友桌:总共几局
+    repeated int32 bReady = 40; //是否已准备
+    optional uint32 senderUserId = 41; //发起请求的人
 
 }
 
@@ -1194,9 +1194,9 @@ message Game_AckLogin {
     optional int32 matchId = 3;
     optional int32 tableId = 4;
     optional string roomPassword = 5; //朋友桌房间密码
-    optional int64 costCreateRoom = 6;  //建房消耗钻石数
-    optional int64 costRebuy = 7;       //Rebuy消耗钻石数(锦标赛)
-    optional bool championship = 8;     //是否是锦标赛
+    optional int64 costCreateRoom = 6; //建房消耗钻石数
+    optional int64 costRebuy = 7; //Rebuy消耗钻石数(锦标赛)
+    optional bool championship = 8; //是否是锦标赛
     optional int64 chip = 9; //用户钻石余额
 }
 
@@ -1352,7 +1352,7 @@ message Game_TounamentBlindBean {
     optional string smallBlind = 2; //盲注
     optional string ante = 3; //前注
     optional string raiseTime = 4; //升盲时间
-    optional bool   canRebuy  = 5; //当前盲注级别是否可重购
+    optional bool canRebuy = 5; //当前盲注级别是否可重购
 }
 
 //盲注的信息
@@ -1395,7 +1395,7 @@ message Game_MatchItem {
     optional int32 status = 4; //比赛状态：1=进行中  2=已结束
     optional int64 costFee = 5; //参赛费用
     optional int32 person = 6; //在线人数
-    optional bool canInto  = 7  ;//是否可以进入游戏
+    optional bool canInto = 7; //是否可以进入游戏
     optional int32 matchId = 8; //锦标赛的场次
 }
 
@@ -1424,8 +1424,26 @@ message Game_AckRebuy {
     optional int64 currChip = 3; //rebuy成功后的筹码数
 }
 
+message Game_NotRebuy {
+    optional uint32 userId = 1;
+    optional int32 type = 2; //0:朋友桌  1:锦标赛
+}
+
+message Game_AckNotRebuy {
+    optional int32 result = 1; //0表示成功，非0表示失败
+}
+
+//反馈信息的协议
 message Game_Feedback {
     optional uint32 userId = 1;
     optional string message = 2; //用户提交的反馈内容
 }
 
+//房主信息改变的广播
+message Game_SendChangeDeskOwner {
+    optional int32 deskId = 1;
+    optional uint32 oldOwner = 2;
+    optional uint32 newOwner = 3;
+    optional int32 oldOwnerSeat = 4;
+    optional int32 newOwnerSeat = 5;
+}

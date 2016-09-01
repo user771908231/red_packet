@@ -253,7 +253,10 @@ It has these top-level messages:
 	Game_TounamentPlayerRank
 	Game_Rebuy
 	Game_AckRebuy
+	Game_NotRebuy
+	Game_AckNotRebuy
 	Game_Feedback
+	Game_SendChangeDeskOwner
 	ProtoHeader
 	TerminalInfo
 	User

@@ -67,6 +67,7 @@ type ThUser struct {
 	RoomCoin           int64                 //用户上分的金额
 	InitialRoomCoin    int64                 //进房间的时候,手上的roomCoin, 实现rebuy协议之后,需要增加这个字段的值
 	RebuyCount         int32                 //重购的次数
+	LotteryCheck       bool                  //这个字段用于判断是否可以开奖,默认是false:   1,如果用户操作弃牌,则直接设置为true,2,如果本局是all in,那么要到本轮次押注完成之后,才能设置为true
 }
 
 func (t *ThUser) GetCoin() int64 {
@@ -210,7 +211,7 @@ func (u *ThUser) UpdateAgentUserData() {
 
 //把用户数据保存到redis中
 func (u *ThUser) Update2redis() {
-	log.T("用户数据改变之后的值,需要保存在rendis中[%v]", *u)
+	//log.T("用户数据改变之后的值,需要保存在rendis中[%v]", *u)
 	UpdateRedisThuser(u)
 }
 
@@ -250,6 +251,18 @@ func (t *ThUser) IsBetting() bool {
 	//正在押注中 是否需要判断是否断线,是否离线?
 	return t.Status == TH_USER_STATUS_BETING
 }
+
+func (t *ThUser) IsAllIn() bool {
+	//正在押注中 是否需要判断是否断线,是否离线?
+	return t.Status == TH_USER_STATUS_ALLINING
+}
+
+func (t *ThUser) IsFold() bool {
+	//正在押注中 是否需要判断是否断线,是否离线?
+	return t.Status == TH_USER_STATUS_FOLDED
+}
+
+
 
 func (t *ThUser) IsClose() bool {
 	return t.Status == TH_USER_STATUS_CLOSED
