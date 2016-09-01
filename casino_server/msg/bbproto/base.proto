@@ -87,6 +87,12 @@ enum  EProtoId{
 	PID_GAME_LOGIN				=	73;		//游戏登录协议
 	PID_GAME_ACKLOGIN			=	74;		//游戏登录回复
 	PID_GAME_FEEDBACK			=	75;		//用户反馈
+
+	PID_GAME_NOTREBUY			=	76;		//不重购的协议
+	PID_GAME_ACKNOTREBUY		=	77;		//
+	PID_GAME_SENDCHANGEDESKOWNER=	78;		//房主信息更换的广播
+
+
 }
 
 
