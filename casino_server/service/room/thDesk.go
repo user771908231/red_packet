@@ -1505,16 +1505,10 @@ func (t *ThDesk) GetUserIndex(userId uint32) int {
 	return result
 }
 
-//通过UserId找到User
+//通过UserId找到User//默认返回第一个人
 func (t *ThDesk) GetUserByUserId(userId uint32) *ThUser {
-	for i := 0; i < len(t.Users); i++ {
-		u := t.Users[i]
-		if u != nil && u.UserId == userId {
-			return u
-		}
-	}
-
-	return nil
+	index := t.GetUserIndex(userId)
+	return t.Users[index]
 }
 
 // 用户加注,跟住,allin 之后对他的各种余额属性进行计算
