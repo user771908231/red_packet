@@ -169,6 +169,8 @@ func NewThServerUserSession() *ThServerUserSession {
 	result.GameType = new(int32)
 	result.GameStatus = new(int32)
 	result.RoomKey = new(string)
+	result.IsLeave = new(bool)
+	result.IsBreak = new(bool)
 	return result
 }
 
@@ -191,6 +193,44 @@ func NewThServerUser() *ThServerUser {
 	user.IsBreak = new(bool)
 	user.IsLeave = new(bool)
 	return user
+}
+
+func NewThServerAllInJack() *ThServerAllInJackpot {
+	ret := &ThServerAllInJackpot{}
+	ret.AllInAmount = new(int64)
+	ret.Jackpopt = new(int64)
+	ret.ThroundCount = new(int32)
+	ret.UserId = new(uint32)
+	return ret
+}
+
+func NewThServerDesk() *ThServerDesk {
+	result := &ThServerDesk{}
+	result.Id = new(int32)
+	result.DeskOwner = new(uint32)
+	result.RoomKey = new(string)
+	result.DeskType = new(int32)
+	result.InitRoomCoin = new(int64)
+	result.JuCount = new(int32)
+	result.SmallBlindCoin = new(int64)
+	result.BigBlindCoin = new(int64)
+	result.Dealer = new(uint32)
+	result.BigBlind = new(uint32)
+	result.SmallBlind = new(uint32)
+	result.RaiseUserId = new(uint32)
+	result.NewRoundFirstBetUser = new(uint32)
+	result.BetUserNow = new(uint32)
+	result.GameNumber = new(int32)
+	result.UserCount = new(int32)
+	result.UserCountOnline = new(int32)
+	result.Status = new(int32)
+	result.BetAmountNow = new(int64)
+	result.RoundCount = new(int32)
+	result.Jackpot = new(int64)
+	result.EdgeJackpot = new(int64)
+	result.MinRaise = new(int64)
+
+	return result
 }
 
 func NewGame_SendChangeDeskOwner() *Game_SendChangeDeskOwner {

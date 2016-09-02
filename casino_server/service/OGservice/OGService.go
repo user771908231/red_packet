@@ -109,7 +109,7 @@ func HandlerReady(m *bbproto.Game_Ready, a gate.Agent) error {
 	//1.1,所有人都准备好了,并且不是第一局的时候,才能开始游戏, 第一句必须要房主点击开始,才能开始
 	if desk.JuCountNow > 1 && desk.IsAllReady() {
 		//准备之后判断游戏是否开始
-		desk.Run()
+		go desk.Run()
 	}
 	return nil
 }
@@ -223,6 +223,7 @@ func HandlerGameEnterMatch(m *bbproto.Game_EnterMatch, a gate.Agent) error {
 		return err
 	}
 
+	//进入房间成功之后,发送房间当前的广播
 	mydesk.BroadGameInfo(userId)
 	return nil
 }

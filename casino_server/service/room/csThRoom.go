@@ -353,16 +353,23 @@ func (r *CSThGameRoom) AddUser(userId uint32, matchId int32, a gate.Agent) (*ThD
 		return nil, err
 	}
 
+	//更新room的信息
 	r.AddOnlineCount()        //在线用户增加1
 	r.AddrankUserCount()
 	r.AddGamingUserCount()    //游戏玩家数量+1
 	r.AddUserRankInfo(user.UserId, user.MatchId, user.RoomCoin)
-	r.AddCopyUser(user)        //用户列表总增加一个用户
+	r.AddCopyUser(user)       //用户列表总增加一个用户
 
+	//更新desk的信息
+	mydesk.Update2redis()          //把数据保存在redis中
 	mydesk.LogString()        //打印当前房间的信息
 	return mydesk, nil
 }
 
+//当桌子的信息有所改变的时候,需要调用这个方法把桌子的数据保存在redis中
+func (t *ThDesk) Update2redis() {
+	UpdateTedisThDesk(t)
+}
 
 //新建一个desk并且加入 到锦标赛的房间
 func (r *CSThGameRoom) NewThdeskAndSave() *ThDesk {

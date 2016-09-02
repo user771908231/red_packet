@@ -203,6 +203,8 @@ func (u *ThUser) UpdateAgentUserData() {
 	*userAgentData.MatchId = u.MatchId
 	*userAgentData.RoomKey = u.RoomKey
 	*userAgentData.GameStatus = u.GameStatus //返回用户当前的状态 0：未游戏  1：正在朋友桌  2：正在锦标赛
+	*userAgentData.IsBreak = u.IsBreak
+	*userAgentData.IsLeave = u.IsLeave
 	u.agent.SetUserData(userAgentData)        //设置用户的agentData
 
 	//回话信息保存到redis
@@ -261,8 +263,6 @@ func (t *ThUser) IsFold() bool {
 	//正在押注中 是否需要判断是否断线,是否离线?
 	return t.Status == TH_USER_STATUS_FOLDED
 }
-
-
 
 func (t *ThUser) IsClose() bool {
 	return t.Status == TH_USER_STATUS_CLOSED

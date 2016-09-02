@@ -42,7 +42,7 @@ func printDeskInfo(w http.ResponseWriter, desk *room.ThDesk) {
 		"sendFlop[%v]	,sendTurn[%v],	sendRive[%v]" +
 		"主奖池:%v  边池:%v 最低加注额度:%v\n" +
 		"总游戏玩家:%v 已经准备的玩家:%v getlotteryCheckFalseCount:%v \n" +
-		"RaiseUserId :%v \n" +
+		"RaiseUserId :%v  当前轮到谁出牌:BetUserNow[%v]\n" +
 		"------------------所有玩家的信息:\n"
 		fmt.Fprintf(w, deskInfo,
 			desk.Id, desk.RoomKey,
@@ -52,7 +52,7 @@ func printDeskInfo(w http.ResponseWriter, desk *room.ThDesk) {
 			desk.SendFlop, desk.SendTurn, desk.SendRive,
 			desk.Jackpot, desk.EdgeJackpot, desk.MinRaise,
 			desk.UserCount, desk.GetGameReadyCount(), desk.GetLotteryCheckFalseCount(),
-			desk.RaiseUserId)
+			desk.RaiseUserId,desk.BetUserNow)
 
 		for j := 0; j < len(desk.Users); j++ {
 			u := desk.Users[j]

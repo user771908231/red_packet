@@ -251,9 +251,9 @@ func (t *ThDesk) IsrepeatIntoWithRoomKey(userId uint32, a gate.Agent) bool {
 			//如果u!=nil 那么
 			log.T("用户[%v]断线重连", userId)
 			u.agent = a                                                //设置用户的连接
-			u.IsBreak = false                //设置用户的离线状态
+			u.IsBreak = false               //设置用户的离线状态
 			u.IsLeave = false
-			u.UpdateAgentUserData()
+			u.UpdateAgentUserData()         //更新回话信息
 			u.Update2redis()                //更新用户数据到redis
 			t.AddUserCountOnline()
 			return true
@@ -310,39 +310,6 @@ func (t *ThDesk) AddThUser(userId uint32, userStatus int32, a gate.Agent) (*ThUs
 }
 
 
-//对游戏中的user进行排序
-func (t *ThDesk) sortDDThuser() error {
-	usersTemp := make([]*ThUser, len(t.Users))
-	copy(usersTemp, t.Users)
-	log.T("原来的thsuers:[%v]", t.Users)
-
-
-	//初始化之前的用户为nil
-	for i := 0; i < len(t.Users); i++ {
-		t.Users[i] = nil
-	}
-
-	//排序游戏中的玩家
-	for i := 0; i < len(usersTemp); i++ {
-		u := usersTemp[i]
-		if u != nil && u.IsBetting() {
-			t.addThuserBean(u)
-		}
-	}
-
-	//排序没有在游戏中玩家
-	for i := 0; i < len(usersTemp); i++ {
-		u := usersTemp[i]
-		if u != nil && !u.IsBetting() {
-			t.addThuserBean(u)
-		}
-	}
-	log.T("排序之后的thusers【%v】", t.Users)
-	return nil
-
-}
-
-
 //增加一个user实体
 func (t *ThDesk) addThuserBean(user *ThUser) error {
 	for i := 0; i < len(t.Users); i++ {
@@ -392,8 +359,8 @@ func (t *ThDesk) IsAllReady() bool {
 	for i := 0; i < len(t.Users); i++ {
 		u := t.Users[i]
 		if u != nil {
-			//用户既没有掉线,也没有离开的情况下,如果没有准备,那么返回false
-			if !u.IsReady() && !u.IsLeave && !u.IsBreak {
+			//用户既没有掉线,也没有离开的情况下,并且钱是充足的情况下,如果没有准备,那么返回false
+			if !u.IsReady() && t.IsUserRoomCoinEnough(u) && !u.IsLeave && !u.IsBreak {
 				return false
 			}
 		}
@@ -434,7 +401,7 @@ func (t *ThDesk) LeaveThuser(userId uint32) error {
 	*ret.Result = intCons.ACK_RESULT_SUCC
 	user.WriteMsg(ret)
 
-	//离开之后,需要广播一次sendGameInfo
+	//离开之后,需要广播一次sendGameInfo,这里人还没有真正的离开
 	t.BroadGameInfo(userId)
 	return nil
 }
@@ -446,6 +413,7 @@ func (t *ThDesk) SetOfflineStatus(userId uint32) error {
 	//1,设置状态为断线
 	//这里需要保存掉线钱的状态
 	u.IsBreak = true        //设置为掉线的状态
+	u.UpdateAgentUserData()
 	t.SubUserCountOnline()
 	return nil
 }
@@ -512,6 +480,9 @@ func (t *ThDesk) InitBlindBet() error {
 func (t *ThDesk) InitUserBeginStatus() error {
 	log.T("开始一局新的游戏,开始初始化用户的状态")
 
+	//清空状态leave 的玩家
+	t.RmLeaveUser()
+
 	for i := 0; i < len(t.Users); i++ {
 		u := t.Users[i]
 		//判断用户是否为空
@@ -546,10 +517,53 @@ func (t *ThDesk) InitUserBeginStatus() error {
 	}
 
 	//------------------------------------由于联众前端设计的问题...这里的user需要重新排列user的顺序------------------------------------
-	t.sortDDThuser()
 
 	log.T("开始一局新的游戏,初始化用户的状态完毕")
 	return nil
+}
+
+//清除离开房间的人
+func (t *ThDesk) RmLeaveUser() {
+	//清空状态为离开的玩家
+	for i := 0; i < len(t.Users); i++ {
+		u := t.Users[i]
+		if u != nil &&u.IsLeave {
+			t.Users[i] = nil
+		}
+	}
+
+	//重新对玩家进行赋值
+	usersTemp := make([]*ThUser, len(t.Users))
+	copy(usersTemp, t.Users)
+	log.T("原来的thsuers:[%v]", t.Users)
+
+	//初始化之前的用户为nil
+	for i := 0; i < len(t.Users); i++ {
+		t.Users[i] = nil
+	}
+
+	//排序游戏中的玩家
+	for i := 0; i < len(usersTemp); i++ {
+		u := usersTemp[i]
+		if u != nil {
+			t.addThuserBean(u)
+		}
+	}
+
+	//重新设置座位号
+	for i := 0; i < len(t.Users); i++ {
+		u := t.Users[i]
+		if u != nil {
+			u.Seat = int32(i)
+			u.Update2redis()        //把用户信息保存到redis
+		}
+	}
+
+	//发送gameInfo的信息
+	t.BroadGameInfo(0)
+	time.Sleep(time.Second * 1)        //1秒时候发送其他的信息
+
+	log.T("排序之后的thusers【%v】", t.Users)
 }
 
 /**
@@ -2013,6 +2027,8 @@ func (t *ThDesk) clearAgentData(ignoreUserId uint32) {
 		if u != nil && u.UserId != ignoreUserId {
 			u.deskId = 0
 			u.MatchId = 0
+			u.RoomKey = ""
+			u.GameStatus = TH_USER_GAME_STATUS_NOGAME
 			u.UpdateAgentUserData()
 		}
 	}
@@ -2411,4 +2427,22 @@ func (t *ThDesk) AddedgeJackpot(coin int64) {
 	atomic.AddInt64(&t.EdgeJackpot, coin)
 }
 
+
+
+//把程序的allin 转化为proto的格式
+func (t *ThDesk) GetServerProtoAllInJackPot() []*bbproto.ThServerAllInJackpot {
+	var result []*bbproto.ThServerAllInJackpot
+	for i := 0; i < len(t.AllInJackpot); i++ {
+		a := t.AllInJackpot[i]
+		if a != nil {
+			sa := bbproto.NewThServerAllInJack()
+			*sa.UserId = a.UserId
+			*sa.AllInAmount = a.AllInAmount
+			*sa.Jackpopt = a.Jackpopt
+			*sa.ThroundCount = a.ThroundCount
+			result = append(result, sa)
+		}
+	}
+	return result
+}
 

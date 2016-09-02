@@ -104,7 +104,7 @@ func (r *ThGameRoom) CreateDeskByUserIdAndRoomKey(userId uint32, roomCoin int64,
 	desk.JuCount = jucount
 	desk.GetRoomCoin()
 	desk.GameType = intCons.GAME_TYPE_TH        //表示是自定义的房间
-	desk.PreCoin = preCoin				//前注的信息
+	desk.PreCoin = preCoin                                //前注的信息
 	desk.RebuyCountLimit = r.RebuyCountLimit        //加注的限制
 	r.AddThDesk(desk)
 
@@ -153,8 +153,8 @@ func (r *ThGameRoom) DissolveDeskByDeskOwner(userId uint32, a gate.Agent) error 
 
 	//1,找到桌子
 	desk := GetDeskByAgent(a)
-
 	if desk == nil {
+		log.E("解散房间失败,房间已经解散了,不需要再次解散")
 		return errors.New("房间已经解散了")
 	}
 
