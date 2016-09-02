@@ -340,7 +340,7 @@ func (r *CSThGameRoom) AddUser(userId uint32, matchId int32, a gate.Agent) (*ThD
 	}
 
 	//2,找到可以进入游戏的桌子
-	mydesk = r.GetAbleintoDesk()        //找到可以进入的桌子,如果没有找到合适的desk,则新生成一个并且返回
+	mydesk = r.GetAbleIntoDesk()        //找到可以进入的桌子,如果没有找到合适的desk,则新生成一个并且返回
 	if mydesk == nil {
 		//如果没有找到合适的桌子,那么新生成一个并且返回
 		mydesk = r.NewThdeskAndSave()
@@ -383,7 +383,7 @@ func (r *CSThGameRoom) NewThdeskAndSave() *ThDesk {
 	return mydesk
 }
 
-func (r *CSThGameRoom) GetAbleintoDesk() *ThDesk {
+func (r *CSThGameRoom) GetAbleIntoDesk() *ThDesk {
 	var mydesk *ThDesk = nil
 	//2,查询哪个德州的房间缺人:循环每个德州的房间,然后查询哪个房间缺人
 	for deskIndex := 0; deskIndex < len(r.ThDeskBuf); deskIndex++ {

@@ -133,7 +133,6 @@ func UpdateTedisThDesk(t *ThDesk) error {
 	*rt.BetUserNow = t.BetUserNow
 	*rt.GameNumber = t.GameNumber
 	*rt.UserCount = t.UserCount
-	*rt.UserCountOnline = t.UserCountOnline
 	*rt.Status = t.Status
 	*rt.BetAmountNow = t.BetAmountNow
 	*rt.RoundCount = t.RoundCount

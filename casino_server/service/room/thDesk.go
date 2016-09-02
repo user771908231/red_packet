@@ -140,7 +140,6 @@ type ThDesk struct {
 	Users                []*ThUser                    //坐下的人
 	PublicPai            []*bbproto.Pai               //公共牌的部分
 	UserCount            int32                        //玩游戏的总人数
-	UserCountOnline      int32                        //在线的人数
 	Status               int32                        //牌桌的状态
 	CStatus              int32                        //竞标赛的状态
 	BetAmountNow         int64                        //当前的押注金额是多少
@@ -162,7 +161,6 @@ func NewThDesk() *ThDesk {
 	result := new(ThDesk)
 	result.Id = newThDeskId()
 	result.UserCount = 0
-	result.UserCountOnline = 0
 	result.Dealer = 0                //不需要创建  默认就是为空
 	result.Status = TH_DESK_STATUS_STOP
 	result.BetUserNow = 0
@@ -221,7 +219,6 @@ func (t *ThDesk) LogString() {
 	log.T("当前desk[%v]的信息的状态,MinRaise[%v]", t.Id, t.MinRaise)
 	log.T("当前desk[%v]的信息的状态,BetUserNow[%v]", t.Id, t.BetUserNow)
 	log.T("当前desk[%v]的信息的状态,GameNumber[%v]", t.Id, t.GameNumber)
-	log.T("当前desk[%v]的信息的状态,总人数SeatedCount[%v],在线人数[%v]", t.Id, t.UserCount, t.UserCountOnline)
 	log.T("当前desk[%v]的信息的状态,压注人[%v]", t.Id, t.BetUserNow)
 	log.T("当前desk[%v]的信息的状态,压注轮次[%v]", t.Id, t.RoundCount)
 	log.T("当前desk[%v]的信息的状态,NewRoundFirstBetUser[%v]", t.Id, t.NewRoundFirstBetUser)
@@ -255,7 +252,6 @@ func (t *ThDesk) IsrepeatIntoWithRoomKey(userId uint32, a gate.Agent) bool {
 			u.IsLeave = false
 			u.UpdateAgentUserData()         //更新回话信息
 			u.Update2redis()                //更新用户数据到redis
-			t.AddUserCountOnline()
 			return true
 		}
 	}
@@ -305,7 +301,6 @@ func (t *ThDesk) AddThUser(userId uint32, userStatus int32, a gate.Agent) (*ThUs
 
 	//5,等待的用户加1
 	t.AddUserCount()
-	t.AddUserCountOnline()
 	return thUser, nil
 }
 
@@ -378,9 +373,6 @@ func (t *ThDesk) LeaveThuser(userId uint32) error {
 	user.GameStatus = TH_USER_GAME_STATUS_NOGAME        //用户离开之后,设置用户的游戏状态为没有游戏中
 	user.UpdateAgentUserData()
 
-	//离开之后设置桌子在线人数-1
-	t.SubUserCountOnline()        //leaveDesk之后,房间的在线人数减一
-
 	//2,根据不同的游戏类型做不同的处理
 	if t.IsFriend() {
 		//自定义房间,如果其他人都准备了,那么开始游戏,离开房间和准备的处理是一样的
@@ -414,7 +406,6 @@ func (t *ThDesk) SetOfflineStatus(userId uint32) error {
 	//这里需要保存掉线钱的状态
 	u.IsBreak = true        //设置为掉线的状态
 	u.UpdateAgentUserData()
-	t.SubUserCountOnline()
 	return nil
 }
 
@@ -504,6 +495,7 @@ func (t *ThDesk) InitUserBeginStatus() error {
 		if !t.IsUserRoomCoinEnough(u) {
 			log.T("由于用户[%v] status[%v],的roomCoin[%v] <= desk.BigBlindCoin 所以设置用户为TH_USER_STATUS_WAITSEAT", u.UserId, u.IsBreak, u.RoomCoin, t.BigBlindCoin)
 			u.Status = TH_USER_STATUS_WAITSEAT        //只是坐下,没有游戏中
+			u.LotteryCheck = true                          //计算是否开奖的时候需要用到
 			continue
 		}
 
@@ -780,7 +772,7 @@ func (t *ThDesk) OninitThDeskBeginStatus() error {
 	//设置大盲注
 	for i := dealerIndex; i < len(userTemp) + dealerIndex; i++ {
 		u := userTemp[(i + 1) % len(userTemp)]
-		if u != nil && u.Status == TH_USER_STATUS_BETING {
+		if u != nil && u.IsBetting() {
 			t.BigBlind = u.UserId
 			userTemp[(i + 1) % len(userTemp)] = nil
 			break
@@ -791,7 +783,7 @@ func (t *ThDesk) OninitThDeskBeginStatus() error {
 		设置第一个押注的人
 	 */
 
-	if t.UserCountOnline == int32(2) {
+	if t.GetBettingUserCount() == int32(2) {
 		//如果只有两个人,当前押注的人是小盲注
 		log.T("由于当前游戏中的t.userCountOnline==2,所以设置betUserNow 是盲注", )
 		t.BetUserNow = t.SmallBlind
@@ -799,7 +791,7 @@ func (t *ThDesk) OninitThDeskBeginStatus() error {
 		//设置当前押注的人
 		for i := dealerIndex; i < len(userTemp) + dealerIndex; i++ {
 			u := userTemp[(i + 1) % len(userTemp)]
-			if u != nil && u.Status == TH_USER_STATUS_BETING {
+			if u != nil && u.IsBetting() {
 				t.BetUserNow = u.UserId
 				userTemp[(i + 1) % len(userTemp)] = nil
 				break
@@ -830,6 +822,18 @@ func (t *ThDesk) OninitThDeskBeginStatus() error {
 	t.LogString()
 	log.T("开始一局游戏,现在初始化desk的信息完毕...")
 	return nil
+}
+
+func (t *ThDesk) GetBettingUserCount() int32 {
+	var count int32 = 0
+	for i := 0; i < len(t.Users); i++ {
+		u := t.Users[i]
+		if u != nil && u.IsBetting() {
+			count ++
+		}
+	}
+
+	return count
 }
 
 //判断是不是朋友桌
@@ -1203,6 +1207,7 @@ func (t *ThDesk) afterLottery() error {
 				} else {
 					//如果是锦标赛的房间,用户的钱不够
 					u.Status = TH_USER_STATUS_SEATED
+					ChampionshipRoom.SubGamingUserCount()        //用户钱不够的时候,设置喂gamingUserCount -1 ,当用户rebuy的时候,设置为+1
 				}
 			}
 		}
@@ -1575,7 +1580,7 @@ func (t *ThDesk) NextBetUser() error {
 		}
 	}
 
-	log.T("判断是否是下一轮,计算出来的t.BetUserNow[%v],t.BetUserRaiseUserId[%v],t.NextNewRoundBetUser[%v]", t.BetUserNow, t.RaiseUserId, t.NewRoundFirstBetUser)
+	log.T("判断是否是下一轮,计算出来的t.BetUserNow[%v],t.RaiseUserId[%v],t.NextNewRoundBetUser[%v]", t.BetUserNow, t.RaiseUserId, t.NewRoundFirstBetUser)
 	//设置新一轮
 	if t.BetUserNow == 0 || t.RaiseUserId == t.BetUserNow {
 		//处理allin 奖金池分割的问题
@@ -1660,7 +1665,7 @@ func (t *ThDesk) nextRoundInfo() {
 //判断是否是新的一局
 func (t *ThDesk) isNewRound() bool {
 	//
-	log.T("判断是否是新的一轮t.BetUserRaiseUserId[%v],t.BetUserNow(%v),t.status[%v].//status:1,stop,2,start,3,lottery", t.RaiseUserId, t.BetUserNow, t.Status)
+	log.T("判断是否是新的一轮t.BetUserRaiseUserId[%v],t.BetUserNow(%v),t.status[%v].", t.RaiseUserId, t.BetUserNow, t.Status)
 	if t.RaiseUserId == t.BetUserNow &&  t.Status == TH_DESK_STATUS_RUN {
 		log.T("t.BetUserRaiseUserId[%v] == t.BetUserNow[%v],新的一局开始", t.RaiseUserId, t.BetUserNow)
 		return true
@@ -2087,7 +2092,7 @@ func (t *ThDesk) Rebuy(userId uint32) error {
 		user.WriteMsg(ret)
 		return err
 	}
-	//3,返回交易结果
+	//3,更新状态,并且返回交易结果
 
 	*ret.Result = intCons.ACK_RESULT_SUCC                        //错误码
 	*ret.CurrChip = user.RoomCoin
@@ -2096,6 +2101,7 @@ func (t *ThDesk) Rebuy(userId uint32) error {
 		*ret.RemainCount = -1
 	} else if t.IsChampionship() {
 		*ret.RemainCount = t.RebuyCountLimit - user.RebuyCount
+		ChampionshipRoom.AddGamingUserCount()                        //重购之后,设置gameCount 的数量+1
 	}
 	user.WriteMsg(ret)
 	return nil
@@ -2403,14 +2409,6 @@ func (t *ThDesk) DDCheckBet(user *ThUser) error {
 	return nil
 }
 
-func (t *ThDesk) AddUserCountOnline() {
-	atomic.AddInt32(&t.UserCountOnline, 1)
-}
-
-func (t *ThDesk) SubUserCountOnline() {
-	atomic.AddInt32(&t.UserCountOnline, -1)
-}
-
 func (t *ThDesk) AddUserCount() {
 	atomic.AddInt32(&t.UserCount, 1)
 }
@@ -2426,7 +2424,6 @@ func (t *ThDesk) AddJackpot(coin int64) {
 func (t *ThDesk) AddedgeJackpot(coin int64) {
 	atomic.AddInt64(&t.EdgeJackpot, coin)
 }
-
 
 
 //把程序的allin 转化为proto的格式
