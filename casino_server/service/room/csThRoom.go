@@ -360,11 +360,29 @@ func (r *CSThGameRoom) AddUser(userId uint32, matchId int32, a gate.Agent) (*ThD
 	r.AddUserRankInfo(user.UserId, user.MatchId, user.RoomCoin)
 	r.AddCopyUser(user)       //用户列表总增加一个用户
 
-	//更新desk的信息
-	mydesk.Update2redis()          //把数据保存在redis中
 	mydesk.LogString()        //打印当前房间的信息
 	return mydesk, nil
 }
+
+//desk和user
+func (t *ThDesk) UpdateThdeskAndAllUser2redis() error {
+	for i := 0; i < len(t.Users); i++ {
+		u := t.Users[i]
+		if u != nil {
+			u.Update2redis()
+		}
+	}
+	t.Update2redis()
+	return nil
+}
+
+//把desk的信息和指定的user备份到redis
+func (t *ThDesk) UpdateThdeskAndSignleUser2redis(user  *ThUser) error {
+	user.Update2redis()
+	t.Update2redis()
+	return nil
+}
+
 
 //当桌子的信息有所改变的时候,需要调用这个方法把桌子的数据保存在redis中
 func (t *ThDesk) Update2redis() {

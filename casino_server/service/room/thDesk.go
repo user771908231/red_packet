@@ -251,7 +251,6 @@ func (t *ThDesk) IsrepeatIntoWithRoomKey(userId uint32, a gate.Agent) bool {
 			u.IsBreak = false               //设置用户的离线状态
 			u.IsLeave = false
 			u.UpdateAgentUserData()         //更新回话信息
-			u.Update2redis()                //更新用户数据到redis
 			return true
 		}
 	}
@@ -297,7 +296,6 @@ func (t *ThDesk) AddThUser(userId uint32, userStatus int32, a gate.Agent) (*ThUs
 
 	//4, 把用户的信息绑定到agent上
 	thUser.UpdateAgentUserData()
-	thUser.Update2redis()
 
 	//5,等待的用户加1
 	t.AddUserCount()
@@ -504,8 +502,6 @@ func (t *ThDesk) InitUserBeginStatus() error {
 			log.T("由于用户[%v]的status[%v]BreakStatus[%v],所以设置状态为TH_USER_STATUS_BETING", u.UserId, u.Status, u.IsBreak)
 			u.Status = TH_USER_STATUS_BETING
 		}
-
-		u.Update2redis()
 	}
 
 	//------------------------------------由于联众前端设计的问题...这里的user需要重新排列user的顺序------------------------------------
@@ -547,7 +543,6 @@ func (t *ThDesk) RmLeaveUser() {
 		u := t.Users[i]
 		if u != nil {
 			u.Seat = int32(i)
-			u.Update2redis()        //把用户信息保存到redis
 		}
 	}
 
@@ -1071,7 +1066,6 @@ func (t *ThDesk) calcUserWinAmount() error {
 					u.AddWinAmount(bonus)
 					u.AddRoomCoin(bonus)
 					u.winAmountDetail = append(u.winAmountDetail, bonus)
-					u.Update2redis()        //把数据保存到redis中
 				}
 
 				//如果用户是这个奖金池all in的用户,则此用户设置喂已经结清的状态
@@ -1099,7 +1093,6 @@ func (t *ThDesk) calcUserWinAmount() error {
 				u.AddWinAmount(bbonus)
 				u.AddRoomCoin(bbonus)
 				u.winAmountDetail = append(u.winAmountDetail, bbonus)        //详细的奖励(边池主池分开)
-				u.Update2redis()
 			}
 
 			//设置为结算完了的状态
@@ -1212,6 +1205,10 @@ func (t *ThDesk) afterLottery() error {
 			}
 		}
 	}
+
+
+	log.T("lottery 之后保存用户和desk的数据到redis")
+	t.UpdateThdeskAndAllUser2redis()
 
 	return nil
 }
@@ -1539,7 +1536,6 @@ func (t *ThDesk) calcPreCoin(userId uint32, coin int64) error {
 	user.AddTotalBet4calcAllin(coin)
 	user.AddTotalBet(coin)
 	user.AddRoomCoin(-coin)
-	user.Update2redis()                //用户信息更新之后,保存到数据库
 	t.AddJackpot(coin)                   //底池 增加
 	t.AddedgeJackpot(coin)
 	return nil
@@ -1556,7 +1552,6 @@ func (t *ThDesk) calcBetCoin(userId uint32, coin int64) error {
 	user.AddTotalBet4calcAllin(coin)
 	user.AddTotalBet(coin)
 	user.AddRoomCoin(-coin)
-	user.Update2redis()                //用户信息更新之后,保存到数据库
 	t.AddJackpot(coin)                   //底池 增加,
 	t.AddedgeJackpot(coin)
 	return nil
@@ -1894,7 +1889,6 @@ func (mydesk *ThDesk) Run() error {
 		return err
 	}
 
-
 	//3,初始化游戏房间的状态
 	err = mydesk.OninitThDeskBeginStatus()
 	if err != nil {
@@ -1922,6 +1916,10 @@ func (mydesk *ThDesk) Run() error {
 		log.E("开始德州扑克游戏,初始化扑克牌的时候出错")
 		return err
 	}
+
+
+	//7,保存用户和desk的信息到redis
+	mydesk.UpdateThdeskAndAllUser2redis()
 
 	log.T("\n\n开始一局新的游戏,初始化完毕\n\n")
 	return nil
@@ -2073,7 +2071,7 @@ func (t *ThDesk) Rebuy(userId uint32) error {
 	user := t.GetUserByUserId(userId)        //要操作的用户
 	//1,为用户增加金额
 	user.AddRoomCoin(t.InitRoomCoin)
-	user.Update2redis()
+	user.Update2redis()			 //rebuy需要更新redis中的缓存
 
 	//得到需要扣除的砖石
 	var feeDiamond int64 = -1
@@ -2224,9 +2222,11 @@ func (t *ThDesk) DDBet(seatId int32, betType int32, coin int64) error {
 	} else {
 		//用户开始等待,如果超时,需要做超时的处理
 		t.GetUserByUserId(t.BetUserNow).wait()                //当前押注的人开始等待
+
+		//保存用户和desk的数据到redis
+		t.UpdateThdeskAndSignleUser2redis(user)
 		return nil
-	}                //开奖
-	return nil
+	}
 }
 
 

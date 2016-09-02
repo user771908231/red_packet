@@ -225,8 +225,12 @@ func HandlerGameEnterMatch(m *bbproto.Game_EnterMatch, a gate.Agent) error {
 
 	//进入房间成功之后,发送房间当前的广播
 	mydesk.BroadGameInfo(userId)
+
+	//保存信息
+
 	return nil
 }
+
 
 //处理bbproto.Game_login
 func HandlerGameLogin(userId uint32, a gate.Agent) {
