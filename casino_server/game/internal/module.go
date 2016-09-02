@@ -17,7 +17,7 @@ import (
  */
 var (
 	skeleton = base.NewSkeleton()
-	ChanRPC  = skeleton.ChanRPCServer
+	ChanRPC = skeleton.ChanRPCServer
 )
 
 type Module struct {
@@ -30,6 +30,8 @@ func (m *Module) OnInit() {
 	//开始锦标赛的游戏
 	room.ChampionshipRoom.Begin()
 
+	//thgamero
+	//room.ThGameRoomIns.Recovery()	//恢复上一场的游戏数据
 
 }
 

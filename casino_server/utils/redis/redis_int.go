@@ -40,7 +40,7 @@ type Data struct {
 
 func (t *Data) Open(table string) error {
 	var err error
-	t.conn, err = redis.DialTimeout("tcp", Redis_svr, 3*time.Second, 10*time.Second, 10*time.Second) //timeout=10s
+	t.conn, err = redis.DialTimeout("tcp", Redis_svr, 3 * time.Second, 10 * time.Second, 10 * time.Second) //timeout=10s
 
 	if err != nil {
 		log.Error("ERR: redis Open(table:%v) ret err:%v t.conn:%v", table, err, t.conn)
@@ -198,36 +198,34 @@ func (t *Data) SetUInt(key string, value uint32) error {
 	return nil
 }
 
-func (t *Data) SetObj(key string,pb proto.Message) error{
-	d,err :=proto.Marshal(pb)
+func (t *Data) SetObj(key string, pb proto.Message) error {
+	d, err := proto.Marshal(pb)
 	if err != nil {
 		return err
 	}
-	return t.Set(key,d)
+	return t.Set(key, d)
 }
 
-func (t *Data) GetObj(key string,pb proto.Message) error{
-	d,err := t.Gets(key)
+func (t *Data) GetObj(key string, pb proto.Message) error {
+	d, err := t.Gets(key)
 	if err != nil {
 		return err
 	}
-	return proto.Unmarshal(d,pb)
+	return proto.Unmarshal(d, pb)
 }
 
-
-func (t *Data) GetObjv2(key string,pb proto.Message) proto.Message{
-	d,err := t.Gets(key)
+func (t *Data) GetObjv2(key string, pb proto.Message) proto.Message {
+	d, err := t.Gets(key)
 	if err != nil {
 		return nil
 	}
 	if d == nil {
 		return nil
-	}else{
-		proto.Unmarshal(d,pb)
+	} else {
+		proto.Unmarshal(d, pb)
 		return pb
 	}
 }
-
 
 func (t *Data) Del(key string) error {
 	if t.conn != nil {
@@ -287,6 +285,12 @@ func (t *Data) LPush(key string, value []byte) (err error) {
 	return err
 }
 
+func (t *Data) LPushString(key string, value string) (err error) {
+	_, err = t.conn.Do("LPUSH", key, value)
+
+	return err
+}
+
 func (t *Data) LPushInt(key string, value int32) (err error) {
 	_, err = t.conn.Do("LPUSH", key, value)
 
@@ -294,7 +298,11 @@ func (t *Data) LPushInt(key string, value int32) (err error) {
 }
 
 func (t *Data) LRem(key string, removeValue []byte) (err error) {
+	_, err = redis.Values(t.conn.Do("LREM", 0, removeValue))
+	return err
+}
 
+func (t *Data) LREM(key string, removeValue string) (err error) {
 	_, err = redis.Values(t.conn.Do("LREM", 0, removeValue))
 	return err
 }
@@ -374,7 +382,11 @@ func (t *Data) ZRemRangeByRank(key string, start, stop int) (err error) {
 	return err
 }
 
-func (t *Data) ZREVRANK(key string,mem string)(interface{},error){
-	values,err := t.conn.Do("ZREVRANK",key,mem)
-	return values,err
+func (t *Data) ZREVRANK(key string, mem string) (interface{}, error) {
+	values, err := t.conn.Do("ZREVRANK", key, mem)
+	return values, err
 }
+
+
+
+

@@ -98,6 +98,10 @@ func getRedisThDeskKey(deskId int32, gameNumber int32) string {
 //通过桌子id,游戏编号,用户id来唯一确定一个thuser
 func GetRedisThDesk(deskId int32, gameNumber int32) *bbproto.ThServerDesk {
 	key := getRedisThDeskKey(deskId, gameNumber)
+	return GetRedisThDeskByKey(key)
+}
+
+func GetRedisThDeskByKey(key string) *bbproto.ThServerDesk {
 	p := redisUtils.GetObj(key, &bbproto.ThServerDesk{})
 	if p == nil {
 		log.E("获取用户数据失败with key [%v]", key)
@@ -105,7 +109,10 @@ func GetRedisThDesk(deskId int32, gameNumber int32) *bbproto.ThServerDesk {
 	} else {
 		return p.(*bbproto.ThServerDesk)
 	}
+}
 
+func RedisDeskTransThdesk(rt *bbproto.ThServerDesk) *ThDesk {
+	return nil
 }
 
 
@@ -157,3 +164,55 @@ func saveRedisThDesk(t *bbproto.ThServerDesk) error {
 	return nil
 }
 
+var RUNNING_DESKS = "running_desk_keys"
+//这里保存正在游戏中的thdesk
+func AddRunningDesk(t *ThDesk) {
+	tk := getRedisThDeskKey(t.Id, t.GameNumber)
+	var keys *bbproto.RUNNING_DESKKEYS
+	data := redisUtils.GetObj(RUNNING_DESKS, &bbproto.RUNNING_DESKKEYS{})
+	if data == nil {
+		keys = bbproto.NewRUNNING_DESKKEYS()
+	} else {
+		keys = data.(*bbproto.RUNNING_DESKKEYS)
+	}
+
+	for _, key := range keys.Desks {
+		if key == tk {
+			return
+		}
+	}
+
+	keys.Desks = append(keys.Desks, tk)
+	redisUtils.SaveObj(RUNNING_DESKS, keys)
+}
+
+func RmRunningDesk(t *ThDesk) {
+	index := -1
+	tk := getRedisThDeskKey(t.Id, t.GameNumber)
+	var keys *bbproto.RUNNING_DESKKEYS
+	data := redisUtils.GetObj(RUNNING_DESKS, &bbproto.RUNNING_DESKKEYS{})
+	if data != nil {
+		keys = bbproto.NewRUNNING_DESKKEYS()
+		for i, key := range keys.Desks {
+			if key == tk {
+				index = i
+				break
+			}
+		}
+	}
+	//删除
+	keys.Desks = append(keys.Desks[:index], keys.Desks[index + 1:]...)
+	redisUtils.SaveObj(RUNNING_DESKS, keys)
+
+}
+
+func GetRunningDesk() *bbproto.RUNNING_DESKKEYS {
+	var keys *bbproto.RUNNING_DESKKEYS
+	data := redisUtils.GetObj(RUNNING_DESKS, &bbproto.RUNNING_DESKKEYS{})
+	if data != nil {
+		keys = bbproto.NewRUNNING_DESKKEYS()
+		return keys
+	} else {
+		return nil
+	}
+}

@@ -272,6 +272,7 @@ It has these top-level messages:
 	ThServerAllInJackpot
 	ThServerDesk
 	CsThRankInfo
+	RUNNING_DESKKEYS
 	Shuiguoji
 	ShuiguojiHilomp
 	ShuiguojiRes

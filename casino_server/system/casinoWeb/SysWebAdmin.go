@@ -52,7 +52,7 @@ func printDeskInfo(w http.ResponseWriter, desk *room.ThDesk) {
 			desk.SendFlop, desk.SendTurn, desk.SendRive,
 			desk.Jackpot, desk.EdgeJackpot, desk.MinRaise,
 			desk.UserCount, desk.GetGameReadyCount(), desk.GetLotteryCheckFalseCount(),
-			desk.RaiseUserId,desk.BetUserNow)
+			desk.RaiseUserId, desk.BetUserNow)
 
 		for j := 0; j < len(desk.Users); j++ {
 			u := desk.Users[j]

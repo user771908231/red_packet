@@ -806,7 +806,7 @@ func (t *ThDesk) OninitThDeskBeginStatus() error {
 	t.SendFlop = false        //是否已经发了三张底牌
 	t.SendTurn = false        //是否已经发了第四张牌
 	t.SendRive = false        //是否已经发了第五张牌
-
+	t.GameNumber,_ = db.GetNextSeq(casinoConf.DBT_T_CS_TH_DESK_RECORD)
 
 	if t.IsChampionship() {
 		t.CStatus = CSTH_DESK_STATUS_RUN
@@ -1205,7 +1205,6 @@ func (t *ThDesk) afterLottery() error {
 			}
 		}
 	}
-
 
 	log.T("lottery 之后保存用户和desk的数据到redis")
 	t.UpdateThdeskAndAllUser2redis()
@@ -1921,6 +1920,9 @@ func (mydesk *ThDesk) Run() error {
 	//7,保存用户和desk的信息到redis
 	mydesk.UpdateThdeskAndAllUser2redis()
 
+	//8,初始化玩比之后,redis中放置一份运行中的
+	AddRunningDesk(mydesk)
+
 	log.T("\n\n开始一局新的游戏,初始化完毕\n\n")
 	return nil
 }
@@ -2071,7 +2073,7 @@ func (t *ThDesk) Rebuy(userId uint32) error {
 	user := t.GetUserByUserId(userId)        //要操作的用户
 	//1,为用户增加金额
 	user.AddRoomCoin(t.InitRoomCoin)
-	user.Update2redis()			 //rebuy需要更新redis中的缓存
+	user.Update2redis()                         //rebuy需要更新redis中的缓存
 
 	//得到需要扣除的砖石
 	var feeDiamond int64 = -1
@@ -2424,7 +2426,6 @@ func (t *ThDesk) AddJackpot(coin int64) {
 func (t *ThDesk) AddedgeJackpot(coin int64) {
 	atomic.AddInt64(&t.EdgeJackpot, coin)
 }
-
 
 //把程序的allin 转化为proto的格式
 func (t *ThDesk) GetServerProtoAllInJackPot() []*bbproto.ThServerAllInJackpot {

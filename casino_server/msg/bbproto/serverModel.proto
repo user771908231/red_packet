@@ -120,3 +120,7 @@ message CsThRankInfo{
 	optional int64 balance 	=	3;	//用户的余额
 	optional int64 endTime	=	4;	//用户的结束时间
 }
+
+message RUNNING_DESKKEYS{
+	repeated string desks  = 1;
+}

@@ -4,6 +4,7 @@ import (
 	"casino_server/conf/casinoConf"
 	"casino_server/utils/redis"
 	"github.com/golang/protobuf/proto"
+	"casino_server/common/log"
 )
 
 func init() {
@@ -58,6 +59,15 @@ func ZREVRANK(key string, member string) int64 {
 		return -1
 	}
 	return values.(int64)
-
 }
 
+//	LREM key count value 移除列表元素
+func LREM(key string, value string) error {
+	conn := GetConn()
+	defer conn.Close()
+	err := conn.LREM(key, value)
+	if err != nil {
+		log.E("redis lrem的时候出错 err[%v]", err)
+	}
+	return err
+}
