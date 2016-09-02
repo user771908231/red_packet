@@ -75,6 +75,7 @@ var CSTHGAMEROOM_STATUS_LOTTERY int32 = 4;
 type CSThGameRoom struct {
 	ThGameRoom
 	MatchId              int32                   //比赛内容
+	readyTime            time.Time               //游戏开始准备的时间
 	beginTime            time.Time               //游戏开始的时间
 	endTime              time.Time               //游戏结束的时间
 	gameDuration         time.Duration           //游戏的时长
@@ -146,21 +147,23 @@ func (r *CSThGameRoom) Begin() {
 	saveData := &mode.T_cs_th_record{}
 	saveData.Mid = bson.NewObjectId()
 	saveData.Id = r.MatchId
+	saveData.ReadyTime = r.readyTime
 	saveData.BeginTime = r.beginTime
 	saveData.EndTime = r.endTime
 	saveData.Status = r.status
 	db.InsertMgoData(casinoConf.DBT_T_CS_TH_RECORD, saveData)
 	CSTHService.RefreshRedisMatchList()        //这里刷新redis中的锦标赛数据
 
-
 	log.T("开始锦标赛的游戏matchId[%v]", r.MatchId)
-	//判断是否可以开始run
 
+	//判断是否可以开始run
 	jobUtils.DoAsynJob(CSTHGameRoomConfig.checkDuration, func() bool {
 		//判断人数是否足够
 		if r.gamingUserCount >= CSTHGameRoomConfig.leastCount {
 			//开始游戏
 			r.Run()
+
+			//通知desk开始desk.run
 			r.BroadCastDeskRunGame()
 			return true        //表示终止任务
 		} else {
@@ -254,7 +257,7 @@ func (r *CSThGameRoom) SubOnlineCount() {
 //检测结束
 func (r *CSThGameRoom) checkEnd() bool {
 	//如果时间已经过了,并且所有桌子的状态都是已经停止游戏,那么表示这一局结束,为什么是所有的桌子?因为有可能时间到了,有很多桌子还在游戏中
-	if r.IsOutofEndTime() || r.allStop() {
+	if r.IsOutofEndTime() || r.gamingUserCount <= 1 {
 		//结算本局
 		log.T("锦标赛matchid[%v]已经结束.现在开始保存数据", r.MatchId)
 		r.End()
@@ -265,22 +268,6 @@ func (r *CSThGameRoom) checkEnd() bool {
 	} else {
 		return false
 	}
-
-}
-
-
-//判断是否所有的desk停止游戏
-//如果没有desk 是代表停止游戏还是游戏未开始?
-func (r *CSThGameRoom) allStop() bool {
-	result := true
-	for i := 0; i < len(r.ThDeskBuf); i++ {
-		desk := r.ThDeskBuf[i]
-		if desk != nil && desk.CStatus != CSTH_DESK_STATUS_STOP {
-			result = false
-			break
-		}
-	}
-	return result
 
 }
 
@@ -368,7 +355,7 @@ func (r *CSThGameRoom) AddUser(userId uint32, matchId int32, a gate.Agent) (*ThD
 
 	r.AddOnlineCount()        //在线用户增加1
 	r.AddrankUserCount()
-	r.AddgamingUserCount()    //游戏玩家数量+1
+	r.AddGamingUserCount()    //游戏玩家数量+1
 	r.AddUserRankInfo(user.UserId, user.MatchId, user.RoomCoin)
 	r.AddCopyUser(user)        //用户列表总增加一个用户
 
@@ -464,7 +451,7 @@ func (r *CSThGameRoom) AddUserRankInfo(userId uint32, matchId int32, balance int
 	*rank.Balance = balance
 	*rank.EndTime = time.Now().UnixNano()
 
-	r.rankInfo = append(r.rankInfo,rank)	//保存到rankInfo中去
+	r.rankInfo = append(r.rankInfo, rank)        //保存到rankInfo中去
 }
 
 
@@ -520,13 +507,12 @@ func (r *CSThGameRoom) GetRankByuserId(userId uint32) int32 {
 }
 //------------------------------------------------------关于排名的排序-end---------------------------------------------
 
-func (r *CSThGameRoom) AddgamingUserCount() {
+func (r *CSThGameRoom) AddGamingUserCount() {
 	atomic.AddInt32(&r.gamingUserCount, 1)
 }
 
-func (r *CSThGameRoom) SubgamingUserCount() {
+func (r *CSThGameRoom) SubGamingUserCount() {
 	atomic.AddInt32(&r.gamingUserCount, -1)
-
 }
 
 //解散锦标赛的房间,并且保留需要继续游戏的user

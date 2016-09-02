@@ -21,13 +21,14 @@ var T_CS_TH_RECORD_STATUS_2 int32 = 2
 //一局德州游戏是一条数据
 type T_cs_th_record struct {
 	Mid       bson.ObjectId                `json:"mid" bson:"_id"`
-	Id        int32  //id
+	Id        int32     //id
+	ReadyTime time.Time //游戏开始准备的时间
 	BeginTime time.Time
 	EndTime   time.Time
-	Status    int32  //游戏的状态,未开始,进行中,已经完成
-	CostFee   int64  //进入游戏需要消耗的钻石
-	Title     string //在线人数
-	GameType  int32  //锦标赛类型
+	Status    int32     //游戏的状态,未开始,进行中,已经完成
+	CostFee   int64     //进入游戏需要消耗的钻石
+	Title     string    //在线人数
+	GameType  int32     //锦标赛类型
 }
 
 func (t *T_cs_th_record) GetMid() bson.ObjectId {

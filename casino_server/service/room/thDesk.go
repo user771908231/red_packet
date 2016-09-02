@@ -2104,10 +2104,8 @@ func (t *ThDesk) FNotRebuy(userId uint32) {
 	//房主和非房主之间的处理方式是不同的
 	if t.IsOwner(userId) {
 		//是房主的处理方式
-
 		//1,房主易主
-
-
+		t.ChangeOwner()
 	} else {
 		//不是房主的处理方式
 		//1,检测是否可以开始
