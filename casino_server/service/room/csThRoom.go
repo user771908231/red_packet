@@ -58,6 +58,7 @@ func (r *CSThGameRoom) OnInitConfig() {
 	CSTHGameRoomConfig.RebuyCountLimit = 5                //最多重构5次
 	CSTHGameRoomConfig.quotaLimit = 2                        //能得到奖励的人
 	CSTHGameRoomConfig.RebuyBlindLevelLimit = 7                //7级盲注以前可以购买
+	CSTHGameRoomConfig.roomMaxUserCount = 500        //最多500人玩
 }
 
 
@@ -81,7 +82,6 @@ type CSThGameRoom struct {
 	gameDuration         time.Duration           //游戏的时长
 	rankUserCount        int32                   //游戏总人数
 	onlineCount          int32                   //总的在线人数
-	gamingUserCount      int32                   //游戏总的人数--正在玩,没有输掉比赛的
 	status               int32                   //锦标赛的状态
 	rankInfo             []*bbproto.CsThRankInfo //排名信息
 	BlindLevel           int32                   //盲注的等级
@@ -92,12 +92,33 @@ type CSThGameRoom struct {
 
 func (r *CSThGameRoom) OnInit() {
 	log.T("初始化锦标赛的房间.oninit()")
+	r.BlindLevel = 0
+	r.ThDeskBuf = nil
 	r.SmallBlindCoin = CSTHGameRoomConfig.blinds[r.BlindLevel];
 	r.initRoomCoin = CSTHGameRoomConfig.initRoomCoin
 	r.ThRoomSeatMax = CSTHGameRoomConfig.deskMaxUserCount
 	r.RebuyCountLimit = CSTHGameRoomConfig.RebuyCountLimit                        //重购的次数
 	r.RebuyBlindLevelLimit = CSTHGameRoomConfig.RebuyBlindLevelLimit
-	r.UsersCopy = make(map[uint32]*ThUser, )
+	r.UsersCopy = make(map[uint32]*ThUser, CSTHGameRoomConfig.roomMaxUserCount)
+}
+
+
+//活的当前正在游戏中的人数
+func (r *CSThGameRoom) GetGamingCount() int32 {
+	var count int32 = 0
+	desks := r.ThDeskBuf
+	for _, desk := range desks {
+		if desk != nil {
+			for _, user := range desk.Users {
+				if user != nil && user.CSGamingStatus {
+					count ++
+				}
+			}
+
+		}
+	}
+	return count
+
 }
 
 //判断当前时间是否已经超过了endtime
@@ -121,7 +142,7 @@ func (r *CSThGameRoom) CheckIntoRoom(matchId int32) error {
 	}
 
 	//游戏开始之后,用户只剩10人不能进入游戏 todo 这里的10人需要放置在配置文件中
-	if r.status == CSTHGAMEROOM_STATUS_RUN && r.gamingUserCount <= CSTHGameRoomConfig.quotaLimit {
+	if r.status == CSTHGAMEROOM_STATUS_RUN && r.GetGamingCount() <= CSTHGameRoomConfig.quotaLimit {
 		log.T("因为竞标赛已经是run的状态,并且游戏中的人数小于10,所以不能开始")
 		return Error.NewError(int32(bbproto.DDErrorCode_ERRORCODE_INTO_DESK_NOTFOUND), "游戏已经过期")
 	}
@@ -159,7 +180,7 @@ func (r *CSThGameRoom) Begin() {
 	//判断是否可以开始run
 	jobUtils.DoAsynJob(CSTHGameRoomConfig.checkDuration, func() bool {
 		//判断人数是否足够
-		if r.gamingUserCount >= CSTHGameRoomConfig.leastCount {
+		if r.GetGamingCount() >= CSTHGameRoomConfig.leastCount {
 			//开始游戏
 			r.Run()
 
@@ -167,7 +188,7 @@ func (r *CSThGameRoom) Begin() {
 			r.BroadCastDeskRunGame()
 			return true        //表示终止任务
 		} else {
-			log.T("锦标赛[%v]玩家数量[%v]不够[%v],暂时不开始游戏.", r.MatchId, r.gamingUserCount, CSTHGameRoomConfig.leastCount)
+			log.T("锦标赛[%v]玩家数量[%v]不够[%v],暂时不开始游戏.", r.MatchId, r.GetGamingCount(), CSTHGameRoomConfig.leastCount)
 			return false
 		}
 	})
@@ -257,7 +278,7 @@ func (r *CSThGameRoom) SubOnlineCount() {
 //检测结束
 func (r *CSThGameRoom) checkEnd() bool {
 	//如果时间已经过了,并且所有桌子的状态都是已经停止游戏,那么表示这一局结束,为什么是所有的桌子?因为有可能时间到了,有很多桌子还在游戏中
-	if r.IsOutofEndTime() || r.gamingUserCount <= 1 {
+	if r.IsOutofEndTime() || r.GetGamingCount() <= 1 {
 		//结算本局
 		log.T("锦标赛matchid[%v]已经结束.现在开始保存数据", r.MatchId)
 		r.End()
@@ -268,13 +289,14 @@ func (r *CSThGameRoom) checkEnd() bool {
 	} else {
 		return false
 	}
-
 }
 
 
 //本场锦标赛 结束的处理
 func (r *CSThGameRoom) End() {
 	log.T("锦标赛游戏结束")
+	//设置锦标赛的状态为结束,并且更新数据库数据
+	//保存锦标赛的数据,玩家的游戏数据
 	r.status = CSTHGAMEROOM_STATUS_STOP
 	saveData := &mode.T_cs_th_record{}
 	db.Query(func(d *mgo.Database) {
@@ -282,6 +304,11 @@ func (r *CSThGameRoom) End() {
 	})
 	saveData.Status = r.status
 	db.UpdateMgoData(casinoConf.DBT_T_CS_TH_RECORD, saveData)
+
+
+	//清空锦标赛的牌桌,user信息
+	r.OnInit()
+
 }
 
 
@@ -356,7 +383,6 @@ func (r *CSThGameRoom) AddUser(userId uint32, matchId int32, a gate.Agent) (*ThD
 	//更新room的信息
 	r.AddOnlineCount()        //在线用户增加1
 	r.AddrankUserCount()
-	r.AddGamingUserCount()    //游戏玩家数量+1
 	r.AddUserRankInfo(user.UserId, user.MatchId, user.RoomCoin)
 	r.AddCopyUser(user)       //用户列表总增加一个用户
 
@@ -377,14 +403,20 @@ func (t *ThDesk) UpdateThdeskAndAllUser2redis() error {
 }
 
 //把desk的信息和指定的user备份到redis
-func (t *ThDesk) UpdateThdeskAndSignleUser2redis(user  *ThUser) error {
-	user.Update2redis()
-	t.Update2redis()
-	return nil
+func (t *ThDesk) UpdateThdeskAndUser2redis(user  *ThUser) error {
+	if user != nil {
+		user.Update2redis()
+		t.Update2redis()
+		return nil
+	} else {
+		return errors.New("用户为nil,无法保存数据")
+	}
 }
 
 
 //当桌子的信息有所改变的时候,需要调用这个方法把桌子的数据保存在redis中
+// 保存thDesk 的时候,同时需要保存room的信息到redis ,目前只需要保存锦标赛 room 的信息
+
 func (t *ThDesk) Update2redis() {
 	UpdateTedisThDesk(t)
 }
@@ -531,14 +563,6 @@ func (r *CSThGameRoom) GetRankByuserId(userId uint32) int32 {
 	return int32(rank)
 }
 //------------------------------------------------------关于排名的排序-end---------------------------------------------
-
-func (r *CSThGameRoom) AddGamingUserCount() {
-	atomic.AddInt32(&r.gamingUserCount, 1)
-}
-
-func (r *CSThGameRoom) SubGamingUserCount() {
-	atomic.AddInt32(&r.gamingUserCount, -1)
-}
 
 //解散锦标赛的房间,并且保留需要继续游戏的user
 func (r *CSThGameRoom) DissolveDesk(desk *ThDesk, reserveUser *ThUser) error {

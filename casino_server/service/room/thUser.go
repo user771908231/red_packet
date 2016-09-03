@@ -12,6 +12,7 @@ import (
 	"errors"
 	"sync/atomic"
 	"github.com/golang/protobuf/proto"
+	"casino_server/utils/jobUtils"
 )
 
 
@@ -49,7 +50,8 @@ type ThUser struct {
 	GameNumber         int32                 //游戏编号
 	Seat               int32                 //用户的座位号
 	agent              gate.Agent            //agent
-	Status             int32                 //当前的状态
+	Status             int32                 //当前的状态,单局游戏的状态
+	CSGamingStatus     bool                  //是否进行锦标赛,这个字段其实 是在服务器crash之后,恢复数据的时候可以用到
 	GameStatus         int32                 //用户的游戏状态
 	IsBreak            bool                  //用户断线的状态,这里判断用户是否断线
 	IsLeave            bool                  //用户是否处于离开的状态
@@ -124,6 +126,26 @@ func (t *ThUser) wait() error {
 	return nil
 
 }
+
+
+//等待用户rebuy,时间过了之后,用户余额还是不够,那么游戏结束
+func (t *ThUser) waitCsRebuy() {
+	timeEnd := time.Now().Add(time.Second * 10)        //5秒之后
+	jobUtils.DoAsynJob(time.Second * 5, func() bool {
+		if (time.Now().After(timeEnd)) {
+			desk := t.GetDesk()
+			if desk == nil || !desk.IsUserRoomCoinEnough(t) {
+				desk.CSNotRebuy(t.UserId)
+			}
+			return true
+		} else {
+			return false
+		}
+	})
+
+}
+
+
 
 //返回自己所在的桌子
 func (t *ThUser) GetDesk() *ThDesk {

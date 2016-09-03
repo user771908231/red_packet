@@ -243,7 +243,15 @@ func NewGame_SendChangeDeskOwner() *Game_SendChangeDeskOwner {
 	return result
 }
 
-func NewRUNNING_DESKKEYS()*RUNNING_DESKKEYS{
+func NewRUNNING_DESKKEYS() *RUNNING_DESKKEYS {
 	ret := &RUNNING_DESKKEYS{}
 	return ret
+}
+
+func NewGame_TounamentPlayerRank() *Game_TounamentPlayerRank {
+	ret := &Game_TounamentPlayerRank{}
+	ret.Message = new(string)
+	ret.PlayerRank = new(int32)
+	return ret
+
 }
