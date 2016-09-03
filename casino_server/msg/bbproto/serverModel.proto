@@ -68,6 +68,9 @@ message ThServerUserSession{
 	optional int32 		deskId		 = 4;	//房间的Id
 	optional int32		matchId		 = 5;	//matchId
 	optional string 	roomKey	 	 = 6;	//房间号
+    optional bool 	    isBreak	 	 = 7;	//房间号
+    optional bool 	    isLeave	 	 = 8;	//房间号
+
 }
 
 message ThServerAllInJackpot{
@@ -84,10 +87,10 @@ message ThServerDesk{
     optional uint32	deskOwner	=2;		//开房人
     optional string	RoomKey		=3;		//房间密钥
     optional int32	DeskType	=4;		//房间type
-    optional int32	InitRoomCoin=5;		//进房间要代的金额
+    optional int64	InitRoomCoin=5;		//进房间要代的金额
     optional int32	JuCount			=6;		//座位号
-    optional int32	SmallBlindCoin	=7;		//座位号
-    optional int32	BigBlindCoin	=8;		//座位号
+    optional int64	SmallBlindCoin	=7;		//座位号
+    optional int64	BigBlindCoin	=8;		//座位号
     optional uint32	Dealer			=9;		//座位号
     optional uint32	BigBlind	    =10;		//座位号
     optional uint32	SmallBlind		=11;		//座位号
@@ -95,7 +98,7 @@ message ThServerDesk{
     optional uint32	NewRoundFirstBetUser=13;	//座位号
     optional uint32	BetUserNow			=14;	//座位号
 
-    optional ThServerUser	GameNumber	=15;	//座位号
+    optional int32	GameNumber	=15;	//座位号
 //    repeated int32	Users			    =16;	//座位号  //这里通过什么来存取比较好?,user放在thdesk中比较大
     repeated Pai	PublicPai			=17;	//座位号
     optional int32	UserCount			=18;	//座位号
@@ -106,7 +109,7 @@ message ThServerDesk{
     optional int64	Jackpot			    =23;	//座位号
     optional int64	edgeJackpot			=24;	//座位号
     optional int64	MinRaise			=25;	//座位号
-    optional ThServerAllInJackpot	AllInJackpot		=26;	//座位号
+	repeated ThServerAllInJackpot	AllInJackpot		=26;	//座位号
 
 }
 
@@ -116,4 +119,8 @@ message CsThRankInfo{
 	optional int32 matchId	=	2;	//锦标赛场次的信息
 	optional int64 balance 	=	3;	//用户的余额
 	optional int64 endTime	=	4;	//用户的结束时间
+}
+
+message RUNNING_DESKKEYS{
+	repeated string desks  = 1;
 }

@@ -16,7 +16,7 @@ import (
 
 var (
 	TableDevourCostCoin   []int32
-	G_GAME_LANGUAGE       string                          // 系统语言
+	G_GAME_LANGUAGE string                          // 系统语言
 	G_LoginPresentConf    *BonusConfList                  // 登录奖励
 	G_EventCityList       *EventCityInfoList              // 活动关卡
 	G_VersionMap          map[string]*VersionInfo         // 版本控制
@@ -99,8 +99,6 @@ func InitConfig(reloadFlg bool) (e Error.Error) {
 	return Error.OK()
 }
 
-
-
 func InitLanguage() {
 	//配置文件:conf.ini
 	config := cfg.Get()
@@ -119,7 +117,7 @@ func InitLanguage() {
 
 
  */
-func InitMongoDb() error{
+func InitMongoDb() error {
 	//return errors.New("初始化数据库失败")
 
 	//0,活的数据库连接
@@ -148,6 +146,12 @@ func InitMongoDb() error{
 		return err
 	}
 
+	//游戏编号的虚列号
+	err = c.EnsureCounter(casinoConf.DB_NAME, casinoConf.DBT_T_TH_GAMENUMBER_SEQ, casinoConf.DB_ENSURECOUNTER_KEY)
+	if err != nil {
+		return err
+	}
+
 	//为德州桌子 thdesk
 	err = c.EnsureCounter(casinoConf.DB_NAME, casinoConf.DBT_T_TH_DESK, casinoConf.DB_ENSURECOUNTER_KEY)
 	if err != nil {
@@ -170,8 +174,6 @@ func InitMongoDb() error{
 	if err != nil {
 		return err
 	}
-
-
 
 	return nil
 }
@@ -304,7 +306,7 @@ func GetUserRankExp(rank int32) int32 {
 		rank = consts.N_MAX_USER_RANK
 	}
 
-	return TableUserRankExp[rank-1]
+	return TableUserRankExp[rank - 1]
 	//	return CommonCurveValue(rank, consts.N_MAX_USER_RANK, 0, MAX_USER_RANK_EXP, USER_RANK_GROW_CURVE)
 }
 
@@ -336,34 +338,34 @@ func GetCostMax(rank int32) int32 {
 		log.Error("GetCostMax :: invalid rank:%v", rank)
 		return -1
 	}
-	return TableCostMax[rank-1]
+	return TableCostMax[rank - 1]
 }
 
 func GetUnitMax(rank int32) int32 {
 	if rank > 16 {
 		rank = 16
 	}
-	return TableUnitMax[rank-1]
+	return TableUnitMax[rank - 1]
 }
 
 func GetFriendMax(rank int32) int32 {
 	if rank > 67 {
 		rank = 67
 	}
-	return TableFriendMax[rank-1]
+	return TableFriendMax[rank - 1]
 }
 
 func GetStaminaMax(rank int32) int32 {
 	if rank > consts.N_MAX_USER_RANK {
 		rank = consts.N_MAX_USER_RANK
 	}
-	return TableStaminaMax[rank-1]
+	return TableStaminaMax[rank - 1]
 }
 
 func GetCurveValue(lv, maxLv, minValue, maxValue int32, growCurve float32) (result int32) {
 	// growCurve= 0.7, 1.0, 1.5
 
-	V := float64(minValue) + float64(maxValue-minValue)*math.Pow(float64(lv-1)/float64(maxLv-1), float64(growCurve))
+	V := float64(minValue) + float64(maxValue - minValue) * math.Pow(float64(lv - 1) / float64(maxLv - 1), float64(growCurve))
 
 	log.T("GetCurveValue=%v :: level:[%v,%v] min:%v max:%v grow:%v", int32(math.Floor(V)), lv, maxLv, minValue, maxValue, growCurve)
 

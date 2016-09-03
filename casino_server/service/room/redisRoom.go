@@ -47,6 +47,7 @@ func DelRedisThUser(deskId int32, gameNumber int32, userId uint32) error {
 	return nil
 }
 
+//更新thuser的数据到redis中
 func UpdateRedisThuser(u *ThUser) error {
 	//1,得到user
 	ruser := GetRedisThUser(u.deskId, u.GameNumber, u.UserId)
@@ -79,3 +80,139 @@ func UpdateRedisThuser(u *ThUser) error {
 	return nil
 }
 
+
+
+//---------------------------------------------------------------------------thdesk----------
+var REDIS_TH_DESK_KEY_PRE = "redis_th_desk_key"
+
+func getRedisThDeskKey(deskId int32, gameNumber int32) string {
+	deskIdStr, _ := numUtils.Int2String(deskId)
+	gameNumberStr, _ := numUtils.Int2String(gameNumber)
+
+	result := strings.Join([]string{REDIS_TH_DESK_KEY_PRE, deskIdStr, gameNumberStr}, "_")
+	//log.T("通过deskId[%v],gameNumber[%v],userId[%v]得到的redis_key是[%v]", deskId, gameNumber, userId, result)
+	return result
+}
+
+
+//通过桌子id,游戏编号,用户id来唯一确定一个thuser
+func GetRedisThDesk(deskId int32, gameNumber int32) *bbproto.ThServerDesk {
+	key := getRedisThDeskKey(deskId, gameNumber)
+	return GetRedisThDeskByKey(key)
+}
+
+func GetRedisThDeskByKey(key string) *bbproto.ThServerDesk {
+	p := redisUtils.GetObj(key, &bbproto.ThServerDesk{})
+	if p == nil {
+		log.E("获取用户数据失败with key [%v]", key)
+		return nil
+	} else {
+		return p.(*bbproto.ThServerDesk)
+	}
+}
+
+func RedisDeskTransThdesk(rt *bbproto.ThServerDesk) *ThDesk {
+	return nil
+}
+
+
+//更新thdesk的数据到redis中
+func UpdateTedisThDesk(t *ThDesk) error {
+	rt := GetRedisThDesk(t.Id, t.GameNumber)
+	if rt == nil {
+		log.T("数据库中没有找到thdesk【%v】,重新生成一个,并且保存到redis中", t.Id)
+		rt = bbproto.NewThServerDesk()
+	}
+	//2,为user赋值
+	*rt.Id = t.Id
+	*rt.DeskOwner = t.DeskOwner
+	*rt.RoomKey = t.RoomKey
+	*rt.DeskType = t.GameType
+	*rt.InitRoomCoin = t.InitRoomCoin
+	*rt.JuCount = t.JuCount
+	*rt.SmallBlindCoin = t.SmallBlindCoin
+	*rt.BigBlindCoin = t.BigBlindCoin
+	*rt.Dealer = t.Dealer
+	*rt.BigBlind = t.BigBlind
+	*rt.SmallBlind = t.SmallBlind
+	*rt.RaiseUserId = t.RaiseUserId
+	*rt.NewRoundFirstBetUser = t.NewRoundFirstBetUser
+	*rt.BetUserNow = t.BetUserNow
+	*rt.GameNumber = t.GameNumber
+	*rt.UserCount = t.UserCount
+	*rt.Status = t.Status
+	*rt.BetAmountNow = t.BetAmountNow
+	*rt.RoundCount = t.RoundCount
+	*rt.Jackpot = t.Jackpot
+	*rt.EdgeJackpot = t.EdgeJackpot
+	*rt.MinRaise = t.MinRaise
+
+	rt.AllInJackpot = t.GetServerProtoAllInJackPot()
+	rt.PublicPai = t.PublicPai
+
+	//3,保存到数据库
+	saveRedisThDesk(rt)
+	return nil
+
+}
+
+//保存一个thdesk
+func saveRedisThDesk(t *bbproto.ThServerDesk) error {
+	//获取redis连接
+	key := getRedisThDeskKey(t.GetId(), t.GetGameNumber())
+	redisUtils.SaveObj(key, t)
+	return nil
+}
+
+var RUNNING_DESKS = "running_desk_keys"
+//这里保存正在游戏中的thdesk
+func AddRunningDesk(t *ThDesk) {
+	tk := getRedisThDeskKey(t.Id, t.GameNumber)
+	var keys *bbproto.RUNNING_DESKKEYS
+	data := redisUtils.GetObj(RUNNING_DESKS, &bbproto.RUNNING_DESKKEYS{})
+	if data == nil {
+		keys = bbproto.NewRUNNING_DESKKEYS()
+	} else {
+		keys = data.(*bbproto.RUNNING_DESKKEYS)
+	}
+
+	for _, key := range keys.Desks {
+		if key == tk {
+			return
+		}
+	}
+
+	keys.Desks = append(keys.Desks, tk)
+	redisUtils.SaveObj(RUNNING_DESKS, keys)
+}
+
+func RmRunningDesk(t *ThDesk) {
+	index := -1
+	tk := getRedisThDeskKey(t.Id, t.GameNumber)
+	var keys *bbproto.RUNNING_DESKKEYS
+	data := redisUtils.GetObj(RUNNING_DESKS, &bbproto.RUNNING_DESKKEYS{})
+	if data != nil {
+		keys = bbproto.NewRUNNING_DESKKEYS()
+		for i, key := range keys.Desks {
+			if key == tk {
+				index = i
+				break
+			}
+		}
+	}
+	//删除
+	keys.Desks = append(keys.Desks[:index], keys.Desks[index + 1:]...)
+	redisUtils.SaveObj(RUNNING_DESKS, keys)
+
+}
+
+func GetRunningDesk() *bbproto.RUNNING_DESKKEYS {
+	var keys *bbproto.RUNNING_DESKKEYS
+	data := redisUtils.GetObj(RUNNING_DESKS, &bbproto.RUNNING_DESKKEYS{})
+	if data != nil {
+		keys = bbproto.NewRUNNING_DESKKEYS()
+		return keys
+	} else {
+		return nil
+	}
+}

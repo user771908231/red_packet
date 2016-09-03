@@ -479,8 +479,10 @@ func handlerGame_Rebuy(args []interface{}) {
 	desk := room.GetDeskByAgent(a)
 	if desk != nil {
 		//做非空判断,防止服务器crash
-		log.E("重购的时候,desk==nil重购失败")
 		desk.Rebuy(m.GetUserId())
+	} else {
+		log.E("重购的时候,desk==nil重购失败")
+
 	}
 }
 
@@ -488,10 +490,14 @@ func handlerGame_Rebuy(args []interface{}) {
 func handlerGame_NotRebuy(args []interface{}) {
 	m := args[0].(*bbproto.Game_NotRebuy)
 	a := args[1].(gate.Agent)
+	log.T("不需要rebuy的请求m[%v]", m)
+
 	desk := room.GetDeskByAgent(a)
 	if desk != nil {
 		//做非空判断,防止服务器crash
-		log.E("not重购的时候,desk==nil重购失败")
 		desk.NotRebuy(m.GetUserId())
+	} else {
+		log.E("not重购的时候,desk==nil重购失败")
+
 	}
 }

@@ -47,6 +47,28 @@ func (r *ThGameRoom) OnInit() {
 }
 
 
+//恢复游戏数据
+func (r *ThGameRoom) Recovery() {
+	//1,找到对应的key
+	keys := GetRunningDesk()
+	if keys != nil {
+		//2,循环处理每个key
+		for _, key := range keys.Desks {
+			//通过key在数据库中恢复thdesk
+			desk := RedisDeskTransThdesk(GetRedisThDeskByKey(key))
+			if desk != nil {
+				//依次恢复user
+
+
+				//把desk add 到room
+
+				//desk.recoveryRun()	//重新开始游戏,
+
+			}
+		}
+	}
+}
+
 //随机生成6位数字
 func (r *ThGameRoom) RandRoomKey() string {
 	a := utils.Rand(100000, 1000000)
@@ -104,7 +126,7 @@ func (r *ThGameRoom) CreateDeskByUserIdAndRoomKey(userId uint32, roomCoin int64,
 	desk.JuCount = jucount
 	desk.GetRoomCoin()
 	desk.GameType = intCons.GAME_TYPE_TH        //表示是自定义的房间
-	desk.PreCoin = preCoin				//前注的信息
+	desk.PreCoin = preCoin                                //前注的信息
 	desk.RebuyCountLimit = r.RebuyCountLimit        //加注的限制
 	r.AddThDesk(desk)
 
@@ -153,8 +175,8 @@ func (r *ThGameRoom) DissolveDeskByDeskOwner(userId uint32, a gate.Agent) error 
 
 	//1,找到桌子
 	desk := GetDeskByAgent(a)
-
 	if desk == nil {
+		log.E("解散房间失败,房间已经解散了,不需要再次解散")
 		return errors.New("房间已经解散了")
 	}
 
@@ -204,7 +226,6 @@ func (r *ThGameRoom) IsRepeatIntoRoom(userId uint32, a gate.Agent) *ThDesk {
 	user.IsBreak = false
 	user.agent = a
 	user.UpdateAgentUserData()
-	desk.AddUserCountOnline()
 
 	log.T("用户[%v]重新进入房间了", userId)
 	return desk
