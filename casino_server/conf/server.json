@@ -1,6 +1,9 @@
 {
-	"LogLevel": "debug",
-	"LogPath": "",
-	"TCPAddr": "192.168.199.120:3797",
-	"MaxConnNum": 20000
+  "LogLevel": "debug",
+  "LogPath": "",
+  "TCPAddr": "192.168.199.120:3797",
+  "MaxConnNum": 20000,
+  "MongoIp": "182.92.179.230",
+  "MongoPort": 51668,
+  "RedisAddr": "127.0.0.1:6379"
 }

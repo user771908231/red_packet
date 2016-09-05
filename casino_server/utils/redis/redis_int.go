@@ -6,10 +6,7 @@ import (
 	"github.com/garyburd/redigo/redis"
 	"time"
 	"github.com/golang/protobuf/proto"
-)
-
-const (
-	SERVERADDR = "127.0.0.1:6379"
+	"casino_server/conf"
 )
 
 var (
@@ -19,7 +16,7 @@ var (
 func InitRedis() {
 	config := cfg.Get()
 
-	Redis_svr = SERVERADDR
+	Redis_svr = conf.Server.RedisAddr
 	if len(config["redis_svr"]) != 0 {
 		Redis_svr = config["redis_svr"]
 	}
