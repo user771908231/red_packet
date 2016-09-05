@@ -19,6 +19,11 @@ func NewGame_TounamentRankBean() *Game_TounamentRankBean {
 	return ret
 }
 
+func NewGame_TounamentRank() *Game_TounamentRank {
+	ret := &Game_TounamentRank{}
+	ret.MatchId = new(int32)
+	return ret
+}
 //初始化一个
 
 func NewGame_MatchItem() *Game_MatchItem {

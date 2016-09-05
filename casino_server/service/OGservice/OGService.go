@@ -231,7 +231,6 @@ func HandlerGameEnterMatch(m *bbproto.Game_EnterMatch, a gate.Agent) error {
 	return nil
 }
 
-
 //处理bbproto.Game_login
 func HandlerGameLogin(userId uint32, a gate.Agent) {
 	log.T("用户[%v]请求gameLogin", userId)

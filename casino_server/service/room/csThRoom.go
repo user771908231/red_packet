@@ -303,9 +303,17 @@ func (r *CSThGameRoom) End() {
 	db.Query(func(d *mgo.Database) {
 		d.C(casinoConf.DBT_T_CS_TH_RECORD).Find(bson.M{"Id":r.MatchId}).One(saveData)
 	})
+	//更新mongo中锦标赛的状态
 	saveData.Status = r.status
+	//更新锦标赛的排名信息
+	for _, rank := range r.rankInfo {
+		bean := mode.T_cs_th_rank_bean{}
+		bean.UserId = rank.GetUserId()
+		bean.WinCoin = rank.GetBalance()
+		saveData.Ranks = append(saveData.Ranks,bean)
+	}
+	//保存信息
 	db.UpdateMgoData(casinoConf.DBT_T_CS_TH_RECORD, saveData)
-
 
 	//清空锦标赛的牌桌,user信息
 	r.OnInit()
