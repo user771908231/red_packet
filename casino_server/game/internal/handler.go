@@ -388,18 +388,14 @@ func handlerGame_TounamentRewards(args []interface{}) {
 	a.WriteMsg(m)
 }
 
+
+//战绩的排名
 func handlerGame_TounamentRank(args []interface{}) {
 	m := args[0].(*bbproto.Game_TounamentRank)
 	a := args[1].(gate.Agent)
-
-	d1 := bbproto.NewGame_TounamentRankBean()
-	*d1.PlayerName = "playerName"
-	*d1.PlayerImage = ""
-	*d1.Coin = 999
-	*d1.Place = 1
-
-	m.Data = append(m.Data, d1)
-	a.WriteMsg(m)
+	log.T("查询战绩的排名m[%v]", m)
+	data := room.GetGame_TounamentRank(m.GetMatchId())
+	a.WriteMsg(data)
 }
 
 //请求某一场的描述信息

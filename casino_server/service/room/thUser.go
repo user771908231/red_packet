@@ -20,20 +20,20 @@ import (
 
 //德州扑克 玩家的状态
 
-var TH_USER_STATUS_NOGAME int32 = 0           //刚上桌子 等待开始的玩家
-var TH_USER_STATUS_WAITSEAT int32 = 1           //刚上桌子 等待开始的玩家
-var TH_USER_STATUS_SEATED int32 = 2                //刚上桌子 但是没有在游戏中
-var TH_USER_STATUS_READY int32 = 3
-var TH_USER_STATUS_BETING int32 = 4                //押注中
-var TH_USER_STATUS_ALLINING int32 = 5                //allIn
-var TH_USER_STATUS_FOLDED int32 = 6                //弃牌
-var TH_USER_STATUS_WAIT_CLOSED int32 = 7                 //等待结算
-var TH_USER_STATUS_CLOSED int32 = 8                //已经结算
+var TH_USER_STATUS_NOGAME int32 = 0           //刚上桌子 没有游戏的玩家
+var TH_USER_STATUS_WAITSEAT int32 = 1         //刚上桌子 等待入座的玩家
+var TH_USER_STATUS_SEATED int32 = 2           //刚上桌子 已经入座没有准备的玩家
+var TH_USER_STATUS_READY int32 = 3	      //已经准备的玩家
+var TH_USER_STATUS_BETING int32 = 4           //押注中
+var TH_USER_STATUS_ALLINING int32 = 5         //allIn
+var TH_USER_STATUS_FOLDED int32 = 6           //弃牌
+var TH_USER_STATUS_WAIT_CLOSED int32 = 7      //等待结算
+var TH_USER_STATUS_CLOSED int32 = 8           //已经结算
 
 
-var TH_USER_GAME_STATUS_NOGAME int32 = 0                //不在游戏中
-var TH_USER_GAME_STATUS_FRIEND int32 = 1                //朋友桌
-var TH_USER_GAME_STATUS_CHAMPIONSHIP int32 = 2        //锦标赛
+var TH_USER_GAME_STATUS_NOGAME int32 = 0      //不在游戏中
+var TH_USER_GAME_STATUS_FRIEND int32 = 1      //朋友桌
+var TH_USER_GAME_STATUS_CHAMPIONSHIP int32 = 2                //锦标赛
 
 
 /**

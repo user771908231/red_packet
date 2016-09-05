@@ -18,6 +18,7 @@ import (
 	"casino_server/common/Error"
 	"gopkg.in/mgo.v2"
 	"casino_server/utils/numUtils"
+	"casino_server/service/userService"
 )
 
 var ChampionshipRoom CSThGameRoom        //锦标赛的房间
@@ -299,17 +300,49 @@ func (r *CSThGameRoom) End() {
 	//设置锦标赛的状态为结束,并且更新数据库数据
 	//保存锦标赛的数据,玩家的游戏数据
 	r.status = CSTHGAMEROOM_STATUS_STOP
+	r.RefreshRank()
 	saveData := &mode.T_cs_th_record{}
 	db.Query(func(d *mgo.Database) {
 		d.C(casinoConf.DBT_T_CS_TH_RECORD).Find(bson.M{"Id":r.MatchId}).One(saveData)
 	})
+	//更新mongo中锦标赛的状态
 	saveData.Status = r.status
+
+	//更新锦标赛的排名信息
+	for _, rank := range r.rankInfo {
+		bean := mode.T_cs_th_rank_bean{}
+		bean.UserId = rank.GetUserId()
+		bean.WinCoin = rank.GetBalance()
+		saveData.Ranks = append(saveData.Ranks, bean)
+	}
+	//保存信息
 	db.UpdateMgoData(casinoConf.DBT_T_CS_TH_RECORD, saveData)
 
+
+
+	//给在desk上的人发送游戏结束的广播
+	csUser := userService.GetUserById(r.rankInfo[0].GetUserId())
+	gameOver := bbproto.NewGame_ChampionshipGameOver()
+	*gameOver.Coin = r.rankInfo[0].GetBalance()
+	*gameOver.UserName = csUser.GetNickName()
+	*gameOver.HeadUrl = csUser.GetHeadUrl()
+	for _, desk := range r.ThDeskBuf {
+		if desk != nil {
+			desk.THBroadcastProtoAll(csUser)
+		}
+	}
 
 	//清空锦标赛的牌桌,user信息
 	r.OnInit()
 
+}
+
+//刷新排名
+func (r *CSThGameRoom) RefreshRank() {
+	var tempList RankList = make([]*bbproto.CsThRankInfo, len(r.rankInfo))
+	copy(tempList, r.rankInfo)
+	sort.Sort(tempList)                //开始排序
+	r.rankInfo = tempList
 }
 
 
@@ -545,13 +578,10 @@ func ( list RankList) Swap(i, j int) {
 
 //更具用户信息得到排名
 func (r *CSThGameRoom) GetRankByuserId(userId uint32) int32 {
-	var tempList RankList = make([]*bbproto.CsThRankInfo, len(r.rankInfo))
-	copy(tempList, r.rankInfo)
-	sort.Sort(tempList)                //开始排序
-
+	r.RefreshRank()
 	index := 0
-	for i := 0; i < len(tempList); i++ {
-		info := tempList[i]
+	for i := 0; i < len(r.rankInfo); i++ {
+		info := r.rankInfo[i]
 		if info != nil && info.GetUserId() == userId {
 			index = i
 			break
@@ -559,7 +589,7 @@ func (r *CSThGameRoom) GetRankByuserId(userId uint32) int32 {
 
 	}
 
-	rank := len(tempList) - index
+	rank := len(r.rankInfo) - index
 	log.T("查询用户[%v]的锦标赛rank排名是[%v]", userId, rank)
 	return int32(rank)
 }

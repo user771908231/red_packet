@@ -19,6 +19,11 @@ func NewGame_TounamentRankBean() *Game_TounamentRankBean {
 	return ret
 }
 
+func NewGame_TounamentRank() *Game_TounamentRank {
+	ret := &Game_TounamentRank{}
+	ret.MatchId = new(int32)
+	return ret
+}
 //初始化一个
 
 func NewGame_MatchItem() *Game_MatchItem {
@@ -258,5 +263,13 @@ func NewGame_TounamentBlindBean() *Game_TounamentBlindBean {
 	ret.RaiseTime = new(string)
 	ret.SmallBlind = new(string)
 	return ret
+}
 
+// func New
+func NewGame_ChampionshipGameOver() *Game_ChampionshipGameOver {
+	ret := &Game_ChampionshipGameOver{}
+	ret.Coin = new(int64)
+	ret.HeadUrl = new(string)
+	ret.UserName = new(string)
+	return ret
 }
