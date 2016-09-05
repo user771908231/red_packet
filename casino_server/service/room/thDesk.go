@@ -276,6 +276,7 @@ func (t *ThDesk) AddThUser(userId uint32, userStatus int32, a gate.Agent) (*ThUs
 	thUser.IsBreak = false
 	thUser.IsLeave = false
 	thUser.RoomKey = t.RoomKey
+	thUser.LotteryCheck = true
 
 	//根据桌子的状态 设置用户的游戏状态
 	if t.IsChampionship() {
@@ -492,7 +493,7 @@ func (t *ThDesk) InitUserBeginStatus() error {
 		u.TotalBet4calcAllin = 0
 		u.TotalBet = 0                                //新的一局游戏开始,把总的押注金额设置为0
 		u.winAmountDetail = nil
-		u.LotteryCheck = false                                //游戏开始的时候设置为false
+		u.LotteryCheck = true                                //游戏开始的时候设置为false
 
 		//如果用户的余额不足或者用户的状态是属于断线的状态,则设置用户为等待入座
 		if !t.IsUserRoomCoinEnough(u) {
@@ -506,6 +507,7 @@ func (t *ThDesk) InitUserBeginStatus() error {
 		if !u.IsBreak && !u.IsLeave && u.IsReady() {
 			log.T("由于用户[%v]的status[%v]BreakStatus[%v],所以设置状态为TH_USER_STATUS_BETING", u.UserId, u.Status, u.IsBreak)
 			u.Status = TH_USER_STATUS_BETING
+			u.LotteryCheck = false
 		}
 	}
 
