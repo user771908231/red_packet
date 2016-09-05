@@ -1170,17 +1170,16 @@ func (t *ThDesk) end() bool {
 func (t *ThDesk) broadLotteryResult() error {
 	//1.发送输赢结果
 	result := bbproto.NewGame_TestResult()
-	*result.Tableid = t.Id                           //桌子
-	result.BCanShowCard = t.GetBshowCard()           //
-	result.BShowCard = t.GetBshowCard()              //亮牌
-	result.Handcard = t.GetHandCard()                //手牌
+	*result.Tableid = t.Id                          //桌子
+	result.BCanShowCard = t.GetBshowCard()          //
+	result.BShowCard = t.GetBshowCard()             //亮牌
+	result.Handcard = t.GetHandCard()               //手牌
 	result.WinCoinInfo = t.getWinCoinInfo()
-	result.HandCoin = t.GetHandCoin()
-	result.CoinInfo = t.getCoinInfo()                //每个人的输赢情况
+	result.HandCoin = t.GetRoomCoin()		//现实用户的余额
+	result.CoinInfo = t.getCoinInfo()               //每个人的输赢情况
 	*result.RankUserCount = t.getRankUserCount()
 	t.BroadcastTestResult(result)
 	return nil
-
 }
 
 //开奖之后的处理
