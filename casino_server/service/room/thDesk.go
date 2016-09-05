@@ -656,7 +656,7 @@ func (t *ThDesk) getRankUserCount() int32 {
 //得到这个用户是可以重购,不同的桌子,来判断的逻辑不用
 func (t *ThDesk) getCanRebuyByUserId(user *ThUser) bool {
 	if t.IsFriend() {
-		if !t.IsUserRoomCoinEnough(user) {
+		if !t.IsUserRoomCoinEnough(user) && t.JuCountNow < t.JuCount{
 			return true
 		} else {
 			return false
