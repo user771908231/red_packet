@@ -251,6 +251,7 @@ It has these top-level messages:
 	Game_MatchItem
 	Game_MatchList
 	Game_TounamentPlayerRank
+	Game_ChampionshipGameOver
 	Game_Rebuy
 	Game_AckRebuy
 	Game_NotRebuy

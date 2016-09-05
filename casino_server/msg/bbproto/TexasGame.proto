@@ -1413,6 +1413,14 @@ message Game_TounamentPlayerRank {
 }
 
 
+//锦标赛游戏结束
+message Game_ChampionshipGameOver{
+    optional string userName = 1;
+    optional string headUrl = 2;
+    optional int64 coin = 3;
+}
+
+
 message Game_Rebuy {
     optional uint32 userId = 1;
     optional int32 type = 2; //0:朋友桌  1:锦标赛

@@ -263,5 +263,13 @@ func NewGame_TounamentBlindBean() *Game_TounamentBlindBean {
 	ret.RaiseTime = new(string)
 	ret.SmallBlind = new(string)
 	return ret
+}
 
+// func New
+func NewGame_ChampionshipGameOver() *Game_ChampionshipGameOver {
+	ret := &Game_ChampionshipGameOver{}
+	ret.Coin = new(int64)
+	ret.HeadUrl = new(string)
+	ret.UserName = new(string)
+	return ret
 }
