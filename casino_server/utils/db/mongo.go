@@ -9,13 +9,14 @@ import (
 	"casino_server/mode"
 	"gopkg.in/mgo.v2"
 	"casino_server/common/log"
+	"casino_server/conf"
 )
 
 
 
 //活的链接
 func GetMongoConn() (*mongodb.DialContext, error) {
-	return mongodb.Dial(casinoConf.DB_IP, casinoConf.DB_PORT)
+	return mongodb.Dial(conf.Server.MongoIp, conf.Server.MongoPort)
 }
 
 //保存数据
