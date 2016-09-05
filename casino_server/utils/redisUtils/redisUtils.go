@@ -39,10 +39,16 @@ func GetObj(key string, p proto.Message) proto.Message {
 /**
 	保存一个对象到redis
  */
-func SaveObj(key string, p proto.Message) {
+func SetObj(key string, p proto.Message) {
 	conn := GetConn()
 	defer conn.Close()
 	conn.SetObj(key, p)
+}
+
+func Del(key string){
+	conn := GetConn()
+	defer conn.Close()
+	conn.Del(key)
 }
 
 func ZADD(key string, member string, score int64) {

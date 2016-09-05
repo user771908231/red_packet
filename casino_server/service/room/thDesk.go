@@ -365,6 +365,16 @@ func (t *ThDesk) IsAllReady() bool {
 
 //  用户退出德州游戏的房间,rmUser 需要在事物中进行,离开德州需要更具桌子的类型来做不同的处理
 func (t *ThDesk) LeaveThuser(userId uint32) error {
+	if t.IsFriend() {
+		return t.FLeaveThuser(userId)
+	} else if t.IsChampionship() {
+		return t.CSLeaveThuser(userId)
+	}
+
+	return nil
+}
+
+func (t *ThDesk) FLeaveThuser(userId uint32) error {
 
 	//1,离开之后,设置用户的信息
 	user := t.GetUserByUserId(userId)
@@ -372,20 +382,11 @@ func (t *ThDesk) LeaveThuser(userId uint32) error {
 	user.GameStatus = TH_USER_GAME_STATUS_NOGAME        //用户离开之后,设置用户的游戏状态为没有游戏中
 	user.UpdateAgentUserData()
 
-	//2,根据不同的游戏类型做不同的处理
-	if t.IsFriend() {
-		//自定义房间,如果其他人都准备了,那么开始游戏,离开房间和准备的处理是一样的
-		//这样处理的作用是,防止最后一个未准备的人,离开房间以后游戏不能开始
-		if t.JuCountNow > 1 && t.IsAllReady() {
-			//用户离开之后,判断游戏是否开始
-			go t.Run()
-		}
-	} else if t.IsChampionship() {
-		//用户直接放弃游戏,设置roomCoin=0,并且更新rankxin
-		user.RoomCoin = 0
-		user.CSGamingStatus = false
-		ChampionshipRoom.UpdateUserRankInfo(user.UserId, user.MatchId, user.RoomCoin)
-		ChampionshipRoom.SubOnlineCount()        //竞标赛的在线人数-1
+	//2,自定义房间,如果其他人都准备了,那么开始游戏,离开房间和准备的处理是一样的
+	//这样处理的作用是,防止最后一个未准备的人,离开房间以后游戏不能开始
+	if t.JuCountNow > 1 && t.IsAllReady() {
+		//用户离开之后,判断游戏是否开始
+		go t.Run()
 	}
 
 	//3,返回离开房间之后的信息
@@ -400,6 +401,62 @@ func (t *ThDesk) LeaveThuser(userId uint32) error {
 	t.UpdateThdeskAndUser2redis(user)
 
 	return nil
+}
+
+func (t *ThDesk) CSLeaveThuser(userId uint32) error {
+
+	//1,离开之后,设置用户的信息
+	user := t.GetUserByUserId(userId)
+	user.IsLeave = true     //设置状态为离开
+	user.GameStatus = TH_USER_GAME_STATUS_NOGAME        //用户离开之后,设置用户的游戏状态为没有游戏中
+	user.CSGamingStatus = false
+	user.RoomCoin = 0
+	user.UpdateAgentUserData()
+
+	//2,更新锦标赛的数据
+	ChampionshipRoom.UpdateUserRankInfo(user.UserId, user.MatchId, user.RoomCoin)
+	ChampionshipRoom.SubOnlineCount()        //竞标赛的在线人数-1
+
+	//3,返回离开房间之后的信息
+	ret := bbproto.NewGame_ACKLeaveDesk()
+	*ret.Result = intCons.ACK_RESULT_SUCC
+	user.WriteMsg(ret)
+
+	//4,删除用户
+	t.RmUser(user.UserId)                         //删除用户,并且发送广播
+	//离开之后,需要广播一次sendGameInfo,这里人还没有真正的离开
+	t.BroadGameInfo(userId)
+
+	//保存数据到redis
+	t.UpdateThdeskAndUser2redis(user)
+
+	return nil
+}
+
+func (r *ThDesk) RmUser(userId uint32) {
+	for _, user := range r.Users {
+		if user != nil && user.UserId == userId {
+			//更新回话信息
+			user.IsLeave = true     //设置状态为离开
+			user.GameStatus = TH_USER_GAME_STATUS_NOGAME        //用户离开之后,设置用户的游戏状态为没有游戏中
+			user.CSGamingStatus = false
+			user.RoomCoin = 0
+			user.deskId = 0
+			user.MatchId = 0
+			user.GameNumber = 0
+			user.RoomKey = ""
+			user.IsLeave = true
+			user.IsBreak = true
+			user.UpdateAgentUserData()
+
+			//设置为nil
+			user = nil
+		}
+	}
+
+
+	//删除redis中的数据
+	DelRedisThUser(r.Id, r.GameNumber, userId)
 }
 
 //设置用户为掉线的状态
@@ -523,10 +580,10 @@ func (t *ThDesk) RmLeaveUser() {
 	for _, user := range t.Users {
 		if user != nil {
 			if user.IsLeave {
-				user = nil
+				t.RmUser(user.UserId)
 				continue
 			} else if user.IsBreak && user.GetDesk().IsChampionship() {
-				user = nil
+				t.RmUser(user.UserId)
 			}
 		}
 	}

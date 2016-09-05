@@ -24,7 +24,7 @@ func AddRunningDesk(t *ThDesk) {
 	}
 
 	keys.Desks = append(keys.Desks, tk)
-	redisUtils.SaveObj(RUNNING_DESKS, keys)
+	redisUtils.SetObj(RUNNING_DESKS, keys)
 }
 
 
@@ -45,7 +45,7 @@ func RmRunningDesk(t *ThDesk) {
 	}
 	//删除
 	keys.Desks = append(keys.Desks[:index], keys.Desks[index + 1:]...)
-	redisUtils.SaveObj(RUNNING_DESKS, keys)
+	redisUtils.SetObj(RUNNING_DESKS, keys)
 
 }
 
