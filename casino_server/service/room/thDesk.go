@@ -622,12 +622,12 @@ func (t *ThDesk) THBroadcastProto(p proto.Message, ignoreUserId uint32) error {
 
 
 
-//给全部人发送广播
+//发送本局牌局的结果
 func (t *ThDesk) BroadcastTestResult(p *bbproto.Game_TestResult) error {
 	//发送的时候,初始化自己的排名
 	for i := 0; i < len(t.Users); i++ {
 		u := t.Users[i]                //给这个玩家发送广播信息
-		if u != nil && u.IsLeave != true {
+		if u != nil && u.IsLeave != true && u.IsClose() {
 			*p.Rank = t.getRankByUserId(u)        //获取用户的排名
 			*p.CanRebuy = t.getCanRebuyByUserId(u)        //是否可以重构
 			*p.RebuyCount = u.RebuyCount        //重购的次数
@@ -656,7 +656,7 @@ func (t *ThDesk) getRankUserCount() int32 {
 //得到这个用户是可以重购,不同的桌子,来判断的逻辑不用
 func (t *ThDesk) getCanRebuyByUserId(user *ThUser) bool {
 	if t.IsFriend() {
-		if !t.IsUserRoomCoinEnough(user) && t.JuCountNow < t.JuCount{
+		if !t.IsUserRoomCoinEnough(user) && t.JuCountNow < t.JuCount {
 			return true
 		} else {
 			return false
@@ -1027,10 +1027,10 @@ func (t *ThDesk) InitLotteryStatus() error {
 		if u != nil {
 			log.T("用户[%v].nickname[%v]的status[%v]", u.UserId, u.NickName, u.Status)
 			u.FinishtWait()        //不再等待
-			if u.Status == TH_USER_STATUS_ALLINING || u.Status == TH_USER_STATUS_BETING {
+			if u.IsAllIn() || u.IsBetting() {
 				//如果用户当前的状态是押注中,或者all in,那么设置用户的状态喂等待结算
 				u.Status = TH_USER_STATUS_WAIT_CLOSED
-			} else {
+			} else if u.IsFold() {
 				u.Status = TH_USER_STATUS_CLOSED
 			}
 		}
@@ -1120,8 +1120,6 @@ func (t *ThDesk) calcUserWinAmount() error {
 func (t *ThDesk) Lottery() error {
 	log.T("现在开始开奖,并且发放奖励....")
 
-	//todo 开奖之前 是否需要把剩下的牌 全部发完**** 目前是不可能
-
 	//发送还没有发送的牌
 	t.sendReaminCard()
 
@@ -1175,7 +1173,7 @@ func (t *ThDesk) broadLotteryResult() error {
 	result.BShowCard = t.GetBshowCard()             //亮牌
 	result.Handcard = t.GetHandCard()               //手牌
 	result.WinCoinInfo = t.getWinCoinInfo()
-	result.HandCoin = t.GetRoomCoin()		//现实用户的余额
+	result.HandCoin = t.GetRoomCoin()                //现实用户的余额
 	result.CoinInfo = t.getCoinInfo()               //每个人的输赢情况
 	*result.RankUserCount = t.getRankUserCount()
 	t.BroadcastTestResult(result)
