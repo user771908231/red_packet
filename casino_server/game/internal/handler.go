@@ -360,34 +360,11 @@ func handlerGetGameRecords(args []interface{}) {
 }
 
 
-//发送锦标赛大小盲的信息, //todo  目前是伪造的信息,需要实现真是的数据
+//发送锦标赛大小盲的信息
 func handlerGame_TounamentBlind(args []interface{}) {
-	m := args[0].(*bbproto.Game_TounamentBlind)
 	a := args[1].(gate.Agent)
-	d1 := bbproto.NewGame_TounamentBlindBean()
-	*d1.Ante = "10"
-	*d1.SmallBlind = "10"
-	*d1.RaiseTime = "150"
-	*d1.BlindLevel = "1"
-	m.Data = append(m.Data, d1)
-
-	d2 := bbproto.NewGame_TounamentBlindBean()
-	*d2.Ante = "20"
-	*d2.SmallBlind = "20"
-	*d2.RaiseTime = "150"
-	*d2.BlindLevel = "2"
-
-	m.Data = append(m.Data, d2)
-
-	d3 := bbproto.NewGame_TounamentBlindBean()
-	*d3.Ante = "75"
-	*d3.SmallBlind = "150"
-	*d3.RaiseTime = "150"
-	*d3.BlindLevel = "3"
-
-	m.Data = append(m.Data, d3)
-
-	a.WriteMsg(m)
+	data := room.ChampionshipRoom.GetGame_TounamentBlind()
+	a.WriteMsg(data)
 }
 
 func handlerGame_TounamentRewards(args []interface{}) {
@@ -425,6 +402,7 @@ func handlerGame_TounamentRank(args []interface{}) {
 	a.WriteMsg(m)
 }
 
+//请求某一场的描述信息
 func handlerGame_TounamentSummary(args []interface{}) {
 	m := args[0].(*bbproto.Game_TounamentSummary)
 	a := args[1].(gate.Agent)

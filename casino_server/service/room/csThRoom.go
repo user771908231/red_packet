@@ -17,6 +17,7 @@ import (
 	"casino_server/conf/intCons"
 	"casino_server/common/Error"
 	"gopkg.in/mgo.v2"
+	"casino_server/utils/numUtils"
 )
 
 var ChampionshipRoom CSThGameRoom        //锦标赛的房间
@@ -35,7 +36,7 @@ var CSTHGameRoomConfig struct {
 	leastCount           int32         //游戏开始的最少人数
 	nextRunDuration      time.Duration //开始下一场的间隔
 	riseBlindDuration    time.Duration //生盲的时间间隔
-	blinds               []int64       //盲注
+	Blinds               []int64       //盲注
 	initRoomCoin         int64         //初始的带入金额
 	deskMaxUserCount     int32         //最多多少人
 	roomMaxUserCount     int32         //room里最多能有多少人
@@ -52,7 +53,7 @@ func (r *CSThGameRoom) OnInitConfig() {
 	CSTHGameRoomConfig.leastCount = 3; //最少要20人才可以开始游戏
 	CSTHGameRoomConfig.nextRunDuration = time.Second * 60 * 1        //1 分钟之后开始下一场
 	CSTHGameRoomConfig.riseBlindDuration = time.Second * 150        //每150秒生一次忙
-	CSTHGameRoomConfig.blinds = []int64{5, 10, 20, 40, 80, 160, 320, 640, 1280, 2000, 10000, 100000, 1000000}
+	CSTHGameRoomConfig.Blinds = []int64{5, 10, 20, 40, 80, 160, 320, 640, 1280, 2000, 10000, 100000, 1000000}
 	CSTHGameRoomConfig.initRoomCoin = 1000;
 	CSTHGameRoomConfig.deskMaxUserCount = 9
 	CSTHGameRoomConfig.RebuyCountLimit = 5                //最多重构5次
@@ -94,7 +95,7 @@ func (r *CSThGameRoom) OnInit() {
 	log.T("初始化锦标赛的房间.oninit()")
 	r.BlindLevel = 0
 	r.ThDeskBuf = nil
-	r.SmallBlindCoin = CSTHGameRoomConfig.blinds[r.BlindLevel];
+	r.SmallBlindCoin = CSTHGameRoomConfig.Blinds[r.BlindLevel];
 	r.initRoomCoin = CSTHGameRoomConfig.initRoomCoin
 	r.ThRoomSeatMax = CSTHGameRoomConfig.deskMaxUserCount
 	r.RebuyCountLimit = CSTHGameRoomConfig.RebuyCountLimit                        //重购的次数
@@ -233,12 +234,12 @@ func (r *CSThGameRoom) Run() {
 	jobUtils.DoAsynJob(CSTHGameRoomConfig.riseBlindDuration, func() bool {
 		//开始生盲注
 		log.T("锦标赛[%v]开始生盲", r.MatchId)
-		if r.BlindLevel == int32(len(CSTHGameRoomConfig.blinds) - 1) {
+		if r.BlindLevel == int32(len(CSTHGameRoomConfig.Blinds) - 1) {
 			log.T("由于锦标赛[%v]的盲注已经达到了最大的级别[%v],所以不生了", r.MatchId, r.SmallBlindCoin)
 			return true
 		} else {
 			r.BlindLevel ++
-			r.SmallBlindCoin = CSTHGameRoomConfig.blinds[r.BlindLevel]
+			r.SmallBlindCoin = CSTHGameRoomConfig.Blinds[r.BlindLevel]
 			log.T("由于锦标赛[%v]的盲注达到了级别[%v],盲注【%v】", r.MatchId, r.BlindLevel, r.SmallBlindCoin)
 
 			return false
@@ -622,3 +623,20 @@ func (t *CSThGameRoom) AddCopyUser(user *ThUser) {
 func (t *CSThGameRoom) GetCopyUserById(userId uint32) *ThUser {
 	return t.UsersCopy[userId]
 }
+
+//得到本场锦标赛盲注的信息
+func (r *CSThGameRoom) GetGame_TounamentBlind() *bbproto.Game_TounamentBlind {
+	ret := bbproto.NewGame_TounamentBlind()
+	//得到盲注信息
+	for _, b := range CSTHGameRoomConfig.Blinds {
+		bean := bbproto.NewGame_TounamentBlindBean()
+		*bean.Ante = "前注"
+		*bean.SmallBlind, _ = numUtils.Int642String(b)
+		*bean.BlindLevel, _ = numUtils.Int2String(r.BlindLevel)
+		*bean.CanRebuy = true
+		*bean.RaiseTime = "150秒"
+		ret.Data = append(ret.Data, bean)
+	}
+	return ret
+}
+
