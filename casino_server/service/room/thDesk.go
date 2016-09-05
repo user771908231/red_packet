@@ -816,10 +816,7 @@ func (t *ThDesk) OninitThDeskBeginStatus() error {
 	t.GameNumber, _ = db.GetNextSeq(casinoConf.DBT_T_CS_TH_DESK_RECORD)
 
 	//如果是锦标赛,需要设置锦标赛的属性
-	if t.IsChampionship() {
-		t.SmallBlindCoin = ChampionshipRoom.SmallBlindCoin
-		t.BigBlindCoin = ChampionshipRoom.SmallBlindCoin * 2
-	}
+
 
 	t.LogString()
 	log.T("开始一局游戏,现在初始化desk的信息完毕...")
@@ -1190,6 +1187,12 @@ func (t *ThDesk) afterLottery() error {
 	t.AllInJackpot = nil;
 	t.blindLevel = 0;
 
+	//下一局开始升盲
+	if t.IsChampionship() {
+		t.SmallBlindCoin = ChampionshipRoom.SmallBlindCoin
+		t.BigBlindCoin = ChampionshipRoom.SmallBlindCoin * 2
+	}
+
 	//2,设置用户的状态
 	for i := 0; i < len(t.Users); i++ {
 		u := t.Users[i]
@@ -1198,6 +1201,8 @@ func (t *ThDesk) afterLottery() error {
 				//如果是自定义的房间,设置每个人都是坐下的状态
 				u.Status = TH_USER_STATUS_SEATED
 			} else if t.IsChampionship() {
+				//这里不应该这么判断,因为升盲之后,钱已经变了...
+
 				if t.IsUserRoomCoinEnough(u) {
 					//如果是锦标赛的房间,用户的钱足够
 					u.Status = TH_USER_STATUS_READY
