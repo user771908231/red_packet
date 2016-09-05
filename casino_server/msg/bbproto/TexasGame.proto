@@ -1377,7 +1377,7 @@ message Game_TounamentRankBean {
 }
 
 message Game_TounamentRank {
-    repeated int32 matchId = 1;
+    optional int32 matchId = 1;
     repeated Game_TounamentRankBean data = 2; //名次
 }
 
