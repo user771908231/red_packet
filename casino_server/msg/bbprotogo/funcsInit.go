@@ -1,16 +1,5 @@
 package bbproto
 
-//初始化盲注bean
-func NewGame_TounamentBlindBean() *Game_TounamentBlindBean {
-	ret := &Game_TounamentBlindBean{}
-	ret.Ante = new(string)
-	ret.SmallBlind = new(string)
-	ret.RaiseTime = new(string)
-	ret.BlindLevel = new(string)
-	return ret
-}
-
-
 //返回一个奖励的bean
 func NewGame_TounamentRewardsBean() *Game_TounamentRewardsBean {
 	ret := &Game_TounamentRewardsBean{}
@@ -252,6 +241,22 @@ func NewGame_TounamentPlayerRank() *Game_TounamentPlayerRank {
 	ret := &Game_TounamentPlayerRank{}
 	ret.Message = new(string)
 	ret.PlayerRank = new(int32)
+	return ret
+}
+
+func NewGame_TounamentBlind() *Game_TounamentBlind {
+	ret := &Game_TounamentBlind{}
+	return ret
+}
+
+//
+func NewGame_TounamentBlindBean() *Game_TounamentBlindBean {
+	ret := &Game_TounamentBlindBean{}
+	ret.Ante = new(string)
+	ret.BlindLevel = new(string)
+	ret.CanRebuy = new(bool)
+	ret.RaiseTime = new(string)
+	ret.SmallBlind = new(string)
 	return ret
 
 }
