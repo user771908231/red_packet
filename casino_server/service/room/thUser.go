@@ -138,9 +138,9 @@ func (t *ThUser) waitCsRebuy() {
 	timeEnd := time.Now().Add(time.Second * 10)        //5秒之后
 	jobUtils.DoAsynJob(time.Second * 5, func() bool {
 		if (time.Now().After(timeEnd)) {
-			log.T("user【%v】等待重购超时,系统自动notRebuy...",t.UserId)
 			desk := t.GetDesk()
 			if desk != nil && !desk.IsUserRoomCoinEnough(t) {
+				log.T("user【%v】等待重购超时,系统自动notRebuy...",t.UserId)
 				desk.CSNotRebuy(t.UserId)
 			}
 			return true

@@ -56,9 +56,9 @@ func (r *CSThGameRoom) OnInitConfig() {
 	CSTHGameRoomConfig.Blinds = []int64{5, 10, 20, 40, 80, 160, 320, 640, 1280, 2000, 10000, 100000, 1000000}
 	CSTHGameRoomConfig.initRoomCoin = 1000;
 	CSTHGameRoomConfig.deskMaxUserCount = 9
-	CSTHGameRoomConfig.RebuyCountLimit = 5                //最多重构5次
-	CSTHGameRoomConfig.quotaLimit = 2                        //能得到奖励的人
-	CSTHGameRoomConfig.RebuyBlindLevelLimit = 7                //7级盲注以前可以购买
+	CSTHGameRoomConfig.RebuyCountLimit = 5           //最多重构5次
+	CSTHGameRoomConfig.quotaLimit = 2                //能得到奖励的人
+	CSTHGameRoomConfig.RebuyBlindLevelLimit = 7      //7级盲注以前可以购买
 	CSTHGameRoomConfig.roomMaxUserCount = 500        //最多500人玩
 }
 
@@ -104,7 +104,7 @@ func (r *CSThGameRoom) OnInit() {
 	r.MatchId, _ = db.GetNextSeq(casinoConf.DBT_T_CS_TH_RECORD)        //生成游戏的matchId
 	r.Status = CSTHGAMEROOM_STATUS_READY
 	r.ReadyTime = time.Now()
-	r.RankInfo = make([]*bbproto.CsThRankInfo,0)
+	r.RankInfo = make([]*bbproto.CsThRankInfo, 0)
 }
 
 
@@ -199,7 +199,7 @@ func (r *CSThGameRoom) Begin() {
 
 //run游戏房间
 func (r *CSThGameRoom) Run() {
-	log.T("锦标赛游戏开始...")
+	log.T("锦标赛游戏开始...run()")
 
 	//设置room属性
 	r.Status = CSTHGAMEROOM_STATUS_RUN        //竞标赛当前的状态
@@ -233,7 +233,12 @@ func (r *CSThGameRoom) Run() {
 
 	//这里需要做生盲的逻辑
 	jobUtils.DoAsynJob(CSTHGameRoomConfig.riseBlindDuration, func() bool {
-		//开始生盲注
+		//1,如果游戏还没有开始,停止升盲注的任务
+		if r.Status != CSTHGAMEROOM_STATUS_RUN {
+			return true
+		}
+
+		//2,开始生盲注
 		log.T("锦标赛[%v]开始生盲", r.MatchId)
 		if r.BlindLevel == int32(len(CSTHGameRoomConfig.Blinds) - 1) {
 			log.T("由于锦标赛[%v]的盲注已经达到了最大的级别[%v],所以不生了", r.MatchId, r.SmallBlindCoin)

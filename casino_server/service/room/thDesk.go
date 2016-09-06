@@ -175,7 +175,7 @@ func NewThDesk() *ThDesk {
 	result.Status = TH_DESK_STATUS_STOP        //游戏还没有开始的状态
 	result.GameType = intCons.GAME_TYPE_TH_CS                          //游戏桌子的类型
 	result.JuCount = 0
-	result.JuCountNow = 1                //默认值是0,游戏run的时候+1
+	result.JuCountNow = 1                //
 	return result
 }
 
@@ -191,40 +191,38 @@ func newThDeskId() int32 {
 }
 
 func (t *ThDesk) LogString() {
-	log.T("当前desk[%v]的信息:-----------------------------------begin----------------------------------", t.Id)
-	log.T("当前desk[%v]的信息的状态status[%v]", t.Id, t.Status)
-	for i := 0; i < len(t.Users); i++ {
-		u := t.Users[i]
-		if u != nil {
-			//log.T("当前desk[%v]的user[%v]的状态status[%v],牌的信息[%v]", t.Id, u.UserId, u.Status, u.HandCards)
-			log.T("当前desk[%v]的user[%v]的状态status[%v],HandCoin[%v],TurnCoin[%v],RoomCoin[%v]", t.Id, u.UserId, u.Status, u.HandCoin, u.TurnCoin, u.RoomCoin)
-		}
-	}
-	log.T("当前desk[%v]的信息的状态,MatchId[%v]", t.Id, t.MatchId)
-	log.T("当前desk[%v]的信息的状态,RoomKey[%v]", t.Id, t.RoomKey)
-	log.T("当前desk[%v]的信息的状态,CreateFee[%v]", t.Id, t.CreateFee)
-	log.T("当前desk[%v]的信息的状态,GameType[%v]", t.Id, t.GameType)
-	log.T("当前desk[%v]的信息的状态,InitRoomCoin[%v]", t.Id, t.InitRoomCoin)
-	log.T("当前desk[%v]的信息的状态,JuCount[%v]", t.Id, t.JuCount)
-	log.T("当前desk[%v]的信息的状态,JuCountNow[%v]", t.Id, t.JuCountNow)
-	log.T("当前desk[%v]的信息的状态,PreCoin[%v]", t.Id, t.PreCoin)
-	log.T("当前desk[%v]的信息的状态,SmallBlindCoin[%v]", t.Id, t.SmallBlindCoin)
-	log.T("当前desk[%v]的信息的状态,BigBlindCoin[%v]", t.Id, t.BigBlindCoin)
-	log.T("当前desk[%v]的信息的状态,小盲注[%v]", t.Id, t.SmallBlind)
-	log.T("当前desk[%v]的信息的状态,大盲注[%v]", t.Id, t.BigBlind)
-	log.T("当前desk[%v]的信息的状态,BeginTime[%v]", t.Id, t.BeginTime)
-	log.T("当前desk[%v]的信息的状态,EndTime[%v]", t.Id, t.EndTime)
-	log.T("当前desk[%v]的信息的状态,RaiseUserId[%v]", t.Id, t.RaiseUserId)
-	log.T("当前desk[%v]的信息的状态,MinRaise[%v]", t.Id, t.MinRaise)
-	log.T("当前desk[%v]的信息的状态,BetUserNow[%v]", t.Id, t.BetUserNow)
-	log.T("当前desk[%v]的信息的状态,GameNumber[%v]", t.Id, t.GameNumber)
-	log.T("当前desk[%v]的信息的状态,压注人[%v]", t.Id, t.BetUserNow)
-	log.T("当前desk[%v]的信息的状态,压注轮次[%v]", t.Id, t.RoundCount)
-	log.T("当前desk[%v]的信息的状态,NewRoundFirstBetUser[%v]", t.Id, t.NewRoundFirstBetUser)
-	log.T("当前desk[%v]的信息的状态,总共押注Jackpot[%v]", t.Id, t.Jackpot)
-	log.T("当前desk[%v]的信息的状态,edgeJackpot[%v]", t.Id, t.EdgeJackpot)
-	log.T("当前desk[%v]的信息的状态,当前加注的人BetUserRaiseUserId[%v]", t.Id, t.RaiseUserId)
-	log.T("当前desk[%v]的信息:-----------------------------------end----------------------------------", t.Id)
+	//log.T("当前desk[%v]的信息:-----------------------------------begin----------------------------------", t.Id)
+	//log.T("当前desk[%v]的信息的状态status[%v]", t.Id, t.Status)
+	//for i := 0; i < len(t.Users); i++ {
+	//	u := t.Users[i]
+	//	if u != nil {
+	//		//log.T("当前desk[%v]的user[%v]的状态status[%v],牌的信息[%v]", t.Id, u.UserId, u.Status, u.HandCards)
+	//		log.T("当前desk[%v]的user[%v]的状态status[%v],HandCoin[%v],TurnCoin[%v],RoomCoin[%v]", t.Id, u.UserId, u.Status, u.HandCoin, u.TurnCoin, u.RoomCoin)
+	//	}
+	//}
+	//log.T("当前desk[%v]的信息的状态,MatchId[%v]", t.Id, t.MatchId)
+	//log.T("当前desk[%v]的信息的状态,RoomKey[%v]", t.Id, t.RoomKey)
+	//log.T("当前desk[%v]的信息的状态,CreateFee[%v]", t.Id, t.CreateFee)
+	//log.T("当前desk[%v]的信息的状态,GameType[%v]", t.Id, t.GameType)
+	//log.T("当前desk[%v]的信息的状态,InitRoomCoin[%v]", t.Id, t.InitRoomCoin)
+	//log.T("当前desk[%v]的信息的状态,JuCount[%v]", t.Id, t.JuCount)
+	//log.T("当前desk[%v]的信息的状态,JuCountNow[%v]", t.Id, t.JuCountNow)
+	//log.T("当前desk[%v]的信息的状态,PreCoin[%v]", t.Id, t.PreCoin)
+	//log.T("当前desk[%v]的信息的状态,SmallBlindCoin[%v]", t.Id, t.SmallBlindCoin)
+	//log.T("当前desk[%v]的信息的状态,BigBlindCoin[%v]", t.Id, t.BigBlindCoin)
+	//log.T("当前desk[%v]的信息的状态,小盲注[%v]", t.Id, t.SmallBlind)
+	//log.T("当前desk[%v]的信息的状态,大盲注[%v]", t.Id, t.BigBlind)
+	//log.T("当前desk[%v]的信息的状态,RaiseUserId[%v]", t.Id, t.RaiseUserId)
+	//log.T("当前desk[%v]的信息的状态,MinRaise[%v]", t.Id, t.MinRaise)
+	//log.T("当前desk[%v]的信息的状态,BetUserNow[%v]", t.Id, t.BetUserNow)
+	//log.T("当前desk[%v]的信息的状态,GameNumber[%v]", t.Id, t.GameNumber)
+	//log.T("当前desk[%v]的信息的状态,压注人[%v]", t.Id, t.BetUserNow)
+	//log.T("当前desk[%v]的信息的状态,压注轮次[%v]", t.Id, t.RoundCount)
+	//log.T("当前desk[%v]的信息的状态,NewRoundFirstBetUser[%v]", t.Id, t.NewRoundFirstBetUser)
+	//log.T("当前desk[%v]的信息的状态,总共押注Jackpot[%v]", t.Id, t.Jackpot)
+	//log.T("当前desk[%v]的信息的状态,edgeJackpot[%v]", t.Id, t.EdgeJackpot)
+	//log.T("当前desk[%v]的信息的状态,当前加注的人BetUserRaiseUserId[%v]", t.Id, t.RaiseUserId)
+	//log.T("当前desk[%v]的信息:-----------------------------------end----------------------------------", t.Id)
 }
 
 //打印测试信息用
@@ -715,6 +713,7 @@ func (t *ThDesk) getRankUserCount() int32 {
 //得到这个用户是可以重购,不同的桌子,来判断的逻辑不用
 func (t *ThDesk) getCanRebuyByUserId(user *ThUser) bool {
 	if t.IsFriend() {
+		log.T("判断user【%v】是否能重购买,t.juCountNow[%v],t.juCount[%v]", user.UserId, t.JuCountNow, t.JuCount)
 		if !t.IsUserRoomCoinEnough(user) && t.JuCountNow < t.JuCount {
 			return true
 		} else {
@@ -866,7 +865,6 @@ func (t *ThDesk) OninitThDeskStatus() error {
 	t.Jackpot = 0
 	t.EdgeJackpot = 0
 	t.AllInJackpot = nil                          // 初始化allInJackpot 为空
-	t.JuCountNow ++
 	t.SendFlop = false        //是否已经发了三张底牌
 	t.SendTurn = false        //是否已经发了第四张牌
 	t.SendRive = false        //是否已经发了第五张牌
@@ -1262,6 +1260,7 @@ func (t *ThDesk) afterLottery() error {
 	t.EdgeJackpot = 0; //边池设置为0
 	t.AllInJackpot = nil;
 	t.blindLevel = 0;
+	t.JuCountNow ++
 
 	//2,设置用户的状态
 	for i := 0; i < len(t.Users); i++ {
@@ -1292,7 +1291,7 @@ func (t *ThDesk) afterLottery() error {
 //判断用户的余额是否足够开始下一场游戏
 func (t *ThDesk) IsUserRoomCoinEnough(u *ThUser) bool {
 	if u.RoomCoin < t.PreCoin + t.BigBlindCoin {
-		log.T("用户[%v]的roomCoin[%v] < preCoin[%v]+bigBlindCoin[%v]",u.UserId,u.RoomCoin,t.PreCoin,t.BigBlindCoin)
+		log.T("用户[%v]的roomCoin[%v] < preCoin[%v]+bigBlindCoin[%v]", u.UserId, u.RoomCoin, t.PreCoin, t.BigBlindCoin)
 		return false
 	} else {
 		return true
@@ -1957,7 +1956,7 @@ func (mydesk *ThDesk) Run() error {
 		return nil
 	}
 
-	//2,初始化玩家的信息
+	//2,初始化玩家的信息,是否可以开始游戏,
 	err := mydesk.InitUserStatus()
 	if err != nil {
 		log.E("开始游戏失败,errMsg[%v]", err.Error())
@@ -2208,6 +2207,10 @@ func (t *ThDesk) CSRebuy(userId uint32) error {
 		return err
 	}
 
+	//如果用户的钱足够,那么设置喂准备的状态
+	if t.IsUserRoomCoinEnough(user) {
+		user.Status = TH_USER_STATUS_READY
+	}
 
 	//1,为用户增加金额
 	//rebuy需要更新redis中的缓存
