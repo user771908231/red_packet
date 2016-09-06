@@ -138,7 +138,7 @@ func (t *ThUser) waitCsRebuy() {
 	jobUtils.DoAsynJob(time.Second * 5, func() bool {
 		if (time.Now().After(timeEnd)) {
 			desk := t.GetDesk()
-			if desk == nil || !desk.IsUserRoomCoinEnough(t) {
+			if desk != nil || !desk.IsUserRoomCoinEnough(t) {
 				desk.CSNotRebuy(t.UserId)
 			}
 			return true

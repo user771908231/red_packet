@@ -130,5 +130,4 @@ func ErrorRecovery(addr string ) {
 	if err := recover(); err != nil {
 		fmt.Println("地址[%v]开始打印日志err[%v]",addr,err) // 这里的err其实就是panic传入的内容，55
 	}
-	fmt.Println("测试错误recover")
 }
