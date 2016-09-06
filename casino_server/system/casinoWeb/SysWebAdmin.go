@@ -5,6 +5,7 @@ import (
 	"casino_server/common/log"
 	"casino_server/service/room"
 	"fmt"
+	"casino_server/utils/timeUtils"
 )
 
 func InitCms() {
@@ -26,14 +27,14 @@ func gameInfo(w http.ResponseWriter, r *http.Request) {
 
 func gameInfocs(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprint(w, "锦标赛房间matchId[%v],盲注等级[%v],readyTime[%v],beginTime[%v],endTime[%v],\n" +
-		"rankinfo[%v]" ,
-		room.ChampionshipRoom.MatchId, room.ChampionshipRoom.BlindLevel, room.ChampionshipRoom.ReadyTime, room.ChampionshipRoom.BeginTime, room.ChampionshipRoom.EndTime,
+	"rankinfo[%v]",
+		room.ChampionshipRoom.MatchId, room.ChampionshipRoom.BlindLevel, timeUtils.Format(room.ChampionshipRoom.ReadyTime), timeUtils.Format(room.ChampionshipRoom.BeginTime), timeUtils.Format(room.ChampionshipRoom.EndTime),
 		room.ChampionshipRoom.RankInfo)
 	for i := 0; i < len(room.ChampionshipRoom.ThDeskBuf); i++ {
 		desk := room.ChampionshipRoom.ThDeskBuf[i]
 		printDeskInfo(w, desk)
 	}
-	fmt.Fprint(w, "锦标赛房间的信息打印完毕:\n\n\n\n")
+	fmt.Fprint(w, "\n锦标赛房间的信息打印完毕:\n\n\n\n")
 }
 
 func printDeskInfo(w http.ResponseWriter, desk *room.ThDesk) {
@@ -60,8 +61,8 @@ func printDeskInfo(w http.ResponseWriter, desk *room.ThDesk) {
 		for j := 0; j < len(desk.Users); j++ {
 			u := desk.Users[j]
 			if u != nil {
-				userInfo := "当前desk[%v]的user[%v],seatId[%v],nickname[%v]的状态status[%v],HandCoin[%v],TurnCoin[%v],RoomCoin[%v],isBreak[%v],isLeave[%v],LotteryCheck[%v]\n"
-				fmt.Fprintf(w, userInfo, desk.Id, u.UserId, u.Seat, u.NickName, u.Status, u.HandCoin, u.TurnCoin, u.RoomCoin, u.IsBreak, u.IsLeave, u.LotteryCheck)
+				userInfo := "当前desk[%v]的user[%v],seatId[%v],nickname[%v]的状态status[%v],HandCoin[%v],TurnCoin[%v],RoomCoin[%v],isBreak[%v],isLeave[%v],LotteryCheck[%v],csgaminStatus[%v]\n"
+				fmt.Fprintf(w, userInfo, desk.Id, u.UserId, u.Seat, u.NickName, u.Status, u.HandCoin, u.TurnCoin, u.RoomCoin, u.IsBreak, u.IsLeave, u.LotteryCheck, u.CSGamingStatus)
 			}
 		}
 		fmt.Fprint(w, "------------------所有玩家的信息打印完毕\n", desk.Id)
