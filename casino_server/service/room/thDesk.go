@@ -637,9 +637,9 @@ func (t *ThDesk) OnInitCards() error {
 			begin := i * 2 + 5
 			end := i * 2 + 5 + 2
 			t.Users[i].HandCards = totalCards[begin:end]
-			log.T("用户[%v]的手牌[%v]", t.Users[i].UserId, t.Users[i].HandCards)
+			//log.T("用户[%v]的手牌[%v]", t.Users[i].UserId, t.Users[i].HandCards)
 			t.Users[i].thCards = pokerService.GetTHPoker(t.Users[i].HandCards, t.PublicPai, 5)
-			log.T("用户[%v]的:拍类型,所有牌[%v],th[%v]", t.Users[i].UserId, t.Users[i].thCards.ThType, t.Users[i].thCards.Cards, t.Users[i].thCards)
+			//log.T("用户[%v]的:拍类型,所有牌[%v],th[%v]", t.Users[i].UserId, t.Users[i].thCards.ThType, t.Users[i].thCards.Cards, t.Users[i].thCards)
 		}
 	}
 
