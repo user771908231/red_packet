@@ -47,7 +47,7 @@ func GetGame_TounamentRank(matchId int32) *bbproto.Game_TounamentRank {
 			result.Data = append(result.Data, bean)
 		}
 
-		redisUtils.SaveObj(key, result)
+		redisUtils.SetObj(key, result)
 		return result
 	}
 }

@@ -38,13 +38,13 @@ func GetRedisThUser(deskId int32, gameNumber int32, userId uint32) *bbproto.ThSe
 func saveRedisThUser(user *bbproto.ThServerUser) error {
 	//获取redis连接
 	key := getRedisThUserKey(user.GetDeskId(), user.GetGameNumber(), user.GetUserId())
-	redisUtils.SaveObj(key, user)
+	redisUtils.SetObj(key, user)
 	return nil
 }
 
 //删除一个用户
-func DelRedisThUser(deskId int32, gameNumber int32, userId uint32) error {
-	return nil
+func DelRedisThUser(deskId int32, gameNumber int32, userId uint32) {
+	redisUtils.Del(getRedisThUserKey(deskId, gameNumber, userId))
 }
 
 //更新thuser的数据到redis中
@@ -160,7 +160,7 @@ func UpdateTedisThDesk(t *ThDesk) error {
 func saveRedisThDesk(t *bbproto.ThServerDesk) error {
 	//获取redis连接
 	key := getRedisThDeskKey(t.GetId(), t.GetGameNumber())
-	redisUtils.SaveObj(key, t)
+	redisUtils.SetObj(key, t)
 	return nil
 }
 

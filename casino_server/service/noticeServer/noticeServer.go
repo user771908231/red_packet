@@ -76,7 +76,7 @@ func tnotice2Rnotice(notice *mode.T_th_notice) *bbproto.Game_AckNotice {
 
 //把公告的数据保存到redis中
 func SaveNotice2Redis(notice *bbproto.Game_AckNotice) error {
-	redisUtils.SaveObj(getRedisKey(notice.GetId()), notice)
+	redisUtils.SetObj(getRedisKey(notice.GetId()), notice)
 	return nil
 }
 

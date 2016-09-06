@@ -26,7 +26,6 @@ var ChampionshipRoom CSThGameRoom        //锦标赛的房间
 
 func init() {
 	ChampionshipRoom.OnInitConfig()
-	ChampionshipRoom.OnInit()        //初始化,开始运行
 	//ChampionshipRoom.begin()
 }
 
@@ -78,14 +77,14 @@ var CSTHGAMEROOM_STATUS_LOTTERY int32 = 4;
 type CSThGameRoom struct {
 	ThGameRoom
 	MatchId              int32                   //比赛内容
-	readyTime            time.Time               //游戏开始准备的时间
-	beginTime            time.Time               //游戏开始的时间
-	endTime              time.Time               //游戏结束的时间
+	ReadyTime            time.Time               //游戏开始准备的时间
+	BeginTime            time.Time               //游戏开始的时间
+	EndTime              time.Time               //游戏结束的时间
 	gameDuration         time.Duration           //游戏的时长
 	rankUserCount        int32                   //游戏总人数
 	onlineCount          int32                   //总的在线人数
-	status               int32                   //锦标赛的状态
-	rankInfo             []*bbproto.CsThRankInfo //排名信息
+	Status               int32                   //锦标赛的状态
+	RankInfo             []*bbproto.CsThRankInfo //排名信息
 	BlindLevel           int32                   //盲注的等级
 	initRoomCoin         int64                   //房间默认的带入金额
 	UsersCopy            map[uint32]*ThUser      //这里是所有玩家信息的一份拷贝,只有当用户放弃之后,才会删除用户
@@ -102,6 +101,10 @@ func (r *CSThGameRoom) OnInit() {
 	r.RebuyCountLimit = CSTHGameRoomConfig.RebuyCountLimit                        //重购的次数
 	r.RebuyBlindLevelLimit = CSTHGameRoomConfig.RebuyBlindLevelLimit
 	r.UsersCopy = make(map[uint32]*ThUser, CSTHGameRoomConfig.roomMaxUserCount)
+	r.MatchId, _ = db.GetNextSeq(casinoConf.DBT_T_CS_TH_RECORD)        //生成游戏的matchId
+	r.Status = CSTHGAMEROOM_STATUS_READY
+	r.ReadyTime = time.Now()
+	r.RankInfo = make([]*bbproto.CsThRankInfo,0)
 }
 
 
@@ -125,7 +128,7 @@ func (r *CSThGameRoom) GetGamingCount() int32 {
 
 //判断当前时间是否已经超过了endtime
 func (r *CSThGameRoom) IsOutofEndTime() bool {
-	return r.endTime.Before(time.Now())
+	return r.EndTime.Before(time.Now())
 }
 
 //只有开始之后才能进入游戏房间
@@ -137,14 +140,14 @@ func (r *CSThGameRoom) CheckIntoRoom(matchId int32) error {
 	}
 
 	//时间过了不能进入
-	if r.status == CSTHGAMEROOM_STATUS_RUN && r.IsOutofEndTime() {
-		log.T("进入锦标赛的游戏房间失败,因为time.mow[].after (r.endTime[%v])", r.endTime)
+	if r.Status == CSTHGAMEROOM_STATUS_RUN && r.IsOutofEndTime() {
+		log.T("进入锦标赛的游戏房间失败,因为time.mow[].after (r.endTime[%v])", r.EndTime)
 		return Error.NewError(int32(bbproto.DDErrorCode_ERRORCODE_INTO_DESK_NOTFOUND), "游戏已经过期")
 
 	}
 
 	//游戏开始之后,用户只剩10人不能进入游戏 todo 这里的10人需要放置在配置文件中
-	if r.status == CSTHGAMEROOM_STATUS_RUN && r.GetGamingCount() <= CSTHGameRoomConfig.quotaLimit {
+	if r.Status == CSTHGAMEROOM_STATUS_RUN && r.GetGamingCount() <= CSTHGameRoomConfig.quotaLimit {
 		log.T("因为竞标赛已经是run的状态,并且游戏中的人数小于10,所以不能开始")
 		return Error.NewError(int32(bbproto.DDErrorCode_ERRORCODE_INTO_DESK_NOTFOUND), "游戏已经过期")
 	}
@@ -162,18 +165,15 @@ func (r *CSThGameRoom) CheckIntoRoom(matchId int32) error {
  */
 
 func (r *CSThGameRoom) Begin() {
-	//开始一局游戏的时候,生成一个matchId
-	r.MatchId, _ = db.GetNextSeq(casinoConf.DBT_T_CS_TH_RECORD)        //生成游戏的matchId
-	r.status = CSTHGAMEROOM_STATUS_READY
-
+	r.OnInit()                //每次开始的时候做初始化
 	//保存游戏数据,1,保存数据到mongo,2,刷新redis中的信息
 	saveData := &mode.T_cs_th_record{}
 	saveData.Mid = bson.NewObjectId()
 	saveData.Id = r.MatchId
-	saveData.ReadyTime = r.readyTime
-	saveData.BeginTime = r.beginTime
-	saveData.EndTime = r.endTime
-	saveData.Status = r.status
+	saveData.ReadyTime = r.ReadyTime
+	saveData.BeginTime = r.BeginTime
+	saveData.EndTime = r.EndTime
+	saveData.Status = r.Status
 	db.InsertMgoData(casinoConf.DBT_T_CS_TH_RECORD, saveData)
 	CSTHService.RefreshRedisMatchList()        //这里刷新redis中的锦标赛数据
 
@@ -202,9 +202,9 @@ func (r *CSThGameRoom) Run() {
 	log.T("锦标赛游戏开始...")
 
 	//设置room属性
-	r.status = CSTHGAMEROOM_STATUS_RUN        //竞标赛当前的状态
-	r.beginTime = time.Now()
-	r.endTime = r.beginTime.Add(CSTHGameRoomConfig.gameDuration)       //一局游戏的时间是20分钟
+	r.Status = CSTHGAMEROOM_STATUS_RUN        //竞标赛当前的状态
+	r.BeginTime = time.Now()
+	r.EndTime = r.BeginTime.Add(CSTHGameRoomConfig.gameDuration)       //一局游戏的时间是20分钟
 
 	//update 锦标赛的数据
 	saveData := &mode.T_cs_th_record{}
@@ -212,9 +212,9 @@ func (r *CSThGameRoom) Run() {
 		d.C(casinoConf.DBT_T_CS_TH_RECORD).Find(bson.M{"id":r.MatchId}).One(saveData)
 	})
 
-	saveData.BeginTime = r.beginTime
-	saveData.EndTime = r.endTime
-	saveData.Status = r.status
+	saveData.BeginTime = r.BeginTime
+	saveData.EndTime = r.EndTime
+	saveData.Status = r.Status
 	db.UpdateMgoData(casinoConf.DBT_T_CS_TH_RECORD, saveData)
 
 
@@ -299,17 +299,17 @@ func (r *CSThGameRoom) End() {
 	log.T("锦标赛游戏结束")
 	//设置锦标赛的状态为结束,并且更新数据库数据
 	//保存锦标赛的数据,玩家的游戏数据
-	r.status = CSTHGAMEROOM_STATUS_STOP
+	r.Status = CSTHGAMEROOM_STATUS_STOP
 	r.RefreshRank()
 	saveData := &mode.T_cs_th_record{}
 	db.Query(func(d *mgo.Database) {
 		d.C(casinoConf.DBT_T_CS_TH_RECORD).Find(bson.M{"Id":r.MatchId}).One(saveData)
 	})
 	//更新mongo中锦标赛的状态
-	saveData.Status = r.status
+	saveData.Status = r.Status
 
 	//更新锦标赛的排名信息
-	for _, rank := range r.rankInfo {
+	for _, rank := range r.RankInfo {
 		bean := mode.T_cs_th_rank_bean{}
 		bean.UserId = rank.GetUserId()
 		bean.WinCoin = rank.GetBalance()
@@ -319,11 +319,26 @@ func (r *CSThGameRoom) End() {
 	db.UpdateMgoData(casinoConf.DBT_T_CS_TH_RECORD, saveData)
 
 
+	//给没有发送过游戏排名的玩家发送游戏排名
+	for _, desk := range r.ThDeskBuf {
+		if desk != nil {
+			for _, user := range desk.Users {
+				if user != nil && user.CSGamingStatus {
+					user.CSGamingStatus = false; //设置游戏状态
+					log.T("锦标赛[%v]结束,给用户[%v]发送游戏排名", r.MatchId, user.UserId)
+					ret := bbproto.NewGame_TounamentPlayerRank()
+					*ret.Message = "测试最终排名的信息"
+					*ret.PlayerRank = ChampionshipRoom.GetRankByuserId(user.UserId)
+					user.WriteMsg(ret)
+				}
+			}
+		}
+	}
 
 	//给在desk上的人发送游戏结束的广播
-	csUser := userService.GetUserById(r.rankInfo[0].GetUserId())
+	csUser := userService.GetUserById(r.RankInfo[0].GetUserId())
 	gameOver := bbproto.NewGame_ChampionshipGameOver()
-	*gameOver.Coin = r.rankInfo[0].GetBalance()
+	*gameOver.Coin = r.RankInfo[0].GetBalance()
 	*gameOver.UserName = csUser.GetNickName()
 	*gameOver.HeadUrl = csUser.GetHeadUrl()
 	for _, desk := range r.ThDeskBuf {
@@ -332,17 +347,14 @@ func (r *CSThGameRoom) End() {
 		}
 	}
 
-	//清空锦标赛的牌桌,user信息
-	r.OnInit()
-
 }
 
 //刷新排名
 func (r *CSThGameRoom) RefreshRank() {
-	var tempList RankList = make([]*bbproto.CsThRankInfo, len(r.rankInfo))
-	copy(tempList, r.rankInfo)
+	var tempList RankList = make([]*bbproto.CsThRankInfo, len(r.RankInfo))
+	copy(tempList, r.RankInfo)
 	sort.Sort(tempList)                //开始排序
-	r.rankInfo = tempList
+	r.RankInfo = tempList
 }
 
 
@@ -353,7 +365,6 @@ func (r *CSThGameRoom) RefreshRank() {
 
  */
 func (r *CSThGameRoom) IsRepeatIntoRoom(userId uint32, a gate.Agent) (*ThDesk, error) {
-
 	user := r.GetCopyUserById(userId)
 	if user == nil {
 		//表示没有进入过锦标赛
@@ -430,6 +441,7 @@ func (t *ThDesk) UpdateThdeskAndAllUser2redis() error {
 		u := t.Users[i]
 		if u != nil {
 			u.Update2redis()
+			u.UpdateAgentUserData()
 		}
 	}
 	t.Update2redis()
@@ -496,7 +508,7 @@ func (r *CSThGameRoom) CanNextDeskRun() bool {
 	}
 
 	//如果锦标赛不是在 run 的状态,则desk不能开始
-	if r.status != CSTHGAMEROOM_STATUS_RUN {
+	if r.Status != CSTHGAMEROOM_STATUS_RUN {
 		return false
 	}
 
@@ -506,8 +518,8 @@ func (r *CSThGameRoom) CanNextDeskRun() bool {
 
 //查找一个人的赛况
 func (r *CSThGameRoom) GetRankInfo(userId uint32) *bbproto.CsThRankInfo {
-	for i := 0; i < len(r.rankInfo); i++ {
-		r := r.rankInfo[i]
+	for i := 0; i < len(r.RankInfo); i++ {
+		r := r.RankInfo[i]
 		if r != nil && r.GetUserId() == userId {
 			return r
 		}
@@ -542,7 +554,7 @@ func (r *CSThGameRoom) AddUserRankInfo(userId uint32, matchId int32, balance int
 	*rank.Balance = balance
 	*rank.EndTime = time.Now().UnixNano()
 
-	r.rankInfo = append(r.rankInfo, rank)        //保存到rankInfo中去
+	r.RankInfo = append(r.RankInfo, rank)        //保存到rankInfo中去
 }
 
 
@@ -580,8 +592,8 @@ func ( list RankList) Swap(i, j int) {
 func (r *CSThGameRoom) GetRankByuserId(userId uint32) int32 {
 	r.RefreshRank()
 	index := 0
-	for i := 0; i < len(r.rankInfo); i++ {
-		info := r.rankInfo[i]
+	for i := 0; i < len(r.RankInfo); i++ {
+		info := r.RankInfo[i]
 		if info != nil && info.GetUserId() == userId {
 			index = i
 			break
@@ -589,7 +601,7 @@ func (r *CSThGameRoom) GetRankByuserId(userId uint32) int32 {
 
 	}
 
-	rank := len(r.rankInfo) - index
+	rank := len(r.RankInfo) - index
 	log.T("查询用户[%v]的锦标赛rank排名是[%v]", userId, rank)
 	return int32(rank)
 }

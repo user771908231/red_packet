@@ -211,6 +211,7 @@ func (t *Data) GetObj(key string, pb proto.Message) error {
 	return proto.Unmarshal(d, pb)
 }
 
+
 func (t *Data) GetObjv2(key string, pb proto.Message) proto.Message {
 	d, err := t.Gets(key)
 	if err != nil {

@@ -7,16 +7,12 @@ import (
 	"casino_server/common/log"
 	"casino_server/service/userService"
 	"errors"
-	"casino_server/conf/casinoConf"
-	"gopkg.in/mgo.v2/bson"
 	"casino_server/mode"
 	"casino_server/conf/intCons"
 	"casino_server/utils/timeUtils"
-	"casino_server/utils/numUtils"
-	"casino_server/utils/db"
-	"gopkg.in/mgo.v2"
 	"casino_server/common/Error"
 	"casino_server/service/noticeServer"
+	"casino_server/mode/dao/TThDeskRecordDao"
 )
 
 
@@ -134,18 +130,10 @@ func HandlerGetGameRecords(m *bbproto.Game_GameRecord, a gate.Agent) {
 	userId := m.GetUserId()
 
 	//1,战绩查询
-	var deskRecords []mode.T_th_desk_record
-	queryKey, _ := numUtils.Uint2String(userId)
-	db.Query(func(d *mgo.Database) {
-		d.C(casinoConf.DBT_T_TH_DESK_RECORD).Find(bson.M{"userids": bson.RegEx{queryKey, "."}}).Limit(20).All(&deskRecords)
-	})
-
+	var deskRecords []mode.T_th_desk_record = TThDeskRecordDao.Find(userId,20)
 	log.T("查询到用户[%v]的战绩[%v]", userId, deskRecords)
 	//需要返回的数据
-	resDatav2 := &bbproto.Game_AckGameRecord{}
-	resDatav2.UserId = new(uint32)
-	resDatav2.Result = new(int32)
-
+	resDatav2 := bbproto.NewGame_AckGameRecord()
 	*resDatav2.UserId = userId
 	*resDatav2.Result = intCons.ACK_RESULT_SUCC
 

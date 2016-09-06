@@ -273,3 +273,10 @@ func NewGame_ChampionshipGameOver() *Game_ChampionshipGameOver {
 	ret.UserName = new(string)
 	return ret
 }
+
+func NewGame_AckGameRecord() *Game_AckGameRecord{
+	ret := &Game_AckGameRecord{}
+	ret.UserId = new(uint32)
+	ret.Result = new(int32)
+	return ret
+}

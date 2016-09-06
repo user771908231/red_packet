@@ -464,7 +464,7 @@ func handlerGame_Rebuy(args []interface{}) {
 func handlerGame_NotRebuy(args []interface{}) {
 	m := args[0].(*bbproto.Game_NotRebuy)
 	a := args[1].(gate.Agent)
-	log.T("不需要rebuy的请求m[%v]", m)
+	log.T("notrebuy的请求m[%v]", m)
 
 	desk := room.GetDeskByAgent(a)
 	if desk != nil {

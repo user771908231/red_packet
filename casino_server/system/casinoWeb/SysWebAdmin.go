@@ -25,7 +25,10 @@ func gameInfo(w http.ResponseWriter, r *http.Request) {
 }
 
 func gameInfocs(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprint(w, "锦标赛房间【%v】的信息,matchId[%v],盲注等级[%v]:\n", room.ChampionshipRoom.MatchId, room.ChampionshipRoom.BlindLevel)
+	fmt.Fprint(w, "锦标赛房间matchId[%v],盲注等级[%v],readyTime[%v],beginTime[%v],endTime[%v],\n" +
+		"rankinfo[%v]" ,
+		room.ChampionshipRoom.MatchId, room.ChampionshipRoom.BlindLevel, room.ChampionshipRoom.ReadyTime, room.ChampionshipRoom.BeginTime, room.ChampionshipRoom.EndTime,
+		room.ChampionshipRoom.RankInfo)
 	for i := 0; i < len(room.ChampionshipRoom.ThDeskBuf); i++ {
 		desk := room.ChampionshipRoom.ThDeskBuf[i]
 		printDeskInfo(w, desk)

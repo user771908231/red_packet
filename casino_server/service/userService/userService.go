@@ -121,7 +121,7 @@ func GetUserSessionByUserId(id uint32) *bbproto.ThServerUserSession {
 
 //保存回话信息
 func SaveUserSession(userData *bbproto.ThServerUserSession) {
-	redisUtils.SaveObj(GetRedisUserSeesionKey(userData.GetUserId()), userData)
+	redisUtils.SetObj(GetRedisUserSeesionKey(userData.GetUserId()), userData)
 }
 
 func GetUserByOpenId(openId  string) *bbproto.User {
@@ -160,7 +160,7 @@ func GetUserByOpenId(openId  string) *bbproto.User {
 	将用户model保存在redis中
  */
 func SaveUser2Redis(u *bbproto.User) {
-	redisUtils.SaveObj(GetRedisUserKey(u.GetId()), u)
+	redisUtils.SetObj(GetRedisUserKey(u.GetId()), u)
 }
 
 /**

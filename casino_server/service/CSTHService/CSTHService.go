@@ -59,7 +59,7 @@ func RefreshRedisMatchList() {
 		}
 
 		//存储
-		redisUtils.SaveObj(GetMatchListRedisKey(), sdata)
+		redisUtils.SetObj(GetMatchListRedisKey(), sdata)
 	}
 
 }
