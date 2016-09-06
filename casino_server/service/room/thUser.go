@@ -140,7 +140,7 @@ func (t *ThUser) waitCsRebuy() {
 		if (time.Now().After(timeEnd)) {
 			log.T("user【%v】等待重购超时,系统自动notRebuy...",t.UserId)
 			desk := t.GetDesk()
-			if desk != nil || !desk.IsUserRoomCoinEnough(t) {
+			if desk != nil && !desk.IsUserRoomCoinEnough(t) {
 				desk.CSNotRebuy(t.UserId)
 			}
 			return true
