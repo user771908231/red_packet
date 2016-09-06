@@ -686,7 +686,7 @@ func (t *ThDesk) BroadcastTestResult(p *bbproto.Game_TestResult) error {
 	//发送的时候,初始化自己的排名
 	for i := 0; i < len(t.Users); i++ {
 		u := t.Users[i]                //给这个玩家发送广播信息
-		if u != nil && u.IsLeave != true && u.IsClose() {
+		if u != nil && !u.IsLeave  && !u.IsBreak && u.IsClose() {
 			*p.Rank = t.getRankByUserId(u)        //获取用户的排名
 			*p.CanRebuy = t.getCanRebuyByUserId(u)        //是否可以重构
 			*p.RebuyCount = u.RebuyCount        //重购的次数
@@ -1255,16 +1255,14 @@ func (t *ThDesk) afterLottery() error {
 	//2,设置用户的状态
 	for i := 0; i < len(t.Users); i++ {
 		u := t.Users[i]
-		if u != nil && u.IsBreak == false {
+		if u != nil && !u.IsBreak {
 			if t.IsFriend() {
 				//如果是自定义的房间,设置每个人都是坐下的状态
 				u.Status = TH_USER_STATUS_SEATED
 			} else if t.IsChampionship() {
 				//这里不应该这么判断,因为升盲之后,钱已经变了...
-
 				if t.IsUserRoomCoinEnough(u) {
-					//如果是锦标赛的房间,用户的钱足够
-					u.Status = TH_USER_STATUS_READY
+					u.Status = TH_USER_STATUS_READY   //如果是锦标赛的房间,用户的钱足够
 				} else {
 					//如果是锦标赛的房间,用户的钱不够
 					u.Status = TH_USER_STATUS_SEATED
@@ -2296,11 +2294,16 @@ func (t *ThDesk) IsOwner(userId uint32) bool {
 
 //锦标赛不重新够买的处理
 func (t *ThDesk) CSNotRebuy(userId uint32) {
+	log.T("锦标赛user[%v]notrebuy的请求",userId)
 	//1,设置当前用户的锦标赛状态 为结束
 	user := t.GetUserByUserId(userId)
+	if !user.CSGamingStatus {
+		log.E("用户已经放弃了比赛,不能重新notRebuy了")
+		return
+	}
+
 	user.RebuyCount = ChampionshipRoom.RebuyCountLimit                //取消重构之后,下一局就不能重购买了
 	user.CSGamingStatus = false;
-
 
 	//2,取消之后,现实最终的排名
 
