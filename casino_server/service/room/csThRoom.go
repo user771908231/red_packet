@@ -353,7 +353,6 @@ func (r *CSThGameRoom) RefreshRank() {
 
  */
 func (r *CSThGameRoom) IsRepeatIntoRoom(userId uint32, a gate.Agent) (*ThDesk, error) {
-
 	user := r.GetCopyUserById(userId)
 	if user == nil {
 		//表示没有进入过锦标赛
@@ -430,6 +429,7 @@ func (t *ThDesk) UpdateThdeskAndAllUser2redis() error {
 		u := t.Users[i]
 		if u != nil {
 			u.Update2redis()
+			u.UpdateAgentUserData()
 		}
 	}
 	t.Update2redis()

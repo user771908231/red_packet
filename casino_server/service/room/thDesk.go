@@ -529,7 +529,7 @@ func (t *ThDesk) InitBlindBet() error {
 /**
 	游戏开始的时候,初始化玩家的信息
  */
-func (t *ThDesk) InitUserBeginStatus() error {
+func (t *ThDesk) InitUserStatus() error {
 	log.T("开始一局新的游戏,开始初始化用户的状态")
 
 	//清空状态leave 的玩家
@@ -798,10 +798,8 @@ func (t *ThDesk) GetResUserModelClieSeq(userId uint32) []*bbproto.THUser {
 
 
 // 	初始化第一个押注的人,当前押注的人
-func (t *ThDesk) OninitThDeskBeginStatus() error {
+func (t *ThDesk) OninitThDeskStatus() error {
 	log.T("开始一局游戏,现在初始化desk的信息")
-	//设置德州desk状态//设置状态为开始游戏
-	t.Status = TH_DESK_STATUS_RUN
 
 	userTemp := make([]*ThUser, len(t.Users))
 	copy(userTemp, t.Users)
@@ -873,13 +871,26 @@ func (t *ThDesk) OninitThDeskBeginStatus() error {
 	t.SendTurn = false        //是否已经发了第四张牌
 	t.SendRive = false        //是否已经发了第五张牌
 	t.GameNumber, _ = db.GetNextSeq(casinoConf.DBT_T_CS_TH_DESK_RECORD)
+	t.Status = TH_DESK_STATUS_RUN                //设置德州desk状态//设置状态为开始游戏
 
 	//如果是锦标赛,需要设置锦标赛的属性
-
+	if t.IsChampionship() {
+		t.MatchId = ChampionshipRoom.MatchId
+		t.UpdateUserMatchId()
+	}
 
 	t.LogString()
 	log.T("开始一局游戏,现在初始化desk的信息完毕...")
 	return nil
+}
+
+//更新桌子里的所有user的matchID
+func (t *ThDesk) UpdateUserMatchId() {
+	for _, user := range t.Users {
+		if user != nil {
+			user.MatchId = t.MatchId
+		}
+	}
 }
 
 func (t *ThDesk) GetBettingUserCount() int32 {
@@ -1606,8 +1617,6 @@ func (t *ThDesk) calcPreCoin(userId uint32, coin int64) error {
 	return nil
 }
 
-
-
 // 用户加注,跟住,allin 之后对他的各种余额属性进行计算
 func (t *ThDesk) calcBetCoin(userId uint32, coin int64) error {
 	user := t.GetUserByUserId(userId)
@@ -1948,14 +1957,14 @@ func (mydesk *ThDesk) Run() error {
 	}
 
 	//2,初始化玩家的信息
-	err := mydesk.InitUserBeginStatus()
+	err := mydesk.InitUserStatus()
 	if err != nil {
 		log.E("开始游戏失败,errMsg[%v]", err.Error())
 		return err
 	}
 
 	//3,初始化游戏房间的状态
-	err = mydesk.OninitThDeskBeginStatus()
+	err = mydesk.OninitThDeskStatus()
 	if err != nil {
 		log.E("开始德州扑克游戏,初始化房间的状态的时候报错")
 		return err
@@ -2085,6 +2094,7 @@ func (t *ThDesk) EndTh() bool {
 	return true        //已经结束了本场游戏
 }
 
+//清空user的agentUserData
 func (t *ThDesk) clearAgentData(ignoreUserId uint32) {
 	for i := 0; i < len(t.Users); i++ {
 		u := t.Users[i]
@@ -2294,7 +2304,7 @@ func (t *ThDesk) IsOwner(userId uint32) bool {
 
 //锦标赛不重新够买的处理
 func (t *ThDesk) CSNotRebuy(userId uint32) {
-	log.T("锦标赛user[%v]notrebuy的请求",userId)
+	log.T("锦标赛user[%v]notrebuy的请求", userId)
 	//1,设置当前用户的锦标赛状态 为结束
 	user := t.GetUserByUserId(userId)
 	if !user.CSGamingStatus {

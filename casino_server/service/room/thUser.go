@@ -13,6 +13,7 @@ import (
 	"sync/atomic"
 	"github.com/golang/protobuf/proto"
 	"casino_server/utils/jobUtils"
+	"casino_server/common/Error"
 )
 
 
@@ -23,7 +24,7 @@ import (
 var TH_USER_STATUS_NOGAME int32 = 0           //刚上桌子 没有游戏的玩家
 var TH_USER_STATUS_WAITSEAT int32 = 1         //刚上桌子 等待入座的玩家
 var TH_USER_STATUS_SEATED int32 = 2           //刚上桌子 已经入座没有准备的玩家
-var TH_USER_STATUS_READY int32 = 3	      //已经准备的玩家
+var TH_USER_STATUS_READY int32 = 3              //已经准备的玩家
 var TH_USER_STATUS_BETING int32 = 4           //押注中
 var TH_USER_STATUS_ALLINING int32 = 5         //allIn
 var TH_USER_STATUS_FOLDED int32 = 6           //弃牌
@@ -108,6 +109,9 @@ func (t *ThUser) wait() error {
 	uuid, _ := uuid.NewV4()
 	t.waitUUID = uuid.String()                //设置出牌等待的标志
 	go func() {
+		//tod 目前是测试性质的代码
+		defer Error.ErrorRecovery("user.timeout()")
+
 		for timeNow := range ticker.C {
 			//表示已经过期了
 			bool, err := t.TimeOut(timeNow)
@@ -167,7 +171,12 @@ func (t *ThUser) TimeOut(timeNow time.Time) (bool, error) {
 	//如果用户超时,或者用户已经离开,那么直接做弃牌的操作
 	if t.waiTime.Before(timeNow) || t.IsLeave {
 		log.T("玩家[%v]超时,现在做超时的处理", t.UserId)
-		err := t.GetDesk().DDBet(t.Seat, TH_DESK_BET_TYPE_FOLD, 0)
+		desk := t.GetDesk()
+		if desk == nil {
+			log.T("用户等待超时,自动弃牌的时候,desk为空,导致弃牌失败.")
+			return true, nil                //表示游戏结束
+		}
+		err := desk.DDBet(t.Seat, TH_DESK_BET_TYPE_FOLD, 0)
 		if err != nil {
 			log.E("用户[%v]弃牌失败", t.UserId)
 		}
