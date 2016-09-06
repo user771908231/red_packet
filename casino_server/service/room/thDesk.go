@@ -2196,19 +2196,24 @@ func (t *ThDesk) CSRebuy(userId uint32) error {
 		return errors.New("用户已经发起比赛了,不能在rebuy")
 	}
 
-	//1,为用户增加金额
-	user.AddRoomCoin(t.InitRoomCoin)
-	user.Update2redis()                         //rebuy需要更新redis中的缓存
 
-	//得到需要扣除的砖石
+	//先扣除钻石,扣除成功之后,再给用户加上roomCoin
 	var feeDiamond int64 = -1
 	banlance, err := userService.UpdateUserDiamond(userId, feeDiamond)
 	if err != nil {
 		log.E("rebuy的时候出错,error", err.Error())
-		*ret.Result = intCons.ACK_RESULT_ERROR                                //错误码
+		*ret.Result = Error.GetErrorCode(err)                               //错误码
 		user.WriteMsg(ret)
 		return err
 	}
+
+
+	//1,为用户增加金额
+	//rebuy需要更新redis中的缓存
+	user.AddRoomCoin(t.InitRoomCoin)
+	user.Update2redis()
+
+
 	//2,生成一条交易记录
 	err = userService.CreateDiamonDetail(userId, mode.T_USER_DIAMOND_DETAILS_TYPE_REBUY, feeDiamond, banlance, "rebuy消耗钻石");
 	if err != nil {
