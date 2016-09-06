@@ -1292,6 +1292,7 @@ func (t *ThDesk) afterLottery() error {
 //判断用户的余额是否足够开始下一场游戏
 func (t *ThDesk) IsUserRoomCoinEnough(u *ThUser) bool {
 	if u.RoomCoin < t.PreCoin + t.BigBlindCoin {
+		log.T("用户[%v]的roomCoin[%v] < preCoin[%v]+bigBlindCoin[%v]",u.UserId,u.RoomCoin,t.PreCoin,t.BigBlindCoin)
 		return false
 	} else {
 		return true
