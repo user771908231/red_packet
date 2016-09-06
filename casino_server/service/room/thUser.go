@@ -134,15 +134,18 @@ func (t *ThUser) wait() error {
 
 //等待用户rebuy,时间过了之后,用户余额还是不够,那么游戏结束
 func (t *ThUser) waitCsRebuy() {
+	log.T("user【%v】开始等待重购买")
 	timeEnd := time.Now().Add(time.Second * 10)        //5秒之后
 	jobUtils.DoAsynJob(time.Second * 5, func() bool {
 		if (time.Now().After(timeEnd)) {
+			log.T("user【%v】等待重购超时,系统自动notRebuy...")
 			desk := t.GetDesk()
 			if desk != nil || !desk.IsUserRoomCoinEnough(t) {
 				desk.CSNotRebuy(t.UserId)
 			}
 			return true
 		} else {
+			log.T("user【%v】等待重购ing...")
 			return false
 		}
 	})

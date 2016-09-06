@@ -1233,6 +1233,12 @@ func (t *ThDesk) end() bool {
 
 //广播开奖的结果
 func (t *ThDesk) broadLotteryResult() error {
+	//发送是否需要加注的时候,需要升盲之后才能确定
+	if t.IsChampionship() {
+		t.SmallBlindCoin = ChampionshipRoom.SmallBlindCoin
+		t.BigBlindCoin = ChampionshipRoom.SmallBlindCoin * 2
+	}
+
 	//1.发送输赢结果
 	result := bbproto.NewGame_TestResult()
 	*result.Tableid = t.Id                          //桌子
@@ -1256,12 +1262,6 @@ func (t *ThDesk) afterLottery() error {
 	t.EdgeJackpot = 0; //边池设置为0
 	t.AllInJackpot = nil;
 	t.blindLevel = 0;
-
-	//下一局开始升盲
-	if t.IsChampionship() {
-		t.SmallBlindCoin = ChampionshipRoom.SmallBlindCoin
-		t.BigBlindCoin = ChampionshipRoom.SmallBlindCoin * 2
-	}
 
 	//2,设置用户的状态
 	for i := 0; i < len(t.Users); i++ {
