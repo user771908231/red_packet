@@ -7,6 +7,7 @@ import (
 	"casino_server/msg/bbprotogo"
 	"casino_server/utils/redisUtils"
 	"casino_server/service/userService"
+	"errors"
 )
 
 //关于thuser的redis存储
@@ -193,6 +194,13 @@ func RedisDeskTransThdesk(rt *bbproto.ThServerDesk) *ThDesk {
 
 //更新thdesk的数据到redis中
 func UpdateTedisThDesk(t *ThDesk) error {
+
+	//1,检测参数
+	if t == nil {
+		log.E("需要备份数据到redis 的thdesk为nil,备份失败...")
+		return errors.New("备份desk到redis失败...")
+	}
+
 	rt := GetRedisThDesk(t.Id, t.GameNumber)
 	if rt == nil {
 		log.T("数据库中没有找到thdesk【%v】,重新生成一个,并且保存到redis中", t.Id)
@@ -236,6 +244,9 @@ func UpdateTedisThDesk(t *ThDesk) error {
 	*rt.SendFlop = t.SendFlop
 	*rt.SendTurn = t.SendTurn
 	*rt.SendRive = t.SendRive
+
+	//所有人的id
+	rt.UserIds = t.GetuserIds()
 
 	//3,保存到数据库
 	saveRedisThDesk(rt)

@@ -55,7 +55,7 @@ func GetRunningDesk() *bbproto.RUNNING_DESKKEYS {
 	var keys *bbproto.RUNNING_DESKKEYS
 	data := redisUtils.GetObj(RUNNING_DESKS, &bbproto.RUNNING_DESKKEYS{})
 	if data != nil {
-		keys = bbproto.NewRUNNING_DESKKEYS()
+		keys = data.(*bbproto.RUNNING_DESKKEYS)
 		return keys
 	} else {
 		return nil
@@ -64,24 +64,31 @@ func GetRunningDesk() *bbproto.RUNNING_DESKKEYS {
 
 //恢复游戏数据
 func (r *ThGameRoom) Recovery() {
+	log.T("开始恢复服务器crash之前的数据...")
 	//1,找到对应的key
 	keys := GetRunningDesk()
+	log.T("找到需要恢复的desk[%v]", keys)
 	if keys != nil {
 		//2,循环处理每个key
 		for _, key := range keys.Desks {
+			log.T("开始恢复desk[%v]的数据", key)
 			//通过key在数据库中恢复thdesk
 			redisThdesk := GetRedisThDeskByKey(key)
 			desk := RedisDeskTransThdesk(redisThdesk)
 			if desk != nil {
 				for _, userId := range redisThdesk.UserIds {
+					log.T("开始恢复desk[%v]的user[%v]", key, userId)
 					user := RedisThuserTransThuser(GetRedisThUser(desk.Id, desk.GameNumber, userId))        //依次恢复user
 					desk.AddThuserBean(user)        //把desk add 到room
 					desk.RecoveryRun()        //重新开始游戏,
 				}
+			}else{
+				log.T("没有找到desk【%v】的数据,恢复失败",key)
 			}
 			r.AddThDesk(desk)        //把thdesk 加到room中
 		}
 	}
+	log.T("恢复服务器crash之前的数据...end")
 }
 
 
@@ -91,8 +98,8 @@ func (t *ThDesk) RecoveryRun() {
 	user := t.GetUserByUserId(t.BetUserNow)
 	if user != nil {
 		user.wait()
-	}else{
-		log.E("恢复thdesk失败,没有找到betUserNow【%v】",t.BetUserNow)
+	} else {
+		log.E("恢复thdesk失败,没有找到betUserNow【%v】", t.BetUserNow)
 	}
 }
 

@@ -861,7 +861,7 @@ func (t *ThDesk) OninitThDeskStatus() error {
 	t.SendFlop = false        //是否已经发了三张底牌
 	t.SendTurn = false        //是否已经发了第四张牌
 	t.SendRive = false        //是否已经发了第五张牌
-	t.GameNumber, _ = db.GetNextSeq(casinoConf.DBT_T_CS_TH_DESK_RECORD)
+	t.GameNumber, _ = db.GetNextSeq(casinoConf.DBT_T_TH_GAMENUMBER_SEQ)
 	t.Status = TH_DESK_STATUS_RUN                //设置德州desk状态//设置状态为开始游戏
 
 	//如果是锦标赛,需要设置锦标赛的属性
@@ -1983,6 +1983,17 @@ func (mydesk *ThDesk) Run() error {
 
 	log.T("\n\n开始一局新的游戏,初始化完毕\n\n")
 	return nil
+}
+
+//得到所有的id
+func (t *ThDesk) GetuserIds() []uint32 {
+	var ids []uint32
+	for _, u := range t.Users {
+		if u != nil {
+			ids = append(ids, u.UserId)
+		}
+	}
+	return ids
 }
 
 //锦标赛结束

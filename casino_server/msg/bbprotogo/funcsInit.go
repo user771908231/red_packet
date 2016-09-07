@@ -201,13 +201,20 @@ func NewThServerAllInJack() *ThServerAllInJackpot {
 func NewThServerDesk() *ThServerDesk {
 	result := &ThServerDesk{}
 	result.Id = new(int32)
+	result.MatchId = new(int32)
 	result.DeskOwner = new(uint32)
 	result.RoomKey = new(string)
+	result.CreateFee = new(int64)
 	result.DeskType = new(int32)
 	result.InitRoomCoin = new(int64)
 	result.JuCount = new(int32)
+	result.JuCountNow = new(int32)
+	result.PreCoin = new(int64)
 	result.SmallBlindCoin = new(int64)
 	result.BigBlindCoin = new(int64)
+	result.BlindLevel = new(int32)
+	result.RebuyCountLimit = new(int32)
+	result.RebuyBlindLevelLimit = new(int32)
 	result.Dealer = new(uint32)
 	result.BigBlind = new(uint32)
 	result.SmallBlind = new(uint32)
@@ -224,6 +231,9 @@ func NewThServerDesk() *ThServerDesk {
 	result.EdgeJackpot = new(int64)
 	result.MinRaise = new(int64)
 
+	result.SendFlop = new(bool)
+	result.SendTurn = new(bool)
+	result.SendRive = new(bool)
 	return result
 }
 
