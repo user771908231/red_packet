@@ -629,7 +629,7 @@ func (r *CSThGameRoom) DissolveDesk(desk *ThDesk, reserveUser *ThUser) error {
 		return errors.New("房间已经解散了")
 	}
 
-	if desk.Status != TH_DESK_STATUS_STOP {
+	if desk.IsRun() || desk.IsLottery() {
 		*result.Result = intCons.ACK_RESULT_ERROR
 		reserveUser.WriteMsg(result)
 		return errors.New("房间正在游戏中,不能解散")

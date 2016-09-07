@@ -165,7 +165,7 @@ func (r *ThGameRoom) DissolveDeskByDeskOwner(userId uint32, a gate.Agent) error 
 	}
 
 	//2,解散桌子的条件,如果正在游戏中,是否能解散?
-	if desk.Status != TH_DESK_STATUS_STOP {
+	if desk.IsRun() || desk.IsLottery() {
 		*result.Result = intCons.ACK_RESULT_ERROR
 		a.WriteMsg(result)
 		return errors.New("游戏正在进行中,不能解散")

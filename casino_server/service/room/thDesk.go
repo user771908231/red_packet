@@ -39,10 +39,7 @@ var TH_DESK_STATUS_STOP int32 = 1                //没有开始的状态
 var TH_DESK_STATUS_READY int32 = 2                 //游戏处于准备的状态
 var TH_DESK_STATUS_RUN int32 = 3                //已经开始的状态
 var TH_DESK_STATUS_LOTTERY int32 = 4             //已经开始的状态
-
-//桌子相关的竞标赛的逻辑
-var CSTH_DESK_STATUS_RUN int32 = 1                //没有开始的状态
-var CSTH_DESK_STATUS_STOP int32 = 2                //没有开始的状态
+var TH_DESK_STATUS_GAMEOVER int32 = 5             //已经开始的状态
 
 
 var TH_DESK_ROUND1 int32 = 1                //第一轮押注
@@ -1238,7 +1235,7 @@ func (t *ThDesk) broadLotteryResult() error {
 func (t *ThDesk) afterLottery() error {
 	//1,设置游戏桌子的状态
 	log.T("开奖结束,设置desk的状态为stop")
-	t.Status = TH_DESK_STATUS_STOP                //设置为没有开始开始游戏
+	t.Status = TH_DESK_STATUS_GAMEOVER                //设置为没有开始开始游戏
 	t.Jackpot = 0; //主池设置为0
 	t.EdgeJackpot = 0; //边池设置为0
 	t.AllInJackpot = nil;
@@ -1718,7 +1715,7 @@ func (t *ThDesk) nextRoundInfo() {
 func (t *ThDesk) isNewRound() bool {
 	//
 	log.T("判断是否是新的一轮t.BetUserRaiseUserId[%v],t.BetUserNow(%v),t.status[%v].", t.RaiseUserId, t.BetUserNow, t.Status)
-	if t.RaiseUserId == t.BetUserNow &&  t.Status == TH_DESK_STATUS_RUN {
+	if t.RaiseUserId == t.BetUserNow &&  t.IsRun() {
 		log.T("t.BetUserRaiseUserId[%v] == t.BetUserNow[%v],新的一局开始", t.RaiseUserId, t.BetUserNow)
 		return true
 	} else {
@@ -1926,6 +1923,23 @@ func (t *ThDesk) IsStop() bool {
 	return t.Status == TH_DESK_STATUS_STOP
 }
 
+func (t *ThDesk) IsReady() bool {
+	return t.Status == TH_DESK_STATUS_READY
+}
+
+func (t *ThDesk) IsRun() bool {
+	return t.Status == TH_DESK_STATUS_RUN
+}
+
+func (t *ThDesk) IsLottery() bool {
+	return t.Status == TH_DESK_STATUS_LOTTERY
+}
+
+func (t *ThDesk) IsOver() bool {
+	return t.Status == TH_DESK_STATUS_GAMEOVER
+}
+
+
 
 //开始游戏
 func (mydesk *ThDesk) Run() error {
@@ -1938,6 +1952,8 @@ func (mydesk *ThDesk) Run() error {
 		log.T("\n\n不能开始一局新的游戏\n\n")
 		return nil
 	}
+
+
 
 	//2,初始化玩家的信息,是否可以开始游戏,
 	err := mydesk.InitUserStatus()

@@ -31,6 +31,8 @@ func AddRunningDesk(t *ThDesk) {
 
 
 //删除正在进行的游戏
+//一局正常结束的时候,需要把这一局的desk,gameNumber 删除
+
 func RmRunningDesk(t *ThDesk) {
 	index := -1
 	tk := getRedisThDeskKey(t.Id, t.GameNumber)
@@ -76,7 +78,7 @@ func (r *ThGameRoom) Recovery() {
 			//通过key在数据库中恢复thdesk
 			redisThdesk := GetRedisThDeskByKey(key)
 			desk := RedisDeskTransThdesk(redisThdesk)
-			if desk != nil {
+			if desk != nil && !desk.IsOver() {
 				for _, userId := range redisThdesk.UserIds {
 					log.T("开始恢复desk[%v]的user[%v]", key, userId)
 					user := RedisThuserTransThuser(GetRedisThUser(desk.Id, desk.GameNumber, userId))        //依次恢复user

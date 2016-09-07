@@ -309,10 +309,10 @@ func deskStatus2OG(desk *ThDesk) int32 {
 	status := desk.Status
 	round := desk.RoundCount
 
-	if status == TH_DESK_STATUS_STOP {
+	if desk.IsStop() {
 		//没有开始
 		result = GAME_STATUS_READY
-	} else if status == TH_DESK_STATUS_RUN {
+	} else if desk.IsRun() || desk.IsLottery() {
 		switch round {
 		case TH_DESK_ROUND1:
 			result = GAME_STATUS_FIRST_TURN
@@ -325,7 +325,7 @@ func deskStatus2OG(desk *ThDesk) int32 {
 		default:
 			result = GAME_STATUS_DEAL_CARDS
 		}
-	} else if status == TH_DESK_STATUS_LOTTERY {
+	} else if desk.IsLottery() {
 		result = GAME_STATUS_SHOW_RESULT
 	}
 
