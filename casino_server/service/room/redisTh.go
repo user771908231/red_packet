@@ -200,13 +200,23 @@ func UpdateTedisThDesk(t *ThDesk) error {
 	}
 	//2,为user赋值
 	*rt.Id = t.Id
+	*rt.MatchId = t.MatchId
 	*rt.DeskOwner = t.DeskOwner
 	*rt.RoomKey = t.RoomKey
+	*rt.CreateFee = t.CreateFee
 	*rt.DeskType = t.GameType
 	*rt.InitRoomCoin = t.InitRoomCoin
 	*rt.JuCount = t.JuCount
+	*rt.JuCountNow = t.JuCountNow
+	*rt.PreCoin = t.PreCoin
+
 	*rt.SmallBlindCoin = t.SmallBlindCoin
 	*rt.BigBlindCoin = t.BigBlindCoin
+	*rt.BlindLevel = t.blindLevel
+	*rt.RebuyCountLimit = t.RebuyCountLimit
+	*rt.RebuyBlindLevelLimit = t.RebuyBlindLevelLimit
+	//BeginTime            time.Time
+	//EndTime              time.Time
 	*rt.Dealer = t.Dealer
 	*rt.BigBlind = t.BigBlind
 	*rt.SmallBlind = t.SmallBlind
@@ -214,6 +224,7 @@ func UpdateTedisThDesk(t *ThDesk) error {
 	*rt.NewRoundFirstBetUser = t.NewRoundFirstBetUser
 	*rt.BetUserNow = t.BetUserNow
 	*rt.GameNumber = t.GameNumber
+	rt.PublicPai = t.PublicPai
 	*rt.UserCount = t.UserCount
 	*rt.Status = t.Status
 	*rt.BetAmountNow = t.BetAmountNow
@@ -221,9 +232,10 @@ func UpdateTedisThDesk(t *ThDesk) error {
 	*rt.Jackpot = t.Jackpot
 	*rt.EdgeJackpot = t.EdgeJackpot
 	*rt.MinRaise = t.MinRaise
-
 	rt.AllInJackpot = t.GetServerProtoAllInJackPot()
-	rt.PublicPai = t.PublicPai
+	*rt.SendFlop = t.SendFlop
+	*rt.SendTurn = t.SendTurn
+	*rt.SendRive = t.SendRive
 
 	//3,保存到数据库
 	saveRedisThDesk(rt)
