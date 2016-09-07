@@ -47,27 +47,7 @@ func (r *ThGameRoom) OnInit() {
 }
 
 
-//恢复游戏数据
-func (r *ThGameRoom) Recovery() {
-	//1,找到对应的key
-	keys := GetRunningDesk()
-	if keys != nil {
-		//2,循环处理每个key
-		for _, key := range keys.Desks {
-			//通过key在数据库中恢复thdesk
-			desk := RedisDeskTransThdesk(GetRedisThDeskByKey(key))
-			if desk != nil {
-				//依次恢复user
 
-
-				//把desk add 到room
-
-				//desk.recoveryRun()	//重新开始游戏,
-
-			}
-		}
-	}
-}
 
 //随机生成6位数字
 func (r *ThGameRoom) RandRoomKey() string {

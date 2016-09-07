@@ -266,14 +266,10 @@ func (t *ThDesk) AddThUser(userId uint32, userStatus int32, a gate.Agent) (*ThUs
 	thUser.agent = a
 	thUser.Status = userStatus        //刚进房间的玩家
 	thUser.deskId = t.Id                //桌子的id
-	thUser.MatchId = t.MatchId
-	thUser.GameNumber = t.GameNumber
 	thUser.NickName = *redisUser.NickName                //todo 测试阶段,把nickName显示成用户id
 	thUser.RoomCoin = t.InitRoomCoin
-	thUser.InitialRoomCoin = thUser.RoomCoin
 	thUser.IsBreak = false
 	thUser.IsLeave = false
-	thUser.RoomKey = t.RoomKey
 	thUser.LotteryCheck = true
 
 	//根据桌子的状态 设置用户的游戏状态
@@ -287,7 +283,7 @@ func (t *ThDesk) AddThUser(userId uint32, userStatus int32, a gate.Agent) (*ThUs
 	}
 
 	//3,添加thuser
-	err := t.addThuserBean(thUser)
+	err := t.AddThuserBean(thUser)
 	if err != nil {
 		log.E("增加user【%v】到desk【%v】失败", thUser.UserId, t.Id)
 		return nil, errors.New("增加user失败")
@@ -303,7 +299,7 @@ func (t *ThDesk) AddThUser(userId uint32, userStatus int32, a gate.Agent) (*ThUs
 
 
 //增加一个user实体
-func (t *ThDesk) addThuserBean(user *ThUser) error {
+func (t *ThDesk) AddThuserBean(user *ThUser) error {
 	for i := 0; i < len(t.Users); i++ {
 		if t.Users[i] == nil {
 			user.Seat = int32(i)                //给用户设置位置编号
@@ -412,7 +408,7 @@ func (t *ThDesk) CSLeaveThuser(userId uint32) error {
 	user.UpdateAgentUserData()
 
 	//2,更新锦标赛的数据
-	ChampionshipRoom.UpdateUserRankInfo(user.UserId, user.MatchId, user.RoomCoin)
+	ChampionshipRoom.UpdateUserRankInfo(user.UserId, t.MatchId, user.RoomCoin)
 	ChampionshipRoom.SubOnlineCount()        //竞标赛的在线人数-1
 
 	//3,返回离开房间之后的信息
@@ -440,9 +436,6 @@ func (r *ThDesk) RmUser(userId uint32) {
 			user.CSGamingStatus = false
 			user.RoomCoin = 0
 			user.deskId = 0
-			user.MatchId = 0
-			user.GameNumber = 0
-			user.RoomKey = ""
 			user.IsLeave = true
 			user.IsBreak = true
 			user.UpdateAgentUserData()
@@ -600,7 +593,7 @@ func (t *ThDesk) RmLeaveUser() {
 	for i := 0; i < len(usersTemp); i++ {
 		u := usersTemp[i]
 		if u != nil {
-			t.addThuserBean(u)
+			t.AddThuserBean(u)
 		}
 	}
 
@@ -874,21 +867,11 @@ func (t *ThDesk) OninitThDeskStatus() error {
 	//如果是锦标赛,需要设置锦标赛的属性
 	if t.IsChampionship() {
 		t.MatchId = ChampionshipRoom.MatchId
-		t.UpdateUserMatchId()
 	}
 
 	t.LogString()
 	log.T("开始一局游戏,现在初始化desk的信息完毕...")
 	return nil
-}
-
-//更新桌子里的所有user的matchID
-func (t *ThDesk) UpdateUserMatchId() {
-	for _, user := range t.Users {
-		if user != nil {
-			user.MatchId = t.MatchId
-		}
-	}
 }
 
 func (t *ThDesk) GetBettingUserCount() int32 {
@@ -1438,7 +1421,7 @@ func (t *ThDesk) SaveLotteryDatacsth() error {
 		deskRecord.UserIds = strings.Join([]string{deskRecord.UserIds, u.NickName}, ",")
 
 		//保存锦标赛用户的排名信息
-		ChampionshipRoom.UpdateUserRankInfo(u.UserId, u.MatchId, u.RoomCoin)
+		ChampionshipRoom.UpdateUserRankInfo(u.UserId, t.MatchId, u.RoomCoin)
 	}
 
 	log.T("开始保存DBT_T_TH_DESK_RECORD的信息")
@@ -2056,7 +2039,7 @@ func (t *ThDesk) EndTh() bool {
 		u := t.Users[i]
 		if u != nil {
 			gel := bbproto.NewGame_EndLottery()
-			*gel.Coin = u.RoomCoin - u.InitialRoomCoin        //这里不是u.winamount,u.winamount  表示本局赢得底池的金额
+			*gel.Coin = u.RoomCoin - t.InitRoomCoin        //这里不是u.winamount,u.winamount  表示本局赢得底池的金额
 			*gel.Seat = u.Seat
 
 			if t.DeskOwner == u.UserId {
@@ -2100,8 +2083,6 @@ func (t *ThDesk) clearAgentData(ignoreUserId uint32) {
 		u := t.Users[i]
 		if u != nil && u.UserId != ignoreUserId {
 			u.deskId = 0
-			u.MatchId = 0
-			u.RoomKey = ""
 			u.GameStatus = TH_USER_GAME_STATUS_NOGAME
 			u.UpdateAgentUserData()
 		}

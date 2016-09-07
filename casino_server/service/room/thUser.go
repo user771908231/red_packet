@@ -46,9 +46,6 @@ type ThUser struct {
 	NickName           string                //用户昵称
 
 	deskId             int32                 //用户所在的桌子的编号
-	MatchId            int32                 //matchId
-	RoomKey            string                //房间号
-	GameNumber         int32                 //游戏编号
 	Seat               int32                 //用户的座位号
 	agent              gate.Agent            //agent
 	Status             int32                 //当前的状态,单局游戏的状态
@@ -68,7 +65,6 @@ type ThUser struct {
 	TurnCoin           int64                 //单轮押注(总共四轮)的金额
 	HandCoin           int64                 //用户下注多少钱、指单局
 	RoomCoin           int64                 //用户上分的金额
-	InitialRoomCoin    int64                 //进房间的时候,手上的roomCoin, 实现rebuy协议之后,需要增加这个字段的值
 	RebuyCount         int32                 //重购的次数
 	LotteryCheck       bool                  //这个字段用于判断是否可以开奖,默认是false:   1,如果用户操作弃牌,则直接设置为true,2,如果本局是all in,那么要到本轮次押注完成之后,才能设置为true
 }
@@ -134,18 +130,18 @@ func (t *ThUser) wait() error {
 
 //等待用户rebuy,时间过了之后,用户余额还是不够,那么游戏结束
 func (t *ThUser) waitCsRebuy() {
-	log.T("user【%v】开始等待重购买",t.UserId)
+	log.T("user【%v】开始等待重购买", t.UserId)
 	timeEnd := time.Now().Add(time.Second * 10)        //5秒之后
 	jobUtils.DoAsynJob(time.Second * 5, func() bool {
 		if (time.Now().After(timeEnd)) {
 			desk := t.GetDesk()
 			if desk != nil && !desk.IsUserRoomCoinEnough(t) {
-				log.T("user【%v】等待重购超时,系统自动notRebuy...",t.UserId)
+				log.T("user【%v】等待重购超时,系统自动notRebuy...", t.UserId)
 				desk.CSNotRebuy(t.UserId)
 			}
 			return true
 		} else {
-			log.T("user【%v】等待重购ing...",t.UserId)
+			log.T("user【%v】等待重购ing...", t.UserId)
 			return false
 		}
 	})
@@ -229,18 +225,25 @@ func NewThUser() *ThUser {
 
 //更新用户的agentUserData数据
 func (u *ThUser) UpdateAgentUserData() {
+	userAgentData := bbproto.NewThServerUserSession()                //绑定参数
+
 
 	//保存回话信息
-	userAgentData := bbproto.NewThServerUserSession()                //绑定参数
 	*userAgentData.UserId = u.UserId
 	*userAgentData.DeskId = u.deskId
-	*userAgentData.MatchId = u.MatchId
-	*userAgentData.RoomKey = u.RoomKey
 	*userAgentData.GameStatus = u.GameStatus //返回用户当前的状态 0：未游戏  1：正在朋友桌  2：正在锦标赛
 	*userAgentData.IsBreak = u.IsBreak
 	*userAgentData.IsLeave = u.IsLeave
 	u.agent.SetUserData(userAgentData)        //设置用户的agentData
 
+	desk := u.GetDesk()
+	if desk == nil {
+		*userAgentData.MatchId = 0
+		*userAgentData.RoomKey = ""
+	} else {
+		*userAgentData.MatchId = desk.MatchId
+		*userAgentData.RoomKey = desk.RoomKey
+	}
 	//回话信息保存到redis
 	userService.SaveUserSession(userAgentData)
 }

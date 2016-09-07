@@ -433,7 +433,7 @@ func (r *CSThGameRoom) AddUser(userId uint32, matchId int32, a gate.Agent) (*ThD
 	//更新room的信息
 	r.AddOnlineCount()        //在线用户增加1
 	r.AddrankUserCount()
-	r.AddUserRankInfo(user.UserId, user.MatchId, user.RoomCoin)
+	r.AddUserRankInfo(user.UserId, mydesk.MatchId, user.RoomCoin)
 	r.AddCopyUser(user)       //用户列表总增加一个用户
 
 	mydesk.LogString()        //打印当前房间的信息

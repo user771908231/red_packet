@@ -3,6 +3,7 @@ package room
 import (
 	"casino_server/msg/bbprotogo"
 	"casino_server/utils/redisUtils"
+	"casino_server/common/log"
 )
 ////////////////////////////////////////////服务器 数据恢复相关/////////////////////////////////////
 var RUNNING_DESKS = "running_desk_keys"
@@ -60,3 +61,38 @@ func GetRunningDesk() *bbproto.RUNNING_DESKKEYS {
 		return nil
 	}
 }
+
+//恢复游戏数据
+func (r *ThGameRoom) Recovery() {
+	//1,找到对应的key
+	keys := GetRunningDesk()
+	if keys != nil {
+		//2,循环处理每个key
+		for _, key := range keys.Desks {
+			//通过key在数据库中恢复thdesk
+			redisThdesk := GetRedisThDeskByKey(key)
+			desk := RedisDeskTransThdesk(redisThdesk)
+			if desk != nil {
+				for _, userId := range redisThdesk.UserIds {
+					user := RedisThuserTransThuser(GetRedisThUser(desk.Id, desk.GameNumber, userId))        //依次恢复user
+					desk.AddThuserBean(user)        //把desk add 到room
+					desk.RecoveryRun()        //重新开始游戏,
+				}
+			}
+			r.AddThDesk(desk)        //把thdesk 加到room中
+		}
+	}
+}
+
+
+//thdesk 恢复之后,开始run
+func (t *ThDesk) RecoveryRun() {
+	//找到当前押注的人,然后等待押注
+	user := t.GetUserByUserId(t.BetUserNow)
+	if user != nil {
+		user.wait()
+	}else{
+		log.E("恢复thdesk失败,没有找到betUserNow【%v】",t.BetUserNow)
+	}
+}
+

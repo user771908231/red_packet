@@ -6,6 +6,7 @@ import (
 	"casino_server/common/log"
 	"casino_server/msg/bbprotogo"
 	"casino_server/utils/redisUtils"
+	"casino_server/service/userService"
 )
 
 //关于thuser的redis存储
@@ -34,6 +35,37 @@ func GetRedisThUser(deskId int32, gameNumber int32, userId uint32) *bbproto.ThSe
 
 }
 
+
+//把redis的user转化为thuser
+func RedisThuserTransThuser(b *bbproto.ThServerUser) *ThUser {
+	user := userService.GetUserById(b.GetUserId())
+	t := NewThUser()
+	t.UserId = b.GetUserId()      //用户id
+	t.NickName = user.GetNickName()                //用户昵称
+	t.deskId = b.GetDeskId()                 //用户所在的桌子的编号
+	t.Status = b.GetStatus()                 //当前的状态,单局游戏的状态
+	t.CSGamingStatus = b.GetCSGamingStatus()                  //是否进行锦标赛,这个字段其实 是在服务器crash之后,恢复数据的时候可以用到
+	t.GameStatus = b.GetGameStatus()                 //用户的游戏状态
+	t.IsBreak = b.GetIsBreak()                  //用户断线的状态,这里判断用户是否断线
+	t.IsLeave = b.GetIsLeave()                  //用户是否处于离开的状态
+	t.HandCards = b.HandCards       //手牌
+	//thCards           //恢复的时候初始化一次就行了
+	//waiTime            time.Time             //等待时间
+	//waitUUID           string                //等待标志
+	t.PreCoin = b.GetPreCoin()                 //前注
+	t.TotalBet = b.GetTotalBet()                 //计算用户总共押注的多少钱
+	t.TotalBet4calcAllin = b.GetTotalBet4CalcAllin()                 //押注总额 ***注意,目前这个值是用来计算all in 的
+	t.winAmount = b.GetWinAmount()                 //总共赢了多少钱
+	t.winAmountDetail = b.GetWinAmountDetail()               //赢钱的细节, 主要是每个记录每个奖池赢了多少钱
+	t.TurnCoin = b.GetTurnCoin()                 //单轮押注(总共四轮)的金额
+	t.HandCoin = b.GetHandCoin()                 //用户下注多少钱、指单局
+	t.RoomCoin = b.GetRoomCoin()                 //用户上分的金额
+	t.RebuyCount = b.GetRebuyCount()              //重购的次数
+	t.LotteryCheck = b.GetLotteryCheck()                  //这个字段用于判断是否可以开奖,默认是false:   1,如果用户操作弃牌,则直接设置为true,2,如果本局是all in,那么要到本轮次押注完成之后,才能设置为true
+
+	return t
+}
+
 //保存一个用户
 func saveRedisThUser(user *bbproto.ThServerUser) error {
 	//获取redis连接
@@ -49,8 +81,13 @@ func DelRedisThUser(deskId int32, gameNumber int32, userId uint32) {
 
 //更新thuser的数据到redis中
 func UpdateRedisThuser(u *ThUser) error {
+	desk := u.GetDesk()
+	var gameNumber int32 = 0
+	if desk != nil {
+		gameNumber = desk.GameNumber
+	}
 	//1,得到user
-	ruser := GetRedisThUser(u.deskId, u.GameNumber, u.UserId)
+	ruser := GetRedisThUser(u.deskId, gameNumber, u.UserId)
 	if ruser == nil {
 		log.T("数据库中没有找到thuser【%v】", u.UserId)
 		ruser = bbproto.NewThServerUser()
@@ -59,7 +96,6 @@ func UpdateRedisThuser(u *ThUser) error {
 	//2,为user赋值
 	*ruser.UserId = u.UserId
 	*ruser.DeskId = u.deskId
-	*ruser.GameNumber = u.GameNumber
 	*ruser.Seat = u.Seat
 	*ruser.Status = u.Status
 	*ruser.IsBreak = u.IsBreak
@@ -73,7 +109,6 @@ func UpdateRedisThuser(u *ThUser) error {
 	*ruser.TurnCoin = u.TurnCoin
 	*ruser.HandCoin = u.HandCoin
 	*ruser.RoomCoin = u.RoomCoin
-	*ruser.GameNumber = u.GameNumber
 
 	//3,保存到数据库
 	saveRedisThUser(ruser)
@@ -112,7 +147,47 @@ func GetRedisThDeskByKey(key string) *bbproto.ThServerDesk {
 }
 
 func RedisDeskTransThdesk(rt *bbproto.ThServerDesk) *ThDesk {
-	return nil
+	ret := NewThDesk()
+	ret.Id = rt.GetId()
+	ret.MatchId = rt.GetMatchId()
+	ret.DeskOwner = rt.GetDeskOwner()
+	ret.RoomKey = rt.GetRoomKey()
+	ret.CreateFee = rt.GetCreateFee()
+	ret.GameType = rt.GetGameNumber()
+	ret.InitRoomCoin = rt.GetInitRoomCoin()
+	ret.JuCount = rt.GetJuCount()
+	ret.JuCountNow = rt.GetJuCountNow()
+	ret.PreCoin = rt.GetPreCoin()
+	ret.SmallBlindCoin = rt.GetSmallBlindCoin()
+	ret.BigBlindCoin = rt.GetBigBlindCoin()
+	ret.blindLevel = rt.GetBlindLevel()
+	//BeginTime            time.Time                    //游戏开始时间
+	//EndTime              time.Time                    //游戏结束时间
+	ret.RebuyCountLimit = rt.GetRebuyCountLimit()                        //重购的次数
+	ret.RebuyBlindLevelLimit = rt.GetRebuyBlindLevelLimit()                        //rebuy盲注的限制
+
+	ret.Dealer = rt.GetDealer()                       //庄家
+	ret.BigBlind = rt.GetBigBlind()                       //大盲注
+	ret.SmallBlind = rt.GetSmallBlind()                       //小盲注
+	ret.RaiseUserId = rt.GetRaiseUserId()                       //加注的人的Id,一轮结束的判断需要按照这个人为准
+	ret.NewRoundFirstBetUser = rt.GetNewRoundFirstBetUser()                       //新一轮,开始押注的第一个人//第一轮默认是小盲注,但是当小盲注弃牌之后,这个人要滑倒下一家去
+	ret.BetUserNow = rt.GetBetUserNow()                       //当前押注人的Id
+
+	ret.GameNumber = rt.GetGameNumber()                        //每一局游戏的游戏编号
+	ret.PublicPai = rt.GetPublicPai()               //公共牌的部分
+	ret.UserCount = rt.GetUserCount()                        //玩游戏的总人数
+	ret.Status = rt.GetStatus()                        //牌桌的状态
+	ret.BetAmountNow = rt.GetBetAmountNow()                        //当前的押注金额是多少
+	ret.RoundCount = rt.GetRoundCount()                        //第几轮
+	ret.Jackpot = rt.GetJackpot()                        //奖金池
+	ret.EdgeJackpot = rt.GetEdgeJackpot()                        //边池
+	ret.MinRaise = rt.GetMinRaise()                        //最低加注金额
+	//ret.AllInJackpot         []*pokerService.AllInJackpot //allin的标记
+
+	ret.SendFlop = rt.GetSendFlop()                         //公共底牌
+	ret.SendTurn = rt.GetSendTurn()                         //第四章牌
+	ret.SendRive = rt.GetSendRive()                         //第五章牌
+	return ret
 }
 
 
