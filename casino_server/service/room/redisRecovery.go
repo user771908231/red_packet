@@ -4,6 +4,7 @@ import (
 	"casino_server/msg/bbprotogo"
 	"casino_server/utils/redisUtils"
 	"casino_server/common/log"
+	"casino_server/service/pokerService"
 )
 ////////////////////////////////////////////服务器 数据恢复相关/////////////////////////////////////
 var RUNNING_DESKS = "running_desk_keys"
@@ -79,11 +80,12 @@ func (r *ThGameRoom) Recovery() {
 				for _, userId := range redisThdesk.UserIds {
 					log.T("开始恢复desk[%v]的user[%v]", key, userId)
 					user := RedisThuserTransThuser(GetRedisThUser(desk.Id, desk.GameNumber, userId))        //依次恢复user
+					user.thCards = pokerService.GetTHPoker(user.HandCards, desk.PublicPai, 5)                //重新计算玩家的牌信息
 					desk.AddThuserBean(user)        //把desk add 到room
 					desk.RecoveryRun()        //重新开始游戏,
 				}
-			}else{
-				log.T("没有找到desk【%v】的数据,恢复失败",key)
+			} else {
+				log.T("没有找到desk【%v】的数据,恢复失败", key)
 			}
 			r.AddThDesk(desk)        //把thdesk 加到room中
 		}
