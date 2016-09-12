@@ -284,9 +284,21 @@ func NewGame_ChampionshipGameOver() *Game_ChampionshipGameOver {
 	return ret
 }
 
-func NewGame_AckGameRecord() *Game_AckGameRecord{
+func NewGame_AckGameRecord() *Game_AckGameRecord {
 	ret := &Game_AckGameRecord{}
 	ret.UserId = new(uint32)
 	ret.Result = new(int32)
 	return ret
+}
+
+func NewACKQuickConn() *ACKQuickConn {
+	result := &ACKQuickConn{}
+	result.CoinCnt = new(int64)
+	result.UserName = new(string)
+	result.UserId = new(uint32)
+	result.NickName = new(string)
+	result.AckResult = new(int32)
+	result.ReleaseTag = new(int32)
+	return result
+
 }

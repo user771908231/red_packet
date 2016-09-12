@@ -10,7 +10,6 @@ import (
 	"casino_server/conf/intCons"
 	"casino_server/service/room"
 	"casino_server/service/OGservice"
-	"casino_server/service/CSTHService"
 	"casino_server/service/userService"
 )
 
@@ -420,7 +419,7 @@ func handlerGame_TounamentSummary(args []interface{}) {
 //竞标赛列表
 func handlerGame_MatchList(args []interface{}) {
 	a := args[1].(gate.Agent)
-	data := CSTHService.GetGameMatchList()
+	data := room.GetGameMatchList()
 
 	//初始化状态
 	for i := 0; i < len(data.Items); i++ {

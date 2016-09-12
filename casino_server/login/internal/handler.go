@@ -47,9 +47,12 @@ func HandlerREQQuickConn(args []interface{}) {
 	log.T("游戏登陆的时候发送的请求的协议内容login.handler.HandlerREQQuickConn()[%v]", m)
 	a := args[1].(gate.Agent)
 	//需要返回的结果
-
-	//ip地址信息
 	result := newACKQuickConn()
+
+	//设置releasTag
+	*result.ReleaseTag = getReleaseTagByVersion(m.GetCurVersion())                   ///todo  需要把这个值加入到配置文件读取
+
+	//设置用户的信息
 	var resultUser *bbproto.User
 
 	//首先判断是否是微信登陆
@@ -114,6 +117,14 @@ func HandlerREQQuickConn(args []interface{}) {
 	}
 }
 
+//通过客户端的版本号设置releaseTag
+func getReleaseTagByVersion(v int32) int32 {
+	if v <= conf.Server.CurVersion {
+		return 1
+	} else {
+		return 0
+	}
+}
 
 //空协议
 func handlerNullMsg(args []interface{}) {
@@ -136,16 +147,9 @@ func handlerNotice(args []interface{}) {
 
 //返回登陆信息
 func newACKQuickConn() *bbproto.ACKQuickConn {
-	result := &bbproto.ACKQuickConn{}
+	result := bbproto.NewACKQuickConn()
 
-	result.CoinCnt = new(int64)
-	result.UserName = new(string)
-	result.UserId = new(uint32)
-	result.NickName = new(string)
-	result.AckResult = new(int32)
-	result.ReleaseTag = new(int32)
 	//默认发布版本是1
-	*result.ReleaseTag = RELEAS_TAG_DEZHOU                   ///todo  需要把这个值加入到配置文件读取
 
 	arrs := strings.Split(conf.Server.TCPAddr, ":")
 	var ip string = arrs[0]

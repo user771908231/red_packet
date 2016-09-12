@@ -9,7 +9,6 @@ import (
 	"casino_server/mode"
 	"gopkg.in/mgo.v2/bson"
 	"errors"
-	"casino_server/service/CSTHService"
 	"sync/atomic"
 	"casino_server/msg/bbprotogo"
 	"casino_server/utils/jobUtils"
@@ -19,6 +18,8 @@ import (
 	"gopkg.in/mgo.v2"
 	"casino_server/utils/numUtils"
 	"casino_server/service/userService"
+	"casino_server/utils/redisUtils"
+	"casino_server/utils/timeUtils"
 )
 
 var ChampionshipRoom CSThGameRoom        //锦标赛的房间
@@ -175,7 +176,7 @@ func (r *CSThGameRoom) Begin() {
 	saveData.EndTime = r.EndTime
 	saveData.Status = r.Status
 	db.InsertMgoData(casinoConf.DBT_T_CS_TH_RECORD, saveData)
-	CSTHService.RefreshRedisMatchList()        //这里刷新redis中的锦标赛数据
+	RefreshRedisMatchList()        //这里刷新redis中的锦标赛数据
 
 	log.T("开始锦标赛的游戏matchId[%v]", r.MatchId)
 
@@ -677,19 +678,82 @@ func (r *CSThGameRoom) GetGame_TounamentBlind() *bbproto.Game_TounamentBlind {
 	//得到盲注信息
 	blindLevel := int32(0)
 	for _, b := range CSTHGameRoomConfig.Blinds {
-		if blindLevel >= 15 { //暂时只提供15级盲注
+		if blindLevel >= 15 {
+			//暂时只提供15级盲注
 			break
 		}
 		blindLevel += 1
 		bean := bbproto.NewGame_TounamentBlindBean()
-		*bean.BlindLevel, _ =  numUtils.Int2String(blindLevel)
-		*bean.Ante,_ = numUtils.Int642String(CSTHGameRoomConfig.Blinds[blindLevel-1]) //"前注"
+		*bean.BlindLevel, _ = numUtils.Int2String(blindLevel)
+		*bean.Ante, _ = numUtils.Int642String(CSTHGameRoomConfig.Blinds[blindLevel - 1]) //"前注"
 		*bean.SmallBlind, _ = numUtils.Int642String(b) //+ "/" + umUtils.Int642String(b*2)
 		*bean.CanRebuy = (blindLevel <= 7 )
 		*bean.RaiseTime = "150秒"
 		ret.Data = append(ret.Data, bean)
-		log.T("GetBlind  >>> bean[%v]: ante:%v  canRebuy: %v", *bean.BlindLevel, bean.GetAnte(), *bean.CanRebuy )
+		log.T("GetBlind  >>> bean[%v]: ante:%v  canRebuy: %v", *bean.BlindLevel, bean.GetAnte(), *bean.CanRebuy)
 	}
 	return ret
 }
+
+
+//刷新锦标赛的列表信息
+func RefreshRedisMatchList() {
+	//1,获取数据库中的近20场次的信息(通过时间来排序)
+	data := []mode.T_cs_th_record{}
+	db.Query(func(d *mgo.Database) {
+		d.C(casinoConf.DBT_T_CS_TH_RECORD).Find(bson.M{"id":bson.M{"$gt":0}}).Sort("-id").Limit(10).All(&data)
+	})
+
+	//把得到的数据保存在数据库中
+	if len(data) > 0 {
+		//表示有数据,需要存储在redis中
+		sdata := bbproto.NewGame_MatchList()
+		*sdata.HelpMessage = "1、竞技场玩法类似传统的德州扑克锦标赛,多人角逐"
+		for i := 0; i < len(data); i++ {
+			d := data[i]
+			sd := bbproto.NewGame_MatchItem()
+			*sd.CostFee = d.CostFee
+			idStr, _ := numUtils.Int2String(d.Id)
+			*sd.Title = "神经德州赢红包大赛" + idStr
+			*sd.Status = d.Status
+			*sd.Type = d.GameType
+			*sd.Time = timeUtils.Format(d.BeginTime)
+			*sd.MatchId = d.Id
+
+			//如果是真在run或者ready的状态则表示为游戏中
+			if d.Status == CSTHGAMEROOM_STATUS_RUN || d.Status == CSTHGAMEROOM_STATUS_READY {
+				*sd.Status = 1
+			} else {
+				d.Status = 2
+			}
+
+			sdata.Items = append(sdata.Items, sd)
+		}
+
+		//存储
+		redisUtils.SetObj(GetMatchListRedisKey(), sdata)
+	}
+
+}
+
+//返回存放竞标赛列表的redis-key
+func GetMatchListRedisKey() string {
+	return "game_match_list_redis_key"
+}
+
+//竞标赛列表主要存放在标 t_cs_th_record中,但是一般都是在redis中取,如果redis中没有再从数据库中取
+func GetGameMatchList() *bbproto.Game_MatchList {
+	data := redisUtils.GetObj(GetMatchListRedisKey(), &bbproto.Game_MatchList{})
+	if data == nil {
+		log.T("redis中没有找到竞标赛列表,需要在数据库中查找")
+		RefreshRedisMatchList()
+		result := bbproto.NewGame_MatchList()
+		return result
+	} else {
+		//更新其状态
+		return data.(*bbproto.Game_MatchList)
+	}
+}
+
+
 

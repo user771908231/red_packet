@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"github.com/name5566/leaf/log"
 	"io/ioutil"
+	"fmt"
 )
 
 var Server struct {
@@ -19,6 +20,9 @@ var Server struct {
 
 	//redis配置
 	RedisAddr  string
+
+	//curVersion的配置
+	CurVersion int32
 }
 
 func init() {
@@ -30,4 +34,7 @@ func init() {
 	if err != nil {
 		log.Fatal("%v", err)
 	}
+
+	fmt.Print("当前的配置文件信息:", Server)
+
 }
