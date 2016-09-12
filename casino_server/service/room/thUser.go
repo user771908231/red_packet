@@ -47,7 +47,7 @@ type ThUser struct {
 
 	deskId             int32                 //用户所在的桌子的编号
 	Seat               int32                 //用户的座位号
-	agent              gate.Agent            //agent
+	Agent              gate.Agent            //agent
 	Status             int32                 //当前的状态,单局游戏的状态
 	CSGamingStatus     bool                  //是否进行锦标赛,这个字段其实 是在服务器crash之后,恢复数据的时候可以用到
 	GameStatus         int32                 //用户的游戏状态
@@ -148,11 +148,14 @@ func (t *ThUser) waitCsRebuy() {
 
 }
 
-
-
 //返回自己所在的桌子
 func (t *ThUser) GetDesk() *ThDesk {
-	desk := GetDeskByAgent(t.agent)
+	var desk *ThDesk
+	if t.CSGamingStatus {
+		desk = ChampionshipRoom.GetDeskById(t.deskId)
+	} else {
+		desk = ThGameRoomIns.GetDeskById(t.deskId)
+	}
 	return desk
 }
 
@@ -234,7 +237,7 @@ func (u *ThUser) UpdateAgentUserData() {
 	*userAgentData.GameStatus = u.GameStatus //返回用户当前的状态 0：未游戏  1：正在朋友桌  2：正在锦标赛
 	*userAgentData.IsBreak = u.IsBreak
 	*userAgentData.IsLeave = u.IsLeave
-	u.agent.SetUserData(userAgentData)        //设置用户的agentData
+	u.Agent.SetUserData(userAgentData)        //设置用户的agentData
 
 	desk := u.GetDesk()
 	if desk == nil {
@@ -317,9 +320,9 @@ func (t *ThUser) GetCsRank() int64 {
 }
 
 func (t *ThUser) WriteMsg(p proto.Message) error {
-	agent := t.agent
+	agent := t.Agent
 	if agent != nil {
-		log.T("开始给用户[%v]发送信息:", t.UserId)
+		log.T("agent.WriteMsg()[%v]:", t.UserId)
 		agent.WriteMsg(p)
 		return nil
 	} else {

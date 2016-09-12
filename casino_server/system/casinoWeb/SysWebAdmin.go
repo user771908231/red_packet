@@ -61,7 +61,7 @@ func printDeskInfo(w http.ResponseWriter, desk *room.ThDesk) {
 		for j := 0; j < len(desk.Users); j++ {
 			u := desk.Users[j]
 			if u != nil {
-				userInfo := "当前desk[%v]的user[%v],seatId[%v],nickname[%v]的状态status[%v],HandCoin[%v],TurnCoin[%v],RoomCoin[%v],isBreak[%v],isLeave[%v],LotteryCheck[%v],csgaminStatus[%v]\n"
+				userInfo := "当前desk[%v]的user[%v],seatId[%v],nickname[%v]的状态status[%v],HandCoin[%v],TurnCoin[%v],RoomCoin[%v],isBreak[%v],isLeave[%v],LotteryCheck[%v],csgaminStatus[%v]-\n"
 				fmt.Fprintf(w, userInfo, desk.Id, u.UserId, u.Seat, u.NickName, u.Status, u.HandCoin, u.TurnCoin, u.RoomCoin, u.IsBreak, u.IsLeave, u.LotteryCheck, u.CSGamingStatus)
 			}
 		}
@@ -71,3 +71,4 @@ func printDeskInfo(w http.ResponseWriter, desk *room.ThDesk) {
 
 	}
 }
+
