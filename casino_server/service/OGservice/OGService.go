@@ -66,6 +66,8 @@ func HandlerMessage(m *bbproto.Game_Message, a gate.Agent) {
 		result.Seat = m.Seat
 		log.T("开始广播用户[%v]发送的消息[%v]", m.GetUserId(), result)
 		desk.THBroadcastProtoAll(result)
+	} else {
+		log.T("发送广播失败,没有找到对应的desk")
 	}
 }
 
@@ -89,7 +91,7 @@ func HandlerReady(m *bbproto.Game_Ready, a gate.Agent) error {
 	//3,用户开始准备
 	err := desk.Ready(userId)
 	if err != nil {
-		log.T("用户【%v】准备失败,err[%v]",userId,err.Error())
+		log.T("用户【%v】准备失败,err[%v]", userId, err.Error())
 		*result.Result = Error.GetErrorCode(err)
 		*result.Msg = Error.GetErrorMsg(err)
 		a.WriteMsg(result)
@@ -130,7 +132,7 @@ func HandlerGetGameRecords(m *bbproto.Game_GameRecord, a gate.Agent) {
 	userId := m.GetUserId()
 
 	//1,战绩查询
-	var deskRecords []mode.T_th_desk_record = TThDeskRecordDao.Find(userId,20)
+	var deskRecords []mode.T_th_desk_record = TThDeskRecordDao.Find(userId, 20)
 	log.T("查询到用户[%v]的战绩[%v]", userId, deskRecords)
 	//需要返回的数据
 	resDatav2 := bbproto.NewGame_AckGameRecord()

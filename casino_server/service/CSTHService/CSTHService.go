@@ -11,6 +11,7 @@ import (
 	"gopkg.in/mgo.v2/bson"
 	"casino_server/common/log"
 	"casino_server/utils/timeUtils"
+	"casino_server/utils/numUtils"
 )
 
 
@@ -50,7 +51,8 @@ func RefreshRedisMatchList() {
 			d := data[i]
 			sd := bbproto.NewGame_MatchItem()
 			*sd.CostFee = d.CostFee
-			*sd.Title = "神经德州赢红包大赛"
+			idStr, _ := numUtils.Int2String(d.Id)
+			*sd.Title = "神经德州赢红包大赛" + idStr
 			*sd.Status = d.Status
 			*sd.Type = d.GameType
 			*sd.Time = timeUtils.Format(d.BeginTime)

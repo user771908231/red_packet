@@ -204,7 +204,7 @@ func (r *ThGameRoom) IsRepeatIntoRoom(userId uint32, a gate.Agent) *ThDesk {
 	user := desk.GetUserByUserId(userId)
 	user.IsLeave = false
 	user.IsBreak = false
-	user.agent = a
+	user.Agent = a
 	user.UpdateAgentUserData()
 
 	log.T("用户[%v]重新进入房间了", userId)

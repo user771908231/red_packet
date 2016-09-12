@@ -424,13 +424,15 @@ func handlerGame_MatchList(args []interface{}) {
 
 	//初始化状态
 	for i := 0; i < len(data.Items); i++ {
+		//初始化是否能进入游戏
 		if room.ChampionshipRoom.MatchId == data.Items[i].GetMatchId() {
 			*data.Items[i].CanInto = true
 		} else {
 			*data.Items[i].CanInto = false
 		}
 
-		*data.Items[i].CanInto = false //暂时禁用全部锦标赛
+		//初始化游戏的状态
+		//*data.Items[i].CanInto = false //暂时禁用全部锦标赛
 	}
 	//帮助信息
 	*data.HelpMessage = "1、神经德州竞技场是一种定时多桌的德州扑克比赛。所有参赛玩家携带同样的筹码数开始比赛, 直至仅剩一名玩家或比赛时间截止, 按各玩家手中剩余筹码数排名。\n2、固定时间开赛, 参赛人数满足最低人数后才开赛。\n3、比赛前3名可获得奖励,请联系官方微信号shenjingyouxi领取奖励。"

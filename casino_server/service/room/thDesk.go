@@ -241,7 +241,7 @@ func (t *ThDesk) IsrepeatIntoWithRoomKey(userId uint32, a gate.Agent) bool {
 		if u != nil && u.UserId == userId {
 			//如果u!=nil 那么
 			log.T("用户[%v]断线重连", userId)
-			u.agent = a                                                //设置用户的连接
+			u.Agent = a                                                //设置用户的连接
 			u.IsBreak = false               //设置用户的离线状态
 			u.IsLeave = false
 			u.UpdateAgentUserData()         //更新回话信息
@@ -260,7 +260,7 @@ func (t *ThDesk) AddThUser(userId uint32, userStatus int32, a gate.Agent) (*ThUs
 	//2,通过userId 和agent 够做一个thuser
 	thUser := NewThUser()
 	thUser.UserId = userId
-	thUser.agent = a
+	thUser.Agent = a
 	thUser.Status = userStatus        //刚进房间的玩家
 	thUser.deskId = t.Id                //桌子的id
 	thUser.NickName = *redisUser.NickName                //todo 测试阶段,把nickName显示成用户id
@@ -663,7 +663,7 @@ func (t *ThDesk) THBroadcastProto(p proto.Message, ignoreUserId uint32) error {
 	for i := 0; i < len(t.Users); i++ {
 		u := t.Users[i]                //给这个玩家发送广播信息
 		if u != nil && u.UserId != ignoreUserId && u.IsLeave == false && u.IsBreak == false {
-			a := t.Users[i].agent
+			a := t.Users[i].Agent
 			a.WriteMsg(p)
 		}
 	}
@@ -683,7 +683,7 @@ func (t *ThDesk) BroadcastTestResult(p *bbproto.Game_TestResult) error {
 			*p.RebuyCount = u.RebuyCount        //重购的次数
 
 			//判断是否可以
-			a := t.Users[i].agent
+			a := t.Users[i].Agent
 			a.WriteMsg(p)
 		}
 	}
@@ -2537,9 +2537,17 @@ func (t *ThDesk) DDRaiseBet(user *ThUser, coin int64) error {
 
 //得到当前用户需要加注的金额
 func (t *ThDesk) GetMinRaise() int64 {
-	log.T("获取用户[%v]的最低加注金额,handCoin[%v],t.TurnCoin[%v],t.MinRaise[%v],t.BetAmountNow[%v],",
-		t.BetUserNow, t.GetUserByUserId(t.BetUserNow).HandCoin, t.GetUserByUserId(t.BetUserNow).TurnCoin, t.MinRaise, t.BetAmountNow)
-	result := t.MinRaise + t.BetAmountNow - t.GetUserByUserId(t.BetUserNow).TurnCoin
+
+	//得到当前押注的人...
+	betUser := t.GetUserByUserId(t.BetUserNow)
+	var betUserTurnCoin int64 = 0
+	if betUser != nil {
+		betUserTurnCoin = betUser.TurnCoin
+	}
+
+	log.T("获取用户[%v]的最低加注金额t.TurnCoin[%v],t.MinRaise[%v],t.BetAmountNow[%v],", t.BetUserNow, betUserTurnCoin, t.MinRaise, t.BetAmountNow)
+
+	result := t.MinRaise + t.BetAmountNow - betUserTurnCoin
 	if result < 0 {
 		//现在处理的有可能是新的一局开始
 		result = t.BigBlindCoin
