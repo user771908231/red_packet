@@ -675,14 +675,21 @@ func (t *CSThGameRoom) GetCopyUserById(userId uint32) *ThUser {
 func (r *CSThGameRoom) GetGame_TounamentBlind() *bbproto.Game_TounamentBlind {
 	ret := bbproto.NewGame_TounamentBlind()
 	//得到盲注信息
+	blindLevel := int32(0)
+	preCoins := []int32{0, 25, 50, 75, 100, 200, 300, 400, 500, 1000, 2000, 3000, 4000, 5000, 10000 }
 	for _, b := range CSTHGameRoomConfig.Blinds {
+		if blindLevel >= 15 { //暂时只提供15级盲注
+			break
+		}
+		blindLevel += 1
 		bean := bbproto.NewGame_TounamentBlindBean()
-		*bean.Ante = "前注"
-		*bean.SmallBlind, _ = numUtils.Int642String(b)
-		*bean.BlindLevel, _ = numUtils.Int2String(r.BlindLevel)
-		*bean.CanRebuy = true
+		*bean.BlindLevel, _ =  numUtils.Int2String(blindLevel)
+		*bean.Ante = numUtils.Int2String(preCoins[blindLevel-1]) //"前注"
+		*bean.SmallBlind, _ = numUtils.Int642String(b) //+ "/" + umUtils.Int642String(b*2)
+		*bean.CanRebuy = (blindLevel <= 7 )
 		*bean.RaiseTime = "150秒"
 		ret.Data = append(ret.Data, bean)
+		log.T("GetBlind  >>> bean[%v]: ante:%v  canRebuy: %v", *bean.BlindLevel, bean.GetAnte(), *bean.CanRebuy )
 	}
 	return ret
 }

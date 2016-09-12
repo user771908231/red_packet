@@ -306,7 +306,7 @@ func (mydesk *ThDesk) getTurnCoin() []int64 {
 //游戏状态的转换
 func deskStatus2OG(desk *ThDesk) int32 {
 	var result int32 = GAME_STATUS_READY
-	status := desk.Status
+	//status := desk.Status
 	round := desk.RoundCount
 
 	if desk.IsStop() {

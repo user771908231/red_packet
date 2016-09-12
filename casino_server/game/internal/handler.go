@@ -373,17 +373,17 @@ func handlerGame_TounamentRewards(args []interface{}) {
 
 	d1 := bbproto.NewGame_TounamentRewardsBean()
 	*d1.IconPath = "1"
-	*d1.Rewards = "100元红包"
+	*d1.Rewards = "50元红包"
 	m.Data = append(m.Data, d1)
 
 	d2 := bbproto.NewGame_TounamentRewardsBean()
 	*d2.IconPath = "2"
-	*d2.Rewards = "50元红包"
+	*d2.Rewards = "30元红包"
 	m.Data = append(m.Data, d2)
 
 	d3 := bbproto.NewGame_TounamentRewardsBean()
 	*d3.IconPath = "3"
-	*d3.Rewards = "30元红包"
+	*d3.Rewards = "10元红包"
 	m.Data = append(m.Data, d3)
 	a.WriteMsg(m)
 }
@@ -410,10 +410,10 @@ func handlerGame_TounamentSummary(args []interface{}) {
 	m.PersonCount = new(string)
 	m.Time = new(string)
 
-	*m.Fee = "免费"
-	*m.Time = "20分钟一场"
-	*m.PersonCount = "65-1000人"
-	*m.Coin = "5000"
+	*m.Fee = "参赛费用: 1 钻石"
+	*m.Time = "开赛时间:今天10点"
+	*m.PersonCount = "满25人开赛"
+	*m.Coin = "比赛中最多支持5次重购"
 	a.WriteMsg(m)
 }
 
@@ -429,9 +429,11 @@ func handlerGame_MatchList(args []interface{}) {
 		} else {
 			*data.Items[i].CanInto = false
 		}
+
+		*data.Items[i].CanInto = false //暂时禁用全部锦标赛
 	}
 	//帮助信息
-	*data.HelpMessage = "帮助信息"
+	*data.HelpMessage = "1、神经德州竞技场是一种定时多桌的德州扑克比赛。所有参赛玩家携带同样的筹码数开始比赛, 直至仅剩一名玩家或比赛时间截止, 按各玩家手中剩余筹码数排名。\n2、固定时间开赛, 参赛人数满足最低人数后才开赛。\n3、比赛前3名可获得奖励,请联系官方微信号shenjingyouxi领取奖励。"
 
 	log.T("得到的锦标赛列表[%v]", data)
 	a.WriteMsg(data)
@@ -440,7 +442,7 @@ func handlerGame_MatchList(args []interface{}) {
 //反馈信息
 func handlerGame_Feedback(args []interface{}) {
 	m := args[0].(*bbproto.Game_Feedback)
-	log.T("有用户发来反馈的信息m", m)
+	log.T("有用户发来反馈的信息: %v", m)
 }
 
 //重构的协议

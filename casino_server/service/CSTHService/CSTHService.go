@@ -38,19 +38,19 @@ func RefreshRedisMatchList() {
 	//1,获取数据库中的近20场次的信息(通过时间来排序)
 	data := []mode.T_cs_th_record{}
 	db.Query(func(d *mgo.Database) {
-		d.C(casinoConf.DBT_T_CS_TH_RECORD).Find(bson.M{"id":bson.M{"$gt":0}}).Sort("-id").Limit(20).All(&data)
+		d.C(casinoConf.DBT_T_CS_TH_RECORD).Find(bson.M{"id":bson.M{"$gt":0}}).Sort("-id").Limit(10).All(&data)
 	})
 
 	//把得到的数据保存在数据库中
 	if len(data) > 0 {
 		//表示有数据,需要存储在redis中
 		sdata := bbproto.NewGame_MatchList()
-		*sdata.HelpMessage = "帮助信息"
+		*sdata.HelpMessage = "1、竞技场玩法类似传统的德州扑克锦标赛,多人角逐"
 		for i := 0; i < len(data); i++ {
 			d := data[i]
 			sd := bbproto.NewGame_MatchItem()
 			*sd.CostFee = d.CostFee
-			*sd.Title = "神经德州锦标赛"
+			*sd.Title = "神经德州赢红包大赛"
 			*sd.Status = d.Status
 			*sd.Type = d.GameType
 			*sd.Time = timeUtils.Format(d.BeginTime)
