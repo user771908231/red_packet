@@ -322,7 +322,7 @@ func (t *ThUser) GetCsRank() int64 {
 func (t *ThUser) WriteMsg(p proto.Message) error {
 	agent := t.Agent
 	if agent != nil {
-		log.T("开始给用户[%v]发送信息:", t.UserId)
+		log.T("agent.WriteMsg()[%v]:", t.UserId)
 		agent.WriteMsg(p)
 		return nil
 	} else {

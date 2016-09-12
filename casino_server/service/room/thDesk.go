@@ -38,7 +38,7 @@ var (
 var TH_DESK_STATUS_STOP int32 = 1                //没有开始的状态
 var TH_DESK_STATUS_READY int32 = 2                 //游戏处于准备的状态
 var TH_DESK_STATUS_RUN int32 = 3                //已经开始的状态
-var TH_DESK_STATUS_LOTTERY int32 = 4             //已经开始的状态
+var TH_DESK_STATUS_LOTTERY int32 = 4             //正在开奖
 var TH_DESK_STATUS_GAMEOVER int32 = 5             //已经开始的状态
 
 
@@ -662,13 +662,11 @@ func (t *ThDesk) THBroadcastProto(p proto.Message, ignoreUserId uint32) error {
 	for i := 0; i < len(t.Users); i++ {
 		u := t.Users[i]                //给这个玩家发送广播信息
 		if u != nil && u.UserId != ignoreUserId && u.IsLeave == false && u.IsBreak == false {
-			a := t.Users[i].Agent
-			a.WriteMsg(p)
+			u.WriteMsg(p)
 		}
 	}
 	return nil
 }
-
 
 
 //发送本局牌局的结果
@@ -682,8 +680,7 @@ func (t *ThDesk) BroadcastTestResult(p *bbproto.Game_TestResult) error {
 			*p.RebuyCount = u.RebuyCount        //重购的次数
 
 			//判断是否可以
-			a := t.Users[i].Agent
-			a.WriteMsg(p)
+			t.Users[i].WriteMsg(p)
 		}
 	}
 	return nil
@@ -1194,6 +1191,8 @@ func (t *ThDesk) Lottery() error {
 		go t.Run()
 	}
 
+	//备份数据到redis
+	t.UpdateThdeskAndAllUser2redis()
 	return nil
 }
 
@@ -1237,7 +1236,7 @@ func (t *ThDesk) broadLotteryResult() error {
 func (t *ThDesk) afterLottery() error {
 	//1,设置游戏桌子的状态
 	log.T("开奖结束,设置desk的状态为stop")
-	t.Status = TH_DESK_STATUS_GAMEOVER                //设置为没有开始开始游戏
+	t.Status = TH_DESK_STATUS_STOP                //设置为没有开始开始游戏
 	t.Jackpot = 0; //主池设置为0
 	t.EdgeJackpot = 0; //边池设置为0
 	t.AllInJackpot = nil;
@@ -1904,7 +1903,7 @@ func (t *ThDesk) IsTime2begin() bool {
 	}
 
 	//1.1,判断桌子是否是正在进行中的状态...
-	if t.IsRun() {
+	if !t.IsStop() {
 		log.T("desk[%v]的状态是stop[%v]的状态,所以不能开始游戏", t.Id, t.Status)
 		return false
 	}
@@ -1968,8 +1967,6 @@ func (mydesk *ThDesk) Run() error {
 		log.T("\n\n不能开始一局新的游戏\n\n")
 		return nil
 	}
-
-
 
 	//2,初始化玩家的信息,是否可以开始游戏,
 	err := mydesk.InitUserStatus()
@@ -2072,6 +2069,10 @@ func (t *ThDesk) EndTh() bool {
 	}
 
 	log.T("整局(多场游戏)已经结束...)")
+
+	//设置结束时候的状态
+	t.Status = TH_DESK_STATUS_GAMEOVER                //设置为没有开始开始游戏
+
 	//广播结算的信息
 	result := &bbproto.Game_SendDeskEndLottery{}
 	result.Result = &intCons.ACK_RESULT_SUCC

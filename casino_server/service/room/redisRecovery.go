@@ -89,7 +89,7 @@ func (r *ThGameRoom) Recovery() {
 					desk.RecoveryRun()        //重新开始游戏,
 				}
 			} else {
-				log.T("没有找到desk【%v】的数据,恢复失败", key)
+				log.T("没有找到desk【%v】的数据(desk==nil?[%v]),恢复失败", key, desk == nil)
 			}
 			r.AddThDesk(desk)        //把thdesk 加到room中
 		}
