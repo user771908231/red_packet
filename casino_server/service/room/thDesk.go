@@ -158,7 +158,6 @@ func NewThDesk() *ThDesk {
 	result.Id = newThDeskId()
 	result.UserCount = 0
 	result.Dealer = 0                //不需要创建  默认就是为空
-	result.Status = TH_DESK_STATUS_STOP
 	result.BetUserNow = 0
 	result.BigBlind = 0
 	result.SmallBlind = 0
@@ -1904,9 +1903,9 @@ func (t *ThDesk) IsTime2begin() bool {
 		}
 	}
 
-	//1.1,判断桌子当前的状态
-	if !t.IsStop() {
-		log.T("desk[%v]的状态不是stop[%v]的状态,所以不能开始游戏", t.Id, t.Status)
+	//1.1,判断桌子是否是正在进行中的状态...
+	if t.IsRun() {
+		log.T("desk[%v]的状态是stop[%v]的状态,所以不能开始游戏", t.Id, t.Status)
 		return false
 	}
 
