@@ -53,12 +53,12 @@ func (r *CSThGameRoom) OnInitConfig() {
 	CSTHGameRoomConfig.leastCount = 3; //最少要20人才可以开始游戏
 	CSTHGameRoomConfig.nextRunDuration = time.Second * 60 * 1        //1 分钟之后开始下一场
 	CSTHGameRoomConfig.riseBlindDuration = time.Second * 150        //每150秒生一次忙
-	CSTHGameRoomConfig.Blinds = []int64{5, 10, 20, 40, 80, 160, 320, 640, 1280, 2000, 10000, 100000, 1000000}
+	CSTHGameRoomConfig.Blinds = []int64{0, 25, 50, 75, 100, 200, 300, 400, 500, 1000, 2000, 3000, 4000, 5000, 10000 }
 	CSTHGameRoomConfig.initRoomCoin = 1000;
 	CSTHGameRoomConfig.deskMaxUserCount = 9
-	CSTHGameRoomConfig.RebuyCountLimit = 5                //最多重构5次
-	CSTHGameRoomConfig.quotaLimit = 2                        //能得到奖励的人
-	CSTHGameRoomConfig.RebuyBlindLevelLimit = 7                //7级盲注以前可以购买
+	CSTHGameRoomConfig.RebuyCountLimit = 5           //最多重构5次
+	CSTHGameRoomConfig.quotaLimit = 2                //能得到奖励的人
+	CSTHGameRoomConfig.RebuyBlindLevelLimit = 7      //7级盲注以前可以购买
 	CSTHGameRoomConfig.roomMaxUserCount = 500        //最多500人玩
 }
 
@@ -104,7 +104,7 @@ func (r *CSThGameRoom) OnInit() {
 	r.MatchId, _ = db.GetNextSeq(casinoConf.DBT_T_CS_TH_RECORD)        //生成游戏的matchId
 	r.Status = CSTHGAMEROOM_STATUS_READY
 	r.ReadyTime = time.Now()
-	r.RankInfo = make([]*bbproto.CsThRankInfo,0)
+	r.RankInfo = make([]*bbproto.CsThRankInfo, 0)
 }
 
 
@@ -199,7 +199,7 @@ func (r *CSThGameRoom) Begin() {
 
 //run游戏房间
 func (r *CSThGameRoom) Run() {
-	log.T("锦标赛游戏开始...")
+	log.T("锦标赛游戏开始...run()")
 
 	//设置room属性
 	r.Status = CSTHGAMEROOM_STATUS_RUN        //竞标赛当前的状态
@@ -233,7 +233,12 @@ func (r *CSThGameRoom) Run() {
 
 	//这里需要做生盲的逻辑
 	jobUtils.DoAsynJob(CSTHGameRoomConfig.riseBlindDuration, func() bool {
-		//开始生盲注
+		//1,如果游戏还没有开始,停止升盲注的任务
+		if r.Status != CSTHGAMEROOM_STATUS_RUN {
+			return true
+		}
+
+		//2,开始生盲注
 		log.T("锦标赛[%v]开始生盲", r.MatchId)
 		if r.BlindLevel == int32(len(CSTHGameRoomConfig.Blinds) - 1) {
 			log.T("由于锦标赛[%v]的盲注已经达到了最大的级别[%v],所以不生了", r.MatchId, r.SmallBlindCoin)
@@ -428,7 +433,7 @@ func (r *CSThGameRoom) AddUser(userId uint32, matchId int32, a gate.Agent) (*ThD
 	//更新room的信息
 	r.AddOnlineCount()        //在线用户增加1
 	r.AddrankUserCount()
-	r.AddUserRankInfo(user.UserId, user.MatchId, user.RoomCoin)
+	r.AddUserRankInfo(user.UserId, mydesk.MatchId, user.RoomCoin)
 	r.AddCopyUser(user)       //用户列表总增加一个用户
 
 	mydesk.LogString()        //打印当前房间的信息
@@ -624,7 +629,7 @@ func (r *CSThGameRoom) DissolveDesk(desk *ThDesk, reserveUser *ThUser) error {
 		return errors.New("房间已经解散了")
 	}
 
-	if desk.Status != TH_DESK_STATUS_STOP {
+	if desk.IsRun() || desk.IsLottery() {
 		*result.Result = intCons.ACK_RESULT_ERROR
 		reserveUser.WriteMsg(result)
 		return errors.New("房间正在游戏中,不能解散")
@@ -670,14 +675,20 @@ func (t *CSThGameRoom) GetCopyUserById(userId uint32) *ThUser {
 func (r *CSThGameRoom) GetGame_TounamentBlind() *bbproto.Game_TounamentBlind {
 	ret := bbproto.NewGame_TounamentBlind()
 	//得到盲注信息
+	blindLevel := int32(0)
 	for _, b := range CSTHGameRoomConfig.Blinds {
+		if blindLevel >= 15 { //暂时只提供15级盲注
+			break
+		}
+		blindLevel += 1
 		bean := bbproto.NewGame_TounamentBlindBean()
-		*bean.Ante = "前注"
-		*bean.SmallBlind, _ = numUtils.Int642String(b)
-		*bean.BlindLevel, _ = numUtils.Int2String(r.BlindLevel)
-		*bean.CanRebuy = true
+		*bean.BlindLevel, _ =  numUtils.Int2String(blindLevel)
+		*bean.Ante,_ = numUtils.Int642String(CSTHGameRoomConfig.Blinds[blindLevel-1]) //"前注"
+		*bean.SmallBlind, _ = numUtils.Int642String(b) //+ "/" + umUtils.Int642String(b*2)
+		*bean.CanRebuy = (blindLevel <= 7 )
 		*bean.RaiseTime = "150秒"
 		ret.Data = append(ret.Data, bean)
+		log.T("GetBlind  >>> bean[%v]: ante:%v  canRebuy: %v", *bean.BlindLevel, bean.GetAnte(), *bean.CanRebuy )
 	}
 	return ret
 }

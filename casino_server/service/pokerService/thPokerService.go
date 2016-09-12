@@ -525,6 +525,10 @@ func RandomTHPorkIndex(min, max, total int) []int32 {
 
 //通过手牌,和给定的牌得到最大的德州牌
 func GetTHPoker(hand, public []*bbproto.Pai, count int) *ThCards {
+	//判断入参是否正确...
+	if hand == nil || public == nil{
+		return nil
+	}
 
 	var allCards = make([]*bbproto.Pai, 7)
 	copy(allCards[0:2], hand)

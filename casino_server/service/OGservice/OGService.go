@@ -89,7 +89,7 @@ func HandlerReady(m *bbproto.Game_Ready, a gate.Agent) error {
 	//3,用户开始准备
 	err := desk.Ready(userId)
 	if err != nil {
-		log.T("用户【%v】准备失败,err[%v]", err.Error())
+		log.T("用户【%v】准备失败,err[%v]",userId,err.Error())
 		*result.Result = Error.GetErrorCode(err)
 		*result.Msg = Error.GetErrorMsg(err)
 		a.WriteMsg(result)
@@ -97,7 +97,7 @@ func HandlerReady(m *bbproto.Game_Ready, a gate.Agent) error {
 	}
 
 	//4,返回准备的结果
-	*result.SeatId = desk.GetUserByUserId(userId).Seat
+	*result.SeatId = desk.GetUserSeatByUserId(userId)
 	*result.Result = intCons.ACK_RESULT_SUCC
 	desk.THBroadcastProtoAll(result)        //广播用户准备的协议
 

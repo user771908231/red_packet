@@ -57,7 +57,11 @@ message ThServerUser{
 	optional int32	GameNumber		=16;		//游戏编号(每一局游戏都有独立的编号)
 	optional bool IsBreak			=17;		//是否断线
 	optional bool IsLeave			=18;		//是否离开
-
+	optional bool CSGamingStatus    =19;		//锦标赛状态
+	optional int32 GameStatus       =20;		//
+	optional int64 PreCoin			=21;	//
+	optional int32 RebuyCount		=22;
+	optional bool LotteryCheck		=23;
 }
 
 //保存用户的会话信息
@@ -110,8 +114,22 @@ message ThServerDesk{
     optional int64	edgeJackpot			=24;	//座位号
     optional int64	MinRaise			=25;	//座位号
 	repeated ThServerAllInJackpot	AllInJackpot		=26;	//座位号
+	repeated uint32 userIds 			=27;		//用户ids
+	optional int32 MatchId				=28;
+	optional int64 CreateFee			=29;
+	optional int32  GameType			=30;
+	optional int32 JuCountNow			=31;
+	optional int64 PreCoin				=32;
+	optional int32 blindLevel			=33;
+	optional string beginTime			=34;
+	optional string endTime				=35;
+	optional int32 RebuyCountLimit		=36;
+	optional int32 RebuyBlindLevelLimit	=37;
+	optional bool SendFlop				=38;
+	optional bool SendTurn				=39;
+	optional bool SendRive				=40;
 
-}
+    }
 
 //
 message CsThRankInfo{

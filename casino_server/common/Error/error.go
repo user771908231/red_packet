@@ -7,6 +7,7 @@ package Error
 import (
 	"fmt"
 	"casino_server/conf/intCons"
+	"runtime/debug"
 )
 
 //func New(errCode int, errStr string) Error {
@@ -129,5 +130,6 @@ func ErrorRecovery(addr string ) {
 	// 必须要先声明defer，否则不能捕获到panic异常
 	if err := recover(); err != nil {
 		fmt.Println("地址[%v]开始打印日志err[%v]",addr,err) // 这里的err其实就是panic传入的内容，55
+		debug.PrintStack()
 	}
 }

@@ -180,8 +180,8 @@ func (mydesk *ThDesk) initGameSendgameInfoByDesk(reqUserId uint32) *bbproto.Game
 	//初始化桌子相关的信息
 	*result.Tableid = int32(mydesk.Id)                                //桌子的Id
 	*result.TablePlayer = mydesk.UserCount                        //玩家总人数
-	*result.BankSeat = mydesk.GetUserByUserId(mydesk.Dealer).Seat        //int32(mydesk.GetUserIndex(mydesk.Dealer))        //庄家
-	*result.ChipSeat = mydesk.GetUserByUserId(mydesk.BetUserNow).Seat //int32(mydesk.GetUserIndex(mydesk.BetUserNow))//当前活动玩家
+	*result.BankSeat = mydesk.GetUserSeatByUserId(mydesk.Dealer)        //int32(mydesk.GetUserIndex(mydesk.Dealer))        //庄家
+	*result.ChipSeat = mydesk.GetUserSeatByUserId(mydesk.BetUserNow) //int32(mydesk.GetUserIndex(mydesk.BetUserNow))//当前活动玩家
 	*result.ActionTime = ThdeskConfig.TH_TIMEOUT_DURATION_INT       //当前操作时间,服务器当前的时间
 	*result.DelayTime = int32(1000)                                //当前延时时间
 	*result.GameStatus = deskStatus2OG(mydesk)
@@ -195,7 +195,7 @@ func (mydesk *ThDesk) initGameSendgameInfoByDesk(reqUserId uint32) *bbproto.Game
 	result.SecondPool = mydesk.GetSecondPool()
 	*result.TurnMax = mydesk.BetAmountNow
 	result.WeixinInfos = mydesk.GetWeiXinInfos()
-	*result.OwnerSeat = mydesk.GetUserByUserId(mydesk.DeskOwner).Seat
+	*result.OwnerSeat = mydesk.GetUserSeatByUserId(mydesk.DeskOwner)
 	*result.PreCoin = mydesk.PreCoin
 	*result.SmallBlind = mydesk.SmallBlindCoin
 	*result.BigBlind = mydesk.BigBlindCoin
@@ -306,13 +306,13 @@ func (mydesk *ThDesk) getTurnCoin() []int64 {
 //游戏状态的转换
 func deskStatus2OG(desk *ThDesk) int32 {
 	var result int32 = GAME_STATUS_READY
-	status := desk.Status
+	//status := desk.Status
 	round := desk.RoundCount
 
-	if status == TH_DESK_STATUS_STOP {
+	if desk.IsStop() {
 		//没有开始
 		result = GAME_STATUS_READY
-	} else if status == TH_DESK_STATUS_RUN {
+	} else if desk.IsRun() || desk.IsLottery() {
 		switch round {
 		case TH_DESK_ROUND1:
 			result = GAME_STATUS_FIRST_TURN
@@ -325,7 +325,7 @@ func deskStatus2OG(desk *ThDesk) int32 {
 		default:
 			result = GAME_STATUS_DEAL_CARDS
 		}
-	} else if status == TH_DESK_STATUS_LOTTERY {
+	} else if desk.IsLottery() {
 		result = GAME_STATUS_SHOW_RESULT
 	}
 
