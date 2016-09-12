@@ -49,7 +49,8 @@ func RedisThuserTransThuser(b *bbproto.ThServerUser) *ThUser {
 	t.GameStatus = b.GetGameStatus()                 //用户的游戏状态
 	t.IsBreak = b.GetIsBreak()                  //用户断线的状态,这里判断用户是否断线
 	t.IsLeave = b.GetIsLeave()                  //用户是否处于离开的状态
-	t.HandCards = b.HandCards       //手牌
+	//log.T("t[%v],t.handcards[%v],b[%v],b.handcards[%v]",t==nil,t.HandCards==nil,b==nil,b.HandCards==nil)
+	t.HandCards = b.GetHandCards()       //手牌
 	//thCards           //恢复的时候初始化一次就行了
 	//waiTime            time.Time             //等待时间
 	//waitUUID           string                //等待标志

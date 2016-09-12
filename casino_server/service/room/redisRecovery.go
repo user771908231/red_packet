@@ -5,6 +5,7 @@ import (
 	"casino_server/utils/redisUtils"
 	"casino_server/common/log"
 	"casino_server/service/pokerService"
+	"casino_server/common/Error"
 )
 ////////////////////////////////////////////服务器 数据恢复相关/////////////////////////////////////
 var RUNNING_DESKS = "running_desk_keys"
@@ -67,6 +68,7 @@ func GetRunningDesk() *bbproto.RUNNING_DESKKEYS {
 
 //恢复游戏数据
 func (r *ThGameRoom) Recovery() {
+	defer Error.ErrorRecovery("recovery...")
 	log.T("开始恢复服务器crash之前的数据...")
 	//1,找到对应的key
 	keys := GetRunningDesk()

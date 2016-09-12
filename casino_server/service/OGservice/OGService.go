@@ -97,7 +97,7 @@ func HandlerReady(m *bbproto.Game_Ready, a gate.Agent) error {
 	}
 
 	//4,返回准备的结果
-	*result.SeatId = desk.GetUserByUserId(userId).Seat
+	*result.SeatId = desk.GetUserSeatByUserId(userId)
 	*result.Result = intCons.ACK_RESULT_SUCC
 	desk.THBroadcastProtoAll(result)        //广播用户准备的协议
 

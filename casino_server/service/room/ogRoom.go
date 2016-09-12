@@ -180,8 +180,8 @@ func (mydesk *ThDesk) initGameSendgameInfoByDesk(reqUserId uint32) *bbproto.Game
 	//初始化桌子相关的信息
 	*result.Tableid = int32(mydesk.Id)                                //桌子的Id
 	*result.TablePlayer = mydesk.UserCount                        //玩家总人数
-	*result.BankSeat = mydesk.GetUserByUserId(mydesk.Dealer).Seat        //int32(mydesk.GetUserIndex(mydesk.Dealer))        //庄家
-	*result.ChipSeat = mydesk.GetUserByUserId(mydesk.BetUserNow).Seat //int32(mydesk.GetUserIndex(mydesk.BetUserNow))//当前活动玩家
+	*result.BankSeat = mydesk.GetUserSeatByUserId(mydesk.Dealer)        //int32(mydesk.GetUserIndex(mydesk.Dealer))        //庄家
+	*result.ChipSeat = mydesk.GetUserSeatByUserId(mydesk.BetUserNow) //int32(mydesk.GetUserIndex(mydesk.BetUserNow))//当前活动玩家
 	*result.ActionTime = ThdeskConfig.TH_TIMEOUT_DURATION_INT       //当前操作时间,服务器当前的时间
 	*result.DelayTime = int32(1000)                                //当前延时时间
 	*result.GameStatus = deskStatus2OG(mydesk)
@@ -195,7 +195,7 @@ func (mydesk *ThDesk) initGameSendgameInfoByDesk(reqUserId uint32) *bbproto.Game
 	result.SecondPool = mydesk.GetSecondPool()
 	*result.TurnMax = mydesk.BetAmountNow
 	result.WeixinInfos = mydesk.GetWeiXinInfos()
-	*result.OwnerSeat = mydesk.GetUserByUserId(mydesk.DeskOwner).Seat
+	*result.OwnerSeat = mydesk.GetUserSeatByUserId(mydesk.DeskOwner)
 	*result.PreCoin = mydesk.PreCoin
 	*result.SmallBlind = mydesk.SmallBlindCoin
 	*result.BigBlind = mydesk.BigBlindCoin
