@@ -264,6 +264,7 @@ func (t *ThDesk) AddThUser(userId uint32, userStatus int32, a gate.Agent) (*ThUs
 	thUser.deskId = t.Id                //桌子的id
 	thUser.NickName = *redisUser.NickName                //todo 测试阶段,把nickName显示成用户id
 	thUser.RoomCoin = t.InitRoomCoin
+	thUser.TotalRoomCoin = thUser.RoomCoin
 	thUser.IsBreak = false
 	thUser.IsLeave = false
 	thUser.LotteryCheck = true
@@ -1201,7 +1202,7 @@ func (t *ThDesk) Lottery() error {
 func (t *ThDesk) end() bool {
 	if t.IsFriend() {
 		//朋友桌是否结束游戏
-		return t.EndTh()
+		return t.EndFTh()
 	} else if t.IsChampionship() {
 		return t.EndCsTh()        //锦标赛进入游戏
 	} else {
@@ -2070,7 +2071,7 @@ func (t *ThDesk) EndCsTh() bool {
 }
 
 //表示游戏结束,自定义房间结束
-func (t *ThDesk) EndTh() bool {
+func (t *ThDesk) EndFTh() bool {
 	//如果是自定义房间
 	log.T("判断自定义的desk是否结束游戏t.jucount[%v],t.jucountnow[%v],", t.JuCount, t.JuCountNow)
 	if t.JuCountNow <= t.JuCount {
@@ -2092,7 +2093,7 @@ func (t *ThDesk) EndTh() bool {
 		u := t.Users[i]
 		if u != nil {
 			gel := bbproto.NewGame_EndLottery()
-			*gel.Coin = u.RoomCoin - t.InitRoomCoin        //这里不是u.winamount,u.winamount  表示本局赢得底池的金额
+			*gel.Coin = u.RoomCoin - u.TotalRoomCoin        //这里不是u.winamount,u.winamount  表示本局赢得底池的金额
 			*gel.Seat = u.Seat
 
 			if t.DeskOwner == u.UserId {
@@ -2188,6 +2189,7 @@ func (t *ThDesk) FRebuy(userId uint32) error {
 	user := t.GetUserByUserId(userId)        //要操作的用户
 	//1,为用户增加金额
 	user.AddRoomCoin(t.InitRoomCoin)
+	user.AddTotalRoomCoin(t.InitRoomCoin)
 	user.Update2redis()                         //rebuy需要更新redis中的缓存
 
 	//得到需要扣除的砖石
@@ -2249,6 +2251,7 @@ func (t *ThDesk) CSRebuy(userId uint32) error {
 	//1,为用户增加金额
 	//rebuy需要更新redis中的缓存
 	user.AddRoomCoin(t.InitRoomCoin)
+	user.AddTotalRoomCoin(t.InitRoomCoin)
 	user.Update2redis()
 
 

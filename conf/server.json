@@ -6,5 +6,5 @@
   "MongoIp": "127.0.0.1",
   "MongoPort": 51668,
   "RedisAddr": "127.0.0.1:6379",
-  "CurVersion":1
+  "CurVersion":2
 }
