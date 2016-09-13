@@ -3,7 +3,8 @@
   "LogPath": "",
   "TCPAddr": "192.168.199.120:3797",
   "MaxConnNum": 20000,
-  "MongoIp": "182.92.179.230",
+  "MongoIp": "127.0.0.1",
   "MongoPort": 51668,
-  "RedisAddr": "127.0.0.1:6379"
+  "RedisAddr": "127.0.0.1:6379",
+  "CurVersion":1
 }
