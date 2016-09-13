@@ -89,8 +89,8 @@ func InitDeskConfig() {
 	ThdeskConfig.CreateFee = 1
 
 	//每个人出牌的等待时间
-	ThdeskConfig.TH_TIMEOUT_DURATION = time.Second * 200
-	ThdeskConfig.TH_TIMEOUT_DURATION_INT = 200
+	ThdeskConfig.TH_TIMEOUT_DURATION = time.Second * 20
+	ThdeskConfig.TH_TIMEOUT_DURATION_INT = 20
 
 	//德州开奖的时间
 	ThdeskConfig.TH_LOTTERY_DURATION = time.Second * 5
@@ -939,7 +939,7 @@ func (t *ThDesk) GetBettingOrAllinCount() int32 {
 2,计算出来的下一个押注这和当前押注的是同一个人
 3,即使没有到第四轮,但是所有人都all in 了,那么还是要开奖
  */
-func (t *ThDesk) Tiem2Lottery() bool {
+func (t *ThDesk) Time2Lottery() bool {
 	//如果处于押注状态的人只有一个人了,那么是开奖的时刻
 
 	log.T("判断是否应该开奖,打印每个人的信息://1,刚上桌子,2,坐下,3,ready 4 押注中,5,allin,6,弃牌,7,等待结算,8,已经结算,9,离开")
@@ -1595,6 +1595,15 @@ func (t *ThDesk) GetUserSeatByUserId(userId uint32) int32 {
 		return -1
 	} else {
 		return u.Seat
+	}
+}
+
+//得到当前的押注人的信息
+func (t *ThDesk) GetBetUserNowSeat() int32 {
+	if t.Time2Lottery() {
+		return -1
+	} else {
+		return t.GetUserSeatByUserId(t.BetUserNow)
 	}
 }
 
@@ -2392,7 +2401,7 @@ func (t *ThDesk) DDBet(seatId int32, betType int32, coin int64) error {
 
 	t.nextRoundInfo()        //广播新一局的信息
 
-	if t.Tiem2Lottery() {
+	if t.Time2Lottery() {
 		log.T("--------------------------------------现在可以开奖了---------------------------------------------")
 		return t.Lottery()
 	} else {
@@ -2440,7 +2449,7 @@ func (t *ThDesk) DDFollowBet(user *ThUser) error {
 	*result.CanRaise = t.GetCanRise()                               //是否能加注
 	*result.MinRaise = t.GetMinRaise()
 	*result.Pool = t.Jackpot
-	*result.NextSeat = t.GetUserSeatByUserId(t.BetUserNow) //		//下一个押注的人
+	*result.NextSeat = t.GetBetUserNowSeat() //		//下一个押注的人
 	*result.HandCoin = user.HandCoin
 
 	t.THBroadcastProtoAll(result)
@@ -2487,7 +2496,7 @@ func (t *ThDesk) DDFoldBet(user  *ThUser) error {
 	result.Tableid = &t.Id
 	*result.MinRaise = t.GetMinRaise()
 	*result.CanRaise = t.GetCanRise()                                //是否能加注
-	*result.NextSeat = t.GetUserSeatByUserId(t.BetUserNow)        //		//下一个押注的人
+	*result.NextSeat = t.GetBetUserNowSeat()        //		//下一个押注的人
 
 	t.THBroadcastProto(result, 0)
 	return nil
@@ -2525,7 +2534,7 @@ func (t *ThDesk) DDRaiseBet(user *ThUser, coin int64) error {
 	result.Tableid = &t.Id
 	*result.CanRaise = t.GetCanRise()                //是否能加注
 	*result.MinRaise = t.GetMinRaise()
-	*result.NextSeat = t.GetUserSeatByUserId(t.BetUserNow)        //		//下一个押注的人
+	*result.NextSeat = t.GetBetUserNowSeat()        //		//下一个押注的人
 	*result.HandCoin = user.HandCoin                        //表示需要加注多少
 
 	//给所有人广播信息
@@ -2585,7 +2594,7 @@ func (t *ThDesk) DDCheckBet(user *ThUser) error {
 	result.Tableid = &t.Id
 	*result.CanRaise = t.GetCanRise()                                //是否能加注
 	*result.MinRaise = t.GetMinRaise()                                //最低加注金额
-	*result.NextSeat = t.GetUserSeatByUserId(t.BetUserNow)        //		//下一个押注的人
+	*result.NextSeat = t.GetBetUserNowSeat()       //		//下一个押注的人
 	*result.HandCoin = user.HandCoin
 
 	t.THBroadcastProtoAll(result)
