@@ -89,7 +89,7 @@ func (r *ThGameRoom) Recovery() {
 					desk.RecoveryRun()        //重新开始游戏,
 				}
 			} else {
-				log.T("没有找到desk【%v】的数据(desk==nil?[%v]),恢复失败", key, desk == nil)
+				log.T("没有找到desk【%v】的数据(desk==nil?[%v]),desk.IsOver()[%v],desk.IsStop()[%v],恢复失败", key, desk == nil, desk.IsOver(), desk.IsStop())
 			}
 			r.AddThDesk(desk)        //把thdesk 加到room中
 		}
@@ -102,7 +102,7 @@ func (r *ThGameRoom) Recovery() {
 func (t *ThDesk) RecoveryRun() {
 	//找到当前押注的人,然后等待押注
 	user := t.GetUserByUserId(t.BetUserNow)
-	if user != nil {
+	if user != nil && t.IsRun() {
 		user.wait()
 	} else {
 		log.E("恢复thdesk失败,没有找到betUserNow【%v】", t.BetUserNow)

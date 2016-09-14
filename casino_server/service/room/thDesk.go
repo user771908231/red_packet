@@ -35,11 +35,11 @@ var (
 )
 
 //德州扑克,牌桌的状态
-var TH_DESK_STATUS_STOP int32 = 1                //没有开始的状态
-var TH_DESK_STATUS_READY int32 = 2                 //游戏处于准备的状态
+var TH_DESK_STATUS_STOP int32 = 1               //没有开始的状态
+var TH_DESK_STATUS_READY int32 = 2              //处于准备的状态
 var TH_DESK_STATUS_RUN int32 = 3                //已经开始的状态
-var TH_DESK_STATUS_LOTTERY int32 = 4             //正在开奖
-var TH_DESK_STATUS_GAMEOVER int32 = 5             //已经开始的状态
+var TH_DESK_STATUS_LOTTERY int32 = 4            //正在开奖的状态
+var TH_DESK_STATUS_GAMEOVER int32 = 5           //已经开始的状态
 
 
 var TH_DESK_ROUND1 int32 = 1                //第一轮押注
@@ -1238,6 +1238,7 @@ func (t *ThDesk) afterLottery() error {
 	//1,设置游戏桌子的状态
 	log.T("开奖结束,设置desk的状态为stop")
 	t.Status = TH_DESK_STATUS_STOP                //设置为没有开始开始游戏
+	t.Status = TH_DESK_STATUS_GAMEOVER                //设置为没有开始开始游戏
 	t.Jackpot = 0; //主池设置为0
 	t.EdgeJackpot = 0; //边池设置为0
 	t.AllInJackpot = nil;
