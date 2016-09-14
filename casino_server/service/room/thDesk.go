@@ -1192,8 +1192,6 @@ func (t *ThDesk) Lottery() error {
 		go t.Run()
 	}
 
-	//备份数据到redis
-	t.UpdateThdeskAndAllUser2redis()
 	return nil
 }
 
@@ -1265,8 +1263,10 @@ func (t *ThDesk) afterLottery() error {
 		}
 	}
 
-	log.T("lottery 之后保存用户和desk的数据到redis")
-	t.UpdateThdeskAndAllUser2redis()
+
+	//开奖结束之后,需要删除thdesk和thuser的redis缓存
+	log.T("lottery 之后删除用户和desk在redis中的数据...")
+	t.DelThdeskAndAllUserRedisCache()
 
 	return nil
 }

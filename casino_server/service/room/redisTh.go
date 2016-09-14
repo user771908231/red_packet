@@ -264,6 +264,12 @@ func saveRedisThDesk(t *bbproto.ThServerDesk) error {
 	return nil
 }
 
+//删除redis中的thdesk
+func DelRedisThdesk(deskId int32, gameNumber int32) error {
+	key := getRedisThDeskKey(deskId, gameNumber)
+	redisUtils.Del(key)
+	return nil
+}
 
 
 
