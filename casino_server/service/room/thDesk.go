@@ -89,8 +89,8 @@ func InitDeskConfig() {
 	ThdeskConfig.CreateFee = 1
 
 	//每个人出牌的等待时间
-	ThdeskConfig.TH_TIMEOUT_DURATION = time.Second * 20
-	ThdeskConfig.TH_TIMEOUT_DURATION_INT = 20
+	ThdeskConfig.TH_TIMEOUT_DURATION = time.Second * 200
+	ThdeskConfig.TH_TIMEOUT_DURATION_INT = 200
 
 	//德州开奖的时间
 	ThdeskConfig.TH_LOTTERY_DURATION = time.Second * 5
@@ -243,6 +243,7 @@ func (t *ThDesk) IsrepeatIntoWithRoomKey(userId uint32, a gate.Agent) bool {
 			u.Agent = a                                                //设置用户的连接
 			u.IsBreak = false               //设置用户的离线状态
 			u.IsLeave = false
+			u.GameStatus = TH_USER_GAME_STATUS_FRIEND
 			u.UpdateAgentUserData()         //更新回话信息
 			return true
 		}
@@ -359,12 +360,12 @@ func (t *ThDesk) IsAllReady() bool {
 
 //  用户退出德州游戏的房间,rmUser 需要在事物中进行,离开德州需要更具桌子的类型来做不同的处理
 func (t *ThDesk) LeaveThuser(userId uint32) error {
+	log.T("user[%v]准备离开房间...", userId)
 	if t.IsFriend() {
 		return t.FLeaveThuser(userId)
 	} else if t.IsChampionship() {
 		return t.CSLeaveThuser(userId)
 	}
-
 	return nil
 }
 
@@ -1236,7 +1237,6 @@ func (t *ThDesk) afterLottery() error {
 	//1,设置游戏桌子的状态
 	log.T("开奖结束,设置desk的状态为stop")
 	t.Status = TH_DESK_STATUS_STOP                //设置为没有开始开始游戏
-	t.Status = TH_DESK_STATUS_GAMEOVER                //设置为没有开始开始游戏
 	t.Jackpot = 0; //主池设置为0
 	t.EdgeJackpot = 0; //边池设置为0
 	t.AllInJackpot = nil;

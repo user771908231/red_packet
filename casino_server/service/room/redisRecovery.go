@@ -48,8 +48,14 @@ func RmRunningDesk(t *ThDesk) {
 			}
 		}
 	}
+
+	//设置index为""
+	if index != -1 {
+		keys.Desks[index] = ""
+	}
 	//删除
-	keys.Desks = append(keys.Desks[:index], keys.Desks[index + 1:]...)
+	//keys.Desks = append(keys.Desks[:index], keys.Desks[index + 1:]...)
+
 	redisUtils.SetObj(RUNNING_DESKS, keys)
 
 }

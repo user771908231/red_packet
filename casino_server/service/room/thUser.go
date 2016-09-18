@@ -231,7 +231,6 @@ func NewThUser() *ThUser {
 func (u *ThUser) UpdateAgentUserData() {
 	userAgentData := bbproto.NewThServerUserSession()                //绑定参数
 
-
 	//保存回话信息
 	*userAgentData.UserId = u.UserId
 	*userAgentData.DeskId = u.deskId
