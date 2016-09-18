@@ -2147,10 +2147,39 @@ func (t *ThDesk) clearAgentData(ignoreUserId uint32) {
 
 //手牌转换为OG可以使用的牌
 func (t *ThDesk) ThPublicCard2OGC() []*bbproto.Game_CardInfo {
-	result := make([]*bbproto.Game_CardInfo, len(t.PublicPai))
-	for i := 0; i < len(t.PublicPai); i++ {
-		result[i] = ThCard2OGCard(t.PublicPai[i])
+	//result := make([]*bbproto.Game_CardInfo, len(t.PublicPai))
+	//for i := 0; i < len(t.PublicPai); i++ {
+	//	result[i] = ThCard2OGCard(t.PublicPai[i])
+	//}
+	//要更具当前的进度来发送公共牌的信息
+
+	var result []*bbproto.Game_CardInfo
+
+	//前三张牌
+	if !t.SendFlop {
+		return result
+	} else {
+		result = append(result, ThCard2OGCard(t.PublicPai[0]))
+		result = append(result, ThCard2OGCard(t.PublicPai[1]))
+		result = append(result, ThCard2OGCard(t.PublicPai[2]))
 	}
+
+
+	//第四张牌
+	if !t.SendTurn {
+		return result
+	} else {
+		result = append(result, ThCard2OGCard(t.PublicPai[3]))
+
+	}
+
+	//第五张牌
+	if !t.SendRive {
+		return result
+	} else {
+		result = append(result, ThCard2OGCard(t.PublicPai[4]))
+	}
+
 	return result
 }
 
