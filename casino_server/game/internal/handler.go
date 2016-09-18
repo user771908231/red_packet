@@ -254,6 +254,8 @@ func handlerCreateDesk(args []interface{}) {
 	//返回信息
 	log.T("创建房间成功,返回的数据[%v]", result)
 	a.WriteMsg(result)
+
+	room.AddRunningDesk(desk)
 }
 
 
@@ -263,7 +265,10 @@ func handlerDissolveDesk(args []interface{}) {
 	m := args[0].(*bbproto.Game_DissolveDesk)
 	a := args[1].(gate.Agent)
 	log.T("解散房间的请求参数[%v]", m)
-	room.ThGameRoomIns.DissolveDeskByDeskOwner(m.GetUserId(), a)
+	err := room.ThGameRoomIns.DissolveDeskByDeskOwner(m.GetUserId(), a)
+	if err != nil {
+		log.E("解散房间失败errMsg [%v]", err)
+	}
 }
 
 

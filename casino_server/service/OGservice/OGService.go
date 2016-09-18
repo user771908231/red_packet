@@ -185,7 +185,11 @@ func HandlerGameEnterMatch(m *bbproto.Game_EnterMatch, a gate.Agent) error {
 	var err error                                   //错误信息
 	var mydesk *room.ThDesk                         //用户需要进入的房间
 	userId := m.GetUserId()                         //进入游戏房间的user
-	roomKey := string(m.GetPassWord())              //房间的roomkey
+	roomKey := ""             //房间的roomkey
+	passWord := m.GetPassWord()
+	if passWord != nil {
+		roomKey = string(passWord)
+	}
 	matchId := m.GetMatchIdInt()                        //进入锦标赛的时候检测锦标赛的matchId
 
 
@@ -217,6 +221,7 @@ func HandlerGameEnterMatch(m *bbproto.Game_EnterMatch, a gate.Agent) error {
 	mydesk.BroadGameInfo(userId)
 
 	//保存信息
+	mydesk.UpdateThdeskAndUser2redis(mydesk.GetUserByUserId(userId))
 
 	return nil
 }
@@ -235,5 +240,6 @@ func HandlerGameLogin(userId uint32, a gate.Agent) {
 	*ret.Championship = false                //锦标赛是否开启
 	*ret.Chip = userService.GetUserById(userId).GetDiamond()
 	*ret.RoomPassword = session.GetRoomKey()
+	*ret.CostCreateRoom = room.ThdeskConfig.CreateFee        //创建房间的单价
 	a.WriteMsg(ret)
 }

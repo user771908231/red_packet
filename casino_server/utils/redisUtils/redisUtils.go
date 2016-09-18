@@ -36,6 +36,23 @@ func GetObj(key string, p proto.Message) proto.Message {
 	return conn.GetObjv2(key, p)
 }
 
+//得到int64的值
+func GetInt64(key string) int64 {
+	conn := GetConn()
+	defer conn.Close()
+	result, err := conn.GetInt64(key)
+	if err != nil {
+		return -1
+	} else {
+		return int64(result)
+	}
+}
+
+func SetInt64(key string, value int64) {
+	conn := GetConn()
+	defer conn.Close()
+	conn.SetInt(key, value)
+}
 /**
 	保存一个对象到redis
  */
@@ -45,7 +62,7 @@ func SetObj(key string, p proto.Message) {
 	conn.SetObj(key, p)
 }
 
-func Del(key string){
+func Del(key string) {
 	conn := GetConn()
 	defer conn.Close()
 	conn.Del(key)
@@ -76,4 +93,30 @@ func LREM(key string, value string) error {
 		log.E("redis lrem的时候出错 err[%v]", err)
 	}
 	return err
+}
+
+//对指定的key 加上 i的值
+func INCRBY(key string, i int64) int64 {
+	conn := GetConn()
+	defer conn.Close()
+	value, err := conn.INCRBY(key, i)
+	if err != nil {
+		log.E("redis INCRBY的时候出错 err[%v]", err)
+		return 0
+	} else {
+		return value.(int64)
+	}
+}
+
+//对指定的key 减去i 的值
+func DECRBY(key string, i int64) int64 {
+	conn := GetConn()
+	defer conn.Close()
+	value, err := conn.DECRBY(key, i)
+	if err != nil {
+		log.E("redis DECRBY的时候出错 err[%v]", err)
+		return 0
+	} else {
+		return value.(int64)
+	}
 }

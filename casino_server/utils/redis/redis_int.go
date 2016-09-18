@@ -148,9 +148,9 @@ func (t *Data) Gets(key string) (value []byte, err error) {
 	return nil, err
 }
 
-func (t *Data) GetInt(key string) (value int, err error) {
+func (t *Data) GetInt64(key string) (value int64, err error) {
 	if t.conn != nil {
-		value, err := redis.Int(t.conn.Do("GET", key))
+		value, err := redis.Int64(t.conn.Do("GET", key))
 		if err == redis.ErrNil {
 			err = nil
 		}
@@ -175,7 +175,7 @@ func (t *Data) Set(key string, value []byte) error {
 	return nil
 }
 
-func (t *Data) SetInt(key string, value int32) error {
+func (t *Data) SetInt(key string, value int64) error {
 	if t.conn != nil {
 		_, err := redis.String(t.conn.Do("SET", key, value))
 		return err
@@ -210,7 +210,6 @@ func (t *Data) GetObj(key string, pb proto.Message) error {
 	}
 	return proto.Unmarshal(d, pb)
 }
-
 
 func (t *Data) GetObjv2(key string, pb proto.Message) proto.Message {
 	d, err := t.Gets(key)
@@ -386,5 +385,17 @@ func (t *Data) ZREVRANK(key string, mem string) (interface{}, error) {
 }
 
 
+
+//=================原子加减
+
+func (t *Data) INCRBY(key string, i int64) (interface{}, error) {
+	v, err := t.conn.Do("INCRBY", key, i)
+	return v, err
+}
+
+func (t *Data) DECRBY(key string, i int64) (interface{}, error) {
+	v, err := t.conn.Do("DECRBY", key, i)
+	return v, err
+}
 
 

@@ -14,9 +14,12 @@ import (
 	"gopkg.in/mgo.v2"
 	"casino_server/common/Error"
 	"casino_server/utils/redisUtils"
+	"errors"
+	"fmt"
 )
 
 var NEW_USER_DIAMOND_REWARD int64 = 20                //新用户登陆的时候,默认的砖石数量
+var USER_DIAMOND_REDIS_KEY = "user_diamond_redis_key"
 
 
 /**
@@ -75,9 +78,10 @@ func GetRedisUserSeesionKey(userid uint32) string {
  */
 func GetUserById(id uint32) *bbproto.User {
 	//1,首先在 redis中去的数据
-	key := GetRedisUserKey(id)
-	result := redisUtils.GetObj(key, &bbproto.User{})
+	var buser *bbproto.User = nil
+	result := redisUtils.GetObj(GetRedisUserKey(id), &bbproto.User{})
 	if result == nil {
+		fmt.Println("redis中没有找到user")
 		log.E("redis中没有找到user[%v],需要在mongo中查询,并且缓存在redis中。", id)
 		// 获取连接 connection
 		tuser := &mode.T_user{}
@@ -91,21 +95,18 @@ func GetUserById(id uint32) *bbproto.User {
 		} else {
 			log.T("在mongo中查询到了user[%v],现在开始缓存", tuser)
 			//把从数据获得的结果填充到redis的model中
-			result, _ = Tuser2Ruser(tuser)
-			if result != nil {
-				SaveUser2Redis(result.(*bbproto.User))
+			buser, _ = Tuser2Ruser(tuser)
+			if buser != nil {
+				SaveUser2Redis(buser)
+				SetUserDiamond(id, buser.GetDiamond())
 			}
 		}
+	} else {
+		buser = result.(*bbproto.User)
 	}
 
 	//判断用户是否存在,如果不存在,则返回空
-	if result == nil {
-		return nil
-	} else {
-		ret := result.(*bbproto.User)
-		ret.OninitLoginTurntableState()        //初始化登录转盘之后的奖励
-		return ret
-	}
+	return buser
 }
 
 //返回session信息
@@ -125,8 +126,7 @@ func SaveUserSession(userData *bbproto.ThServerUserSession) {
 }
 
 func GetUserByOpenId(openId  string) *bbproto.User {
-	//1,首先在 redis中去的数据--登录考虑是否需要从redis中查询
-
+	log.T("通过openId[%v]查询用户是否存在...", openId)
 	//2,从数据库中查询
 	result := &bbproto.User{}
 	tuser := &mode.T_user{}
@@ -138,21 +138,17 @@ func GetUserByOpenId(openId  string) *bbproto.User {
 		log.T("在mongo中没有查询到user[%v].", openId)
 		result = nil
 	} else {
-		log.T("在mongo中查询到了user[%v],现在开始缓存", tuser)
+		log.T("在mongo中查询到了user.openId[%v],现在开始缓存", tuser.OpenId)
 		//把从数据获得的结果填充到redis的model中
 		result, _ = Tuser2Ruser(tuser)
 		if result != nil {
 			SaveUser2Redis(result)
+			SetUserDiamond(result.GetId(), result.GetDiamond())
 		}
 	}
 
 	//判断用户是否存在,如果不存在,则返回空
-	if result == nil {
-		return nil
-	} else {
-		//result.OninitLoginTurntableState()	//初始化登录转盘之后的奖励
-		return result
-	}
+	return result
 }
 
 
@@ -256,32 +252,34 @@ func CheckUserIdRightful(userId uint32) bool {
 
 
 //更新用户的钻石之后,在放回用户当前的余额,更新用户钻石需要同事更新redis和mongo的数据
-func UpdateUserDiamond(userId uint32, diamond int64) (int64, error) {
-	//1,获取锁
-	//lock := UserLockPools.GetUserLockByUserId(userId)
-	//lock.Lock()
-	//defer lock.Unlock()
-
-	//2,修改用户redis和mongo中的数据
+func UpdateUserDiamond(userId uint32, diamond int64) {
 	user := GetUserById(userId)
 	if user == nil {
-		return -1, Error.NewError(int32(bbproto.DDErrorCode_ERRORCODE_CREATE_DESK_USER_NOTFOUND), "用户不存在")
-	}
-
-
-	//见转砖石的时候,如果user.getDianmond + diamond < 0 表示余额不足
-	//判断用户的钻石是否足够
-	if user.GetDiamond() + diamond <= 0 {
-		return user.GetDiamond(), Error.NewError(int32(bbproto.DDErrorCode_ERRORCODE_CREATE_DESK_DIAMOND_NOTENOUGH), "余额不足")
+		log.E("更新用户的diamond失败,用户为空")
+		return
 	}
 
 	//修改并且更新用户数据
-	*user.Diamond += diamond
+	*user.Diamond = diamond
 	SaveUser2RedisAndMongo(user)
-
-	//3,返回数据
-	return user.GetDiamond(), nil
 }
+
+//用户砖石的key
+func UDK(userId uint32) string {
+	userIdStr, _ := numUtils.Uint2String(userId)
+	result := strings.Join([]string{USER_DIAMOND_REDIS_KEY, userIdStr}, "_")
+	return result
+}
+
+func GetUserDiamond(userId uint32) int64 {
+	balance := redisUtils.GetInt64(UDK(userId))
+	return balance
+}
+
+func SetUserDiamond(userId uint32, diamond int64) {
+	redisUtils.SetInt64(UDK(userId), diamond)
+}
+
 
 //craete钻石交易记录
 
@@ -310,6 +308,41 @@ func CreateDiamonDetail(userId uint32, detailsType int32, diamond int64, remainD
 		return Error.NewError(0, "创建交易记录失败")
 	}
 	return nil
+}
+
+//增加用户的金额
+func INCRUserDiamond(userid uint32, d int64) (int64, error) {
+	//1,增加余额
+	remain := redisUtils.INCRBY(UDK(userid), d)
+
+	//2,更新redis和数据库中的数据
+	UpdateUserDiamond(userid, remain)
+
+	//3,返回值
+	return remain, nil
+}
+
+
+//减少用户的砖石
+func DECRUserDiamond(userid uint32, d int64) (int64, error) {
+	diamond := GetUserDiamond(userid)
+
+	//检测用户的余额是否足够
+	if diamond < d {
+		return diamond, errors.New("用户余额不足")
+	}
+
+	//减少用户的砖石数量
+	remain := redisUtils.DECRBY(UDK(userid), d)
+	if remain < 0 {
+		INCRUserDiamond(userid, d)
+		return diamond, errors.New("用户余额不足")
+	} else {
+		//更新redis和mongo中的数据
+		UpdateUserDiamond(userid, remain)
+		return remain, nil
+	}
+
 }
 
 

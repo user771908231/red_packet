@@ -13,19 +13,17 @@ import (
 //关于thuser的redis存储
 var REDIS_TH_USER_KEY_PRE = "redis_th_user_key"
 
-func getRedisThUserKey(deskId int32, gameNumber int32, userId uint32) string {
+func getRedisThUserKey(deskId int32, userId uint32) string {
 	deskIdStr, _ := numUtils.Int2String(deskId)
-	gameNumberStr, _ := numUtils.Int2String(gameNumber)
 	userIdStr, _ := numUtils.Uint2String(userId)
-
-	result := strings.Join([]string{REDIS_TH_USER_KEY_PRE, deskIdStr, gameNumberStr, userIdStr}, "_")
+	result := strings.Join([]string{REDIS_TH_USER_KEY_PRE, deskIdStr, userIdStr}, "_")
 	//log.T("通过deskId[%v],gameNumber[%v],userId[%v]得到的redis_key是[%v]", deskId, gameNumber, userId, result)
 	return result
 }
 
 //通过桌子id,游戏编号,用户id来唯一确定一个thuser
-func GetRedisThUser(deskId int32, gameNumber int32, userId uint32) *bbproto.ThServerUser {
-	key := getRedisThUserKey(deskId, gameNumber, userId)
+func GetRedisThUser(deskId int32, userId uint32) *bbproto.ThServerUser {
+	key := getRedisThUserKey(deskId, userId)
 	p := redisUtils.GetObj(key, &bbproto.ThServerUser{})
 	if p == nil {
 		log.E("获取用户数据失败with key [%v]", key)
@@ -71,14 +69,14 @@ func RedisThuserTransThuser(b *bbproto.ThServerUser) *ThUser {
 //保存一个用户
 func saveRedisThUser(user *bbproto.ThServerUser) error {
 	//获取redis连接
-	key := getRedisThUserKey(user.GetDeskId(), user.GetGameNumber(), user.GetUserId())
+	key := getRedisThUserKey(user.GetDeskId(), user.GetUserId())
 	redisUtils.SetObj(key, user)
 	return nil
 }
 
 //删除一个用户
-func DelRedisThUser(deskId int32, gameNumber int32, userId uint32) {
-	redisUtils.Del(getRedisThUserKey(deskId, gameNumber, userId))
+func DelRedisThUser(deskId int32, userId uint32) {
+	redisUtils.Del(getRedisThUserKey(deskId, userId))
 }
 
 //更新thuser的数据到redis中
@@ -89,7 +87,7 @@ func UpdateRedisThuser(u *ThUser) error {
 		gameNumber = desk.GameNumber
 	}
 	//1,得到user
-	ruser := GetRedisThUser(u.deskId, gameNumber, u.UserId)
+	ruser := GetRedisThUser(u.deskId, u.UserId)
 	if ruser == nil {
 		log.T("数据库中没有找到thuser【%v】", u.UserId)
 		ruser = bbproto.NewThServerUser()
@@ -123,19 +121,17 @@ func UpdateRedisThuser(u *ThUser) error {
 //---------------------------------------------------------------------------thdesk----------
 var REDIS_TH_DESK_KEY_PRE = "redis_th_desk_key"
 
-func getRedisThDeskKey(deskId int32, gameNumber int32) string {
+func getRedisThDeskKey(deskId int32) string {
 	deskIdStr, _ := numUtils.Int2String(deskId)
-	gameNumberStr, _ := numUtils.Int2String(gameNumber)
-
-	result := strings.Join([]string{REDIS_TH_DESK_KEY_PRE, deskIdStr, gameNumberStr}, "_")
+	result := strings.Join([]string{REDIS_TH_DESK_KEY_PRE, deskIdStr}, "_")
 	//log.T("通过deskId[%v],gameNumber[%v],userId[%v]得到的redis_key是[%v]", deskId, gameNumber, userId, result)
 	return result
 }
 
 
 //通过桌子id,游戏编号,用户id来唯一确定一个thuser
-func GetRedisThDesk(deskId int32, gameNumber int32) *bbproto.ThServerDesk {
-	key := getRedisThDeskKey(deskId, gameNumber)
+func GetRedisThDesk(deskId int32) *bbproto.ThServerDesk {
+	key := getRedisThDeskKey(deskId)
 	return GetRedisThDeskByKey(key)
 }
 
@@ -156,7 +152,7 @@ func RedisDeskTransThdesk(rt *bbproto.ThServerDesk) *ThDesk {
 	ret.DeskOwner = rt.GetDeskOwner()
 	ret.RoomKey = rt.GetRoomKey()
 	ret.CreateFee = rt.GetCreateFee()
-	ret.GameType = rt.GetGameNumber()
+	ret.GameType = rt.GetGameType()
 	ret.InitRoomCoin = rt.GetInitRoomCoin()
 	ret.JuCount = rt.GetJuCount()
 	ret.JuCountNow = rt.GetJuCountNow()
@@ -203,7 +199,7 @@ func UpdateTedisThDesk(t *ThDesk) error {
 		return errors.New("备份desk到redis失败...")
 	}
 
-	rt := GetRedisThDesk(t.Id, t.GameNumber)
+	rt := GetRedisThDesk(t.Id)
 	if rt == nil {
 		log.T("数据库中没有找到thdesk【%v】,重新生成一个,并且保存到redis中", t.Id)
 		rt = bbproto.NewThServerDesk()
@@ -215,6 +211,7 @@ func UpdateTedisThDesk(t *ThDesk) error {
 	*rt.RoomKey = t.RoomKey
 	*rt.CreateFee = t.CreateFee
 	*rt.DeskType = t.GameType
+	*rt.GameType = t.GameType
 	*rt.InitRoomCoin = t.InitRoomCoin
 	*rt.JuCount = t.JuCount
 	*rt.JuCountNow = t.JuCountNow
@@ -249,6 +246,7 @@ func UpdateTedisThDesk(t *ThDesk) error {
 
 	//所有人的id
 	rt.UserIds = t.GetuserIds()
+	rt.LeaveUserIds = t.GetLeaveUserIds()
 
 	//3,保存到数据库
 	saveRedisThDesk(rt)
@@ -259,11 +257,17 @@ func UpdateTedisThDesk(t *ThDesk) error {
 //保存一个thdesk
 func saveRedisThDesk(t *bbproto.ThServerDesk) error {
 	//获取redis连接
-	key := getRedisThDeskKey(t.GetId(), t.GetGameNumber())
+	key := getRedisThDeskKey(t.GetId())
 	redisUtils.SetObj(key, t)
 	return nil
 }
 
+//删除redis中的thdesk
+func DelRedisThdesk(deskId int32) error {
+	key := getRedisThDeskKey(deskId)
+	redisUtils.Del(key)
+	return nil
+}
 
 
 

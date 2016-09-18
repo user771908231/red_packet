@@ -11,7 +11,15 @@ import (
 var RUNNING_DESKS = "running_desk_keys"
 //这里保存正在游戏中的thdesk
 func AddRunningDesk(t *ThDesk) {
-	tk := getRedisThDeskKey(t.Id, t.GameNumber)
+
+	//判断入参
+	if t == nil {
+		return
+	}
+
+
+	//update
+	tk := getRedisThDeskKey(t.Id)
 	var keys *bbproto.RUNNING_DESKKEYS
 	data := redisUtils.GetObj(RUNNING_DESKS, &bbproto.RUNNING_DESKKEYS{})
 	if data == nil {
@@ -36,7 +44,7 @@ func AddRunningDesk(t *ThDesk) {
 
 func RmRunningDesk(t *ThDesk) {
 	index := -1
-	tk := getRedisThDeskKey(t.Id, t.GameNumber)
+	tk := getRedisThDeskKey(t.Id)
 	var keys *bbproto.RUNNING_DESKKEYS
 	data := redisUtils.GetObj(RUNNING_DESKS, &bbproto.RUNNING_DESKKEYS{})
 	if data != nil {
@@ -48,8 +56,14 @@ func RmRunningDesk(t *ThDesk) {
 			}
 		}
 	}
+
+	//设置index为""
+	if index != -1 {
+		keys.Desks[index] = ""
+	}
 	//删除
-	keys.Desks = append(keys.Desks[:index], keys.Desks[index + 1:]...)
+	//keys.Desks = append(keys.Desks[:index], keys.Desks[index + 1:]...)
+
 	redisUtils.SetObj(RUNNING_DESKS, keys)
 
 }
@@ -81,17 +95,26 @@ func (r *ThGameRoom) Recovery() {
 			redisThdesk := GetRedisThDeskByKey(key)
 			desk := RedisDeskTransThdesk(redisThdesk)
 			if desk != nil && !desk.IsOver() {
+				//恢复游戏中的玩家
 				for _, userId := range redisThdesk.UserIds {
 					log.T("开始恢复desk[%v]的user[%v]", key, userId)
-					user := RedisThuserTransThuser(GetRedisThUser(desk.Id, desk.GameNumber, userId))        //依次恢复user
+					user := RedisThuserTransThuser(GetRedisThUser(desk.Id, userId))        //依次恢复user
 					user.thCards = pokerService.GetTHPoker(user.HandCards, desk.PublicPai, 5)                //重新计算玩家的牌信息
 					desk.AddThuserBean(user)        //把desk add 到room
-					desk.RecoveryRun()        //重新开始游戏,
 				}
+
+				//恢复离线的玩家
+				for _, userId := range redisThdesk.LeaveUserIds {
+					log.T("开始恢复desk[%v]的user[%v]", key, userId)
+					user := RedisThuserTransThuser(GetRedisThUser(desk.Id, userId))        //依次恢复user
+					desk.addLeaveUsers(user)        //把desk add 到room
+				}
+				desk.RecoveryRun()        //重新开始游戏,
+				r.AddThDesk(desk)        //把thdesk 加到room中
 			} else {
-				log.T("没有找到desk【%v】的数据(desk==nil?[%v]),恢复失败", key, desk == nil)
+				//之类else 的作用仅仅是为了打日志...
+				log.T("没有找到desk【%v】的数据(desk==nil?[%v]),desk.IsOver()[%v],desk.IsStop()[%v],恢复失败", key, desk == nil, desk.IsOver(), desk.IsStop())
 			}
-			r.AddThDesk(desk)        //把thdesk 加到room中
 		}
 	}
 	log.T("恢复服务器crash之前的数据...end")
@@ -102,7 +125,7 @@ func (r *ThGameRoom) Recovery() {
 func (t *ThDesk) RecoveryRun() {
 	//找到当前押注的人,然后等待押注
 	user := t.GetUserByUserId(t.BetUserNow)
-	if user != nil {
+	if user != nil && t.IsRun() {
 		user.wait()
 	} else {
 		log.E("恢复thdesk失败,没有找到betUserNow【%v】", t.BetUserNow)

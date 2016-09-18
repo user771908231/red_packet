@@ -163,9 +163,8 @@ func (t *ThDesk) BroadGameInfo(reqUserId uint32) {
 	for i := 0; i < len(t.Users); i++ {
 		u := t.Users[i]
 		if u != nil && !u.IsLeave && !u.IsBreak {
-			//给用户发送广播的时候需要判断自己的座位号是多少
-			*msg.Seat = t.Users[i].Seat
-			msg.Handcard = t.GetMyHandCard(t.Users[i].UserId)
+			*msg.Seat = t.Users[i].Seat                        //给用户发送广播的时候需要判断自己的座位号是多少
+			msg.Handcard = t.GetMyHandCard(t.Users[i].UserId)        //针对用户发送手牌的信息
 			//给用户发送信息
 			u.WriteMsg(msg)
 		}

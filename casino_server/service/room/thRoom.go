@@ -89,7 +89,8 @@ func (r *ThGameRoom) CreateDeskByUserIdAndRoomKey(userId uint32, roomCoin int64,
 
 	//1,创建房间成功之后,扣除user的钻石
 	upDianmond := r.CalcCreateFee(jucount)
-	remainDiamond, err := userService.UpdateUserDiamond(userId, -upDianmond)
+	//remainDiamond, err := userService.UpdateUserDiamond(userId, -upDianmond)
+	remainDiamond, err := userService.DECRUserDiamond(userId, upDianmond)                //创建房间消耗砖石
 	if err != nil {
 		log.E("创建房间的时候出错,error", err.Error())
 		return nil, err
@@ -140,8 +141,12 @@ func (r *ThGameRoom) RmThDesk(desk *ThDesk) error {
 	}
 
 	//删除对应的desk
-	r.ThDeskBuf = append(r.ThDeskBuf[:index], r.ThDeskBuf[index + 1:]...)
-	return nil
+	if index >= 0 {
+		r.ThDeskBuf = append(r.ThDeskBuf[:index], r.ThDeskBuf[index + 1:]...)
+		return nil
+	} else {
+		return errors.New("解散房间失败")
+	}
 }
 
 //通过房主id解散房间
@@ -173,7 +178,12 @@ func (r *ThGameRoom) DissolveDeskByDeskOwner(userId uint32, a gate.Agent) error 
 
 	//3,解散
 	desk.clearAgentData(0)        //清空别人的会话信息
-	r.RmThDesk(desk)
+	err := r.RmThDesk(desk)
+	if err != nil {
+		*result.Result = intCons.ACK_RESULT_ERROR
+		a.WriteMsg(result)
+		return errors.New("解散房间失败")
+	}
 
 	//4,发送解散的广播
 	*result.Result = intCons.ACK_RESULT_SUCC

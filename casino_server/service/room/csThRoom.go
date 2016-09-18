@@ -385,6 +385,7 @@ func (r *CSThGameRoom) IsRepeatIntoRoom(userId uint32, a gate.Agent) (*ThDesk, e
 	//设置用户的状态
 	user.IsBreak = false
 	user.Agent = a
+	user.GameStatus = TH_USER_GAME_STATUS_CHAMPIONSHIP
 	user.UpdateAgentUserData()        //更新用户的session信息
 
 	log.T("用户【%v】断线重连...", userId)
@@ -453,6 +454,45 @@ func (t *ThDesk) UpdateThdeskAndAllUser2redis() error {
 	t.Update2redis()
 	return nil
 }
+
+//删除redis中的数据
+func (t *ThDesk) DelThdeskAndAllUserRedisCache() error {
+	//1,删除缓存中的desk
+	DelRedisThdesk(t.Id)
+
+	//2,删除缓存中desk,gamenumber 相关的user
+	for _, u := range t.Users {
+		if u != nil {
+			DelRedisThUser(t.Id, u.UserId)
+		}
+	}
+
+	//3,删除running 中的desk的key
+	RmRunningDesk(t)
+	return nil
+}
+
+
+//删除所有当前用户的信息
+func (t *ThDesk) DelAllUsersRedisCache() {
+	for _, u := range t.Users {
+		if u != nil {
+			DelRedisThUser(t.Id, u.UserId)
+		}
+	}
+
+}
+
+
+//删除离开的用户,离开的用户,设置gameNumber为0
+func (t *ThDesk) DelAllLeaveUsersRedisCache() {
+	for _, u := range t.Users {
+		if u != nil {
+			DelRedisThUser(t.Id, u.UserId)
+		}
+	}
+}
+
 
 //把desk的信息和指定的user备份到redis
 func (t *ThDesk) UpdateThdeskAndUser2redis(user  *ThUser) error {
