@@ -215,6 +215,7 @@ func UpdateTedisThDesk(t *ThDesk) error {
 	*rt.RoomKey = t.RoomKey
 	*rt.CreateFee = t.CreateFee
 	*rt.DeskType = t.GameType
+	*rt.GameType = t.GameType
 	*rt.InitRoomCoin = t.InitRoomCoin
 	*rt.JuCount = t.JuCount
 	*rt.JuCountNow = t.JuCountNow
