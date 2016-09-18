@@ -140,8 +140,12 @@ func (r *ThGameRoom) RmThDesk(desk *ThDesk) error {
 	}
 
 	//删除对应的desk
-	r.ThDeskBuf = append(r.ThDeskBuf[:index], r.ThDeskBuf[index + 1:]...)
-	return nil
+	if index >= 0 {
+		r.ThDeskBuf = append(r.ThDeskBuf[:index], r.ThDeskBuf[index + 1:]...)
+		return nil
+	} else {
+		return errors.New("解散房间失败")
+	}
 }
 
 //通过房主id解散房间
@@ -173,7 +177,12 @@ func (r *ThGameRoom) DissolveDeskByDeskOwner(userId uint32, a gate.Agent) error 
 
 	//3,解散
 	desk.clearAgentData(0)        //清空别人的会话信息
-	r.RmThDesk(desk)
+	err := r.RmThDesk(desk)
+	if err != nil {
+		*result.Result = intCons.ACK_RESULT_ERROR
+		a.WriteMsg(result)
+		return errors.New("解散房间失败")
+	}
 
 	//4,发送解散的广播
 	*result.Result = intCons.ACK_RESULT_SUCC

@@ -133,6 +133,7 @@ type ThDesk struct {
 	BetUserNow           uint32                       //当前押注人的Id
 
 	GameNumber           int32                        //每一局游戏的游戏编号
+	LeaveUsers           []*ThUser                    //离开的人,朋友桌需要积分,所以需要保存下来
 	Users                []*ThUser                    //坐下的人
 	PublicPai            []*bbproto.Pai               //公共牌的部分
 	UserCount            int32                        //玩游戏的总人数
@@ -244,6 +245,33 @@ func (t *ThDesk) IsrepeatIntoWithRoomKey(userId uint32, a gate.Agent) bool {
 			u.IsLeave = false
 			u.GameStatus = TH_USER_GAME_STATUS_FRIEND
 			u.UpdateAgentUserData()         //更新回话信息
+			return true
+		}
+	}
+
+
+	//2,判断是不是离开过房间的人
+	for i := 0; i < len(t.LeaveUsers); i ++ {
+		u := t.LeaveUsers[i]
+		if u != nil && u.UserId == userId {
+			//如果u!=nil 那么
+			log.T("用户[%v]断线重连", userId)
+
+			u.Agent = a                                                //设置用户的连接
+			u.IsBreak = false               //设置用户的离线状态
+			u.IsLeave = false
+			u.GameStatus = TH_USER_GAME_STATUS_FRIEND
+
+			//离开房间的人从新加入
+			err := t.AddThuserBean(u)
+			if err != nil {
+				log.E("增加用户失败")
+				return false
+			}
+			u.UpdateAgentUserData()         //更新回话信息
+
+			//删除leaveUsers中的数据
+			t.rmLeaveUsers(u.UserId)
 			return true
 		}
 	}
@@ -374,9 +402,9 @@ func (t *ThDesk) FLeaveThuser(userId uint32) error {
 	user := t.GetUserByUserId(userId)
 	user.IsLeave = true     //设置状态为离开
 	//设置游戏状态需要更具desk的状态开判断
-	if !t.IsRun() {
-		user.GameStatus = TH_USER_GAME_STATUS_NOGAME        //用户离开之后,设置用户的游戏状态为没有游戏中
-	}
+	//if !t.IsRun() {
+	user.GameStatus = TH_USER_GAME_STATUS_NOGAME        //用户离开之后,设置用户的游戏状态为没有游戏中
+	//}
 	user.UpdateAgentUserData()
 
 	//2,自定义房间,如果其他人都准备了,那么开始游戏,离开房间和准备的处理是一样的
@@ -433,6 +461,12 @@ func (t *ThDesk) CSLeaveThuser(userId uint32) error {
 func (r *ThDesk) RmUser(userId uint32) {
 	for _, user := range r.Users {
 		if user != nil && user.UserId == userId {
+
+			// 朋友桌的情况,rm user 之前需要保存在leaveUsers中
+			if r.IsFriend() {
+				r.addLeaveUsers(user)        //离开的用户列表中增加一个离开的用户
+			}
+
 			//更新回话信息
 			user.IsLeave = true     //设置状态为离开
 			user.GameStatus = TH_USER_GAME_STATUS_NOGAME        //用户离开之后,设置用户的游戏状态为没有游戏中
@@ -452,6 +486,29 @@ func (r *ThDesk) RmUser(userId uint32) {
 	//删除redis中的数据
 	DelRedisThUser(r.Id, r.GameNumber, userId)
 }
+
+func (r *ThDesk) addLeaveUsers(u *ThUser) {
+	r.LeaveUsers = append(r.LeaveUsers, u)
+}
+
+func (t *ThDesk) rmLeaveUsers(userId uint32) {
+	index := -1
+	for i, u := range t.LeaveUsers {
+		if u != nil && u.UserId == userId {
+			index = i
+			break
+		}
+	}
+
+	if index >= 0 {
+		t.LeaveUsers = append(t.LeaveUsers[:index], t.LeaveUsers[index + 1:]...)
+	}
+
+}
+
+
+
+
 
 //设置用户为掉线的状态
 func (t *ThDesk) SetOfflineStatus(userId uint32) error {
@@ -2092,8 +2149,12 @@ func (t *ThDesk) EndFTh() bool {
 
 	maxWin := int64(0)
 	maxUserid := uint32(0)
-	for i := 0; i < len(t.Users); i++ {
-		u := t.Users[i]
+
+	//所有的用户
+	users := append(t.Users, t.LeaveUsers...)
+
+	for i := 0; i < len(users); i++ {
+		u := users[i]
 		if u != nil {
 			gel := bbproto.NewGame_EndLottery()
 			*gel.Coin = u.RoomCoin - u.TotalRoomCoin        //这里不是u.winamount,u.winamount  表示本局赢得底池的金额
