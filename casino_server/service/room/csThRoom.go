@@ -458,18 +458,39 @@ func (t *ThDesk) UpdateThdeskAndAllUser2redis() error {
 //删除redis中的数据
 func (t *ThDesk) DelThdeskAndAllUserRedisCache() error {
 	//1,删除缓存中的desk
-	DelRedisThdesk(t.Id, t.GameNumber)
+	DelRedisThdesk(t.Id)
 
 	//2,删除缓存中desk,gamenumber 相关的user
 	for _, u := range t.Users {
 		if u != nil {
-			DelRedisThUser(t.Id, t.GameNumber, u.UserId)
+			DelRedisThUser(t.Id, u.UserId)
 		}
 	}
 
 	//3,删除running 中的desk的key
 	RmRunningDesk(t)
 	return nil
+}
+
+
+//删除所有当前用户的信息
+func (t *ThDesk) DelAllUsersRedisCache() {
+	for _, u := range t.Users {
+		if u != nil {
+			DelRedisThUser(t.Id, u.UserId)
+		}
+	}
+
+}
+
+
+//删除离开的用户,离开的用户,设置gameNumber为0
+func (t *ThDesk) DelAllLeaveUsersRedisCache() {
+	for _, u := range t.Users {
+		if u != nil {
+			DelRedisThUser(t.Id, u.UserId)
+		}
+	}
 }
 
 

@@ -11,7 +11,7 @@ import (
 var RUNNING_DESKS = "running_desk_keys"
 //这里保存正在游戏中的thdesk
 func AddRunningDesk(t *ThDesk) {
-	tk := getRedisThDeskKey(t.Id, t.GameNumber)
+	tk := getRedisThDeskKey(t.Id)
 	var keys *bbproto.RUNNING_DESKKEYS
 	data := redisUtils.GetObj(RUNNING_DESKS, &bbproto.RUNNING_DESKKEYS{})
 	if data == nil {
@@ -36,7 +36,7 @@ func AddRunningDesk(t *ThDesk) {
 
 func RmRunningDesk(t *ThDesk) {
 	index := -1
-	tk := getRedisThDeskKey(t.Id, t.GameNumber)
+	tk := getRedisThDeskKey(t.Id)
 	var keys *bbproto.RUNNING_DESKKEYS
 	data := redisUtils.GetObj(RUNNING_DESKS, &bbproto.RUNNING_DESKKEYS{})
 	if data != nil {
@@ -89,7 +89,7 @@ func (r *ThGameRoom) Recovery() {
 			if desk != nil && !desk.IsOver() {
 				for _, userId := range redisThdesk.UserIds {
 					log.T("开始恢复desk[%v]的user[%v]", key, userId)
-					user := RedisThuserTransThuser(GetRedisThUser(desk.Id, desk.GameNumber, userId))        //依次恢复user
+					user := RedisThuserTransThuser(GetRedisThUser(desk.Id, userId))        //依次恢复user
 					user.thCards = pokerService.GetTHPoker(user.HandCards, desk.PublicPai, 5)                //重新计算玩家的牌信息
 					desk.AddThuserBean(user)        //把desk add 到room
 					desk.RecoveryRun()        //重新开始游戏,

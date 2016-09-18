@@ -254,6 +254,8 @@ func handlerCreateDesk(args []interface{}) {
 	//返回信息
 	log.T("创建房间成功,返回的数据[%v]", result)
 	a.WriteMsg(result)
+
+	room.AddRunningDesk(desk)
 }
 
 

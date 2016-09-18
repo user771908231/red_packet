@@ -221,6 +221,7 @@ func HandlerGameEnterMatch(m *bbproto.Game_EnterMatch, a gate.Agent) error {
 	mydesk.BroadGameInfo(userId)
 
 	//保存信息
+	mydesk.UpdateThdeskAndUser2redis(mydesk.GetUserByUserId(userId))
 
 	return nil
 }

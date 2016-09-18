@@ -483,8 +483,8 @@ func (r *ThDesk) RmUser(userId uint32) {
 	}
 
 
-	//删除redis中的数据
-	DelRedisThUser(r.Id, r.GameNumber, userId)
+	//删除redis中的数据	//这里暂时不需要,在删除桌子的时候需要
+	//DelRedisThUser(r.Id, r.GameNumber, userId)
 }
 
 func (r *ThDesk) addLeaveUsers(u *ThUser) {
@@ -1321,12 +1321,6 @@ func (t *ThDesk) afterLottery() error {
 			}
 		}
 	}
-
-
-	//开奖结束之后,需要删除thdesk和thuser的redis缓存
-	log.T("lottery 之后删除用户和desk在redis中的数据...")
-	t.DelThdeskAndAllUserRedisCache()
-
 	return nil
 }
 
@@ -2025,7 +2019,6 @@ func (t *ThDesk) IsOver() bool {
 }
 
 
-
 //开始游戏
 func (mydesk *ThDesk) Run() error {
 	mydesk.Lock()
@@ -2073,7 +2066,6 @@ func (mydesk *ThDesk) Run() error {
 		return err
 	}
 
-
 	//7,保存用户和desk的信息到redis
 	mydesk.UpdateThdeskAndAllUser2redis()
 
@@ -2088,6 +2080,16 @@ func (mydesk *ThDesk) Run() error {
 func (t *ThDesk) GetuserIds() []uint32 {
 	var ids []uint32
 	for _, u := range t.Users {
+		if u != nil {
+			ids = append(ids, u.UserId)
+		}
+	}
+	return ids
+}
+
+func (t *ThDesk) GetLeaveUserIds() []uint32 {
+	var ids []uint32
+	for _, u := range t.LeaveUsers {
 		if u != nil {
 			ids = append(ids, u.UserId)
 		}
@@ -2123,7 +2125,7 @@ func (t *ThDesk) EndCsTh() bool {
 			}
 			ChampionshipRoom.Join(nextUsers[0])
 		}
-
+		t.DelThdeskAndAllUserRedisCache()        //删除缓存中的数据
 		return true
 	}
 
@@ -2191,6 +2193,7 @@ func (t *ThDesk) EndFTh() bool {
 
 	//整局游戏结束之后,解散游戏房间,并且更新每个人的agent信息
 	t.clearAgentData(0)
+	t.DelThdeskAndAllUserRedisCache()        //删除缓存中的数据
 	ThGameRoomIns.RmThDesk(t) //自定义房间解散
 	return true        //已经结束了本场游戏
 }
