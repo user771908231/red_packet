@@ -45,7 +45,7 @@ func SetObj(key string, p proto.Message) {
 	conn.SetObj(key, p)
 }
 
-func Del(key string){
+func Del(key string) {
 	conn := GetConn()
 	defer conn.Close()
 	conn.Del(key)
@@ -76,4 +76,30 @@ func LREM(key string, value string) error {
 		log.E("redis lrem的时候出错 err[%v]", err)
 	}
 	return err
+}
+
+//对指定的key 加上 i的值
+func INCRBY(key string, i int64) int64 {
+	conn := GetConn()
+	defer conn.Close()
+	value, err := conn.INCRBY(key, i)
+	if err != nil {
+		log.E("redis INCRBY的时候出错 err[%v]", err)
+		return 0
+	} else {
+		return value.(int64)
+	}
+}
+
+//对指定的key 减去i 的值
+func DECRBY(key string, i int64) int64{
+	conn := GetConn()
+	defer conn.Close()
+	value, err := conn.DECRBY(key, i)
+	if err != nil {
+		log.E("redis DECRBY的时候出错 err[%v]", err)
+		return 0
+	} else {
+		return value.(int64)
+	}
 }

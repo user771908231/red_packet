@@ -373,7 +373,10 @@ func (t *ThDesk) FLeaveThuser(userId uint32) error {
 	//1,离开之后,设置用户的信息
 	user := t.GetUserByUserId(userId)
 	user.IsLeave = true     //设置状态为离开
-	user.GameStatus = TH_USER_GAME_STATUS_NOGAME        //用户离开之后,设置用户的游戏状态为没有游戏中
+	//设置游戏状态需要更具desk的状态开判断
+	if !t.IsRun() {
+		user.GameStatus = TH_USER_GAME_STATUS_NOGAME        //用户离开之后,设置用户的游戏状态为没有游戏中
+	}
 	user.UpdateAgentUserData()
 
 	//2,自定义房间,如果其他人都准备了,那么开始游戏,离开房间和准备的处理是一样的

@@ -211,7 +211,6 @@ func (t *Data) GetObj(key string, pb proto.Message) error {
 	return proto.Unmarshal(d, pb)
 }
 
-
 func (t *Data) GetObjv2(key string, pb proto.Message) proto.Message {
 	d, err := t.Gets(key)
 	if err != nil {
@@ -386,5 +385,17 @@ func (t *Data) ZREVRANK(key string, mem string) (interface{}, error) {
 }
 
 
+
+//=================原子加减
+
+func (t *Data) INCRBY(key string, i int64) (interface{}, error) {
+	v, err := t.conn.Do("INCRBY", key, i)
+	return v, err
+}
+
+func (t *Data) DECRBY(key string, i int64) (interface{},error) {
+	v, err := t.conn.Do("DECRBY", key, i)
+	return v,err
+}
 
 
