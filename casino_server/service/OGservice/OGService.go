@@ -235,5 +235,6 @@ func HandlerGameLogin(userId uint32, a gate.Agent) {
 	*ret.Championship = false                //锦标赛是否开启
 	*ret.Chip = userService.GetUserById(userId).GetDiamond()
 	*ret.RoomPassword = session.GetRoomKey()
+	*ret.CostCreateRoom = room.ThdeskConfig.CreateFee	//创建房间的单价
 	a.WriteMsg(ret)
 }

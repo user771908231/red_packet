@@ -66,7 +66,6 @@ func init() {
 
 //桌子的一些配置
 var ThdeskConfig struct {
-					       //创建房间需要消耗的砖石
 	CreateJuCountUnit        int32         //没多少局消耗多少钻石
 	CreateFee                int64         //每多少局消耗多少砖石
 	TH_TIMEOUT_DURATION      time.Duration //德州出牌的超时时间
