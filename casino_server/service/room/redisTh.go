@@ -156,7 +156,7 @@ func RedisDeskTransThdesk(rt *bbproto.ThServerDesk) *ThDesk {
 	ret.DeskOwner = rt.GetDeskOwner()
 	ret.RoomKey = rt.GetRoomKey()
 	ret.CreateFee = rt.GetCreateFee()
-	ret.GameType = rt.GetGameNumber()
+	ret.GameType = rt.GetGameType()
 	ret.InitRoomCoin = rt.GetInitRoomCoin()
 	ret.JuCount = rt.GetJuCount()
 	ret.JuCountNow = rt.GetJuCountNow()
