@@ -11,6 +11,14 @@ import (
 var RUNNING_DESKS = "running_desk_keys"
 //这里保存正在游戏中的thdesk
 func AddRunningDesk(t *ThDesk) {
+
+	//判断入参
+	if t == nil {
+		return
+	}
+
+
+	//update
 	tk := getRedisThDeskKey(t.Id)
 	var keys *bbproto.RUNNING_DESKKEYS
 	data := redisUtils.GetObj(RUNNING_DESKS, &bbproto.RUNNING_DESKKEYS{})

@@ -2289,8 +2289,9 @@ func (t *ThDesk) FRebuy(userId uint32) error {
 	user.Update2redis()                         //rebuy需要更新redis中的缓存
 
 	//得到需要扣除的砖石
-	var feeDiamond int64 = -1
-	banlance, err := userService.UpdateUserDiamond(userId, feeDiamond)
+	var feeDiamond int64 = 1
+	//banlance, err := userService.UpdateUserDiamond(userId, feeDiamond)
+	banlance, err := userService.DECRUserDiamond(userId, feeDiamond)	//朋友桌重购
 	if err != nil {
 		log.E("rebuy的时候出错,error", err.Error())
 		*ret.Result = intCons.ACK_RESULT_ERROR                                //错误码
@@ -2330,8 +2331,10 @@ func (t *ThDesk) CSRebuy(userId uint32) error {
 
 
 	//先扣除钻石,扣除成功之后,再给用户加上roomCoin
-	var feeDiamond int64 = -1
-	banlance, err := userService.UpdateUserDiamond(userId, feeDiamond)
+	var feeDiamond int64 = 1
+	//banlance, err := userService.UpdateUserDiamond(userId, feeDiamond)
+	banlance, err := userService.DECRUserDiamond(userId, feeDiamond)	//锦标赛重购
+
 	if err != nil {
 		log.E("rebuy的时候出错,error", err.Error())
 		*ret.Result = Error.GetErrorCode(err)                               //错误码

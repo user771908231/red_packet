@@ -89,7 +89,8 @@ func (r *ThGameRoom) CreateDeskByUserIdAndRoomKey(userId uint32, roomCoin int64,
 
 	//1,创建房间成功之后,扣除user的钻石
 	upDianmond := r.CalcCreateFee(jucount)
-	remainDiamond, err := userService.UpdateUserDiamond(userId, -upDianmond)
+	//remainDiamond, err := userService.UpdateUserDiamond(userId, -upDianmond)
+	remainDiamond, err := userService.DECRUserDiamond(userId, upDianmond)                //创建房间消耗砖石
 	if err != nil {
 		log.E("创建房间的时候出错,error", err.Error())
 		return nil, err

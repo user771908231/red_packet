@@ -36,6 +36,23 @@ func GetObj(key string, p proto.Message) proto.Message {
 	return conn.GetObjv2(key, p)
 }
 
+//得到int64的值
+func GetInt64(key string) int64 {
+	conn := GetConn()
+	defer conn.Close()
+	result, err := conn.GetInt64(key)
+	if err != nil {
+		return -1
+	} else {
+		return int64(result)
+	}
+}
+
+func SetInt64(key string, value int64) {
+	conn := GetConn()
+	defer conn.Close()
+	conn.SetInt(key, value)
+}
 /**
 	保存一个对象到redis
  */
@@ -92,7 +109,7 @@ func INCRBY(key string, i int64) int64 {
 }
 
 //对指定的key 减去i 的值
-func DECRBY(key string, i int64) int64{
+func DECRBY(key string, i int64) int64 {
 	conn := GetConn()
 	defer conn.Close()
 	value, err := conn.DECRBY(key, i)
