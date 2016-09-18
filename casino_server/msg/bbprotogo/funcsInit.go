@@ -206,6 +206,7 @@ func NewThServerDesk() *ThServerDesk {
 	result.RoomKey = new(string)
 	result.CreateFee = new(int64)
 	result.DeskType = new(int32)
+	result.GameType = new(int32)
 	result.InitRoomCoin = new(int64)
 	result.JuCount = new(int32)
 	result.JuCountNow = new(int32)
