@@ -264,6 +264,7 @@ func (t *ThDesk) IsrepeatIntoWithRoomKey(userId uint32, a gate.Agent) bool {
 			//如果u!=nil 那么
 			log.T("用户[%v]断线重连", userId)
 			u.Agent = a                                                //设置用户的连接
+			u.deskId = t.Id
 			u.IsBreak = false               //设置用户的离线状态
 			u.IsLeave = false
 			u.GameStatus = TH_USER_GAME_STATUS_FRIEND
@@ -417,33 +418,58 @@ func (t *ThDesk) LeaveThuser(userId uint32) error {
 	return nil
 }
 
+
+
+//朋友桌离开房间有两种情况需要分别处理
+//1,牌局还么有开始的时候
+//2,牌局已经开始的时候
+
 func (t *ThDesk) FLeaveThuser(userId uint32) error {
 
-	//1,离开之后,设置用户的信息
-	user := t.GetUserByUserId(userId)
+	log.T("user【%v】离开朋友桌子desk[%v]", userId, t.Id)
+	//1,取得user并且修改状态
+	user := t.GetUserByUserId(userId)        //得到user
 	user.IsLeave = true     //设置状态为离开
-	//设置游戏状态需要更具desk的状态开判断
-	//if !t.IsRun() {
-	user.GameStatus = TH_USER_GAME_STATUS_NOGAME        //用户离开之后,设置用户的游戏状态为没有游戏中
-	//}
+
+	if !t.IsRun() && t.JuCountNow <= 1 {
+		log.T("牌局还没有开始的时候user【%v】离开了房间,jucountNow[%v]", userId, t.JuCountNow)
+		//牌局还没有开始的时候
+		user.deskId = t.Id
+		user.GameStatus = TH_USER_GAME_STATUS_FRIEND        //朋友桌
+
+	} else {
+		log.T("牌局已经开始的时候user【%v】离开了房间", userId)
+		//牌局已经开始的时候
+		user.deskId = 0
+		user.GameStatus = TH_USER_GAME_STATUS_NOGAME        //用户离开之后,设置用户的游戏状态为没有游戏中
+
+		//如果是房主在游戏开始之后离开desk,需要变更房主
+		if t.DeskOwner == userId {
+			log.T("由于user【%v】是房主,并且离开了房间,所以需要更换房主", userId)
+			err := t.ChangeOwner()
+			if err != nil {
+				log.E("房主在牌局开始之后离开desk需要变更房主,变更房主的时候,失败,errMsg[%v]", err)
+			}
+		}
+	}
+
+
+	//2,离开之后,更新session信息
 	user.UpdateAgentUserData()
 
-	//2,自定义房间,如果其他人都准备了,那么开始游戏,离开房间和准备的处理是一样的
+	//3,自定义房间,如果其他人都准备了,那么开始游戏,离开房间和准备的处理是一样的
 	//这样处理的作用是,防止最后一个未准备的人,离开房间以后游戏不能开始
 	if t.JuCountNow > 1 && t.IsAllReady() {
 		//用户离开之后,判断游戏是否开始
 		go t.Run()
 	}
 
-	//3,返回离开房间之后的信息
+	//4,返回离开房间之后的信息
 	ret := bbproto.NewGame_ACKLeaveDesk()
 	*ret.Result = intCons.ACK_RESULT_SUCC
 	user.WriteMsg(ret)
 
-	//离开之后,需要广播一次sendGameInfo,这里人还没有真正的离开
 	t.BroadGameInfo(userId)
-
-	//保存数据到redis
 	t.UpdateThdeskAndUser2redis(user)
 
 	return nil
@@ -1965,11 +1991,10 @@ func (t *ThDesk) IsTime2begin() bool {
 
 	log.T("现在开始判断是否可以开始一局新的游戏,1,判断通用的逻辑:")
 
-	log.T("测试信息,打印每个玩家的状态://1,等待开始,2,坐下,3,已经准备,4,beting5,allin,6,弃牌,7,等待结算,8,已经结算,9,裂开,10,掉线")
 	for i := 0; i < len(t.Users); i++ {
 		u := t.Users[i]
 		if u != nil {
-			log.T("用户[%v].seat[%v]的状态是[%v]", u.UserId, u.Seat, u.Status)
+			log.T("用户[%v].seat[%v]的状态是[%v]", u.UserId, u.Seat, u.GetStatusDes())
 		}
 	}
 
@@ -2192,7 +2217,6 @@ func (t *ThDesk) EndFTh() bool {
 
 	//整局游戏结束之后,解散游戏房间,并且更新每个人的agent信息
 	t.clearAgentData(0)
-	t.DelThdeskAndAllUserRedisCache()        //删除缓存中的数据
 	ThGameRoomIns.RmThDesk(t) //自定义房间解散
 	return true        //已经结束了本场游戏
 }
@@ -2406,12 +2430,13 @@ func (t *ThDesk) FNotRebuy(userId uint32) {
 
 }
 
+//变更房主
 func (t *ThDesk) ChangeOwner() error {
 
 	var ouId uint32 = 0
 	for i := 0; i < len(t.Users); i++ {
 		u := t.Users[i]
-		if u != nil && t.IsUserRoomCoinEnough(u) {
+		if u != nil && t.IsUserRoomCoinEnough(u) && t.DeskOwner != u.UserId && !u.IsBreak && u.IsLeave {
 			ouId = u.UserId
 			break
 		}

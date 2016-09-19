@@ -83,6 +83,32 @@ func (t *ThUser) GetRoomCoin() int64 {
 	return t.RoomCoin
 }
 
+func (t *ThUser) GetStatusDes() string {
+	des := ""
+	switch t.Status {
+	case 0:
+		des = "刚上桌子"
+	case 1:
+		des = "等待入座"
+	case 2:
+		des = "已经坐下"
+	case 3:
+		des = "已经准备"
+	case 4:
+		des = "押注中"
+	case 5:
+		des = "all"
+	case 6:
+		des = "弃牌"
+	case 7:
+		des = "等待结算"
+	case 8:
+		des = "已经结算"
+	}
+
+	return des
+
+}
 //
 func (t *ThUser) trans2bbprotoThuser() *bbproto.THUser {
 	thuserTemp := &bbproto.THUser{}

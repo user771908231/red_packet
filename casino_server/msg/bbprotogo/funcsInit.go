@@ -303,3 +303,13 @@ func NewACKQuickConn() *ACKQuickConn {
 	return result
 
 }
+
+func NewGame_AckCreateDesk() *Game_AckCreateDesk {
+	result := &Game_AckCreateDesk{}
+	result.Result = new(int32)
+	result.Password = new(string)
+	result.DeskId = new(int32)
+	result.CreateFee = new(int64)
+	result.UserBalance = new(int64)
+	return result
+}

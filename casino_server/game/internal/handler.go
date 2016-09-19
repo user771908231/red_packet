@@ -231,13 +231,7 @@ func handlerCreateDesk(args []interface{}) {
 	log.T("玩家请求创建房间m[%v]", m)
 
 	//需要返回的信息
-	result := &bbproto.Game_AckCreateDesk{}
-	result.Result = new(int32)
-	result.Password = new(string)
-	result.DeskId = new(int32)
-	result.CreateFee = new(int64)
-	result.UserBalance = new(int64)
-
+	result := bbproto.NewGame_AckCreateDesk()
 	//开始创建房间
 	desk, err := OGservice.HandlerCreateDesk(m.GetUserId(), m.GetInitCoin(), m.GetPreCoin(), m.GetSmallBlind(), m.GetBigBlind(), m.GetInitCount())
 	if err != nil {
