@@ -10,7 +10,7 @@ import (
 	1.如果最后领取的时间为空,那么表示今天的还没有领取
 	2.如果最后一次领取的时间不为今天,那么表示今天的还没有领取
  */
-func (u *User) OninitLoginTurntableState(){
+func (u *User) OninitLoginTurntableState() {
 	var able bool = false
 
 	if u.GetLoginTurntableTime() == "" {

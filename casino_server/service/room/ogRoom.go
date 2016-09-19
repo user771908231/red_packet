@@ -178,7 +178,7 @@ func (mydesk *ThDesk) initGameSendgameInfoByDesk(reqUserId uint32) *bbproto.Game
 	result := bbproto.NewGame_SendGameInfo()
 	//初始化桌子相关的信息
 	*result.Tableid = int32(mydesk.Id)                                //桌子的Id
-	*result.TablePlayer = mydesk.UserCount                        //玩家总人数
+	*result.TablePlayer = mydesk.GetUserCount()                        //玩家总人数
 	*result.BankSeat = mydesk.GetUserSeatByUserId(mydesk.Dealer)        //int32(mydesk.GetUserIndex(mydesk.Dealer))        //庄家
 	*result.ChipSeat = mydesk.GetUserSeatByUserId(mydesk.BetUserNow) //int32(mydesk.GetUserIndex(mydesk.BetUserNow))//当前活动玩家
 	*result.ActionTime = ThdeskConfig.TH_TIMEOUT_DURATION_INT       //当前操作时间,服务器当前的时间

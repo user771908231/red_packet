@@ -136,7 +136,6 @@ type ThDesk struct {
 	LeaveUsers           []*ThUser                    //离开的人,朋友桌需要积分,所以需要保存下来
 	Users                []*ThUser                    //坐下的人
 	PublicPai            []*bbproto.Pai               //公共牌的部分
-	UserCount            int32                        //玩游戏的总人数
 	Status               int32                        //牌桌的状态
 	BetAmountNow         int64                        //当前的押注金额是多少
 	RoundCount           int32                        //第几轮
@@ -156,7 +155,6 @@ type ThDesk struct {
 func NewThDesk() *ThDesk {
 	result := new(ThDesk)
 	result.Id = newThDeskId()
-	result.UserCount = 0
 	result.Dealer = 0                //不需要创建  默认就是为空
 	result.BetUserNow = 0
 	result.BigBlind = 0
@@ -174,6 +172,31 @@ func NewThDesk() *ThDesk {
 	result.JuCountNow = 1                //
 	return result
 }
+
+
+//获取桌子的人数
+func (t *ThDesk) GetUserCount() int32 {
+	var count int32 = 0
+	for _, u := range t.Users {
+		if u != nil {
+			count ++
+		}
+	}
+	return count
+}
+
+
+//锦标赛游戏中的userCount
+func (t *ThDesk) GetCSGamingUserCount() int32 {
+	var count int32 = 0
+	for _, u := range t.Users {
+		if u != nil && u.CSGamingStatus {
+			count ++
+		}
+	}
+	return count
+}
+
 
 
 //获取数据库的id
@@ -316,9 +339,6 @@ func (t *ThDesk) AddThUser(userId uint32, userStatus int32, a gate.Agent) (*ThUs
 
 	//4, 把用户的信息绑定到agent上
 	thUser.UpdateAgentUserData()
-
-	//5,等待的用户加1
-	t.AddUserCount()
 	return thUser, nil
 }
 
@@ -328,6 +348,7 @@ func (t *ThDesk) AddThuserBean(user *ThUser) error {
 	for i := 0; i < len(t.Users); i++ {
 		if t.Users[i] == nil {
 			user.Seat = int32(i)                //给用户设置位置编号
+			user.deskId = t.Id
 			t.Users[i] = user
 			return nil
 		}
@@ -1011,7 +1032,6 @@ func (t *ThDesk) Time2Lottery() bool {
 		}
 	}
 
-
 	//
 	lotteryCheckFalseCount := t.GetLotteryCheckFalseCount()
 	log.T("t.getlotteryCheckFalseCount[%v]", lotteryCheckFalseCount)
@@ -1020,21 +1040,6 @@ func (t *ThDesk) Time2Lottery() bool {
 		log.T("因为getlotteryCheckFalseCount == 1  ,所以现在开始开奖...")
 		return true
 	}
-
-	//
-	//var betingCount int = 0
-	//for i := 0; i < len(t.Users); i++ {
-	//	if t.Users[i] != nil && t.Users[i].Status == TH_USER_STATUS_BETING {
-	//		betingCount ++
-	//	}
-	//}
-	//
-	//log.T("当前处于押注中的人数是[%v]", betingCount)
-	////如果押注的人只有一个人了,那么是开奖的时刻
-	//if betingCount <= 1 {
-	//	log.T("现在处于押注中(beting)状态的人,只剩下一个了,所以直接开奖")
-	//	return true
-	//}
 
 	//第四轮,并且计算出来的押注人和start是同一个人
 	if t.RoundCount == TH_DESK_ROUND_END {
@@ -1246,22 +1251,23 @@ func (t *ThDesk) Lottery() error {
 	//开奖之后,设置状态为 没有开始游戏
 	t.afterLottery()
 
-	//判断游戏是否结束
+	//判断游戏是否结束....游戏完全结束,不用开始下一场,是否需要解散这个desk
 	if !t.end() {
 		//表示不能继续开始游戏
 		go t.Run()
 	}
-
 	return nil
 }
 
 
 //判断是否可以开始下一句游戏
 func (t *ThDesk) end() bool {
+
 	if t.IsFriend() {
 		//朋友桌是否结束游戏
 		return t.EndFTh()
 	} else if t.IsChampionship() {
+
 		return t.EndCsTh()        //锦标赛进入游戏
 	} else {
 		return true
@@ -1321,6 +1327,7 @@ func (t *ThDesk) afterLottery() error {
 			}
 		}
 	}
+
 	return nil
 }
 
@@ -2102,34 +2109,26 @@ func (t *ThDesk) GetLeaveUserIds() []uint32 {
 	关于本桌子的是否还能进入下一轮游戏
 	1,如果锦标赛的游戏时间已经到了,表示锦标赛结束
 	2,如果本次桌子只剩下一个人可以继续游戏,则解散
+	//如果这个桌子的游戏人数少于等于4人,那么找到合适的桌子来合并...
+	//需要合并,合并成功,返回true
+	//需要合并,合并失败,返回false
+
  */
 func (t *ThDesk) EndCsTh() bool {
-
-	//2,判断人数是否符合规则
-	//找到符合下一局游戏的user
-	var nextUsers []*ThUser
-	for i := 0; i < len(t.Users); i++ {
-		u := t.Users[i]
-		if u != nil && t.IsUserRoomCoinEnough(u) {
-			nextUsers = append(nextUsers, u)
+	if t.GetCSGamingUserCount() <= 4 {
+		//表示需要合并
+		newDesk, err := ChampionshipRoom.MergeDesk(t)
+		if err != nil {
+			log.E("合并桌子的时候失败...errorMsg[%v]", err)
+			return false
+		} else {
+			go newDesk.Run()
+			return true
 		}
+	} else {
+		//不需要合并
+		return false
 	}
-
-	//判断人数:如果只有一个人满足下一次游戏的结果,那解散这个房间,并且把user安插到其他的房间去
-	if len(nextUsers) == 1 {
-		//如果不是锦标赛的第一个房间,那么解散这个房间
-		if ChampionshipRoom.ThDeskBuf[0] != t {
-			err := ChampionshipRoom.DissolveDesk(t, nextUsers[0])
-			if err != nil {
-				log.E("解散房间失败")
-			}
-			ChampionshipRoom.Join(nextUsers[0])
-		}
-		t.DelThdeskAndAllUserRedisCache()        //删除缓存中的数据
-		return true
-	}
-
-	return false
 }
 
 //表示游戏结束,自定义房间结束
@@ -2291,7 +2290,7 @@ func (t *ThDesk) FRebuy(userId uint32) error {
 	//得到需要扣除的砖石
 	var feeDiamond int64 = 1
 	//banlance, err := userService.UpdateUserDiamond(userId, feeDiamond)
-	banlance, err := userService.DECRUserDiamond(userId, feeDiamond)	//朋友桌重购
+	banlance, err := userService.DECRUserDiamond(userId, feeDiamond)        //朋友桌重购
 	if err != nil {
 		log.E("rebuy的时候出错,error", err.Error())
 		*ret.Result = intCons.ACK_RESULT_ERROR                                //错误码
@@ -2333,7 +2332,7 @@ func (t *ThDesk) CSRebuy(userId uint32) error {
 	//先扣除钻石,扣除成功之后,再给用户加上roomCoin
 	var feeDiamond int64 = 1
 	//banlance, err := userService.UpdateUserDiamond(userId, feeDiamond)
-	banlance, err := userService.DECRUserDiamond(userId, feeDiamond)	//锦标赛重购
+	banlance, err := userService.DECRUserDiamond(userId, feeDiamond)        //锦标赛重购
 
 	if err != nil {
 		log.E("rebuy的时候出错,error", err.Error())
@@ -2386,7 +2385,6 @@ func (t *ThDesk) NotRebuy(userId uint32) error {
 
 	//2,不重购之后,需要在redis中保存用户的信息
 	t.UpdateThdeskAndUser2redis(t.GetUserByUserId(userId))
-
 	return nil
 }
 
@@ -2452,6 +2450,9 @@ func (t *ThDesk) CSNotRebuy(userId uint32) {
 	log.T("锦标赛user[%v]notrebuy的请求", userId)
 	//1,设置当前用户的锦标赛状态 为结束
 	user := t.GetUserByUserId(userId)
+	user.Lock()
+	defer user.Unlock()
+
 	if !user.CSGamingStatus {
 		log.E("用户已经放弃了比赛,不能重新notRebuy了")
 		return
@@ -2461,7 +2462,6 @@ func (t *ThDesk) CSNotRebuy(userId uint32) {
 	user.CSGamingStatus = false;
 
 	//2,取消之后,现实最终的排名
-
 	log.T("用户notRebuy的时候,发送User的最终排名...")
 	ret := bbproto.NewGame_TounamentPlayerRank()
 	*ret.Message = "测试最终排名的信息"
@@ -2469,6 +2469,7 @@ func (t *ThDesk) CSNotRebuy(userId uint32) {
 	user.WriteMsg(ret)
 
 }
+
 
 //押注的通用接口
 func (t *ThDesk) DDBet(seatId int32, betType int32, coin int64) error {
@@ -2702,14 +2703,6 @@ func (t *ThDesk) DDCheckBet(user *ThUser) error {
 	t.THBroadcastProtoAll(result)
 
 	return nil
-}
-
-func (t *ThDesk) AddUserCount() {
-	atomic.AddInt32(&t.UserCount, 1)
-}
-
-func (t *ThDesk) SubUserCount() {
-	atomic.AddInt32(&t.UserCount, -1)
 }
 
 func (t *ThDesk) AddJackpot(coin int64) {
