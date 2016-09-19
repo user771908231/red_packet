@@ -1166,6 +1166,7 @@ func (t *ThDesk) InitLotteryStatus() error {
 			if u.IsAllIn() || u.IsBetting() {
 				//如果用户当前的状态是押注中,或者all in,那么设置用户的状态喂等待结算
 				u.Status = TH_USER_STATUS_WAIT_CLOSED
+				u.IsShowCard = true
 			} else if u.IsFold() {
 				u.Status = TH_USER_STATUS_CLOSED
 			}

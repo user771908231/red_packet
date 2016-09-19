@@ -68,6 +68,7 @@ type ThUser struct {
 	TotalRoomCoin      int64                 //用户总的带入金额是多少钱
 	RebuyCount         int32                 //重购的次数
 	LotteryCheck       bool                  //这个字段用于判断是否可以开奖,默认是false:   1,如果用户操作弃牌,则直接设置为true,2,如果本局是all in,那么要到本轮次押注完成之后,才能设置为true
+	IsShowCard         bool                  //是否亮牌
 }
 
 func (t *ThUser) GetCoin() int64 {
@@ -251,6 +252,7 @@ func NewThUser() *ThUser {
 	result.RoomCoin = 0
 	result.IsBreak = false
 	result.IsLeave = false
+	result.IsShowCard = false
 	return result
 }
 
