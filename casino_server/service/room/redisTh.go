@@ -111,6 +111,7 @@ func UpdateRedisThuser(u *ThUser) error {
 	*ruser.RoomCoin = u.RoomCoin
 	*ruser.GameNumber = gameNumber
 	*ruser.TotalRoomCoin = u.TotalRoomCoin
+	*ruser.LotteryCheck = u.LotteryCheck
 
 	//3,保存到数据库
 	saveRedisThUser(ruser)

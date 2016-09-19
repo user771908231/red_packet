@@ -365,6 +365,9 @@ func (t *ThDesk) AddThuserBean(user *ThUser) error {
 
 //用户准备的时候需要判断
 func (t *ThDesk) Ready(userId uint32) error {
+	t.Lock()
+	defer t.Unlock()
+
 	user := t.GetUserByUserId(userId)
 	if user == nil {
 		return errors.New("没有找到对应的用户...")
@@ -727,17 +730,21 @@ func (t *ThDesk) OnInitCards() error {
 
 	//得到所有的牌,前五张为公共牌,后边的每两张为手牌
 	t.PublicPai = totalCards[0:5]
-	log.T("初始化得到的公共牌的信息:")
+	//log.T("初始化得到的公共牌的信息:")
 	//给每个人分配手牌
 	for i := 0; i < len(t.Users); i++ {
 		//只有当用户不为空,并且是在游戏中的状态的时候,才可以发牌
-		if t.Users[i] != nil && t.Users[i].IsBetting() {
+		u := t.Users[i]
+		if u != nil && u.IsBetting() {
+			log.T("开始为玩家[%v],nickname[%v] 分发手牌", u.UserId, u.NickName)
 			begin := i * 2 + 5
 			end := i * 2 + 5 + 2
-			t.Users[i].HandCards = totalCards[begin:end]
+			u.HandCards = totalCards[begin:end]
 			//log.T("用户[%v]的手牌[%v]", t.Users[i].UserId, t.Users[i].HandCards)
-			t.Users[i].thCards = pokerService.GetTHPoker(t.Users[i].HandCards, t.PublicPai, 5)
+			u.thCards = pokerService.GetTHPoker(u.HandCards, t.PublicPai, 5)
 			//log.T("用户[%v]的:拍类型,所有牌[%v],th[%v]", t.Users[i].UserId, t.Users[i].thCards.ThType, t.Users[i].thCards.Cards, t.Users[i].thCards)
+			log.T("开始为玩家[%v],nickname[%v] 分发手牌,分发完毕", u.UserId, u.NickName)
+
 		}
 	}
 
@@ -750,14 +757,13 @@ func (t *ThDesk) OnInitCards() error {
 	log.T("广播Game_InitCard的信息")
 	initCardB := bbproto.NewGame_InitCard()
 	*initCardB.Tableid = t.Id
-	initCardB.HandCard = t.GetHandCard()
+	//initCardB.HandCard = t.GetHandCard()
 	initCardB.PublicCard = t.ThPublicCard2OGC()
 	*initCardB.MinRaise = t.GetMinRaise()
 	*initCardB.NextUser = t.GetUserSeatByUserId(t.BetUserNow)
 	*initCardB.ActionTime = ThdeskConfig.TH_TIMEOUT_DURATION_INT
 	*initCardB.CurrPlayCount = t.JuCountNow
 	*initCardB.TotalPlayCount = t.JuCount
-
 	t.OGTHBroadInitCard(initCardB)
 	log.T("开始一局新的游戏,初始化牌的信息完毕...")
 
@@ -1008,7 +1014,6 @@ func (t *ThDesk) GetLotteryCheckFalseCount() int32 {
 		u := t.Users[i]
 		if u != nil && !u.LotteryCheck {
 			count ++
-
 		}
 	}
 	return count
