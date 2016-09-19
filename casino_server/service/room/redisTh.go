@@ -174,7 +174,6 @@ func RedisDeskTransThdesk(rt *bbproto.ThServerDesk) *ThDesk {
 
 	ret.GameNumber = rt.GetGameNumber()                        //每一局游戏的游戏编号
 	ret.PublicPai = rt.GetPublicPai()               //公共牌的部分
-	ret.UserCount = rt.GetUserCount()                        //玩游戏的总人数
 	ret.Status = rt.GetStatus()                        //牌桌的状态
 	ret.BetAmountNow = rt.GetBetAmountNow()                        //当前的押注金额是多少
 	ret.RoundCount = rt.GetRoundCount()                        //第几轮
@@ -232,7 +231,7 @@ func UpdateTedisThDesk(t *ThDesk) error {
 	*rt.BetUserNow = t.BetUserNow
 	*rt.GameNumber = t.GameNumber
 	rt.PublicPai = t.PublicPai
-	*rt.UserCount = t.UserCount
+	*rt.UserCount = t.GetUserCount()
 	*rt.Status = t.Status
 	*rt.BetAmountNow = t.BetAmountNow
 	*rt.RoundCount = t.RoundCount

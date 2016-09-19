@@ -47,7 +47,7 @@ func printDeskInfo(w http.ResponseWriter, desk *room.ThDesk) {
 		"主奖池:%v  边池:%v 最低加注额度:%v\n" +
 		"总游戏玩家:%v 已经准备的玩家:%v getlotteryCheckFalseCount:%v \n" +
 		"RaiseUserId :%v  当前轮到谁出牌:BetUserNow[%v]\n" +
-		"------------------所有玩家的信息:\n"
+		"------------------打印Users的信息:\n"
 		fmt.Fprintf(w, deskInfo,
 			desk.Id, desk.RoomKey,
 			desk.DeskOwner, desk.GameType, desk.InitRoomCoin, desk.JuCount,
@@ -55,20 +55,33 @@ func printDeskInfo(w http.ResponseWriter, desk *room.ThDesk) {
 			desk.RoundCount, desk.JuCountNow,
 			desk.SendFlop, desk.SendTurn, desk.SendRive,
 			desk.Jackpot, desk.EdgeJackpot, desk.MinRaise,
-			desk.UserCount, desk.GetGameReadyCount(), desk.GetLotteryCheckFalseCount(),
+			desk.GetUserCount(), desk.GetGameReadyCount(), desk.GetLotteryCheckFalseCount(),
 			desk.RaiseUserId, desk.BetUserNow)
 
 		for j := 0; j < len(desk.Users); j++ {
 			u := desk.Users[j]
-			if u != nil {
-				userInfo := "当前desk[%v]的user[%v],seatId[%v],nickname[%v]的状态status[%v],HandCoin[%v],TurnCoin[%v],RoomCoin[%v],isBreak[%v],isLeave[%v],LotteryCheck[%v],u.gameStatus[%v],csgaminStatus[%v]-\n"
-				fmt.Fprintf(w, userInfo, desk.Id, u.UserId, u.Seat, u.NickName, u.Status, u.HandCoin, u.TurnCoin, u.RoomCoin, u.IsBreak, u.IsLeave, u.LotteryCheck,u.GameStatus, u.CSGamingStatus)
-			}
+			printThUserInfo(w, desk, u)        //打印user的信息
 		}
+
+		fmt.Fprint(w, "------------------打印leaveUsers的信息\n", desk.Id)
+		for j := 0; j < len(desk.LeaveUsers); j++ {
+			u := desk.LeaveUsers[j]
+			printThUserInfo(w, desk, u)        //打印user的信息
+		}
+
 		fmt.Fprint(w, "------------------所有玩家的信息打印完毕\n", desk.Id)
 
 		fmt.Fprint(w, "desk[%v]的信息打印完毕:\n\n\n\n", desk.Id)
 
 	}
+}
+
+func printThUserInfo(w http.ResponseWriter, desk *room.ThDesk, u *room.ThUser) {
+	if u != nil {
+		userInfo := "当前desk[%v]的user[%v],seatId[%v],nickname[%v]的状态status[%v],HandCoin[%v],TurnCoin[%v],RoomCoin[%v],isBreak[%v],isLeave[%v],LotteryCheck[%v],u.gameStatus[%v],csgaminStatus[%v]-\n"
+		fmt.Fprintf(w, userInfo, desk.Id, u.UserId, u.Seat, u.NickName, u.Status, u.HandCoin, u.TurnCoin, u.RoomCoin, u.IsBreak, u.IsLeave, u.LotteryCheck, u.GameStatus, u.CSGamingStatus)
+
+	}
+
 }
 

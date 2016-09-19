@@ -535,8 +535,8 @@ func (r *CSThGameRoom) GetAbleIntoDesk() *ThDesk {
 			log.E("找到房间为nil,出错")
 			break
 		}
-		log.T("查找竞标赛index=[%v]的房间:tempDesk.UserCount[%v],r.ThRoomSeatMax", tempDesk.UserCount, r.ThRoomSeatMax)
-		if tempDesk.UserCount < r.ThRoomSeatMax {
+		log.T("查找竞标赛index=[%v]的房间:tempDesk.UserCount[%v],r.ThRoomSeatMax", tempDesk.GetUserCount(), r.ThRoomSeatMax)
+		if tempDesk.GetUserCount() < r.ThRoomSeatMax {
 			mydesk = tempDesk        //通过roomId找到德州的room
 			break;
 		}
@@ -654,7 +654,7 @@ func (r *CSThGameRoom) GetRankByuserId(userId uint32) int32 {
 //------------------------------------------------------关于排名的排序-end---------------------------------------------
 
 //解散锦标赛的房间,并且保留需要继续游戏的user
-func (r *CSThGameRoom) DissolveDesk(desk *ThDesk, reserveUser *ThUser) error {
+func (r *CSThGameRoom) DissolveDesk(desk *ThDesk) error {
 	//解散房间,给每个人发送解散房间的广播,并且删除房间
 	log.T("锦标赛开始解散desk[%v]", desk.Id)
 	result := &bbproto.Game_AckDissolveDesk{}
@@ -665,36 +665,22 @@ func (r *CSThGameRoom) DissolveDesk(desk *ThDesk, reserveUser *ThUser) error {
 
 	//1,找到桌子,并且判断是否能够解散
 	if desk == nil {
-		*result.Result = intCons.ACK_RESULT_ERROR
-		reserveUser.WriteMsg(result)
 		return errors.New("房间已经解散了")
 	}
 
 	if desk.IsRun() || desk.IsLottery() {
-		*result.Result = intCons.ACK_RESULT_ERROR
-		reserveUser.WriteMsg(result)
 		return errors.New("房间正在游戏中,不能解散")
 	}
 
-	//2,解散
-	desk.clearAgentData(reserveUser.UserId)                //清空其他人的回话信息
-	ChampionshipRoom.RmThDesk(desk)
-
-	//3,发送解散的广播
+	//2,发送解散的广播
 	*result.Result = intCons.ACK_RESULT_SUCC
 	*result.UserId = desk.DeskOwner
 	*result.PassWord = desk.RoomKey
 	desk.THBroadcastProtoAll(result)
-	return nil
-}
 
-//用户加入到其他的房间
-func (t *CSThGameRoom) Join(user *ThUser) error {
-	log.T("用户[%v]加入到其他的房间", user.UserId)
-	if user == nil {
-		log.T("用户为nil,不能加入其他的房间")
-		return errors.New("系统错误")
-	}
+	//3,解散桌子...
+	desk.DelThdeskAndAllUserRedisCache()        //删除缓存中的数据
+	ChampionshipRoom.RmThDesk(desk)                //删除buf中的桌子
 
 	return nil
 }
@@ -733,6 +719,59 @@ func (r *CSThGameRoom) GetGame_TounamentBlind() *bbproto.Game_TounamentBlind {
 		log.T("GetBlind  >>> bean[%v]: ante:%v  canRebuy: %v", *bean.BlindLevel, bean.GetAnte(), *bean.CanRebuy)
 	}
 	return ret
+}
+
+
+
+//合并桌子,并且返回,合并之后的桌子,合并失败
+func (r *CSThGameRoom) MergeDesk(mt *ThDesk) (*ThDesk, error) {
+	r.Lock()
+	defer r.Unlock()
+
+	//1,判断mt 是否需要重组
+	if mt.GetCSGamingUserCount() > 4 {
+		return nil, errors.New("不需要重组,人数大于4人")
+	}
+
+	if !mt.IsStop() {
+		return nil, errors.New("不能重组,desk的状态不是stop的状态")
+	}
+
+	//2,找到可以重组的desk
+	var dt *ThDesk = nil
+	for _, desk := range r.ThDeskBuf {
+		if desk != nil && desk.Id != mt.Id && desk.GetUserCount() <= 4 {
+			dt = desk
+			break
+		}
+	}
+
+	if dt == nil {
+		return nil, errors.New("没有找到合适的desk,重组失败...")
+	}
+
+
+	//3,开始重组
+	for _, user := range mt.Users {
+		if user != nil && user.CSGamingStatus {
+			//用户不为空,并且是锦标赛游戏状态中的
+			user.deskId = dt.Id
+			addError := dt.AddThuserBean(user)
+			if addError != nil {
+				log.E("用户假如房间失败...")
+				//这里的处理是让用户退出房间,自己重新加入
+			}
+
+		}
+	}
+
+	dt.UpdateThdeskAndAllUser2redis()        //更新缓存中的数据
+	dt.BroadGameInfo(0)                        //发送desk的info信息
+
+
+	//4,解散之前的房间
+	ChampionshipRoom.DissolveDesk(mt)
+	return dt, nil
 }
 
 
