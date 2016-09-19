@@ -88,8 +88,8 @@ func InitDeskConfig() {
 	ThdeskConfig.CreateFee = 1
 
 	//每个人出牌的等待时间
-	ThdeskConfig.TH_TIMEOUT_DURATION = time.Second * 200
-	ThdeskConfig.TH_TIMEOUT_DURATION_INT = 200
+	ThdeskConfig.TH_TIMEOUT_DURATION = time.Second * 30
+	ThdeskConfig.TH_TIMEOUT_DURATION_INT = 30
 
 	//德州开奖的时间
 	ThdeskConfig.TH_LOTTERY_DURATION = time.Second * 5
@@ -1954,6 +1954,7 @@ func (t *ThDesk) CheckBetUserBySeat(user *ThUser) bool {
 	//3, 判断用户的状态是否正确
 	err := user.CheckBetWaitStatus()
 	if err != nil {
+		log.T("用户不是在等待状态,无法操作[%v]",user.UserId)
 		return false
 	}
 
@@ -2183,6 +2184,7 @@ func (t *ThDesk) EndFTh() bool {
 	for i := 0; i < len(users); i++ {
 		u := users[i]
 		if u != nil {
+			log.E("计算user[%v],nickName[%v],roomCoin[%v],TotalRoomCoin[%v]最后的输赢结果",u.UserId,u.NickName,u.RoomCoin,u.TotalRoomCoin)
 			gel := bbproto.NewGame_EndLottery()
 			*gel.Coin = u.RoomCoin - u.TotalRoomCoin        //这里不是u.winamount,u.winamount  表示本局赢得底池的金额
 			*gel.Seat = u.Seat

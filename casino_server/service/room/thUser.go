@@ -122,16 +122,15 @@ func (t *ThUser) trans2bbprotoThuser() *bbproto.THUser {
 
 //等待用户出牌
 func (t *ThUser) wait() error {
-	//如果不是押注中的状态,不用wait任务
-	//这一步其实可以不用验证,因为出牌的游标滑动到这里的时候,已经验证过了
-	//if !t.IsBetting() {
-	//	return nil
-	//}
 
 	ticker := time.NewTicker(time.Second * 1)
 	t.waiTime = time.Now().Add(ThdeskConfig.TH_TIMEOUT_DURATION)
 	uuid, _ := uuid.NewV4()
 	t.waitUUID = uuid.String()                //设置出牌等待的标志
+
+	//直接返回不用等待 -- 新版本
+	return nil
+
 	go func() {
 		//tod 目前是测试性质的代码
 		defer Error.ErrorRecovery("user.timeout()")
@@ -237,7 +236,7 @@ func (t *ThUser) CheckBetWaitStatus() error {
 	if t.IsWaiting() {
 		return nil
 	} else {
-		return errors.New("用户状态错误")
+		return errors.New("用户不是在等待状态")
 	}
 }
 
