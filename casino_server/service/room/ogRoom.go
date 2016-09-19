@@ -390,6 +390,7 @@ func (mydesk *ThDesk ) GetMyHandCard(userId uint32) []*bbproto.Game_CardInfo {
 			result := make([]*bbproto.Game_CardInfo, 0)
 			//用户手牌
 			if len(u.HandCards) == 2 && u.UserId == userId {
+				log.T("开始转化user[%v]的手牌", userId)
 				for i := 0; i < len(u.HandCards); i++ {
 					c := u.HandCards[i]
 					gc := ThCard2OGCard(c)
@@ -435,7 +436,7 @@ func (t *ThDesk) getWinCoinInfo() []*bbproto.Game_WinCoin {
 	//对每个人做计算
 	for i := 0; i < len(t.Users); i++ {
 		u := t.Users[i]
-		if u != nil && u.Status == TH_USER_STATUS_CLOSED && u.winAmount > 0  && u.thCards != nil {
+		if u != nil && u.Status == TH_USER_STATUS_CLOSED && u.winAmount > 0  && u.thCards != nil && u.HandCards != nil {
 			//开是对这个人计算
 			gwc := NewGame_WinCoin()
 
@@ -486,7 +487,7 @@ func (t *ThDesk) getCoinInfo() []*bbproto.Game_WinCoin {
 	//对每个人做计算
 	for i := 0; i < len(t.Users); i++ {
 		u := t.Users[i]
-		if u != nil && u.Status == TH_USER_STATUS_CLOSED && u.thCards != nil {
+		if u != nil && u.Status == TH_USER_STATUS_CLOSED && u.thCards != nil && u.HandCards != nil {
 			log.T("开始计算[%v]的coinInfo,status[%v],thcards[%v]", u.UserId, u.Status, u.thCards)
 			//开是对这个人计算
 			gwc := NewGame_WinCoin()

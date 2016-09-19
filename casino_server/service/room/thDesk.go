@@ -724,6 +724,13 @@ func (t *ThDesk) RmLeaveUser() {
 	初始化纸牌的信息
  */
 func (t *ThDesk) OnInitCards() error {
+	//测试代码,打印每个人的手牌
+	for _, u := range t.Users {
+		if u != nil {
+			u.HandCards = nil
+		}
+	}
+
 	log.T("开始一局新的游戏,初始化牌的信息")
 	var total = int(2 * ThdeskConfig.TH_DESK_MAX_START_USER + 5); //人数*手牌+5张公共牌
 	totalCards := pokerService.RandomTHPorkCards(total)        //得到牌
