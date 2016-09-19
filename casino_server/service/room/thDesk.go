@@ -730,8 +730,8 @@ func (t *ThDesk) OnInitCards() error {
 	log.T("初始化得到的公共牌的信息:")
 	//给每个人分配手牌
 	for i := 0; i < len(t.Users); i++ {
-		//只有当用不为空,并且是在游戏中的状态的时候,才可以发牌
-		if t.Users[i] != nil && t.Users[i].Status == TH_USER_STATUS_BETING {
+		//只有当用户不为空,并且是在游戏中的状态的时候,才可以发牌
+		if t.Users[i] != nil && t.Users[i].IsBetting() {
 			begin := i * 2 + 5
 			end := i * 2 + 5 + 2
 			t.Users[i].HandCards = totalCards[begin:end]
@@ -1954,7 +1954,7 @@ func (t *ThDesk) CheckBetUserBySeat(user *ThUser) bool {
 	//3, 判断用户的状态是否正确
 	err := user.CheckBetWaitStatus()
 	if err != nil {
-		log.T("用户不是在等待状态,无法操作[%v]",user.UserId)
+		log.T("用户不是在等待状态,无法操作[%v]", user.UserId)
 		return false
 	}
 
@@ -2184,7 +2184,7 @@ func (t *ThDesk) EndFTh() bool {
 	for i := 0; i < len(users); i++ {
 		u := users[i]
 		if u != nil {
-			log.E("计算user[%v],nickName[%v],roomCoin[%v],TotalRoomCoin[%v]最后的输赢结果",u.UserId,u.NickName,u.RoomCoin,u.TotalRoomCoin)
+			log.T("计算user[%v],nickName[%v],roomCoin[%v],TotalRoomCoin[%v]最后的输赢结果", u.UserId, u.NickName, u.RoomCoin, u.TotalRoomCoin)
 			gel := bbproto.NewGame_EndLottery()
 			*gel.Coin = u.RoomCoin - u.TotalRoomCoin        //这里不是u.winamount,u.winamount  表示本局赢得底池的金额
 			*gel.Seat = u.Seat

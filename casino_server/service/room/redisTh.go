@@ -62,7 +62,7 @@ func RedisThuserTransThuser(b *bbproto.ThServerUser) *ThUser {
 	t.RoomCoin = b.GetRoomCoin()                 //用户上分的金额
 	t.RebuyCount = b.GetRebuyCount()              //重购的次数
 	t.LotteryCheck = b.GetLotteryCheck()                  //这个字段用于判断是否可以开奖,默认是false:   1,如果用户操作弃牌,则直接设置为true,2,如果本局是all in,那么要到本轮次押注完成之后,才能设置为true
-
+	t.TotalRoomCoin = b.GetTotalRoomCoin()
 	return t
 }
 
@@ -110,6 +110,7 @@ func UpdateRedisThuser(u *ThUser) error {
 	*ruser.HandCoin = u.HandCoin
 	*ruser.RoomCoin = u.RoomCoin
 	*ruser.GameNumber = gameNumber
+	*ruser.TotalRoomCoin = u.TotalRoomCoin
 
 	//3,保存到数据库
 	saveRedisThUser(ruser)
