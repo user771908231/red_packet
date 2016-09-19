@@ -390,6 +390,7 @@ func (mydesk *ThDesk ) GetMyHandCard(userId uint32) []*bbproto.Game_CardInfo {
 			result := make([]*bbproto.Game_CardInfo, 0)
 			//用户手牌
 			if len(u.HandCards) == 2 && u.UserId == userId {
+				log.T("开始转化user[%v]的手牌", userId)
 				for i := 0; i < len(u.HandCards); i++ {
 					c := u.HandCards[i]
 					gc := ThCard2OGCard(c)
@@ -435,25 +436,35 @@ func (t *ThDesk) getWinCoinInfo() []*bbproto.Game_WinCoin {
 	//对每个人做计算
 	for i := 0; i < len(t.Users); i++ {
 		u := t.Users[i]
-		if u != nil && u.Status == TH_USER_STATUS_CLOSED && u.winAmount > 0  && u.thCards != nil {
+		if u != nil && u.Status == TH_USER_STATUS_CLOSED && u.winAmount > 0  && u.thCards != nil && u.HandCards != nil {
 			//开是对这个人计算
 			gwc := NewGame_WinCoin()
 
-			//这里需要先对牌进行排序
-			if t.SendRive {
-				//如果已经发了第五张牌,则发送全部的牌
-				paicards := OGTHCardPaixu(u.thCards)
-				*gwc.Card1 = paicards[0].GetMapKey()
-				*gwc.Card2 = paicards[1].GetMapKey()
-				*gwc.Card3 = paicards[2].GetMapKey()
-				*gwc.Card4 = paicards[3].GetMapKey()
-				*gwc.Card5 = paicards[4].GetMapKey()
-				*gwc.Cardtype = u.thCards.GetOGCardType()
+			//如果用户选择亮牌
+			if u.IsShowCard {
+				//这里需要先对牌进行排序
+				if t.SendRive {
+					//如果已经发了第五张牌,则发送全部的牌
+					paicards := OGTHCardPaixu(u.thCards)
+					*gwc.Card1 = paicards[0].GetMapKey()
+					*gwc.Card2 = paicards[1].GetMapKey()
+					*gwc.Card3 = paicards[2].GetMapKey()
+					*gwc.Card4 = paicards[3].GetMapKey()
+					*gwc.Card5 = paicards[4].GetMapKey()
+					*gwc.Cardtype = u.thCards.GetOGCardType()
 
+				} else {
+					//只发送手牌
+					*gwc.Card1 = u.HandCards[0].GetMapKey()
+					*gwc.Card2 = u.HandCards[1].GetMapKey()
+					*gwc.Card3 = 53
+					*gwc.Card4 = 53
+					*gwc.Card5 = 53
+					*gwc.Cardtype = 0
+				}
 			} else {
-				//只发送手牌
-				*gwc.Card1 = u.HandCards[0].GetMapKey()
-				*gwc.Card2 = u.HandCards[1].GetMapKey()
+				*gwc.Card1 = 53
+				*gwc.Card2 = 53
 				*gwc.Card3 = 53
 				*gwc.Card4 = 53
 				*gwc.Card5 = 53
@@ -476,31 +487,40 @@ func (t *ThDesk) getCoinInfo() []*bbproto.Game_WinCoin {
 	//对每个人做计算
 	for i := 0; i < len(t.Users); i++ {
 		u := t.Users[i]
-		if u != nil && u.Status == TH_USER_STATUS_CLOSED && u.thCards != nil {
+		if u != nil && u.Status == TH_USER_STATUS_CLOSED && u.thCards != nil && u.HandCards != nil {
 			log.T("开始计算[%v]的coinInfo,status[%v],thcards[%v]", u.UserId, u.Status, u.thCards)
 			//开是对这个人计算
 			gwc := NewGame_WinCoin()
 
 
 			//如果是在五轮,那么返回所有的牌的信息,如果是提前结束,那么不需要发送所有的牌
-
-			if t.SendRive {
-				paicards := OGTHCardPaixu(u.thCards)
-				*gwc.Card1 = paicards[0].GetMapKey()
-				*gwc.Card2 = paicards[1].GetMapKey()
-				*gwc.Card3 = paicards[2].GetMapKey()
-				*gwc.Card4 = paicards[3].GetMapKey()
-				*gwc.Card5 = paicards[4].GetMapKey()
-				*gwc.Cardtype = u.thCards.GetOGCardType()
+			if u.IsShowCard {
+				if t.SendRive {
+					paicards := OGTHCardPaixu(u.thCards)
+					*gwc.Card1 = paicards[0].GetMapKey()
+					*gwc.Card2 = paicards[1].GetMapKey()
+					*gwc.Card3 = paicards[2].GetMapKey()
+					*gwc.Card4 = paicards[3].GetMapKey()
+					*gwc.Card5 = paicards[4].GetMapKey()
+					*gwc.Cardtype = u.thCards.GetOGCardType()
+				} else {
+					//只发送手牌
+					*gwc.Card1 = u.HandCards[0].GetMapKey()
+					*gwc.Card2 = u.HandCards[1].GetMapKey()
+					*gwc.Card3 = 53
+					*gwc.Card4 = 53
+					*gwc.Card5 = 53
+					*gwc.Cardtype = 0
+				}
 			} else {
-				//只发送手牌
-				*gwc.Card1 = u.HandCards[0].GetMapKey()
-				*gwc.Card2 = u.HandCards[1].GetMapKey()
+				*gwc.Card1 = 53
+				*gwc.Card2 = 53
 				*gwc.Card3 = 53
 				*gwc.Card4 = 53
 				*gwc.Card5 = 53
 				*gwc.Cardtype = 0
 			}
+
 
 			//这里需要先对牌进行排序
 			*gwc.Coin = u.winAmount - u.TotalBet                      //表示除去押注的金额,净赚多少钱

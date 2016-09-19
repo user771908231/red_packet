@@ -24,6 +24,12 @@ import (
 
 func HandlerCreateDesk(userId uint32, roomCoin int64, preCoin int64, smallBlind int64, bigBlind int64, jucount int32) (*room.ThDesk, error) {
 
+	//0,首先看用户是否已经创建了房间,如果已经创建了直接返回已经创建的...
+	odesk := room.ThGameRoomIns.GetDeskByOwner(userId)
+	if odesk != nil {
+		return odesk, nil
+	}
+
 	//1,得到一个随机的密钥
 	roomKey := room.ThGameRoomIns.RandRoomKey()
 

@@ -88,8 +88,8 @@ func InitDeskConfig() {
 	ThdeskConfig.CreateFee = 1
 
 	//每个人出牌的等待时间
-	ThdeskConfig.TH_TIMEOUT_DURATION = time.Second * 200
-	ThdeskConfig.TH_TIMEOUT_DURATION_INT = 200
+	ThdeskConfig.TH_TIMEOUT_DURATION = time.Second * 30
+	ThdeskConfig.TH_TIMEOUT_DURATION_INT = 30
 
 	//德州开奖的时间
 	ThdeskConfig.TH_LOTTERY_DURATION = time.Second * 5
@@ -264,6 +264,7 @@ func (t *ThDesk) IsrepeatIntoWithRoomKey(userId uint32, a gate.Agent) bool {
 			//如果u!=nil 那么
 			log.T("用户[%v]断线重连", userId)
 			u.Agent = a                                                //设置用户的连接
+			u.deskId = t.Id
 			u.IsBreak = false               //设置用户的离线状态
 			u.IsLeave = false
 			u.GameStatus = TH_USER_GAME_STATUS_FRIEND
@@ -364,6 +365,9 @@ func (t *ThDesk) AddThuserBean(user *ThUser) error {
 
 //用户准备的时候需要判断
 func (t *ThDesk) Ready(userId uint32) error {
+	t.Lock()
+	defer t.Unlock()
+
 	user := t.GetUserByUserId(userId)
 	if user == nil {
 		return errors.New("没有找到对应的用户...")
@@ -417,33 +421,58 @@ func (t *ThDesk) LeaveThuser(userId uint32) error {
 	return nil
 }
 
+
+
+//朋友桌离开房间有两种情况需要分别处理
+//1,牌局还么有开始的时候
+//2,牌局已经开始的时候
+
 func (t *ThDesk) FLeaveThuser(userId uint32) error {
 
-	//1,离开之后,设置用户的信息
-	user := t.GetUserByUserId(userId)
+	log.T("user【%v】离开朋友桌子desk[%v]", userId, t.Id)
+	//1,取得user并且修改状态
+	user := t.GetUserByUserId(userId)        //得到user
 	user.IsLeave = true     //设置状态为离开
-	//设置游戏状态需要更具desk的状态开判断
-	//if !t.IsRun() {
-	user.GameStatus = TH_USER_GAME_STATUS_NOGAME        //用户离开之后,设置用户的游戏状态为没有游戏中
-	//}
+
+	if !t.IsRun() && t.JuCountNow <= 1 {
+		log.T("牌局还没有开始的时候user【%v】离开了房间,jucountNow[%v]", userId, t.JuCountNow)
+		//牌局还没有开始的时候
+		user.deskId = t.Id
+		user.GameStatus = TH_USER_GAME_STATUS_FRIEND        //朋友桌
+
+	} else {
+		log.T("牌局已经开始的时候user【%v】离开了房间", userId)
+		//牌局已经开始的时候
+		user.deskId = 0
+		user.GameStatus = TH_USER_GAME_STATUS_NOGAME        //用户离开之后,设置用户的游戏状态为没有游戏中
+
+		//如果是房主在游戏开始之后离开desk,需要变更房主
+		if t.DeskOwner == userId {
+			log.T("由于user【%v】是房主,并且离开了房间,所以需要更换房主", userId)
+			err := t.ChangeOwner()
+			if err != nil {
+				log.E("房主在牌局开始之后离开desk需要变更房主,变更房主的时候,失败,errMsg[%v]", err)
+			}
+		}
+	}
+
+
+	//2,离开之后,更新session信息
 	user.UpdateAgentUserData()
 
-	//2,自定义房间,如果其他人都准备了,那么开始游戏,离开房间和准备的处理是一样的
+	//3,自定义房间,如果其他人都准备了,那么开始游戏,离开房间和准备的处理是一样的
 	//这样处理的作用是,防止最后一个未准备的人,离开房间以后游戏不能开始
 	if t.JuCountNow > 1 && t.IsAllReady() {
 		//用户离开之后,判断游戏是否开始
 		go t.Run()
 	}
 
-	//3,返回离开房间之后的信息
+	//4,返回离开房间之后的信息
 	ret := bbproto.NewGame_ACKLeaveDesk()
 	*ret.Result = intCons.ACK_RESULT_SUCC
 	user.WriteMsg(ret)
 
-	//离开之后,需要广播一次sendGameInfo,这里人还没有真正的离开
 	t.BroadGameInfo(userId)
-
-	//保存数据到redis
 	t.UpdateThdeskAndUser2redis(user)
 
 	return nil
@@ -695,23 +724,34 @@ func (t *ThDesk) RmLeaveUser() {
 	初始化纸牌的信息
  */
 func (t *ThDesk) OnInitCards() error {
+	//测试代码,打印每个人的手牌
+	for _, u := range t.Users {
+		if u != nil {
+			u.HandCards = nil
+		}
+	}
+
 	log.T("开始一局新的游戏,初始化牌的信息")
 	var total = int(2 * ThdeskConfig.TH_DESK_MAX_START_USER + 5); //人数*手牌+5张公共牌
 	totalCards := pokerService.RandomTHPorkCards(total)        //得到牌
 
 	//得到所有的牌,前五张为公共牌,后边的每两张为手牌
 	t.PublicPai = totalCards[0:5]
-	log.T("初始化得到的公共牌的信息:")
+	//log.T("初始化得到的公共牌的信息:")
 	//给每个人分配手牌
 	for i := 0; i < len(t.Users); i++ {
-		//只有当用不为空,并且是在游戏中的状态的时候,才可以发牌
-		if t.Users[i] != nil && t.Users[i].Status == TH_USER_STATUS_BETING {
+		//只有当用户不为空,并且是在游戏中的状态的时候,才可以发牌
+		u := t.Users[i]
+		if u != nil && u.IsBetting() {
+			log.T("开始为玩家[%v],nickname[%v] 分发手牌", u.UserId, u.NickName)
 			begin := i * 2 + 5
 			end := i * 2 + 5 + 2
-			t.Users[i].HandCards = totalCards[begin:end]
+			u.HandCards = totalCards[begin:end]
 			//log.T("用户[%v]的手牌[%v]", t.Users[i].UserId, t.Users[i].HandCards)
-			t.Users[i].thCards = pokerService.GetTHPoker(t.Users[i].HandCards, t.PublicPai, 5)
+			u.thCards = pokerService.GetTHPoker(u.HandCards, t.PublicPai, 5)
 			//log.T("用户[%v]的:拍类型,所有牌[%v],th[%v]", t.Users[i].UserId, t.Users[i].thCards.ThType, t.Users[i].thCards.Cards, t.Users[i].thCards)
+			log.T("开始为玩家[%v],nickname[%v] 分发手牌,分发完毕", u.UserId, u.NickName)
+
 		}
 	}
 
@@ -724,14 +764,13 @@ func (t *ThDesk) OnInitCards() error {
 	log.T("广播Game_InitCard的信息")
 	initCardB := bbproto.NewGame_InitCard()
 	*initCardB.Tableid = t.Id
-	initCardB.HandCard = t.GetHandCard()
+	//initCardB.HandCard = t.GetHandCard()
 	initCardB.PublicCard = t.ThPublicCard2OGC()
 	*initCardB.MinRaise = t.GetMinRaise()
 	*initCardB.NextUser = t.GetUserSeatByUserId(t.BetUserNow)
 	*initCardB.ActionTime = ThdeskConfig.TH_TIMEOUT_DURATION_INT
 	*initCardB.CurrPlayCount = t.JuCountNow
 	*initCardB.TotalPlayCount = t.JuCount
-
 	t.OGTHBroadInitCard(initCardB)
 	log.T("开始一局新的游戏,初始化牌的信息完毕...")
 
@@ -982,7 +1021,6 @@ func (t *ThDesk) GetLotteryCheckFalseCount() int32 {
 		u := t.Users[i]
 		if u != nil && !u.LotteryCheck {
 			count ++
-
 		}
 	}
 	return count
@@ -1140,6 +1178,7 @@ func (t *ThDesk) InitLotteryStatus() error {
 			if u.IsAllIn() || u.IsBetting() {
 				//如果用户当前的状态是押注中,或者all in,那么设置用户的状态喂等待结算
 				u.Status = TH_USER_STATUS_WAIT_CLOSED
+				u.IsShowCard = true
 			} else if u.IsFold() {
 				u.Status = TH_USER_STATUS_CLOSED
 			}
@@ -1927,6 +1966,7 @@ func (t *ThDesk) CheckBetUserBySeat(user *ThUser) bool {
 	//3, 判断用户的状态是否正确
 	err := user.CheckBetWaitStatus()
 	if err != nil {
+		log.T("用户不是在等待状态,无法操作[%v]", user.UserId)
 		return false
 	}
 
@@ -1965,11 +2005,10 @@ func (t *ThDesk) IsTime2begin() bool {
 
 	log.T("现在开始判断是否可以开始一局新的游戏,1,判断通用的逻辑:")
 
-	log.T("测试信息,打印每个玩家的状态://1,等待开始,2,坐下,3,已经准备,4,beting5,allin,6,弃牌,7,等待结算,8,已经结算,9,裂开,10,掉线")
 	for i := 0; i < len(t.Users); i++ {
 		u := t.Users[i]
 		if u != nil {
-			log.T("用户[%v].seat[%v]的状态是[%v]", u.UserId, u.Seat, u.Status)
+			log.T("用户[%v].seat[%v]的状态是[%v]", u.UserId, u.Seat, u.GetStatusDes())
 		}
 	}
 
@@ -2157,6 +2196,7 @@ func (t *ThDesk) EndFTh() bool {
 	for i := 0; i < len(users); i++ {
 		u := users[i]
 		if u != nil {
+			log.T("计算user[%v],nickName[%v],roomCoin[%v],TotalRoomCoin[%v]最后的输赢结果", u.UserId, u.NickName, u.RoomCoin, u.TotalRoomCoin)
 			gel := bbproto.NewGame_EndLottery()
 			*gel.Coin = u.RoomCoin - u.TotalRoomCoin        //这里不是u.winamount,u.winamount  表示本局赢得底池的金额
 			*gel.Seat = u.Seat
@@ -2192,7 +2232,6 @@ func (t *ThDesk) EndFTh() bool {
 
 	//整局游戏结束之后,解散游戏房间,并且更新每个人的agent信息
 	t.clearAgentData(0)
-	t.DelThdeskAndAllUserRedisCache()        //删除缓存中的数据
 	ThGameRoomIns.RmThDesk(t) //自定义房间解散
 	return true        //已经结束了本场游戏
 }
@@ -2406,12 +2445,13 @@ func (t *ThDesk) FNotRebuy(userId uint32) {
 
 }
 
+//变更房主
 func (t *ThDesk) ChangeOwner() error {
 
 	var ouId uint32 = 0
 	for i := 0; i < len(t.Users); i++ {
 		u := t.Users[i]
-		if u != nil && t.IsUserRoomCoinEnough(u) {
+		if u != nil && t.IsUserRoomCoinEnough(u) && t.DeskOwner != u.UserId && !u.IsBreak && u.IsLeave {
 			ouId = u.UserId
 			break
 		}

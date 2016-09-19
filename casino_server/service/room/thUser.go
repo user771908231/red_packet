@@ -68,6 +68,7 @@ type ThUser struct {
 	TotalRoomCoin      int64                 //用户总的带入金额是多少钱
 	RebuyCount         int32                 //重购的次数
 	LotteryCheck       bool                  //这个字段用于判断是否可以开奖,默认是false:   1,如果用户操作弃牌,则直接设置为true,2,如果本局是all in,那么要到本轮次押注完成之后,才能设置为true
+	IsShowCard         bool                  //是否亮牌
 }
 
 func (t *ThUser) GetCoin() int64 {
@@ -83,6 +84,32 @@ func (t *ThUser) GetRoomCoin() int64 {
 	return t.RoomCoin
 }
 
+func (t *ThUser) GetStatusDes() string {
+	des := ""
+	switch t.Status {
+	case 0:
+		des = "刚上桌子"
+	case 1:
+		des = "等待入座"
+	case 2:
+		des = "已经坐下"
+	case 3:
+		des = "已经准备"
+	case 4:
+		des = "押注中"
+	case 5:
+		des = "all"
+	case 6:
+		des = "弃牌"
+	case 7:
+		des = "等待结算"
+	case 8:
+		des = "已经结算"
+	}
+
+	return des
+
+}
 //
 func (t *ThUser) trans2bbprotoThuser() *bbproto.THUser {
 	thuserTemp := &bbproto.THUser{}
@@ -95,16 +122,15 @@ func (t *ThUser) trans2bbprotoThuser() *bbproto.THUser {
 
 //等待用户出牌
 func (t *ThUser) wait() error {
-	//如果不是押注中的状态,不用wait任务
-	//这一步其实可以不用验证,因为出牌的游标滑动到这里的时候,已经验证过了
-	//if !t.IsBetting() {
-	//	return nil
-	//}
 
 	ticker := time.NewTicker(time.Second * 1)
 	t.waiTime = time.Now().Add(ThdeskConfig.TH_TIMEOUT_DURATION)
 	uuid, _ := uuid.NewV4()
 	t.waitUUID = uuid.String()                //设置出牌等待的标志
+
+	//直接返回不用等待 -- 新版本
+	return nil
+
 	go func() {
 		//tod 目前是测试性质的代码
 		defer Error.ErrorRecovery("user.timeout()")
@@ -179,6 +205,7 @@ func (t *ThUser) TimeOut(timeNow time.Time) (bool, error) {
 			log.T("用户等待超时,自动弃牌的时候,desk为空,导致弃牌失败.")
 			return true, nil                //表示游戏结束
 		}
+		log.T("玩家[%v]超时,现在做超时的处理:开始系统自动弃牌", t.UserId)
 		err := desk.DDBet(t.Seat, TH_DESK_BET_TYPE_FOLD, 0)
 		if err != nil {
 			log.E("用户[%v]弃牌失败", t.UserId)
@@ -209,7 +236,7 @@ func (t *ThUser) CheckBetWaitStatus() error {
 	if t.IsWaiting() {
 		return nil
 	} else {
-		return errors.New("用户状态错误")
+		return errors.New("用户不是在等待状态")
 	}
 }
 
@@ -224,6 +251,7 @@ func NewThUser() *ThUser {
 	result.RoomCoin = 0
 	result.IsBreak = false
 	result.IsLeave = false
+	result.IsShowCard = false
 	return result
 }
 

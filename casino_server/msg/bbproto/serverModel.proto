@@ -62,6 +62,7 @@ message ThServerUser{
 	optional int64 PreCoin			=21;	//
 	optional int32 RebuyCount		=22;
 	optional bool LotteryCheck		=23;
+	optional int64 TotalRoomCoin	=24;
 }
 
 //保存用户的会话信息

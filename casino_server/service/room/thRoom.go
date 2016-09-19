@@ -129,12 +129,13 @@ func (r *ThGameRoom) AddThDesk(throom *ThDesk) error {
 
 
 //删除一个throom
-func (r *ThGameRoom) RmThDesk(desk *ThDesk) error {
+func (r *ThGameRoom) RmThDesk(d *ThDesk) error {
+	log.T("开始删除房间desk.id[%v]", d.Id)
 	//第一步找到index
 	var index int = -1
 	for i := 0; i < len(r.ThDeskBuf); i++ {
-		desk = r.ThDeskBuf[i]
-		if desk != nil && desk.Id == desk.Id {
+		desk := r.ThDeskBuf[i]
+		if desk != nil && desk.Id == d.Id {
 			index = i
 			break
 		}
@@ -142,7 +143,9 @@ func (r *ThGameRoom) RmThDesk(desk *ThDesk) error {
 
 	//删除对应的desk
 	if index >= 0 {
-		r.ThDeskBuf = append(r.ThDeskBuf[:index], r.ThDeskBuf[index + 1:]...)
+		//删除缓存的数据
+		d.DelThdeskAndAllUserRedisCache()        //删除缓存中的数据
+		r.ThDeskBuf = append(r.ThDeskBuf[:index], r.ThDeskBuf[index + 1:]...)        //私有内存中删除desk和user的信息
 		return nil
 	} else {
 		return errors.New("解散房间失败")
@@ -294,6 +297,16 @@ func (r *ThGameRoom) GetDeskById(id int32) *ThDesk {
 		}
 	}
 	return result
+}
+
+//通过房主查找
+func (r *ThGameRoom) GetDeskByOwner(userId uint32) *ThDesk {
+	for _, desk := range r.ThDeskBuf {
+		if desk != nil && desk.DeskOwner == userId {
+			return desk
+		}
+	}
+	return nil
 }
 
 //通过肘子的类型和Match得到thdesk

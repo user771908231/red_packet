@@ -679,7 +679,6 @@ func (r *CSThGameRoom) DissolveDesk(desk *ThDesk) error {
 	desk.THBroadcastProtoAll(result)
 
 	//3,解散桌子...
-	desk.DelThdeskAndAllUserRedisCache()        //删除缓存中的数据
 	ChampionshipRoom.RmThDesk(desk)                //删除buf中的桌子
 
 	return nil

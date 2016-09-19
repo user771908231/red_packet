@@ -186,6 +186,8 @@ func NewThServerUser() *ThServerUser {
 	user.GameNumber = new(int32)
 	user.IsBreak = new(bool)
 	user.IsLeave = new(bool)
+	user.TotalRoomCoin = new(int64)
+	user.LotteryCheck = new(bool)
 	return user
 }
 
@@ -302,4 +304,14 @@ func NewACKQuickConn() *ACKQuickConn {
 	result.ReleaseTag = new(int32)
 	return result
 
+}
+
+func NewGame_AckCreateDesk() *Game_AckCreateDesk {
+	result := &Game_AckCreateDesk{}
+	result.Result = new(int32)
+	result.Password = new(string)
+	result.DeskId = new(int32)
+	result.CreateFee = new(int64)
+	result.UserBalance = new(int64)
+	return result
 }
