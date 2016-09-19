@@ -205,6 +205,7 @@ func (t *ThUser) TimeOut(timeNow time.Time) (bool, error) {
 			log.T("用户等待超时,自动弃牌的时候,desk为空,导致弃牌失败.")
 			return true, nil                //表示游戏结束
 		}
+		log.T("玩家[%v]超时,现在做超时的处理:开始系统自动弃牌", t.UserId)
 		err := desk.DDBet(t.Seat, TH_DESK_BET_TYPE_FOLD, 0)
 		if err != nil {
 			log.E("用户[%v]弃牌失败", t.UserId)
