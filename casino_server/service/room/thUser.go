@@ -177,6 +177,12 @@ func (t *ThUser) waitCsRebuy() {
 
 //返回自己所在的桌子
 func (t *ThUser) GetDesk() *ThDesk {
+	//判断入参是否正确,否则直接返回nil
+	if t.deskId <= 0 {
+		return nil
+	}
+
+	//根据用户的游戏类型,找到对应的桌子
 	var desk *ThDesk
 	if t.CSGamingStatus {
 		desk = ChampionshipRoom.GetDeskById(t.deskId)

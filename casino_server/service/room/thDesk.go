@@ -923,10 +923,10 @@ func (t *ThDesk) OninitThDeskStatus() error {
 		for i := dealerIndex; i < len(t.Users); i++ {
 			u := t.Users[(i + 1) % len(t.Users)]
 
-			//测试代码
-			if u != nil {
-				log.T("开始检测user[%v],nickName[%v],seat[%v],u.isBetting[%v]", u.UserId, u.NickName, u.Seat, u.IsBetting())
-			}
+			////测试代码
+			//if u != nil {
+			//	log.T("开始检测user[%v],nickName[%v],seat[%v],u.isBetting[%v]", u.UserId, u.NickName, u.Seat, u.IsBetting())
+			//}
 
 			if u != nil && u.IsBetting() {
 				t.Dealer = u.UserId
@@ -2237,9 +2237,6 @@ func (t *ThDesk) EndFTh() bool {
 	//设置bigWin
 	//广播消息
 	t.THBroadcastProtoAll(result)
-
-	//整局游戏结束之后,解散游戏房间,并且更新每个人的agent信息
-	t.clearAgentData(0)
 	ThGameRoomIns.RmThDesk(t) //自定义房间解散
 	return true        //已经结束了本场游戏
 }
