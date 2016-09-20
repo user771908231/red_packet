@@ -478,10 +478,21 @@ func (t *ThDesk) FLeaveThuser(userId uint32) error {
 	return nil
 }
 
+func (t *ThDesk) GetCsRoom() *CSThGameRoom {
+	//return ChampionshipRoom
+	return nil
+
+}
+
 func (t *ThDesk) CSLeaveThuser(userId uint32) error {
 
 	//1,离开之后,设置用户的信息
 	user := t.GetUserByUserId(userId)
+	//csroom := t.GetCsRoom()
+
+	if !t.IsRun() && t.JuCountNow <= 1 {
+
+	}
 	user.IsLeave = true     //设置状态为离开
 	user.GameStatus = TH_USER_GAME_STATUS_NOGAME        //用户离开之后,设置用户的游戏状态为没有游戏中
 	user.CSGamingStatus = false

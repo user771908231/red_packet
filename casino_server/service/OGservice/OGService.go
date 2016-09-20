@@ -53,7 +53,6 @@ func HandlerLeaveDesk(m *bbproto.Game_LeaveDesk, a gate.Agent) {
 		log.E("HandlerLeaveDesk,失败,因为desk不存在...")
 		return
 	}
-
 	desk.LeaveThuser(m.GetUserId())
 }
 
