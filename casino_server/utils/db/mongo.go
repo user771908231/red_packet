@@ -13,16 +13,14 @@ import (
 )
 
 
-
 //活的链接
 func GetMongoConn() (*mongodb.DialContext, error) {
-	//log.T("正在连接到mongodb:  %v:%d ... ", conf.Server.MongoIp, conf.Server.MongoPort)
 	return mongodb.Dial(conf.Server.MongoIp, conf.Server.MongoPort)
 }
 
 //保存数据
 func InsertMgoData(dbt string, data interface{}) error {
-	log.T("insert数据到数据库[%v]",data)
+	log.T("insert数据到数据库[%v]", data)
 	//得到连接
 	c, err := GetMongoConn()
 	if err != nil {
