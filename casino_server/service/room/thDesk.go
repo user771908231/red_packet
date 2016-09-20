@@ -743,14 +743,14 @@ func (t *ThDesk) OnInitCards() error {
 		//只有当用户不为空,并且是在游戏中的状态的时候,才可以发牌
 		u := t.Users[i]
 		if u != nil && u.IsBetting() {
-			log.T("开始为玩家[%v],nickname[%v] 分发手牌", u.UserId, u.NickName)
+			//log.T("开始为玩家[%v],nickname[%v] 分发手牌", u.UserId, u.NickName)
 			begin := i * 2 + 5
 			end := i * 2 + 5 + 2
 			u.HandCards = totalCards[begin:end]
 			//log.T("用户[%v]的手牌[%v]", t.Users[i].UserId, t.Users[i].HandCards)
 			u.thCards = pokerService.GetTHPoker(u.HandCards, t.PublicPai, 5)
 			//log.T("用户[%v]的:拍类型,所有牌[%v],th[%v]", t.Users[i].UserId, t.Users[i].thCards.ThType, t.Users[i].thCards.Cards, t.Users[i].thCards)
-			log.T("开始为玩家[%v],nickname[%v] 分发手牌,分发完毕", u.UserId, u.NickName)
+			//log.T("开始为玩家[%v],nickname[%v] 分发手牌,分发完毕", u.UserId, u.NickName)
 
 		}
 	}
@@ -904,14 +904,11 @@ func (t *ThDesk) GetResUserModelClieSeq(userId uint32) []*bbproto.THUser {
 }
 
 
-
-
 // 	初始化第一个押注的人,当前押注的人
 func (t *ThDesk) OninitThDeskStatus() error {
 	log.T("开始一局游戏,现在初始化desk的信息")
 
-	userTemp := make([]*ThUser, len(t.Users))
-	copy(userTemp, t.Users)
+	log.T("开始设置desk[%v]庄家的值", t.Id)
 	//这里需要定义一个庄家,todo 暂时默认为第一个,后边再修改
 	var dealerIndex int = 0;
 	if t.Dealer == 0 {
@@ -934,30 +931,48 @@ func (t *ThDesk) OninitThDeskStatus() error {
 			}
 		}
 	}
-
+	log.T("desk[%v]庄家[%v]的值设置完毕", t.Id, t.Dealer)
+	dealerIndex = t.GetUserIndex(t.Dealer)
 	//设置小盲注
-	for i := dealerIndex; i < len(userTemp) + dealerIndex; i++ {
-		u := userTemp[(i + 1) % len(userTemp)]
+	for i := dealerIndex; i < len(t.Users) + dealerIndex; i++ {
+		u := t.Users[(i + 1) % len(t.Users)]
+
+		if u != nil {
+			log.T("开始检测user[%v]是否符合小盲注,u.isBetting[%v]", u.UserId, u.IsBetting())
+		}
+
 		if u != nil && u.IsBetting() {
 			t.SmallBlind = u.UserId
-			userTemp[(i + 1) % len(userTemp)] = nil
 			break
 		}
 	}
 
+	log.T("desk[%v]设置小盲的值[%v]完毕", t.Id, t.SmallBlind)
+
+	log.T("desk[%v]开始设置大盲的值", t.Id)
+
 	//设置大盲注
-	for i := dealerIndex; i < len(userTemp) + dealerIndex; i++ {
-		u := userTemp[(i + 1) % len(userTemp)]
-		if u != nil && u.IsBetting() {
+	for i := dealerIndex; i < len(t.Users) + dealerIndex; i++ {
+		u := t.Users[(i + 1) % len(t.Users)]
+		if u != nil {
+			log.T("开始检测user[%v]是否符合大盲注,u.isBetting[%v],t.SmallBlind[%v]", u.UserId, u.IsBetting(), t.SmallBlind)
+		}
+
+		if u != nil && u.UserId != t.SmallBlind && u.IsBetting() {
 			t.BigBlind = u.UserId
-			userTemp[(i + 1) % len(userTemp)] = nil
 			break
 		}
 	}
+
+	log.T("desk[%v]设置大盲的值完毕", t.Id, t.BigBlind)
+
+
 
 	/**
 		设置第一个押注的人
 	 */
+
+	log.T("desk[%v]开始设置第一个押注的人[%v]", t.Id)
 
 	if t.GetBettingUserCount() == int32(2) {
 		//如果只有两个人,当前押注的人是小盲注
@@ -965,15 +980,15 @@ func (t *ThDesk) OninitThDeskStatus() error {
 		t.BetUserNow = t.SmallBlind
 	} else {
 		//设置当前押注的人
-		for i := dealerIndex; i < len(userTemp) + dealerIndex; i++ {
-			u := userTemp[(i + 1) % len(userTemp)]
+		for i := dealerIndex; i < len(t.Users) + dealerIndex; i++ {
+			u := t.Users[(i + 1) % len(t.Users)]
 			if u != nil && u.IsBetting() {
 				t.BetUserNow = u.UserId
-				userTemp[(i + 1) % len(userTemp)] = nil
 				break
 			}
 		}
 	}
+	log.T("desk[%v]设置第一个押注的人[%v]完毕", t.Id, t.BetUserNow)
 
 	t.RaiseUserId = t.BetUserNow        //第一个加注的人
 	t.NewRoundFirstBetUser = t.SmallBlind           //新一轮开始默认第一个押注的人,第一轮默认是小盲注
