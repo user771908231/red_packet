@@ -649,9 +649,10 @@ func (t *ThDesk) InitUserStatus() error {
 		u.TurnCoin = 0
 		u.winAmount = 0
 		u.TotalBet4calcAllin = 0
-		u.TotalBet = 0                                //新的一局游戏开始,把总的押注金额设置为0
+		u.TotalBet = 0                  //新的一局游戏开始,把总的押注金额设置为0
 		u.winAmountDetail = nil
-		u.LotteryCheck = true                                //游戏开始的时候设置为false
+		u.LotteryCheck = true           //游戏开始的时候设置为false
+		u.IsShowCard = false                //默认不亮牌
 
 		//如果用户的余额不足或者用户的状态是属于断线的状态,则设置用户为等待入座
 		if !t.IsUserRoomCoinEnough(u) {
