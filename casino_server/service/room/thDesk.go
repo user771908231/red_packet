@@ -919,10 +919,18 @@ func (t *ThDesk) OninitThDeskStatus() error {
 		t.Dealer = t.Users[0].UserId
 	} else {
 		dealerIndex = t.GetUserIndex(t.Dealer)
+		log.T("当前的庄是userId[%v],index[%v]", t.Dealer, dealerIndex)
 		for i := dealerIndex; i < len(t.Users); i++ {
 			u := t.Users[(i + 1) % len(t.Users)]
+
+			//测试代码
+			if u != nil {
+				log.T("开始检测user[%v],nickName[%v],seat[%v],u.isBetting[%v]", u.UserId, u.NickName, u.Seat, u.IsBetting())
+			}
+
 			if u != nil && u.IsBetting() {
 				t.Dealer = u.UserId
+				break;
 			}
 		}
 	}
