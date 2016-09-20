@@ -188,6 +188,7 @@ func NewThServerUser() *ThServerUser {
 	user.IsLeave = new(bool)
 	user.TotalRoomCoin = new(int64)
 	user.LotteryCheck = new(bool)
+	user.IsShowCard = new(bool)
 	return user
 }
 
