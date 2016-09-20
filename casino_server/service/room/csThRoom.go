@@ -653,7 +653,7 @@ func (r *CSThGameRoom) GetRankByuserId(userId uint32) int32 {
 }
 //------------------------------------------------------关于排名的排序-end---------------------------------------------
 
-//解散锦标赛的房间,并且保留需要继续游戏的user
+//解散锦标赛的房间
 func (r *CSThGameRoom) DissolveDesk(desk *ThDesk) error {
 	//解散房间,给每个人发送解散房间的广播,并且删除房间
 	log.T("锦标赛开始解散desk[%v]", desk.Id)
@@ -680,7 +680,6 @@ func (r *CSThGameRoom) DissolveDesk(desk *ThDesk) error {
 
 	//3,解散桌子...
 	ChampionshipRoom.RmThDesk(desk)                //删除buf中的桌子
-
 	return nil
 }
 

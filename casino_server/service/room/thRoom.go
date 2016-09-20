@@ -130,6 +130,7 @@ func (r *ThGameRoom) AddThDesk(throom *ThDesk) error {
 
 //删除一个throom
 func (r *ThGameRoom) RmThDesk(d *ThDesk) error {
+	//整局游戏结束之后,解散游戏房间,并且更新每个人的agent信息
 	log.T("开始删除房间desk.id[%v]", d.Id)
 	//第一步找到index
 	var index int = -1
@@ -144,6 +145,7 @@ func (r *ThGameRoom) RmThDesk(d *ThDesk) error {
 	//删除对应的desk
 	if index >= 0 {
 		//删除缓存的数据
+		d.clearAgentData(0)
 		d.DelThdeskAndAllUserRedisCache()        //删除缓存中的数据
 		r.ThDeskBuf = append(r.ThDeskBuf[:index], r.ThDeskBuf[index + 1:]...)        //私有内存中删除desk和user的信息
 		return nil
@@ -180,7 +182,6 @@ func (r *ThGameRoom) DissolveDeskByDeskOwner(userId uint32, a gate.Agent) error 
 	}
 
 	//3,解散
-	desk.clearAgentData(0)        //清空别人的会话信息
 	err := r.RmThDesk(desk)
 	if err != nil {
 		*result.Result = intCons.ACK_RESULT_ERROR

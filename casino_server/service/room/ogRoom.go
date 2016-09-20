@@ -468,7 +468,7 @@ func (t *ThDesk) getWinCoinInfo() []*bbproto.Game_WinCoin {
 				*gwc.Card3 = 53
 				*gwc.Card4 = 53
 				*gwc.Card5 = 53
-				*gwc.Cardtype = 0
+				*gwc.Cardtype = 9
 			}
 
 			*gwc.Coin = u.winAmount                                        //这个表示的是赢得的底池多少钱
@@ -518,7 +518,7 @@ func (t *ThDesk) getCoinInfo() []*bbproto.Game_WinCoin {
 				*gwc.Card3 = 53
 				*gwc.Card4 = 53
 				*gwc.Card5 = 53
-				*gwc.Cardtype = 0
+				*gwc.Cardtype = 9
 			}
 
 
