@@ -478,18 +478,32 @@ func (t *ThDesk) FLeaveThuser(userId uint32) error {
 	return nil
 }
 
-func (t *ThDesk) CSLeaveThuser(userId uint32) error {
+func (t *ThDesk) GetCsRoom() *CSThGameRoom {
+	return &ChampionshipRoom
+}
 
+func (t *ThDesk) CSLeaveThuser(userId uint32) error {
 	//1,离开之后,设置用户的信息
 	user := t.GetUserByUserId(userId)
+	csroom := t.GetCsRoom()
+
+	//如果用户是在准备阶段进入游戏的,那么不算放弃比赛
+	if csroom.Status == CSTHGAMEROOM_STATUS_READY {
+		user.GameStatus = TH_USER_GAME_STATUS_CHAMPIONSHIP        //用户离开之后,设置用户的游戏状态为没有游戏中
+		user.CSGamingStatus = true
+	} else {
+		user.GameStatus = TH_USER_GAME_STATUS_NOGAME        //用户离开之后,设置用户的游戏状态为没有游戏中
+		user.CSGamingStatus = false
+		user.RoomCoin = 0
+		user.deskId = 0
+		ChampionshipRoom.UpdateUserRankInfo(user.UserId, t.MatchId, user.RoomCoin)
+		t.RmUser(user.UserId)                         //删除用户,并且发送广播
+	}
+
 	user.IsLeave = true     //设置状态为离开
-	user.GameStatus = TH_USER_GAME_STATUS_NOGAME        //用户离开之后,设置用户的游戏状态为没有游戏中
-	user.CSGamingStatus = false
-	user.RoomCoin = 0
-	user.UpdateAgentUserData()
+	user.UpdateAgentUserData()	//锦标赛用户离开之后,更新回话信息
 
 	//2,更新锦标赛的数据
-	ChampionshipRoom.UpdateUserRankInfo(user.UserId, t.MatchId, user.RoomCoin)
 	ChampionshipRoom.SubOnlineCount()        //竞标赛的在线人数-1
 
 	//3,返回离开房间之后的信息
@@ -497,14 +511,8 @@ func (t *ThDesk) CSLeaveThuser(userId uint32) error {
 	*ret.Result = intCons.ACK_RESULT_SUCC
 	user.WriteMsg(ret)
 
-	//4,删除用户
-	t.RmUser(user.UserId)                         //删除用户,并且发送广播
-	//离开之后,需要广播一次sendGameInfo,这里人还没有真正的离开
-	t.BroadGameInfo(userId)
-
-	//保存数据到redis
-	t.UpdateThdeskAndUser2redis(user)
-
+	t.BroadGameInfo(userId)        //离开之后,需要广播一次sendGameInfo,这里人还没有真正的离开
+	t.UpdateThdeskAndUser2redis(user)        //保存数据到redis
 	return nil
 }
 
@@ -649,9 +657,10 @@ func (t *ThDesk) InitUserStatus() error {
 		u.TurnCoin = 0
 		u.winAmount = 0
 		u.TotalBet4calcAllin = 0
-		u.TotalBet = 0                                //新的一局游戏开始,把总的押注金额设置为0
+		u.TotalBet = 0                  //新的一局游戏开始,把总的押注金额设置为0
 		u.winAmountDetail = nil
-		u.LotteryCheck = true                                //游戏开始的时候设置为false
+		u.LotteryCheck = true           //游戏开始的时候设置为false
+		u.IsShowCard = false                //默认不亮牌
 
 		//如果用户的余额不足或者用户的状态是属于断线的状态,则设置用户为等待入座
 		if !t.IsUserRoomCoinEnough(u) {

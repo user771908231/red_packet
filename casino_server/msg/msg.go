@@ -34,7 +34,6 @@ func init() {
 	ProtoProcessor.Register(&bbproto.OlineBonus{})                //14	在线奖励
 	ProtoProcessor.Register(&bbproto.TimingBonus{})                //15	定时奖励
 
-
 	//德州扑克
 	ProtoProcessor.Register(&bbproto.ThRoom{})                //16	德州扑克
 	ProtoProcessor.Register(&bbproto.THBet{})                //17	德州扑克押注

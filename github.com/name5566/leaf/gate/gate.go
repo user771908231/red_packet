@@ -18,13 +18,13 @@ type Gate struct {
 	AgentChanRPC    *chanrpc.Server
 
 	// websocket
-	WSAddr      string
-	HTTPTimeout time.Duration
+	WSAddr          string
+	HTTPTimeout     time.Duration
 
 	// tcp
-	TCPAddr      string
-	LenMsgLen    int
-	LittleEndian bool
+	TCPAddr         string
+	LenMsgLen       int
+	LittleEndian    bool
 }
 
 func (gate *Gate) Run(closeSig chan bool) {
@@ -88,10 +88,9 @@ type agent struct {
 
 func (a *agent) Run() {
 	for {
-		clog.D("try readmsg...")
+		//log.Debug("开始读取数据:")
 		data, err := a.conn.ReadMsg()
-		clog.D("readmsg..ret:%v", data)
-		//log.Debug(string(debug.Stack()))
+		//log.Debug("读取到的数据是[%v]", data)
 
 		if err != nil {
 			log.Debug("read message: %v", err)
@@ -100,7 +99,7 @@ func (a *agent) Run() {
 
 		if a.gate.Processor != nil {
 			//增加一层校验md5的方法
-			data2,checkErr := security.CheckTcpData(data)
+			data2, checkErr := security.CheckTcpData(data)
 			if checkErr != nil {
 				log.Debug("data check md5 fail: %v", checkErr)
 				break
@@ -113,8 +112,9 @@ func (a *agent) Run() {
 				log.Debug("unmarshal message error: %v", err)
 				break
 			}
+
+			//log.Debug("解析出来的数据m[%v]", msg)
 			err = a.gate.Processor.Route(msg, a)
-			//clog.D("a.gate.Processor.Route end.")
 			if err != nil {
 				log.Debug("route message error: %v", err)
 				break
@@ -133,7 +133,7 @@ func (a *agent) OnClose() {
 }
 
 func (a *agent) WriteMsg(msg interface{}) {
-	clog.T("agent发送的信息[%v]",msg)
+	clog.T("agent发送的信息[%v]", msg)
 	if a.gate.Processor != nil {
 		data, err := a.gate.Processor.Marshal(msg)
 		if err != nil {
