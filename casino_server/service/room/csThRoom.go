@@ -50,7 +50,7 @@ var CSTHGameRoomConfig struct {
 func (r *CSThGameRoom) OnInitConfig() {
 	log.T("初始化csthgameroom.config")
 	CSTHGameRoomConfig.gameDuration = time.Second * 60 * 20                //游戏是20分钟异常
-	CSTHGameRoomConfig.checkDuration = time.Second * 10
+	CSTHGameRoomConfig.checkDuration = time.Second * 1
 	CSTHGameRoomConfig.leastCount = 3; //最少要20人才可以开始游戏
 	CSTHGameRoomConfig.nextRunDuration = time.Second * 60 * 1        //1 分钟之后开始下一场
 	CSTHGameRoomConfig.riseBlindDuration = time.Second * 150        //每150秒生一次忙
@@ -116,13 +116,13 @@ func (r *CSThGameRoom) GetGamingCount() int32 {
 	for _, desk := range desks {
 		if desk != nil {
 			for _, user := range desk.Users {
-				if user != nil && user.CSGamingStatus {
+				if user != nil && user.CSGamingStatus && !user.IsLeave && !user.IsBreak {
 					count ++
 				}
 			}
-
 		}
 	}
+	//log.T("获取锦标赛当前的游戏(user != nil && user.CSGamingStatus && !user.IsLeave && !user.IsBreak)人数[%v]", count)
 	return count
 
 }
@@ -184,9 +184,9 @@ func (r *CSThGameRoom) Begin() {
 	jobUtils.DoAsynJob(CSTHGameRoomConfig.checkDuration, func() bool {
 		//判断人数是否足够
 		if r.GetGamingCount() >= CSTHGameRoomConfig.leastCount {
+			log.T("游戏人书已经足够了，可以开始游戏了...")
 			//开始游戏
 			r.Run()
-
 			//通知desk开始desk.run
 			r.BroadCastDeskRunGame()
 			return true        //表示终止任务
@@ -195,6 +195,8 @@ func (r *CSThGameRoom) Begin() {
 			return false
 		}
 	})
+
+
 }
 
 
@@ -285,7 +287,7 @@ func (r *CSThGameRoom) SubOnlineCount() {
 
 //检测结束
 func (r *CSThGameRoom) checkEnd() bool {
-	//如果时间已经过了,并且所有桌子的状态都是已经停止游戏,那么表示这一局结束,为什么是所有的桌子?因为有可能时间到了,有很多桌子还在游戏中
+	//如果时间已经过了,或者游戏中的玩家只身下一个人了，那么代表游戏结束...
 	if r.IsOutofEndTime() || r.GetGamingCount() <= 1 {
 		//结算本局
 		log.T("锦标赛matchid[%v]已经结束.现在开始保存数据", r.MatchId)
@@ -777,6 +779,7 @@ func (r *CSThGameRoom) MergeDesk(mt *ThDesk) (*ThDesk, error) {
 //刷新锦标赛的列表信息
 func RefreshRedisMatchList() {
 	//1,获取数据库中的近20场次的信息(通过时间来排序)
+	//数据库的查询可以 放置在dao那一层...
 	data := []mode.T_cs_th_record{}
 	db.Query(func(d *mgo.Database) {
 		d.C(casinoConf.DBT_T_CS_TH_RECORD).Find(bson.M{"id":bson.M{"$gt":0}}).Sort("-id").Limit(10).All(&data)
@@ -795,7 +798,7 @@ func RefreshRedisMatchList() {
 			*sd.Title = "神经德州赢红包大赛" + idStr
 			*sd.Status = d.Status
 			*sd.Type = d.GameType
-			*sd.Time = timeUtils.Format(d.BeginTime)
+			*sd.Time = timeUtils.Format(d.ReadyTime)
 			*sd.MatchId = d.Id
 
 			//如果是真在run或者ready的状态则表示为游戏中

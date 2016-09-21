@@ -155,6 +155,9 @@ func (r *ThGameRoom) RmThDesk(d *ThDesk) error {
 }
 
 //通过房主id解散房间
+//解散需要区分两种情况来讨论，1，游戏开始之后，解散房间，正常解散。2，游戏还没有开始就解散房间：需要退换用户的钻石...
+
+
 func (r *ThGameRoom) DissolveDeskByDeskOwner(userId uint32, a gate.Agent) error {
 
 	result := &bbproto.Game_AckDissolveDesk{}

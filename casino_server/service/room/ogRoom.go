@@ -158,7 +158,7 @@ func (t *ThDesk) GetSecondPool() []int64 {
 
 //发送新增用户的广播
 func (t *ThDesk) BroadGameInfo(reqUserId uint32) {
-	log.T("开始发送用户fameinfo的广播")
+	log.T("开始发送用户gameinfo的广播")
 	msg := t.initGameSendgameInfoByDesk(reqUserId)
 	for i := 0; i < len(t.Users); i++ {
 		u := t.Users[i]
