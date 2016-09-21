@@ -94,7 +94,7 @@ func (r *ThGameRoom) Recovery() {
 			//通过key在数据库中恢复thdesk
 			redisThdesk := GetRedisThDeskByKey(key)
 			desk := RedisDeskTransThdesk(redisThdesk)
-			if desk != nil && !desk.IsOver() {
+			if desk != nil && !desk.IsOver() && redisThdesk != nil && redisThdesk.UserIds != nil {
 				//恢复游戏中的玩家
 				for _, userId := range redisThdesk.UserIds {
 					log.T("开始恢复desk[%v]的user[%v]", key, userId)
