@@ -377,13 +377,14 @@ func (r *CSThGameRoom) IsRepeatIntoRoom(userId uint32, a gate.Agent) (*ThDesk, e
 		return nil, nil
 	}
 
-	if user.IsLeave {
-		//表示用户已经离开,不能进入游戏
-		return nil, errors.New("用户已经离开了")
+	//表示用户已经离开,并且是自己放弃的比赛,那么不能重新进入游戏...
+	if user.IsLeave && !user.CSGamingStatus {
+		return nil, errors.New("用户已经放弃比赛了")
 	}
 
 	//设置用户的状态
 	user.IsBreak = false
+	user.IsLeave = false
 	user.Agent = a
 	user.GameStatus = TH_USER_GAME_STATUS_CHAMPIONSHIP
 	user.UpdateAgentUserData()        //更新用户的session信息

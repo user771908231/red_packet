@@ -3,9 +3,11 @@ package gate
 import (
 	"wstest/msg"
 	"casino_server/msg/bbprotogo"
-	"casino_server/game"
+	"wstest/game"
+	"wstest/login"
 )
 
 func init() {
-	msg.Processor.Route(&bbproto.NullMsg{},game.ChanRPC)
+	msg.Processor.SetRouter(&bbproto.NullMsg{}, game.ChanRPC)
+	msg.Processor.SetRouter(&bbproto.REQQuickConn{}, login.ChanRPC)
 }

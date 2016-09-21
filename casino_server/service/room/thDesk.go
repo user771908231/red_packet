@@ -479,28 +479,31 @@ func (t *ThDesk) FLeaveThuser(userId uint32) error {
 }
 
 func (t *ThDesk) GetCsRoom() *CSThGameRoom {
-	//return ChampionshipRoom
-	return nil
-
+	return &ChampionshipRoom
 }
 
 func (t *ThDesk) CSLeaveThuser(userId uint32) error {
-
 	//1,离开之后,设置用户的信息
 	user := t.GetUserByUserId(userId)
-	//csroom := t.GetCsRoom()
+	csroom := t.GetCsRoom()
 
-	if !t.IsRun() && t.JuCountNow <= 1 {
-
+	//如果用户是在准备阶段进入游戏的,那么不算放弃比赛
+	if csroom.Status == CSTHGAMEROOM_STATUS_READY {
+		user.GameStatus = TH_USER_GAME_STATUS_CHAMPIONSHIP        //用户离开之后,设置用户的游戏状态为没有游戏中
+		user.CSGamingStatus = true
+	} else {
+		user.GameStatus = TH_USER_GAME_STATUS_NOGAME        //用户离开之后,设置用户的游戏状态为没有游戏中
+		user.CSGamingStatus = false
+		user.RoomCoin = 0
+		user.deskId = 0
+		ChampionshipRoom.UpdateUserRankInfo(user.UserId, t.MatchId, user.RoomCoin)
+		t.RmUser(user.UserId)                         //删除用户,并且发送广播
 	}
+
 	user.IsLeave = true     //设置状态为离开
-	user.GameStatus = TH_USER_GAME_STATUS_NOGAME        //用户离开之后,设置用户的游戏状态为没有游戏中
-	user.CSGamingStatus = false
-	user.RoomCoin = 0
-	user.UpdateAgentUserData()
+	user.UpdateAgentUserData()	//锦标赛用户离开之后,更新回话信息
 
 	//2,更新锦标赛的数据
-	ChampionshipRoom.UpdateUserRankInfo(user.UserId, t.MatchId, user.RoomCoin)
 	ChampionshipRoom.SubOnlineCount()        //竞标赛的在线人数-1
 
 	//3,返回离开房间之后的信息
@@ -508,14 +511,8 @@ func (t *ThDesk) CSLeaveThuser(userId uint32) error {
 	*ret.Result = intCons.ACK_RESULT_SUCC
 	user.WriteMsg(ret)
 
-	//4,删除用户
-	t.RmUser(user.UserId)                         //删除用户,并且发送广播
-	//离开之后,需要广播一次sendGameInfo,这里人还没有真正的离开
-	t.BroadGameInfo(userId)
-
-	//保存数据到redis
-	t.UpdateThdeskAndUser2redis(user)
-
+	t.BroadGameInfo(userId)        //离开之后,需要广播一次sendGameInfo,这里人还没有真正的离开
+	t.UpdateThdeskAndUser2redis(user)        //保存数据到redis
 	return nil
 }
 

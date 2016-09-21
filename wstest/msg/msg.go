@@ -8,8 +8,8 @@ import (
 var Processor = protobuf.NewProcessor()
 
 func init() {
-	Processor.Register(&bbproto.NullMsg{})                        //0
-
+	Processor.Register(&bbproto.NullMsg{})                          //0
+	Processor.Register(&bbproto.REQQuickConn{})                        //1
 }
 
 
