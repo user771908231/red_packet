@@ -207,7 +207,7 @@ func HandlerGameEnterMatch(m *bbproto.Game_EnterMatch, a gate.Agent) error {
 
 	//1.2,进入房间,返回房间和错误信息
 	if roomKey == "" {
-		mydesk, err = room.ChampionshipRoom.AddUser(userId, matchId, a)
+		mydesk, err = room.GetCSTHroom(matchId).AddUser(userId, a)
 	} else {
 		mydesk, err = room.ThGameRoomIns.AddUserWithRoomKey(userId, roomKey, a)
 	}

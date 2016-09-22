@@ -361,7 +361,7 @@ func handlerGetGameRecords(args []interface{}) {
 //发送锦标赛大小盲的信息
 func handlerGame_TounamentBlind(args []interface{}) {
 	a := args[1].(gate.Agent)
-	data := room.ChampionshipRoom.GetGame_TounamentBlind()
+	data := room.GetCommonGame_TounamentBlind()        //
 	a.WriteMsg(data)
 }
 
@@ -423,8 +423,9 @@ func handlerGame_MatchList(args []interface{}) {
 	//初始化状态
 	for i := 0; i < len(data.Items); i++ {
 		//初始化是否能进入游戏
-		if room.ChampionshipRoom.MatchId == data.Items[i].GetMatchId() {
+		if data.Items[i].Status == room.CSTHGAMEROOM_STATUS_RUN || data.Items[i].Status == room.CSTHGAMEROOM_STATUS_READY {
 			*data.Items[i].CanInto = true
+
 		} else {
 			*data.Items[i].CanInto = false
 		}

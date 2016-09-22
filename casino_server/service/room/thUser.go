@@ -46,6 +46,7 @@ type ThUser struct {
 	NickName           string                //用户昵称
 
 	deskId             int32                 //用户所在的桌子的编号
+	MatchId            int32                 //锦标赛Id
 	Seat               int32                 //用户的座位号
 	Agent              gate.Agent            //agent
 	Status             int32                 //当前的状态,单局游戏的状态
@@ -184,10 +185,15 @@ func (t *ThUser) GetDesk() *ThDesk {
 
 	//根据用户的游戏类型,找到对应的桌子
 	var desk *ThDesk
-	if t.CSGamingStatus {
-		desk = ChampionshipRoom.GetDeskById(t.deskId)
-	} else {
+	if t.MatchId == 0 {
 		desk = ThGameRoomIns.GetDeskById(t.deskId)
+	} else {
+		room := GetCSTHroom(t.MatchId)
+		if room == nil {
+			desk = nil
+		} else {
+			desk = room.GetDeskById(t.deskId)
+		}
 	}
 	return desk
 }

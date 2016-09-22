@@ -23,10 +23,11 @@ import (
 )
 
 var ChampionshipRoom CSThGameRoom        //锦标赛的房间
-
+var ChampionshipRoomBuf map[int32]*CSThGameRoom
 
 func init() {
-	ChampionshipRoom.OnInitConfig()
+	ChampionshipRoomBuf = make(map[int32]*CSThGameRoom)
+	OnInitCSConfig()        //锦标赛的配置文件
 	//ChampionshipRoom.begin()
 }
 
@@ -47,18 +48,18 @@ var CSTHGameRoomConfig struct {
 }
 
 //对配置对象进行配置,以后可以从配置文件读取
-func (r *CSThGameRoom) OnInitConfig() {
+func OnInitCSConfig() {
 	log.T("初始化csthgameroom.config")
 	CSTHGameRoomConfig.gameDuration = time.Second * 60 * 20                //游戏是20分钟异常
-	CSTHGameRoomConfig.checkDuration = time.Second * 1
+	CSTHGameRoomConfig.checkDuration = time.Second * 5
 	CSTHGameRoomConfig.leastCount = 3; //最少要20人才可以开始游戏
 	CSTHGameRoomConfig.nextRunDuration = time.Second * 60 * 1        //1 分钟之后开始下一场
 	CSTHGameRoomConfig.riseBlindDuration = time.Second * 150        //每150秒生一次忙
-	CSTHGameRoomConfig.Blinds = []int64{0, 25, 50, 75, 100, 200, 300, 400, 500, 1000, 2000, 3000, 4000, 5000, 10000 }
+	CSTHGameRoomConfig.Blinds = []int64{10, 25, 50, 75, 100, 200, 300, 400, 500, 1000, 2000, 3000, 4000, 5000, 10000 }
 	CSTHGameRoomConfig.initRoomCoin = 1000;
 	CSTHGameRoomConfig.deskMaxUserCount = 9
 	CSTHGameRoomConfig.RebuyCountLimit = 5           //最多重构5次
-	CSTHGameRoomConfig.quotaLimit = 2                //能得到奖励的人
+	CSTHGameRoomConfig.quotaLimit = 1                //能得到奖励的人
 	CSTHGameRoomConfig.RebuyBlindLevelLimit = 7      //7级盲注以前可以购买
 	CSTHGameRoomConfig.roomMaxUserCount = 500        //最多500人玩
 }
@@ -195,7 +196,6 @@ func (r *CSThGameRoom) Begin() {
 			return false
 		}
 	})
-
 
 }
 
@@ -336,7 +336,7 @@ func (r *CSThGameRoom) End() {
 					log.T("锦标赛[%v]结束,给用户[%v]发送游戏排名", r.MatchId, user.UserId)
 					ret := bbproto.NewGame_TounamentPlayerRank()
 					*ret.Message = "测试最终排名的信息"
-					*ret.PlayerRank = ChampionshipRoom.GetRankByuserId(user.UserId)
+					*ret.PlayerRank = r.GetRankByuserId(user.UserId)
 					user.WriteMsg(ret)
 				}
 			}
@@ -398,13 +398,13 @@ func (r *CSThGameRoom) IsRepeatIntoRoom(userId uint32, a gate.Agent) (*ThDesk, e
 
 
 //游戏大厅增加一个玩家
-func (r *CSThGameRoom) AddUser(userId uint32, matchId int32, a gate.Agent) (*ThDesk, error) {
+func (r *CSThGameRoom) AddUser(userId uint32, a gate.Agent) (*ThDesk, error) {
 	r.Lock()
 	defer r.Unlock()
 	log.T("userid【%v】进入锦标赛的游戏房间", userId)
 
 	//这里需要判断锦标赛是否可以开始游戏
-	e := r.CheckIntoRoom(matchId)
+	e := r.CheckIntoRoom(r.MatchId)
 	if e != nil {
 		return nil, Error.NewError(int32(bbproto.DDErrorCode_ERRORCODE_TOURNAMENT_CANNOT_JOIN), "锦标赛入场时间已过,不能加入")
 	}
@@ -682,7 +682,7 @@ func (r *CSThGameRoom) DissolveDesk(desk *ThDesk) error {
 	desk.THBroadcastProtoAll(result)
 
 	//3,解散桌子...
-	ChampionshipRoom.RmThDesk(desk)                //删除buf中的桌子
+	r.RmThDesk(desk)                //删除buf中的桌子
 	return nil
 }
 
@@ -722,6 +722,27 @@ func (r *CSThGameRoom) GetGame_TounamentBlind() *bbproto.Game_TounamentBlind {
 	return ret
 }
 
+func GetCommonGame_TounamentBlind() *bbproto.Game_TounamentBlind {
+	ret := bbproto.NewGame_TounamentBlind()
+	//得到盲注信息
+	blindLevel := int32(0)
+	for _, b := range CSTHGameRoomConfig.Blinds {
+		if blindLevel >= 15 {
+			//暂时只提供15级盲注
+			break
+		}
+		blindLevel += 1
+		bean := bbproto.NewGame_TounamentBlindBean()
+		*bean.BlindLevel, _ = numUtils.Int2String(blindLevel)
+		*bean.Ante, _ = numUtils.Int642String(CSTHGameRoomConfig.Blinds[blindLevel - 1]) //"前注"
+		*bean.SmallBlind, _ = numUtils.Int642String(b) //+ "/" + umUtils.Int642String(b*2)
+		*bean.CanRebuy = (blindLevel <= 7 )
+		*bean.RaiseTime = "150秒"
+		ret.Data = append(ret.Data, bean)
+		log.T("GetBlind  >>> bean[%v]: ante:%v  canRebuy: %v", *bean.BlindLevel, bean.GetAnte(), *bean.CanRebuy)
+	}
+	return ret
+}
 
 
 //合并桌子,并且返回,合并之后的桌子,合并失败
@@ -771,7 +792,7 @@ func (r *CSThGameRoom) MergeDesk(mt *ThDesk) (*ThDesk, error) {
 
 
 	//4,解散之前的房间
-	ChampionshipRoom.DissolveDesk(mt)
+	r.DissolveDesk(mt)
 	return dt, nil
 }
 
@@ -803,9 +824,9 @@ func RefreshRedisMatchList() {
 
 			//如果是真在run或者ready的状态则表示为游戏中
 			if d.Status == CSTHGAMEROOM_STATUS_RUN || d.Status == CSTHGAMEROOM_STATUS_READY {
-				*sd.Status = 1
+				*sd.Status = 1                //表示在游戏中
 			} else {
-				d.Status = 2
+				*sd.Status = 2                //表示没有在游戏中
 			}
 
 			sdata.Items = append(sdata.Items, sd)

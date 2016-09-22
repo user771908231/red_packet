@@ -15,6 +15,7 @@ import (
 
 //活的链接
 func GetMongoConn() (*mongodb.DialContext, error) {
+	log.T("连接到...ip[%v],port[%v]", conf.Server.MongoIp, conf.Server.MongoPort)
 	return mongodb.Dial(conf.Server.MongoIp, conf.Server.MongoPort)
 }
 
