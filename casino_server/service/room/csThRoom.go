@@ -227,6 +227,14 @@ func AddCSThgame(r *CSThGameRoom) error {
 }
 
 func RMCSThgame(r *CSThGameRoom) error {
+	//解散所有的房间...
+	for _, desk := range r.ThDeskBuf {
+		if desk != nil {
+			r.DissolveDesk(desk)
+		}
+	}
+
+	//删除锦标赛的room
 	delete(ChampionshipRoomBuf, r.MatchId)
 	return nil
 }

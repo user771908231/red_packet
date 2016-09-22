@@ -272,7 +272,7 @@ func (t *ThDesk) IsrepeatIntoWithRoomKey(userId uint32, a gate.Agent) bool {
 			return true
 		}
 	}
-	
+
 	//2,判断是不是离开过房间的人
 	for i := 0; i < len(t.LeaveUsers); i ++ {
 		u := t.LeaveUsers[i]

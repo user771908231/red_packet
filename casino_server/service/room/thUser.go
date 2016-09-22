@@ -277,6 +277,7 @@ func (u *ThUser) UpdateAgentUserData() {
 	*userAgentData.GameStatus = u.GameStatus //返回用户当前的状态 0：未游戏  1：正在朋友桌  2：正在锦标赛
 	*userAgentData.IsBreak = u.IsBreak
 	*userAgentData.IsLeave = u.IsLeave
+	*userAgentData.MatchId = u.MatchId
 	agent := u.Agent
 	//这里出现nil的情况是,回复数据的时候,用户没有连接的时候就有可能出现nil
 	if agent != nil {
@@ -285,10 +286,8 @@ func (u *ThUser) UpdateAgentUserData() {
 
 	desk := u.GetDesk()
 	if desk == nil {
-		*userAgentData.MatchId = 0
 		*userAgentData.RoomKey = ""
 	} else {
-		*userAgentData.MatchId = desk.MatchId
 		*userAgentData.RoomKey = desk.RoomKey
 	}
 	//回话信息保存到redis

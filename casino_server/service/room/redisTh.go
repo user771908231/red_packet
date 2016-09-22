@@ -64,7 +64,7 @@ func RedisThuserTransThuser(b *bbproto.ThServerUser) *ThUser {
 	t.LotteryCheck = b.GetLotteryCheck()                  //这个字段用于判断是否可以开奖,默认是false:   1,如果用户操作弃牌,则直接设置为true,2,如果本局是all in,那么要到本轮次押注完成之后,才能设置为true
 	t.TotalRoomCoin = b.GetTotalRoomCoin()
 	t.IsShowCard = b.GetIsShowCard()
-	t.MatchId = b.GetMatchId()		//得到matchId
+	t.MatchId = b.GetMatchId()                //得到matchId
 	return t
 }
 
