@@ -2381,9 +2381,9 @@ func (t *ThDesk) FRebuy(userId uint32) error {
 
 //锦标赛rebuy
 func (t *ThDesk) CSRebuy(userId uint32) error {
+	log.T("user [%v]在锦标赛中开始重购买...", userId)
 	ret := bbproto.NewGame_AckRebuy()        //返回的解雇
 	user := t.GetUserByUserId(userId)        //要操作的用户
-
 
 	//0,购买之前需要判断锦标赛的状态
 	if !user.CSGamingStatus {
@@ -2415,6 +2415,7 @@ func (t *ThDesk) CSRebuy(userId uint32) error {
 	//rebuy需要更新redis中的缓存
 	user.AddRoomCoin(t.InitRoomCoin)
 	user.AddTotalRoomCoin(t.InitRoomCoin)
+	user.Status = TH_USER_STATUS_READY                //设置用户的状态为准备的状态
 	user.Update2redis()
 
 
@@ -2432,6 +2433,10 @@ func (t *ThDesk) CSRebuy(userId uint32) error {
 	*ret.CurrChip = user.RoomCoin
 	*ret.RemainCount = t.RebuyCountLimit - user.RebuyCount        //锦标赛的购买次数限制
 	user.WriteMsg(ret)
+
+	log.T("user [%v]在锦标赛中重购成功，当前的roomCoin[%v]...", user.UserId, user.RoomCoin)
+	go t.Run()
+
 	return nil
 }
 

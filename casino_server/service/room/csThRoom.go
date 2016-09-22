@@ -259,6 +259,7 @@ func (r *CSThGameRoom) Run() {
 	jobUtils.DoAsynJob(CSTHGameRoomConfig.checkDuration, func() bool {
 		//log.T("开始time[%v]检测锦标赛matchId[%v]有没有结束...", timeNow, r.matchId)
 		if r.checkEnd() {
+			r.End()                //做锦标赛游戏结束的处理...
 			//重新开始
 			time.Sleep(CSTHGameRoomConfig.nextRunDuration)        //开始下一场的延时
 			go NewCsThGameRoom()
@@ -322,14 +323,9 @@ func (r *CSThGameRoom) SubOnlineCount() {
 func (r *CSThGameRoom) checkEnd() bool {
 	//如果时间已经过了,或者游戏中的玩家只身下一个人了，那么代表游戏结束...
 	if r.IsOutofEndTime() || r.GetGamingCount() <= 1 {
-		//结算本局
-		log.T("锦标赛matchid[%v]已经结束.现在开始保存数据", r.MatchId)
-		r.End()                //做锦标赛游戏结束的处理...
-		//这里需要保存每一个人锦标赛的结果信息
-		log.T("保存每一个人竞标赛的信息")
-
 		return true
 	} else {
+		log.T("锦标赛matchId[%v]没有结束比赛IsOutofEndTime[%v],GetGamingCount[%v]:", r.MatchId, r.IsOutofEndTime(), r.GetGamingCount())
 		return false
 	}
 }
@@ -337,11 +333,11 @@ func (r *CSThGameRoom) checkEnd() bool {
 
 //本场锦标赛 结束的处理
 func (r *CSThGameRoom) End() {
-	log.T("锦标赛游戏结束")
+	log.T("锦标赛matchid[%v]已经结束.现在开始保存数据", r.MatchId)
 	//设置锦标赛的状态为结束,并且更新数据库数据
 	//保存锦标赛的数据,玩家的游戏数据
 	r.Status = CSTHGAMEROOM_STATUS_STOP
-	r.RefreshRank()
+	r.RefreshRank()        //刷新排名
 	saveData := &mode.T_cs_th_record{}
 	db.Query(func(d *mgo.Database) {
 		d.C(casinoConf.DBT_T_CS_TH_RECORD).Find(bson.M{"Id":r.MatchId}).One(saveData)
@@ -391,6 +387,7 @@ func (r *CSThGameRoom) End() {
 	//end 删除buf中的锦标赛信息
 	RMCSThgame(r)        //游戏结束之后，删除buf中锦标赛信息
 
+	log.T("保存每一个人竞标赛的信息")
 }
 
 //刷新排名

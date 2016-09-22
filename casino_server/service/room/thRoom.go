@@ -319,11 +319,15 @@ func GetDeskByIdAndMatchId(deskId int32, matchId int32) *ThDesk {
 	//1,把type 转义
 	if matchId > 0 {
 		//返回锦标赛的房间
-		return GetCSTHroom(matchId).GetDeskById(deskId)
+		room := GetCSTHroom(matchId)
+		if room == nil {
+			return nil
+		} else {
+			return room.GetDeskById(deskId)
+		}
 	} else if matchId == 0 {
 		//返回自定义房间里面的desk
 		return ThGameRoomIns.GetDeskById(deskId)
-
 	} else {
 		return nil
 	}

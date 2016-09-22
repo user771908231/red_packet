@@ -426,9 +426,9 @@ func handlerGame_MatchList(args []interface{}) {
 		//log.T("锦标赛matchId[%v]的status[%v]", r.GetMatchId(), r.GetStatus())
 		//todo 这里只是暂时处理..稳定之后需要删除这里循环的代码...
 		//这里暂时做限制...只有buf中存在的才可以进入
-		*r.CanInto = false	//首先设置成false,然后通过判断设置为是否可以进入游戏...
-		for key := range room.ChampionshipRoomBuf{
-			if room.ChampionshipRoomBuf[key].MatchId == r.GetMatchId(){
+		*r.CanInto = false        //首先设置成false,然后通过判断设置为是否可以进入游戏...
+		for key := range room.ChampionshipRoomBuf {
+			if room.ChampionshipRoomBuf[key].MatchId == r.GetMatchId() {
 				*r.CanInto = true
 				break
 			}
@@ -437,7 +437,7 @@ func handlerGame_MatchList(args []interface{}) {
 	//帮助信息
 	*data.HelpMessage = "1、神经德州竞技场是一种定时多桌的德州扑克比赛。所有参赛玩家携带同样的筹码数开始比赛, 直至仅剩一名玩家或比赛时间截止, 按各玩家手中剩余筹码数排名。\n2、固定时间开赛, 参赛人数满足最低人数后才开赛。\n3、比赛前3名可获得奖励,请联系官方微信号shenjingyouxi领取奖励。"
 
-	log.T("得到的锦标赛列表[%v]", data)
+	//log.T("得到的锦标赛列表[%v]", data)
 	a.WriteMsg(data)
 }
 
