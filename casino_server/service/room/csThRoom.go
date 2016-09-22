@@ -861,8 +861,10 @@ func RefreshRedisMatchList() {
 			//如果是真在run或者ready的状态则表示为游戏中
 			if d.Status == CSTHGAMEROOM_STATUS_RUN || d.Status == CSTHGAMEROOM_STATUS_READY {
 				*sd.Status = 1                //表示在游戏中
+				*sd.CanInto = true
 			} else {
 				*sd.Status = 2                //表示没有在游戏中
+				*sd.CanInto = false
 			}
 
 			sdata.Items = append(sdata.Items, sd)
