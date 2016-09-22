@@ -28,10 +28,10 @@ func (m *Module) OnInit() {
 	log.T("game internal OnInit()")
 	m.Skeleton = skeleton
 	//开始锦标赛的游戏
-	room.NewCsThGameRoom()      //锦标赛开始
+	room.NewCsThGameRoom()                //锦标赛开始
 	//thgamero
-	room.ThGameRoomIns.Recovery()        //恢复上一场的游戏数据
-
+	room.ThGameRoomIns.Recovery()         //恢复上一场的游戏数据
+	room.StartGame()                      //开始游戏
 }
 
 func (m *Module) OnDestroy() {

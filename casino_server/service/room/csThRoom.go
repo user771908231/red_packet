@@ -13,7 +13,6 @@ import (
 	"casino_server/msg/bbprotogo"
 	"casino_server/utils/jobUtils"
 	"sort"
-	"casino_server/conf/intCons"
 	"casino_server/common/Error"
 	"gopkg.in/mgo.v2"
 	"casino_server/utils/numUtils"
@@ -716,11 +715,11 @@ func (r *CSThGameRoom) DissolveDesk(desk *ThDesk) error {
 		return errors.New("房间正在游戏中,不能解散")
 	}
 
-	//2,发送解散的广播
-	*result.Result = intCons.ACK_RESULT_SUCC
-	*result.UserId = desk.DeskOwner
-	*result.PassWord = desk.RoomKey
-	desk.THBroadcastProtoAll(result)
+	//2,发送解散的广播...锦标赛不用发送解散的广播...
+	//*result.Result = intCons.ACK_RESULT_SUCC
+	//*result.UserId = desk.DeskOwner
+	//*result.PassWord = desk.RoomKey
+	//desk.THBroadcastProtoAll(result)
 
 	//3,解散桌子...
 	r.RmThDesk(desk)                //删除buf中的桌子

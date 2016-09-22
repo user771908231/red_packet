@@ -21,7 +21,6 @@ import (
 
 //德州扑克 玩家的状态
 
-var TH_USER_STATUS_NOGAME int32 = 0           //刚上桌子 没有游戏的玩家
 var TH_USER_STATUS_WAITSEAT int32 = 1         //刚上桌子 等待入座的玩家
 var TH_USER_STATUS_SEATED int32 = 2           //刚上桌子 已经入座没有准备的玩家
 var TH_USER_STATUS_READY int32 = 3              //已经准备的玩家

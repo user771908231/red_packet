@@ -2530,6 +2530,10 @@ func (t *ThDesk) CSNotRebuy(userId uint32) {
 
 	user.RebuyCount = GetCSTHroom(t.MatchId).RebuyCountLimit                //取消重构之后,下一局就不能重购买了
 	user.CSGamingStatus = false;
+	user.GameStatus = TH_USER_GAME_STATUS_NOGAME
+	user.deskId = 0
+	user.MatchId = 0
+	user.UpdateAgentUserData()
 
 	//2,取消之后,现实最终的排名
 	log.T("用户notRebuy的时候,发送User的最终排名...")
