@@ -423,9 +423,8 @@ func handlerGame_MatchList(args []interface{}) {
 	//初始化状态
 	for i := 0; i < len(data.Items); i++ {
 		//初始化是否能进入游戏
-		if data.Items[i].Status == room.CSTHGAMEROOM_STATUS_RUN || data.Items[i].Status == room.CSTHGAMEROOM_STATUS_READY {
+		if data.Items[i].GetStatus() == room.CSTHGAMEROOM_STATUS_RUN || data.Items[i].GetStatus() == room.CSTHGAMEROOM_STATUS_READY {
 			*data.Items[i].CanInto = true
-
 		} else {
 			*data.Items[i].CanInto = false
 		}

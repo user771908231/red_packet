@@ -282,14 +282,11 @@ func (r *ThGameRoom) AddUserWithRoomKey(userId uint32, roomKey string, a gate.Ag
 
 //得到锦标赛房间
 func GetCSTHroom(matchId int32) *CSThGameRoom {
-	return &ChampionshipRoom
-	
 	if matchId < 0 {
 		return nil
 	} else {
 		//通过buf去寻找，这里只是暂时的...
-		//return ChampionshipRoomBuf[matchId]
-		return &ChampionshipRoom
+		return ChampionshipRoomBuf[matchId]
 	}
 }
 

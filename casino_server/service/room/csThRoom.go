@@ -22,8 +22,17 @@ import (
 	"casino_server/utils/timeUtils"
 )
 
-var ChampionshipRoom CSThGameRoom        //锦标赛的房间
+
+//锦标赛的所有场次...
 var ChampionshipRoomBuf map[int32]*CSThGameRoom
+
+//暂时用的代码，得到第一个游戏中的room
+func GetFirstCSTHGame() *CSThGameRoom {
+	for rkey := range ChampionshipRoomBuf {
+		return ChampionshipRoomBuf[rkey]
+	}
+	return nil
+}
 
 func init() {
 	ChampionshipRoomBuf = make(map[int32]*CSThGameRoom)
@@ -158,17 +167,22 @@ func (r *CSThGameRoom) CheckIntoRoom(matchId int32) error {
 	return nil
 }
 
+//开始游戏//创建一场锦标赛
 
-//开始游戏
 /**
 	锦标赛的逻辑
 	1,开始场次,这里的开始只是有这个场次,但是游戏还没有真正的开始,只有满足(人数足够的时候)游戏才真正的开始
 	1,开始游戏,通过每个房间,游戏可以开始了,进行前注,盲注,发牌...
  */
+func NewCsThGameRoom() {
 
-func (r *CSThGameRoom) Begin() {
+	//1,创建一场游戏
+	r := &CSThGameRoom{}
+
+	//2,初始化默认参数...
 	r.OnInit()                //每次开始的时候做初始化
-	//保存游戏数据,1,保存数据到mongo,2,刷新redis中的信息
+
+	//3,保存游戏数据,1,保存数据到mongo,2,刷新redis中的信息
 	saveData := &mode.T_cs_th_record{}
 	saveData.Mid = bson.NewObjectId()
 	saveData.Id = r.MatchId
@@ -177,11 +191,15 @@ func (r *CSThGameRoom) Begin() {
 	saveData.EndTime = r.EndTime
 	saveData.Status = r.Status
 	db.InsertMgoData(casinoConf.DBT_T_CS_TH_RECORD, saveData)
+
+	//3,保存到buf中
+	AddCSThgame(r)
+
+	//4,刷新redis缓存
 	RefreshRedisMatchList()        //这里刷新redis中的锦标赛数据
 
+	//5,开始准备
 	log.T("开始锦标赛的游戏matchId[%v]", r.MatchId)
-
-	//判断是否可以开始run
 	jobUtils.DoAsynJob(CSTHGameRoomConfig.checkDuration, func() bool {
 		//判断人数是否足够
 		if r.GetGamingCount() >= CSTHGameRoomConfig.leastCount {
@@ -196,8 +214,23 @@ func (r *CSThGameRoom) Begin() {
 			return false
 		}
 	})
-
 }
+
+//添加一场锦标赛到buf中
+func AddCSThgame(r *CSThGameRoom) error {
+	oldR := ChampionshipRoomBuf[r.MatchId]
+	if oldR != nil {
+		log.E("buf中已经有了这场比赛...这里仅仅打印信息，并没有做处理")
+	}
+	ChampionshipRoomBuf[r.MatchId] = r
+	return nil
+}
+
+func RMCSThgame(r *CSThGameRoom) error {
+	delete(ChampionshipRoomBuf, r.MatchId)
+	return nil
+}
+
 
 
 //run游戏房间
@@ -222,13 +255,13 @@ func (r *CSThGameRoom) Run() {
 
 
 	//通知desk游戏开始
-	//这里定义一个计时器,每十秒钟检测一次游戏
+	//这里定义一个计时器,每十秒钟检测一次游戏,检测游戏是否结束...
 	jobUtils.DoAsynJob(CSTHGameRoomConfig.checkDuration, func() bool {
 		//log.T("开始time[%v]检测锦标赛matchId[%v]有没有结束...", timeNow, r.matchId)
 		if r.checkEnd() {
 			//重新开始
 			time.Sleep(CSTHGameRoomConfig.nextRunDuration)        //开始下一场的延时
-			go r.Begin()
+			go NewCsThGameRoom()
 			return true
 		}
 		return false
@@ -291,7 +324,7 @@ func (r *CSThGameRoom) checkEnd() bool {
 	if r.IsOutofEndTime() || r.GetGamingCount() <= 1 {
 		//结算本局
 		log.T("锦标赛matchid[%v]已经结束.现在开始保存数据", r.MatchId)
-		r.End()
+		r.End()                //做锦标赛游戏结束的处理...
 		//这里需要保存每一个人锦标赛的结果信息
 		log.T("保存每一个人竞标赛的信息")
 
@@ -354,6 +387,9 @@ func (r *CSThGameRoom) End() {
 			desk.THBroadcastProtoAll(csUser)
 		}
 	}
+
+	//end 删除buf中的锦标赛信息
+	RMCSThgame(r)        //游戏结束之后，删除buf中锦标赛信息
 
 }
 
