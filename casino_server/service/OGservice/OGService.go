@@ -207,6 +207,7 @@ func HandlerGameEnterMatch(m *bbproto.Game_EnterMatch, a gate.Agent) error {
 
 	//1.2,进入房间,返回房间和错误信息
 	if roomKey == "" {
+		//这里可以尝试从session 获取游戏类型..
 		r := room.GetCSTHroom(matchId)
 		if r == nil {
 			log.E("用户[%v]请求进入游戏desk的时候失败，因为没有找到matchId[%v]对应的锦标赛", userId, matchId)
