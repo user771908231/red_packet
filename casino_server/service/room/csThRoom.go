@@ -32,14 +32,11 @@ func GetFirstCSTHGame() *CSThGameRoom {
 	}
 	return nil
 
-
-
 }
 
 func init() {
 	ChampionshipRoomBuf = make(map[int32]*CSThGameRoom)
 	OnInitCSConfig()        //锦标赛的配置文件
-	//ChampionshipRoom.begin()
 }
 
 //对竞标赛的配置
@@ -332,7 +329,9 @@ func (r *CSThGameRoom) SubOnlineCount() {
 //检测结束
 func (r *CSThGameRoom) checkEnd() bool {
 	//如果时间已经过了,或者游戏中的玩家只身下一个人了，那么代表游戏结束...
-	if r.IsOutofEndTime() || r.GetGamingCount() <= 1 {
+	//钻石场没有时间限制
+	//if r.IsOutofEndTime() || r.GetGamingCount() <= 1 {
+	if r.GetGamingCount() <= 1 {
 		return true
 	} else {
 		log.T("锦标赛matchId[%v]没有结束比赛IsOutofEndTime[%v],GetGamingCount[%v]:", r.MatchId, r.IsOutofEndTime(), r.GetGamingCount())
