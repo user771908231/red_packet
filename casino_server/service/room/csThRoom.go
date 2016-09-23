@@ -31,6 +31,9 @@ func GetFirstCSTHGame() *CSThGameRoom {
 		return ChampionshipRoomBuf[rkey]
 	}
 	return nil
+
+
+
 }
 
 func init() {
