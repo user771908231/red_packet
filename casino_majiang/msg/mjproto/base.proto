@@ -1,0 +1,31 @@
+package mjproto;
+
+enum EProtoId {
+
+    PID_GAME = 1;
+
+}
+
+enum DDErrorCode {
+    ERRORCODE_SUCC = 0; //表示成功
+
+    //-1   -100 登陆异常
+
+    //-101   -200	游戏异常
+    ERRORCODE_CREATE_DESK_DIAMOND_NOTENOUGH = -101; // 创建房间的时候余额不足
+    ERRORCODE_CREATE_DESK_USER_NOTFOUND = -102; // 创建房间的时候未知用户
+
+    ERRORCODE_INTO_DESK_NOTFOUND = -103; // 进入房间的时候没有找到房间
+
+    ERRORCODE_GAME_READY_REPEAT = -110; // 重复准备
+
+    ERRORCODE_GAME_READY_CHIP_NOT_ENOUGH = -111; // 筹码不足
+}
+
+// ProtoHeader 需要在每个 Message 中作为第一个字段
+message ProtoHeader {
+    optional string version = 1; // 版本号
+    optional uint32 userId = 2; // 用户 id
+    optional int32 code = 3; // result code
+    optional string error = 4; // result error description
+}

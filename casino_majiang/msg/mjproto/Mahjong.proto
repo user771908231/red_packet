@@ -1,0 +1,502 @@
+import public "base.proto";
+package mjproto;
+
+
+option optimize_for = LITE_RUNTIME;
+
+// 开局（接收服务端消息）
+message game_Opening {
+    optional ProtoHeader header = 1;
+    optional string matchId = 2;
+    optional int32 tableId = 3;
+}
+
+// 换牌（3张）
+message game_ExchangeCards {
+    optional ProtoHeader header = 1;
+    optional string matchId = 2;
+    optional int32 tableId = 3;
+    optional int32 seat = 4;
+    optional uint32 userId = 5; // 请求的userId
+    repeated game_CardInfo exchangeOutCards = 6; // 要换出的 3 张牌
+}
+message game_AckExchangeCards {
+    optional ProtoHeader header = 1;
+    optional string matchId = 2;
+    optional int32 tableId = 3;
+    optional int32 seat = 4;
+    optional uint32 userId = 5; // 请求的userId
+    repeated game_CardInfo exchangeOutCards = 6; // 要换出的 3 张牌
+    optional int32 exchangeOutseat = 7; // 换给谁
+    repeated game_CardInfo exchangeInCards = 8; // 换入的 3 张牌
+    optional int32 exchangeInseat = 9; // 谁换给我的
+    optional int32 dice = 10; // 庄家掷出的筛子点数（决定换三张的方向，服务器返回这个只是展示用）
+}
+
+// 定缺（和ACK）
+message game_DingQue {
+    optional ProtoHeader header = 1;
+    optional string matchId = 2;
+    optional int32 tableId = 3;
+    optional int32 color = 4; // 定缺的花色
+    optional uint32 userId = 5; // 请求的userId
+}
+
+// 碰牌
+message game_ActPeng {
+    optional ProtoHeader header = 1;
+    optional string matchId = 2;
+    optional int32 tableId = 3;
+    optional int32 seat = 4;
+    optional game_CardInfo pengCard = 5; // 被碰的牌
+}
+message game_AckActPeng {
+    optional ProtoHeader header = 1;
+    optional string matchId = 2;
+    optional int32 tableId = 3;
+    repeated game_CardInfo pengCard = 4;
+    repeated game_CardInfo HandCard = 5;
+    repeated game_CardInfo GangCard = 6;
+}
+
+// 杠牌
+message game_ActGang {
+    optional ProtoHeader header = 1;
+    optional string matchId = 2;
+    optional int32 tableId = 3;
+    optional int32 seat = 4;
+    optional game_CardInfo gangCard = 5; // 被杠的牌
+}
+message game_AckActGang {
+    optional ProtoHeader header = 1;
+    optional string matchId = 2;
+    optional int32 tableId = 3;
+    optional int32 seat = 4;
+    repeated game_CardInfo pengCard = 5;
+    repeated game_CardInfo HandCard = 6;
+    repeated game_CardInfo GangCard = 7;
+}
+
+// 胡牌
+message game_ActHu {
+    optional ProtoHeader header = 1;
+    optional string matchId = 2;
+    optional int32 tableId = 3;
+    optional int32 seat = 4;
+    optional game_CardInfo huCard = 5; // 胡的牌
+}
+message game_AckActHu {
+    optional ProtoHeader header = 1;
+    optional string matchId = 2;
+    optional int32 tableId = 3;
+    optional int32 seat = 4;
+    repeated game_CardInfo pengCard = 5;
+    repeated game_CardInfo HandCard = 6;
+    repeated game_CardInfo GangCard = 7;
+    optional game_CardInfo huCard = 8;
+}
+
+// 过牌
+message game_ActGuo {
+    optional ProtoHeader header = 1;
+    optional string matchId = 2;
+    optional int32 tableId = 3;
+    optional int32 seat = 4;
+}
+
+// 过牌收到服务器确认后，还是要协议 【PID_game_SENDOVERTURN ：game_SendOverTurn】 后结束此轮
+message game_AckActGuo {
+    optional ProtoHeader header = 1;
+    optional string matchId = 2;
+    optional int32 tableId = 3;
+    optional int32 seat = 4;
+}
+
+// 出牌（和ACK）后，轮到下一轮的玩家，【当前玩家出牌结束】或【过牌、胡牌后】，结束自己的回合
+message game_OverTurn {
+    optional ProtoHeader header = 1;
+    optional string matchId = 2;
+    optional int32 tableId = 3;
+    optional int32 seat = 4;
+    optional int32 nextseat = 5; // 接收到本 message 时，表示下一位玩家是谁
+    optional game_CardInfo chuCard = 6; // 如果有出牌，表示出的是哪张牌，否则置为空
+}
+
+// Start: 本局结束
+// 赢牌牌型和类型
+message game_CardType {
+    optional ProtoHeader header = 1;
+    repeated game_CardInfo cards = 2; // 赢牌牌型，用于牌局结束时展示结果
+    optional int32 cardType = 3; // 赢牌类型，如：没有赢、平胡、杠上花、清一色
+}
+// 赢牌信息：谁赢了多少
+message game_WinCoin {
+    optional ProtoHeader header = 1;
+    optional int32 seat = 2;
+    optional int64 winCoin = 3; // 赢了多少，返回负数表示输了多少
+    optional int64 coin = 4; // 输赢以后，当前筹码是多少
+    optional game_CardType cardType = 5; // 赢牌牌型和类型
+    optional string roleName = 6;
+}
+
+// 牌局的结果（收到后客户端可以先 play 赢牌、亮牌动画，再显示结果弹窗）
+message game_OverCurrentBoard {
+    optional ProtoHeader header = 1;
+    optional string matchId = 2;
+    optional int32 tableId = 3;
+    repeated game_WinCoin winCoinInfo = 4; // 当前桌所有玩家的赢牌信息（包括输赢）
+    optional int32 rank = 5; //查看自己的排名
+    optional int32 rankUserCount = 6; //参赛总人数
+    optional bool canRebuy = 7; //是否可以重购买
+    optional int32 rebuyCount = 8; //重购的次数
+}
+// End  : 本局结束
+// Start: 全场结束Ï
+// 几局游戏完了之后的广播信息
+message game_EndLottery {
+    optional ProtoHeader header = 1;
+    optional int64 coin = 2; //总共输赢筹码
+    optional bool bigWin = 3; //是否为大赢家
+    optional bool owner = 4; //是否为房主
+    optional string rolename = 5; //玩家姓名
+    optional uint32 userId = 6; //用户的Id
+    optional int32 seat = 7; //用户座位号
+}
+
+// 几局完成之后的情况
+message game_SendDeskEndLottery {
+    optional ProtoHeader header = 1;
+    repeated game_EndLottery coinInfo = 2; //胜负的情况
+}
+// End  : 全场结束
+
+// 客户端请求进入 room
+message game_EnterRoom {
+    optional ProtoHeader header = 1;
+    optional string matchId = 2;
+    optional int32 tableId = 3;
+    optional string PassWord = 4; // 密码(朋友桌新增)
+    optional uint32 userId = 5; // 请求的userId
+    optional int32 matchIdInt = 6; // matchId int类型
+}
+message game_AckEnterRoom {
+    optional ProtoHeader header = 1;
+    optional string matchId = 2;
+    optional int32 tableId = 3;
+    optional int32 nReason = 4; // 原因, 1 为进入游戏场数大于限制数, 2 为输入密码失败(朋友桌添加), 3 为不允许游客进入(朋友桌添加)
+}
+
+// 发送游戏信息
+message game_SendGameInfo {
+    optional ProtoHeader header = 1;
+    optional string matchId = 2;
+    optional int32 tableId = 3;
+    optional int32 GameStatus = 4; // 当前的游戏状态：等待、游戏中、结算中等
+    optional int32 bankerseat = 5; // 庄家位置
+    optional int64 base = 6; // 底
+    optional int64 capMax = 7; // 封顶
+    optional int32 roomType = 8; // 房间类型：血战到底、三人两房、四人两房等。
+    optional int32 playerNum = 9; // 玩家数量。一般房间类型决定了数量，考虑此字段是否需要？
+    repeated game_CardInfo handCard = 10; // 玩家的手牌信息。客户端需根据服务端的返回进行排序动画。
+    repeated int64 HandCoin = 11; // 玩家当前显示的自己的筹码数
+    optional int32 ActionTime = 12; // 当前操作时间
+    repeated int32 bEnable = 13; // 【bEnable = 0】表示该用户当局不能操作，【bEnable = 1】表示可操作
+    optional int32 DelayTime = 14; //当前延时时间
+    optional int32 nRebuyCount = 15; // REBUY 次数
+    optional int32 nInitActionTime = 16; // 初始操作时间
+    optional int32 nInitDelayTime = 17; // 初始延时时间
+    repeated string nickName = 18; // 昵称
+    repeated int32 seatId = 19; // 座位号
+    optional int32 seat = 20; // 我的座位号
+    optional int32 result = 21; // 进入房间的结果
+
+    // ① 新增字段： repeated WeixinInfo  = 22;  //微信用户信息
+    // ② EnterMatch时、广播新进用户时，才需返回 WeixinInfo；其它广播不需要。
+    repeated WeixinInfo weixinInfos = 22;
+    optional int32 ownerseat = 23; // 房主的seat
+
+    optional int64 initRoomCoin = 24; // 房间的初始带入金额
+    optional int32 currPlayCount = 25; // 朋友桌: 当前第几局
+    optional int32 totalPlayCount = 26; // 朋友桌: 总共几局
+    repeated int32 bReady = 27; // 是否已准备
+    optional uint32 senderUserId = 28; // 发起请求的人
+}
+
+// 玩法：包括自摸、点炮、以及可多选的玩法
+// 无 ProtoHeader ，因为不独立使用
+message game_How2Play {
+    optional int32 ziMoRadio = 1; // 单选，自摸类型，如：自摸加底、自摸加番等
+    optional int32 dianGangHuaRadio = 2; // 单选，点炮类型，如：点杠花（点炮）、点杠花（自摸）等
+    repeated int32 othersCheckBox = 3; // 其他可复选的玩法，如：换三张、幺九将对、门清中张、天地胡、卡二条、可胡七对等
+    optional int32 huRadio = 4; // 胡法，如：自摸胡、点炮胡（可抢杠）
+}
+// 房间类型信息：包含房间类型和对应的局数、封顶、玩法等信息
+// 无 ProtoHeader ，因为不独立使用
+enum MJRoomType {
+    roomType_xueZhanDaoDi = 0; // 血战到底
+    roomType_sanRenLiangFang = 1; // 三人两房
+    roomType_siRenLiangFang = 2; // 四人两房
+    roomType_deYangMaJiang = 3; // 德阳麻将
+    roomType_daoDaoHu = 4; // 倒倒胡
+    roomType_xueLiuChengHe = 5; // 血流成河
+}
+
+
+message game_RoomTypeInfo {
+    // 房间类型枚举
+
+    optional int32 boardsCout = 1; // 局数，如：4局（房卡 × 2）、8局（房卡 × 3）
+    optional int64 capMax = 2; // 封顶，如：2番、3番、4番
+    optional game_How2Play how2Play = 3; // 玩法：包括自摸、点炮、以及可多选的玩法
+    optional int32 cardsNum = 4; // 牌张，如：7张、10张、13张
+    optional int32 settlement = 5; // 结算，如：1拖1、1拖2、3拖5
+}
+
+// 创建房间
+message game_CreateRoom {
+    optional ProtoHeader header = 1;
+    optional uint32 userId = 2; // 用户id
+    optional string password = 3; // 房间密码
+    optional game_RoomTypeInfo roomTypeInfo = 4; // 房间类型信息，包括：局数、封顶、玩法、牌张、结算
+}
+// 创建房间回复的信息
+message game_AckCreateRoom {
+    optional ProtoHeader header = 1;
+    optional int32 deskId = 2; // 用户id
+    optional string password = 3; // 房间密码
+    optional int64 userBalance = 4; // 用户的余额
+    optional int64 createFee = 5; // 创建房间的费用
+    optional game_RoomTypeInfo roomTypeInfo = 6; // 房间类型信息，包括：局数、封顶、玩法、牌张、结算   
+}
+
+//解散房间
+message game_DissolveDesk {
+    optional ProtoHeader header = 1;
+    optional uint32 userId = 2; // 解散房间的用户 id
+}
+//解散房间回复
+message game_AckDissolveDesk {
+    optional ProtoHeader header = 1;
+    optional uint32 userId = 2; // 解散房间的用户 id
+    optional int32 deskId = 3; //房间Id
+    optional string passWord = 4; //房间密钥
+}
+
+// 离开房间
+message game_LeaveDesk {
+    optional ProtoHeader header = 1;
+}
+
+//离开房间的回复
+message game_ACKLeaveDesk {
+    optional ProtoHeader header = 1;
+}
+
+//准备游戏
+message game_Ready {
+    optional ProtoHeader header = 1;
+}
+
+//准备游戏的结果
+message game_AckReady {
+    optional ProtoHeader header = 1;
+    optional string msg = 2; //提示信息
+}
+
+//开始游戏
+message game_Begin {
+    optional ProtoHeader header = 1;
+}
+
+// 麻将牌
+message game_CardInfo {
+    optional ProtoHeader header = 1;
+    optional int32 color = 2;
+    optional int32 value = 3;
+}
+
+// 初始化手牌（刚进房间时，掉线回到房间时）
+message game_InitCard {
+    optional string matchId = 1;
+    optional int32 tableId = 2;
+    optional int32 seat = 3;
+    optional int32 NextUser = 4;
+    repeated game_CardInfo HandCard = 5;
+    repeated game_CardInfo PengCard = 6;
+    repeated game_CardInfo GangCard = 7;
+    optional game_CardInfo MoCard = 8; // 新摸起来的牌
+    optional int32 ActionTime = 9;
+    optional int32 DelayTime = 10;
+
+    optional int32 currPlayCount = 11; // 当前第几局
+    optional int32 totalPlayCount = 12; // 总共几局
+    optional ProtoHeader header = 13;
+
+}
+
+// 离开房间
+message game_LeaveRoom {
+    optional string matchId = 1;
+    optional int32 tableId = 2;
+    optional int32 seat = 3;
+    optional ProtoHeader header = 4;
+
+}
+
+// 换桌（【用户主动换桌】或【锦标赛合并换桌】）
+message game_ChangeTable {
+    optional string matchId = 1;
+    optional int32 newTableId = 2;
+    optional int32 tableId = 3;
+    optional string userName = 4;
+    optional uint32 userId = 5;
+    optional ProtoHeader header = 6;
+
+}
+
+// 离桌消息，当用户离开桌子时，给该桌用户发送该消息
+message game_LeaveTable {
+    enum Reason {
+        quit_mormal = 0; // 离开成功
+        quit_friendKick = 1; // 朋友桌强行踢出
+        quit_adjustTable = 2; // 调整桌子
+        quit_friendTableDelete = 3; // 朋友被删除
+    }
+    optional string matchId = 1;
+    optional int32 tableId = 2;
+    optional uint32 userId = 3;
+    optional string username = 4;
+    optional Reason reason = 5;
+    optional ProtoHeader header = 6;
+
+}
+
+//防沉迷消息
+message game_NowelterInfo {
+    optional string reusername = 1; // 用户名
+    optional int32 nType = 2; // 4 为一小时    8 为二小时    12 为三小时    14 为三个半小时    16 为四小时    18 为四个半小时    20 为5个小时
+    optional int32 nReason = 3; // 1 为未成年人，   2 为注册信息不全，   -1 为不是防沉迷用户
+    optional ProtoHeader header = 4;
+
+}
+
+// 显示大厅时请求
+message game_Login {
+    optional uint32 userId = 1; // 用户id
+    optional int32 protoVersion = 2; // 客户端 proto version
+    optional ProtoHeader header = 3;
+
+
+}
+//大厅回复
+message game_AckLogin {
+    optional string notice = 1; // 滚动公告的内容
+    optional int32 gameStatus = 2; // 0：未游戏  1：正在朋友桌  2：正在锦标赛
+    optional int32 matchId = 3;
+    optional int32 tableId = 4;
+    optional string roomPassword = 5; // 朋友桌房间密码
+    optional int64 costCreateRoom = 6; // 建房消耗钻石数
+    optional int64 costRebuy = 7; // Rebuy消耗钻石数(锦标赛)
+    optional bool championship = 8; // 是否是锦标赛
+    optional int64 chip = 9; // 用户钻石余额
+    optional int32 mailCount = 10; // 用户邮件数量:>=0 (game_AckNotice中type=3对应的信息)
+    optional ProtoHeader header = 11;
+
+}
+
+message game_Notice {
+    optional ProtoHeader header = 1;
+    optional int32 noticeType = 2; //公告的类型
+}
+
+// 公告的内容
+message game_AckNotice {
+    optional ProtoHeader header = 7;
+    optional int32 noticeType = 1; //公告的类型:1,滚动信息,2,充值信息,3,公告信息
+    optional string noticeTitle = 2; //公告的标题
+    optional string noticeContent = 3; //公告的内容
+    optional string noticeMemo = 4; //公告的备注
+    optional int32 id = 5; //公告的id
+    repeated string fileds = 6; //公告的字段,目前子还是给充值的协议使用
+}
+
+//游戏战绩
+message game_GameRecord {
+    optional ProtoHeader header = 3;
+    optional int32 id = 1; //战绩id
+    optional uint32 userId = 2; //用户id
+}
+// message
+message game_BeanUserRecord {
+    optional ProtoHeader header = 4;
+    optional uint32 UserId = 1; //用户id
+    optional string NickName = 2; //用户昵称
+    optional int64 WinAmount = 3; //用户输赢金额
+}
+// message
+message game_BeanGameRecord {
+    optional ProtoHeader header = 5;
+    optional int32 id = 1; //战绩id
+    optional int32 deskId = 2; //关联的桌子的Id
+    optional string beginTime = 3; //游戏开始的时间
+    repeated game_BeanUserRecord users = 4; //用户
+}
+//
+message game_AckGameRecord {
+    optional ProtoHeader header = 1;
+    optional uint32 userId = 2; //用户id
+    repeated game_BeanGameRecord records = 3; //结果
+}
+
+// 微信信息
+message WeixinInfo {
+    optional ProtoHeader header = 4;
+    optional string openId = 1; // 微信授权用户唯一id
+    optional string nickName = 2; // 微信昵称
+    optional string headUrl = 3; // 微信头像
+}
+
+//聊天的内容
+message game_Message {
+    optional ProtoHeader header = 6;
+    optional int32 msgType = 1; //消息的类型,1,快捷,2,表情,3,自定义
+    optional int32 id = 2; //只有快捷和表情的时候有用
+    optional string msg = 3; //自定义的时候使用
+    optional uint32 userId = 4; //发消息的人是谁
+    optional int32 deskId = 5; //desk的id
+}
+
+//消息广播
+message game_SendMessage {
+    optional ProtoHeader header = 6;
+    optional int32 msgType = 2; //消息的类型,1,快捷,2,表情,3,自定义
+    optional int32 id = 3; //只有快捷和表情的时候有用
+    optional string msg = 4; //自定义的时候使用
+    optional uint32 userId = 5; //发消息的人是谁
+}
+
+
+message game_Rebuy {
+    optional ProtoHeader header = 1;
+    optional int32 type = 2; //0:朋友桌  1:锦标赛
+}
+message game_AckRebuy {
+    optional ProtoHeader header = 1;
+    optional int32 remainCount = 2; //剩余可rebuy次数
+    optional int64 currChip = 3; //rebuy成功后的筹码数
+}
+
+message game_NotRebuy {
+    optional ProtoHeader header = 1;
+    optional int32 type = 2; //0:朋友桌  1:锦标赛
+}
+message game_AckNotRebuy {
+    optional ProtoHeader header = 1;
+}
+
+// 反馈信息的协议
+message game_Feedback {
+    optional ProtoHeader header = 1;
+    optional string message = 2; //用户提交的反馈内容
+}
+

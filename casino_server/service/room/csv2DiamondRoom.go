@@ -1,0 +1,1 @@
+package room//复用之前的代码...type DiamondRoomV2 struct {	*CSThGameRoom}

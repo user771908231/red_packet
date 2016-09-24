@@ -273,7 +273,6 @@ func (t *ThDesk) IsrepeatIntoWithRoomKey(userId uint32, a gate.Agent) bool {
 		}
 	}
 
-
 	//2,判断是不是离开过房间的人
 	for i := 0; i < len(t.LeaveUsers); i ++ {
 		u := t.LeaveUsers[i]
@@ -320,6 +319,7 @@ func (t *ThDesk) AddThUser(userId uint32, userStatus int32, a gate.Agent) (*ThUs
 	thUser.IsBreak = false
 	thUser.IsLeave = false
 	thUser.LotteryCheck = true
+	thUser.MatchId = t.MatchId
 
 	//根据桌子的状态 设置用户的游戏状态
 	if t.IsChampionship() {
@@ -478,14 +478,10 @@ func (t *ThDesk) FLeaveThuser(userId uint32) error {
 	return nil
 }
 
-func (t *ThDesk) GetCsRoom() *CSThGameRoom {
-	return &ChampionshipRoom
-}
-
 func (t *ThDesk) CSLeaveThuser(userId uint32) error {
 	//1,离开之后,设置用户的信息
 	user := t.GetUserByUserId(userId)
-	csroom := t.GetCsRoom()
+	csroom := GetCSTHroom(t.MatchId)
 
 	//如果用户是在准备阶段进入游戏的,那么不算放弃比赛
 	if csroom.Status == CSTHGAMEROOM_STATUS_READY {
@@ -496,15 +492,15 @@ func (t *ThDesk) CSLeaveThuser(userId uint32) error {
 		user.CSGamingStatus = false
 		user.RoomCoin = 0
 		user.deskId = 0
-		ChampionshipRoom.UpdateUserRankInfo(user.UserId, t.MatchId, user.RoomCoin)
+		csroom.UpdateUserRankInfo(user.UserId, t.MatchId, user.RoomCoin)
 		t.RmUser(user.UserId)                         //删除用户,并且发送广播
 	}
 
 	user.IsLeave = true     //设置状态为离开
-	user.UpdateAgentUserData()	//锦标赛用户离开之后,更新回话信息
+	user.UpdateAgentUserData()        //锦标赛用户离开之后,更新回话信息
 
 	//2,更新锦标赛的数据
-	ChampionshipRoom.SubOnlineCount()        //竞标赛的在线人数-1
+	GetCSTHroom(t.MatchId).SubOnlineCount()        //竞标赛的在线人数-1
 
 	//3,返回离开房间之后的信息
 	ret := bbproto.NewGame_ACKLeaveDesk()
@@ -819,14 +815,14 @@ func (t *ThDesk) BroadcastTestResult(p *bbproto.Game_TestResult) error {
 //获取用户的排名
 func (t *ThDesk) getRankByUserId(user *ThUser) int32 {
 	if t.IsChampionship() {
-		return ChampionshipRoom.GetRankByuserId(user.UserId)
+		return GetCSTHroom(user.MatchId).GetRankByuserId(user.UserId)
 	} else {
 		return 0
 	}
 }
 
 func (t *ThDesk) getRankUserCount() int32 {
-	return ChampionshipRoom.onlineCount
+	return GetCSTHroom(t.MatchId).rankUserCount
 }
 
 //得到这个用户是可以重购,不同的桌子,来判断的逻辑不用
@@ -1015,7 +1011,7 @@ func (t *ThDesk) OninitThDeskStatus() error {
 
 	//如果是锦标赛,需要设置锦标赛的属性
 	if t.IsChampionship() {
-		t.MatchId = ChampionshipRoom.MatchId
+		t.MatchId = GetCSTHroom(t.MatchId).MatchId
 	}
 
 	t.LogString()
@@ -1350,8 +1346,8 @@ func (t *ThDesk) end() bool {
 func (t *ThDesk) broadLotteryResult() error {
 	//发送是否需要加注的时候,需要升盲之后才能确定
 	if t.IsChampionship() {
-		t.SmallBlindCoin = ChampionshipRoom.SmallBlindCoin
-		t.BigBlindCoin = ChampionshipRoom.SmallBlindCoin * 2
+		t.SmallBlindCoin = GetCSTHroom(t.MatchId).SmallBlindCoin
+		t.BigBlindCoin = GetCSTHroom(t.MatchId).SmallBlindCoin * 2
 	}
 
 	//1.发送输赢结果
@@ -1552,7 +1548,7 @@ func (t *ThDesk) SaveLotteryDatacsth() error {
 		deskRecord.UserIds = strings.Join([]string{deskRecord.UserIds, u.NickName}, ",")
 
 		//保存锦标赛用户的排名信息
-		ChampionshipRoom.UpdateUserRankInfo(u.UserId, t.MatchId, u.RoomCoin)
+		GetCSTHroom(t.MatchId).UpdateUserRankInfo(u.UserId, t.MatchId, u.RoomCoin)
 	}
 
 	log.T("开始保存DBT_T_TH_DESK_RECORD的信息")
@@ -2060,7 +2056,7 @@ func (t *ThDesk) IsTime2begin() bool {
 	log.T("现在开始判断是否可以开始一局新的游戏,2,判断锦标赛的逻辑:")
 	if t.IsChampionship() {
 		//锦标赛游戏房间的状态
-		if !ChampionshipRoom.CanNextDeskRun() {
+		if !GetCSTHroom(t.MatchId).CanNextDeskRun() {
 			log.T("锦标赛的逻辑,判断不能开始下一局")
 			return false
 		}
@@ -2188,7 +2184,7 @@ func (t *ThDesk) GetLeaveUserIds() []uint32 {
 func (t *ThDesk) EndCsTh() bool {
 	if t.GetCSGamingUserCount() <= 4 {
 		//表示需要合并
-		newDesk, err := ChampionshipRoom.MergeDesk(t)
+		newDesk, err := GetCSTHroom(t.MatchId).MergeDesk(t)
 		if err != nil {
 			log.E("合并桌子的时候失败...errorMsg[%v]", err)
 			return false
@@ -2384,9 +2380,9 @@ func (t *ThDesk) FRebuy(userId uint32) error {
 
 //锦标赛rebuy
 func (t *ThDesk) CSRebuy(userId uint32) error {
+	log.T("user [%v]在锦标赛中开始重购买...", userId)
 	ret := bbproto.NewGame_AckRebuy()        //返回的解雇
 	user := t.GetUserByUserId(userId)        //要操作的用户
-
 
 	//0,购买之前需要判断锦标赛的状态
 	if !user.CSGamingStatus {
@@ -2418,6 +2414,7 @@ func (t *ThDesk) CSRebuy(userId uint32) error {
 	//rebuy需要更新redis中的缓存
 	user.AddRoomCoin(t.InitRoomCoin)
 	user.AddTotalRoomCoin(t.InitRoomCoin)
+	user.Status = TH_USER_STATUS_READY                //设置用户的状态为准备的状态
 	user.Update2redis()
 
 
@@ -2435,6 +2432,10 @@ func (t *ThDesk) CSRebuy(userId uint32) error {
 	*ret.CurrChip = user.RoomCoin
 	*ret.RemainCount = t.RebuyCountLimit - user.RebuyCount        //锦标赛的购买次数限制
 	user.WriteMsg(ret)
+
+	log.T("user [%v]在锦标赛中重购成功，当前的roomCoin[%v]...", user.UserId, user.RoomCoin)
+	go t.Run()
+
 	return nil
 }
 
@@ -2527,14 +2528,18 @@ func (t *ThDesk) CSNotRebuy(userId uint32) {
 		return
 	}
 
-	user.RebuyCount = ChampionshipRoom.RebuyCountLimit                //取消重构之后,下一局就不能重购买了
+	user.RebuyCount = GetCSTHroom(t.MatchId).RebuyCountLimit                //取消重构之后,下一局就不能重购买了
 	user.CSGamingStatus = false;
+	user.GameStatus = TH_USER_GAME_STATUS_NOGAME
+	user.deskId = 0
+	user.MatchId = 0
+	user.UpdateAgentUserData()
 
 	//2,取消之后,现实最终的排名
 	log.T("用户notRebuy的时候,发送User的最终排名...")
 	ret := bbproto.NewGame_TounamentPlayerRank()
 	*ret.Message = "测试最终排名的信息"
-	*ret.PlayerRank = ChampionshipRoom.GetRankByuserId(user.UserId)
+	*ret.PlayerRank = GetCSTHroom(t.MatchId).GetRankByuserId(user.UserId)
 	user.WriteMsg(ret)
 
 }

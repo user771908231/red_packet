@@ -125,7 +125,9 @@ func (logger *Logger) Error(format string, a ...interface{}) {
 }
 
 func (logger *Logger) Fatal(format string, a ...interface{}) {
-	logger.doPrintf(fatalLevel, printFatalLevel, format, a...)
+	_, file, line, _ := runtime.Caller(2) //calldepth=3
+	lineStr := fmt.Sprintf("[%v:%v]\t", shortFileName(file), line)
+	logger.doPrintf(fatalLevel, printFatalLevel+lineStr, format, a...)
 }
 
 var gLogger, _ = New("debug", "")

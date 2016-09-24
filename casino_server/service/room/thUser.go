@@ -21,7 +21,6 @@ import (
 
 //德州扑克 玩家的状态
 
-var TH_USER_STATUS_NOGAME int32 = 0           //刚上桌子 没有游戏的玩家
 var TH_USER_STATUS_WAITSEAT int32 = 1         //刚上桌子 等待入座的玩家
 var TH_USER_STATUS_SEATED int32 = 2           //刚上桌子 已经入座没有准备的玩家
 var TH_USER_STATUS_READY int32 = 3              //已经准备的玩家
@@ -46,6 +45,7 @@ type ThUser struct {
 	NickName           string                //用户昵称
 
 	deskId             int32                 //用户所在的桌子的编号
+	MatchId            int32                 //锦标赛Id
 	Seat               int32                 //用户的座位号
 	Agent              gate.Agent            //agent
 	Status             int32                 //当前的状态,单局游戏的状态
@@ -184,10 +184,15 @@ func (t *ThUser) GetDesk() *ThDesk {
 
 	//根据用户的游戏类型,找到对应的桌子
 	var desk *ThDesk
-	if t.CSGamingStatus {
-		desk = ChampionshipRoom.GetDeskById(t.deskId)
-	} else {
+	if t.MatchId == 0 {
 		desk = ThGameRoomIns.GetDeskById(t.deskId)
+	} else {
+		room := GetCSTHroom(t.MatchId)
+		if room == nil {
+			desk = nil
+		} else {
+			desk = room.GetDeskById(t.deskId)
+		}
 	}
 	return desk
 }
@@ -271,6 +276,7 @@ func (u *ThUser) UpdateAgentUserData() {
 	*userAgentData.GameStatus = u.GameStatus //返回用户当前的状态 0：未游戏  1：正在朋友桌  2：正在锦标赛
 	*userAgentData.IsBreak = u.IsBreak
 	*userAgentData.IsLeave = u.IsLeave
+	*userAgentData.MatchId = u.MatchId
 	agent := u.Agent
 	//这里出现nil的情况是,回复数据的时候,用户没有连接的时候就有可能出现nil
 	if agent != nil {
@@ -279,10 +285,8 @@ func (u *ThUser) UpdateAgentUserData() {
 
 	desk := u.GetDesk()
 	if desk == nil {
-		*userAgentData.MatchId = 0
 		*userAgentData.RoomKey = ""
 	} else {
-		*userAgentData.MatchId = desk.MatchId
 		*userAgentData.RoomKey = desk.RoomKey
 	}
 	//回话信息保存到redis

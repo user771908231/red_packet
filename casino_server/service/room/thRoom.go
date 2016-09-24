@@ -285,7 +285,11 @@ func GetCSTHroom(matchId int32) *CSThGameRoom {
 	if matchId < 0 {
 		return nil
 	} else {
-		return &ChampionshipRoom
+		//通过buf去寻找，这里只是暂时的...
+		return ChampionshipRoomBuf[matchId]
+
+		//先使用diamondGame 试试
+		//return DiamondGame.roomBuf[matchId]
 	}
 }
 
@@ -313,16 +317,20 @@ func (r *ThGameRoom) GetDeskByOwner(userId uint32) *ThDesk {
 	return nil
 }
 
-//通过肘子的类型和Match得到thdesk
+//通过桌子的类型和Match得到thdesk
 func GetDeskByIdAndMatchId(deskId int32, matchId int32) *ThDesk {
 	//1,把type 转义
 	if matchId > 0 {
 		//返回锦标赛的房间
-		return ChampionshipRoom.GetDeskById(deskId)
+		room := GetCSTHroom(matchId)
+		if room == nil {
+			return nil
+		} else {
+			return room.GetDeskById(deskId)
+		}
 	} else if matchId == 0 {
 		//返回自定义房间里面的desk
 		return ThGameRoomIns.GetDeskById(deskId)
-
 	} else {
 		return nil
 	}

@@ -5,6 +5,6 @@
     <content url="file://$MODULE_DIR$" />
     <orderEntry type="jdk" jdkName="Go" jdkType="Go SDK" />
     <orderEntry type="sourceFolder" forTests="false" />
-    <orderEntry type="library" name="GOPATH &lt;wstest&gt;" level="project" />
+    <orderEntry type="library" name="GOPATH &lt;casino_majiang&gt;" level="project" />
   </component>
 </module>

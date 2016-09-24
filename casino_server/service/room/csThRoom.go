@@ -13,7 +13,6 @@ import (
 	"casino_server/msg/bbprotogo"
 	"casino_server/utils/jobUtils"
 	"sort"
-	"casino_server/conf/intCons"
 	"casino_server/common/Error"
 	"gopkg.in/mgo.v2"
 	"casino_server/utils/numUtils"
@@ -22,12 +21,22 @@ import (
 	"casino_server/utils/timeUtils"
 )
 
-var ChampionshipRoom CSThGameRoom        //锦标赛的房间
 
+//锦标赛的所有场次...
+var ChampionshipRoomBuf map[int32]*CSThGameRoom
+
+//暂时用的代码，得到第一个游戏中的room
+func GetFirstCSTHGame() *CSThGameRoom {
+	for rkey := range ChampionshipRoomBuf {
+		return ChampionshipRoomBuf[rkey]
+	}
+	return nil
+
+}
 
 func init() {
-	ChampionshipRoom.OnInitConfig()
-	//ChampionshipRoom.begin()
+	ChampionshipRoomBuf = make(map[int32]*CSThGameRoom)
+	OnInitCSConfig()        //锦标赛的配置文件
 }
 
 //对竞标赛的配置
@@ -47,18 +56,18 @@ var CSTHGameRoomConfig struct {
 }
 
 //对配置对象进行配置,以后可以从配置文件读取
-func (r *CSThGameRoom) OnInitConfig() {
+func OnInitCSConfig() {
 	log.T("初始化csthgameroom.config")
 	CSTHGameRoomConfig.gameDuration = time.Second * 60 * 20                //游戏是20分钟异常
-	CSTHGameRoomConfig.checkDuration = time.Second * 1
+	CSTHGameRoomConfig.checkDuration = time.Second * 5
 	CSTHGameRoomConfig.leastCount = 3; //最少要20人才可以开始游戏
 	CSTHGameRoomConfig.nextRunDuration = time.Second * 60 * 1        //1 分钟之后开始下一场
 	CSTHGameRoomConfig.riseBlindDuration = time.Second * 150        //每150秒生一次忙
-	CSTHGameRoomConfig.Blinds = []int64{0, 25, 50, 75, 100, 200, 300, 400, 500, 1000, 2000, 3000, 4000, 5000, 10000 }
+	CSTHGameRoomConfig.Blinds = []int64{10, 25, 50, 75, 100, 200, 300, 400, 500, 1000, 2000, 3000, 4000, 5000, 10000 }
 	CSTHGameRoomConfig.initRoomCoin = 1000;
 	CSTHGameRoomConfig.deskMaxUserCount = 9
 	CSTHGameRoomConfig.RebuyCountLimit = 5           //最多重构5次
-	CSTHGameRoomConfig.quotaLimit = 2                //能得到奖励的人
+	CSTHGameRoomConfig.quotaLimit = 1                //能得到奖励的人
 	CSTHGameRoomConfig.RebuyBlindLevelLimit = 7      //7级盲注以前可以购买
 	CSTHGameRoomConfig.roomMaxUserCount = 500        //最多500人玩
 }
@@ -157,17 +166,22 @@ func (r *CSThGameRoom) CheckIntoRoom(matchId int32) error {
 	return nil
 }
 
+//开始游戏//创建一场锦标赛
 
-//开始游戏
 /**
 	锦标赛的逻辑
 	1,开始场次,这里的开始只是有这个场次,但是游戏还没有真正的开始,只有满足(人数足够的时候)游戏才真正的开始
 	1,开始游戏,通过每个房间,游戏可以开始了,进行前注,盲注,发牌...
  */
+func NewCsThGameRoom() {
 
-func (r *CSThGameRoom) Begin() {
+	//1,创建一场游戏
+	r := &CSThGameRoom{}
+
+	//2,初始化默认参数...
 	r.OnInit()                //每次开始的时候做初始化
-	//保存游戏数据,1,保存数据到mongo,2,刷新redis中的信息
+
+	//3,保存游戏数据,1,保存数据到mongo,2,刷新redis中的信息
 	saveData := &mode.T_cs_th_record{}
 	saveData.Mid = bson.NewObjectId()
 	saveData.Id = r.MatchId
@@ -176,11 +190,15 @@ func (r *CSThGameRoom) Begin() {
 	saveData.EndTime = r.EndTime
 	saveData.Status = r.Status
 	db.InsertMgoData(casinoConf.DBT_T_CS_TH_RECORD, saveData)
+
+	//3,保存到buf中
+	AddCSThgame(r)
+
+	//4,刷新redis缓存
 	RefreshRedisMatchList()        //这里刷新redis中的锦标赛数据
 
+	//5,开始准备
 	log.T("开始锦标赛的游戏matchId[%v]", r.MatchId)
-
-	//判断是否可以开始run
 	jobUtils.DoAsynJob(CSTHGameRoomConfig.checkDuration, func() bool {
 		//判断人数是否足够
 		if r.GetGamingCount() >= CSTHGameRoomConfig.leastCount {
@@ -195,9 +213,31 @@ func (r *CSThGameRoom) Begin() {
 			return false
 		}
 	})
-
-
 }
+
+//添加一场锦标赛到buf中
+func AddCSThgame(r *CSThGameRoom) error {
+	oldR := ChampionshipRoomBuf[r.MatchId]
+	if oldR != nil {
+		log.E("buf中已经有了这场比赛...这里仅仅打印信息，并没有做处理")
+	}
+	ChampionshipRoomBuf[r.MatchId] = r
+	return nil
+}
+
+func RMCSThgame(r *CSThGameRoom) error {
+	//解散所有的房间...
+	for _, desk := range r.ThDeskBuf {
+		if desk != nil {
+			r.DissolveDesk(desk)
+		}
+	}
+
+	//删除锦标赛的room
+	delete(ChampionshipRoomBuf, r.MatchId)
+	return nil
+}
+
 
 
 //run游戏房间
@@ -222,13 +262,14 @@ func (r *CSThGameRoom) Run() {
 
 
 	//通知desk游戏开始
-	//这里定义一个计时器,每十秒钟检测一次游戏
+	//这里定义一个计时器,每十秒钟检测一次游戏,检测游戏是否结束...
 	jobUtils.DoAsynJob(CSTHGameRoomConfig.checkDuration, func() bool {
 		//log.T("开始time[%v]检测锦标赛matchId[%v]有没有结束...", timeNow, r.matchId)
 		if r.checkEnd() {
+			r.End()                //做锦标赛游戏结束的处理...
 			//重新开始
 			time.Sleep(CSTHGameRoomConfig.nextRunDuration)        //开始下一场的延时
-			go r.Begin()
+			go NewCsThGameRoom()
 			return true
 		}
 		return false
@@ -288,27 +329,23 @@ func (r *CSThGameRoom) SubOnlineCount() {
 //检测结束
 func (r *CSThGameRoom) checkEnd() bool {
 	//如果时间已经过了,或者游戏中的玩家只身下一个人了，那么代表游戏结束...
-	if r.IsOutofEndTime() || r.GetGamingCount() <= 1 {
-		//结算本局
-		log.T("锦标赛matchid[%v]已经结束.现在开始保存数据", r.MatchId)
-		r.End()
-		//这里需要保存每一个人锦标赛的结果信息
-		log.T("保存每一个人竞标赛的信息")
-
+	//钻石场没有时间限制
+	//if r.IsOutofEndTime() || r.GetGamingCount() <= 1 {
+	if r.GetGamingCount() <= 1 {
 		return true
 	} else {
+		log.T("锦标赛matchId[%v]没有结束比赛IsOutofEndTime[%v],GetGamingCount[%v]:", r.MatchId, r.IsOutofEndTime(), r.GetGamingCount())
 		return false
 	}
 }
 
-
 //本场锦标赛 结束的处理
 func (r *CSThGameRoom) End() {
-	log.T("锦标赛游戏结束")
+	log.T("锦标赛matchid[%v]已经结束.现在开始保存数据", r.MatchId)
 	//设置锦标赛的状态为结束,并且更新数据库数据
 	//保存锦标赛的数据,玩家的游戏数据
 	r.Status = CSTHGAMEROOM_STATUS_STOP
-	r.RefreshRank()
+	r.RefreshRank()        //刷新排名
 	saveData := &mode.T_cs_th_record{}
 	db.Query(func(d *mgo.Database) {
 		d.C(casinoConf.DBT_T_CS_TH_RECORD).Find(bson.M{"Id":r.MatchId}).One(saveData)
@@ -327,6 +364,9 @@ func (r *CSThGameRoom) End() {
 	db.UpdateMgoData(casinoConf.DBT_T_CS_TH_RECORD, saveData)
 
 
+	//给第一名发送奖励...
+	r.reward();
+
 	//给没有发送过游戏排名的玩家发送游戏排名
 	for _, desk := range r.ThDeskBuf {
 		if desk != nil {
@@ -336,7 +376,7 @@ func (r *CSThGameRoom) End() {
 					log.T("锦标赛[%v]结束,给用户[%v]发送游戏排名", r.MatchId, user.UserId)
 					ret := bbproto.NewGame_TounamentPlayerRank()
 					*ret.Message = "测试最终排名的信息"
-					*ret.PlayerRank = ChampionshipRoom.GetRankByuserId(user.UserId)
+					*ret.PlayerRank = r.GetRankByuserId(user.UserId)
 					user.WriteMsg(ret)
 				}
 			}
@@ -355,8 +395,18 @@ func (r *CSThGameRoom) End() {
 		}
 	}
 
+	//end 删除buf中的锦标赛信息
+	RMCSThgame(r)        //游戏结束之后，删除buf中锦标赛信息
+
+	log.T("保存每一个人竞标赛的信息")
 }
 
+//
+func (r *CSThGameRoom) reward() {
+	log.T("开始发送奖励..")
+	log.T("发送奖励完毕...")
+
+}
 //刷新排名
 func (r *CSThGameRoom) RefreshRank() {
 	var tempList RankList = make([]*bbproto.CsThRankInfo, len(r.RankInfo))
@@ -398,13 +448,13 @@ func (r *CSThGameRoom) IsRepeatIntoRoom(userId uint32, a gate.Agent) (*ThDesk, e
 
 
 //游戏大厅增加一个玩家
-func (r *CSThGameRoom) AddUser(userId uint32, matchId int32, a gate.Agent) (*ThDesk, error) {
+func (r *CSThGameRoom) AddUser(userId uint32, a gate.Agent) (*ThDesk, error) {
 	r.Lock()
 	defer r.Unlock()
 	log.T("userid【%v】进入锦标赛的游戏房间", userId)
 
 	//这里需要判断锦标赛是否可以开始游戏
-	e := r.CheckIntoRoom(matchId)
+	e := r.CheckIntoRoom(r.MatchId)
 	if e != nil {
 		return nil, Error.NewError(int32(bbproto.DDErrorCode_ERRORCODE_TOURNAMENT_CANNOT_JOIN), "锦标赛入场时间已过,不能加入")
 	}
@@ -675,14 +725,14 @@ func (r *CSThGameRoom) DissolveDesk(desk *ThDesk) error {
 		return errors.New("房间正在游戏中,不能解散")
 	}
 
-	//2,发送解散的广播
-	*result.Result = intCons.ACK_RESULT_SUCC
-	*result.UserId = desk.DeskOwner
-	*result.PassWord = desk.RoomKey
-	desk.THBroadcastProtoAll(result)
+	//2,发送解散的广播...锦标赛不用发送解散的广播...
+	//*result.Result = intCons.ACK_RESULT_SUCC
+	//*result.UserId = desk.DeskOwner
+	//*result.PassWord = desk.RoomKey
+	//desk.THBroadcastProtoAll(result)
 
 	//3,解散桌子...
-	ChampionshipRoom.RmThDesk(desk)                //删除buf中的桌子
+	r.RmThDesk(desk)                //删除buf中的桌子
 	return nil
 }
 
@@ -722,6 +772,27 @@ func (r *CSThGameRoom) GetGame_TounamentBlind() *bbproto.Game_TounamentBlind {
 	return ret
 }
 
+func GetCommonGame_TounamentBlind() *bbproto.Game_TounamentBlind {
+	ret := bbproto.NewGame_TounamentBlind()
+	//得到盲注信息
+	blindLevel := int32(0)
+	for _, b := range CSTHGameRoomConfig.Blinds {
+		if blindLevel >= 15 {
+			//暂时只提供15级盲注
+			break
+		}
+		blindLevel += 1
+		bean := bbproto.NewGame_TounamentBlindBean()
+		*bean.BlindLevel, _ = numUtils.Int2String(blindLevel)
+		*bean.Ante, _ = numUtils.Int642String(CSTHGameRoomConfig.Blinds[blindLevel - 1]) //"前注"
+		*bean.SmallBlind, _ = numUtils.Int642String(b) //+ "/" + umUtils.Int642String(b*2)
+		*bean.CanRebuy = (blindLevel <= 7 )
+		*bean.RaiseTime = "150秒"
+		ret.Data = append(ret.Data, bean)
+		log.T("GetBlind  >>> bean[%v]: ante:%v  canRebuy: %v", *bean.BlindLevel, bean.GetAnte(), *bean.CanRebuy)
+	}
+	return ret
+}
 
 
 //合并桌子,并且返回,合并之后的桌子,合并失败
@@ -771,7 +842,7 @@ func (r *CSThGameRoom) MergeDesk(mt *ThDesk) (*ThDesk, error) {
 
 
 	//4,解散之前的房间
-	ChampionshipRoom.DissolveDesk(mt)
+	r.DissolveDesk(mt)
 	return dt, nil
 }
 
@@ -803,9 +874,11 @@ func RefreshRedisMatchList() {
 
 			//如果是真在run或者ready的状态则表示为游戏中
 			if d.Status == CSTHGAMEROOM_STATUS_RUN || d.Status == CSTHGAMEROOM_STATUS_READY {
-				*sd.Status = 1
+				*sd.Status = 1                //表示在游戏中
+				*sd.CanInto = true
 			} else {
-				d.Status = 2
+				*sd.Status = 2                //表示没有在游戏中
+				*sd.CanInto = false
 			}
 
 			sdata.Items = append(sdata.Items, sd)
