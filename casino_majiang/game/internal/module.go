@@ -7,7 +7,7 @@ import (
 
 var (
 	skeleton = base.NewSkeleton()
-	ChanRPC  = skeleton.ChanRPCServer
+	ChanRPC = skeleton.ChanRPCServer
 )
 
 type Module struct {

@@ -21,7 +21,6 @@ func handlerREQQuickConn(args []interface{}) {
 	log.Debug("进入到 game.handlerREQQuickConn()m[%v]", m)
 	a := args[1].(gate.Agent)
 
-
 	m.ChannelID = new(string)
 	*m.ChannelID = "测试回复..."
 	a.WriteMsg(m)
