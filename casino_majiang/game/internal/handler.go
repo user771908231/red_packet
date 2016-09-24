@@ -6,7 +6,7 @@ import (
 	"casino_server/msg/bbprotogo"
 	"github.com/name5566/leaf/gate"
 	majiangProto "casino_majiang/msg/bbprotogo"
-	"casino_majiang/MJService"
+	"casino_majiang/service/MJService"
 )
 
 func handler(m interface{}, h interface{}) {

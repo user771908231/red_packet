@@ -16,7 +16,7 @@ import (
 )
 
 func init() {
-	OninitZjgRoom()
+	//OninitZjgRoom()
 }
 
 
