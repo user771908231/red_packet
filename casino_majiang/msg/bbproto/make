@@ -1,0 +1,5 @@
+#!/bin/sh
+cd ../bbprotogo
+rm -rf *.pb.go
+cd ../bbproto
+protoc --go_out=../bbprotogo *.proto
