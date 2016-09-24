@@ -1,6 +1,8 @@
-package bbproto;
+package mjproto;
 
 enum EProtoId {
+
+    PID_GAME = 1;
 
 }
 

@@ -1,5 +1,7 @@
 import public "base.proto";
-package bbproto;
+package mjproto;
+
+
 option optimize_for = LITE_RUNTIME;
 
 // 开局（接收服务端消息）
