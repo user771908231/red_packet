@@ -5,43 +5,9 @@ import (
 	"casino_server/utils/jobUtils"
 	"time"
 	"errors"
-	"sync"
-	"casino_server/msg/bbprotogo"
 )
 
-//锦标赛的接口
-type CSRoom interface {
-	init(CSGame) error
-	time2start() bool
-	start() error
-	time2stop() bool
-	stop() error                //做停止的处理
-}
 
-//游戏的骨架
-type CsRoomSkeleton struct {
-	sync.Mutex
-	RoomStatus           int32                   //游戏大厅的状态
-	ThDeskBuf            []*ThDesk
-	ThRoomSeatMax        int32                   //每个房间的座位数目
-	ThRoomCount          int32                   //房间数目
-	Id                   int32                   //房间的id
-	SmallBlindCoin       int64                   //小盲注的金额
-	RebuyCountLimit      int32                   //重购的次数限制
-	MatchId              int32                   //比赛内容
-	ReadyTime            time.Time               //游戏开始准备的时间
-	BeginTime            time.Time               //游戏开始的时间
-	EndTime              time.Time               //游戏结束的时间
-	gameDuration         time.Duration           //游戏的时长
-	rankUserCount        int32                   //游戏总人数
-	onlineCount          int32                   //总的在线人数
-	Status               int32                   //锦标赛的状态
-	RankInfo             []*bbproto.CsThRankInfo //排名信息
-	BlindLevel           int32                   //盲注的等级
-	initRoomCoin         int64                   //房间默认的带入金额
-	UsersCopy            map[uint32]*ThUser      //这里是所有玩家信息的一份拷贝,只有当用户放弃之后,才会删除用户
-	RebuyBlindLevelLimit int32                   //盲注可以购买的级别
-}
 
 ////////////////////////////////////////////////////////game///////////////////////////////////////////////////////////
 
@@ -120,8 +86,5 @@ func (g *CsGameSkeleton) stop() error {
 func (g *CsGameSkeleton) addRoom(r CSRoom) error {
 	return nil
 }
-
-
-
 
 

@@ -339,7 +339,6 @@ func (r *CSThGameRoom) checkEnd() bool {
 	}
 }
 
-
 //本场锦标赛 结束的处理
 func (r *CSThGameRoom) End() {
 	log.T("锦标赛matchid[%v]已经结束.现在开始保存数据", r.MatchId)
@@ -364,6 +363,9 @@ func (r *CSThGameRoom) End() {
 	//保存信息
 	db.UpdateMgoData(casinoConf.DBT_T_CS_TH_RECORD, saveData)
 
+
+	//给第一名发送奖励...
+	r.reward();
 
 	//给没有发送过游戏排名的玩家发送游戏排名
 	for _, desk := range r.ThDeskBuf {
@@ -399,6 +401,12 @@ func (r *CSThGameRoom) End() {
 	log.T("保存每一个人竞标赛的信息")
 }
 
+//
+func (r *CSThGameRoom) reward() {
+	log.T("开始发送奖励..")
+	log.T("发送奖励完毕...")
+
+}
 //刷新排名
 func (r *CSThGameRoom) RefreshRank() {
 	var tempList RankList = make([]*bbproto.CsThRankInfo, len(r.RankInfo))
