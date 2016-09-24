@@ -9,6 +9,11 @@ import (
 	"casino_majiang/login"
 )
 
+func init() {
+	//系统启动时候的初始化操作...
+	conf.InitSystem()
+}
+
 func main() {
 	lconf.LogLevel = conf.Server.LogLevel
 	lconf.LogPath = conf.Server.LogPath

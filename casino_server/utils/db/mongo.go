@@ -8,20 +8,30 @@ import (
 	"gopkg.in/mgo.v2/bson"
 	"casino_server/mode"
 	"gopkg.in/mgo.v2"
-	"casino_server/common/log"
-	"casino_server/conf"
+	"github.com/name5566/leaf/log"
 )
 
+var mongoConfig struct {
+	ip   string
+	port int
+}
+
+func Oninit(ip string, port int) {
+	log.Debug("初始化mongoDb的地址  ip[%v],port[%v]", ip, port)
+	mongoConfig.ip = ip
+	mongoConfig.port = port
+
+}
 
 //活的链接
 func GetMongoConn() (*mongodb.DialContext, error) {
-	//log.T("连接到...ip[%v],port[%v]", conf.Server.MongoIp, conf.Server.MongoPort)
-	return mongodb.Dial(conf.Server.MongoIp, conf.Server.MongoPort)
+	return mongodb.Dial(mongoConfig.ip, mongoConfig.port)
 }
+
 
 //保存数据
 func InsertMgoData(dbt string, data interface{}) error {
-	log.T("insert数据到数据库[%v]", data)
+	log.Debug("insert数据到数据库[%v]", data)
 	//得到连接
 	c, err := GetMongoConn()
 	if err != nil {

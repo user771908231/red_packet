@@ -1,8 +1,7 @@
 package mjproto;
 
 enum EProtoId {
-
-    PID_GAME = 1;
+    PID_GAME_CREATEROOM = 1;
 
 }
 

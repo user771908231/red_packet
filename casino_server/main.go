@@ -19,20 +19,19 @@ import (
 )
 
 func init() {
+	fmt.Println("1,runtime.GOMAXPROCS()...")
 	runtime.GOMAXPROCS(runtime.NumCPU())
-	fmt.Println("bbsvr >>>> config init...")
 
+	fmt.Println("2,InitConfig()...")
 	e := config.InitConfig(false)
 	if e.IsError() {
 		log.Error("config init failed.", e)
 		os.Exit(-1)
 	}
-	log.Normal("config init ok...")
-
-	//随机种子
+	fmt.Println("3,initSeed...")
 	s := time.Now().UTC().UnixNano()
-	log.Normal("Server start... seed: %v", s)
 	rand.Seed(s)
+	fmt.Println("4,config init ok...")
 }
 
 func main() {
