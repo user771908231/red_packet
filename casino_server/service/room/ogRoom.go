@@ -482,19 +482,19 @@ func (t *ThDesk) getWinCoinInfo() []*bbproto.Game_WinCoin {
 
 
 //得到coinInfo 的数据
-func (t *ThDesk) getCoinInfo() []*bbproto.Game_WinCoin {
+func (t *ThDesk) getCoinInfo(buser *ThUser) []*bbproto.Game_WinCoin {
 	var ret []*bbproto.Game_WinCoin
 	//对每个人做计算
 	for i := 0; i < len(t.Users); i++ {
 		u := t.Users[i]
 		if u != nil && u.Status == TH_USER_STATUS_CLOSED && u.thCards != nil && u.HandCards != nil {
-			log.T("开始计算[%v]的coinInfo,status[%v],thcards[%v]", u.UserId, u.Status, u.thCards)
+			log.T("开始计算[%v]的coinInfo,status[%v],thcards[%v],t.RoundCount[%v]", u.UserId, u.Status, u.thCards, t.RoundCount)
 			//开是对这个人计算
 			gwc := NewGame_WinCoin()
 
 
-			//如果是在五轮,那么返回所有的牌的信息,如果是提前结束,那么不需要发送所有的牌
-			if u.IsShowCard {
+			//如果需要两排，或者发送广播的目标是自己,那么直接两排。
+			if u.IsShowCard || u.UserId == buser {
 				if t.SendRive {
 					paicards := OGTHCardPaixu(u.thCards)
 					*gwc.Card1 = paicards[0].GetMapKey()

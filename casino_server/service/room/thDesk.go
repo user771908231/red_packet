@@ -651,7 +651,7 @@ func (t *ThDesk) InitUserStatus() error {
 		u.TotalBet = 0                  //新的一局游戏开始,把总的押注金额设置为0
 		u.winAmountDetail = nil
 		u.LotteryCheck = true           //游戏开始的时候设置为false
-		u.IsShowCard = false                //默认不亮牌
+		u.IsShowCard = false            //默认不亮牌
 
 		//如果用户的余额不足或者用户的状态是属于断线的状态,则设置用户为等待入座
 		if !t.IsUserRoomCoinEnough(u) {
@@ -799,6 +799,7 @@ func (t *ThDesk) BroadcastTestResult(p *bbproto.Game_TestResult) error {
 			*p.Rank = t.getRankByUserId(u)        //获取用户的排名
 			*p.CanRebuy = t.getCanRebuyByUserId(u)        //是否可以重构
 			*p.RebuyCount = u.RebuyCount        //重购的次数
+			p.CoinInfo = t.getCoinInfo(u)               //每个人的输赢情况
 
 			//判断是否可以
 			t.Users[i].WriteMsg(p)
@@ -1192,13 +1193,26 @@ func (t *ThDesk) InitLotteryStatus() error {
 	t.Status = TH_DESK_STATUS_LOTTERY
 
 	log.T("开奖之前答应每个人的状态,并且修改为等待结算")
+
+	allinOrBettingCount := 0        //押注或者allin的用户数量
+	for _, u := range t.Users {
+		if u != nil && (u.IsBetting() || u.IsAllIn()) {
+			allinOrBettingCount ++
+		}
+	}
+
+
 	//2,设置用户的状态为等待开奖
 	for i := 0; i < len(t.Users); i++ {
 		u := t.Users[i]
 		if u != nil {
 			log.T("用户[%v].nickname[%v]的status[%v]", u.UserId, u.NickName, u.Status)
 			u.FinishtWait()        //不再等待
-			if u.IsAllIn() || u.IsBetting() {
+
+			/**
+				当//allinOrBettingCount  >= 2的时候，表示到了最后比牌的阶段，如果<2 表示 弃牌完成
+			 */
+			if (u.IsAllIn() || u.IsBetting()) && allinOrBettingCount >= 2 {
 				//如果用户当前的状态是押注中,或者all in,那么设置用户的状态喂等待结算
 				u.Status = TH_USER_STATUS_WAIT_CLOSED
 				u.IsShowCard = true
@@ -1357,7 +1371,6 @@ func (t *ThDesk) broadLotteryResult() error {
 	result.Handcard = t.GetHandCard()               //手牌
 	result.WinCoinInfo = t.getWinCoinInfo()
 	result.HandCoin = t.GetRoomCoin()                //现实用户的余额
-	result.CoinInfo = t.getCoinInfo()               //每个人的输赢情况
 	t.BroadcastTestResult(result)
 	return nil
 }
