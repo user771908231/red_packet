@@ -439,38 +439,7 @@ func (t *ThDesk) getWinCoinInfo() []*bbproto.Game_WinCoin {
 		if u != nil && u.IsClose() && u.winAmount > 0  && u.thCards != nil && u.HandCards != nil {
 			//开是对这个人计算
 			gwc := NewGame_WinCoin()
-
-			//如果用户选择亮牌
-			if u.IsShowCard {
-				//这里需要先对牌进行排序
-				if u.IsAllIn() || u.IsBetting() {
-					//如果已经发了第五张牌,则发送全部的牌
-					paicards := OGTHCardPaixu(u.thCards)
-					*gwc.Card1 = paicards[0].GetMapKey()
-					*gwc.Card2 = paicards[1].GetMapKey()
-					*gwc.Card3 = paicards[2].GetMapKey()
-					*gwc.Card4 = paicards[3].GetMapKey()
-					*gwc.Card5 = paicards[4].GetMapKey()
-					*gwc.Cardtype = u.thCards.GetOGCardType()
-
-				} else {
-					//只发送手牌
-					*gwc.Card1 = u.HandCards[0].GetMapKey()
-					*gwc.Card2 = u.HandCards[1].GetMapKey()
-					*gwc.Card3 = 53
-					*gwc.Card4 = 53
-					*gwc.Card5 = 53
-					*gwc.Cardtype = 0
-				}
-			} else {
-				*gwc.Card1 = 53
-				*gwc.Card2 = 53
-				*gwc.Card3 = 53
-				*gwc.Card4 = 53
-				*gwc.Card5 = 53
-				*gwc.Cardtype = 9
-			}
-
+			gwc = GetWinCoinCardInfo(gwc, u, 0, t)
 			*gwc.Coin = u.winAmount                                        //这个表示的是赢得的底池多少钱
 			*gwc.Seat = u.Seat
 			*gwc.PoolIndex = int32(0)
@@ -485,7 +454,6 @@ func (t *ThDesk) getWinCoinInfo() []*bbproto.Game_WinCoin {
 func (t *ThDesk) getCoinInfo(buser *ThUser) []*bbproto.Game_WinCoin {
 	var ret []*bbproto.Game_WinCoin
 	//对每个人做计算
-	gettingOrALlingCount := t.GetBettingOrAllinCount()
 	for i := 0; i < len(t.Users); i++ {
 		u := t.Users[i]
 		if u != nil && u.IsClose() && u.thCards != nil && u.HandCards != nil {
@@ -493,37 +461,7 @@ func (t *ThDesk) getCoinInfo(buser *ThUser) []*bbproto.Game_WinCoin {
 				u.UserId, u.Status, u.thCards, t.RoundCount, u.winAmount, u.TotalBet, u.IsAllIn(), u.IsBetting())
 			//开是对这个人计算
 			gwc := NewGame_WinCoin()
-
-			//如果需要两排，或者发送广播的目标是自己,那么直接两排。
-			if u.IsShowCard || u.UserId == buser.UserId {
-				//只有在allin或者betting的人才显示5张牌
-				if (u.IsAllIn() || u.IsBetting()) && gettingOrALlingCount >= 2 {
-					paicards := OGTHCardPaixu(u.thCards)
-					*gwc.Card1 = paicards[0].GetMapKey()
-					*gwc.Card2 = paicards[1].GetMapKey()
-					*gwc.Card3 = paicards[2].GetMapKey()
-					*gwc.Card4 = paicards[3].GetMapKey()
-					*gwc.Card5 = paicards[4].GetMapKey()
-					*gwc.Cardtype = u.thCards.GetOGCardType()
-				} else {
-					//只发送手牌
-					*gwc.Card1 = u.HandCards[0].GetMapKey()
-					*gwc.Card2 = u.HandCards[1].GetMapKey()
-					*gwc.Card3 = 53
-					*gwc.Card4 = 53
-					*gwc.Card5 = 53
-					*gwc.Cardtype = 0
-				}
-			} else {
-				*gwc.Card1 = 53
-				*gwc.Card2 = 53
-				*gwc.Card3 = 53
-				*gwc.Card4 = 53
-				*gwc.Card5 = 53
-				*gwc.Cardtype = 9
-			}
-
-
+			gwc = GetWinCoinCardInfo(gwc, u, buser.UserId, t)
 			//这里需要先对牌进行排序
 			*gwc.Coin = u.winAmount - u.TotalBet                      //表示除去押注的金额,净赚多少钱
 			*gwc.Seat = u.Seat
@@ -533,6 +471,76 @@ func (t *ThDesk) getCoinInfo(buser *ThUser) []*bbproto.Game_WinCoin {
 		}
 	}
 	return ret
+}
+
+func GetWinCoinCardInfo(gwc *bbproto.Game_WinCoin, u *ThUser, buserId uint32, desk *ThDesk) *bbproto.Game_WinCoin {
+	//gettingOrALlingCount := desk.GetBettingOrAllinCount()
+	//如果需要两排，或者发送广播的目标是自己,那么直接两排。
+	if u.IsShowCard || u.UserId == buserId {
+		//
+
+		//这里的代码不能删除，开总会让这里的逻辑回滚，我猜的...
+		//只有在allin或者betting的人才显示5张牌
+		//if (u.IsAllIn() || u.IsBetting()) && gettingOrALlingCount >= 2 {
+		//	paicards := OGTHCardPaixu(u.thCards)
+		//	*gwc.Card1 = paicards[0].GetMapKey()
+		//	*gwc.Card2 = paicards[1].GetMapKey()
+		//	*gwc.Card3 = paicards[2].GetMapKey()
+		//	*gwc.Card4 = paicards[3].GetMapKey()
+		//	*gwc.Card5 = paicards[4].GetMapKey()
+		//	*gwc.Cardtype = u.thCards.GetOGCardType()
+		//} else {
+		//	//只发送手牌
+		//	*gwc.Card1 = u.HandCards[0].GetMapKey()
+		//	*gwc.Card2 = u.HandCards[1].GetMapKey()
+		//	*gwc.Card3 = 53
+		//	*gwc.Card4 = 53
+		//	*gwc.Card5 = 53
+		//	*gwc.Cardtype = 0
+		//}
+
+		paiCount := 0
+		if desk.SendFlop {
+			paiCount = 3
+		}
+
+		if desk.SendTurn {
+			paiCount = 4
+		}
+
+		if desk.SendRive {
+			paiCount = 5
+		}
+
+		if paiCount > 0 {
+			thcards := pokerService.GetTHPoker(u.HandCards, desk.PublicPai[:paiCount], 5)
+			paicards := OGTHCardPaixu(thcards)
+			*gwc.Card1 = paicards[0].GetMapKey()
+			*gwc.Card2 = paicards[1].GetMapKey()
+			*gwc.Card3 = paicards[2].GetMapKey()
+			*gwc.Card4 = paicards[3].GetMapKey()
+			*gwc.Card5 = paicards[4].GetMapKey()
+			*gwc.Cardtype = thcards.GetOGCardType()
+		} else {
+			*gwc.Card1 = u.HandCards[0].GetMapKey()
+			*gwc.Card2 = u.HandCards[1].GetMapKey()
+			*gwc.Card3 = 53
+			*gwc.Card4 = 53
+			*gwc.Card5 = 53
+			*gwc.Cardtype = 0
+		}
+
+	} else {
+		*gwc.Card1 = 53
+		*gwc.Card2 = 53
+		*gwc.Card3 = 53
+		*gwc.Card4 = 53
+		*gwc.Card5 = 53
+		*gwc.Cardtype = 9
+	}
+
+	return gwc
+
 }
 
 func (t *ThDesk) GetBshowCard() []int32 {
