@@ -2,6 +2,70 @@
 // source: Mahjong.proto
 // DO NOT EDIT!
 
+/*
+Package mjproto is a generated protocol buffer package.
+
+It is generated from these files:
+	Mahjong.proto
+	base.proto
+
+It has these top-level messages:
+	Game_Opening
+	Game_ExchangeCards
+	Game_AckExchangeCards
+	Game_DingQue
+	Game_ActPeng
+	Game_AckActPeng
+	Game_ActGang
+	Game_AckActGang
+	Game_ActHu
+	Game_AckActHu
+	Game_ActGuo
+	Game_AckActGuo
+	Game_OverTurn
+	Game_CardType
+	Game_WinCoin
+	Game_OverCurrentBoard
+	Game_EndLottery
+	Game_SendDeskEndLottery
+	Game_EnterRoom
+	Game_AckEnterRoom
+	Game_SendGameInfo
+	Game_How2Play
+	Game_RoomTypeInfo
+	Game_CreateRoom
+	Game_AckCreateRoom
+	Game_DissolveDesk
+	Game_AckDissolveDesk
+	Game_LeaveDesk
+	Game_ACKLeaveDesk
+	Game_Ready
+	Game_AckReady
+	Game_Begin
+	Game_CardInfo
+	Game_InitCard
+	Game_LeaveRoom
+	Game_ChangeTable
+	Game_LeaveTable
+	Game_NowelterInfo
+	Game_Login
+	Game_AckLogin
+	Game_Notice
+	Game_AckNotice
+	Game_GameRecord
+	Game_BeanUserRecord
+	Game_BeanGameRecord
+	Game_AckGameRecord
+	WeixinInfo
+	Game_Message
+	Game_SendMessage
+	Game_Rebuy
+	Game_AckRebuy
+	Game_NotRebuy
+	Game_AckNotRebuy
+	Game_Feedback
+	ProtoHeader
+*/
 package mjproto
 
 import proto "github.com/golang/protobuf/proto"
@@ -12,6 +76,12 @@ import math "math"
 var _ = proto.Marshal
 var _ = fmt.Errorf
 var _ = math.Inf
+
+// This is a compile-time assertion to ensure that this generated file
+// is compatible with the proto package it is being compiled against.
+// A compilation error at this line likely means your copy of the
+// proto package needs to be updated.
+const _ = proto.ProtoPackageIsVersion2 // please upgrade the proto package
 
 // Ignoring public import of ProtoHeader from base.proto
 
@@ -65,7 +135,7 @@ func (x *MJRoomType) UnmarshalJSON(data []byte) error {
 	*x = MJRoomType(value)
 	return nil
 }
-func (MJRoomType) EnumDescriptor() ([]byte, []int) { return fileDescriptor1, []int{0} }
+func (MJRoomType) EnumDescriptor() ([]byte, []int) { return fileDescriptor0, []int{0} }
 
 type Game_LeaveTable_Reason int32
 
@@ -105,7 +175,7 @@ func (x *Game_LeaveTable_Reason) UnmarshalJSON(data []byte) error {
 	*x = Game_LeaveTable_Reason(value)
 	return nil
 }
-func (Game_LeaveTable_Reason) EnumDescriptor() ([]byte, []int) { return fileDescriptor1, []int{36, 0} }
+func (Game_LeaveTable_Reason) EnumDescriptor() ([]byte, []int) { return fileDescriptor0, []int{36, 0} }
 
 // 开局（接收服务端消息）
 type Game_Opening struct {
@@ -118,7 +188,7 @@ type Game_Opening struct {
 func (m *Game_Opening) Reset()                    { *m = Game_Opening{} }
 func (m *Game_Opening) String() string            { return proto.CompactTextString(m) }
 func (*Game_Opening) ProtoMessage()               {}
-func (*Game_Opening) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{0} }
+func (*Game_Opening) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{0} }
 
 func (m *Game_Opening) GetHeader() *ProtoHeader {
 	if m != nil {
@@ -155,7 +225,7 @@ type Game_ExchangeCards struct {
 func (m *Game_ExchangeCards) Reset()                    { *m = Game_ExchangeCards{} }
 func (m *Game_ExchangeCards) String() string            { return proto.CompactTextString(m) }
 func (*Game_ExchangeCards) ProtoMessage()               {}
-func (*Game_ExchangeCards) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{1} }
+func (*Game_ExchangeCards) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{1} }
 
 func (m *Game_ExchangeCards) GetHeader() *ProtoHeader {
 	if m != nil {
@@ -216,7 +286,7 @@ type Game_AckExchangeCards struct {
 func (m *Game_AckExchangeCards) Reset()                    { *m = Game_AckExchangeCards{} }
 func (m *Game_AckExchangeCards) String() string            { return proto.CompactTextString(m) }
 func (*Game_AckExchangeCards) ProtoMessage()               {}
-func (*Game_AckExchangeCards) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{2} }
+func (*Game_AckExchangeCards) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{2} }
 
 func (m *Game_AckExchangeCards) GetHeader() *ProtoHeader {
 	if m != nil {
@@ -301,7 +371,7 @@ type Game_DingQue struct {
 func (m *Game_DingQue) Reset()                    { *m = Game_DingQue{} }
 func (m *Game_DingQue) String() string            { return proto.CompactTextString(m) }
 func (*Game_DingQue) ProtoMessage()               {}
-func (*Game_DingQue) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{3} }
+func (*Game_DingQue) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{3} }
 
 func (m *Game_DingQue) GetHeader() *ProtoHeader {
 	if m != nil {
@@ -351,7 +421,7 @@ type Game_ActPeng struct {
 func (m *Game_ActPeng) Reset()                    { *m = Game_ActPeng{} }
 func (m *Game_ActPeng) String() string            { return proto.CompactTextString(m) }
 func (*Game_ActPeng) ProtoMessage()               {}
-func (*Game_ActPeng) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{4} }
+func (*Game_ActPeng) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{4} }
 
 func (m *Game_ActPeng) GetHeader() *ProtoHeader {
 	if m != nil {
@@ -401,7 +471,7 @@ type Game_AckActPeng struct {
 func (m *Game_AckActPeng) Reset()                    { *m = Game_AckActPeng{} }
 func (m *Game_AckActPeng) String() string            { return proto.CompactTextString(m) }
 func (*Game_AckActPeng) ProtoMessage()               {}
-func (*Game_AckActPeng) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{5} }
+func (*Game_AckActPeng) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{5} }
 
 func (m *Game_AckActPeng) GetHeader() *ProtoHeader {
 	if m != nil {
@@ -458,7 +528,7 @@ type Game_ActGang struct {
 func (m *Game_ActGang) Reset()                    { *m = Game_ActGang{} }
 func (m *Game_ActGang) String() string            { return proto.CompactTextString(m) }
 func (*Game_ActGang) ProtoMessage()               {}
-func (*Game_ActGang) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{6} }
+func (*Game_ActGang) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{6} }
 
 func (m *Game_ActGang) GetHeader() *ProtoHeader {
 	if m != nil {
@@ -509,7 +579,7 @@ type Game_AckActGang struct {
 func (m *Game_AckActGang) Reset()                    { *m = Game_AckActGang{} }
 func (m *Game_AckActGang) String() string            { return proto.CompactTextString(m) }
 func (*Game_AckActGang) ProtoMessage()               {}
-func (*Game_AckActGang) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{7} }
+func (*Game_AckActGang) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{7} }
 
 func (m *Game_AckActGang) GetHeader() *ProtoHeader {
 	if m != nil {
@@ -573,7 +643,7 @@ type Game_ActHu struct {
 func (m *Game_ActHu) Reset()                    { *m = Game_ActHu{} }
 func (m *Game_ActHu) String() string            { return proto.CompactTextString(m) }
 func (*Game_ActHu) ProtoMessage()               {}
-func (*Game_ActHu) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{8} }
+func (*Game_ActHu) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{8} }
 
 func (m *Game_ActHu) GetHeader() *ProtoHeader {
 	if m != nil {
@@ -625,7 +695,7 @@ type Game_AckActHu struct {
 func (m *Game_AckActHu) Reset()                    { *m = Game_AckActHu{} }
 func (m *Game_AckActHu) String() string            { return proto.CompactTextString(m) }
 func (*Game_AckActHu) ProtoMessage()               {}
-func (*Game_AckActHu) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{9} }
+func (*Game_AckActHu) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{9} }
 
 func (m *Game_AckActHu) GetHeader() *ProtoHeader {
 	if m != nil {
@@ -695,7 +765,7 @@ type Game_ActGuo struct {
 func (m *Game_ActGuo) Reset()                    { *m = Game_ActGuo{} }
 func (m *Game_ActGuo) String() string            { return proto.CompactTextString(m) }
 func (*Game_ActGuo) ProtoMessage()               {}
-func (*Game_ActGuo) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{10} }
+func (*Game_ActGuo) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{10} }
 
 func (m *Game_ActGuo) GetHeader() *ProtoHeader {
 	if m != nil {
@@ -737,7 +807,7 @@ type Game_AckActGuo struct {
 func (m *Game_AckActGuo) Reset()                    { *m = Game_AckActGuo{} }
 func (m *Game_AckActGuo) String() string            { return proto.CompactTextString(m) }
 func (*Game_AckActGuo) ProtoMessage()               {}
-func (*Game_AckActGuo) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{11} }
+func (*Game_AckActGuo) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{11} }
 
 func (m *Game_AckActGuo) GetHeader() *ProtoHeader {
 	if m != nil {
@@ -781,7 +851,7 @@ type Game_OverTurn struct {
 func (m *Game_OverTurn) Reset()                    { *m = Game_OverTurn{} }
 func (m *Game_OverTurn) String() string            { return proto.CompactTextString(m) }
 func (*Game_OverTurn) ProtoMessage()               {}
-func (*Game_OverTurn) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{12} }
+func (*Game_OverTurn) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{12} }
 
 func (m *Game_OverTurn) GetHeader() *ProtoHeader {
 	if m != nil {
@@ -837,7 +907,7 @@ type Game_CardType struct {
 func (m *Game_CardType) Reset()                    { *m = Game_CardType{} }
 func (m *Game_CardType) String() string            { return proto.CompactTextString(m) }
 func (*Game_CardType) ProtoMessage()               {}
-func (*Game_CardType) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{13} }
+func (*Game_CardType) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{13} }
 
 func (m *Game_CardType) GetHeader() *ProtoHeader {
 	if m != nil {
@@ -874,7 +944,7 @@ type Game_WinCoin struct {
 func (m *Game_WinCoin) Reset()                    { *m = Game_WinCoin{} }
 func (m *Game_WinCoin) String() string            { return proto.CompactTextString(m) }
 func (*Game_WinCoin) ProtoMessage()               {}
-func (*Game_WinCoin) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{14} }
+func (*Game_WinCoin) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{14} }
 
 func (m *Game_WinCoin) GetHeader() *ProtoHeader {
 	if m != nil {
@@ -934,7 +1004,7 @@ type Game_OverCurrentBoard struct {
 func (m *Game_OverCurrentBoard) Reset()                    { *m = Game_OverCurrentBoard{} }
 func (m *Game_OverCurrentBoard) String() string            { return proto.CompactTextString(m) }
 func (*Game_OverCurrentBoard) ProtoMessage()               {}
-func (*Game_OverCurrentBoard) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{15} }
+func (*Game_OverCurrentBoard) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{15} }
 
 func (m *Game_OverCurrentBoard) GetHeader() *ProtoHeader {
 	if m != nil {
@@ -1009,7 +1079,7 @@ type Game_EndLottery struct {
 func (m *Game_EndLottery) Reset()                    { *m = Game_EndLottery{} }
 func (m *Game_EndLottery) String() string            { return proto.CompactTextString(m) }
 func (*Game_EndLottery) ProtoMessage()               {}
-func (*Game_EndLottery) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{16} }
+func (*Game_EndLottery) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{16} }
 
 func (m *Game_EndLottery) GetHeader() *ProtoHeader {
 	if m != nil {
@@ -1070,7 +1140,7 @@ type Game_SendDeskEndLottery struct {
 func (m *Game_SendDeskEndLottery) Reset()                    { *m = Game_SendDeskEndLottery{} }
 func (m *Game_SendDeskEndLottery) String() string            { return proto.CompactTextString(m) }
 func (*Game_SendDeskEndLottery) ProtoMessage()               {}
-func (*Game_SendDeskEndLottery) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{17} }
+func (*Game_SendDeskEndLottery) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{17} }
 
 func (m *Game_SendDeskEndLottery) GetHeader() *ProtoHeader {
 	if m != nil {
@@ -1100,7 +1170,7 @@ type Game_EnterRoom struct {
 func (m *Game_EnterRoom) Reset()                    { *m = Game_EnterRoom{} }
 func (m *Game_EnterRoom) String() string            { return proto.CompactTextString(m) }
 func (*Game_EnterRoom) ProtoMessage()               {}
-func (*Game_EnterRoom) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{18} }
+func (*Game_EnterRoom) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{18} }
 
 func (m *Game_EnterRoom) GetHeader() *ProtoHeader {
 	if m != nil {
@@ -1155,7 +1225,7 @@ type Game_AckEnterRoom struct {
 func (m *Game_AckEnterRoom) Reset()                    { *m = Game_AckEnterRoom{} }
 func (m *Game_AckEnterRoom) String() string            { return proto.CompactTextString(m) }
 func (*Game_AckEnterRoom) ProtoMessage()               {}
-func (*Game_AckEnterRoom) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{19} }
+func (*Game_AckEnterRoom) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{19} }
 
 func (m *Game_AckEnterRoom) GetHeader() *ProtoHeader {
 	if m != nil {
@@ -1223,7 +1293,7 @@ type Game_SendGameInfo struct {
 func (m *Game_SendGameInfo) Reset()                    { *m = Game_SendGameInfo{} }
 func (m *Game_SendGameInfo) String() string            { return proto.CompactTextString(m) }
 func (*Game_SendGameInfo) ProtoMessage()               {}
-func (*Game_SendGameInfo) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{20} }
+func (*Game_SendGameInfo) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{20} }
 
 func (m *Game_SendGameInfo) GetHeader() *ProtoHeader {
 	if m != nil {
@@ -1434,7 +1504,7 @@ type Game_How2Play struct {
 func (m *Game_How2Play) Reset()                    { *m = Game_How2Play{} }
 func (m *Game_How2Play) String() string            { return proto.CompactTextString(m) }
 func (*Game_How2Play) ProtoMessage()               {}
-func (*Game_How2Play) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{21} }
+func (*Game_How2Play) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{21} }
 
 func (m *Game_How2Play) GetZiMoRadio() int32 {
 	if m != nil && m.ZiMoRadio != nil {
@@ -1476,7 +1546,7 @@ type Game_RoomTypeInfo struct {
 func (m *Game_RoomTypeInfo) Reset()                    { *m = Game_RoomTypeInfo{} }
 func (m *Game_RoomTypeInfo) String() string            { return proto.CompactTextString(m) }
 func (*Game_RoomTypeInfo) ProtoMessage()               {}
-func (*Game_RoomTypeInfo) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{22} }
+func (*Game_RoomTypeInfo) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{22} }
 
 func (m *Game_RoomTypeInfo) GetBoardsCout() int32 {
 	if m != nil && m.BoardsCout != nil {
@@ -1525,7 +1595,7 @@ type Game_CreateRoom struct {
 func (m *Game_CreateRoom) Reset()                    { *m = Game_CreateRoom{} }
 func (m *Game_CreateRoom) String() string            { return proto.CompactTextString(m) }
 func (*Game_CreateRoom) ProtoMessage()               {}
-func (*Game_CreateRoom) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{23} }
+func (*Game_CreateRoom) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{23} }
 
 func (m *Game_CreateRoom) GetHeader() *ProtoHeader {
 	if m != nil {
@@ -1569,7 +1639,7 @@ type Game_AckCreateRoom struct {
 func (m *Game_AckCreateRoom) Reset()                    { *m = Game_AckCreateRoom{} }
 func (m *Game_AckCreateRoom) String() string            { return proto.CompactTextString(m) }
 func (*Game_AckCreateRoom) ProtoMessage()               {}
-func (*Game_AckCreateRoom) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{24} }
+func (*Game_AckCreateRoom) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{24} }
 
 func (m *Game_AckCreateRoom) GetHeader() *ProtoHeader {
 	if m != nil {
@@ -1623,7 +1693,7 @@ type Game_DissolveDesk struct {
 func (m *Game_DissolveDesk) Reset()                    { *m = Game_DissolveDesk{} }
 func (m *Game_DissolveDesk) String() string            { return proto.CompactTextString(m) }
 func (*Game_DissolveDesk) ProtoMessage()               {}
-func (*Game_DissolveDesk) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{25} }
+func (*Game_DissolveDesk) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{25} }
 
 func (m *Game_DissolveDesk) GetHeader() *ProtoHeader {
 	if m != nil {
@@ -1651,7 +1721,7 @@ type Game_AckDissolveDesk struct {
 func (m *Game_AckDissolveDesk) Reset()                    { *m = Game_AckDissolveDesk{} }
 func (m *Game_AckDissolveDesk) String() string            { return proto.CompactTextString(m) }
 func (*Game_AckDissolveDesk) ProtoMessage()               {}
-func (*Game_AckDissolveDesk) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{26} }
+func (*Game_AckDissolveDesk) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{26} }
 
 func (m *Game_AckDissolveDesk) GetHeader() *ProtoHeader {
 	if m != nil {
@@ -1690,7 +1760,7 @@ type Game_LeaveDesk struct {
 func (m *Game_LeaveDesk) Reset()                    { *m = Game_LeaveDesk{} }
 func (m *Game_LeaveDesk) String() string            { return proto.CompactTextString(m) }
 func (*Game_LeaveDesk) ProtoMessage()               {}
-func (*Game_LeaveDesk) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{27} }
+func (*Game_LeaveDesk) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{27} }
 
 func (m *Game_LeaveDesk) GetHeader() *ProtoHeader {
 	if m != nil {
@@ -1708,7 +1778,7 @@ type Game_ACKLeaveDesk struct {
 func (m *Game_ACKLeaveDesk) Reset()                    { *m = Game_ACKLeaveDesk{} }
 func (m *Game_ACKLeaveDesk) String() string            { return proto.CompactTextString(m) }
 func (*Game_ACKLeaveDesk) ProtoMessage()               {}
-func (*Game_ACKLeaveDesk) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{28} }
+func (*Game_ACKLeaveDesk) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{28} }
 
 func (m *Game_ACKLeaveDesk) GetHeader() *ProtoHeader {
 	if m != nil {
@@ -1726,7 +1796,7 @@ type Game_Ready struct {
 func (m *Game_Ready) Reset()                    { *m = Game_Ready{} }
 func (m *Game_Ready) String() string            { return proto.CompactTextString(m) }
 func (*Game_Ready) ProtoMessage()               {}
-func (*Game_Ready) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{29} }
+func (*Game_Ready) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{29} }
 
 func (m *Game_Ready) GetHeader() *ProtoHeader {
 	if m != nil {
@@ -1745,7 +1815,7 @@ type Game_AckReady struct {
 func (m *Game_AckReady) Reset()                    { *m = Game_AckReady{} }
 func (m *Game_AckReady) String() string            { return proto.CompactTextString(m) }
 func (*Game_AckReady) ProtoMessage()               {}
-func (*Game_AckReady) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{30} }
+func (*Game_AckReady) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{30} }
 
 func (m *Game_AckReady) GetHeader() *ProtoHeader {
 	if m != nil {
@@ -1770,7 +1840,7 @@ type Game_Begin struct {
 func (m *Game_Begin) Reset()                    { *m = Game_Begin{} }
 func (m *Game_Begin) String() string            { return proto.CompactTextString(m) }
 func (*Game_Begin) ProtoMessage()               {}
-func (*Game_Begin) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{31} }
+func (*Game_Begin) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{31} }
 
 func (m *Game_Begin) GetHeader() *ProtoHeader {
 	if m != nil {
@@ -1790,7 +1860,7 @@ type Game_CardInfo struct {
 func (m *Game_CardInfo) Reset()                    { *m = Game_CardInfo{} }
 func (m *Game_CardInfo) String() string            { return proto.CompactTextString(m) }
 func (*Game_CardInfo) ProtoMessage()               {}
-func (*Game_CardInfo) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{32} }
+func (*Game_CardInfo) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{32} }
 
 func (m *Game_CardInfo) GetHeader() *ProtoHeader {
 	if m != nil {
@@ -1834,7 +1904,7 @@ type Game_InitCard struct {
 func (m *Game_InitCard) Reset()                    { *m = Game_InitCard{} }
 func (m *Game_InitCard) String() string            { return proto.CompactTextString(m) }
 func (*Game_InitCard) ProtoMessage()               {}
-func (*Game_InitCard) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{33} }
+func (*Game_InitCard) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{33} }
 
 func (m *Game_InitCard) GetMatchId() string {
 	if m != nil && m.MatchId != nil {
@@ -1939,7 +2009,7 @@ type Game_LeaveRoom struct {
 func (m *Game_LeaveRoom) Reset()                    { *m = Game_LeaveRoom{} }
 func (m *Game_LeaveRoom) String() string            { return proto.CompactTextString(m) }
 func (*Game_LeaveRoom) ProtoMessage()               {}
-func (*Game_LeaveRoom) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{34} }
+func (*Game_LeaveRoom) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{34} }
 
 func (m *Game_LeaveRoom) GetMatchId() string {
 	if m != nil && m.MatchId != nil {
@@ -1983,7 +2053,7 @@ type Game_ChangeTable struct {
 func (m *Game_ChangeTable) Reset()                    { *m = Game_ChangeTable{} }
 func (m *Game_ChangeTable) String() string            { return proto.CompactTextString(m) }
 func (*Game_ChangeTable) ProtoMessage()               {}
-func (*Game_ChangeTable) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{35} }
+func (*Game_ChangeTable) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{35} }
 
 func (m *Game_ChangeTable) GetMatchId() string {
 	if m != nil && m.MatchId != nil {
@@ -2041,7 +2111,7 @@ type Game_LeaveTable struct {
 func (m *Game_LeaveTable) Reset()                    { *m = Game_LeaveTable{} }
 func (m *Game_LeaveTable) String() string            { return proto.CompactTextString(m) }
 func (*Game_LeaveTable) ProtoMessage()               {}
-func (*Game_LeaveTable) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{36} }
+func (*Game_LeaveTable) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{36} }
 
 func (m *Game_LeaveTable) GetMatchId() string {
 	if m != nil && m.MatchId != nil {
@@ -2097,7 +2167,7 @@ type Game_NowelterInfo struct {
 func (m *Game_NowelterInfo) Reset()                    { *m = Game_NowelterInfo{} }
 func (m *Game_NowelterInfo) String() string            { return proto.CompactTextString(m) }
 func (*Game_NowelterInfo) ProtoMessage()               {}
-func (*Game_NowelterInfo) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{37} }
+func (*Game_NowelterInfo) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{37} }
 
 func (m *Game_NowelterInfo) GetReusername() string {
 	if m != nil && m.Reusername != nil {
@@ -2138,7 +2208,7 @@ type Game_Login struct {
 func (m *Game_Login) Reset()                    { *m = Game_Login{} }
 func (m *Game_Login) String() string            { return proto.CompactTextString(m) }
 func (*Game_Login) ProtoMessage()               {}
-func (*Game_Login) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{38} }
+func (*Game_Login) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{38} }
 
 func (m *Game_Login) GetUserId() uint32 {
 	if m != nil && m.UserId != nil {
@@ -2180,7 +2250,7 @@ type Game_AckLogin struct {
 func (m *Game_AckLogin) Reset()                    { *m = Game_AckLogin{} }
 func (m *Game_AckLogin) String() string            { return proto.CompactTextString(m) }
 func (*Game_AckLogin) ProtoMessage()               {}
-func (*Game_AckLogin) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{39} }
+func (*Game_AckLogin) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{39} }
 
 func (m *Game_AckLogin) GetNotice() string {
 	if m != nil && m.Notice != nil {
@@ -2268,7 +2338,7 @@ type Game_Notice struct {
 func (m *Game_Notice) Reset()                    { *m = Game_Notice{} }
 func (m *Game_Notice) String() string            { return proto.CompactTextString(m) }
 func (*Game_Notice) ProtoMessage()               {}
-func (*Game_Notice) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{40} }
+func (*Game_Notice) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{40} }
 
 func (m *Game_Notice) GetHeader() *ProtoHeader {
 	if m != nil {
@@ -2299,7 +2369,7 @@ type Game_AckNotice struct {
 func (m *Game_AckNotice) Reset()                    { *m = Game_AckNotice{} }
 func (m *Game_AckNotice) String() string            { return proto.CompactTextString(m) }
 func (*Game_AckNotice) ProtoMessage()               {}
-func (*Game_AckNotice) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{41} }
+func (*Game_AckNotice) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{41} }
 
 func (m *Game_AckNotice) GetHeader() *ProtoHeader {
 	if m != nil {
@@ -2361,7 +2431,7 @@ type Game_GameRecord struct {
 func (m *Game_GameRecord) Reset()                    { *m = Game_GameRecord{} }
 func (m *Game_GameRecord) String() string            { return proto.CompactTextString(m) }
 func (*Game_GameRecord) ProtoMessage()               {}
-func (*Game_GameRecord) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{42} }
+func (*Game_GameRecord) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{42} }
 
 func (m *Game_GameRecord) GetHeader() *ProtoHeader {
 	if m != nil {
@@ -2396,7 +2466,7 @@ type Game_BeanUserRecord struct {
 func (m *Game_BeanUserRecord) Reset()                    { *m = Game_BeanUserRecord{} }
 func (m *Game_BeanUserRecord) String() string            { return proto.CompactTextString(m) }
 func (*Game_BeanUserRecord) ProtoMessage()               {}
-func (*Game_BeanUserRecord) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{43} }
+func (*Game_BeanUserRecord) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{43} }
 
 func (m *Game_BeanUserRecord) GetHeader() *ProtoHeader {
 	if m != nil {
@@ -2439,7 +2509,7 @@ type Game_BeanGameRecord struct {
 func (m *Game_BeanGameRecord) Reset()                    { *m = Game_BeanGameRecord{} }
 func (m *Game_BeanGameRecord) String() string            { return proto.CompactTextString(m) }
 func (*Game_BeanGameRecord) ProtoMessage()               {}
-func (*Game_BeanGameRecord) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{44} }
+func (*Game_BeanGameRecord) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{44} }
 
 func (m *Game_BeanGameRecord) GetHeader() *ProtoHeader {
 	if m != nil {
@@ -2487,7 +2557,7 @@ type Game_AckGameRecord struct {
 func (m *Game_AckGameRecord) Reset()                    { *m = Game_AckGameRecord{} }
 func (m *Game_AckGameRecord) String() string            { return proto.CompactTextString(m) }
 func (*Game_AckGameRecord) ProtoMessage()               {}
-func (*Game_AckGameRecord) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{45} }
+func (*Game_AckGameRecord) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{45} }
 
 func (m *Game_AckGameRecord) GetHeader() *ProtoHeader {
 	if m != nil {
@@ -2522,7 +2592,7 @@ type WeixinInfo struct {
 func (m *WeixinInfo) Reset()                    { *m = WeixinInfo{} }
 func (m *WeixinInfo) String() string            { return proto.CompactTextString(m) }
 func (*WeixinInfo) ProtoMessage()               {}
-func (*WeixinInfo) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{46} }
+func (*WeixinInfo) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{46} }
 
 func (m *WeixinInfo) GetHeader() *ProtoHeader {
 	if m != nil {
@@ -2566,7 +2636,7 @@ type Game_Message struct {
 func (m *Game_Message) Reset()                    { *m = Game_Message{} }
 func (m *Game_Message) String() string            { return proto.CompactTextString(m) }
 func (*Game_Message) ProtoMessage()               {}
-func (*Game_Message) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{47} }
+func (*Game_Message) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{47} }
 
 func (m *Game_Message) GetHeader() *ProtoHeader {
 	if m != nil {
@@ -2623,7 +2693,7 @@ type Game_SendMessage struct {
 func (m *Game_SendMessage) Reset()                    { *m = Game_SendMessage{} }
 func (m *Game_SendMessage) String() string            { return proto.CompactTextString(m) }
 func (*Game_SendMessage) ProtoMessage()               {}
-func (*Game_SendMessage) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{48} }
+func (*Game_SendMessage) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{48} }
 
 func (m *Game_SendMessage) GetHeader() *ProtoHeader {
 	if m != nil {
@@ -2669,7 +2739,7 @@ type Game_Rebuy struct {
 func (m *Game_Rebuy) Reset()                    { *m = Game_Rebuy{} }
 func (m *Game_Rebuy) String() string            { return proto.CompactTextString(m) }
 func (*Game_Rebuy) ProtoMessage()               {}
-func (*Game_Rebuy) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{49} }
+func (*Game_Rebuy) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{49} }
 
 func (m *Game_Rebuy) GetHeader() *ProtoHeader {
 	if m != nil {
@@ -2695,7 +2765,7 @@ type Game_AckRebuy struct {
 func (m *Game_AckRebuy) Reset()                    { *m = Game_AckRebuy{} }
 func (m *Game_AckRebuy) String() string            { return proto.CompactTextString(m) }
 func (*Game_AckRebuy) ProtoMessage()               {}
-func (*Game_AckRebuy) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{50} }
+func (*Game_AckRebuy) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{50} }
 
 func (m *Game_AckRebuy) GetHeader() *ProtoHeader {
 	if m != nil {
@@ -2727,7 +2797,7 @@ type Game_NotRebuy struct {
 func (m *Game_NotRebuy) Reset()                    { *m = Game_NotRebuy{} }
 func (m *Game_NotRebuy) String() string            { return proto.CompactTextString(m) }
 func (*Game_NotRebuy) ProtoMessage()               {}
-func (*Game_NotRebuy) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{51} }
+func (*Game_NotRebuy) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{51} }
 
 func (m *Game_NotRebuy) GetHeader() *ProtoHeader {
 	if m != nil {
@@ -2751,7 +2821,7 @@ type Game_AckNotRebuy struct {
 func (m *Game_AckNotRebuy) Reset()                    { *m = Game_AckNotRebuy{} }
 func (m *Game_AckNotRebuy) String() string            { return proto.CompactTextString(m) }
 func (*Game_AckNotRebuy) ProtoMessage()               {}
-func (*Game_AckNotRebuy) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{52} }
+func (*Game_AckNotRebuy) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{52} }
 
 func (m *Game_AckNotRebuy) GetHeader() *ProtoHeader {
 	if m != nil {
@@ -2770,7 +2840,7 @@ type Game_Feedback struct {
 func (m *Game_Feedback) Reset()                    { *m = Game_Feedback{} }
 func (m *Game_Feedback) String() string            { return proto.CompactTextString(m) }
 func (*Game_Feedback) ProtoMessage()               {}
-func (*Game_Feedback) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{53} }
+func (*Game_Feedback) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{53} }
 
 func (m *Game_Feedback) GetHeader() *ProtoHeader {
 	if m != nil {
@@ -2845,7 +2915,7 @@ func init() {
 	proto.RegisterEnum("mjproto.Game_LeaveTable_Reason", Game_LeaveTable_Reason_name, Game_LeaveTable_Reason_value)
 }
 
-var fileDescriptor1 = []byte{
+var fileDescriptor0 = []byte{
 	// 2092 bytes of a gzipped FileDescriptorProto
 	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x09, 0x6e, 0x88, 0x02, 0xff, 0xd4, 0x58, 0xcb, 0x6f, 0x23, 0x49,
 	0x19, 0xdf, 0xee, 0xb6, 0x1d, 0xa7, 0x9c, 0x87, 0xc7, 0x33, 0x99, 0x78, 0xb3, 0x23, 0xb1, 0x6a,

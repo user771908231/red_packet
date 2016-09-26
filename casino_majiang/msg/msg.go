@@ -13,8 +13,8 @@ func init() {
 	Processor.Register(&majiangProto.Game_CreateRoom{})             //1 创建房间		game_RoomTypeInfo {
 	Processor.Register(&majiangProto.Game_AckCreateRoom{})		//2
 
-	Processor.Register(&majiangProto.Game_Ready{})                  //
-	Processor.Register(&majiangProto.Game_ExchangeCards{})          //换牌
+	Processor.Register(&majiangProto.Game_Ready{})                  //3
+	Processor.Register(&majiangProto.Game_ExchangeCards{})          //4换牌
 	Processor.Register(&majiangProto.Game_AckExchangeCards{})
 	Processor.Register(&majiangProto.Game_DingQue{})                //定缺
 	Processor.Register(&majiangProto.Game_Opening{})                //开始(表示都已经准备完了)

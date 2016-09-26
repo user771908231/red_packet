@@ -128,9 +128,7 @@ func (t *ThUser) wait() error {
 	uuid, _ := uuid.NewV4()
 	t.waitUUID = uuid.String()                //设置出牌等待的标志
 
-	//直接返回不用等待 -- 新版本
-	return nil
-
+	//下边的代码暂时没有使用...
 	go func() {
 		//tod 目前是测试性质的代码
 		defer Error.ErrorRecovery("user.timeout()")
@@ -209,7 +207,8 @@ func (t *ThUser) TimeOut(timeNow time.Time) (bool, error) {
 	}
 
 	//如果用户超时,或者用户已经离开,那么直接做弃牌的操作
-	if t.waiTime.Before(timeNow) || t.IsLeave {
+	//if t.waiTime.Before(timeNow) || t.IsLeave {
+	if t.IsLeave {
 		log.T("玩家[%v]超时,现在做超时的处理", t.UserId)
 		desk := t.GetDesk()
 		if desk == nil {
