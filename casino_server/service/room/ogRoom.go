@@ -494,7 +494,7 @@ func (t *ThDesk) getCoinInfo(buser *ThUser) []*bbproto.Game_WinCoin {
 
 
 			//如果需要两排，或者发送广播的目标是自己,那么直接两排。
-			if u.IsShowCard || u.UserId == buser {
+			if u.IsShowCard || u.UserId == buser.UserId {
 				if t.SendRive {
 					paicards := OGTHCardPaixu(u.thCards)
 					*gwc.Card1 = paicards[0].GetMapKey()
