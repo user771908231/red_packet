@@ -128,9 +128,27 @@ func (t *ThUser) wait() error {
 	uuid, _ := uuid.NewV4()
 	t.waitUUID = uuid.String()                //设置出牌等待的标志
 
+
+	///如果是离开的玩家，直接气派
+	if t.IsLeave {
+		desk := t.GetDesk()
+		if desk == nil {
+			log.T("用户已经离开系统自动弃牌，但是弃牌的呃时候没有找到.")
+		}
+
+		err := desk.DDBet(t.Seat, TH_DESK_BET_TYPE_FOLD, 0)
+		if err != nil {
+			log.E("用户离开了，系统自动给用户[%v]弃牌，但是弃牌失败errMsg[%v]", t.UserId, err)
+		}
+	}
+
+
+
 	//直接返回不用等待 -- 新版本
 	return nil
 
+
+	//下边的代码暂时没有使用...
 	go func() {
 		//tod 目前是测试性质的代码
 		defer Error.ErrorRecovery("user.timeout()")
