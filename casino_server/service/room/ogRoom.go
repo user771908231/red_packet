@@ -436,14 +436,14 @@ func (t *ThDesk) getWinCoinInfo() []*bbproto.Game_WinCoin {
 	//对每个人做计算
 	for i := 0; i < len(t.Users); i++ {
 		u := t.Users[i]
-		if u != nil && u.Status == TH_USER_STATUS_CLOSED && u.winAmount > 0  && u.thCards != nil && u.HandCards != nil {
+		if u != nil && u.IsClose() && u.winAmount > 0  && u.thCards != nil && u.HandCards != nil {
 			//开是对这个人计算
 			gwc := NewGame_WinCoin()
 
 			//如果用户选择亮牌
 			if u.IsShowCard {
 				//这里需要先对牌进行排序
-				if t.SendRive {
+				if u.IsAllIn() || u.IsBetting() {
 					//如果已经发了第五张牌,则发送全部的牌
 					paicards := OGTHCardPaixu(u.thCards)
 					*gwc.Card1 = paicards[0].GetMapKey()
@@ -485,17 +485,19 @@ func (t *ThDesk) getWinCoinInfo() []*bbproto.Game_WinCoin {
 func (t *ThDesk) getCoinInfo(buser *ThUser) []*bbproto.Game_WinCoin {
 	var ret []*bbproto.Game_WinCoin
 	//对每个人做计算
+	gettingOrALlingCount := t.GetBettingOrAllinCount()
 	for i := 0; i < len(t.Users); i++ {
 		u := t.Users[i]
-		if u != nil && u.Status == TH_USER_STATUS_CLOSED && u.thCards != nil && u.HandCards != nil {
-			log.T("开始计算[%v]的coinInfo,status[%v],thcards[%v],t.RoundCount[%v]", u.UserId, u.Status, u.thCards, t.RoundCount)
+		if u != nil && u.IsClose() && u.thCards != nil && u.HandCards != nil {
+			log.T("开始计算user[%v]一局比赛的得失的coinInfo,status[%v],thcards[%v],t.RoundCount[%v],u.winAmount[%v],u.totalBet[%v],u.isAllin[%v],u.isBettion[%v]",
+				u.UserId, u.Status, u.thCards, t.RoundCount, u.winAmount, u.TotalBet, u.IsAllIn(), u.IsBetting())
 			//开是对这个人计算
 			gwc := NewGame_WinCoin()
 
-
 			//如果需要两排，或者发送广播的目标是自己,那么直接两排。
 			if u.IsShowCard || u.UserId == buser.UserId {
-				if t.SendRive {
+				//只有在allin或者betting的人才显示5张牌
+				if (u.IsAllIn() || u.IsBetting()) && gettingOrALlingCount >= 2 {
 					paicards := OGTHCardPaixu(u.thCards)
 					*gwc.Card1 = paicards[0].GetMapKey()
 					*gwc.Card2 = paicards[1].GetMapKey()

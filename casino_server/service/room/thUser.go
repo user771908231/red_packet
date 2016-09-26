@@ -27,8 +27,6 @@ var TH_USER_STATUS_READY int32 = 3              //已经准备的玩家
 var TH_USER_STATUS_BETING int32 = 4           //押注中
 var TH_USER_STATUS_ALLINING int32 = 5         //allIn
 var TH_USER_STATUS_FOLDED int32 = 6           //弃牌
-var TH_USER_STATUS_WAIT_CLOSED int32 = 7      //等待结算
-var TH_USER_STATUS_CLOSED int32 = 8           //已经结算
 
 
 var TH_USER_GAME_STATUS_NOGAME int32 = 0      //不在游戏中
@@ -68,6 +66,7 @@ type ThUser struct {
 	TotalRoomCoin      int64                 //用户总的带入金额是多少钱
 	RebuyCount         int32                 //重购的次数
 	LotteryCheck       bool                  //这个字段用于判断是否可以开奖,默认是false:   1,如果用户操作弃牌,则直接设置为true,2,如果本局是all in,那么要到本轮次押注完成之后,才能设置为true
+	CloseCheck         bool                  //是否已经结算清楚了
 	IsShowCard         bool                  //是否亮牌
 }
 
@@ -350,8 +349,12 @@ func (t *ThUser) IsFold() bool {
 	return t.Status == TH_USER_STATUS_FOLDED
 }
 
+func (t *ThUser) IsWaitClose() bool {
+	return !t.CloseCheck
+}
+
 func (t *ThUser) IsClose() bool {
-	return t.Status == TH_USER_STATUS_CLOSED
+	return t.CloseCheck
 }
 
 
@@ -375,19 +378,24 @@ func (t *ThUser) WriteMsg(p proto.Message) error {
 		log.T("用户[%v]的agent为nil,不能发送信息", t.UserId)
 		return errors.New("用户的agent为nil,不能发送信息")
 	}
-
 }
 
 //通过agent得到session
 func GetUserDataByAgent(a gate.Agent) *bbproto.ThServerUserSession {
-	//获取agent中的userData
-	ad := a.UserData()
-	if ad == nil {
-		log.E("agent中的userData为nil")
+	agentData := a.UserData()
+	if agentData == nil {
 		return nil
 	}
+	return agentData.(*bbproto.ThServerUserSession)
+}
 
-	userData := ad.(*bbproto.ThServerUserSession)
-	log.T("得到的UserAgent中的userId是[%v]", userData.UserId)
-	return userData
+//检测用户的session是否正确
+func CheckUserSessionRight(s *bbproto.ThServerUserSession) bool {
+
+	/*
+		目前的检测方案(只有一种)
+		1。通过session找到桌子，表示session正确，否则不正确
+	 */
+	desk := GetDeskBySession(s)
+	return desk != nil
 }

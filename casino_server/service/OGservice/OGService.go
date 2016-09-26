@@ -244,15 +244,27 @@ func HandlerGameLogin(userId uint32, a gate.Agent) {
 	log.T("用户[%v]请求gameLogin", userId)
 	session := userService.GetUserSessionByUserId(userId)
 	log.T("用户的回话信息:session[%v]", session)
+
+	//返回session之前需要检测session的合法性
 	ret := bbproto.NewGame_AckLogin()
-	*ret.MatchId = session.GetMatchId()
-	*ret.TableId = session.GetDeskId()
-	*ret.GameStatus = session.GetGameStatus()
+	if room.CheckUserSessionRight(session) {
+		log.E("用户[%v]的session[%v]信息有误，请管理查看", userId, session)
+		*ret.MatchId = 0
+		*ret.TableId = 0
+		*ret.GameStatus = room.TH_USER_GAME_STATUS_NOGAME
+		*ret.RoomPassword = ""
+	} else {
+		*ret.MatchId = session.GetMatchId()
+		*ret.TableId = session.GetDeskId()
+		*ret.GameStatus = session.GetGameStatus()
+		*ret.RoomPassword = session.GetRoomKey()
+	}
+
 	*ret.Notice = noticeServer.GetNoticeByType(noticeServer.NOTICE_TYPE_GUNDONG).GetNoticeContent()        //滚动信息
 	*ret.CostRebuy = int64(1)
 	*ret.Championship = false                //锦标赛是否开启
 	*ret.Chip = userService.GetUserById(userId).GetDiamond()
-	*ret.RoomPassword = session.GetRoomKey()
 	*ret.CostCreateRoom = room.ThdeskConfig.CreateFee        //创建房间的单价
+
 	a.WriteMsg(ret)
 }

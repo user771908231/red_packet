@@ -65,6 +65,7 @@ func RedisThuserTransThuser(b *bbproto.ThServerUser) *ThUser {
 	t.TotalRoomCoin = b.GetTotalRoomCoin()
 	t.IsShowCard = b.GetIsShowCard()
 	t.MatchId = b.GetMatchId()                //得到matchId
+	t.CloseCheck = b.GetCloseCheck()
 	return t
 }
 
@@ -116,6 +117,7 @@ func UpdateRedisThuser(u *ThUser) error {
 	*ruser.LotteryCheck = u.LotteryCheck
 	*ruser.IsShowCard = u.IsShowCard
 	*ruser.MatchId = u.MatchId
+	*ruser.CloseCheck = u.CloseCheck
 
 	//3,保存到数据库
 	saveRedisThUser(ruser)
