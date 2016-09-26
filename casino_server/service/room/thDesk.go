@@ -437,15 +437,12 @@ func (t *ThDesk) FLeaveThuser(userId uint32) error {
 	if !t.IsRun() && t.JuCountNow <= 1 {
 		log.T("牌局还没有开始的时候user【%v】离开了房间,jucountNow[%v]", userId, t.JuCountNow)
 		//牌局还没有开始的时候
-		user.deskId = t.Id
 		user.GameStatus = TH_USER_GAME_STATUS_FRIEND        //朋友桌
 
 	} else {
 		log.T("牌局已经开始的时候user【%v】离开了房间", userId)
 		//牌局已经开始的时候
-		user.deskId = 0
 		user.GameStatus = TH_USER_GAME_STATUS_NOGAME        //用户离开之后,设置用户的游戏状态为没有游戏中
-
 		//如果是房主在游戏开始之后离开desk,需要变更房主
 		if t.DeskOwner == userId {
 			log.T("由于user【%v】是房主,并且离开了房间,所以需要更换房主", userId)
@@ -513,7 +510,7 @@ func (t *ThDesk) CSLeaveThuser(userId uint32) error {
 }
 
 func (r *ThDesk) RmUser(userId uint32) {
-	for _, user := range r.Users {
+	for i, user := range r.Users {
 		if user != nil && user.UserId == userId {
 
 			// 朋友桌的情况,rm user 之前需要保存在leaveUsers中
@@ -525,14 +522,14 @@ func (r *ThDesk) RmUser(userId uint32) {
 			user.IsLeave = true     //设置状态为离开
 			user.GameStatus = TH_USER_GAME_STATUS_NOGAME        //用户离开之后,设置用户的游戏状态为没有游戏中
 			user.CSGamingStatus = false
-			user.RoomCoin = 0
+			//user.RoomCoin = 0        //删除的时候，不用设置余额金钱为0
 			user.deskId = 0
 			user.IsLeave = true
 			user.IsBreak = true
 			user.UpdateAgentUserData()
 
 			//设置为nil
-			user = nil
+			r.Users[i] = nil
 		}
 	}
 
@@ -545,6 +542,8 @@ func (r *ThDesk) addLeaveUsers(u *ThUser) {
 	r.LeaveUsers = append(r.LeaveUsers, u)
 }
 
+
+//删除离开的leaveUser
 func (t *ThDesk) rmLeaveUsers(userId uint32) {
 	index := -1
 	for i, u := range t.LeaveUsers {
@@ -559,10 +558,6 @@ func (t *ThDesk) rmLeaveUsers(userId uint32) {
 	}
 
 }
-
-
-
-
 
 //设置用户为掉线的状态
 func (t *ThDesk) SetOfflineStatus(userId uint32) error {
