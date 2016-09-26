@@ -1344,14 +1344,18 @@ func (t *ThDesk) end() bool {
 
 //广播开奖的结果
 func (t *ThDesk) broadLotteryResult() error {
+
+	result := bbproto.NewGame_TestResult()        //需要广播的数据
+
+
 	//发送是否需要加注的时候,需要升盲之后才能确定
 	if t.IsChampionship() {
 		t.SmallBlindCoin = GetCSTHroom(t.MatchId).SmallBlindCoin
 		t.BigBlindCoin = GetCSTHroom(t.MatchId).SmallBlindCoin * 2
+		*result.RankUserCount = t.getRankUserCount()
 	}
 
 	//1.发送输赢结果
-	result := bbproto.NewGame_TestResult()
 	*result.Tableid = t.Id                          //桌子
 	result.BCanShowCard = t.GetBshowCard()          //
 	result.BShowCard = t.GetBshowCard()             //亮牌
@@ -1359,7 +1363,6 @@ func (t *ThDesk) broadLotteryResult() error {
 	result.WinCoinInfo = t.getWinCoinInfo()
 	result.HandCoin = t.GetRoomCoin()                //现实用户的余额
 	result.CoinInfo = t.getCoinInfo()               //每个人的输赢情况
-	*result.RankUserCount = t.getRankUserCount()
 	t.BroadcastTestResult(result)
 	return nil
 }
@@ -2481,7 +2484,7 @@ func (t *ThDesk) ChangeOwner() error {
 	var ouId uint32 = 0
 	for i := 0; i < len(t.Users); i++ {
 		u := t.Users[i]
-		if u != nil && t.IsUserRoomCoinEnough(u) && t.DeskOwner != u.UserId && !u.IsBreak && u.IsLeave {
+		if u != nil && t.IsUserRoomCoinEnough(u) && t.DeskOwner != u.UserId && !u.IsBreak && !u.IsLeave {
 			ouId = u.UserId
 			break
 		}
