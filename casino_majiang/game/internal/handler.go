@@ -32,3 +32,4 @@ func handlerGame_CreateRoom(args []interface{}) {
 	a := args[1].(gate.Agent)
 	MJService.HandlerGame_CreateRoom(m, a)
 }
+

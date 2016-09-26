@@ -1,0 +1,12 @@
+package mjroom;
+
+//麻将牌的结构
+message MjDesk {
+    optional int32 DeskId = 1;
+}
+
+//手里的一副牌
+message MjUser {
+    optional uint32 UserId = 1;
+
+}
