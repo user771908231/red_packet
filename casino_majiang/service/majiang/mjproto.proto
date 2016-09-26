@@ -1,0 +1,14 @@
+package majiang;
+
+//麻将牌的结构
+message MJPai {
+    optional int32 index = 1;
+    optional int32 flower = 2;
+    optional int32 value = 3;
+    optional string des = 4;
+}
+
+//手里的一副牌
+message MJHnadPai {
+    repeated MJPai Pais = 1;
+}
