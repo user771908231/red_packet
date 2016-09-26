@@ -5,7 +5,7 @@ import (
 	"casino_server/common/log"
 	"casino_server/msg/bbprotogo"
 	"github.com/name5566/leaf/gate"
-	majiangProto "casino_majiang/msg/bbprotogo"
+	majiangProto "casino_majiang/msg/protogo"
 	"casino_majiang/service/MJService"
 )
 

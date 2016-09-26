@@ -1,8 +1,9 @@
+syntax = "proto2";
+
 package mjproto;
 
 enum EProtoId {
     PID_GAME_CREATEROOM = 1;
-
 }
 
 enum DDErrorCode {
@@ -27,4 +28,50 @@ message ProtoHeader {
     optional uint32 userId = 2; // 用户 id
     optional int32 code = 3; // result code
     optional string error = 4; // result error description
+}
+
+// 微信信息
+message WeixinInfo {
+    optional ProtoHeader header = 4;
+    optional string openId = 1; // 微信授权用户唯一id
+    optional string nickName = 2; // 微信昵称
+    optional string headUrl = 3; // 微信头像
+}
+
+
+// 麻将牌
+message CardInfo {
+    optional ProtoHeader header = 1;
+    optional int32 type = 2;
+    optional int32 value = 3; //0:牌背；1~9：万；10~18：条；19~27：筒。
+}
+
+
+// 玩法：包括自摸、点炮、以及可多选的玩法
+message PlayOptions {
+    optional int32 ziMoRadio = 1; // 单选，自摸类型，如：自摸加底、自摸加番等
+    optional int32 dianGangHuaRadio = 2; // 单选，点炮类型，如：点杠花（点炮）、点杠花（自摸）等
+    repeated int32 othersCheckBox = 3; // 其他可复选的玩法，如：换三张、幺九将对、门清中张、天地胡、卡二条、可胡七对等
+    optional int32 huRadio = 4; // 胡法，如：自摸胡、点炮胡（可抢杠）
+}
+
+// 房间类型信息：包含房间类型和对应的局数、封顶、玩法等信息
+// 房间类型枚举
+enum MJRoomType {
+    roomType_xueZhanDaoDi = 0; // 血战到底
+    roomType_sanRenLiangFang = 1; // 三人两房
+    roomType_siRenLiangFang = 2; // 四人两房
+    roomType_deYangMaJiang = 3; // 德阳麻将
+    roomType_daoDaoHu = 4; // 倒倒胡
+    roomType_xueLiuChengHe = 5; // 血流成河
+}
+
+message RoomTypeInfo {
+    optional MJRoomType mjRoomType = 1; // 房间类型，如：血战到底、三人两房、四人两房、德阳麻将、倒倒胡、血流成河
+    optional int32 boardsCout = 2; // 局数，如：4局（房卡 × 2）、8局（房卡 × 3）
+    optional int64 capMax = 3; // 封顶，如：2番、3番、4番
+    optional PlayOptions playOptions = 4; // 玩法：包括自摸、点炮、以及可多选的玩法
+    optional int32 cardsNum = 5; // 牌张，如：7张、10张、13张
+    optional int32 settlement = 6; // 结算，如：1拖1、1拖2、3拖5
+    optional int64 baseValue = 7; // 底
 }

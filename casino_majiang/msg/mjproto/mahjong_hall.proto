@@ -1,0 +1,113 @@
+syntax = "proto2";
+
+import public "base.proto";
+package mjproto;
+option optimize_for = LITE_RUNTIME;
+
+// 显示大厅时请求
+message game_Login {
+    optional ProtoHeader header = 1;
+    optional uint32 userId = 2; // 用户id
+    optional int32 protoVersion = 3; // 客户端 proto version
+}
+
+//大厅回复
+message game_AckLogin {
+    optional ProtoHeader header = 1;
+    optional string notice = 2; // 滚动公告的内容
+    optional int32 gameStatus = 3; // 0：未游戏  1：正在朋友桌  2：正在锦标赛
+    optional int32 matchId = 4;
+    optional int32 tableId = 5;
+    optional string roomPassword = 6; // 朋友桌房间密码
+    optional int64 costCreateRoom = 7; // 建房消耗钻石数
+    optional int64 costRebuy = 8; // Rebuy消耗钻石数(锦标赛)
+    optional bool championship = 9; // 是否是锦标赛
+    optional int64 chip = 10; // 用户钻石余额
+    optional int32 mailCount = 11; // 用户邮件数量:>=0 (game_AckNotice中type=3对应的信息)
+}
+
+message game_Notice {
+    optional ProtoHeader header = 1;
+    optional int32 noticeType = 2; //公告的类型
+}
+
+// 公告的内容
+message game_AckNotice {
+    optional ProtoHeader header = 1;
+    optional int32 noticeType = 2; //公告的类型:1,滚动信息,2,充值信息,3,公告信息
+    optional string noticeTitle = 3; //公告的标题
+    optional string noticeContent = 4; //公告的内容
+    optional string noticeMemo = 5; //公告的备注
+    optional int32 id = 6; //公告的id
+    repeated string fileds = 7; //公告的字段,目前子还是给充值的协议使用
+}
+
+
+
+//游戏战绩
+message game_GameRecord {
+    optional ProtoHeader header = 1;
+    optional int32 id = 2; //战绩id
+    optional uint32 userId = 3; //用户id
+}
+// message
+message game_BeanUserRecord {
+    optional ProtoHeader header = 1;
+    optional uint32 UserId = 2; //用户id
+    optional string NickName = 3; //用户昵称
+    optional int64 WinAmount = 4; //用户输赢金额
+}
+// message
+message game_BeanGameRecord {
+    optional ProtoHeader header = 1;
+    optional int32 id = 2; //战绩id
+    optional int32 deskId = 3; //关联的桌子的Id
+    optional string beginTime = 4; //游戏开始的时间
+    repeated game_BeanUserRecord users = 5; //用户
+}
+//
+message game_AckGameRecord {
+    optional ProtoHeader header = 1;
+    optional uint32 userId = 2; //用户id
+    repeated game_BeanGameRecord records = 3; //结果
+}
+
+// 创建房间
+message game_CreateRoom {
+    optional ProtoHeader header = 1;
+    optional string password = 2; // 房间密码
+    optional RoomTypeInfo roomTypeInfo = 3; // 房间类型信息，包括：房间类型、局数、封顶、玩法、牌张、结算、底
+}
+// 创建房间回复的信息
+message game_AckCreateRoom {
+    optional ProtoHeader header = 1;
+    optional int32 deskId = 2; // 用户id
+    optional string password = 3; // 房间密码
+    optional int64 userBalance = 4; // 用户的余额
+    optional int64 createFee = 5; // 创建房间的费用
+    optional RoomTypeInfo roomTypeInfo = 6; // 房间类型信息，包括：房间类型、局数、封顶、玩法、牌张、结算、底
+}
+
+// 客户端请求进入 room
+message game_EnterRoom {
+    optional ProtoHeader header = 1;
+    optional int32 matchId = 2;
+    optional int32 tableId = 3;
+    optional string PassWord = 4; // 密码(朋友桌新增)
+    optional uint32 userId = 5; // 请求的userId
+}
+message game_AckEnterRoom {
+    optional ProtoHeader header = 1;
+    optional int32 matchId = 2;
+    optional int32 tableId = 3;
+    optional int32 nReason = 4;
+}
+
+
+// 反馈信息的协议
+message game_Feedback {
+    optional ProtoHeader header = 1;
+    optional string message = 2; //用户提交的反馈内容
+}
+
+
