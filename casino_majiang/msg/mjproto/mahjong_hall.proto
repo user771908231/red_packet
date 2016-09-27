@@ -4,14 +4,14 @@ import public "base.proto";
 package mjproto;
 option optimize_for = LITE_RUNTIME;
 
-// 显示大厅时请求
+// 游戏登录请求
 message game_Login {
     optional ProtoHeader header = 1;
     optional uint32 userId = 2; // 用户id
     optional int32 protoVersion = 3; // 客户端 proto version
 }
 
-//大厅回复
+// 游戏登录回复
 message game_AckLogin {
     optional ProtoHeader header = 1;
     optional string notice = 2; // 滚动公告的内容
@@ -50,14 +50,14 @@ message game_GameRecord {
     optional int32 id = 2; //战绩id
     optional uint32 userId = 3; //用户id
 }
-// message
+// 
 message game_BeanUserRecord {
     optional ProtoHeader header = 1;
     optional uint32 UserId = 2; //用户id
     optional string NickName = 3; //用户昵称
     optional int64 WinAmount = 4; //用户输赢金额
 }
-// message
+// 
 message game_BeanGameRecord {
     optional ProtoHeader header = 1;
     optional int32 id = 2; //战绩id
@@ -71,6 +71,15 @@ message game_AckGameRecord {
     optional uint32 userId = 2; //用户id
     repeated game_BeanGameRecord records = 3; //结果
 }
+
+
+
+// 反馈信息的协议
+message game_Feedback {
+    optional ProtoHeader header = 1;
+    optional string message = 2; //用户提交的反馈内容
+}
+
 
 // 创建房间
 message game_CreateRoom {
@@ -103,11 +112,5 @@ message game_AckEnterRoom {
     optional int32 nReason = 4;
 }
 
-
-// 反馈信息的协议
-message game_Feedback {
-    optional ProtoHeader header = 1;
-    optional string message = 2; //用户提交的反馈内容
-}
 
 

@@ -42,12 +42,17 @@ It has these top-level messages:
 	Game_BeanUserRecord
 	Game_BeanGameRecord
 	Game_AckGameRecord
+	Game_Feedback
 	Game_CreateRoom
 	Game_AckCreateRoom
 	Game_EnterRoom
 	Game_AckEnterRoom
-	Game_Feedback
+	ComposePoker
+	PlayerPoker
+	PlayerInfo
+	DeskGameInfo
 	Game_Opening
+	Game_SendCards
 	Game_ExchangeCards
 	Game_AckExchangeCards
 	Game_DingQue
@@ -62,12 +67,7 @@ It has these top-level messages:
 	Game_ActGuo
 	Game_AckActGuo
 	Game_OverTurn
-	ComposePoker
-	PlayerPoker
-	PlayerInfo
-	DeskGameInfo
 	Game_SendGameInfo
-	Game_InitCard
 */
 package mjproto
 

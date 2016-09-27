@@ -4,12 +4,68 @@ import public "base.proto";
 package mjproto;
 option optimize_for = LITE_RUNTIME;
 
+
+////////////////////////////////////////////////////////////////////
+// 数据结构
+
+message ComposePoker {
+    optional int32 num = 1;   // 麻将牌值
+    optional int32 type = 2;  // 类型（碰，明杠，暗杠）
+}
+
+message PlayerPoker {
+    repeated int32 handPoker = 1;   // 手牌数组（自己是明的，其他玩家服务器返回暗值，避免外挂获取别的玩家手牌）
+    repeated ComposePoker composePoker = 2;    // 摆牌数组（碰、明杠、暗杠）
+    repeated int32 outPoker = 3;    // 已出牌数组
+    optional int32 huPoker = 4; // 胡的牌
+}
+
+message PlayerInfo {
+    optional bool isBanker = 1; // 是否庄家
+    optional PlayerPoker playerPoker = 2; // 玩家的手牌、摆牌（碰杠）、已打出的牌、胡牌信息。客户端需根据服务端的返回进行排序动画。
+    optional int64 coin = 3; // 玩家当前显示的自己的筹码数
+    optional string nickName = 4; // 昵称
+    optional int32 seatId = 5; // 座位号
+    // ① 新增字段： repeated WeixinInfo  = 6;  //微信用户信息
+    // ② EnterMatch时、广播新进用户时，才需返回 WeixinInfo；其它广播不需要。
+    optional WeixinInfo weixinInfos = 6;
+    optional bool isOwner = 7;   // 当前用户是否房主
+    optional int32 bReady = 8; // 是否已准备
+}
+
+message DeskGameInfo {
+    optional int32 GameStatus = 1; // 当前的游戏状态：等待、游戏中、结算中等
+    optional RoomTypeInfo roomTypeInfo = 2; // 房间类型信息，包括：房间类型、局数、封顶、玩法、牌张、结算、底
+    optional int32 playerNum = 3; // 玩家数量
+    optional int32 activeSeat = 4;  // 当前谁操作，决定：中间的指针应该指向谁，哪个玩家当前是可操作状态
+    optional int32 actionTime = 5; // 玩家当前操作时间
+    optional int32 delayTime = 6; //当前延时时间
+    optional int32 nRebuyCount = 7; // REBUY 次数
+    optional int32 nInitActionTime = 8; // 初始操作时间
+    optional int32 nInitDelayTime = 9; // 初始延时时间
+    optional int64 initRoomCoin = 10; // 房间的初始带入金额
+    optional int32 currPlayCount = 11; // 朋友桌: 当前第几局
+    optional int32 totalPlayCount = 12; // 朋友桌: 总共几局
+
+}
+
+////////////////////////////////////////////////////////////////////
+// 通信协议
+
 // 开局（接收服务端消息）
 message game_Opening {
     optional ProtoHeader header = 1;
     optional int32 matchId = 2;
     optional int32 tableId = 3;
 }
+
+
+// 发牌
+message game_SendCards {
+    optional ProtoHeader header = 1;
+    optional PlayerPoker playerPoker = 2;
+}
+
 
 // 换牌（3张）
 message game_ExchangeCards {
@@ -134,43 +190,7 @@ message game_OverTurn {
     optional CardInfo chuCard = 6; // 如果有出牌，表示出的是哪张牌，否则置为空
 }
 
-message ComposePoker {
-    optional int32 num = 1;   // 麻将牌值
-    optional int32 type = 2;  // 类型（碰，明杠，暗杠）
-}
-message PlayerPoker {
-    repeated int32 handPoker = 1;   // 手牌数组（自己是明的，其他玩家服务器返回暗值，避免外挂获取别的玩家手牌）
-    repeated ComposePoker composePoker = 2;    // 摆牌数组（碰、明杠、暗杠）
-    repeated int32 outPoker = 3;    // 已出牌数组
-    optional int32 huPoker = 4; // 胡的牌
-}
-message PlayerInfo {
-    optional bool isBanker = 1; // 是否庄家
-    optional PlayerPoker playerPoker = 2; // 玩家的手牌、摆牌（碰杠）、已打出的牌、胡牌信息。客户端需根据服务端的返回进行排序动画。
-    optional int64 coin = 3; // 玩家当前显示的自己的筹码数
-    optional string nickName = 4; // 昵称
-    optional int32 seatId = 5; // 座位号
-    // ① 新增字段： repeated WeixinInfo  = 6;  //微信用户信息
-    // ② EnterMatch时、广播新进用户时，才需返回 WeixinInfo；其它广播不需要。
-    optional WeixinInfo weixinInfos = 6;
-    optional bool isOwner = 7;   // 当前用户是否房主
-    optional int32 bReady = 8; // 是否已准备
-}
-message DeskGameInfo {
-    optional int32 GameStatus = 1; // 当前的游戏状态：等待、游戏中、结算中等
-    optional RoomTypeInfo roomTypeInfo = 2; // 房间类型信息，包括：房间类型、局数、封顶、玩法、牌张、结算、底
-    optional int32 playerNum = 3; // 玩家数量
-    optional int32 activeSeat = 4;  // 当前谁操作，决定：中间的指针应该指向谁，哪个玩家当前是可操作状态
-    optional int32 actionTime = 5; // 玩家当前操作时间
-    optional int32 delayTime = 6; //当前延时时间
-    optional int32 nRebuyCount = 7; // REBUY 次数
-    optional int32 nInitActionTime = 8; // 初始操作时间
-    optional int32 nInitDelayTime = 9; // 初始延时时间
-    optional int64 initRoomCoin = 10; // 房间的初始带入金额
-    optional int32 currPlayCount = 11; // 朋友桌: 当前第几局
-    optional int32 totalPlayCount = 12; // 朋友桌: 总共几局
-    
-}
+
 // 发送游戏信息
 message game_SendGameInfo {
     optional ProtoHeader header = 1;
@@ -184,21 +204,3 @@ message game_SendGameInfo {
     optional uint32 senderUserId = 6; // 发起请求的人
 }
 
-
-// 初始化手牌（刚进房间时，掉线回到房间时）
-message game_InitCard {
-    optional ProtoHeader header = 1;
-    optional int32 matchId = 2;
-    optional int32 tableId = 3;
-    optional int32 seat = 4;
-    optional int32 NextUser = 5;
-    repeated CardInfo HandCard = 6;
-    repeated CardInfo PengCard = 7;
-    repeated CardInfo GangCard = 8;
-    optional CardInfo MoCard = 9; // 新摸起来的牌
-    optional int32 ActionTime = 10;
-    optional int32 DelayTime = 11;
-
-    optional int32 currPlayCount = 12; // 当前第几局
-    optional int32 totalPlayCount = 13; // 总共几局
-}
