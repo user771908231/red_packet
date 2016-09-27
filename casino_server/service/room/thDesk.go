@@ -781,6 +781,10 @@ func (t *ThDesk) BroadcastTestResult(p *bbproto.Game_TestResult) error {
 	//发送的时候,初始化自己的排名
 	for i := 0; i < len(t.Users); i++ {
 		u := t.Users[i]                //给这个玩家发送广播信息
+		if u != nil {
+			log.T("开始给玩家userId[%v],nickName[%v],u.isleave[%v],u.isbreak[%v],u.isclose[%v],u.closeCheck[%v]发送游戏结果的信息", u.UserId, u.NickName, u.IsLeave, u.IsBreak, u.IsClose(), u.CloseCheck)
+
+		}
 		if u != nil && !u.IsLeave && !u.IsBreak && u.IsClose() {
 			*p.Rank = t.getRankByUserId(u)        //获取用户的排名
 			*p.CanRebuy = t.getCanRebuyByUserId(u)        //是否可以重构
@@ -1117,7 +1121,6 @@ func (t *ThDesk) CalcThcardsWin() error {
 	for i := 0; i < len(t.Users); i++ {
 		u := t.Users[i]
 		if u != nil && u.IsGaming() && u.thCards != nil {
-			u.IsClose()
 			log.T("玩家[%v] ", u.UserId)
 			log.T("牌的信息:牌类型[%v],", u.thCards.ThType)
 			log.T("所有牌[%v]", u.thCards.Cards)
@@ -1213,7 +1216,7 @@ func (t *ThDesk) InitLotteryStatus() error {
 	return nil
 }
 
-//计算用户输赢盈眶
+//计算用户输赢
 func (t *ThDesk) calcUserWinAmount() error {
 
 	//计算每个allin池子的将近分配
@@ -1275,19 +1278,18 @@ func (t *ThDesk) calcUserWinAmount() error {
 				u.AddWinAmount(bbonus)
 				u.AddRoomCoin(bbonus)
 				u.winAmountDetail = append(u.winAmountDetail, bbonus)        //详细的奖励(边池主池分开)
+				u.CloseCheck = TH_USER_CLOSECHECK_CLOSE
+
 			}
 
-			//设置为结算完了的状态
-			if u != nil {
+			//把其他游戏中的人设置为已结清...
+			if u != nil && u.IsGaming() {
 				u.CloseCheck = TH_USER_CLOSECHECK_CLOSE
 			}
 
 		}
-		//log.T	("现在开始开奖,计算奖励之后t.getWinCoinInfo()[%v]", t.getWinCoinInfo())
 	}
-
 	return nil
-
 }
 
 
