@@ -125,8 +125,11 @@ func (r *CSThGameRoom) GetGamingCount() int32 {
 	for _, desk := range desks {
 		if desk != nil {
 			for _, user := range desk.Users {
-				if user != nil && user.CSGamingStatus && !user.IsLeave && !user.IsBreak {
-					count ++
+				if user != nil {
+					//log.T("判断游戏matchIs[%v]是否结束，打印用户的信息，userId[%v],user.CSGamingStatus[%v],user.IsLeave[%v],user.Isbreak[%v]", r.MatchId, user.UserId, user.CSGamingStatus, user.IsLeave, user.IsBreak)
+					if user.CSGamingStatus && !user.IsLeave && !user.IsBreak {
+						count ++
+					}
 				}
 			}
 		}
@@ -404,6 +407,27 @@ func (r *CSThGameRoom) End() {
 //
 func (r *CSThGameRoom) reward() {
 	log.T("开始发送奖励..")
+	//判断游戏的类型
+	//1,得到第一名，目前只有一种类型，赢钻石的类型
+	winUserUserId := r.RankInfo[0].GetUserId()        //得到赢的人的id
+	winUser := userService.GetUserById(winUserUserId)
+	log.T("获得第一名的是userId[%v].nickName[%v]", winUser.GetId(), winUser.GetNickName())
+	//给用加钱
+	winDiamondf := float64(r.rankUserCount) * 0.8
+	winDiamond := int64(winDiamondf)
+	remainDiamdon, err := userService.INCRUserDiamond(winUserUserId, int64(winDiamond))
+	if err != nil {
+		log.E("给用户userId[%v],nickName[%v]发送锦标赛钻石[%v]奖励的时候失败...", winUser.GetId(), winUser.GetNickName(), winDiamond)
+		return
+	}
+
+	//发送奖励成功，增加交易记录
+	err = userService.CreateDiamonDetail(winUserUserId, mode.T_USER_DIAMOND_DETAILS_TYPE_CSTH_DIAMON_REWARD, winDiamond, remainDiamdon, "用户锦标赛胜利，获得奖励")
+	if err != nil {
+		log.E("给用户userId[%v],nickName[%v]发送锦标赛钻石[%v]奖励的时候，创建资金记录失败...", winUser.GetId(), winUser.GetNickName(), winDiamond)
+		return
+	}
+
 	log.T("发送奖励完毕...")
 
 }

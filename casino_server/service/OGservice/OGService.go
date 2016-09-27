@@ -147,28 +147,22 @@ func HandlerGetGameRecords(m *bbproto.Game_GameRecord, a gate.Agent) {
 	//第一层循环战绩
 	for i := 0; i < len(deskRecords); i++ {
 		tr := deskRecords[i]
-		r := &bbproto.Game_BeanGameRecord{}
-		r.DeskId = new(int32)
-		r.Id = new(int32)
-		r.BeginTime = new(string)
-
+		r := bbproto.NewGame_BeanGameRecord()
 		*r.DeskId = tr.DeskId
+		log.T("找到的时间[%v]", tr.BeginTime)
 		*r.BeginTime = timeUtils.Format(tr.BeginTime)
 
 		//第二层循环人
 		for j := 0; j < len(tr.Records); j++ {
 			tru := tr.Records[j]
 
-			ru := &bbproto.Game_BeanUserRecord{}
-			ru.UserId = new(uint32)
-			ru.NickName = new(string)
-			ru.WinAmount = new(int64)
-
+			ru := bbproto.NewGame_BeanUserRecord()
 			*ru.UserId = tru.UserId
 			*ru.NickName = tru.NickName
 			*ru.WinAmount = tru.WinAmount
 			r.Users = append(r.Users, ru)
 		}
+
 		resDatav2.Records = append(resDatav2.Records, r)                //加入要返回的结果
 	}
 	//返回查询到的记录

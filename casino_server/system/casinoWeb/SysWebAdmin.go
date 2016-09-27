@@ -27,7 +27,7 @@ func gameInfo(w http.ResponseWriter, r *http.Request) {
 
 func gameInfocs(w http.ResponseWriter, r *http.Request) {
 	fr := room.GetFirstCSTHGame()
-	fmt.Fprint(w, "锦标赛房间matchId[%v],盲注等级[%v],readyTime[%v],beginTime[%v],endTime[%v],\n rankinfo[%v]",
+	fmt.Fprintf(w, "锦标赛房间matchId[%v],盲注等级[%v],readyTime[%v],beginTime[%v],endTime[%v],\n rankinfo[%v]\n",
 		fr.MatchId, fr.BlindLevel, timeUtils.Format(fr.ReadyTime), timeUtils.Format(fr.BeginTime), timeUtils.Format(fr.EndTime), fr.RankInfo)
 	for i := 0; i < len(fr.ThDeskBuf); i++ {
 		desk := fr.ThDeskBuf[i]
@@ -77,8 +77,8 @@ func printDeskInfo(w http.ResponseWriter, desk *room.ThDesk) {
 
 func printThUserInfo(w http.ResponseWriter, desk *room.ThDesk, u *room.ThUser) {
 	if u != nil {
-		userInfo := "当前desk[%v]的user[%v],seatId[%v],nickname[%v]的状态status[%v],HandCoin[%v],TurnCoin[%v],RoomCoin[%v],isBreak[%v],isLeave[%v],LotteryCheck[%v],u.gameStatus[%v],csgaminStatus[%v]-\n"
-		fmt.Fprintf(w, userInfo, desk.Id, u.UserId, u.Seat, u.NickName, u.GetStatusDes(), u.HandCoin, u.TurnCoin, u.RoomCoin, u.IsBreak, u.IsLeave, u.LotteryCheck, u.GameStatus, u.CSGamingStatus)
+		userInfo := "当前desk[%v]的user[%v],seatId[%v],nickname[%v]的状态status[%v],HandCoin[%v],TurnCoin[%v],RoomCoin[%v],isBreak[%v],isLeave[%v],LotteryCheck[%v],u.gameStatus[%v],csgaminStatus[%v],u.CloseCheck[%v],-\n"
+		fmt.Fprintf(w, userInfo, desk.Id, u.UserId, u.Seat, u.NickName, u.GetStatusDes(), u.HandCoin, u.TurnCoin, u.RoomCoin, u.IsBreak, u.IsLeave, u.LotteryCheck, u.GameStatus, u.CSGamingStatus, u.CloseCheck)
 
 	}
 
