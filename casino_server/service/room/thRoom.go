@@ -258,6 +258,8 @@ func (r *ThGameRoom) AddUserWithRoomKey(userId uint32, roomKey string, a gate.Ag
 	//2,如果roomKey 不是为""
 	mydesk := r.GetDeskByRoomKey(roomKey)
 	if mydesk == nil {
+		//通过roomKey进入房间失败的时候，直接清楚用户的session信息
+		userService.ClearUserSeesion(userId)
 		return nil, Error.NewError(int32(bbproto.DDErrorCode_ERRORCODE_INTO_DESK_NOTFOUND), "没有找到对应的房间")
 	}
 
@@ -339,22 +341,28 @@ func GetDeskByIdAndMatchId(deskId int32, matchId int32) *ThDesk {
 //通过连接得到桌子
 func GetDeskByAgent(a gate.Agent) *ThDesk {
 	//得到用户数据
-	var userData *bbproto.ThServerUserSession
-	agentData := a.UserData()
-	if agentData == nil {
+	userData := GetUserDataByAgent(a)
+	if userData == nil {
+		return nil
+	} else {
+		return GetDeskBySession(userData)
+
+	}
+}
+
+
+func GetDeskBySession(s *bbproto.ThServerUserSession) *ThDesk {
+	if s == nil {
 		return nil
 	}
 
-	userData = agentData.(*bbproto.ThServerUserSession)
-
 	//得到桌子
-	deskId := userData.GetDeskId()
-	matchId := userData.GetMatchId()
-	//gameStatus := userData.GetGameStatus()
+	deskId := s.GetDeskId()
+	matchId := s.GetMatchId()
 
 	//返回数据
 	desk := GetDeskByIdAndMatchId(deskId, matchId)
-	log.T("通过agent.userData()[%v]得到thdesk[%v]", userData, desk)
-
+	log.T("通过agent.userData()[%v]得到thdesk[%v]", s, desk)
 	return desk
+
 }

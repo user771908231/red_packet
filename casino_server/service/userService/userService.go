@@ -63,6 +63,10 @@ func GetRedisUserKey(id uint32) string {
 	return strings.Join([]string{casinoConf.DBT_T_USER, idStr}, "-")
 }
 
+func ClearUserSeesion(userId uint32) {
+	redisUtils.Del(GetRedisUserSeesionKey(userId))
+}
+
 
 //取session的rediskey
 func GetRedisUserSeesionKey(userid uint32) string {

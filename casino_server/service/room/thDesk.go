@@ -650,9 +650,9 @@ func (t *ThDesk) InitUserStatus() error {
 		u.TotalBet4calcAllin = 0
 		u.TotalBet = 0                  //新的一局游戏开始,把总的押注金额设置为0
 		u.winAmountDetail = nil
+		u.CloseCheck = false                //最开始都没有结算
 		u.LotteryCheck = true           //游戏开始的时候设置为false
-		u.IsShowCard = false                //默认不亮牌
-
+		u.IsShowCard = false            //默认不亮牌
 		//如果用户的余额不足或者用户的状态是属于断线的状态,则设置用户为等待入座
 		if !t.IsUserRoomCoinEnough(u) {
 			log.T("由于用户[%v] status[%v],的roomCoin[%v] <= desk.BigBlindCoin 所以设置用户为TH_USER_STATUS_WAITSEAT", u.UserId, u.IsBreak, u.RoomCoin, t.BigBlindCoin)
@@ -799,6 +799,7 @@ func (t *ThDesk) BroadcastTestResult(p *bbproto.Game_TestResult) error {
 			*p.Rank = t.getRankByUserId(u)        //获取用户的排名
 			*p.CanRebuy = t.getCanRebuyByUserId(u)        //是否可以重构
 			*p.RebuyCount = u.RebuyCount        //重购的次数
+			p.CoinInfo = t.getCoinInfo(u)               //每个人的输赢情况
 
 			//判断是否可以
 			t.Users[i].WriteMsg(p)
@@ -1075,6 +1076,8 @@ func (t *ThDesk) GetBettingOrAllinCount() int32 {
 
 
 
+
+
 //判断是否是开奖的时刻
 /**
 开奖的时候
@@ -1120,7 +1123,8 @@ func (t *ThDesk) CalcThcardsWin() error {
 	log.T("打印每个人牌的信息:")
 	for i := 0; i < len(t.Users); i++ {
 		u := t.Users[i]
-		if u != nil && u.Status == TH_USER_STATUS_WAIT_CLOSED {
+		if u != nil && u.IsWaitClose() && u.thCards != nil {
+			u.IsClose()
 			log.T("玩家[%v] ", u.UserId)
 			log.T("牌的信息:牌类型[%v],", u.thCards.ThType)
 			log.T("所有牌[%v]", u.thCards.Cards)
@@ -1147,8 +1151,7 @@ func (t *ThDesk) CalcThcardsWin() error {
 	for i := 0; i < len(t.Users); i++ {
 		u := t.Users[i]
 		if u != nil &&
-		u.Status == TH_USER_STATUS_WAIT_CLOSED  &&
-		pokerService.ThCompare(userWin.thCards, u.thCards) == pokerService.THPOKER_COMPARE_EQUALS {
+		u.IsWaitClose()  && pokerService.ThCompare(userWin.thCards, u.thCards) == pokerService.THPOKER_COMPARE_EQUALS {
 			u.thCards.IsWin = true
 		}
 	}
@@ -1157,7 +1160,7 @@ func (t *ThDesk) CalcThcardsWin() error {
 	log.T("开始计算谁的牌是赢牌,计算出来的结果:")
 	for i := 0; i < len(t.Users); i++ {
 		u := t.Users[i]
-		if u != nil && u.Status == TH_USER_STATUS_WAIT_CLOSED {
+		if u != nil && u.IsWaitClose() {
 			log.T("user[%v]的牌 isWin[%v]", u.UserId, u.thCards.IsWin)
 		}
 	}
@@ -1168,11 +1171,11 @@ func (t *ThDesk) CalcThcardsWin() error {
 //比较两张牌的大小
 func (t *ThDesk) Less(u1, u2 *ThUser) bool {
 
-	if u1 == nil || u1.Status != TH_USER_STATUS_WAIT_CLOSED {
+	if u1 == nil || !u1.IsWaitClose() {
 		return true
 	}
 
-	if u2 == nil || u2.Status != TH_USER_STATUS_WAIT_CLOSED {
+	if u2 == nil || !u2.IsWaitClose() {
 		return false
 	}
 
@@ -1192,18 +1195,27 @@ func (t *ThDesk) InitLotteryStatus() error {
 	t.Status = TH_DESK_STATUS_LOTTERY
 
 	log.T("开奖之前答应每个人的状态,并且修改为等待结算")
+
+	allinOrBettingCount := t.GetBettingOrAllinCount()
+
 	//2,设置用户的状态为等待开奖
 	for i := 0; i < len(t.Users); i++ {
 		u := t.Users[i]
 		if u != nil {
 			log.T("用户[%v].nickname[%v]的status[%v]", u.UserId, u.NickName, u.Status)
 			u.FinishtWait()        //不再等待
-			if u.IsAllIn() || u.IsBetting() {
+
+			/**
+				当//allinOrBettingCount  >= 2的时候，表示到了最后比牌的阶段，如果<2 表示 弃牌完成
+			 */
+			if (u.IsAllIn() || u.IsBetting()) && allinOrBettingCount >= 2 {
 				//如果用户当前的状态是押注中,或者all in,那么设置用户的状态喂等待结算
-				u.Status = TH_USER_STATUS_WAIT_CLOSED
+				//u.Status = TH_USER_STATUS_WAIT_CLOSED
+				u.CloseCheck = false        //未结算
 				u.IsShowCard = true
 			} else if u.IsFold() {
-				u.Status = TH_USER_STATUS_CLOSED
+				//u.Status = TH_USER_STATUS_CLOSED
+				u.CloseCheck = true        //已结算
 			}
 		}
 	}
@@ -1239,7 +1251,7 @@ func (t *ThDesk) calcUserWinAmount() error {
 				}
 
 				//判断用户是否得奖
-				if u.Status == TH_USER_STATUS_WAIT_CLOSED && u.thCards.IsWin {
+				if u.IsWaitClose() && u.thCards.IsWin {
 					//可以发送奖金
 					log.T("用户[%v].status[%v],iswin[%v]在allin.index[%v]活的奖金[%v]", u.UserId, u.Status, u.thCards.IsWin, i, bonus)
 					u.AddWinAmount(bonus)
@@ -1249,7 +1261,8 @@ func (t *ThDesk) calcUserWinAmount() error {
 
 				//如果用户是这个奖金池all in的用户,则此用户设置喂已经结清的状态
 				if u.UserId == a.UserId {
-					u.Status = TH_USER_STATUS_CLOSED
+					//u.Status = TH_USER_STATUS_CLOSED
+					u.CloseCheck = true
 				}
 			}
 		}
@@ -1265,7 +1278,7 @@ func (t *ThDesk) calcUserWinAmount() error {
 		for i := 0; i < len(t.Users); i++ {
 			u := t.Users[i]
 
-			if u != nil && u.Status == TH_USER_STATUS_WAIT_CLOSED && u.thCards.IsWin {
+			if u != nil && u.IsWaitClose() && u.thCards.IsWin {
 				//
 				//对这个用户做结算...
 				log.T("现在开始开奖,计算边池的奖励,user[%v]得到[%v]....", u.UserId, bbonus)
@@ -1276,7 +1289,8 @@ func (t *ThDesk) calcUserWinAmount() error {
 
 			//设置为结算完了的状态
 			if u != nil {
-				u.Status = TH_USER_STATUS_CLOSED        //结算完了之后需要,设置用户的状态为已经结算
+				//u.Status = TH_USER_STATUS_CLOSED        //结算完了之后需要,设置用户的状态为已经结算
+				u.CloseCheck = true
 			}
 
 		}
@@ -1357,7 +1371,6 @@ func (t *ThDesk) broadLotteryResult() error {
 	result.Handcard = t.GetHandCard()               //手牌
 	result.WinCoinInfo = t.getWinCoinInfo()
 	result.HandCoin = t.GetRoomCoin()                //现实用户的余额
-	result.CoinInfo = t.getCoinInfo()               //每个人的输赢情况
 	t.BroadcastTestResult(result)
 	return nil
 }
@@ -1462,7 +1475,7 @@ func (t *ThDesk) SaveLotteryDatath() error {
 			continue
 		}
 
-		if u.Status != TH_USER_STATUS_CLOSED {
+		if !u.IsClose() {
 			log.E("保存用户[%v]信息到数据库的时候出错,状态[%v]不正确", u.UserId, u.Status)
 			continue
 		}
@@ -1563,7 +1576,7 @@ func (t *ThDesk) GetWinCount() int {
 	var result int = 0
 	for i := 0; i < len(t.Users); i++ {
 		u := t.Users[i]
-		if u != nil && u.Status == TH_USER_STATUS_WAIT_CLOSED && u.thCards.IsWin {
+		if u != nil && u.IsWaitClose() && u.thCards.IsWin {
 			//如果用户不为空,并且状态是等待结算,牌的信息现实的是win 那么,表示一个赢的人
 			result ++
 		}
