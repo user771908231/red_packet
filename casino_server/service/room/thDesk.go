@@ -642,20 +642,9 @@ func (t *ThDesk) InitUserStatus() error {
 			continue
 		}
 
-		log.T("用户[%v]的status[%v],BreakStatus[%v],:", u.UserId, u.Status, u.IsBreak)
+		log.T("开始一局新的游戏，清空user [%v] nickeName[%v]的数据", u.UserId, u.NickName)
 		//新的一局开始,设置用户的状态
-		u.HandCoin = 0
-		u.TurnCoin = 0
-		u.winAmount = 0
-		u.TotalBet4calcAllin = 0
-		u.TotalBet = 0                  //新的一局游戏开始,把总的押注金额设置为0
-		u.winAmountDetail = nil
-		u.CloseCheck = false                //最开始都没有结算
-		u.LotteryCheck = true           //游戏开始的时候设置为false
-		u.IsShowCard = false            //默认不亮牌
-		u.HandCards = nil
-		u.thCards = nil
-		
+		u.ClearHistoryData()
 		//如果用户的余额不足或者用户的状态是属于断线的状态,则设置用户为等待入座
 		if !t.IsUserRoomCoinEnough(u) {
 			log.T("由于用户[%v] status[%v],的roomCoin[%v] <= desk.BigBlindCoin 所以设置用户为TH_USER_STATUS_WAITSEAT", u.UserId, u.IsBreak, u.RoomCoin, t.BigBlindCoin)
@@ -695,7 +684,7 @@ func (t *ThDesk) RmLeaveUser() {
 	//重新对玩家进行赋值
 	usersTemp := make([]*ThUser, len(t.Users))
 	copy(usersTemp, t.Users)
-	log.T("原来的thsuers:[%v]", t.Users)
+	//log.T("原来的thsuers:[%v]", t.Users)
 
 	//初始化之前的用户为nil
 	for i := 0; i < len(t.Users); i++ {
@@ -1390,6 +1379,7 @@ func (t *ThDesk) afterLottery() error {
 		if u == nil {
 			continue
 		}
+		u.ClearHistoryData()        //清楚历史数据的状态
 
 		if !u.IsBreak {
 			if t.IsFriend() {

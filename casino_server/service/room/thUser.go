@@ -70,6 +70,21 @@ type ThUser struct {
 	IsShowCard         bool                  //是否亮牌
 }
 
+// 初始化用户的状态
+func (u *ThUser) ClearHistoryData() {
+	u.HandCoin = 0
+	u.TurnCoin = 0
+	u.winAmount = 0
+	u.TotalBet4calcAllin = 0
+	u.TotalBet = 0                  //新的一局游戏开始,把总的押注金额设置为0
+	u.winAmountDetail = nil
+	u.CloseCheck = false                //最开始都没有结算
+	u.LotteryCheck = true           //游戏开始的时候设置为false
+	u.IsShowCard = false            //默认不亮牌
+	u.HandCards = nil
+	u.thCards = nil
+}
+
 func (t *ThUser) GetCoin() int64 {
 	redu := userService.GetUserById(t.UserId)
 	if redu == nil {
