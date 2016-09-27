@@ -4,6 +4,18 @@ import public "base.proto";
 package mjproto;
 option optimize_for = LITE_RUNTIME;
 
+
+
+
+// 接入服务器
+message game_QuickConn {
+    optional ProtoHeader header = 1;
+}
+
+message game_AckQuickConn {
+    optional ProtoHeader header = 1;
+}
+
 // 游戏登录请求
 message game_Login {
     optional ProtoHeader header = 1;
@@ -84,9 +96,9 @@ message game_Feedback {
 // 创建房间
 message game_CreateRoom {
     optional ProtoHeader header = 1;
-    optional string password = 2; // 房间密码
-    optional RoomTypeInfo roomTypeInfo = 3; // 房间类型信息，包括：房间类型、局数、封顶、玩法、牌张、结算、底
+    optional RoomTypeInfo roomTypeInfo = 2; // 房间类型信息，包括：房间类型、局数、封顶、玩法、牌张、结算、底
 }
+
 // 创建房间回复的信息
 message game_AckCreateRoom {
     optional ProtoHeader header = 1;
@@ -97,20 +109,16 @@ message game_AckCreateRoom {
     optional RoomTypeInfo roomTypeInfo = 6; // 房间类型信息，包括：房间类型、局数、封顶、玩法、牌张、结算、底
 }
 
-// 客户端请求进入 room
+// 客户端请求进入 room, 服务器返回game_SendGameInfo
 message game_EnterRoom {
     optional ProtoHeader header = 1;
     optional int32 matchId = 2;
     optional int32 tableId = 3;
-    optional string PassWord = 4; // 密码(朋友桌新增)
+    optional string PassWord = 4; // 房间密码
     optional uint32 userId = 5; // 请求的userId
 }
+
 message game_AckEnterRoom {
     optional ProtoHeader header = 1;
-    optional int32 matchId = 2;
-    optional int32 tableId = 3;
-    optional int32 nReason = 4;
 }
-
-
 

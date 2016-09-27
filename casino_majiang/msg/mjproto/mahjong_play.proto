@@ -31,6 +31,9 @@ message PlayerInfo {
     optional WeixinInfo weixinInfos = 6;
     optional bool isOwner = 7;   // 当前用户是否房主
     optional int32 bReady = 8; // 是否已准备
+    optional int32 bDingQue = 9; // 是否已定缺
+    optional int32 bExchanged = 10; // 是否已换牌(换3张)
+    optional int32 nHuPai = 11;     // 0:未胡牌; >=1: 已胡牌(血流成河时,表示次数)
 }
 
 message DeskGameInfo {
@@ -61,7 +64,7 @@ message game_Opening {
 
 
 // 发牌
-message game_SendCards {
+message game_DealCards {
     optional ProtoHeader header = 1;
     optional PlayerPoker playerPoker = 2;
 }
@@ -74,6 +77,7 @@ message game_ExchangeCards {
     optional int32 tableId = 3;
     optional int32 seat = 4;
     repeated CardInfo exchangeOutCards = 5; // 要换出的 3 张牌
+    optional uint32 userId = 6; // 操作人 (广播给其它用户时用到)
 }
 message game_AckExchangeCards {
     optional ProtoHeader header = 1;
@@ -93,21 +97,36 @@ message game_DingQue {
     optional int32 matchId = 2;
     optional int32 tableId = 3;
     optional int32 color = 4; // 定缺的花色
+    optional uint32 userId = 5; // 操作人 (广播给其它用户时用到)
 }
-// 已XX协议，如：已准备、已选牌（换三张）、已定缺
-message game_BroadcastAlreadyXX {
-    optional ProtoHeader header = 1;
-    optional int32 matchId = 2;
-    optional int32 tableId = 3;
-    optional uint32 userId = 4; // 谁
-    optional int32 type = 5;    // XX 的类型，如：准备、选牌、定缺
-}
+
 // 定缺开始广播（和ACK）
 message game_BroadcastBeginDingQue {
     optional ProtoHeader header = 1;
-    optional int32 matchId = 2;
-    optional int32 tableId = 3;
-    repeated int32 color = 4; // 定缺的花色
+    repeated int32 color = 2; // 定缺的花色
+}
+
+// 换牌开始(广播)
+message game_BroadcastBeginExchange {
+    optional ProtoHeader header = 1;
+}
+
+// 摸牌
+message game_GetInCard {
+    optional ProtoHeader header = 1;
+    optional CardInfo card = 2;
+}
+
+
+// 出牌
+message game_SendOutCard {
+    optional ProtoHeader header = 1;
+    optional int32 cardId = 2; //要出的牌id
+}
+
+message game_AckSendOutCard {
+    optional ProtoHeader header = 1;
+    optional int32 result = 2; // 0:出牌成功 1:有人可碰/胡
 }
 
 // 碰牌
