@@ -34,6 +34,11 @@ var TH_USER_GAME_STATUS_FRIEND int32 = 1      //朋友桌
 var TH_USER_GAME_STATUS_CHAMPIONSHIP int32 = 2                //锦标赛
 
 
+var TH_USER_CLOSECHECK_NOGAME int32 = 0               //未开始游戏
+var TH_USER_CLOSECHECK_GAMING int32 = 1               //游戏中
+var TH_USER_CLOSECHECK_CLOSE int32 = 2                //已结算
+
+
 /**
 	正在玩德州的人
  */
@@ -66,7 +71,7 @@ type ThUser struct {
 	TotalRoomCoin      int64                 //用户总的带入金额是多少钱
 	RebuyCount         int32                 //重购的次数
 	LotteryCheck       bool                  //这个字段用于判断是否可以开奖,默认是false:   1,如果用户操作弃牌,则直接设置为true,2,如果本局是all in,那么要到本轮次押注完成之后,才能设置为true
-	CloseCheck         bool                  //是否已经结算清楚了
+	CloseCheck         int32                 //是否已经结算清楚了
 	IsShowCard         bool                  //是否亮牌
 }
 
@@ -78,7 +83,7 @@ func (u *ThUser) ClearHistoryData() {
 	u.TotalBet4calcAllin = 0
 	u.TotalBet = 0                  //新的一局游戏开始,把总的押注金额设置为0
 	u.winAmountDetail = nil
-	u.CloseCheck = false                //最开始都没有结算
+	u.CloseCheck = TH_USER_CLOSECHECK_NOGAME                //最开始都没有结算
 	u.LotteryCheck = true           //游戏开始的时候设置为false
 	u.IsShowCard = false            //默认不亮牌
 	u.HandCards = nil
@@ -122,16 +127,6 @@ func (t *ThUser) GetStatusDes() string {
 	}
 
 	return des
-
-}
-
-// 判断用户是否已经开始游戏来
-func (t *ThUser) IsGameStart() bool {
-	if ( t.IsBetting() || t.IsFold() || t.IsAllIn()) && t.thCards != nil {
-		return true
-	} else {
-		return false
-	}
 
 }
 
@@ -375,17 +370,12 @@ func (t *ThUser) IsFold() bool {
 	return t.Status == TH_USER_STATUS_FOLDED
 }
 
-func (t *ThUser) IsWaitClose() bool {
-	return !t.CloseCheck
-}
-
-//是否正在等待结算,这个方法暂时没有使用...
-func ( t*ThUser) IsWait2Lottery() bool {
-	return false
+func (t *ThUser) IsGaming() bool {
+	return t.CloseCheck == TH_USER_CLOSECHECK_GAMING
 }
 
 func (t *ThUser) IsClose() bool {
-	return t.CloseCheck
+	return t.CloseCheck == TH_USER_CLOSECHECK_CLOSE
 }
 
 

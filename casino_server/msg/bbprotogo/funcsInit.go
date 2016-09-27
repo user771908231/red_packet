@@ -190,7 +190,7 @@ func NewThServerUser() *ThServerUser {
 	user.LotteryCheck = new(bool)
 	user.IsShowCard = new(bool)
 	user.MatchId = new(int32)
-	user.CloseCheck = new(bool)
+	user.CloseCheck = new(int32)
 	return user
 }
 

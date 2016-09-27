@@ -65,7 +65,7 @@ message ThServerUser{
 	optional int64 TotalRoomCoin	=24;
 	optional bool IsShowCard        =25;
 	optional int32 MatchId 			=26;
-	optional bool CloseCheck 		=27;
+	optional int32 CloseCheck 		=27;
 }
 
 //保存用户的会话信息

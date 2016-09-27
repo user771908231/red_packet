@@ -9,6 +9,8 @@ import "time"
 
 var T_USER_DIAMOND_DETAILS_TYPE_CREATEDESK int32 = 2
 var T_USER_DIAMOND_DETAILS_TYPE_REBUY int32 = 3
+var T_USER_DIAMOND_DETAILS_TYPE_CSTH_DIAMON_REWARD int32 = 4	//锦标赛钻石奖励
+
 
 
 type T_user_diamond_details struct {

@@ -287,11 +287,7 @@ func GetCSTHroom(matchId int32) *CSThGameRoom {
 	if matchId < 0 {
 		return nil
 	} else {
-		//通过buf去寻找，这里只是暂时的...
 		return ChampionshipRoomBuf[matchId]
-
-		//先使用diamondGame 试试
-		//return DiamondGame.roomBuf[matchId]
 	}
 }
 
