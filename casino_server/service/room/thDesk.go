@@ -1123,7 +1123,7 @@ func (t *ThDesk) CalcThcardsWin() error {
 	log.T("打印每个人牌的信息:")
 	for i := 0; i < len(t.Users); i++ {
 		u := t.Users[i]
-		if u != nil && u.IsWaitClose() {
+		if u != nil && u.IsWaitClose() && u.thCards != nil {
 			u.IsClose()
 			log.T("玩家[%v] ", u.UserId)
 			log.T("牌的信息:牌类型[%v],", u.thCards.ThType)
