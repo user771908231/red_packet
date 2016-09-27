@@ -318,3 +318,19 @@ func NewGame_AckCreateDesk() *Game_AckCreateDesk {
 	result.UserBalance = new(int64)
 	return result
 }
+
+func NewGame_BeanUserRecord() *Game_BeanUserRecord {
+	ru := &Game_BeanUserRecord{}
+	ru.UserId = new(uint32)
+	ru.NickName = new(string)
+	ru.WinAmount = new(int64)
+	return ru
+}
+
+func NewGame_BeanGameRecord() *Game_BeanGameRecord {
+	r := &Game_BeanGameRecord{}
+	r.DeskId = new(int32)
+	r.Id = new(int32)
+	r.BeginTime = new(string)
+	return r
+}

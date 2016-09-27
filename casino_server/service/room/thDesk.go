@@ -989,6 +989,7 @@ func (t *ThDesk) OninitThDeskStatus() error {
 	t.SendRive = false        //是否已经发了第五张牌
 	t.GameNumber, _ = db.GetNextSeq(casinoConf.DBT_T_TH_GAMENUMBER_SEQ)
 	t.Status = TH_DESK_STATUS_RUN                //设置德州desk状态//设置状态为开始游戏
+	t.BeginTime = time.Now()        //游戏的开始时间是当前时间...
 
 	//如果是锦标赛,需要设置锦标赛的属性
 	if t.IsChampionship() {
@@ -1459,6 +1460,7 @@ func (t *ThDesk) SaveLotteryDatath() error {
 	deskRecord.DeskId = t.Id
 	deskRecord.BeginTime = t.BeginTime
 	deskRecord.UserIds = ""
+	deskRecord.GameNumber = t.GameNumber
 
 	//循环对每个人做处理
 	for i := 0; i < len(t.Users); i++ {
@@ -1475,7 +1477,6 @@ func (t *ThDesk) SaveLotteryDatath() error {
 		//1,修改user在redis中的数据
 		userService.FlashUser2Mongo(u.UserId)                        //刷新redis中的数据到mongo
 		//2,保存游戏相关的数据
-		//todo  游戏相关的数据结构 还没有建立,
 		thData := &mode.T_th_record{}
 		thData.Mid = bson.NewObjectId()
 		thData.BetAmount = u.TotalBet
