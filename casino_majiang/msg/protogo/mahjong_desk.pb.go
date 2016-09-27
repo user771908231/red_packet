@@ -116,17 +116,17 @@ func (m *Game_LeaveDesk) GetHeader() *ProtoHeader {
 }
 
 // 离开房间的回复
-type Game_ACKLeaveDesk struct {
+type Game_AckLeaveDesk struct {
 	Header           *ProtoHeader `protobuf:"bytes,1,opt,name=header" json:"header,omitempty"`
 	XXX_unrecognized []byte       `json:"-"`
 }
 
-func (m *Game_ACKLeaveDesk) Reset()                    { *m = Game_ACKLeaveDesk{} }
-func (m *Game_ACKLeaveDesk) String() string            { return proto.CompactTextString(m) }
-func (*Game_ACKLeaveDesk) ProtoMessage()               {}
-func (*Game_ACKLeaveDesk) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{3} }
+func (m *Game_AckLeaveDesk) Reset()                    { *m = Game_AckLeaveDesk{} }
+func (m *Game_AckLeaveDesk) String() string            { return proto.CompactTextString(m) }
+func (*Game_AckLeaveDesk) ProtoMessage()               {}
+func (*Game_AckLeaveDesk) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{3} }
 
-func (m *Game_ACKLeaveDesk) GetHeader() *ProtoHeader {
+func (m *Game_AckLeaveDesk) GetHeader() *ProtoHeader {
 	if m != nil {
 		return m.Header
 	}
@@ -136,6 +136,7 @@ func (m *Game_ACKLeaveDesk) GetHeader() *ProtoHeader {
 // 准备游戏
 type Game_Ready struct {
 	Header           *ProtoHeader `protobuf:"bytes,1,opt,name=header" json:"header,omitempty"`
+	UserId           *uint32      `protobuf:"varint,2,opt,name=userId" json:"userId,omitempty"`
 	XXX_unrecognized []byte       `json:"-"`
 }
 
@@ -149,6 +150,13 @@ func (m *Game_Ready) GetHeader() *ProtoHeader {
 		return m.Header
 	}
 	return nil
+}
+
+func (m *Game_Ready) GetUserId() uint32 {
+	if m != nil && m.UserId != nil {
+		return *m.UserId
+	}
+	return 0
 }
 
 // 准备游戏的结果
@@ -179,12 +187,12 @@ func (m *Game_AckReady) GetMsg() string {
 
 // 聊天的内容
 type Game_Message struct {
-	Header           *ProtoHeader `protobuf:"bytes,6,opt,name=header" json:"header,omitempty"`
-	MsgType          *int32       `protobuf:"varint,1,opt,name=msgType" json:"msgType,omitempty"`
-	Id               *int32       `protobuf:"varint,2,opt,name=id" json:"id,omitempty"`
-	Msg              *string      `protobuf:"bytes,3,opt,name=msg" json:"msg,omitempty"`
-	UserId           *uint32      `protobuf:"varint,4,opt,name=userId" json:"userId,omitempty"`
-	DeskId           *int32       `protobuf:"varint,5,opt,name=deskId" json:"deskId,omitempty"`
+	Header           *ProtoHeader `protobuf:"bytes,1,opt,name=header" json:"header,omitempty"`
+	MsgType          *int32       `protobuf:"varint,2,opt,name=msgType" json:"msgType,omitempty"`
+	Id               *int32       `protobuf:"varint,3,opt,name=id" json:"id,omitempty"`
+	Msg              *string      `protobuf:"bytes,4,opt,name=msg" json:"msg,omitempty"`
+	UserId           *uint32      `protobuf:"varint,5,opt,name=userId" json:"userId,omitempty"`
+	DeskId           *int32       `protobuf:"varint,6,opt,name=deskId" json:"deskId,omitempty"`
 	XXX_unrecognized []byte       `json:"-"`
 }
 
@@ -237,7 +245,7 @@ func (m *Game_Message) GetDeskId() int32 {
 
 // 消息广播
 type Game_SendMessage struct {
-	Header           *ProtoHeader `protobuf:"bytes,6,opt,name=header" json:"header,omitempty"`
+	Header           *ProtoHeader `protobuf:"bytes,1,opt,name=header" json:"header,omitempty"`
 	MsgType          *int32       `protobuf:"varint,2,opt,name=msgType" json:"msgType,omitempty"`
 	Id               *int32       `protobuf:"varint,3,opt,name=id" json:"id,omitempty"`
 	Msg              *string      `protobuf:"bytes,4,opt,name=msg" json:"msg,omitempty"`
@@ -287,33 +295,25 @@ func (m *Game_SendMessage) GetUserId() uint32 {
 
 // Start: 本局结束
 // 赢牌牌型和类型
-type Game_CardType struct {
-	Header           *ProtoHeader `protobuf:"bytes,1,opt,name=header" json:"header,omitempty"`
-	Cards            []*CardInfo  `protobuf:"bytes,2,rep,name=cards" json:"cards,omitempty"`
-	CardType         *int32       `protobuf:"varint,3,opt,name=cardType" json:"cardType,omitempty"`
-	XXX_unrecognized []byte       `json:"-"`
+type CardType struct {
+	Cards            []*CardInfo `protobuf:"bytes,1,rep,name=cards" json:"cards,omitempty"`
+	CardType         *int32      `protobuf:"varint,2,opt,name=cardType" json:"cardType,omitempty"`
+	XXX_unrecognized []byte      `json:"-"`
 }
 
-func (m *Game_CardType) Reset()                    { *m = Game_CardType{} }
-func (m *Game_CardType) String() string            { return proto.CompactTextString(m) }
-func (*Game_CardType) ProtoMessage()               {}
-func (*Game_CardType) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{8} }
+func (m *CardType) Reset()                    { *m = CardType{} }
+func (m *CardType) String() string            { return proto.CompactTextString(m) }
+func (*CardType) ProtoMessage()               {}
+func (*CardType) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{8} }
 
-func (m *Game_CardType) GetHeader() *ProtoHeader {
-	if m != nil {
-		return m.Header
-	}
-	return nil
-}
-
-func (m *Game_CardType) GetCards() []*CardInfo {
+func (m *CardType) GetCards() []*CardInfo {
 	if m != nil {
 		return m.Cards
 	}
 	return nil
 }
 
-func (m *Game_CardType) GetCardType() int32 {
+func (m *CardType) GetCardType() int32 {
 	if m != nil && m.CardType != nil {
 		return *m.CardType
 	}
@@ -321,326 +321,209 @@ func (m *Game_CardType) GetCardType() int32 {
 }
 
 // 赢牌信息：谁赢了多少
-type Game_WinCoin struct {
-	Header           *ProtoHeader   `protobuf:"bytes,1,opt,name=header" json:"header,omitempty"`
-	Seat             *int32         `protobuf:"varint,2,opt,name=seat" json:"seat,omitempty"`
-	WinCoin          *int64         `protobuf:"varint,3,opt,name=winCoin" json:"winCoin,omitempty"`
-	Coin             *int64         `protobuf:"varint,4,opt,name=coin" json:"coin,omitempty"`
-	CardType         *Game_CardType `protobuf:"bytes,5,opt,name=cardType" json:"cardType,omitempty"`
-	RoleName         *string        `protobuf:"bytes,6,opt,name=roleName" json:"roleName,omitempty"`
-	XXX_unrecognized []byte         `json:"-"`
+type WinCoinInfo struct {
+	NickName         *string   `protobuf:"bytes,1,opt,name=nickName" json:"nickName,omitempty"`
+	Seat             *int32    `protobuf:"varint,2,opt,name=seat" json:"seat,omitempty"`
+	WinCoin          *int64    `protobuf:"varint,3,opt,name=winCoin" json:"winCoin,omitempty"`
+	Coin             *int64    `protobuf:"varint,4,opt,name=coin" json:"coin,omitempty"`
+	CardType         *CardType `protobuf:"bytes,5,opt,name=cardType" json:"cardType,omitempty"`
+	XXX_unrecognized []byte    `json:"-"`
 }
 
-func (m *Game_WinCoin) Reset()                    { *m = Game_WinCoin{} }
-func (m *Game_WinCoin) String() string            { return proto.CompactTextString(m) }
-func (*Game_WinCoin) ProtoMessage()               {}
-func (*Game_WinCoin) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{9} }
+func (m *WinCoinInfo) Reset()                    { *m = WinCoinInfo{} }
+func (m *WinCoinInfo) String() string            { return proto.CompactTextString(m) }
+func (*WinCoinInfo) ProtoMessage()               {}
+func (*WinCoinInfo) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{9} }
 
-func (m *Game_WinCoin) GetHeader() *ProtoHeader {
-	if m != nil {
-		return m.Header
+func (m *WinCoinInfo) GetNickName() string {
+	if m != nil && m.NickName != nil {
+		return *m.NickName
 	}
-	return nil
+	return ""
 }
 
-func (m *Game_WinCoin) GetSeat() int32 {
+func (m *WinCoinInfo) GetSeat() int32 {
 	if m != nil && m.Seat != nil {
 		return *m.Seat
 	}
 	return 0
 }
 
-func (m *Game_WinCoin) GetWinCoin() int64 {
+func (m *WinCoinInfo) GetWinCoin() int64 {
 	if m != nil && m.WinCoin != nil {
 		return *m.WinCoin
 	}
 	return 0
 }
 
-func (m *Game_WinCoin) GetCoin() int64 {
+func (m *WinCoinInfo) GetCoin() int64 {
 	if m != nil && m.Coin != nil {
 		return *m.Coin
 	}
 	return 0
 }
 
-func (m *Game_WinCoin) GetCardType() *Game_CardType {
+func (m *WinCoinInfo) GetCardType() *CardType {
 	if m != nil {
 		return m.CardType
 	}
 	return nil
 }
 
-func (m *Game_WinCoin) GetRoleName() string {
-	if m != nil && m.RoleName != nil {
-		return *m.RoleName
-	}
-	return ""
-}
-
 // 牌局的结果（收到后客户端可以先 play 赢牌、亮牌动画，再显示结果弹窗）
-type Game_OverCurrentBoard struct {
-	Header           *ProtoHeader    `protobuf:"bytes,1,opt,name=header" json:"header,omitempty"`
-	MatchId          *int32          `protobuf:"varint,2,opt,name=matchId" json:"matchId,omitempty"`
-	TableId          *int32          `protobuf:"varint,3,opt,name=tableId" json:"tableId,omitempty"`
-	WinCoinInfo      []*Game_WinCoin `protobuf:"bytes,4,rep,name=winCoinInfo" json:"winCoinInfo,omitempty"`
-	Rank             *int32          `protobuf:"varint,5,opt,name=rank" json:"rank,omitempty"`
-	RankUserCount    *int32          `protobuf:"varint,6,opt,name=rankUserCount" json:"rankUserCount,omitempty"`
-	CanRebuy         *bool           `protobuf:"varint,7,opt,name=canRebuy" json:"canRebuy,omitempty"`
-	RebuyCount       *int32          `protobuf:"varint,8,opt,name=rebuyCount" json:"rebuyCount,omitempty"`
-	XXX_unrecognized []byte          `json:"-"`
+type Game_CurrentResult struct {
+	Header           *ProtoHeader   `protobuf:"bytes,1,opt,name=header" json:"header,omitempty"`
+	MatchId          *int32         `protobuf:"varint,2,opt,name=matchId" json:"matchId,omitempty"`
+	TableId          *int32         `protobuf:"varint,3,opt,name=tableId" json:"tableId,omitempty"`
+	WinCoinInfo      []*WinCoinInfo `protobuf:"bytes,4,rep,name=winCoinInfo" json:"winCoinInfo,omitempty"`
+	Rank             *int32         `protobuf:"varint,5,opt,name=rank" json:"rank,omitempty"`
+	RankUserCount    *int32         `protobuf:"varint,6,opt,name=rankUserCount" json:"rankUserCount,omitempty"`
+	CanRebuy         *bool          `protobuf:"varint,7,opt,name=canRebuy" json:"canRebuy,omitempty"`
+	RebuyCount       *int32         `protobuf:"varint,8,opt,name=rebuyCount" json:"rebuyCount,omitempty"`
+	XXX_unrecognized []byte         `json:"-"`
 }
 
-func (m *Game_OverCurrentBoard) Reset()                    { *m = Game_OverCurrentBoard{} }
-func (m *Game_OverCurrentBoard) String() string            { return proto.CompactTextString(m) }
-func (*Game_OverCurrentBoard) ProtoMessage()               {}
-func (*Game_OverCurrentBoard) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{10} }
+func (m *Game_CurrentResult) Reset()                    { *m = Game_CurrentResult{} }
+func (m *Game_CurrentResult) String() string            { return proto.CompactTextString(m) }
+func (*Game_CurrentResult) ProtoMessage()               {}
+func (*Game_CurrentResult) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{10} }
 
-func (m *Game_OverCurrentBoard) GetHeader() *ProtoHeader {
+func (m *Game_CurrentResult) GetHeader() *ProtoHeader {
 	if m != nil {
 		return m.Header
 	}
 	return nil
 }
 
-func (m *Game_OverCurrentBoard) GetMatchId() int32 {
+func (m *Game_CurrentResult) GetMatchId() int32 {
 	if m != nil && m.MatchId != nil {
 		return *m.MatchId
 	}
 	return 0
 }
 
-func (m *Game_OverCurrentBoard) GetTableId() int32 {
+func (m *Game_CurrentResult) GetTableId() int32 {
 	if m != nil && m.TableId != nil {
 		return *m.TableId
 	}
 	return 0
 }
 
-func (m *Game_OverCurrentBoard) GetWinCoinInfo() []*Game_WinCoin {
+func (m *Game_CurrentResult) GetWinCoinInfo() []*WinCoinInfo {
 	if m != nil {
 		return m.WinCoinInfo
 	}
 	return nil
 }
 
-func (m *Game_OverCurrentBoard) GetRank() int32 {
+func (m *Game_CurrentResult) GetRank() int32 {
 	if m != nil && m.Rank != nil {
 		return *m.Rank
 	}
 	return 0
 }
 
-func (m *Game_OverCurrentBoard) GetRankUserCount() int32 {
+func (m *Game_CurrentResult) GetRankUserCount() int32 {
 	if m != nil && m.RankUserCount != nil {
 		return *m.RankUserCount
 	}
 	return 0
 }
 
-func (m *Game_OverCurrentBoard) GetCanRebuy() bool {
+func (m *Game_CurrentResult) GetCanRebuy() bool {
 	if m != nil && m.CanRebuy != nil {
 		return *m.CanRebuy
 	}
 	return false
 }
 
-func (m *Game_OverCurrentBoard) GetRebuyCount() int32 {
+func (m *Game_CurrentResult) GetRebuyCount() int32 {
 	if m != nil && m.RebuyCount != nil {
 		return *m.RebuyCount
 	}
 	return 0
 }
 
-// Start: 全场结束Ï
-// 几局游戏完了之后的广播信息
-type Game_EndLottery struct {
-	Header           *ProtoHeader `protobuf:"bytes,1,opt,name=header" json:"header,omitempty"`
-	Coin             *int64       `protobuf:"varint,2,opt,name=coin" json:"coin,omitempty"`
-	BigWin           *bool        `protobuf:"varint,3,opt,name=bigWin" json:"bigWin,omitempty"`
-	Owner            *bool        `protobuf:"varint,4,opt,name=owner" json:"owner,omitempty"`
-	Rolename         *string      `protobuf:"bytes,5,opt,name=rolename" json:"rolename,omitempty"`
-	UserId           *uint32      `protobuf:"varint,6,opt,name=userId" json:"userId,omitempty"`
-	Seat             *int32       `protobuf:"varint,7,opt,name=seat" json:"seat,omitempty"`
-	XXX_unrecognized []byte       `json:"-"`
+// Start: 全场结束
+type EndLotteryInfo struct {
+	Seat             *int32  `protobuf:"varint,1,opt,name=seat" json:"seat,omitempty"`
+	Coin             *int64  `protobuf:"varint,2,opt,name=coin" json:"coin,omitempty"`
+	BigWin           *bool   `protobuf:"varint,3,opt,name=bigWin" json:"bigWin,omitempty"`
+	Owner            *bool   `protobuf:"varint,4,opt,name=owner" json:"owner,omitempty"`
+	Rolename         *string `protobuf:"bytes,5,opt,name=rolename" json:"rolename,omitempty"`
+	UserId           *uint32 `protobuf:"varint,6,opt,name=userId" json:"userId,omitempty"`
+	XXX_unrecognized []byte  `json:"-"`
 }
 
-func (m *Game_EndLottery) Reset()                    { *m = Game_EndLottery{} }
-func (m *Game_EndLottery) String() string            { return proto.CompactTextString(m) }
-func (*Game_EndLottery) ProtoMessage()               {}
-func (*Game_EndLottery) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{11} }
+func (m *EndLotteryInfo) Reset()                    { *m = EndLotteryInfo{} }
+func (m *EndLotteryInfo) String() string            { return proto.CompactTextString(m) }
+func (*EndLotteryInfo) ProtoMessage()               {}
+func (*EndLotteryInfo) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{11} }
 
-func (m *Game_EndLottery) GetHeader() *ProtoHeader {
-	if m != nil {
-		return m.Header
-	}
-	return nil
-}
-
-func (m *Game_EndLottery) GetCoin() int64 {
-	if m != nil && m.Coin != nil {
-		return *m.Coin
-	}
-	return 0
-}
-
-func (m *Game_EndLottery) GetBigWin() bool {
-	if m != nil && m.BigWin != nil {
-		return *m.BigWin
-	}
-	return false
-}
-
-func (m *Game_EndLottery) GetOwner() bool {
-	if m != nil && m.Owner != nil {
-		return *m.Owner
-	}
-	return false
-}
-
-func (m *Game_EndLottery) GetRolename() string {
-	if m != nil && m.Rolename != nil {
-		return *m.Rolename
-	}
-	return ""
-}
-
-func (m *Game_EndLottery) GetUserId() uint32 {
-	if m != nil && m.UserId != nil {
-		return *m.UserId
-	}
-	return 0
-}
-
-func (m *Game_EndLottery) GetSeat() int32 {
+func (m *EndLotteryInfo) GetSeat() int32 {
 	if m != nil && m.Seat != nil {
 		return *m.Seat
 	}
 	return 0
 }
 
-// 几局完成之后的情况
-type Game_SendDeskEndLottery struct {
-	Header           *ProtoHeader       `protobuf:"bytes,1,opt,name=header" json:"header,omitempty"`
-	CoinInfo         []*Game_EndLottery `protobuf:"bytes,2,rep,name=coinInfo" json:"coinInfo,omitempty"`
-	XXX_unrecognized []byte             `json:"-"`
+func (m *EndLotteryInfo) GetCoin() int64 {
+	if m != nil && m.Coin != nil {
+		return *m.Coin
+	}
+	return 0
 }
 
-func (m *Game_SendDeskEndLottery) Reset()                    { *m = Game_SendDeskEndLottery{} }
-func (m *Game_SendDeskEndLottery) String() string            { return proto.CompactTextString(m) }
-func (*Game_SendDeskEndLottery) ProtoMessage()               {}
-func (*Game_SendDeskEndLottery) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{12} }
+func (m *EndLotteryInfo) GetBigWin() bool {
+	if m != nil && m.BigWin != nil {
+		return *m.BigWin
+	}
+	return false
+}
 
-func (m *Game_SendDeskEndLottery) GetHeader() *ProtoHeader {
+func (m *EndLotteryInfo) GetOwner() bool {
+	if m != nil && m.Owner != nil {
+		return *m.Owner
+	}
+	return false
+}
+
+func (m *EndLotteryInfo) GetRolename() string {
+	if m != nil && m.Rolename != nil {
+		return *m.Rolename
+	}
+	return ""
+}
+
+func (m *EndLotteryInfo) GetUserId() uint32 {
+	if m != nil && m.UserId != nil {
+		return *m.UserId
+	}
+	return 0
+}
+
+// 牌局结束(广播)
+type Game_SendEndLottery struct {
+	Header           *ProtoHeader      `protobuf:"bytes,1,opt,name=header" json:"header,omitempty"`
+	CoinInfo         []*EndLotteryInfo `protobuf:"bytes,2,rep,name=coinInfo" json:"coinInfo,omitempty"`
+	XXX_unrecognized []byte            `json:"-"`
+}
+
+func (m *Game_SendEndLottery) Reset()                    { *m = Game_SendEndLottery{} }
+func (m *Game_SendEndLottery) String() string            { return proto.CompactTextString(m) }
+func (*Game_SendEndLottery) ProtoMessage()               {}
+func (*Game_SendEndLottery) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{12} }
+
+func (m *Game_SendEndLottery) GetHeader() *ProtoHeader {
 	if m != nil {
 		return m.Header
 	}
 	return nil
 }
 
-func (m *Game_SendDeskEndLottery) GetCoinInfo() []*Game_EndLottery {
+func (m *Game_SendEndLottery) GetCoinInfo() []*EndLotteryInfo {
 	if m != nil {
 		return m.CoinInfo
-	}
-	return nil
-}
-
-type Game_Rebuy struct {
-	Header           *ProtoHeader `protobuf:"bytes,1,opt,name=header" json:"header,omitempty"`
-	Type             *int32       `protobuf:"varint,2,opt,name=type" json:"type,omitempty"`
-	XXX_unrecognized []byte       `json:"-"`
-}
-
-func (m *Game_Rebuy) Reset()                    { *m = Game_Rebuy{} }
-func (m *Game_Rebuy) String() string            { return proto.CompactTextString(m) }
-func (*Game_Rebuy) ProtoMessage()               {}
-func (*Game_Rebuy) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{13} }
-
-func (m *Game_Rebuy) GetHeader() *ProtoHeader {
-	if m != nil {
-		return m.Header
-	}
-	return nil
-}
-
-func (m *Game_Rebuy) GetType() int32 {
-	if m != nil && m.Type != nil {
-		return *m.Type
-	}
-	return 0
-}
-
-type Game_AckRebuy struct {
-	Header           *ProtoHeader `protobuf:"bytes,1,opt,name=header" json:"header,omitempty"`
-	RemainCount      *int32       `protobuf:"varint,2,opt,name=remainCount" json:"remainCount,omitempty"`
-	CurrChip         *int64       `protobuf:"varint,3,opt,name=currChip" json:"currChip,omitempty"`
-	XXX_unrecognized []byte       `json:"-"`
-}
-
-func (m *Game_AckRebuy) Reset()                    { *m = Game_AckRebuy{} }
-func (m *Game_AckRebuy) String() string            { return proto.CompactTextString(m) }
-func (*Game_AckRebuy) ProtoMessage()               {}
-func (*Game_AckRebuy) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{14} }
-
-func (m *Game_AckRebuy) GetHeader() *ProtoHeader {
-	if m != nil {
-		return m.Header
-	}
-	return nil
-}
-
-func (m *Game_AckRebuy) GetRemainCount() int32 {
-	if m != nil && m.RemainCount != nil {
-		return *m.RemainCount
-	}
-	return 0
-}
-
-func (m *Game_AckRebuy) GetCurrChip() int64 {
-	if m != nil && m.CurrChip != nil {
-		return *m.CurrChip
-	}
-	return 0
-}
-
-type Game_NotRebuy struct {
-	Header           *ProtoHeader `protobuf:"bytes,1,opt,name=header" json:"header,omitempty"`
-	Type             *int32       `protobuf:"varint,2,opt,name=type" json:"type,omitempty"`
-	XXX_unrecognized []byte       `json:"-"`
-}
-
-func (m *Game_NotRebuy) Reset()                    { *m = Game_NotRebuy{} }
-func (m *Game_NotRebuy) String() string            { return proto.CompactTextString(m) }
-func (*Game_NotRebuy) ProtoMessage()               {}
-func (*Game_NotRebuy) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{15} }
-
-func (m *Game_NotRebuy) GetHeader() *ProtoHeader {
-	if m != nil {
-		return m.Header
-	}
-	return nil
-}
-
-func (m *Game_NotRebuy) GetType() int32 {
-	if m != nil && m.Type != nil {
-		return *m.Type
-	}
-	return 0
-}
-
-type Game_AckNotRebuy struct {
-	Header           *ProtoHeader `protobuf:"bytes,1,opt,name=header" json:"header,omitempty"`
-	XXX_unrecognized []byte       `json:"-"`
-}
-
-func (m *Game_AckNotRebuy) Reset()                    { *m = Game_AckNotRebuy{} }
-func (m *Game_AckNotRebuy) String() string            { return proto.CompactTextString(m) }
-func (*Game_AckNotRebuy) ProtoMessage()               {}
-func (*Game_AckNotRebuy) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{16} }
-
-func (m *Game_AckNotRebuy) GetHeader() *ProtoHeader {
-	if m != nil {
-		return m.Header
 	}
 	return nil
 }
@@ -649,61 +532,51 @@ func init() {
 	proto.RegisterType((*Game_DissolveDesk)(nil), "mjproto.game_DissolveDesk")
 	proto.RegisterType((*Game_AckDissolveDesk)(nil), "mjproto.game_AckDissolveDesk")
 	proto.RegisterType((*Game_LeaveDesk)(nil), "mjproto.game_LeaveDesk")
-	proto.RegisterType((*Game_ACKLeaveDesk)(nil), "mjproto.game_ACKLeaveDesk")
+	proto.RegisterType((*Game_AckLeaveDesk)(nil), "mjproto.game_AckLeaveDesk")
 	proto.RegisterType((*Game_Ready)(nil), "mjproto.game_Ready")
 	proto.RegisterType((*Game_AckReady)(nil), "mjproto.game_AckReady")
 	proto.RegisterType((*Game_Message)(nil), "mjproto.game_Message")
 	proto.RegisterType((*Game_SendMessage)(nil), "mjproto.game_SendMessage")
-	proto.RegisterType((*Game_CardType)(nil), "mjproto.game_CardType")
-	proto.RegisterType((*Game_WinCoin)(nil), "mjproto.game_WinCoin")
-	proto.RegisterType((*Game_OverCurrentBoard)(nil), "mjproto.game_OverCurrentBoard")
-	proto.RegisterType((*Game_EndLottery)(nil), "mjproto.game_EndLottery")
-	proto.RegisterType((*Game_SendDeskEndLottery)(nil), "mjproto.game_SendDeskEndLottery")
-	proto.RegisterType((*Game_Rebuy)(nil), "mjproto.game_Rebuy")
-	proto.RegisterType((*Game_AckRebuy)(nil), "mjproto.game_AckRebuy")
-	proto.RegisterType((*Game_NotRebuy)(nil), "mjproto.game_NotRebuy")
-	proto.RegisterType((*Game_AckNotRebuy)(nil), "mjproto.game_AckNotRebuy")
+	proto.RegisterType((*CardType)(nil), "mjproto.CardType")
+	proto.RegisterType((*WinCoinInfo)(nil), "mjproto.WinCoinInfo")
+	proto.RegisterType((*Game_CurrentResult)(nil), "mjproto.game_CurrentResult")
+	proto.RegisterType((*EndLotteryInfo)(nil), "mjproto.EndLotteryInfo")
+	proto.RegisterType((*Game_SendEndLottery)(nil), "mjproto.game_SendEndLottery")
 }
 
 var fileDescriptor1 = []byte{
-	// 613 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x09, 0x6e, 0x88, 0x02, 0xff, 0xa4, 0x94, 0xcd, 0x6e, 0xd3, 0x40,
-	0x10, 0xc7, 0x89, 0x3f, 0xf2, 0x31, 0x69, 0xfa, 0x61, 0x5a, 0x88, 0x38, 0x55, 0x16, 0x87, 0xaa,
-	0x87, 0x1e, 0x7a, 0x40, 0x70, 0xa3, 0x71, 0x91, 0x1a, 0x51, 0x4a, 0x55, 0x40, 0xb9, 0x20, 0x55,
-	0x9b, 0x78, 0x49, 0xdc, 0x24, 0xbb, 0xd1, 0xae, 0xd3, 0x2a, 0x17, 0x9e, 0x82, 0x2b, 0xaf, 0xc5,
-	0xf3, 0x30, 0x3b, 0xde, 0xb8, 0x4e, 0x0e, 0xc8, 0x29, 0x97, 0xaa, 0xb3, 0x99, 0xf9, 0xef, 0x7f,
-	0x7e, 0x33, 0x5e, 0x08, 0xa6, 0x6c, 0x74, 0x27, 0xc5, 0xf0, 0x36, 0xe6, 0x7a, 0x7c, 0x32, 0x53,
-	0x32, 0x95, 0x41, 0x6d, 0x7a, 0x47, 0xff, 0xbc, 0x82, 0x3e, 0xd3, 0x3c, 0x3b, 0x0c, 0xbb, 0xb0,
-	0x37, 0x64, 0x53, 0x7e, 0x7b, 0x9e, 0x68, 0x2d, 0x27, 0xf7, 0xfc, 0x1c, 0xf3, 0x83, 0xd7, 0x50,
-	0x1d, 0x71, 0x16, 0x73, 0xd5, 0xae, 0x1c, 0x56, 0x8e, 0x9a, 0xa7, 0xfb, 0x27, 0xb6, 0xf4, 0xe4,
-	0xda, 0xfc, 0xbd, 0xa0, 0xdf, 0x82, 0x6d, 0xa8, 0xce, 0x35, 0x57, 0xdd, 0xb8, 0xed, 0x60, 0x56,
-	0x2b, 0x14, 0xb0, 0x4f, 0x52, 0x67, 0x83, 0xf1, 0xff, 0xab, 0x99, 0xd8, 0x78, 0xc7, 0xd8, 0xc5,
-	0xd8, 0x0f, 0x76, 0xa1, 0x3e, 0x63, 0x5a, 0xf7, 0xa4, 0x8a, 0xdb, 0x1e, 0x9e, 0x34, 0xc2, 0x37,
-	0xb0, 0x4d, 0xf7, 0x5d, 0x72, 0xb6, 0xc9, 0x4d, 0xe1, 0x3b, 0xdb, 0xf2, 0x59, 0xf4, 0x71, 0xd3,
-	0xd2, 0x53, 0x00, 0x2a, 0xbd, 0xc1, 0x70, 0x51, 0xb2, 0xa6, 0x03, 0xad, 0x25, 0x96, 0x0d, 0xca,
-	0x82, 0x26, 0xb8, 0x53, 0x3d, 0x24, 0x18, 0x8d, 0xf0, 0x27, 0x6c, 0x91, 0xc6, 0x27, 0xae, 0x35,
-	0x1b, 0xf2, 0x82, 0x44, 0xf5, 0x1f, 0x12, 0x3b, 0x50, 0x43, 0x89, 0xaf, 0x8b, 0x19, 0xa7, 0x9b,
-	0xfc, 0x00, 0xc0, 0x49, 0x32, 0xbe, 0xfe, 0x52, 0xdf, 0xc0, 0x6d, 0x14, 0xe0, 0x7b, 0x6b, 0xf0,
-	0x7d, 0x93, 0x1c, 0x2a, 0xd8, 0xa5, 0xfb, 0xbf, 0x70, 0x11, 0x3f, 0xd9, 0x83, 0x53, 0xf0, 0xe0,
-	0x16, 0x3d, 0x78, 0x6b, 0x1e, 0x7c, 0x5a, 0xa7, 0xc4, 0x72, 0x8b, 0x98, 0x8a, 0x4d, 0x7d, 0x49,
-	0x6e, 0x87, 0xe0, 0x0f, 0xb0, 0x42, 0xe3, 0x75, 0x2e, 0x26, 0xed, 0xe5, 0x49, 0x46, 0xa7, 0x2b,
-	0x7e, 0x48, 0xb3, 0x49, 0x03, 0xab, 0x99, 0xf9, 0x08, 0x7f, 0x57, 0x2c, 0xdf, 0x5e, 0x22, 0x22,
-	0x99, 0x88, 0x92, 0x57, 0x6d, 0x81, 0xa7, 0x39, 0x4b, 0x6d, 0x63, 0xd8, 0xe9, 0x43, 0x56, 0x4e,
-	0xaa, 0xae, 0xf9, 0x79, 0x60, 0x22, 0x8f, 0xa2, 0xa3, 0xc2, 0xad, 0x3e, 0x89, 0xbe, 0xc8, 0x45,
-	0x57, 0xfb, 0x44, 0x7f, 0x4a, 0x4e, 0xf8, 0x15, 0x1e, 0x12, 0xda, 0x46, 0xf8, 0xa7, 0x02, 0x07,
-	0x94, 0xf3, 0xf9, 0x9e, 0xab, 0x68, 0xae, 0x14, 0x17, 0x69, 0x47, 0x62, 0x7e, 0x49, 0xa3, 0x66,
-	0x08, 0x2c, 0x1d, 0x8c, 0xba, 0xf1, 0xa3, 0xd7, 0x94, 0xf5, 0x27, 0x3c, 0xff, 0xba, 0x8e, 0xa1,
-	0x69, 0xcd, 0x1b, 0x44, 0x68, 0xd9, 0xb0, 0x3b, 0x58, 0x35, 0xb8, 0x84, 0x83, 0x7d, 0x29, 0x26,
-	0xc6, 0xd9, 0x6a, 0x04, 0x07, 0xd0, 0x32, 0xd1, 0x37, 0x1c, 0x5d, 0x24, 0xe7, 0x22, 0x25, 0xcb,
-	0x7e, 0x06, 0x59, 0xdc, 0xf0, 0xfe, 0x7c, 0xd1, 0xae, 0xe1, 0x49, 0x3d, 0xc0, 0xc9, 0x2b, 0x13,
-	0x66, 0x59, 0x75, 0x02, 0xff, 0xab, 0x02, 0x3b, 0xa4, 0xfd, 0x41, 0xc4, 0x97, 0x32, 0x4d, 0xb9,
-	0x5a, 0x94, 0x67, 0x4f, 0x70, 0x1d, 0x82, 0x8b, 0xbb, 0xd3, 0x4f, 0x86, 0x3d, 0x8b, 0xbe, 0x1e,
-	0xb4, 0xc0, 0x97, 0x0f, 0x02, 0x25, 0x3c, 0x0a, 0x2d, 0x51, 0x61, 0x88, 0xfa, 0x6b, 0xcb, 0x56,
-	0xa5, 0x85, 0x5f, 0x8e, 0xb2, 0x46, 0xb6, 0xc6, 0xf0, 0x32, 0x5f, 0x77, 0xf3, 0x3a, 0x6c, 0xec,
-	0xee, 0x18, 0xbb, 0x5f, 0xb2, 0xcc, 0xf6, 0xb0, 0xbd, 0xca, 0xf2, 0x51, 0x31, 0x7c, 0x9f, 0xbf,
-	0x29, 0x08, 0xa7, 0x7c, 0xf7, 0x69, 0xfe, 0x49, 0x85, 0xdf, 0x8b, 0x2f, 0x4c, 0x79, 0x91, 0xe7,
-	0xd0, 0x54, 0x7c, 0xca, 0xcc, 0x54, 0xcd, 0x44, 0x9c, 0x7c, 0x6e, 0xb8, 0x60, 0xd1, 0x28, 0x99,
-	0x65, 0x6b, 0x1c, 0x46, 0x56, 0xfd, 0x4a, 0xa6, 0x4f, 0xb7, 0xf8, 0xd6, 0x3e, 0x20, 0x68, 0x71,
-	0x33, 0x9d, 0x8e, 0x73, 0xe1, 0x5e, 0x3f, 0xfb, 0x1b, 0x00, 0x00, 0xff, 0xff, 0x20, 0x78, 0xea,
-	0xeb, 0xd0, 0x06, 0x00, 0x00,
+	// 522 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x09, 0x6e, 0x88, 0x02, 0xff, 0xbc, 0x53, 0x4d, 0x6f, 0xd3, 0x40,
+	0x10, 0x25, 0x71, 0x9c, 0x8f, 0x49, 0x13, 0xda, 0xa5, 0x88, 0x88, 0x53, 0x65, 0x38, 0xd0, 0x4b,
+	0x0e, 0x1c, 0x90, 0xb8, 0x20, 0x91, 0x14, 0xa9, 0x91, 0x0a, 0xaa, 0x02, 0x28, 0xc7, 0x6a, 0x63,
+	0x4f, 0x13, 0x37, 0xf1, 0x6e, 0xd8, 0xb5, 0x89, 0x72, 0xe1, 0x47, 0xf2, 0x8b, 0x98, 0x1d, 0xdb,
+	0x69, 0xd2, 0x53, 0x03, 0x12, 0x97, 0xc8, 0xb3, 0xfb, 0xe6, 0xbd, 0x37, 0x6f, 0x36, 0x20, 0x12,
+	0x39, 0xbf, 0xd3, 0x6a, 0x76, 0x13, 0xa1, 0x5d, 0xf4, 0x57, 0x46, 0xa7, 0x5a, 0x34, 0x92, 0x3b,
+	0xfe, 0x78, 0x09, 0x53, 0x69, 0x31, 0x3f, 0x0c, 0x46, 0x70, 0x32, 0x93, 0x09, 0xde, 0x5c, 0xc4,
+	0xd6, 0xea, 0xe5, 0x4f, 0xbc, 0x20, 0xbc, 0x78, 0x0d, 0xf5, 0x39, 0xca, 0x08, 0x4d, 0xaf, 0x72,
+	0x56, 0x79, 0xd3, 0x7e, 0x7b, 0xda, 0x2f, 0x5a, 0xfb, 0xd7, 0xee, 0xf7, 0x92, 0xef, 0x44, 0x17,
+	0xea, 0x99, 0x45, 0x33, 0x8a, 0x7a, 0x55, 0x42, 0x75, 0x02, 0x05, 0xa7, 0x4c, 0xf5, 0x31, 0x5c,
+	0xfc, 0x3b, 0x9b, 0xab, 0x9d, 0x77, 0xaa, 0x3d, 0xaa, 0x7d, 0x71, 0x0c, 0xcd, 0x95, 0xb4, 0x76,
+	0xa2, 0x4d, 0xd4, 0xab, 0xd1, 0x49, 0x2b, 0x78, 0x07, 0x5d, 0xd6, 0xbb, 0x42, 0x79, 0x88, 0x52,
+	0xf0, 0xbe, 0x18, 0x99, 0x7c, 0x1e, 0xda, 0x3a, 0x00, 0xe0, 0xd6, 0x31, 0x95, 0x9b, 0xbf, 0x8c,
+	0x69, 0x00, 0x9d, 0x52, 0xfe, 0x10, 0x9a, 0x36, 0x78, 0x89, 0x9d, 0x31, 0x47, 0x2b, 0xf8, 0x05,
+	0x47, 0xcc, 0xf1, 0x19, 0xad, 0x95, 0x33, 0x7c, 0x24, 0xc5, 0x53, 0x68, 0x10, 0xc5, 0xb7, 0xcd,
+	0x0a, 0x99, 0xc6, 0x17, 0x00, 0xd5, 0xb8, 0xcc, 0xb7, 0xe0, 0xe7, 0x68, 0x77, 0x3c, 0xfb, 0x0f,
+	0x96, 0x51, 0x77, 0xe0, 0xc0, 0xc0, 0x31, 0xeb, 0x7f, 0x45, 0x15, 0xfd, 0x27, 0x0f, 0xc1, 0x07,
+	0x68, 0x0e, 0xa5, 0x89, 0x5c, 0xab, 0x38, 0x03, 0x3f, 0xa4, 0x6f, 0x4b, 0x52, 0x1e, 0x49, 0x9d,
+	0x6c, 0xa5, 0x1c, 0x62, 0xa4, 0x6e, 0xb5, 0x7b, 0x2e, 0x61, 0x81, 0xce, 0x85, 0x82, 0x1f, 0xd0,
+	0x9e, 0xc4, 0x6a, 0xa8, 0x63, 0x55, 0x02, 0x54, 0x1c, 0x2e, 0xbe, 0xd0, 0x18, 0x6c, 0xb8, 0x25,
+	0x8e, 0xa0, 0x66, 0x51, 0xa6, 0x85, 0x2f, 0x32, 0xba, 0xce, 0xe1, 0x6c, 0xce, 0x73, 0xd7, 0xa1,
+	0xab, 0x6a, 0x5c, 0xbd, 0xda, 0xe1, 0xf7, 0x79, 0xde, 0x7d, 0x13, 0xee, 0x22, 0xf8, 0x5d, 0x01,
+	0xc1, 0x39, 0x0d, 0x33, 0x63, 0x50, 0xa5, 0x63, 0xb4, 0xd9, 0x32, 0x3d, 0x20, 0x29, 0x99, 0x86,
+	0xf3, 0xe2, 0xe1, 0xb0, 0xa3, 0x54, 0x4e, 0x97, 0xb8, 0xfd, 0x4b, 0x9c, 0x43, 0x7b, 0x7d, 0x3f,
+	0x11, 0x19, 0xf3, 0xf6, 0xc8, 0x76, 0xa7, 0x25, 0xf3, 0x46, 0xaa, 0x05, 0x5b, 0xf5, 0xc5, 0x73,
+	0xe8, 0xb8, 0xea, 0x3b, 0xc5, 0x3b, 0xd4, 0x99, 0x4a, 0xf3, 0xad, 0xe6, 0x99, 0xa9, 0x31, 0x4e,
+	0xb3, 0x4d, 0xaf, 0x41, 0x27, 0x4d, 0x41, 0xdb, 0x31, 0xae, 0xcc, 0x51, 0x4d, 0xce, 0x31, 0x81,
+	0xee, 0x27, 0x15, 0x5d, 0xe9, 0x34, 0x45, 0xb3, 0x29, 0xc9, 0x39, 0xb8, 0x0a, 0xb3, 0x94, 0x39,
+	0x55, 0x39, 0x27, 0xda, 0xe2, 0x34, 0x9e, 0x4d, 0x8a, 0x14, 0x9b, 0xa2, 0x03, 0xbe, 0x5e, 0x2b,
+	0x1a, 0xbd, 0xc6, 0x25, 0x49, 0x1a, 0xbd, 0x44, 0xe5, 0xb6, 0xe0, 0x3f, 0x58, 0x7b, 0x9d, 0xd7,
+	0x7e, 0x0b, 0xcf, 0xb6, 0x4f, 0xed, 0x5e, 0xf7, 0x91, 0x19, 0x9e, 0xd3, 0x44, 0x65, 0x3c, 0x55,
+	0x8e, 0xe7, 0xc5, 0x16, 0xb7, 0x3f, 0xc4, 0xa0, 0x7a, 0xe9, 0x5d, 0x3f, 0xf9, 0x13, 0x00, 0x00,
+	0xff, 0xff, 0x6e, 0x25, 0x4c, 0x72, 0x38, 0x05, 0x00, 0x00,
 }
