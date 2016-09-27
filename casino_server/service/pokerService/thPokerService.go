@@ -526,19 +526,17 @@ func RandomTHPorkIndex(min, max, total int) []int32 {
 //通过手牌,和给定的牌得到最大的德州牌
 func GetTHPoker(hand, public []*bbproto.Pai, count int) *ThCards {
 	//判断入参是否正确...
-	if hand == nil || public == nil{
+	if hand == nil || public == nil {
 		return nil
 	}
 
-	var allCards = make([]*bbproto.Pai, 7)
+	lenth := len(hand) + len(public)
+
+	var allCards = make([]*bbproto.Pai, lenth)
 	copy(allCards[0:2], hand)
 	copy(allCards[2:], public)
-	tcsList := Com(7, count, allCards)
-	//log.T("排序之前的牌:")
-	//tcsList.ToString()
+	tcsList := Com(lenth, count, allCards)
 	sort.Sort(tcsList)
-	//log.T("排序之后的牌:")
-	//tcsList.ToString()
 	return tcsList[0]
 }
 
@@ -565,18 +563,13 @@ func Com(n, k int, allCards []*bbproto.Pai) ThCardsList {
 
 		tcs.Cards = make([]*bbproto.Pai, 5)
 		for i := 1; i <= k; i++ {
-			//fmt.Print(" --%v-- ",a[i]-1)
 			tcs.Cards[i - 1] = allCards[a[i] - 1]
 		}
 
-		//fmt.Println("排序之前的牌",tcs.Cards)
 		var cs CardsList = tcs.Cards
 		sort.Sort(cs)
-		//fmt.Println("排序之后的牌",tcs.Cards)
 		tcs.OnInit()        //初始化德州
-		//fmt.Println("排序之后的类型",*tcs.ThType)
 
-		//fmt.Println("")
 		result = append(result, tcs)
 
 		if a[1] == (n - k + 1) {
