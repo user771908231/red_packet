@@ -474,6 +474,15 @@ func (list ThCardsList) Swap(i, j int) {
 
 //比较两幅德州扑克牌的大小t1是否大于t2
 func ThCompare(t1, t2 *ThCards) int {
+	//判断如参数
+	if t1 == nil {
+		return THPOKER_COMPARE_SMALL
+	}
+
+	if t2 == nil {
+		return THPOKER_COMPARE_BIG
+	}
+
 	if t1.ThType > t2.ThType {
 		return THPOKER_COMPARE_BIG        //返回大于
 	} else if t1.ThType == t2.ThType {

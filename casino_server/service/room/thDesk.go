@@ -1160,7 +1160,7 @@ func (t *ThDesk) CalcThcardsWin() error {
 	log.T("开始计算谁的牌是赢牌,计算出来的结果:")
 	for i := 0; i < len(t.Users); i++ {
 		u := t.Users[i]
-		if u != nil && u.IsWaitClose() {
+		if u != nil && u.IsWaitClose() && u.IsGameStart() {
 			log.T("user[%v]的牌 isWin[%v]", u.UserId, u.thCards.IsWin)
 		}
 	}
@@ -1171,11 +1171,11 @@ func (t *ThDesk) CalcThcardsWin() error {
 //比较两张牌的大小
 func (t *ThDesk) Less(u1, u2 *ThUser) bool {
 
-	if u1 == nil || !u1.IsWaitClose() {
+	if u1 == nil || !u1.IsWaitClose() || !u1.IsGameStart() {
 		return true
 	}
 
-	if u2 == nil || !u2.IsWaitClose() {
+	if u2 == nil || !u2.IsWaitClose() || !u2.IsGameStart() {
 		return false
 	}
 
@@ -1251,7 +1251,7 @@ func (t *ThDesk) calcUserWinAmount() error {
 				}
 
 				//判断用户是否得奖
-				if u.IsWaitClose() && u.thCards.IsWin {
+				if u.IsWaitClose() && u.IsGameStart() && u.thCards.IsWin {
 					//可以发送奖金
 					log.T("用户[%v].status[%v],iswin[%v]在allin.index[%v]活的奖金[%v]", u.UserId, u.Status, u.thCards.IsWin, i, bonus)
 					u.AddWinAmount(bonus)
@@ -1278,7 +1278,7 @@ func (t *ThDesk) calcUserWinAmount() error {
 		for i := 0; i < len(t.Users); i++ {
 			u := t.Users[i]
 
-			if u != nil && u.IsWaitClose() && u.thCards.IsWin {
+			if u != nil && u.IsWaitClose() && u.IsGameStart() && u.thCards.IsWin {
 				//
 				//对这个用户做结算...
 				log.T("现在开始开奖,计算边池的奖励,user[%v]得到[%v]....", u.UserId, bbonus)
@@ -1576,7 +1576,7 @@ func (t *ThDesk) GetWinCount() int {
 	var result int = 0
 	for i := 0; i < len(t.Users); i++ {
 		u := t.Users[i]
-		if u != nil && u.IsWaitClose() && u.thCards.IsWin {
+		if u != nil && u.IsWaitClose() && u.IsGameStart() && u.thCards.IsWin {
 			//如果用户不为空,并且状态是等待结算,牌的信息现实的是win 那么,表示一个赢的人
 			result ++
 		}

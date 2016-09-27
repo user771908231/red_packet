@@ -109,6 +109,17 @@ func (t *ThUser) GetStatusDes() string {
 	return des
 
 }
+
+// 判断用户是否已经开始游戏来
+func (t *ThUser) IsGameStart() bool {
+	if ( t.IsBetting() || t.IsFold() || t.IsAllIn()) && t.thCards != nil {
+		return true
+	} else {
+		return false
+	}
+
+}
+
 //
 func (t *ThUser) trans2bbprotoThuser() *bbproto.THUser {
 	thuserTemp := &bbproto.THUser{}
@@ -351,6 +362,11 @@ func (t *ThUser) IsFold() bool {
 
 func (t *ThUser) IsWaitClose() bool {
 	return !t.CloseCheck
+}
+
+//是否正在等待结算,这个方法暂时没有使用...
+func ( t*ThUser) IsWait2Lottery() bool {
+	return false
 }
 
 func (t *ThUser) IsClose() bool {
