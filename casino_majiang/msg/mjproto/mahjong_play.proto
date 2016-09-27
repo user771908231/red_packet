@@ -1,0 +1,225 @@
+syntax = "proto2";
+
+import public "base.proto";
+package mjproto;
+option optimize_for = LITE_RUNTIME;
+
+
+////////////////////////////////////////////////////////////////////
+// 数据结构
+
+message ComposePoker {
+    optional int32 num = 1;   // 麻将牌值
+    optional int32 type = 2;  // 类型（碰，明杠，暗杠）
+}
+
+message PlayerPoker {
+    repeated int32 handPoker = 1;   // 手牌数组（自己是明的，其他玩家服务器返回暗值，避免外挂获取别的玩家手牌）
+    repeated ComposePoker composePoker = 2;    // 摆牌数组（碰、明杠、暗杠）
+    repeated int32 outPoker = 3;    // 已出牌数组
+    optional int32 huPoker = 4; // 胡的牌
+}
+
+message PlayerInfo {
+    optional bool isBanker = 1; // 是否庄家
+    optional PlayerPoker playerPoker = 2; // 玩家的手牌、摆牌（碰杠）、已打出的牌、胡牌信息。客户端需根据服务端的返回进行排序动画。
+    optional int64 coin = 3; // 玩家当前显示的自己的筹码数
+    optional string nickName = 4; // 昵称
+    optional int32 seatId = 5; // 座位号
+    // ① 新增字段： repeated WeixinInfo  = 6;  //微信用户信息
+    // ② EnterMatch时、广播新进用户时，才需返回 WeixinInfo；其它广播不需要。
+    optional WeixinInfo weixinInfos = 6;
+    optional bool isOwner = 7;   // 当前用户是否房主
+    optional int32 bReady = 8; // 是否已准备
+    optional int32 bDingQue = 9; // 是否已定缺
+    optional int32 bExchanged = 10; // 是否已换牌(换3张)
+    optional int32 nHuPai = 11;     // 0:未胡牌; >=1: 已胡牌(血流成河时,表示次数)
+}
+
+message DeskGameInfo {
+    optional int32 GameStatus = 1; // 当前的游戏状态：等待、游戏中、结算中等
+    optional RoomTypeInfo roomTypeInfo = 2; // 房间类型信息，包括：房间类型、局数、封顶、玩法、牌张、结算、底
+    optional int32 playerNum = 3; // 玩家数量
+    optional int32 activeSeat = 4;  // 当前谁操作，决定：中间的指针应该指向谁，哪个玩家当前是可操作状态
+    optional int32 actionTime = 5; // 玩家当前操作时间
+    optional int32 delayTime = 6; //当前延时时间
+    optional int32 nRebuyCount = 7; // REBUY 次数
+    optional int32 nInitActionTime = 8; // 初始操作时间
+    optional int32 nInitDelayTime = 9; // 初始延时时间
+    optional int64 initRoomCoin = 10; // 房间的初始带入金额
+    optional int32 currPlayCount = 11; // 朋友桌: 当前第几局
+    optional int32 totalPlayCount = 12; // 朋友桌: 总共几局
+
+}
+
+////////////////////////////////////////////////////////////////////
+// 通信协议
+
+// 开局（接收服务端消息）
+message game_Opening {
+    optional ProtoHeader header = 1;
+    optional int32 matchId = 2;
+    optional int32 tableId = 3;
+}
+
+
+// 发牌
+message game_DealCards {
+    optional ProtoHeader header = 1;
+    optional PlayerPoker playerPoker = 2;
+}
+
+
+// 换牌（3张）
+message game_ExchangeCards {
+    optional ProtoHeader header = 1;
+    optional int32 matchId = 2;
+    optional int32 tableId = 3;
+    optional int32 seat = 4;
+    repeated CardInfo exchangeOutCards = 5; // 要换出的 3 张牌
+    optional uint32 userId = 6; // 操作人 (广播给其它用户时用到)
+}
+message game_AckExchangeCards {
+    optional ProtoHeader header = 1;
+    optional int32 matchId = 2;
+    optional int32 tableId = 3;
+    optional int32 seat = 4;
+    repeated CardInfo exchangeOutCards = 5; // 要换出的 3 张牌
+    optional int32 exchangeOutseat = 6; // 换给谁
+    repeated CardInfo exchangeInCards = 7; // 换入的 3 张牌
+    optional int32 exchangeInseat = 8; // 谁换给我的
+    optional int32 dice = 9; // 庄家掷出的骰子点数（决定换三张的方向，服务器返回这个只是展示用）
+}
+
+// 定缺（和个人玩家ACK）
+message game_DingQue {
+    optional ProtoHeader header = 1;
+    optional int32 matchId = 2;
+    optional int32 tableId = 3;
+    optional int32 color = 4; // 定缺的花色
+    optional uint32 userId = 5; // 操作人 (广播给其它用户时用到)
+}
+
+// 定缺开始广播（和ACK）
+message game_BroadcastBeginDingQue {
+    optional ProtoHeader header = 1;
+    repeated int32 color = 2; // 定缺的花色
+}
+
+// 换牌开始(广播)
+message game_BroadcastBeginExchange {
+    optional ProtoHeader header = 1;
+}
+
+// 摸牌
+message game_GetInCard {
+    optional ProtoHeader header = 1;
+    optional CardInfo card = 2;
+}
+
+
+// 出牌
+message game_SendOutCard {
+    optional ProtoHeader header = 1;
+    optional int32 cardId = 2; //要出的牌id
+}
+
+message game_AckSendOutCard {
+    optional ProtoHeader header = 1;
+    optional int32 result = 2; // 0:出牌成功 1:有人可碰/胡
+}
+
+// 碰牌
+message game_ActPeng {
+    optional ProtoHeader header = 1;
+    optional int32 matchId = 2;
+    optional int32 tableId = 3;
+    optional int32 seat = 4;
+    optional CardInfo pengCard = 5; // 被碰的牌
+}
+message game_AckActPeng {
+    optional ProtoHeader header = 1;
+    optional int32 matchId = 2;
+    optional int32 tableId = 3;
+    repeated CardInfo pengCard = 4;
+    repeated CardInfo HandCard = 5;
+    repeated CardInfo GangCard = 6;
+}
+
+// 杠牌
+message game_ActGang {
+    optional ProtoHeader header = 1;
+    optional int32 matchId = 2;
+    optional int32 tableId = 3;
+    optional int32 seat = 4;
+    optional CardInfo gangCard = 5; // 被杠的牌
+}
+message game_AckActGang {
+    optional ProtoHeader header = 1;
+    optional int32 matchId = 2;
+    optional int32 tableId = 3;
+    optional int32 seat = 4;
+    repeated CardInfo pengCard = 5;
+    repeated CardInfo HandCard = 6;
+    repeated CardInfo GangCard = 7;
+}
+
+// 胡牌
+message game_ActHu {
+    optional ProtoHeader header = 1;
+    optional int32 matchId = 2;
+    optional int32 tableId = 3;
+    optional int32 seat = 4;
+    optional CardInfo huCard = 5; // 胡的牌
+}
+message game_AckActHu {
+    optional ProtoHeader header = 1;
+    optional int32 matchId = 2;
+    optional int32 tableId = 3;
+    optional int32 seat = 4;
+    repeated CardInfo pengCard = 5;
+    repeated CardInfo HandCard = 6;
+    repeated CardInfo GangCard = 7;
+    optional CardInfo huCard = 8;
+}
+
+// 过牌
+message game_ActGuo {
+    optional ProtoHeader header = 1;
+    optional int32 matchId = 2;
+    optional int32 tableId = 3;
+    optional int32 seat = 4;
+}
+
+// 过牌收到服务器确认后，还是要协议 【PID_game_SENDOVERTURN ：game_SendOverTurn】 后结束此轮
+message game_AckActGuo {
+    optional ProtoHeader header = 1;
+    optional int32 matchId = 2;
+    optional int32 tableId = 3;
+    optional int32 seat = 4;
+}
+
+// 出牌（和ACK）后，轮到下一轮的玩家，【当前玩家出牌结束】或【过牌、胡牌后】，结束自己的回合
+message game_OverTurn {
+    optional ProtoHeader header = 1;
+    optional int32 matchId = 2;
+    optional int32 tableId = 3;
+    optional int32 seat = 4;
+    optional int32 nextseat = 5; // 接收到本 message 时，表示下一位玩家是谁
+    optional CardInfo chuCard = 6; // 如果有出牌，表示出的是哪张牌，否则置为空
+}
+
+
+// 发送游戏信息
+message game_SendGameInfo {
+    optional ProtoHeader header = 1;
+    optional int32 matchId = 2;
+    optional int32 tableId = 3;
+    // 1. 首先是牌桌的玩家数据（玩家数据包括其id昵称筹码头像等基本信息，其手牌数据，以及自己打出的牌的数据，还有状态是否已经胡牌了，玩家在整局的总输赢）
+    repeated PlayerInfo playerInfo = 4;
+    // 2. 桌面信息（包括：游戏是否结束，当前轮到哪个玩家，倒计时剩余时间）
+    optional DeskGameInfo deskGameInfo = 5;
+    // 
+    optional uint32 senderUserId = 6; // 发起请求的人
+}
+

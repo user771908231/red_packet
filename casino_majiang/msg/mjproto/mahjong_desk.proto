@@ -1,0 +1,109 @@
+syntax = "proto2";
+
+import public "base.proto";
+package mjproto;
+option optimize_for = LITE_RUNTIME;
+
+
+//解散房间
+message game_DissolveDesk {
+    optional ProtoHeader header = 1;
+    optional uint32 userId = 2; // 解散房间的用户 id
+}
+//解散房间回复
+message game_AckDissolveDesk {
+    optional ProtoHeader header = 1;
+    optional uint32 userId = 2; // 解散房间的用户 id
+    optional int32 deskId = 3; //房间Id
+    optional string passWord = 4; //房间密钥
+}
+
+// 离开房间
+message game_LeaveDesk {
+    optional ProtoHeader header = 1;
+}
+
+//离开房间的回复
+message game_AckLeaveDesk {
+    optional ProtoHeader header = 1;
+}
+
+//准备游戏
+message game_Ready {
+    optional ProtoHeader header = 1;
+    optional uint32 userId = 2; // 操作人 (广播给其它用户时用到)
+}
+
+//准备游戏的结果
+message game_AckReady {
+    optional ProtoHeader header = 1;
+    optional string msg = 2; //提示信息
+}
+
+
+//聊天的内容
+message game_Message {
+    optional ProtoHeader header = 1;
+    optional int32 msgType = 2; //消息的类型,1,快捷,2,表情,3,自定义
+    optional int32 id = 3; //只有快捷和表情的时候有用
+    optional string msg = 4; //自定义的时候使用
+    optional uint32 userId = 5; //发消息的人是谁
+    optional int32 deskId = 6; //desk的id
+}
+
+//消息广播
+message game_SendMessage {
+    optional ProtoHeader header = 1;
+    optional int32 msgType = 2; //消息的类型,1,快捷,2,表情,3,自定义
+    optional int32 id = 3; //只有快捷和表情的时候有用
+    optional string msg = 4; //自定义的时候使用
+    optional uint32 userId = 5; //发消息的人是谁
+}
+
+
+// Start: 本局结束
+// 赢牌牌型和类型
+message CardType {
+    repeated CardInfo cards = 1; // 赢牌牌型，用于牌局结束时展示结果
+    optional int32 cardType = 2; // 赢牌类型，如：没有赢、平胡、杠上花、清一色
+}
+// 赢牌信息：谁赢了多少
+message WinCoinInfo {
+    optional string nickName = 1;
+    optional int32 seat = 2;
+    optional int64 winCoin = 3; // 赢了多少，返回负数表示输了多少
+    optional int64 coin = 4; // 输赢以后，当前筹码是多少
+    optional CardType cardType = 5; // 赢牌牌型和类型
+}
+
+// 牌局的结果（收到后客户端可以先 play 赢牌、亮牌动画，再显示结果弹窗）
+message game_CurrentResult {
+    optional ProtoHeader header = 1;
+    optional int32 matchId = 2;
+    optional int32 tableId = 3;
+    repeated WinCoinInfo winCoinInfo = 4; // 当前桌所有玩家的赢牌信息（包括输赢）
+    optional int32 rank = 5; //查看自己的排名
+    optional int32 rankUserCount = 6; //参赛总人数
+    optional bool canRebuy = 7; //是否可以重购买
+    optional int32 rebuyCount = 8; //重购的次数
+}
+// End  : 本局结束
+
+// Start: 全场结束
+message EndLotteryInfo {
+    optional int32 seat = 1; //用户座位号
+    optional int64 coin = 2; //总共输赢筹码
+    optional bool bigWin = 3; //是否为大赢家
+    optional bool owner = 4; //是否为房主
+    optional string rolename = 5; //玩家姓名
+    optional uint32 userId = 6; //用户的Id
+}
+
+// 牌局结束(广播)
+message game_SendEndLottery {
+    optional ProtoHeader header = 1;
+    repeated EndLotteryInfo coinInfo = 2; //胜负的情况
+}
+// End  : 全场结束
+
+

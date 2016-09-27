@@ -4,7 +4,7 @@ import (
 	"casino_majiang/msg"
 	"casino_server/msg/bbprotogo"
 	"casino_majiang/game"
-	"casino_majiang/msg/bbprotogo"
+	"casino_majiang/msg/protogo"
 )
 
 func init() {
