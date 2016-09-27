@@ -70,6 +70,21 @@ type ThUser struct {
 	IsShowCard         bool                  //是否亮牌
 }
 
+// 初始化用户的状态
+func (u *ThUser) ClearHistoryData() {
+	u.HandCoin = 0
+	u.TurnCoin = 0
+	u.winAmount = 0
+	u.TotalBet4calcAllin = 0
+	u.TotalBet = 0                  //新的一局游戏开始,把总的押注金额设置为0
+	u.winAmountDetail = nil
+	u.CloseCheck = false                //最开始都没有结算
+	u.LotteryCheck = true           //游戏开始的时候设置为false
+	u.IsShowCard = false            //默认不亮牌
+	u.HandCards = nil
+	u.thCards = nil
+}
+
 func (t *ThUser) GetCoin() int64 {
 	redu := userService.GetUserById(t.UserId)
 	if redu == nil {
@@ -109,6 +124,17 @@ func (t *ThUser) GetStatusDes() string {
 	return des
 
 }
+
+// 判断用户是否已经开始游戏来
+func (t *ThUser) IsGameStart() bool {
+	if ( t.IsBetting() || t.IsFold() || t.IsAllIn()) && t.thCards != nil {
+		return true
+	} else {
+		return false
+	}
+
+}
+
 //
 func (t *ThUser) trans2bbprotoThuser() *bbproto.THUser {
 	thuserTemp := &bbproto.THUser{}
@@ -351,6 +377,11 @@ func (t *ThUser) IsFold() bool {
 
 func (t *ThUser) IsWaitClose() bool {
 	return !t.CloseCheck
+}
+
+//是否正在等待结算,这个方法暂时没有使用...
+func ( t*ThUser) IsWait2Lottery() bool {
+	return false
 }
 
 func (t *ThUser) IsClose() bool {
