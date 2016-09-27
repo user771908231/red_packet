@@ -781,7 +781,7 @@ func (t *ThDesk) BroadcastTestResult(p *bbproto.Game_TestResult) error {
 	//发送的时候,初始化自己的排名
 	for i := 0; i < len(t.Users); i++ {
 		u := t.Users[i]                //给这个玩家发送广播信息
-		if u != nil && !u.IsLeave  && !u.IsBreak && u.IsClose() {
+		if u != nil && !u.IsLeave && !u.IsBreak && u.IsClose() {
 			*p.Rank = t.getRankByUserId(u)        //获取用户的排名
 			*p.CanRebuy = t.getCanRebuyByUserId(u)        //是否可以重构
 			*p.RebuyCount = u.RebuyCount        //重购的次数

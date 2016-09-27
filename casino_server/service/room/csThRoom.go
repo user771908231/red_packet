@@ -126,7 +126,7 @@ func (r *CSThGameRoom) GetGamingCount() int32 {
 		if desk != nil {
 			for _, user := range desk.Users {
 				if user != nil {
-					log.T("判断游戏matchIs[%v]是否结束，打印用户的信息，userId[%v],user.CSGamingStatus[%v],user.IsLeave[%v],user.Isbreak[%v]", r.MatchId, user.UserId, user.CSGamingStatus, user.IsLeave, user.IsBreak)
+					//log.T("判断游戏matchIs[%v]是否结束，打印用户的信息，userId[%v],user.CSGamingStatus[%v],user.IsLeave[%v],user.Isbreak[%v]", r.MatchId, user.UserId, user.CSGamingStatus, user.IsLeave, user.IsBreak)
 					if user.CSGamingStatus && !user.IsLeave && !user.IsBreak {
 						count ++
 					}
@@ -134,7 +134,7 @@ func (r *CSThGameRoom) GetGamingCount() int32 {
 			}
 		}
 	}
-	log.T("获取锦标赛当前的游戏(user != nil && user.CSGamingStatus && !user.IsLeave && !user.IsBreak)人数[%v]", count)
+	//log.T("获取锦标赛当前的游戏(user != nil && user.CSGamingStatus && !user.IsLeave && !user.IsBreak)人数[%v]", count)
 	return count
 
 }

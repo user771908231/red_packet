@@ -77,8 +77,8 @@ func printDeskInfo(w http.ResponseWriter, desk *room.ThDesk) {
 
 func printThUserInfo(w http.ResponseWriter, desk *room.ThDesk, u *room.ThUser) {
 	if u != nil {
-		userInfo := "当前desk[%v]的user[%v],seatId[%v],nickname[%v]的状态status[%v],HandCoin[%v],TurnCoin[%v],RoomCoin[%v],isBreak[%v],isLeave[%v],LotteryCheck[%v],u.gameStatus[%v],csgaminStatus[%v]-\n"
-		fmt.Fprintf(w, userInfo, desk.Id, u.UserId, u.Seat, u.NickName, u.GetStatusDes(), u.HandCoin, u.TurnCoin, u.RoomCoin, u.IsBreak, u.IsLeave, u.LotteryCheck, u.GameStatus, u.CSGamingStatus)
+		userInfo := "当前desk[%v]的user[%v],seatId[%v],nickname[%v]的状态status[%v],HandCoin[%v],TurnCoin[%v],RoomCoin[%v],isBreak[%v],isLeave[%v],LotteryCheck[%v],u.gameStatus[%v],csgaminStatus[%v],u.CloseCheck[%v],-\n"
+		fmt.Fprintf(w, userInfo, desk.Id, u.UserId, u.Seat, u.NickName, u.GetStatusDes(), u.HandCoin, u.TurnCoin, u.RoomCoin, u.IsBreak, u.IsLeave, u.LotteryCheck, u.GameStatus, u.CSGamingStatus, u.CloseCheck)
 
 	}
 
