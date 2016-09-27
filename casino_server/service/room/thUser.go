@@ -251,7 +251,7 @@ func (t *ThUser) TimeOut(timeNow time.Time) (bool, error) {
 		return true, err
 	} else {
 		//没有超时,继续等待
-		log.T("desk[%v]玩家[%v]nickname[%v]出牌中还没有超时", t.deskId, t.UserId, t.NickName)
+		//log.T("desk[%v]玩家[%v]nickname[%v]出牌中还没有超时", t.deskId, t.UserId, t.NickName)
 		return false, nil
 	}
 }
