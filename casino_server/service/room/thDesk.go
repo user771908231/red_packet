@@ -653,6 +653,9 @@ func (t *ThDesk) InitUserStatus() error {
 		u.CloseCheck = false                //最开始都没有结算
 		u.LotteryCheck = true           //游戏开始的时候设置为false
 		u.IsShowCard = false            //默认不亮牌
+		u.HandCards = nil
+		u.thCards = nil
+		
 		//如果用户的余额不足或者用户的状态是属于断线的状态,则设置用户为等待入座
 		if !t.IsUserRoomCoinEnough(u) {
 			log.T("由于用户[%v] status[%v],的roomCoin[%v] <= desk.BigBlindCoin 所以设置用户为TH_USER_STATUS_WAITSEAT", u.UserId, u.IsBreak, u.RoomCoin, t.BigBlindCoin)
@@ -724,13 +727,6 @@ func (t *ThDesk) RmLeaveUser() {
 	初始化纸牌的信息
  */
 func (t *ThDesk) OnInitCards() error {
-	//测试代码,打印每个人的手牌
-	for _, u := range t.Users {
-		if u != nil {
-			u.HandCards = nil
-		}
-	}
-
 	log.T("开始一局新的游戏,初始化牌的信息")
 	var total = int(2 * ThdeskConfig.TH_DESK_MAX_START_USER + 5); //人数*手牌+5张公共牌
 	totalCards := pokerService.RandomTHPorkCards(total)        //得到牌
@@ -1389,7 +1385,13 @@ func (t *ThDesk) afterLottery() error {
 	//2,设置用户的状态
 	for i := 0; i < len(t.Users); i++ {
 		u := t.Users[i]
-		if u != nil && !u.IsBreak {
+
+		//如果用户为空，那么循环下一个人
+		if u == nil {
+			continue
+		}
+
+		if !u.IsBreak {
 			if t.IsFriend() {
 				//如果是自定义的房间,设置每个人都是坐下的状态
 				u.Status = TH_USER_STATUS_SEATED
