@@ -1,4 +1,4 @@
-package mjroom
+package majiang
 
 
 //普通的麻将房间...
