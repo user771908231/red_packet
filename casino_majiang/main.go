@@ -7,11 +7,18 @@ import (
 	"casino_majiang/game"
 	"casino_majiang/gate"
 	"casino_majiang/login"
+	"os"
+	"casino_majiang/conf/config"
+	"casino_majiang/conf/log"
 )
 
 func init() {
-	//系统启动时候的初始化操作...
-	conf.InitSystem()
+	//初始化系统
+	e := config.InitConfig(false)
+	if e.IsError() {
+		log.Error("config init failed.", e)
+		os.Exit(-1)
+	}
 }
 
 func main() {
