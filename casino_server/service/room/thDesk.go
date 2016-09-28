@@ -489,7 +489,7 @@ func (t *ThDesk) CSLeaveThuser(userId uint32) error {
 		user.CSGamingStatus = false
 		user.RoomCoin = 0
 		user.deskId = 0
-		csroom.UpdateUserRankInfo(user.UserId, t.MatchId, user.RoomCoin)
+		csroom.UpdateUserRankInfo(user.UserId, user.RoomCoin)
 		t.RmUser(user.UserId)                         //删除用户,并且发送广播
 	}
 
@@ -1557,7 +1557,7 @@ func (t *ThDesk) SaveLotteryDatacsth() error {
 		deskRecord.UserIds = strings.Join([]string{deskRecord.UserIds, u.NickName}, ",")
 
 		//保存锦标赛用户的排名信息
-		GetCSTHroom(t.MatchId).UpdateUserRankInfo(u.UserId, t.MatchId, u.RoomCoin)
+		GetCSTHroom(t.MatchId).UpdateUserRankInfo(u.UserId, u.RoomCoin)
 	}
 
 	log.T("开始保存DBT_T_TH_DESK_RECORD的信息")
