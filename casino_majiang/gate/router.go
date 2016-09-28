@@ -10,7 +10,6 @@ import (
 func init() {
 	msg.Processor.SetRouter(&bbproto.NullMsg{}, game.ChanRPC)
 	//msg.Processor.SetRouter(&bbproto.REQQuickConn{}, login.ChanRPC)
-	msg.Processor.SetRouter(&mjproto.Game_CreateRoom{},game.ChanRPC)
-
+	msg.Processor.SetRouter(&mjproto.Game_CreateRoom{}, game.ChanRPC)
 
 }

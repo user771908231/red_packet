@@ -5,3 +5,4 @@ package mjroom
 //type MjUser struct {
 //
 //}
+

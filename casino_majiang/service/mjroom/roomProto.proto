@@ -10,3 +10,9 @@ message MjUser {
     optional uint32 UserId = 1;
 
 }
+
+//一个麻将room
+message MjRoom {
+    optional int32 RoomId = 1;
+    optional int32 roomType = 2;
+}
