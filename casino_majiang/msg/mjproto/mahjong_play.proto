@@ -163,7 +163,7 @@ message game_OverTurn {
 }
 
 
-// 发送游戏信息
+// 发送游戏信息(广播)
 message game_SendGameInfo {
     optional ProtoHeader header = 1;
     optional int32 matchId = 2;
