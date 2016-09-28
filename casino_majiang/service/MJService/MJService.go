@@ -6,6 +6,7 @@ import (
 	//"casino_server/common/log"
 	"casino_majiang/msg/funcsInit"
 	"github.com/name5566/leaf/log"
+	"casino_majiang/service/majiang"
 )
 
 
@@ -22,6 +23,11 @@ import (
  */
 func HandlerGame_CreateRoom(m *mjProto.Game_CreateRoom, a gate.Agent) {
 	log.Debug("收到请求，HandlerGame_CreateRoom(m[%v],a[%v])", m, a)
+	//1,查询用户是否已经创建了房间...
+
+
+	//2,开始创建房间
+	majiang.FMJRoomIns.CreateDesk()
 	result := newProto.NewGame_AckCreateRoom()
 	result.Password = new(string);
 	*result.Password = "MYPASS";
@@ -34,15 +40,14 @@ func HandlerGame_EnterRoom(m *mjProto.Game_EnterRoom, a gate.Agent) {
 
 	AckEnterRoom := &mjProto.Game_AckEnterRoom{}
 	AckEnterRoom.Header = newProto.SuccessHeader()
-	a.WriteMsg( AckEnterRoom )
-
+	a.WriteMsg(AckEnterRoom)
 
 	gameInfo := &mjProto.Game_SendGameInfo{}
 	gameInfo.Header = newProto.SuccessHeader()
 	//gameInfo.PlayerInfo = new (mjProto.PlayerInfo)
 	//gameInfo.DeskGameInfo = new (mjProto.DeskGameInfo)
 
-	a.WriteMsg( gameInfo )
+	a.WriteMsg(gameInfo)
 }
 
 //

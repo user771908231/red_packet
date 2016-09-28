@@ -3,6 +3,7 @@ package majiang
 import (
 	"errors"
 	"github.com/golang/protobuf/proto"
+	"casino_majiang/msg/protogo"
 )
 
 //状态表示的是当前状态.
@@ -44,5 +45,9 @@ func (d *MjDesk) BroadCastProto(p proto.Message) error {
 			u.WriteMsg(p)
 		}
 	}
+	return nil
+}
+
+func (d *MjDesk) GetDeskGameInfo() *mjproto.DeskGameInfo {
 	return nil
 }

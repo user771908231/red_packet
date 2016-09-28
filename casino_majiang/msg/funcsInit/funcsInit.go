@@ -2,6 +2,7 @@ package newProto
 
 import (
 	mjProto "casino_majiang/msg/protogo"
+	"casino_majiang/service/majiang"
 )
 
 func SuccessHeader() *mjProto.ProtoHeader {
@@ -26,9 +27,20 @@ func MakeHeader(header *mjProto.ProtoHeader, code int32, error string) {
 	*header.Error = error
 }
 
-
 func NewGame_AckCreateRoom() *mjProto.Game_AckCreateRoom {
 	ret := &mjProto.Game_AckCreateRoom{}
 
+	return ret
+}
+
+//返回一个麻将room
+func NewMjRoom() *majiang.MjRoom {
+	ret := &majiang.MjRoom{}
+	return ret
+}
+
+//返回一个麻将
+func NewMjDesk() *majiang.MjDesk {
+	ret := &majiang.MjDesk{}
 	return ret
 }

@@ -1,5 +1,10 @@
 package majiang
 
+import (
+	"casino_majiang/msg/funcsInit"
+	"casino_majiang/conf/log"
+)
+
 
 //普通的麻将房间...
 
@@ -9,9 +14,25 @@ package majiang
 //
 //}
 
+
+func init() {
+	FMJRoomIns = newProto.NewMjRoom()
+	FMJRoomIns.OnInit()
+}
+
+var FMJRoomIns *MjRoom
+
+//初始化
+func (r *MjRoom) OnInit() {
+	log.T("初始化麻将的room")
+
+
+}
+
 func (r *MjRoom) CreateDesk() *MjDesk {
 	//create 的时候，是否需要通过type 来判断,怎么样创建房间
-	return nil
+	desk :=newProto.NewMjDesk()
+	return desk
 }
 
 //room中增加一个desk
