@@ -29,7 +29,7 @@ func MakeHeader(header *mjProto.ProtoHeader, code int32, error string) {
 
 func NewGame_AckCreateRoom() *mjProto.Game_AckCreateRoom {
 	ret := &mjProto.Game_AckCreateRoom{}
-
+	ret.Password = new(string);
 	return ret
 }
 

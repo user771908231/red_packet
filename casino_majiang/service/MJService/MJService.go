@@ -25,12 +25,15 @@ func HandlerGame_CreateRoom(m *mjProto.Game_CreateRoom, a gate.Agent) {
 	log.Debug("收到请求，HandlerGame_CreateRoom(m[%v],a[%v])", m, a)
 	//1,查询用户是否已经创建了房间...
 
-
 	//2,开始创建房间
-	majiang.FMJRoomIns.CreateDesk()
+	desk := majiang.FMJRoomIns.CreateDesk()
+
 	result := newProto.NewGame_AckCreateRoom()
-	result.Password = new(string);
-	*result.Password = "MYPASS";
+	if desk == nil {
+		log.Error("用户[%v]创建房间失败...")
+	} else {
+		*result.Password = desk.GetPassword()
+	}
 	a.WriteMsg(result)
 }
 

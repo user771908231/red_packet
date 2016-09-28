@@ -20,6 +20,7 @@ message MjDesk {
     optional int32 RoomId = 2;
     optional int32 Status = 3;
     repeated MjUser users = 4;
+    optional string Password = 5; //房间号码
 }
 
 //手里的一副牌
@@ -37,7 +38,7 @@ message MjSession {
     optional int32 RoomId = 2;
     optional int32 DeskId = 3;
     optional int32 GameStatus = 4; //游戏的状态，
-    
+
 }
 
 //一个麻将room
