@@ -11,7 +11,7 @@ message MJPai {
 //手里的一副牌
 message MJHnadPai {
     repeated MJPai Pais = 1;
-    
+
 }
 
 //麻将牌的结构
@@ -28,7 +28,16 @@ message MjUser {
     optional int64 Coin = 2; //游戏中的带入金额
     optional int32 RebuyCount = 3; //重购次数
     optional MJHnadPai MJHnadPai = 4; //用户的麻将牌
+    optional int32 Status = 5; //玩家当前的状态
+}
 
+//用户的session
+message MjSession {
+    optional uint32 UserId = 1;
+    optional int32 RoomId = 2;
+    optional int32 DeskId = 3;
+    optional int32 GameStatus = 4; //游戏的状态，
+    
 }
 
 //一个麻将room

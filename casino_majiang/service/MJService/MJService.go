@@ -13,6 +13,10 @@ import (
 
 /*
 	创建room
+	用户创建房间的逻辑
+	1,如果用户之前已经创建了房间，怎么处理？
+	2,余额不足怎么处理
+	3,创建成功之后
 
  */
 func HandlerGame_CreateRoom(m *mjProto.Game_CreateRoom, a gate.Agent) {
@@ -28,7 +32,7 @@ func HandlerGame_EnterRoom(m *mjProto.Game_EnterRoom, a gate.Agent) {
 	// TODO: 玩家进入房间
 
 	result := &mjProto.Game_AckCreateRoom{}
-	newProto.SuccessHeader( result.Header )
+	newProto.SuccessHeader(result.Header)
 
 	a.WriteMsg(result)
 }
@@ -38,7 +42,7 @@ func HandlerGame_Ready(m *mjProto.Game_Ready, a gate.Agent) {
 	log.T("收到请求，game_Ready(m[%v],a[%v])", m, a)
 
 	result := &mjProto.Game_AckCreateRoom{}
-	newProto.SuccessHeader( result.Header )
+	newProto.SuccessHeader(result.Header)
 
 	a.WriteMsg(result)
 }
@@ -71,7 +75,7 @@ func HandlerGame_ActPeng(m *mjProto.Game_ActPeng, a gate.Agent) {
 	log.T("收到请求，HandlerGame_ActPeng(m[%v],a[%v])", m, a)
 
 	result := &mjProto.Game_AckActPeng{}
-	newProto.SuccessHeader( result.Header )
+	newProto.SuccessHeader(result.Header)
 
 	a.WriteMsg(result)
 }
@@ -81,7 +85,7 @@ func HandlerGame_ActGang(m *mjProto.Game_ActGang, a gate.Agent) {
 	log.T("收到请求，game_ActGang(m[%v],a[%v])", m, a)
 
 	result := &mjProto.Game_AckActGang{}
-	newProto.SuccessHeader( result.Header )
+	newProto.SuccessHeader(result.Header)
 
 	a.WriteMsg(result)
 }
@@ -91,7 +95,7 @@ func HandlerGame_ActGuo(m *mjProto.Game_ActGuo, a gate.Agent) {
 	log.T("收到请求，game_ActGuo(m[%v],a[%v])", m, a)
 
 	result := &mjProto.Game_AckActGuo{}
-	newProto.SuccessHeader( result.Header )
+	newProto.SuccessHeader(result.Header)
 
 	a.WriteMsg(result)
 }
@@ -101,7 +105,7 @@ func HandlerGame_ActHu(m *mjProto.Game_ActHu, a gate.Agent) {
 	log.T("收到请求，game_ActHu(m[%v],a[%v])", m, a)
 
 	result := &mjProto.Game_AckActHu{}
-	newProto.SuccessHeader( result.Header )
+	newProto.SuccessHeader(result.Header)
 
 	a.WriteMsg(result)
 }
