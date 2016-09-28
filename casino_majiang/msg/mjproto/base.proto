@@ -70,19 +70,19 @@ message ProtoHeader {
 
 // 微信信息
 message WeixinInfo {
-    optional ProtoHeader header = 4;
     optional string openId = 1; // 微信授权用户唯一id
     optional string nickName = 2; // 微信昵称
     optional string headUrl = 3; // 微信头像
+    optional int32  sex = 4; // 性别
+    optional string  city = 5; // 城市
+    optional string  unionId = 6; // unionId
 }
-
 
 // 麻将牌
 message CardInfo {
-    optional ProtoHeader header = 1;
-    optional int32 type = 2;
-    optional int32 value = 3; //0:牌背；1~9：万；10~18：条；19~27：筒。
-    optional int32 id = 4;   //牌的id
+    optional int32 type = 1;
+    optional int32 value = 2; //0:牌背；1~9：万；10~18：条；19~27：筒。
+    optional int32 id = 3;   //牌的id
 }
 
 
