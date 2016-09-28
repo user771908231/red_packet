@@ -7,6 +7,8 @@ import (
 	"casino_majiang/msg/funcsInit"
 	"github.com/name5566/leaf/log"
 	"casino_majiang/service/majiang"
+	"casino_server/conf/intCons"
+	"casino_server/service/userService"
 )
 
 
@@ -26,14 +28,23 @@ func HandlerGame_CreateRoom(m *mjProto.Game_CreateRoom, a gate.Agent) {
 	//1,查询用户是否已经创建了房间...
 
 	//2,开始创建房间
-	desk := majiang.FMJRoomIns.CreateDesk()
+	desk := majiang.FMJRoomIns.CreateDesk(m.GetHeader().GetUserId())
 
+	//返回数据
 	result := newProto.NewGame_AckCreateRoom()
+
 	if desk == nil {
+		*result.Header.Code = intCons.ACK_RESULT_ERROR
 		log.Error("用户[%v]创建房间失败...")
 	} else {
+		*result.Header.Code = intCons.ACK_RESULT_SUCC
 		*result.Password = desk.GetPassword()
+		*result.DeskId = desk.GetDeskId()
+		*result.CreateFee = desk.GetCreateFee()
+		result.RoomTypeInfo =  desk.GetRoomTypeInfo()
+		*result.UserBalance = userService.GetUserDiamond(m.GetHeader().GetUserId())
 	}
+
 	a.WriteMsg(result)
 }
 

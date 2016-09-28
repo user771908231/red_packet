@@ -4,6 +4,7 @@ import (
 	"errors"
 	"github.com/golang/protobuf/proto"
 	"casino_majiang/msg/protogo"
+	"casino_majiang/msg/funcsInit"
 )
 
 //状态表示的是当前状态.
@@ -37,6 +38,28 @@ func (d *MjDesk) addUser(user *MjUser) error {
 	}
 }
 
+func (d *MjDesk) GetRoomTypeInfo() *mjproto.RoomTypeInfo {
+	typeInfo := newProto.NewRoomTypeInfo()
+	*typeInfo.Settlement = d.GetSettlement()
+	typeInfo.PlayOptions = d.GetPlayOptions()
+	var mjroomType interface{} = d.MjRoomType
+
+	*typeInfo.MjRoomType = mjroomType.(mjproto.MJRoomType)
+	*typeInfo.BaseValue = d.GetBaseValue()
+	*typeInfo.BoardsCout = d.GetBoardsCout()
+	*typeInfo.CapMax = d.GetCapMax()
+	*typeInfo.CardsNum = d.GetCardsNum()
+	return typeInfo
+}
+
+func (d *MjDesk) GetPlayOptions() *mjproto.PlayOptions {
+	o := newProto.NewPlayOptions()
+	*o.ZiMoRadio = d.GetZiMoRadio()
+	*o.HuRadio = d.GetHuRadio()
+	*o.DianGangHuaRadio = d.GetDianGangHuaRadio()
+	o.OthersCheckBox = d.GetOthersCheckBox()
+	return o
+}
 
 //广播协议
 func (d *MjDesk) BroadCastProto(p proto.Message) error {
@@ -50,4 +73,16 @@ func (d *MjDesk) BroadCastProto(p proto.Message) error {
 
 func (d *MjDesk) GetDeskGameInfo() *mjproto.DeskGameInfo {
 	return nil
+}
+
+//返回一个麻将room
+func NewMjRoom() *MjRoom {
+	ret := &MjRoom{}
+	return ret
+}
+
+//返回一个麻将
+func NewMjDesk() *MjDesk {
+	ret := &MjDesk{}
+	return ret
 }

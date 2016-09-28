@@ -2,13 +2,17 @@ package newProto
 
 import (
 	mjProto "casino_majiang/msg/protogo"
-	"casino_majiang/service/majiang"
 )
 
 func SuccessHeader() *mjProto.ProtoHeader {
-	header := new(mjProto.ProtoHeader)
-	header.Code = new(int32)
+	header := NewHeader()
 	*header.Code = 0
+	return header
+}
+
+func ErrorHeader() *mjProto.ProtoHeader {
+	header := NewHeader()
+	*header.Code = -1
 	return header
 }
 
@@ -27,20 +31,36 @@ func MakeHeader(header *mjProto.ProtoHeader, code int32, error string) {
 	*header.Error = error
 }
 
+func NewHeader() *mjProto.ProtoHeader {
+	ret := &mjProto.ProtoHeader{}
+	ret.UserId = new(uint32)
+	ret.Code = new(int32)
+	return ret
+}
+
 func NewGame_AckCreateRoom() *mjProto.Game_AckCreateRoom {
 	ret := &mjProto.Game_AckCreateRoom{}
+	ret.Header = NewHeader()
 	ret.Password = new(string);
 	return ret
 }
 
-//返回一个麻将room
-func NewMjRoom() *majiang.MjRoom {
-	ret := &majiang.MjRoom{}
+func NewRoomTypeInfo() *mjProto.RoomTypeInfo {
+	ret := &mjProto.RoomTypeInfo{}
+	ret.BaseValue = new(int64)
+	ret.BoardsCout = new(int32)
+	ret.CapMax = new(int64)
+	ret.CardsNum = new(int32)
+	ret.MjRoomType = new(mjProto.MJRoomType)
+	ret.PlayOptions = NewPlayOptions()
+	ret.Settlement = new(int32)
 	return ret
 }
 
-//返回一个麻将
-func NewMjDesk() *majiang.MjDesk {
-	ret := &majiang.MjDesk{}
+func NewPlayOptions() *mjProto.PlayOptions {
+	ret := &mjProto.PlayOptions{}
+	ret.DianGangHuaRadio = new(int32)
+	ret.HuRadio = new(int32)
+	ret.ZiMoRadio = new(int32)
 	return ret
 }

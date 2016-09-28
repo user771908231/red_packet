@@ -1,24 +1,17 @@
 package majiang
 
 import (
-	"casino_majiang/msg/funcsInit"
 	"casino_majiang/conf/log"
 	"casino_server/utils"
 	"casino_server/utils/numUtils"
+	"casino_server/utils/redisUtils"
+	"strings"
 )
 
 
 //普通的麻将房间...
-
-//room的结构定义在proto中
-//type MjRoom struct {
-//	roomType int32
-//
-//}
-
-
 func init() {
-	FMJRoomIns = newProto.NewMjRoom()
+	FMJRoomIns = NewMjRoom()
 	FMJRoomIns.OnInit()
 }
 
@@ -30,12 +23,13 @@ func (r *MjRoom) OnInit() {
 
 }
 
-func (r *MjRoom) CreateDesk() *MjDesk {
+func (r *MjRoom) CreateDesk(userId uint32) *MjDesk {
 	//create 的时候，是否需要通过type 来判断,怎么样创建房间
 
 	//1,创建一个房间，并初始化参数
-	desk := newProto.NewMjDesk()
+	desk := NewMjDesk()
 	*desk.Password = r.RandRoomKey()
+	*desk.Owner = userId        //设置房主
 
 	//把创建的desk加入到room中
 	r.AddDesk(desk)
@@ -53,7 +47,7 @@ func (r *MjRoom) RandRoomKey() string {
 		log.T("最终得到的密钥是[%v]", roomKey)
 		return roomKey
 	}
-	return nil
+	return ""
 }
 
 
@@ -76,4 +70,22 @@ func (r *MjRoom) AddDesk(desk *MjDesk) error {
 	return nil
 }
 
+// session相关的...
 
+var MJSESSION_KEY_PRE = "redis_majiang_session"
+
+func getSessionKey(userId uint32) string {
+	idstr, _ := numUtils.Uint2String(userId)
+	ret := strings.Join([]string{MJSESSION_KEY_PRE, idstr}, "_")
+	return ret
+}
+
+func GetSession(userId uint32) *MjSession {
+	s := redisUtils.GetObj(getSessionKey(userId), &MjSession{})
+	if s != nil {
+		return s.(*MjSession)
+	} else {
+		return nil
+	}
+	return nil
+}
