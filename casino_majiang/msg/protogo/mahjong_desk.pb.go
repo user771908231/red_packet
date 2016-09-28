@@ -33,7 +33,7 @@ var _ = math.Inf
 
 // Ignoring public import of EProtoId from base.proto
 
-// Ignoring public import of DDErrorCode from base.proto
+// Ignoring public import of ErrorCode from base.proto
 
 // Ignoring public import of MJRoomType from base.proto
 
