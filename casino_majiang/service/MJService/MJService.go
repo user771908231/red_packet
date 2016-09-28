@@ -19,6 +19,7 @@ import (
 func HandlerGame_CreateRoom(m *mjProto.Game_CreateRoom, a gate.Agent) {
 	log.Debug("收到请求，HandlerGame_CreateRoom(m[%v],a[%v])", m, a)
 	result := newProto.NewGame_AckCreateRoom()
+	result.Header = newProto.SuccessHeader()
 	result.Password = new(string);
 	*result.Password = "MYPASS";
 	a.WriteMsg(result)
