@@ -42,9 +42,7 @@ func (d *MjDesk) GetRoomTypeInfo() *mjproto.RoomTypeInfo {
 	typeInfo := newProto.NewRoomTypeInfo()
 	*typeInfo.Settlement = d.GetSettlement()
 	typeInfo.PlayOptions = d.GetPlayOptions()
-	var mjroomType interface{} = d.MjRoomType
-
-	*typeInfo.MjRoomType = mjroomType.(mjproto.MJRoomType)
+	*typeInfo.MjRoomType = mjproto.MJRoomType(d.GetMjRoomType())
 	*typeInfo.BaseValue = d.GetBaseValue()
 	*typeInfo.BoardsCout = d.GetBoardsCout()
 	*typeInfo.CapMax = d.GetCapMax()

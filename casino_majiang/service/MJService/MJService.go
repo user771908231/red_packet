@@ -49,8 +49,11 @@ func HandlerGame_CreateRoom(m *mjProto.Game_CreateRoom, a gate.Agent) {
 }
 
 func HandlerGame_EnterRoom(m *mjProto.Game_EnterRoom, a gate.Agent) {
+
 	log.Debug("收到请求，HandlerGame_EnterRoom(m[%v],a[%v])", m, a)
-	// TODO: 玩家进入房间
+
+
+	//todo 根据游戏类型不同，加入房间的方式也不同...
 
 	AckEnterRoom := &mjProto.Game_AckEnterRoom{}
 	AckEnterRoom.Header = newProto.SuccessHeader()
