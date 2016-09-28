@@ -4,14 +4,11 @@ import (
 	mjProto "casino_majiang/msg/protogo"
 )
 
-func SuccessHeader(header *mjProto.ProtoHeader) {
-	if ( header == nil ) {
-		header = new(mjProto.ProtoHeader)
-	}
-	if ( header.Code == nil ) {
-		header.Code = new(int32)
-	}
+func SuccessHeader() *mjProto.ProtoHeader {
+	header := new(mjProto.ProtoHeader)
+	header.Code = new(int32)
 	*header.Code = 0
+	return header
 }
 
 func MakeHeader(header *mjProto.ProtoHeader, code int32, error string) {

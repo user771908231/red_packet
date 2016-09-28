@@ -894,7 +894,7 @@ func (m *Game_OverTurn) GetChuCard() *CardInfo {
 	return nil
 }
 
-// 发送游戏信息
+// 发送游戏信息(广播)
 type Game_SendGameInfo struct {
 	Header  *ProtoHeader `protobuf:"bytes,1,opt,name=header" json:"header,omitempty"`
 	MatchId *int32       `protobuf:"varint,2,opt,name=matchId" json:"matchId,omitempty"`
