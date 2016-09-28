@@ -23,7 +23,6 @@ func HandlerGame_CreateRoom(m *mjProto.Game_CreateRoom, a gate.Agent) {
 	a.WriteMsg(result)
 }
 
-
 func HandlerGame_EnterRoom(m *mjProto.Game_EnterRoom, a gate.Agent) {
 	log.T("收到请求，HandlerGame_CreateRoom(m[%v],a[%v])", m, a)
 	//result := newProto.NewGame_AckEnterRoom()
@@ -31,14 +30,14 @@ func HandlerGame_EnterRoom(m *mjProto.Game_EnterRoom, a gate.Agent) {
 }
 
 //
-func HandlerGame_Ready(m *mjProto.Game_EnterRoom, a gate.Agent) {
+func HandlerGame_Ready(m *mjProto.Game_Ready, a gate.Agent) {
 	log.T("收到请求，HandlerGame_CreateRoom(m[%v],a[%v])", m, a)
 	//result := newProto.NewGame_AckEnterRoom()
 	//a.WriteMsg(result)
 }
 
 //出牌
-func HandlerGame_SendOutCard(m *mjProto.Game_EnterRoom, a gate.Agent) {
+func HandlerGame_SendOutCard(m *mjProto.Game_SendOutCard, a gate.Agent) {
 	log.T("收到请求，HandlerGame_CreateRoom(m[%v],a[%v])", m, a)
 	//result := newProto.NewGame_AckEnterRoom()
 	//a.WriteMsg(result)

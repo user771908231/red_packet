@@ -180,6 +180,9 @@ message game_WinCoin {
     optional int32 card5 = 8;
     optional int32 cardtype = 9;
     optional bytes rolename = 10;
+    optional bool isDiscard = 11; //是否弃牌
+    optional bool isHideCard = 12; //是否隐藏牌型
+
 }
 
 //牌局的结果
@@ -1414,9 +1417,8 @@ message Game_TounamentPlayerRank {
     optional string message = 2; //前10名显示：恭喜获得xxx奖，请联系客服微信xxxxx领奖！10名之后：很遗憾您就差一点就杀入奖励圈！没关系，再接再厉，继续战斗！
 }
 
-
 //锦标赛游戏结束
-message Game_ChampionshipGameOver{
+message Game_ChampionshipGameOver {
     optional string userName = 1;
     optional string headUrl = 2;
     optional int64 coin = 3;
