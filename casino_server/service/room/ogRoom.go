@@ -427,6 +427,8 @@ func NewGame_WinCoin() *bbproto.Game_WinCoin {
 	gwc.Coin = new(int64)
 	gwc.Seat = new(int32)
 	gwc.PoolIndex = new(int32)
+	gwc.IsDiscard = new(bool)
+	gwc.IsHideCard = new(bool)
 	return gwc
 }
 
@@ -438,11 +440,8 @@ func (t *ThDesk) getWinCoinInfo() []*bbproto.Game_WinCoin {
 		u := t.Users[i]
 		if u != nil && u.IsClose() && u.winAmount > 0  && u.thCards != nil && u.HandCards != nil {
 			//开是对这个人计算
-			gwc := NewGame_WinCoin()
-			gwc = GetWinCoinCardInfo(gwc, u, 0, t)
+			gwc := GetWinCoinCardInfo(u, 0, t)
 			*gwc.Coin = u.winAmount                                        //这个表示的是赢得的底池多少钱
-			*gwc.Seat = u.Seat
-			*gwc.PoolIndex = int32(0)
 			ret = append(ret, gwc)
 		}
 	}
@@ -460,12 +459,9 @@ func (t *ThDesk) getCoinInfo(buser *ThUser) []*bbproto.Game_WinCoin {
 			log.T("开始计算user[%v]一局比赛的得失的coinInfo,status[%v],thcards[%v],t.RoundCount[%v],u.winAmount[%v],u.totalBet[%v],u.isAllin[%v],u.isBettion[%v]",
 				u.UserId, u.Status, u.thCards, t.RoundCount, u.winAmount, u.TotalBet, u.IsAllIn(), u.IsBetting())
 			//开是对这个人计算
-			gwc := NewGame_WinCoin()
-			gwc = GetWinCoinCardInfo(gwc, u, buser.UserId, t)
+			gwc := GetWinCoinCardInfo(u, buser.UserId, t)
 			//这里需要先对牌进行排序
 			*gwc.Coin = u.winAmount - u.TotalBet                      //表示除去押注的金额,净赚多少钱
-			*gwc.Seat = u.Seat
-			*gwc.PoolIndex = int32(0)
 			gwc.Rolename = []byte(u.NickName)
 			ret = append(ret, gwc)
 		}
@@ -473,7 +469,9 @@ func (t *ThDesk) getCoinInfo(buser *ThUser) []*bbproto.Game_WinCoin {
 	return ret
 }
 
-func GetWinCoinCardInfo(gwc *bbproto.Game_WinCoin, u *ThUser, buserId uint32, desk *ThDesk) *bbproto.Game_WinCoin {
+func GetWinCoinCardInfo(u *ThUser, buserId uint32, desk *ThDesk) *bbproto.Game_WinCoin {
+	gwc := NewGame_WinCoin()
+
 	//gettingOrALlingCount := desk.GetBettingOrAllinCount()
 	//如果需要两排，或者发送广播的目标是自己,那么直接两排。
 	if u.IsShowCard || u.UserId == buserId {
@@ -521,6 +519,7 @@ func GetWinCoinCardInfo(gwc *bbproto.Game_WinCoin, u *ThUser, buserId uint32, de
 			*gwc.Card4 = paicards[3].GetMapKey()
 			*gwc.Card5 = paicards[4].GetMapKey()
 			*gwc.Cardtype = thcards.GetOGCardType()
+			*gwc.IsHideCard = false
 		} else {
 			*gwc.Card1 = u.HandCards[0].GetMapKey()
 			*gwc.Card2 = u.HandCards[1].GetMapKey()
@@ -528,6 +527,7 @@ func GetWinCoinCardInfo(gwc *bbproto.Game_WinCoin, u *ThUser, buserId uint32, de
 			*gwc.Card4 = 53
 			*gwc.Card5 = 53
 			*gwc.Cardtype = 0
+			*gwc.IsHideCard = true
 		}
 
 	} else {
@@ -537,7 +537,13 @@ func GetWinCoinCardInfo(gwc *bbproto.Game_WinCoin, u *ThUser, buserId uint32, de
 		*gwc.Card4 = 53
 		*gwc.Card5 = 53
 		*gwc.Cardtype = 9
+		*gwc.IsHideCard = true
+
 	}
+
+	*gwc.Seat = u.Seat
+	*gwc.PoolIndex = int32(0)
+	*gwc.IsDiscard = u.IsFold()        //是否弃牌
 
 	return gwc
 
