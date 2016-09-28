@@ -6,6 +6,7 @@ import (
 	"casino_server/utils/numUtils"
 	"casino_server/utils/redisUtils"
 	"strings"
+	"casino_majiang/msg/protogo"
 )
 
 
@@ -23,13 +24,14 @@ func (r *MjRoom) OnInit() {
 
 }
 
-func (r *MjRoom) CreateDesk(userId uint32) *MjDesk {
+func (r *MjRoom) CreateDesk(m *mjproto.Game_CreateRoom) *MjDesk {
 	//create 的时候，是否需要通过type 来判断,怎么样创建房间
 
 	//1,创建一个房间，并初始化参数
 	desk := NewMjDesk()
 	*desk.Password = r.RandRoomKey()
-	*desk.Owner = userId        //设置房主
+	*desk.Owner = m.GetHeader().GetUserId()        //设置房主
+	*desk.CardsNum = m.GetRoomTypeInfo().GetCardsNum()
 
 	//把创建的desk加入到room中
 	r.AddDesk(desk)

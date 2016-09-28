@@ -28,7 +28,7 @@ func HandlerGame_CreateRoom(m *mjProto.Game_CreateRoom, a gate.Agent) {
 	//1,查询用户是否已经创建了房间...
 
 	//2,开始创建房间
-	desk := majiang.FMJRoomIns.CreateDesk(m.GetHeader().GetUserId())
+	desk := majiang.FMJRoomIns.CreateDesk(m)
 
 	//返回数据
 	result := newProto.NewGame_AckCreateRoom()
@@ -41,7 +41,7 @@ func HandlerGame_CreateRoom(m *mjProto.Game_CreateRoom, a gate.Agent) {
 		*result.Password = desk.GetPassword()
 		*result.DeskId = desk.GetDeskId()
 		*result.CreateFee = desk.GetCreateFee()
-		result.RoomTypeInfo =  desk.GetRoomTypeInfo()
+		result.RoomTypeInfo = desk.GetRoomTypeInfo()
 		*result.UserBalance = userService.GetUserDiamond(m.GetHeader().GetUserId())
 	}
 

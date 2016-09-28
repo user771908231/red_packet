@@ -19,9 +19,8 @@ func init() {
 	handler(&mjProto.Game_EnterRoom{}, handlerGame_EnterRoom)
 	handler(&mjProto.Game_Ready{}, handlerGame_Ready)
 
-
-	handler(&mjProto.Game_DingQue{}, handlerGame_DingQue) 	//定缺
-	handler(&mjProto.Game_ExchangeCards{}, handlerGame_ExchangeCards)	//换3张
+	handler(&mjProto.Game_DingQue{}, handlerGame_DingQue)        //定缺
+	handler(&mjProto.Game_ExchangeCards{}, handlerGame_ExchangeCards)        //换3张
 
 
 	handler(&mjProto.Game_SendOutCard{}, handlerGame_SendOutCard) //出牌

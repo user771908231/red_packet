@@ -84,5 +84,6 @@ func NewMjRoom() *MjRoom {
 //返回一个麻将
 func NewMjDesk() *MjDesk {
 	ret := &MjDesk{}
+	ret.Password = new(string)
 	return ret
 }
