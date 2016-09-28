@@ -23,6 +23,14 @@ var _ = math.Inf
 
 // Ignoring public import of RoomTypeInfo from base.proto
 
+// Ignoring public import of ComposePoker from base.proto
+
+// Ignoring public import of PlayerPoker from base.proto
+
+// Ignoring public import of PlayerInfo from base.proto
+
+// Ignoring public import of DeskGameInfo from base.proto
+
 // Ignoring public import of EProtoId from base.proto
 
 // Ignoring public import of DDErrorCode from base.proto
