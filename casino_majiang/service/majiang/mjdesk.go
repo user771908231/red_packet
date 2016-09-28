@@ -1,5 +1,4 @@
-package mjroom
-
+package majiang
 
 //增加一个玩家
 func (d *MjDesk) addUser(user *MjUser) error {
