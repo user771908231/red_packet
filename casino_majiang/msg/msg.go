@@ -22,7 +22,7 @@ func init() {
 	Processor.Register(&majiangProto.Game_SendGameInfo{})           //9 卓内游戏数据
 
 	Processor.Register(&majiangProto.Game_Ready{})                  //10 准备
-	Processor.Register(&majiangProto.Game_Ready{})                  //11
+	Processor.Register(&majiangProto.Game_AckReady{})               //11
 	Processor.Register(&majiangProto.Game_ExchangeCards{})          //12 换3张
 	Processor.Register(&majiangProto.Game_AckExchangeCards{})		//13 换3张-回复
 	Processor.Register(&majiangProto.Game_DingQue{})                //14 定缺

@@ -17,8 +17,8 @@ func init() {
 	handler(&bbproto.NullMsg{}, handlerNull)
 	handler(&mjProto.Game_CreateRoom{}, handlerGame_CreateRoom)
 	handler(&mjProto.Game_EnterRoom{}, handlerGame_EnterRoom)
-	handler(&mjProto.Game_EnterRoom{}, handlerGame_Ready)
-	handler(&mjProto.Game_EnterRoom{}, handlerGame_SendOutCard)
+	handler(&mjProto.Game_Ready{}, handlerGame_Ready)
+	handler(&mjProto.Game_SendOutCard{}, handlerGame_SendOutCard)
 }
 
 func handlerNull(args []interface{}) {
