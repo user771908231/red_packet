@@ -40,8 +40,8 @@ func NewHeader() *mjProto.ProtoHeader {
 
 func NewGame_AckCreateRoom() *mjProto.Game_AckCreateRoom {
 	ret := &mjProto.Game_AckCreateRoom{}
-	ret.DeskId = new(int32)
 	ret.Header = NewHeader()
+	ret.DeskId = new(int32)
 	ret.Password = new(string);
 	ret.UserBalance = new(int64)
 	ret.CreateFee = new(int64)

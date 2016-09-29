@@ -7,6 +7,9 @@ import (
 )
 
 var MJUSER_STATUS_INTOROOM int32 = 1; ///刚进入游戏
+var MJUSER_STATUS_SEATED int32 = 2; ///刚进入游戏
+var MJUSER_STATUS_READY int32 = 3; ///刚进入游戏
+
 
 //麻将玩家
 

@@ -166,3 +166,25 @@ func (d *MjDesk) GetGame_SendGameInfo() *mjproto.Game_SendGameInfo {
 	return nil
 }
 
+
+//用户准备
+func (d *MjDesk) Ready(userId  uint32) error {
+	//找到需要准备的user
+	user := d.getUserByUserId(userId)
+	if user == nil {
+		log.E("用户[%v]在desk[%v]准备的时候失败,没有找到对应的玩家", user.GetUserId(), d.GetDeskId())
+		return errors.New("没有找到用户，准备失败")
+	}
+
+	//设置为准备的状态
+	*user.Status = MJUSER_STATUS_READY        //用户准备
+
+	return nil
+}
+
+//用户准备之后的一些操作
+func (d *MjDesk) AfterReady() error {
+
+	return nil
+}
+
