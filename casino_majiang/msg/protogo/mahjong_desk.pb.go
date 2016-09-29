@@ -23,9 +23,9 @@ var _ = math.Inf
 
 // Ignoring public import of RoomTypeInfo from base.proto
 
-// Ignoring public import of ComposePoker from base.proto
+// Ignoring public import of ComposeCard from base.proto
 
-// Ignoring public import of PlayerPoker from base.proto
+// Ignoring public import of PlayerCard from base.proto
 
 // Ignoring public import of PlayerInfo from base.proto
 
@@ -36,6 +36,8 @@ var _ = math.Inf
 // Ignoring public import of ErrorCode from base.proto
 
 // Ignoring public import of MJRoomType from base.proto
+
+// Ignoring public import of MahjongColor from base.proto
 
 // 解散房间
 type Game_DissolveDesk struct {

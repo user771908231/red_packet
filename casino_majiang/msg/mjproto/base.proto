@@ -73,7 +73,7 @@ message WeixinInfo {
     optional string openId = 1; // 微信授权用户唯一id
     optional string nickName = 2; // 微信昵称
     optional string headUrl = 3; // 微信头像
-    optional int32  sex = 4; // 性别
+    optional int32  sex = 4; // 性别: 1=男  2=女
     optional string  city = 5; // 城市
     optional string  unionId = 6; // unionId
 }
@@ -81,7 +81,7 @@ message WeixinInfo {
 // 麻将牌
 message CardInfo {
     optional int32 type = 1;
-    optional int32 value = 2; //0:牌背；1~9：万；10~18：条；19~27：筒。
+    optional int32 value = 2; //0:牌背； 1~9：万；  10~18：条；  19~27：筒。
     optional int32 id = 3;   //牌的id
 }
 
@@ -105,6 +105,13 @@ enum MJRoomType {
     roomType_xueLiuChengHe = 5; // 血流成河
 }
 
+//麻将花色
+enum MahjongColor{
+    WAN  = 1; //万
+    TIAO = 2; //条
+    TONG = 3; //筒
+}
+
 message RoomTypeInfo {
     optional MJRoomType mjRoomType = 1; // 房间类型，如：血战到底、三人两房、四人两房、德阳麻将、倒倒胡、血流成河
     optional int32 boardsCout = 2; // 局数，如：4局（房卡 × 2）、8局（房卡 × 3）
@@ -116,21 +123,21 @@ message RoomTypeInfo {
 }
 
 
-message ComposePoker {
-    optional int32 num = 1;   // 麻将牌值
+message ComposeCard {
+    optional int32 value = 1;   // 麻将牌值: 0~27
     optional int32 type = 2;  // 类型（碰，明杠，暗杠）
 }
 
-message PlayerPoker {
-    repeated int32 handPoker = 1;   // 手牌数组（自己是明的，其他玩家服务器返回暗值，避免外挂获取别的玩家手牌）
-    repeated ComposePoker composePoker = 2;    // 摆牌数组（碰、明杠、暗杠）
-    repeated int32 outPoker = 3;    // 已出牌数组
-    optional int32 huPoker = 4; // 胡的牌
+message PlayerCard {
+    repeated CardInfo handCard = 1;   // 手牌数组（自己是明的，其他玩家服务器返回暗值，避免外挂获取别的玩家手牌）
+    repeated ComposeCard composeCard = 2;    // 摆牌数组（碰、明杠、暗杠）
+    repeated int32 outCard = 3;    // 已出牌数组
+    optional int32 huCard = 4; // 胡的牌
 }
 
 message PlayerInfo {
     optional bool isBanker = 1; // 是否庄家
-    optional PlayerPoker playerPoker = 2; // 玩家的手牌、摆牌（碰杠）、已打出的牌、胡牌信息。客户端需根据服务端的返回进行排序动画。
+    optional PlayerCard playerCard = 2; // 玩家的手牌、摆牌（碰杠）、已打出的牌、胡牌信息。客户端需根据服务端的返回进行排序动画。
     optional int64 coin = 3; // 玩家当前显示的自己的筹码数
     optional string nickName = 4; // 昵称
     optional int32 seatId = 5; // 座位号

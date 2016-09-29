@@ -19,7 +19,7 @@ message game_Opening {
 // 发牌
 message game_DealCards {
     optional ProtoHeader header = 1;
-    optional PlayerPoker playerPoker = 2;
+    optional PlayerCard playerCard = 2;
 }
 
 
