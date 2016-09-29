@@ -30,23 +30,24 @@ func init() {
 	Processor.Register(&majiangProto.Game_DealCards{})              //16 发牌
 	Processor.Register(&majiangProto.Game_GetInCard{})              //17 摸牌
 	Processor.Register(&majiangProto.Game_SendOutCard{})            //18 出牌
-	Processor.Register(&majiangProto.Game_ActPeng{})            	//19 碰
-	Processor.Register(&majiangProto.Game_AckActPeng{})           	//20
-	Processor.Register(&majiangProto.Game_ActGang{})            	//21 杠
-	Processor.Register(&majiangProto.Game_AckActGang{})            	//22
-	Processor.Register(&majiangProto.Game_ActGuo{})            		//23 过
-	Processor.Register(&majiangProto.Game_AckActGuo{})            	//24
-	Processor.Register(&majiangProto.Game_ActHu{})            		//25 胡
-	Processor.Register(&majiangProto.Game_AckActHu{})            	//26
-	Processor.Register(&majiangProto.Game_BroadcastBeginDingQue{})	//27 开始定缺(广播)
-	Processor.Register(&majiangProto.Game_BroadcastBeginExchange{})	//28 开始换牌(广播)
-	Processor.Register(&majiangProto.Game_OverTurn{})        		//29 轮到下一人
-	Processor.Register(&majiangProto.Game_CurrentResult{})    		//30 本局结果
-	Processor.Register(&majiangProto.Game_SendEndLottery{})    		//31 牌局结束
-	Processor.Register(&majiangProto.Game_DissolveDesk{})    		//32 解散房间
-	Processor.Register(&majiangProto.Game_AckDissolveDesk{})    	//33
-	Processor.Register(&majiangProto.Game_LeaveDesk{})    			//34 离开房间
-	Processor.Register(&majiangProto.Game_AckLeaveDesk{})    		//35
-	Processor.Register(&majiangProto.Game_Message{})    			//36 发送聊天消息
-	Processor.Register(&majiangProto.Game_SendMessage{})    		//37 广播聊天
+	Processor.Register(&majiangProto.Game_AckSendOutCard{})         //19 出牌-ack
+	Processor.Register(&majiangProto.Game_ActPeng{})            	//20 碰
+	Processor.Register(&majiangProto.Game_AckActPeng{})           	//21
+	Processor.Register(&majiangProto.Game_ActGang{})            	//22 杠
+	Processor.Register(&majiangProto.Game_AckActGang{})            	//23
+	Processor.Register(&majiangProto.Game_ActGuo{})            		//24 过
+	Processor.Register(&majiangProto.Game_AckActGuo{})            	//25
+	Processor.Register(&majiangProto.Game_ActHu{})            		//26 胡
+	Processor.Register(&majiangProto.Game_AckActHu{})            	//27
+	Processor.Register(&majiangProto.Game_BroadcastBeginDingQue{})	//28 开始定缺(广播)
+	Processor.Register(&majiangProto.Game_BroadcastBeginExchange{})	//29 开始换牌(广播)
+	Processor.Register(&majiangProto.Game_OverTurn{})        		//30 轮到下一人
+	Processor.Register(&majiangProto.Game_CurrentResult{})    		//31 本局结果
+	Processor.Register(&majiangProto.Game_SendEndLottery{})    		//32 牌局结束
+	Processor.Register(&majiangProto.Game_DissolveDesk{})    		//33 解散房间
+	Processor.Register(&majiangProto.Game_AckDissolveDesk{})    	//34
+	Processor.Register(&majiangProto.Game_LeaveDesk{})    			//35 离开房间
+	Processor.Register(&majiangProto.Game_AckLeaveDesk{})    		//36
+	Processor.Register(&majiangProto.Game_Message{})    			//37 发送聊天消息
+	Processor.Register(&majiangProto.Game_SendMessage{})    		//38 广播聊天
 }
