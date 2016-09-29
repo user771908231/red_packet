@@ -491,7 +491,7 @@ func (t *ThDesk) CSLeaveThuser(userId uint32) error {
 		user.CSGamingStatus = false
 		user.RoomCoin = 0
 		//user.deskId = 0
-		csroom.UpdateUserRankInfo(user.UserId, 0)
+		csroom.UpdateUserRankInfo(user.UserId, user.RoomCoin)
 		//t.RmUser(user.UserId)                         //删除用户,并且发送广播
 	}
 

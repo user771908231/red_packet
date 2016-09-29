@@ -662,8 +662,11 @@ func (r *CSThGameRoom) UpdateUserRankInfo(userId uint32, balance int64) error {
 		return errors.New("没有找到排名信息")
 	}
 
-	*info.Balance = time.Now().UnixNano()        //结束的时间
-	*info.Balance = balance                        //余额
+	//两者都不为0的时候才更新排名
+	if info.GetBalance() != 0 || balance != 0 {
+		*info.Balance = time.Now().UnixNano()        //结束的时间
+		*info.Balance = balance                        //余额
+	}
 
 	log.T("刷新用户[%v]之后的所有的排名信息[%v]", userId, r.RankInfo)
 	//更新之后,保存数据到redis

@@ -33,6 +33,16 @@ func gameInfocs(w http.ResponseWriter, r *http.Request) {
 		desk := fr.ThDeskBuf[i]
 		printDeskInfo(w, desk)
 	}
+
+	fmt.Fprint(w, "\n打印排名:\n\n\n\n")
+	ranks := fr.RankInfo
+	if ranks != nil {
+		for i, rank := range ranks {
+			fmt.Fprintf(w, "user[%v]rank[%v],", rank.GetUserId(), 3 - i)
+		}
+
+	}
+
 	fmt.Fprint(w, "\n锦标赛房间的信息打印完毕:\n\n\n\n")
 }
 
