@@ -20,28 +20,29 @@ enum EProtoId {
     PID_DEAL_CARDS          = 16; //发牌
     PID_GET_IN_CARD         = 17; //摸牌
     PID_SEND_OUT_CARD       = 18; //出牌
-    PID_PENG_CARD           = 19; //碰
-    PID_PENG_CARD_ACK       = 20;
-    PID_GANG_CARD           = 21; //杠
-    PID_GANG_CARD_ACK       = 22;
-    PID_GUO_CARD            = 23; //过
-    PID_GUO_CARD_ACK        = 24;
-    PID_HU_CARD             = 25; //胡
-    PID_HU_CARD_ACK         = 26;
-    PID_BROADCAST_BEGIN_DINGQUE  = 27; //开始定缺(广播)
-    PID_BROADCAST_BEGIN_EXCHANGE = 28; //开始换牌(广播)
+    PID_SEND_OUT_CARD_ACK   = 19; //出牌-ack
+    PID_PENG_CARD           = 20; //碰
+    PID_PENG_CARD_ACK       = 21;
+    PID_GANG_CARD           = 22; //杠
+    PID_GANG_CARD_ACK       = 23;
+    PID_GUO_CARD            = 24; //过
+    PID_GUO_CARD_ACK        = 25;
+    PID_HU_CARD             = 26; //胡
+    PID_HU_CARD_ACK         = 27;
+    PID_BROADCAST_BEGIN_DINGQUE  = 28; //开始定缺(广播)
+    PID_BROADCAST_BEGIN_EXCHANGE = 29; //开始换牌(广播)
 
-    PID_OVERTURN            = 29; //轮到下一人操作(广播)
-    PID_CURRENTRESULT       = 30; //本局结果
-    PID_SENDENDLOTTERY      = 31; //牌局结束
+    PID_OVERTURN            = 30; //轮到下一人操作(广播)
+    PID_CURRENTRESULT       = 31; //本局结果
+    PID_SENDENDLOTTERY      = 32; //牌局结束
 
-    PID_DISSOLVE_DESK       = 32; //离开房间
-    PID_DISSOLVE_DESK_ACK   = 33; //
-    PID_LEAVE_DESK          = 34; //解散房间
-    PID_LEAVE_DESK_ACK      = 35; //
+    PID_DISSOLVE_DESK       = 33; //离开房间
+    PID_DISSOLVE_DESK_ACK   = 34; //
+    PID_LEAVE_DESK          = 35; //解散房间
+    PID_LEAVE_DESK_ACK      = 36; //
 
-    PID_MESSAGE             = 36; //聊天信息
-    PID_SEND_MESSAGE        = 37; //广播聊天
+    PID_MESSAGE             = 37; //聊天信息
+    PID_SEND_MESSAGE        = 38; //广播聊天
 }
 
 enum ErrorCode {

@@ -80,99 +80,83 @@ message game_SendOutCard {
 message game_AckSendOutCard {
     optional ProtoHeader header = 1;
     optional int32 result = 2; // 0:出牌成功 1:有人可碰/胡
+    optional uint32 userId = 3; //出牌的人(广播)
+    optional CardInfo card = 4; // 出的牌(广播)
 }
 
 // 碰牌
 message game_ActPeng {
     optional ProtoHeader header = 1;
-    optional int32 matchId = 2;
-    optional int32 tableId = 3;
-    optional int32 seat = 4;
-    optional CardInfo pengCard = 5; // 被碰的牌
+    optional uint32 userId = 2;
+    optional CardInfo pengCard = 3; // 被碰的牌
 }
+
 message game_AckActPeng {
     optional ProtoHeader header = 1;
-    optional int32 matchId = 2;
-    optional int32 tableId = 3;
-    repeated CardInfo pengCard = 4;
-    repeated CardInfo HandCard = 5;
-    repeated CardInfo GangCard = 6;
+    repeated CardInfo pengCard = 2; //广播碰的哪几张牌
+    optional uint32 userIdOut = 3;  //出牌的人
+    optional uint32 userIdIn = 4;   //碰牌的人
 }
 
 // 杠牌
 message game_ActGang {
     optional ProtoHeader header = 1;
-    optional int32 matchId = 2;
-    optional int32 tableId = 3;
-    optional int32 seat = 4;
-    optional CardInfo gangCard = 5; // 被杠的牌
+    optional uint32 userId = 2;
+    optional CardInfo gangCard = 3; // 被杠的牌
 }
 message game_AckActGang {
     optional ProtoHeader header = 1;
-    optional int32 matchId = 2;
-    optional int32 tableId = 3;
-    optional int32 seat = 4;
-    repeated CardInfo pengCard = 5;
-    repeated CardInfo HandCard = 6;
-    repeated CardInfo GangCard = 7;
+    optional int32 gangType = 2;    //1:点杠  2:巴杠  3:暗杠
+    repeated CardInfo GangCard = 3;
+    optional uint32 userIdOut = 4;  //出牌的人
+    optional uint32 userIdIn = 5;   //杠牌的人
 }
 
 // 胡牌
 message game_ActHu {
     optional ProtoHeader header = 1;
-    optional int32 matchId = 2;
-    optional int32 tableId = 3;
-    optional int32 seat = 4;
-    optional CardInfo huCard = 5; // 胡的牌
+    optional uint32 userId = 2;
+    optional CardInfo huCard = 3; // 胡的牌
 }
+
 message game_AckActHu {
     optional ProtoHeader header = 1;
-    optional int32 matchId = 2;
-    optional int32 tableId = 3;
-    optional int32 seat = 4;
-    repeated CardInfo pengCard = 5;
-    repeated CardInfo HandCard = 6;
-    repeated CardInfo GangCard = 7;
-    optional CardInfo huCard = 8;
+    optional int32 huType = 2;      //胡牌类型: 1=点炮、2=自摸、3=抢杠、4=杠上炮、5=杠上花、6=海底捞、7=一炮双响、8=一炮三响
+    optional CardInfo huCard = 3;
+    optional uint32 userIdOut = 4;  //出牌的人
+    optional uint32 userIdIn = 5;   //胡牌的人
 }
 
 // 过牌
 message game_ActGuo {
     optional ProtoHeader header = 1;
-    optional int32 matchId = 2;
-    optional int32 tableId = 3;
-    optional int32 seat = 4;
+    optional uint32 userId = 2;
 }
 
 // 过牌收到服务器确认后，还是要协议 【PID_game_SENDOVERTURN ：game_SendOverTurn】 后结束此轮
 message game_AckActGuo {
     optional ProtoHeader header = 1;
-    optional int32 matchId = 2;
-    optional int32 tableId = 3;
-    optional int32 seat = 4;
+    optional uint32 userId = 2;  //操作人(广播时用)
 }
 
-// 出牌（和ACK）后，轮到下一轮的玩家，【当前玩家出牌结束】或【过牌、胡牌后】，结束自己的回合
+// 轮到谁操作(摸牌、碰/杠/过/胡)
 message game_OverTurn {
     optional ProtoHeader header = 1;
-    optional int32 matchId = 2;
-    optional int32 tableId = 3;
-    optional int32 seat = 4;
-    optional int32 nextseat = 5; // 接收到本 message 时，表示下一位玩家是谁
-    optional CardInfo chuCard = 6; // 如果有出牌，表示出的是哪张牌，否则置为空
+    optional uint32 userId = 2;  // 当前谁正在操作
+    optional int32 nextUserId = 3;
+    optional int32 actType = 4;  // 0:正常摸牌/出牌  1:可碰 2:可杠 3:可胡
+    optional CardInfo actCard = 5; // 如果有出牌，表示出的是哪张牌，否则置为空
 }
 
 
 // 发送游戏信息(广播)
 message game_SendGameInfo {
     optional ProtoHeader header = 1;
-    optional int32 matchId = 2;
-    optional int32 tableId = 3;
     // 1. 首先是牌桌的玩家数据（玩家数据包括其id昵称筹码头像等基本信息，其手牌数据，以及自己打出的牌的数据，还有状态是否已经胡牌了，玩家在整局的总输赢）
-    repeated PlayerInfo playerInfo = 4;
+    repeated PlayerInfo playerInfo = 2;
     // 2. 桌面信息（包括：游戏是否结束，当前轮到哪个玩家，倒计时剩余时间）
-    optional DeskGameInfo deskGameInfo = 5;
+    optional DeskGameInfo deskGameInfo = 3;
     // 
-    optional uint32 senderUserId = 6; // 发起请求的人
+    optional uint32 senderUserId = 4; // 发起请求的人
 }
 
