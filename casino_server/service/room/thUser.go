@@ -183,6 +183,13 @@ func (t *ThUser) waitCsRebuy() {
 	log.T("user【%v】开始等待重购买", t.UserId)
 	timeEnd := time.Now().Add(time.Second * 10)        //5秒之后
 	jobUtils.DoAsynJob(time.Second * 1, func() bool {
+
+		//如果没有等待了，直接返回
+		if !t.WaitRebuyFlag {
+			return true
+		}
+
+		//超时之后，自动不重购买
 		if (time.Now().After(timeEnd)) {
 			desk := t.GetDesk()
 			if desk != nil && t.WaitRebuyFlag {
