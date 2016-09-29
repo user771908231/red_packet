@@ -5,6 +5,8 @@ import (
 	"github.com/golang/protobuf/proto"
 	"casino_majiang/msg/protogo"
 	"casino_majiang/msg/funcsInit"
+	"github.com/name5566/leaf/gate"
+	"casino_majiang/conf/log"
 )
 
 //状态表示的是当前状态.
@@ -23,16 +25,86 @@ func (d *MjDesk) IsFriend() bool {
 	return true
 }
 
-//
-func (d *MjDesk) addNewUser(userId uint32) error {
-	//
+//用户加入房间
+func (d *MjDesk) addNewUser(userId uint32, a gate.Agent) error {
 	if d.IsFriend() {
-		//1,是否是重新进入
+		return d.addNewUserFriend(userId, a)
+	} else {
+		return nil
+	}
+}
+
+func (d *MjDesk) addNewUserFriend(userId uint32, a gate.Agent) error {
+	//1,是否是重新进入
+	user := d.getUserByUserId(userId)
+	if user != nil {
+		//是断线重连
+		*user.IsBreak = false;
+		return nil
 
 	}
+
+	//2,是否是离开之后重新进入房间
+	userLeave := d.getLeaveUserByUserId(userId)
+	if userLeave != nil {
+		err := d.addUser(userLeave)
+		if err != nil {
+			//加入房间的时候错误
+			log.E("已经离开的用户[%v]重新加入desk[%v]的时候出错errMsg[%v]", userId, d.GetDeskId(), err)
+			return errors.New("已经离开的用户重新加入房间的时候出错")
+		} else {
+			*userLeave.IsBreak = false
+			*userLeave.IsLeave = false
+			d.rmLeaveUser(userLeave.GetUserId())
+			return nil
+		}
+	}
+
+	//加入一个新用户
+	newUser := NewMjUser()
+	*newUser.DeskId = d.GetDeskId()
+	*newUser.RoomId = d.GetRoomId()
+	*newUser.Coin = d.GetBaseValue()
+	*newUser.IsBreak = false
+	*newUser.IsLeave = false
+	*newUser.Status = MJUSER_STATUS_INTOROOM
+	err := d.addUser(newUser)
+	if err != nil {
+		log.E("用户[%v]加入房间[%v]失败,errMsg[%v]", )
+		return errors.New("用户加入房间失败")
+	} else {
+		//加入房间成功
+		return nil
+	}
+}
+
+
+//删除已经离开的人的Id todo
+func (d *MjDesk) rmLeaveUser(userId uint32) error {
 	return nil
 }
 
+//通过userId得到user
+func (d *MjDesk) getUserByUserId(userId uint32) *MjUser {
+	for _, u := range d.GetUsers() {
+		if u != nil && u.GetUserId() == userId {
+			return u
+		}
+	}
+
+	return nil
+}
+
+//通过userId得到user
+func (d *MjDesk) getLeaveUserByUserId(userId uint32) *MjUser {
+	for _, u := range d.GetUsers() {
+		if u != nil && u.GetUserId() == userId {
+			return u
+		}
+	}
+
+	return nil
+}
 
 
 //新增加一个玩家

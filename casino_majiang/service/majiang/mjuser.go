@@ -6,11 +6,9 @@ import (
 	"github.com/name5566/leaf/log"
 )
 
+var MJUSER_STATUS_INTOROOM int32 = 1; ///刚进入游戏
 
 //麻将玩家
-//type MjUser struct {
-//
-//}
 
 //发送接口
 func (u *MjUser)WriteMsg(p proto.Message) error {
@@ -22,3 +20,5 @@ func (u *MjUser)WriteMsg(p proto.Message) error {
 	}
 	return nil
 }
+
+

@@ -73,7 +73,7 @@ func HandlerGame_EnterRoom(m *mjProto.Game_EnterRoom, a gate.Agent) {
 	}
 
 
-	desk, err := room.EnterRoom("", 0)
+	desk, err := room.EnterRoom("", 0,a)
 	if err != nil || desk == nil {
 		//进入房间失败
 		ack := newProto.NewGame_AckEnterRoom()

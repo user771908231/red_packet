@@ -43,6 +43,10 @@ message MjUser {
     optional int32 RebuyCount = 3; //重购次数
     optional MJHnadPai MJHnadPai = 4; //用户的麻将牌
     optional int32 Status = 5; //玩家当前的状态
+    optional bool IsBreak = 6; //是否断线
+    optional bool IsLeave = 7; //是否离开
+    optional int32 DeskId = 8; //
+    optional int32 RoomId = 9;
 }
 
 //用户的session

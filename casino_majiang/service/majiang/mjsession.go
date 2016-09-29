@@ -7,6 +7,11 @@ import (
 )
 // session相关的...
 
+
+var MJUSER_SESSION_GAMESTATUS_NOGAME = 1 //没有在游戏中
+var MJUSER_SESSION_GAMESTATUS_FRIEND = 2 //朋友桌
+
+
 var MJSESSION_KEY_PRE = "redis_majiang_session"
 
 func getSessionKey(userId uint32) string {
@@ -23,4 +28,9 @@ func GetSession(userId uint32) *MjSession {
 		return nil
 	}
 	return nil
+}
+
+//更新用户的session信息，具体更新什么信息待定
+func UpdateSession(userId uint32, gameStatus int32, roomId int32, deskId int32, deskPassWord int32) (*MjSession, error) {
+	return nil, nil
 }

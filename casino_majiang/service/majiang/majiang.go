@@ -133,7 +133,7 @@ func init() {
 	mjpaiMap[106] = "W_9"
 	mjpaiMap[107] = "W_9"
 
-	clienMap = make(map[int]string, 108)
+	clienMap = make(map[int]int32, 108)
 	clienMap[0] = 19
 	clienMap[1] = 19
 	clienMap[2] = 19

@@ -6,6 +6,7 @@ import (
 	"casino_server/utils/numUtils"
 	"casino_majiang/msg/protogo"
 	"errors"
+	"github.com/name5566/leaf/gate"
 )
 
 
@@ -81,15 +82,15 @@ func (r *MjRoom) GetDeskByPassword(key string) *MjDesk {
 
 //进入房间
 //进入的时候，需要判断牌房间的类型...
-func (r *MjRoom) EnterRoom(key string, userId uint32) (*MjDesk, error) {
+func (r *MjRoom) EnterRoom(key string, userId uint32, a gate.Agent) (*MjDesk, error) {
 	var desk *MjDesk
 	//如果是朋友桌
 	if r.IsFriend() {
-		desk := r.GetDeskByPassword(key)
+		desk = r.GetDeskByPassword(key)
 		if desk == nil {
 			return nil, errors.New("没有找到对应的desk")
 		} else {
-			err := desk.addNewUser(userId)
+			err := desk.addNewUser(userId, a)
 			if err != nil {
 				//用户加入房间失败...
 				return desk, errors.New("用户加入房间失败...")
