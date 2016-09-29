@@ -3,9 +3,8 @@ package MJService
 import (
 	mjProto "casino_majiang/msg/protogo"
 	"github.com/name5566/leaf/gate"
-	//"casino_server/common/log"
+	"casino_server/common/log"
 	"casino_majiang/msg/funcsInit"
-	"github.com/name5566/leaf/log"
 	"casino_majiang/service/majiang"
 	"casino_server/conf/intCons"
 	"casino_server/service/userService"
@@ -24,7 +23,7 @@ import (
 
  */
 func HandlerGame_CreateRoom(m *mjProto.Game_CreateRoom, a gate.Agent) {
-	log.Debug("收到请求，HandlerGame_CreateRoom(m[%v],a[%v])", m, a)
+	log.T("收到请求，HandlerGame_CreateRoom(m[%v],a[%v])", m, a)
 	//1,查询用户是否已经创建了房间...
 
 	//2,开始创建房间
@@ -48,23 +47,41 @@ func HandlerGame_CreateRoom(m *mjProto.Game_CreateRoom, a gate.Agent) {
 	a.WriteMsg(result)
 }
 
+/**
+
+进入房间的逻辑
+1，判断是否是重新进入房间：离开之后进入房间，掉线之后进入房间
+2，进入成功【只】返回gameinfo
+3，进入失败【只】返回AckEnterRoom
+
+
+ */
 func HandlerGame_EnterRoom(m *mjProto.Game_EnterRoom, a gate.Agent) {
-
 	log.Debug("收到请求，HandlerGame_EnterRoom(m[%v],a[%v])", m, a)
-
-
 	//todo 根据游戏类型不同，加入房间的方式也不同...
+	//1,找到合适的room
+	//2,返回进入的desk
+	//3,返回desk 的信息
 
-	AckEnterRoom := &mjProto.Game_AckEnterRoom{}
-	AckEnterRoom.Header = newProto.SuccessHeader()
-	a.WriteMsg(AckEnterRoom)
+	room := majiang.GetMJRoom()
+	if room == nil {
+		//没有找到room，进入房间失败
+		ack := newProto.NewGame_AckEnterRoom()
+		*ack.Header.Code = intCons.ACK_RESULT_ERROR
+		a.WriteMsg(ack)
+		return
+	}
 
-	gameInfo := &mjProto.Game_SendGameInfo{}
-	gameInfo.Header = newProto.SuccessHeader()
-	//gameInfo.PlayerInfo = new (mjProto.PlayerInfo)
-	//gameInfo.DeskGameInfo = new (mjProto.DeskGameInfo)
 
-	a.WriteMsg(gameInfo)
+	desk, err := room.EnterRoom("", 0)
+	if err != nil || desk == nil {
+		//进入房间失败
+		ack := newProto.NewGame_AckEnterRoom()
+		*ack.Header.Code = intCons.ACK_RESULT_ERROR
+		a.WriteMsg(ack)
+	} else {
+		a.WriteMsg(desk.GetGame_SendGameInfo())
+	}
 }
 
 //

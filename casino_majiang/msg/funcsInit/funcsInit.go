@@ -48,6 +48,12 @@ func NewGame_AckCreateRoom() *mjProto.Game_AckCreateRoom {
 	return ret
 }
 
+func NewGame_AckEnterRoom() *mjProto.Game_AckEnterRoom {
+	ret := &mjProto.Game_AckEnterRoom{}
+	ret.Header = NewHeader()
+	return ret
+}
+
 func NewRoomTypeInfo() *mjProto.RoomTypeInfo {
 	ret := &mjProto.RoomTypeInfo{}
 	ret.BaseValue = new(int64)
@@ -65,5 +71,11 @@ func NewPlayOptions() *mjProto.PlayOptions {
 	ret.DianGangHuaRadio = new(int32)
 	ret.HuRadio = new(int32)
 	ret.ZiMoRadio = new(int32)
+	return ret
+}
+
+func NewGame_SendGameInfo() *mjProto.Game_SendGameInfo {
+	ret := &mjProto.Game_SendGameInfo{}
+	ret.Header = NewHeader()
 	return ret
 }

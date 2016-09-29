@@ -18,6 +18,23 @@ var MJDESK_STATUS_LOTTERY = 7 //结算
 var MJDESK_STATUS_END = 8//一局结束
 
 
+//判断是不是朋友桌
+func (d *MjDesk) IsFriend() bool {
+	return true
+}
+
+//
+func (d *MjDesk) addNewUser(userId uint32) error {
+	//
+	if d.IsFriend() {
+		//1,是否是重新进入
+
+	}
+	return nil
+}
+
+
+
 //新增加一个玩家
 func (d *MjDesk) addUser(user *MjUser) error {
 	//找到座位
@@ -73,28 +90,7 @@ func (d *MjDesk) GetDeskGameInfo() *mjproto.DeskGameInfo {
 	return nil
 }
 
-//返回一个麻将room
-func NewMjRoom() *MjRoom {
-	ret := &MjRoom{}
-	return ret
+func (d *MjDesk) GetGame_SendGameInfo() *mjproto.Game_SendGameInfo {
+	return nil
 }
 
-//返回一个麻将
-func NewMjDesk() *MjDesk {
-	ret := &MjDesk{}
-	ret.DeskId = new(int32)
-	ret.RoomId = new(int32)
-	ret.Status = new(int32)
-	ret.Password = new(string)
-	ret.Owner = new(uint32)
-	ret.CreateFee = new(int64)
-	ret.MjRoomType = new(int32)
-	ret.BoardsCout = new(int32)
-	ret.CapMax = new(int64)
-	ret.CardsNum = new(int32)
-	ret.Settlement = new(int32)
-	ret.BaseValue = new(int64)
-	ret.ZiMoRadio = new(int32)
-	ret.DianGangHuaRadio = new(int32)
-	return ret
-}

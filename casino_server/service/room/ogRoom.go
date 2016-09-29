@@ -456,8 +456,8 @@ func (t *ThDesk) getCoinInfo(buser *ThUser) []*bbproto.Game_WinCoin {
 	for i := 0; i < len(t.Users); i++ {
 		u := t.Users[i]
 		if u != nil && u.IsClose() && u.thCards != nil && u.HandCards != nil {
-			log.T("开始计算user[%v]一局比赛的得失的coinInfo,status[%v],thcards[%v],t.RoundCount[%v],u.winAmount[%v],u.totalBet[%v],u.isAllin[%v],u.isBettion[%v]",
-				u.UserId, u.Status, u.thCards, t.RoundCount, u.winAmount, u.TotalBet, u.IsAllIn(), u.IsBetting())
+			//log.T("开始计算user[%v]一局比赛的得失的coinInfo,status[%v],thcards[%v],t.RoundCount[%v],u.winAmount[%v],u.totalBet[%v],u.isAllin[%v],u.isBettion[%v]",
+			//	u.UserId, u.Status, u.thCards, t.RoundCount, u.winAmount, u.TotalBet, u.IsAllIn(), u.IsBetting())
 			//开是对这个人计算
 			gwc := GetWinCoinCardInfo(u, buser.UserId, t)
 			//这里需要先对牌进行排序
