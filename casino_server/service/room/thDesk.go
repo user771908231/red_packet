@@ -838,7 +838,7 @@ func (t *ThDesk) getCanRebuyByUserId(user *ThUser) bool {
 
 		//用户的金额不足的时候并且重构的次数小于desk的重购限制的时候
 		if !t.IsUserRoomCoinEnough(user) &&
-		user.RebuyCount <= t.RebuyCountLimit &&
+		user.RebuyCount < t.RebuyCountLimit &&
 		t.blindLevel < t.RebuyBlindLevelLimit {
 			return true
 		} else {
