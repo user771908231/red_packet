@@ -489,7 +489,7 @@ func (t *ThDesk) CSLeaveThuser(userId uint32) error {
 	} else {
 		user.GameStatus = TH_USER_GAME_STATUS_NOGAME        //用户离开之后,设置用户的游戏状态为没有游戏中
 		user.CSGamingStatus = false
-		//user.RoomCoin = 0
+		user.RoomCoin = 0
 		//user.deskId = 0
 		csroom.UpdateUserRankInfo(user.UserId, 0)
 		//t.RmUser(user.UserId)                         //删除用户,并且发送广播
@@ -838,7 +838,7 @@ func (t *ThDesk) getCanRebuyByUserId(user *ThUser) bool {
 
 		//用户的金额不足的时候并且重构的次数小于desk的重购限制的时候
 		if !t.IsUserRoomCoinEnough(user) &&
-		user.RebuyCount < t.RebuyCountLimit &&
+		user.RebuyCount <= t.RebuyCountLimit &&
 		t.blindLevel < t.RebuyBlindLevelLimit {
 			return true
 		} else {
@@ -2017,11 +2017,6 @@ func (t *ThDesk) CheckBetUserBySeat(user *ThUser) bool {
 		return false
 	}
 
-	if user.RoomCoin <= 0 {
-		log.E("用户userId[%v]name[%v]的带入金额小于0,所以不能押注或者投注了", user.UserId, user.NickName)
-		return false
-	}
-
 	//用户合法,设置等待状态
 	user.FinishtWait()
 	return true
@@ -2400,9 +2395,9 @@ func (t *ThDesk) FRebuy(userId uint32) error {
 
 //锦标赛rebuy
 func (t *ThDesk) CSRebuy(userId uint32) error {
-	log.T("user [%v]在锦标赛中开始重购买...", userId)
 	ret := bbproto.NewGame_AckRebuy()        //返回的解雇
 	user := t.GetUserByUserId(userId)        //要操作的用户
+	log.T("user [%v]在锦标赛中开始重购买...已经重购了【%v】次", userId, user.RebuyCount)
 
 	//0,购买之前需要判断锦标赛的状态
 	if !user.CSGamingStatus {
