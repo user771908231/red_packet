@@ -489,7 +489,7 @@ func (t *ThDesk) CSLeaveThuser(userId uint32) error {
 		user.CSGamingStatus = false
 		user.RoomCoin = 0
 		user.deskId = 0
-		csroom.UpdateUserRankInfo(user.UserId, t.MatchId, user.RoomCoin)
+		csroom.UpdateUserRankInfo(user.UserId, user.RoomCoin)
 		t.RmUser(user.UserId)                         //删除用户,并且发送广播
 	}
 
@@ -1557,7 +1557,7 @@ func (t *ThDesk) SaveLotteryDatacsth() error {
 		deskRecord.UserIds = strings.Join([]string{deskRecord.UserIds, u.NickName}, ",")
 
 		//保存锦标赛用户的排名信息
-		GetCSTHroom(t.MatchId).UpdateUserRankInfo(u.UserId, t.MatchId, u.RoomCoin)
+		GetCSTHroom(t.MatchId).UpdateUserRankInfo(u.UserId, u.RoomCoin)
 	}
 
 	log.T("开始保存DBT_T_TH_DESK_RECORD的信息")
@@ -2545,7 +2545,7 @@ func (t *ThDesk) CSNotRebuy(userId uint32) {
 	user.UpdateAgentUserData()
 
 	//2,取消之后,现实最终的排名
-	log.T("用户notRebuy的时候,发送User的最终排名...")
+	log.T("用户[%v]notRebuy的时候,发送User的最终排名...", userId)
 	ret := bbproto.NewGame_TounamentPlayerRank()
 	*ret.Message = "测试最终排名的信息"
 	*ret.PlayerRank = GetCSTHroom(t.MatchId).GetRankByuserId(user.UserId)

@@ -184,6 +184,18 @@ func (r *ThGameRoom) DissolveDeskByDeskOwner(userId uint32, a gate.Agent) error 
 		return errors.New("游戏正在进行中,不能解散")
 	}
 
+	//2.1 如果游戏还没有开始，退回创建的费用
+	if !desk.IsRun() && desk.JuCountNow <= 1 {
+		remainDiamon, err := userService.INCRUserDiamond(userId, desk.CreateFee)
+		if err != nil {
+			log.E("用户解散房间的时候出错")
+		} else {
+			//增加钻石退回的记录
+			userService.CreateDiamonDetail(userId, mode.T_USER_DIAMOND_DETAILS_TYPE_DISSOVEDESK, desk.CreateFee, remainDiamon, "用户解散没有开始的房间退回钻石")
+		}
+
+	}
+
 	//3,解散
 	err := r.RmThDesk(desk)
 	if err != nil {
@@ -191,6 +203,7 @@ func (r *ThGameRoom) DissolveDeskByDeskOwner(userId uint32, a gate.Agent) error 
 		a.WriteMsg(result)
 		return errors.New("解散房间失败")
 	}
+
 
 	//4,发送解散的广播
 	*result.Result = intCons.ACK_RESULT_SUCC
@@ -345,7 +358,6 @@ func GetDeskByAgent(a gate.Agent) *ThDesk {
 
 	}
 }
-
 
 func GetDeskBySession(s *bbproto.ThServerUserSession) *ThDesk {
 	if s == nil {

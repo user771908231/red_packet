@@ -316,6 +316,7 @@ func CreateDiamonDetail(userId uint32, detailsType int32, diamond int64, remainD
 
 //增加用户的金额
 func INCRUserDiamond(userid uint32, d int64) (int64, error) {
+	log.T("为用户[%v]增加钻石[%v]", userid, d)
 	//1,增加余额
 	remain := redisUtils.INCRBY(UDK(userid), d)
 

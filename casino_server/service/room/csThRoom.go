@@ -378,7 +378,7 @@ func (r *CSThGameRoom) End() {
 					user.CSGamingStatus = false; //设置游戏状态
 					log.T("锦标赛[%v]结束,给用户[%v]发送游戏排名", r.MatchId, user.UserId)
 					ret := bbproto.NewGame_TounamentPlayerRank()
-					*ret.Message = "测试最终排名的信息"
+					*ret.Message = "最终排名"
 					*ret.PlayerRank = r.GetRankByuserId(user.UserId)
 					user.WriteMsg(ret)
 				}
@@ -409,7 +409,7 @@ func (r *CSThGameRoom) reward() {
 	log.T("开始发送奖励..")
 	//判断游戏的类型
 	//1,得到第一名，目前只有一种类型，赢钻石的类型
-	winUserUserId := r.RankInfo[0].GetUserId()        //得到赢的人的id
+	winUserUserId := r.RankInfo[len(r.RankInfo) - 1].GetUserId()        //得到赢的人的id
 	winUser := userService.GetUserById(winUserUserId)
 	log.T("获得第一名的是userId[%v].nickName[%v]", winUser.GetId(), winUser.GetNickName())
 	//给用加钱
@@ -437,8 +437,8 @@ func (r *CSThGameRoom) RefreshRank() {
 	copy(tempList, r.RankInfo)
 	sort.Sort(tempList)                //开始排序
 	r.RankInfo = tempList
+	//log.T("刷新排名之后，当前的排名是[%v]", r.RankInfo)
 }
-
 
 //锦标赛: 判断锦标赛是否重新进入房间
 /**
@@ -651,15 +651,21 @@ func (r *CSThGameRoom) GetRankInfo(userId uint32) *bbproto.CsThRankInfo {
 }
 
 //更新用户的排名信息
-func (r *CSThGameRoom) UpdateUserRankInfo(userId uint32, matchId int32, balance int64) error {
+/**
+		1,用户离开的时候，放弃游戏的时候，刷新排名
+		2,notRebuy的时候，刷新排名
+ */
+func (r *CSThGameRoom) UpdateUserRankInfo(userId uint32, balance int64) error {
 	info := r.GetRankInfo(userId)
 	if info == nil {
+		log.E("刷新用户【%v】的排名信息的时候出错，没有找到相关的排名信息..", userId)
 		return errors.New("没有找到排名信息")
 	}
 
 	*info.Balance = time.Now().UnixNano()        //结束的时间
 	*info.Balance = balance                        //余额
 
+	log.T("刷新用户[%v]之后的所有的排名信息[%v]", userId, r.RankInfo)
 	//更新之后,保存数据到redis
 	return nil
 }
@@ -694,7 +700,7 @@ func ( list RankList) Less(i, j int) bool {
 	if list[i].GetBalance() > list[j].GetBalance() {
 		return false
 	} else if list[i].GetBalance() == list[j].GetBalance() {
-		if list[i].GetEndTime() > list[i].GetEndTime() {
+		if list[i].GetEndTime() > list[j].GetEndTime() {
 			return false
 		} else {
 			return true
