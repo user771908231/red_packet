@@ -24,4 +24,15 @@ func (u *MjUser)WriteMsg(p proto.Message) error {
 	return nil
 }
 
+//是否是准备中...
+func (u *MjUser) IsReady() bool {
+	return u.GetStatus() == MJUSER_STATUS_SEATED
+}
+
+//玩家是否在游戏状态中
+func (u *MjUser) IsGaming() bool {
+	return true
+	
+}
+
 

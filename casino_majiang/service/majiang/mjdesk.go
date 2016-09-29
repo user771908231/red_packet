@@ -182,9 +182,69 @@ func (d *MjDesk) Ready(userId  uint32) error {
 	return nil
 }
 
+//是不是所有人都准备
+func (d *MjDesk) IsAllReady() bool {
+	for _, u := range d.Users {
+		if u != nil && !u.IsReady() {
+			return false
+		}
+	}
+	return true
+}
+
+
+
 //用户准备之后的一些操作
 func (d *MjDesk) AfterReady() error {
+
+	//如果所有人都准备了，那么开始游戏
+	if d.IsAllReady() {
+		d.begin()
+	}
 
 	return nil
 }
 
+//开始游戏
+func (d *MjDesk) begin() {
+	//1，检查是否可以开始游戏
+	//2，初始化user的状态
+
+
+	//3，初始化桌子的状态
+	d.beginInit()
+
+
+	//4，发13张牌
+	d.initCards()
+
+
+	//5，开始定缺
+	d.beginDingQue()
+
+}
+
+func (d *MjDesk) beginInit() error {
+	return nil
+}
+
+func (d *MjDesk) initCards() error {
+	//得到一副已经洗好的麻将
+	d.AllMJPai = XiPai()
+
+	//更别给每个人发牌
+	for i, u := range d.Users {
+		if u != nil && u.IsGaming() {
+			u.MJHnadPai.Pais = d.AllMJPai[i * 13: (i + 1) * 13]
+			*d.MJPaiNexIndex = int32((i + 1) * 13);
+		}
+	}
+
+	//发送发牌的广播
+	return nil
+}
+
+//开始定缺
+func (d *MjDesk) beginDingQue() error {
+	return nil
+}
