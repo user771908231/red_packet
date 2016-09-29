@@ -14,11 +14,11 @@ func TestMongoUtils(t *testing.T) {
 	r3 := newinfo()
 
 	*r1.UserId = 1
-	*r1.Balance = 0
+	*r1.Balance = 4000
 	*r1.EndTime = 1475053995025919639
 
 	*r2.UserId = 2
-	*r2.Balance = 0
+	*r2.Balance = 9000
 	*r2.EndTime = 1475053999131486792
 
 	*r3.UserId = 3

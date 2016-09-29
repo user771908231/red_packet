@@ -38,7 +38,7 @@ func gameInfocs(w http.ResponseWriter, r *http.Request) {
 	ranks := fr.RankInfo
 	if ranks != nil {
 		for i, rank := range ranks {
-			fmt.Fprintf(w, "user[%v]rank[%v],", rank.GetUserId(), 3 - i)
+			fmt.Fprintf(w, "\nuser[%v]rank[%v],[%v]\n", rank.GetUserId(), len(ranks) - i, rank)
 		}
 
 	}
