@@ -380,7 +380,8 @@ func (r *CSThGameRoom) End() {
 					ret := bbproto.NewGame_TounamentPlayerRank()
 					*ret.PlayerRank = r.GetRankByuserId(user.UserId)
 					if *ret.PlayerRank == 1 {
-						*ret.Message = "恭喜你获得冠军，得到" + winDiamond + "钻书"
+
+						*ret.Message = "恭喜你一路过关斩将，终于赢得了最后的奖励100" + winDiamond + "钻石"
 					} else {
 						*ret.Message = "很遗憾，请再接再厉"
 					}
