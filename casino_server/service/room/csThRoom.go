@@ -368,7 +368,7 @@ func (r *CSThGameRoom) End() {
 
 
 	//给第一名发送奖励...
-	r.reward();
+	winDiamond, _ := numUtils.Int642String(r.reward());
 
 	//给没有发送过游戏排名的玩家发送游戏排名
 	for _, desk := range r.ThDeskBuf {
@@ -378,8 +378,12 @@ func (r *CSThGameRoom) End() {
 					user.CSGamingStatus = false; //设置游戏状态
 					log.T("锦标赛[%v]结束,给用户[%v]发送游戏排名", r.MatchId, user.UserId)
 					ret := bbproto.NewGame_TounamentPlayerRank()
-					*ret.Message = "最终排名"
 					*ret.PlayerRank = r.GetRankByuserId(user.UserId)
+					if *ret.PlayerRank == 1 {
+						*ret.Message = "恭喜你获得冠军，得到" + winDiamond + "钻书"
+					} else {
+						*ret.Message = "很遗憾，请再接再厉"
+					}
 					user.WriteMsg(ret)
 				}
 			}
@@ -405,7 +409,7 @@ func (r *CSThGameRoom) End() {
 }
 
 //
-func (r *CSThGameRoom) reward() {
+func (r *CSThGameRoom) reward() int64 {
 	log.T("开始发送奖励..")
 	//判断游戏的类型
 	//1,得到第一名，目前只有一种类型，赢钻石的类型
@@ -418,17 +422,18 @@ func (r *CSThGameRoom) reward() {
 	remainDiamdon, err := userService.INCRUserDiamond(winUserUserId, int64(winDiamond))
 	if err != nil {
 		log.E("给用户userId[%v],nickName[%v]发送锦标赛钻石[%v]奖励的时候失败...", winUser.GetId(), winUser.GetNickName(), winDiamond)
-		return
+		return 0
 	}
 
 	//发送奖励成功，增加交易记录
 	err = userService.CreateDiamonDetail(winUserUserId, mode.T_USER_DIAMOND_DETAILS_TYPE_CSTH_DIAMON_REWARD, winDiamond, remainDiamdon, "用户锦标赛胜利，获得奖励")
 	if err != nil {
 		log.E("给用户userId[%v],nickName[%v]发送锦标赛钻石[%v]奖励的时候，创建资金记录失败...", winUser.GetId(), winUser.GetNickName(), winDiamond)
-		return
+		return 0
 	}
 
 	log.T("发送奖励完毕...")
+	return winDiamond
 
 }
 //刷新排名

@@ -2558,7 +2558,7 @@ func (t *ThDesk) CSNotRebuy(userId uint32) {
 	//2,取消之后,现实最终的排名
 	log.T("用户[%v]notRebuy的时候,发送User的最终排名...", userId)
 	ret := bbproto.NewGame_TounamentPlayerRank()
-	*ret.Message = "测试最终排名的信息"
+	*ret.Message = "很遗憾，请再接再厉"
 	*ret.PlayerRank = GetCSTHroom(t.MatchId).GetRankByuserId(user.UserId)
 	user.WriteMsg(ret)
 
