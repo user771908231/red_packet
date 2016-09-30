@@ -338,9 +338,8 @@ func (t *ThDesk) OGTHBroadInitCard(msg *bbproto.Game_InitCard) {
 	for i := 0; i < len(t.Users); i++ {
 		if t.Users[i] != nil {
 			//给用户发送广播的时候需要判断自己的座位号是多少
-			a := t.Users[i].Agent
 			msg.HandCard = t.GetMyHandCard(t.Users[i].UserId)
-			a.WriteMsg(msg)
+			t.Users[i].WriteMsg(msg)
 		}
 	}
 }

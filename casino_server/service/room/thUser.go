@@ -148,7 +148,7 @@ func (t *ThUser) wait() error {
 
 	ticker := time.NewTicker(time.Second * 1)
 	//t.waiTime = time.Now().Add(ThdeskConfig.TH_TIMEOUT_DURATION)
-	t.waiTime = time.Now().Add(time.Second * 60 * 2)        //这里的等待时间主要是短线的时间
+	t.waiTime = time.Now().Add(time.Second * 15 * 2)        //这里的等待时间主要是短线的时间
 
 	uuid, _ := uuid.NewV4()
 	t.waitUUID = uuid.String()                //设置出牌等待的标志
