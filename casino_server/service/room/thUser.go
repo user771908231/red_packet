@@ -426,12 +426,16 @@ func GetUserDataByAgent(a gate.Agent) *bbproto.ThServerUserSession {
 
 //检测用户的session是否正确
 func CheckUserSessionRight(s *bbproto.ThServerUserSession) bool {
-
 	/*
 		目前的检测方案(只有一种)
 		1。通过session找到桌子，表示session正确，否则不正确
 	 */
 	desk := GetDeskBySession(s)
-	return desk != nil
+	if desk == nil {
+		return false
+	} else {
+
+		return true
+	}
 }
 

@@ -244,7 +244,7 @@ func HandlerGameLogin(userId uint32, a gate.Agent) {
 
 	//返回session之前需要检测session的合法性
 	ret := bbproto.NewGame_AckLogin()
-	if room.CheckUserSessionRight(session) {
+	if !room.CheckUserSessionRight(session) {
 		log.E("用户[%v]的session[%v]信息有误，请管理查看", userId, session)
 		*ret.MatchId = 0
 		*ret.TableId = 0
