@@ -166,3 +166,85 @@ func (d *MjDesk) GetGame_SendGameInfo() *mjproto.Game_SendGameInfo {
 	return nil
 }
 
+
+//用户准备
+func (d *MjDesk) Ready(userId  uint32) error {
+	//找到需要准备的user
+	user := d.getUserByUserId(userId)
+	if user == nil {
+		log.E("用户[%v]在desk[%v]准备的时候失败,没有找到对应的玩家", user.GetUserId(), d.GetDeskId())
+		return errors.New("没有找到用户，准备失败")
+	}
+
+	//设置为准备的状态
+	*user.Status = MJUSER_STATUS_READY        //用户准备
+
+	return nil
+}
+
+//是不是所有人都准备
+func (d *MjDesk) IsAllReady() bool {
+	for _, u := range d.Users {
+		if u != nil && !u.IsReady() {
+			return false
+		}
+	}
+	return true
+}
+
+
+
+//用户准备之后的一些操作
+func (d *MjDesk) AfterReady() error {
+
+	//如果所有人都准备了，那么开始游戏
+	if d.IsAllReady() {
+		d.begin()
+	}
+
+	return nil
+}
+
+//开始游戏
+func (d *MjDesk) begin() {
+	//1，检查是否可以开始游戏
+	//2，初始化user的状态
+
+
+	//3，初始化桌子的状态
+	d.beginInit()
+
+
+	//4，发13张牌
+	d.initCards()
+
+
+	//5，开始定缺
+	d.beginDingQue()
+
+}
+
+func (d *MjDesk) beginInit() error {
+	return nil
+}
+
+func (d *MjDesk) initCards() error {
+	//得到一副已经洗好的麻将
+	d.AllMJPai = XiPai()
+
+	//更别给每个人发牌
+	for i, u := range d.Users {
+		if u != nil && u.IsGaming() {
+			u.MJHnadPai.Pais = d.AllMJPai[i * 13: (i + 1) * 13]
+			*d.MJPaiNexIndex = int32((i + 1) * 13);
+		}
+	}
+
+	//发送发牌的广播
+	return nil
+}
+
+//开始定缺
+func (d *MjDesk) beginDingQue() error {
+	return nil
+}

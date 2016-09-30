@@ -66,6 +66,8 @@ message ThServerUser{
 	optional bool IsShowCard        =25;
 	optional int32 MatchId 			=26;
 	optional int32 CloseCheck 		=27;
+	optional bool IsRebuy           =28; //用户是否重构的
+	optional bool WaitRebuyFlag		=29;
 }
 
 //保存用户的会话信息

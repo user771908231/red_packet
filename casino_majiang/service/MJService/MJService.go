@@ -59,10 +59,8 @@ func HandlerGame_CreateRoom(m *mjProto.Game_CreateRoom, a gate.Agent) {
 func HandlerGame_EnterRoom(m *mjProto.Game_EnterRoom, a gate.Agent) {
 	log.Debug("收到请求，HandlerGame_EnterRoom(m[%v],a[%v])", m, a)
 	//todo 根据游戏类型不同，加入房间的方式也不同...
-	//1,找到合适的room
-	//2,返回进入的desk
-	//3,返回desk 的信息
 
+	//1,找到合适的room
 	room := majiang.GetMJRoom()
 	if room == nil {
 		//没有找到room，进入房间失败
@@ -72,26 +70,51 @@ func HandlerGame_EnterRoom(m *mjProto.Game_EnterRoom, a gate.Agent) {
 		return
 	}
 
-
-	desk, err := room.EnterRoom("", 0,a)
+	//2,返回进入的desk
+	desk, err := room.EnterRoom("", 0, a)
 	if err != nil || desk == nil {
 		//进入房间失败
 		ack := newProto.NewGame_AckEnterRoom()
 		*ack.Header.Code = intCons.ACK_RESULT_ERROR
 		a.WriteMsg(ack)
 	} else {
+		//3,更新userSession,返回desk 的信息
+		majiang.UpdateSession(m.GetHeader().GetUserId(), majiang.MJUSER_SESSION_GAMESTATUS_FRIEND, desk.GetRoomId(), desk.GetDeskId(), desk.GetPassword())
 		a.WriteMsg(desk.GetGame_SendGameInfo())
 	}
 }
 
-//
+//用户开始准备游戏
 func HandlerGame_Ready(m *mjProto.Game_Ready, a gate.Agent) {
 	log.Debug("收到请求，game_Ready(m[%v],a[%v])", m, a)
+	desk := majiang.GetMjDeskBySession(m.GetHeader().GetUserId())
+	if desk == nil {
+		// 准备失败
+		result := newProto.NewGame_AckCreateRoom()
+		*result.Header.Code = intCons.ACK_RESULT_ERROR
+		*result.Header.Error = "准备失败"
+		a.WriteMsg(result)
+	} else {
+		err := desk.Ready(m.GetHeader().GetUserId())
+		if err != nil {
+			//准备失败
+			result := newProto.NewGame_AckCreateRoom()
+			*result.Header.Code = intCons.ACK_RESULT_ERROR
+			*result.Header.Error = "准备失败"
+			a.WriteMsg(result)
+		} else {
+			//准备成功,发送准备成功的广播
+			result := newProto.NewGame_AckCreateRoom()
+			*result.Header.Code = intCons.ACK_RESULT_SUCC
+			*result.Header.Error = "准备成功"
+			log.T("广播user[%v]在desk[%v]准备成功的广播..", m.GetHeader().GetUserId(), desk.GetDeskId())
+			desk.BroadCastProto(result)
 
-	result := &mjProto.Game_AckCreateRoom{}
-	result.Header = newProto.SuccessHeader()
+			//准备成功之后，是否需要开始游戏...
+			desk.AfterReady()
 
-	a.WriteMsg(result)
+		}
+	}
 }
 
 

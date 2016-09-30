@@ -33,6 +33,10 @@ message MjDesk {
     optional int32 dianGangHuaRadio = 15; // 单选，点炮类型，如：点杠花（点炮）、点杠花（自摸）等
     repeated int32 othersCheckBox = 16; // 其他可复选的玩法，如：换三张、幺九将对、门清中张、天地胡、卡二条、可胡七对等
     optional int32 huRadio = 17; // 胡法，如：自摸胡、点炮胡（可抢杠）
+    repeated MJPai AllMJPai = 18;
+    repeated MJPai DeskMJPai = 19; //桌面上的牌
+    optional int32 MJPaiNexIndex = 20; //下一张可以摸的牌
+
 
 }
 

@@ -11,6 +11,7 @@ var T_USER_DIAMOND_DETAILS_TYPE_CREATEDESK int32 = 2
 var T_USER_DIAMOND_DETAILS_TYPE_REBUY int32 = 3
 var T_USER_DIAMOND_DETAILS_TYPE_CSTH_DIAMON_REWARD int32 = 4        //锦标赛钻石奖励
 var T_USER_DIAMOND_DETAILS_TYPE_DISSOVEDESK int32 = 5 //游戏还没有开始的时候解散房间需要退回钻石
+var T_USER_DIAMOND_DETAILS_TYPE_CSFEE int32 = 6 //游戏还没有开始的时候解散房间需要退回钻石
 
 
 type T_user_diamond_details struct {

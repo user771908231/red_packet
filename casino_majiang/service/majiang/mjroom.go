@@ -117,6 +117,37 @@ func GetMJRoom() *MjRoom {
 	//暂时返回朋友桌
 	return FMJRoomIns
 }
+//通过用户的session 找到mjroom
+func GetMjroomBySession(userId uint32) *MjRoom {
+	session := GetSession(userId)
+	if session == nil {
+		return nil
+	}
+
+	session.GetRoomId()
+	session.GetDeskId()
+
+	//目前暂时返回一个房间，方便测试 todo
+	return FMJRoomIns
+
+}
+
+func GetMjDeskBySession(userId uint32) *MjDesk {
+	//得到session
+	session := GetSession(userId)
+	if session == nil {
+		return nil
+	}
+
+	room := GetMjroomBySession(userId)
+	for _, d := range room.Desks {
+		if d != nil && d.GetDeskId() == session.GetDeskId() {
+			return d
+		}
+	}
+
+	return nil
+}
 
 
 

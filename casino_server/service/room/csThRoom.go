@@ -99,6 +99,7 @@ type CSThGameRoom struct {
 	initRoomCoin         int64                   //房间默认的带入金额
 	UsersCopy            map[uint32]*ThUser      //这里是所有玩家信息的一份拷贝,只有当用户放弃之后,才会删除用户
 	RebuyBlindLevelLimit int32                   //盲注可以购买的级别
+	Fee                  int64                   //参赛费用
 }
 
 func (r *CSThGameRoom) OnInit() {
@@ -115,6 +116,7 @@ func (r *CSThGameRoom) OnInit() {
 	r.Status = CSTHGAMEROOM_STATUS_READY
 	r.ReadyTime = time.Now()
 	r.RankInfo = make([]*bbproto.CsThRankInfo, 0)
+	r.Fee = 1
 }
 
 
@@ -368,7 +370,7 @@ func (r *CSThGameRoom) End() {
 
 
 	//给第一名发送奖励...
-	r.reward();
+	winDiamond, _ := numUtils.Int642String(r.reward());
 
 	//给没有发送过游戏排名的玩家发送游戏排名
 	for _, desk := range r.ThDeskBuf {
@@ -378,8 +380,13 @@ func (r *CSThGameRoom) End() {
 					user.CSGamingStatus = false; //设置游戏状态
 					log.T("锦标赛[%v]结束,给用户[%v]发送游戏排名", r.MatchId, user.UserId)
 					ret := bbproto.NewGame_TounamentPlayerRank()
-					*ret.Message = "最终排名"
 					*ret.PlayerRank = r.GetRankByuserId(user.UserId)
+					if *ret.PlayerRank == 1 {
+
+						*ret.Message = "恭喜你一路过关斩将，终于赢得了最后的奖励" + winDiamond + "钻石"
+					} else {
+						*ret.Message = "很遗憾，请再接再厉"
+					}
 					user.WriteMsg(ret)
 				}
 			}
@@ -405,7 +412,7 @@ func (r *CSThGameRoom) End() {
 }
 
 //
-func (r *CSThGameRoom) reward() {
+func (r *CSThGameRoom) reward() int64 {
 	log.T("开始发送奖励..")
 	//判断游戏的类型
 	//1,得到第一名，目前只有一种类型，赢钻石的类型
@@ -418,17 +425,18 @@ func (r *CSThGameRoom) reward() {
 	remainDiamdon, err := userService.INCRUserDiamond(winUserUserId, int64(winDiamond))
 	if err != nil {
 		log.E("给用户userId[%v],nickName[%v]发送锦标赛钻石[%v]奖励的时候失败...", winUser.GetId(), winUser.GetNickName(), winDiamond)
-		return
+		return 0
 	}
 
 	//发送奖励成功，增加交易记录
 	err = userService.CreateDiamonDetail(winUserUserId, mode.T_USER_DIAMOND_DETAILS_TYPE_CSTH_DIAMON_REWARD, winDiamond, remainDiamdon, "用户锦标赛胜利，获得奖励")
 	if err != nil {
 		log.E("给用户userId[%v],nickName[%v]发送锦标赛钻石[%v]奖励的时候，创建资金记录失败...", winUser.GetId(), winUser.GetNickName(), winDiamond)
-		return
+		return 0
 	}
 
 	log.T("发送奖励完毕...")
+	return winDiamond
 
 }
 //刷新排名
@@ -500,6 +508,20 @@ func (r *CSThGameRoom) AddUser(userId uint32, a gate.Agent) (*ThDesk, error) {
 	if mydesk == nil {
 		//如果没有找到合适的桌子,那么新生成一个并且返回
 		mydesk = r.NewThdeskAndSave()
+	}
+
+
+	//2.1 进入之前需要扣钱
+	var remain int64 = 0
+	remain, err = userService.DECRUserDiamond(userId, r.Fee)
+	if err != nil {
+		//用户扣费失败，不能参加锦标赛
+	} else {
+		//增加余额记录
+		err = userService.CreateDiamonDetail(userId, mode.T_USER_DIAMOND_DETAILS_TYPE_CSFEE, r.Fee, remain, "参加锦标赛扣费用")
+		if err != nil {
+			log.E("用户参加锦标赛，扣费的时候出现错误...")
+		}
 	}
 
 	//3,进入房间,竞标赛进入房间的时候,默认就是准备的状态
@@ -662,11 +684,16 @@ func (r *CSThGameRoom) UpdateUserRankInfo(userId uint32, balance int64) error {
 		return errors.New("没有找到排名信息")
 	}
 
-	*info.Balance = time.Now().UnixNano()        //结束的时间
-	*info.Balance = balance                        //余额
+	//两者都不为0的时候才更新排名
+	if info.GetBalance() != 0 || balance != 0 {
+		*info.EndTime = time.Now().UnixNano()        //结束的时间
+		*info.Balance = balance                        //余额
+	}
 
 	log.T("刷新用户[%v]之后的所有的排名信息[%v]", userId, r.RankInfo)
+	r.RefreshRank()
 	//更新之后,保存数据到redis
+
 	return nil
 }
 

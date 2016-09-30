@@ -73,6 +73,8 @@ type ThUser struct {
 	LotteryCheck       bool                  //这个字段用于判断是否可以开奖,默认是false:   1,如果用户操作弃牌,则直接设置为true,2,如果本局是all in,那么要到本轮次押注完成之后,才能设置为true
 	CloseCheck         int32                 //是否已经结算清楚了
 	IsShowCard         bool                  //是否亮牌
+	IsRebuy            bool                  //是否重购
+	WaitRebuyFlag      bool                  //等待重购的标志
 }
 
 // 初始化用户的状态
@@ -88,6 +90,7 @@ func (u *ThUser) ClearHistoryData() {
 	u.IsShowCard = false            //默认不亮牌
 	u.HandCards = nil
 	u.thCards = nil
+	u.WaitRebuyFlag = false
 }
 
 func (t *ThUser) GetCoin() int64 {
@@ -179,10 +182,17 @@ func (t *ThUser) wait() error {
 func (t *ThUser) waitCsRebuy() {
 	log.T("user【%v】开始等待重购买", t.UserId)
 	timeEnd := time.Now().Add(time.Second * 10)        //5秒之后
-	jobUtils.DoAsynJob(time.Second * 5, func() bool {
+	jobUtils.DoAsynJob(time.Second * 1, func() bool {
+
+		//如果没有等待了，直接返回
+		if !t.WaitRebuyFlag {
+			return true
+		}
+
+		//超时之后，自动不重购买
 		if (time.Now().After(timeEnd)) {
 			desk := t.GetDesk()
-			if desk != nil && !desk.IsUserRoomCoinEnough(t) {
+			if desk != nil && t.WaitRebuyFlag {
 				log.T("user【%v】等待重购超时,系统自动notRebuy...", t.UserId)
 				desk.CSNotRebuy(t.UserId)
 			}
@@ -246,7 +256,7 @@ func (t *ThUser) TimeOut(timeNow time.Time) (bool, error) {
 		return true, err
 	} else {
 		//没有超时,继续等待
-		//log.T("desk[%v]玩家[%v]nickname[%v]出牌中还没有超时", t.deskId, t.UserId, t.NickName)
+		log.T("desk[%v]玩家[%v]nickname[%v]出牌中还没有超时", t.deskId, t.UserId, t.NickName)
 		return false, nil
 	}
 }
@@ -354,6 +364,10 @@ func (t *ThUser) AddTotalBet(coin int64) {
 	atomic.AddInt64(&t.TotalBet, coin)
 }
 
+func (t *ThUser) AddRebuyCount() {
+	atomic.AddInt32(&t.RebuyCount, 1)
+}
+
 //判断用户是否正在押注中
 func (t *ThUser) IsBetting() bool {
 	//正在押注中 是否需要判断是否断线,是否离线?
@@ -412,11 +426,16 @@ func GetUserDataByAgent(a gate.Agent) *bbproto.ThServerUserSession {
 
 //检测用户的session是否正确
 func CheckUserSessionRight(s *bbproto.ThServerUserSession) bool {
-
 	/*
 		目前的检测方案(只有一种)
 		1。通过session找到桌子，表示session正确，否则不正确
 	 */
 	desk := GetDeskBySession(s)
-	return desk != nil
+	if desk == nil {
+		return false
+	} else {
+
+		return true
+	}
 }
+

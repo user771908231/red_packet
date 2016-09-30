@@ -2,9 +2,9 @@ package majiang
 
 import (
 	"strings"
-	"majiang/utils/randUtils"
 	"github.com/name5566/leaf/log"
 	"casino_server/utils/numUtils"
+	"casino_server/utils"
 )
 
 //得到一副牌...
@@ -452,7 +452,7 @@ func XiPai() []*MJPai {
 	pResult := make([]int, MJPAI_COUNT)
 
 	for i := 0; i < MJPAI_COUNT; i++ {
-		rand := randUtils.Rand(0, (int32(MJPAI_COUNT - i)))
+		rand := utils.Rand(0, (int32(MJPAI_COUNT - i)))
 		//log.Debug("得到的rand[%v]", rand)
 		pResult[i] = pmap[rand]
 		pmap = append(pmap[:int(rand)], pmap[int(rand) + 1:]...)
