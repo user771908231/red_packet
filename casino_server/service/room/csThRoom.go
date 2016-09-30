@@ -99,6 +99,7 @@ type CSThGameRoom struct {
 	initRoomCoin         int64                   //房间默认的带入金额
 	UsersCopy            map[uint32]*ThUser      //这里是所有玩家信息的一份拷贝,只有当用户放弃之后,才会删除用户
 	RebuyBlindLevelLimit int32                   //盲注可以购买的级别
+	Fee                  int64                   //参赛费用
 }
 
 func (r *CSThGameRoom) OnInit() {
@@ -115,6 +116,7 @@ func (r *CSThGameRoom) OnInit() {
 	r.Status = CSTHGAMEROOM_STATUS_READY
 	r.ReadyTime = time.Now()
 	r.RankInfo = make([]*bbproto.CsThRankInfo, 0)
+	r.Fee = 1
 }
 
 
@@ -506,6 +508,20 @@ func (r *CSThGameRoom) AddUser(userId uint32, a gate.Agent) (*ThDesk, error) {
 	if mydesk == nil {
 		//如果没有找到合适的桌子,那么新生成一个并且返回
 		mydesk = r.NewThdeskAndSave()
+	}
+
+
+	//2.1 进入之前需要扣钱
+	var remain int64 = 0
+	remain, err = userService.DECRUserDiamond(userId, r.Fee)
+	if err != nil {
+		//用户扣费失败，不能参加锦标赛
+	} else {
+		//增加余额记录
+		err = userService.CreateDiamonDetail(userId, mode.T_USER_DIAMOND_DETAILS_TYPE_CSFEE, r.Fee, remain, "参加锦标赛扣费用")
+		if err != nil {
+			log.E("用户参加锦标赛，扣费的时候出现错误...")
+		}
 	}
 
 	//3,进入房间,竞标赛进入房间的时候,默认就是准备的状态

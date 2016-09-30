@@ -177,6 +177,9 @@ func HandlerGetGameRecords(m *bbproto.Game_GameRecord, a gate.Agent) {
 	3,如果没有登陆游戏,走正常的流程
 
 	//错误码的说明:result
+
+
+	//进入房间的时候  需要更具游戏类型来做不同的进入逻辑...
  */
 func HandlerGameEnterMatch(m *bbproto.Game_EnterMatch, a gate.Agent) error {
 	log.T("用户请求进入德州扑克的游戏房间,HandlerGameEnterMatch(m[%v])", m)
