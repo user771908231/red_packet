@@ -148,7 +148,7 @@ func (t *ThUser) wait() error {
 
 	ticker := time.NewTicker(time.Second * 1)
 	//t.waiTime = time.Now().Add(ThdeskConfig.TH_TIMEOUT_DURATION)
-	t.waiTime = time.Now().Add(time.Second * 10 * 3)        //这里的等待时间主要是短线的时间
+	t.waiTime = time.Now().Add(time.Second * 60 * 2)        //这里的等待时间主要是短线的时间
 
 	uuid, _ := uuid.NewV4()
 	t.waitUUID = uuid.String()                //设置出牌等待的标志
@@ -239,7 +239,9 @@ func (t *ThUser) TimeOut(timeNow time.Time) (bool, error) {
 	}
 
 	//如果用户超时,或者用户已经离开,那么直接做弃牌的操作
-	if (t.waiTime.Before(timeNow)  && t.IsBreak) || t.IsLeave {
+	//if (t.waiTime.Before(timeNow)  && t.IsBreak) || t.IsLeave {
+	if t.waiTime.Before(timeNow) || t.IsLeave {
+
 		log.T("玩家[%v]超时,现在做超时的处理", t.UserId)
 		desk := t.GetDesk()
 		if desk == nil {
