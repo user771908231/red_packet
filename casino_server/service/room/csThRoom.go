@@ -381,7 +381,7 @@ func (r *CSThGameRoom) End() {
 					*ret.PlayerRank = r.GetRankByuserId(user.UserId)
 					if *ret.PlayerRank == 1 {
 
-						*ret.Message = "恭喜你一路过关斩将，终于赢得了最后的奖励100" + winDiamond + "钻石"
+						*ret.Message = "恭喜你一路过关斩将，终于赢得了最后的奖励" + winDiamond + "钻石"
 					} else {
 						*ret.Message = "很遗憾，请再接再厉"
 					}
