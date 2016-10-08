@@ -122,14 +122,31 @@ func HandlerBegin(m *bbproto.Game_Begin, a gate.Agent) error {
 	userId := m.GetUserId()
 	desk := room.GetDeskByAgent(a)
 
-	if desk == nil || desk.DeskOwner != userId {
-		log.E("没有找到房主为[%v]的desk", userId)
+	if desk == nil {
+		log.E("没有找到桌子，开始游戏失败...")
 		return errors.New("没有找到房间")
-	} else {
-		//开始游戏
+	}
+
+	//如果是朋友桌的开始方式
+	if desk.IsFriend() {
+		if desk.DeskOwner != userId {
+			log.E("没有找到房主为[%v]的desk", userId)
+			return errors.New("没有找到房间")
+		} else {
+			//开始游戏
+			go desk.Run()
+			return nil
+		}
+	}
+
+	//如果是锦标赛的开始方式
+	if desk.IsChampionship() {
 		go desk.Run()
 		return nil
 	}
+
+	return errors.New("游戏开始失败")
+
 }
 
 //

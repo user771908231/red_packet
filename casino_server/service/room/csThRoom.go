@@ -80,9 +80,6 @@ var CSTHGAMEROOM_STATUS_READY int32 = 2;
 
 var CSTHGAMEROOM_STATUS_RUN int32 = 3;
 
-var CSTHGAMEROOM_STATUS_LOTTERY int32 = 4;
-
-
 //锦标赛
 type CSThGameRoom struct {
 	ThGameRoom
