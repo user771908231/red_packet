@@ -171,7 +171,23 @@ func (t *ThDesk) BroadGameInfo(reqUserId uint32) {
 	}
 }
 
+//锦标赛是否显示可以准备的按钮
+func (t *ThDesk) getShowCsBeginButton() bool {
+	if t.IsChampionship() {
+		room := GetCSTHroom(t.MatchId)
+		if room == nil {
+			return false
+		}
 
+		//如果是准备状态并且人数到达三人，那么就显示
+		if room.Status == CSTHGAMEROOM_STATUS_READY && room.GetGamingCount() >= CSTHGameRoomConfig.leastCount {
+			return true
+		}
+	}
+
+	// 其他情况返回false
+	return false
+}
 
 //返回房间的信息 todo 登陆成功的处理,给请求登陆的玩家返回登陆结果的消息
 func (mydesk *ThDesk) initGameSendgameInfoByDesk(reqUserId uint32) *bbproto.Game_SendGameInfo {
@@ -203,7 +219,7 @@ func (mydesk *ThDesk) initGameSendgameInfoByDesk(reqUserId uint32) *bbproto.Game
 	*result.CurrPlayCount = mydesk.JuCountNow
 	*result.TotalPlayCount = mydesk.JuCount
 	*result.SenderUserId = reqUserId
-
+	*result.ShowCsBeginButton = mydesk.getShowCsBeginButton()        //是否在锦标赛中显示开始准备的按钮
 
 	//循环User来处理
 	for i := 0; i < len(mydesk.Users); i++ {
@@ -338,9 +354,8 @@ func (t *ThDesk) OGTHBroadInitCard(msg *bbproto.Game_InitCard) {
 	for i := 0; i < len(t.Users); i++ {
 		if t.Users[i] != nil {
 			//给用户发送广播的时候需要判断自己的座位号是多少
-			a := t.Users[i].Agent
 			msg.HandCard = t.GetMyHandCard(t.Users[i].UserId)
-			a.WriteMsg(msg)
+			t.Users[i].WriteMsg(msg)
 		}
 	}
 }

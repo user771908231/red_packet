@@ -138,6 +138,7 @@ func NewGame_SendGameInfo() *Game_SendGameInfo {
 	result.CurrPlayCount = new(int32)
 	result.TotalPlayCount = new(int32)
 	result.SenderUserId = new(uint32)
+	result.ShowCsBeginButton = new(bool)
 	return result
 }
 
