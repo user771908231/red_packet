@@ -186,7 +186,6 @@ func (r *CSThGameRoom) CheckIntoRoom(matchId int32) error {
 	1,开始游戏,通过每个房间,游戏可以开始了,进行前注,盲注,发牌...
  */
 func NewCsThGameRoom() {
-
 	//1,创建一场游戏
 	r := &CSThGameRoom{}
 
@@ -304,6 +303,11 @@ func (r *CSThGameRoom) Run() {
 			r.SmallBlindCoin = CSTHGameRoomConfig.Blinds[r.BlindLevel]
 			log.T("由于锦标赛[%v]的盲注达到了级别[%v],盲注【%v】", r.MatchId, r.BlindLevel, r.SmallBlindCoin)
 
+			//如果升盲之后的的级别达到禁止进入的级别，那么需要重新生成锦标赛
+			if r.BlindLevel == CSTHGameRoomConfig.AddBlindLevelLimit {
+				go NewCsThGameRoom()
+			}
+			
 			return false
 		}
 	})
