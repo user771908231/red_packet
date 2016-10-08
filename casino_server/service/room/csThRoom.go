@@ -52,6 +52,7 @@ var CSTHGameRoomConfig struct {
 	roomMaxUserCount     int32         //room里最多能有多少人
 	RebuyCountLimit      int32         //重构次数的限制
 	RebuyBlindLevelLimit int32         //可以购买的盲注级别
+	AddBlindLevelLimit   int32         //可以加入游戏的盲注级别
 	quotaLimit           int32         //名额的限制
 }
 
@@ -70,6 +71,8 @@ func OnInitCSConfig() {
 	CSTHGameRoomConfig.quotaLimit = 1                //能得到奖励的人
 	CSTHGameRoomConfig.RebuyBlindLevelLimit = 7      //7级盲注以前可以购买
 	CSTHGameRoomConfig.roomMaxUserCount = 500        //最多500人玩
+	CSTHGameRoomConfig.AddBlindLevelLimit = 7
+
 }
 
 
@@ -152,11 +155,18 @@ func (r *CSThGameRoom) CheckIntoRoom(matchId int32) error {
 	}
 
 	//时间过了不能进入
-	if r.Status == CSTHGAMEROOM_STATUS_RUN && r.IsOutofEndTime() {
+	//if r.Status == CSTHGAMEROOM_STATUS_RUN && r.IsOutofEndTime() {
+	//	log.T("进入锦标赛的游戏房间失败,因为time.mow[].after (r.endTime[%v])", r.EndTime)
+	//	return Error.NewError(int32(bbproto.DDErrorCode_ERRORCODE_INTO_DESK_NOTFOUND), "游戏已经过期")
+	//
+	//}
+
+	//游戏已经开始，并且忙著的级别已经达到了不能进入的限制
+	if r.Status == CSTHGAMEROOM_STATUS_RUN && r.BlindLevel >= CSTHGameRoomConfig.AddBlindLevelLimit {
 		log.T("进入锦标赛的游戏房间失败,因为time.mow[].after (r.endTime[%v])", r.EndTime)
 		return Error.NewError(int32(bbproto.DDErrorCode_ERRORCODE_INTO_DESK_NOTFOUND), "游戏已经过期")
-
 	}
+
 
 	//游戏开始之后,用户只剩10人不能进入游戏 todo 这里的10人需要放置在配置文件中
 	if r.Status == CSTHGAMEROOM_STATUS_RUN && r.GetGamingCount() <= CSTHGameRoomConfig.quotaLimit {

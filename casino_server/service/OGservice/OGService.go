@@ -228,7 +228,7 @@ func HandlerGameEnterMatch(m *bbproto.Game_EnterMatch, a gate.Agent) error {
 			mydesk = nil        //没有找到对应的桌子，进入房间失败...
 			err = errors.New("没有找到对应的锦标赛desk")
 		} else {
-			mydesk, err = room.GetCSTHroom(matchId).AddUser(userId, a)
+			mydesk, err = r.AddUser(userId, a)
 		}
 	} else {
 		mydesk, err = room.ThGameRoomIns.AddUserWithRoomKey(userId, roomKey, a)
