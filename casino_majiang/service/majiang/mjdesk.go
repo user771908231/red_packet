@@ -203,9 +203,7 @@ func (d *MjDesk) GetPlayerNum() int32 {
 func (d *MjDesk) GetGame_SendGameInfo() *mjproto.Game_SendGameInfo {
 	gameInfo := newProto.NewGame_SendGameInfo()
 	gameInfo.DeskGameInfo = d.GetDeskGameInfo()
-	*gameInfo.MatchId = d.GetRoomId()
 	gameInfo.PlayerInfo = d.GetPlayerInfo()
-	*gameInfo.TableId = d.GetDeskId()
 	//gameInfo.SenderUserId   发起请求的人 ... agent 返回信息的时候 取userId
 
 	return gameInfo
