@@ -7,6 +7,10 @@ import (
 	"casino_majiang/msg/protogo"
 	"errors"
 	"github.com/name5566/leaf/gate"
+	"casino_majiang/service/lock"
+	"casino_server/utils/db"
+	"casino_majiang/conf/config"
+	"casino_server/service/userService"
 )
 
 
@@ -24,14 +28,41 @@ func (r *MjRoom) OnInit() {
 
 }
 
+//更具条件计算创建房间的费用
+func (r *MjRoom) CalcCreateFee() int64 {
+	return 0;
+}
+
 func (r *MjRoom) CreateDesk(m *mjproto.Game_CreateRoom) *MjDesk {
 	//create 的时候，是否需要通过type 来判断,怎么样创建房间
+
+
+	//0,先扣费,添加账单
+	var createFee int64 = r.CalcCreateFee()
+	remain, err := userService.DECRUserDiamond(m.GetHeader().GetUserId(), createFee)
+	if err != nil {
+		//扣费失败，创建房间失败
+		return nil
+	}
+
+	err = userService.CreateDiamonDetail(m.GetHeader().GetUserId(), 0, createFee, remain, "创建麻将desk")
+	if err != nil {
+		//创建订单的时候失败
+		return nil
+	}
+
+
 
 	//1,创建一个房间，并初始化参数
 	desk := NewMjDesk()
 	*desk.Password = r.RandRoomKey()
 	*desk.Owner = m.GetHeader().GetUserId()        //设置房主
 	*desk.CardsNum = m.GetRoomTypeInfo().GetCardsNum()
+	//desk.BaseValue
+	*desk.CreateFee = createFee
+	*desk.DeskId,_ = db.GetNextSeq(config.DBT_MJ_DESK)
+	//desk.HuRadio
+
 	//把创建的desk加入到room中
 	r.AddDesk(desk)
 	return desk
@@ -109,6 +140,12 @@ func (r *MjRoom) IsFriend() bool {
 
 func (r *MjRoom) AddDesk(desk *MjDesk) error {
 	r.Desks = append(r.Desks, desk)
+
+	//为桌子增加lock ，回复数据的时候，也需要回 lock
+	lock.NewDeskLock(desk.GetDeskId())
+
+	//加入之后需要更新数据到redis
+	desk.updateRedis()
 	return nil
 }
 

@@ -29,7 +29,7 @@ func HandlerGame_CreateRoom(m *mjProto.Game_CreateRoom, a gate.Agent) {
 	//2,开始创建房间
 	desk := majiang.FMJRoomIns.CreateDesk(m)
 
-	//返回数据
+	//3,返回数据
 	result := newProto.NewGame_AckCreateRoom()
 
 	if desk == nil {
@@ -57,7 +57,7 @@ func HandlerGame_CreateRoom(m *mjProto.Game_CreateRoom, a gate.Agent) {
 
  */
 func HandlerGame_EnterRoom(m *mjProto.Game_EnterRoom, a gate.Agent) {
-	log.Debug("收到请求，HandlerGame_EnterRoom(m[%v],a[%v])", m, a)
+	log.T("收到请求，HandlerGame_EnterRoom(m[%v],a[%v])", m, a)
 	//todo 根据游戏类型不同，加入房间的方式也不同...这里可以通过agent 来区分
 
 	//1,找到合适的room

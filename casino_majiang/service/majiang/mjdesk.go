@@ -321,3 +321,15 @@ func (d *MjDesk) initCards() error {
 func (d *MjDesk) beginDingQue() error {
 	return nil
 }
+
+//把桌子的数据保存到redis中
+/**
+	需要调用的地方
+	1,新增加一个桌子的时候
+	2,
+
+ */
+func (d *MjDesk)updateRedis() error {
+
+	return nil
+}

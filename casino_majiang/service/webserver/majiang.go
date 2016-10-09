@@ -15,19 +15,20 @@ func InitCms() {
 }
 
 func gameInfo(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprint(w, "朋友桌房间的信息:\n")
+	fmt.Fprint(w, "麻将....朋友桌房间的信息:\n")
 
 	for _, desk := range majiang.FMJRoomIns.Desks {
 		printDeskInfo(w, desk)
 	}
 	fmt.Fprint(w, "朋友桌房间的信息打印完毕:\n")
 }
+
 func printDeskInfo(w http.ResponseWriter, desk *majiang.MjDesk) {
 	if desk != nil {
 		deskInfo := "开始打印desk.id[%v],roomKey[%v]的信息:\n" +
 		"------------------打印Users的信息:\n"
 		fmt.Fprintf(w, deskInfo, desk.GetDeskId(), desk.GetPassword())
-		fmt.Fprint(w, "desk[%v]的信息打印完毕:\n\n\n\n", desk.GetDeskGameInfo())
+		fmt.Fprint(w, "打印完毕:\n", desk.GetDeskGameInfo())
 	}
 }
 
