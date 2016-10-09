@@ -139,9 +139,12 @@ func HandlerBegin(m *bbproto.Game_Begin, a gate.Agent) error {
 		}
 	}
 
-	//如果是锦标赛的开始方式
+	//如果是用户请求开始锦标赛
 	if desk.IsChampionship() {
-		go desk.Run()
+		room := room.GetCSTHroom(desk.MatchId)
+		if room != nil {
+			go room.Run()
+		}
 		return nil
 	}
 
@@ -228,7 +231,7 @@ func HandlerGameEnterMatch(m *bbproto.Game_EnterMatch, a gate.Agent) error {
 			mydesk = nil        //没有找到对应的桌子，进入房间失败...
 			err = errors.New("没有找到对应的锦标赛desk")
 		} else {
-			mydesk, err = room.GetCSTHroom(matchId).AddUser(userId, a)
+			mydesk, err = r.AddUser(userId, a)
 		}
 	} else {
 		mydesk, err = room.ThGameRoomIns.AddUserWithRoomKey(userId, roomKey, a)

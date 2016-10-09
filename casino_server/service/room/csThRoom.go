@@ -52,6 +52,7 @@ var CSTHGameRoomConfig struct {
 	roomMaxUserCount     int32         //room里最多能有多少人
 	RebuyCountLimit      int32         //重构次数的限制
 	RebuyBlindLevelLimit int32         //可以购买的盲注级别
+	AddBlindLevelLimit   int32         //可以加入游戏的盲注级别
 	quotaLimit           int32         //名额的限制
 }
 
@@ -70,6 +71,8 @@ func OnInitCSConfig() {
 	CSTHGameRoomConfig.quotaLimit = 1                //能得到奖励的人
 	CSTHGameRoomConfig.RebuyBlindLevelLimit = 7      //7级盲注以前可以购买
 	CSTHGameRoomConfig.roomMaxUserCount = 500        //最多500人玩
+	CSTHGameRoomConfig.AddBlindLevelLimit = 7
+
 }
 
 
@@ -152,11 +155,18 @@ func (r *CSThGameRoom) CheckIntoRoom(matchId int32) error {
 	}
 
 	//时间过了不能进入
-	if r.Status == CSTHGAMEROOM_STATUS_RUN && r.IsOutofEndTime() {
+	//if r.Status == CSTHGAMEROOM_STATUS_RUN && r.IsOutofEndTime() {
+	//	log.T("进入锦标赛的游戏房间失败,因为time.mow[].after (r.endTime[%v])", r.EndTime)
+	//	return Error.NewError(int32(bbproto.DDErrorCode_ERRORCODE_INTO_DESK_NOTFOUND), "游戏已经过期")
+	//
+	//}
+
+	//游戏已经开始，并且忙著的级别已经达到了不能进入的限制
+	if r.Status == CSTHGAMEROOM_STATUS_RUN && r.BlindLevel >= CSTHGameRoomConfig.AddBlindLevelLimit {
 		log.T("进入锦标赛的游戏房间失败,因为time.mow[].after (r.endTime[%v])", r.EndTime)
 		return Error.NewError(int32(bbproto.DDErrorCode_ERRORCODE_INTO_DESK_NOTFOUND), "游戏已经过期")
-
 	}
+
 
 	//游戏开始之后,用户只剩10人不能进入游戏 todo 这里的10人需要放置在配置文件中
 	if r.Status == CSTHGAMEROOM_STATUS_RUN && r.GetGamingCount() <= CSTHGameRoomConfig.quotaLimit {
@@ -176,7 +186,6 @@ func (r *CSThGameRoom) CheckIntoRoom(matchId int32) error {
 	1,开始游戏,通过每个房间,游戏可以开始了,进行前注,盲注,发牌...
  */
 func NewCsThGameRoom() {
-
 	//1,创建一场游戏
 	r := &CSThGameRoom{}
 
@@ -200,21 +209,21 @@ func NewCsThGameRoom() {
 	RefreshRedisMatchList()        //这里刷新redis中的锦标赛数据
 
 	//5,开始准备
-	log.T("开始锦标赛的游戏matchId[%v]", r.MatchId)
-	jobUtils.DoAsynJob(CSTHGameRoomConfig.checkDuration, func() bool {
-		//判断人数是否足够
-		if r.GetGamingCount() >= CSTHGameRoomConfig.leastCount {
-			log.T("游戏人书已经足够了，可以开始游戏了...")
-			//开始游戏
-			r.Run()
-			//通知desk开始desk.run
-			r.BroadCastDeskRunGame()
-			return true        //表示终止任务
-		} else {
-			log.T("锦标赛[%v]玩家数量[%v]不够[%v],暂时不开始游戏.", r.MatchId, r.GetGamingCount(), CSTHGameRoomConfig.leastCount)
-			return false
-		}
-	})
+	//log.T("开始锦标赛的游戏matchId[%v]", r.MatchId)
+	//jobUtils.DoAsynJob(CSTHGameRoomConfig.checkDuration, func() bool {
+	//	//判断人数是否足够
+	//	if r.GetGamingCount() >= CSTHGameRoomConfig.leastCount {
+	//		log.T("游戏人书已经足够了，可以开始游戏了...")
+	//		//开始游戏
+	//		r.Run()
+	//		//通知desk开始desk.run
+	//		r.BroadCastDeskRunGame()
+	//		return true        //表示终止任务
+	//	} else {
+	//		log.T("锦标赛[%v]玩家数量[%v]不够[%v],暂时不开始游戏.", r.MatchId, r.GetGamingCount(), CSTHGameRoomConfig.leastCount)
+	//		return false
+	//	}
+	//})
 }
 
 //添加一场锦标赛到buf中
@@ -240,11 +249,21 @@ func RMCSThgame(r *CSThGameRoom) error {
 	return nil
 }
 
+func (r *CSThGameRoom) isRun() bool{
+	return r.Status == CSTHGAMEROOM_STATUS_RUN        //竞标赛当前的状态
 
+}
 
 //run游戏房间
 func (r *CSThGameRoom) Run() {
+	r.Lock()
+	defer r.Unlock()
 	log.T("锦标赛游戏开始...run()")
+
+	//如果已经开始来，直接返回,否则进行之后的工作
+	if r.isRun() {
+		return
+	}
 
 	//设置room属性
 	r.Status = CSTHGAMEROOM_STATUS_RUN        //竞标赛当前的状态
@@ -294,9 +313,18 @@ func (r *CSThGameRoom) Run() {
 			r.SmallBlindCoin = CSTHGameRoomConfig.Blinds[r.BlindLevel]
 			log.T("由于锦标赛[%v]的盲注达到了级别[%v],盲注【%v】", r.MatchId, r.BlindLevel, r.SmallBlindCoin)
 
+			//如果升盲之后的的级别达到禁止进入的级别，那么需要重新生成锦标赛
+			if r.BlindLevel == CSTHGameRoomConfig.AddBlindLevelLimit {
+				go NewCsThGameRoom()
+			}
+
 			return false
 		}
 	})
+
+
+	//告诉其他桌，开始游戏
+	r.BroadCastDeskRunGame()
 }
 
 //通过所有的desk可以开始游戏了

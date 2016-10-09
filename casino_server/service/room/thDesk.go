@@ -2360,26 +2360,8 @@ func (t *ThDesk) Rebuy(userId uint32) error {
 func (t *ThDesk) FRebuy(userId uint32) error {
 	ret := bbproto.NewGame_AckRebuy()        //返回的解雇
 	user := t.GetUserByUserId(userId)        //要操作的用户
-	//1,为用户增加金额
-
-	//得到需要扣除的砖石
-	var feeDiamond int64 = 1
-	//banlance, err := userService.UpdateUserDiamond(userId, feeDiamond)
-	banlance, err := userService.DECRUserDiamond(userId, feeDiamond)        //朋友桌重购
-	if err != nil {
-		log.E("rebuy的时候出错,error", err.Error())
-		*ret.Result = intCons.ACK_RESULT_ERROR                                //错误码
-		user.WriteMsg(ret)
-		return err
-	}
+	//1,为用户增加金额	//得到需要扣除的砖石
 	//2,生成一条交易记录
-	err = userService.CreateDiamonDetail(userId, mode.T_USER_DIAMOND_DETAILS_TYPE_REBUY, feeDiamond, banlance, "rebuy消耗钻石");
-	if err != nil {
-		log.E("创建用户的钻石交易记录(rebuy)失败")
-		*ret.Result = intCons.ACK_RESULT_ERROR                                //错误码
-		user.WriteMsg(ret)
-		return err
-	}
 	//3,更新状态,并且返回交易结果
 	user.AddRoomCoin(t.InitRoomCoin)
 	user.AddTotalRoomCoin(t.InitRoomCoin)
@@ -2556,7 +2538,7 @@ func (t *ThDesk) CSNotRebuy(userId uint32) {
 	user.UpdateAgentUserData()
 
 	//2,取消之后,现实最终的排名
-	log.T("用户[%v]notRebuy的时候,发送User的最终排名...",userId)
+	log.T("用户[%v]notRebuy的时候,发送User的最终排名...", userId)
 	ret := bbproto.NewGame_TounamentPlayerRank()
 	*ret.Message = "非常遗憾，你未获得比赛奖励，请再接再励"
 	*ret.PlayerRank = GetCSTHroom(t.MatchId).GetRankByuserId(user.UserId)
