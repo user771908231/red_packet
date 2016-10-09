@@ -9,7 +9,7 @@ message MJPai {
 }
 
 //手里的一副牌
-message MJHnadPai {
+message MJHandPai {
     repeated MJPai Pais = 1;
 
 }
@@ -36,7 +36,8 @@ message MjDesk {
     repeated MJPai AllMJPai = 18;
     repeated MJPai DeskMJPai = 19; //桌面上的牌
     optional int32 MJPaiNexIndex = 20; //下一张可以摸的牌
-
+    optional int32 TotalPlayCount = 21; //总共几局
+    optional int32 CurrPlayCount = 22; //当前玩到第几局
 
 }
 
@@ -45,12 +46,16 @@ message MjUser {
     optional uint32 UserId = 1;
     optional int64 Coin = 2; //游戏中的带入金额
     optional int32 RebuyCount = 3; //重购次数
-    optional MJHnadPai MJHnadPai = 4; //用户的麻将牌
+    optional MJHandPai MJHandPai = 4; //用户的麻将牌
     optional int32 Status = 5; //玩家当前的状态
     optional bool IsBreak = 6; //是否断线
     optional bool IsLeave = 7; //是否离开
     optional int32 DeskId = 8; //
     optional int32 RoomId = 9;
+    optional bool DingQue = 10;
+    optional bool Exchanged = 11;
+    optional bool Ready = 12;
+    optional bool IsBanker = 13; //是否是庄家
 }
 
 //用户的session

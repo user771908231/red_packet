@@ -32,7 +32,6 @@ func (r *MjRoom) CreateDesk(m *mjproto.Game_CreateRoom) *MjDesk {
 	*desk.Password = r.RandRoomKey()
 	*desk.Owner = m.GetHeader().GetUserId()        //设置房主
 	*desk.CardsNum = m.GetRoomTypeInfo().GetCardsNum()
-
 	//把创建的desk加入到room中
 	r.AddDesk(desk)
 	return desk
@@ -84,13 +83,13 @@ func (r *MjRoom) GetDeskByPassword(key string) *MjDesk {
 //进入的时候，需要判断牌房间的类型...
 func (r *MjRoom) EnterRoom(key string, userId uint32, a gate.Agent) (*MjDesk, error) {
 	var desk *MjDesk
-	//如果是朋友桌
+	//如果是朋友桌,需要通过房间好来找到desk
 	if r.IsFriend() {
 		desk = r.GetDeskByPassword(key)
 		if desk == nil {
 			return nil, errors.New("没有找到对应的desk")
 		} else {
-			err := desk.addNewUser(userId, a)
+			err := desk.addNewUserFriend(userId, a)
 			if err != nil {
 				//用户加入房间失败...
 				return desk, errors.New("用户加入房间失败...")
