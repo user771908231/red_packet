@@ -209,21 +209,21 @@ func NewCsThGameRoom() {
 	RefreshRedisMatchList()        //这里刷新redis中的锦标赛数据
 
 	//5,开始准备
-	log.T("开始锦标赛的游戏matchId[%v]", r.MatchId)
-	jobUtils.DoAsynJob(CSTHGameRoomConfig.checkDuration, func() bool {
-		//判断人数是否足够
-		if r.GetGamingCount() >= CSTHGameRoomConfig.leastCount {
-			log.T("游戏人书已经足够了，可以开始游戏了...")
-			//开始游戏
-			r.Run()
-			//通知desk开始desk.run
-			r.BroadCastDeskRunGame()
-			return true        //表示终止任务
-		} else {
-			log.T("锦标赛[%v]玩家数量[%v]不够[%v],暂时不开始游戏.", r.MatchId, r.GetGamingCount(), CSTHGameRoomConfig.leastCount)
-			return false
-		}
-	})
+	//log.T("开始锦标赛的游戏matchId[%v]", r.MatchId)
+	//jobUtils.DoAsynJob(CSTHGameRoomConfig.checkDuration, func() bool {
+	//	//判断人数是否足够
+	//	if r.GetGamingCount() >= CSTHGameRoomConfig.leastCount {
+	//		log.T("游戏人书已经足够了，可以开始游戏了...")
+	//		//开始游戏
+	//		r.Run()
+	//		//通知desk开始desk.run
+	//		r.BroadCastDeskRunGame()
+	//		return true        //表示终止任务
+	//	} else {
+	//		log.T("锦标赛[%v]玩家数量[%v]不够[%v],暂时不开始游戏.", r.MatchId, r.GetGamingCount(), CSTHGameRoomConfig.leastCount)
+	//		return false
+	//	}
+	//})
 }
 
 //添加一场锦标赛到buf中
@@ -249,11 +249,21 @@ func RMCSThgame(r *CSThGameRoom) error {
 	return nil
 }
 
+func (r *CSThGameRoom) isRun() bool{
+	return r.Status == CSTHGAMEROOM_STATUS_RUN        //竞标赛当前的状态
 
+}
 
 //run游戏房间
 func (r *CSThGameRoom) Run() {
+	r.Lock()
+	defer r.Unlock()
 	log.T("锦标赛游戏开始...run()")
+
+	//如果已经开始来，直接返回,否则进行之后的工作
+	if r.isRun() {
+		return
+	}
 
 	//设置room属性
 	r.Status = CSTHGAMEROOM_STATUS_RUN        //竞标赛当前的状态
@@ -307,10 +317,14 @@ func (r *CSThGameRoom) Run() {
 			if r.BlindLevel == CSTHGameRoomConfig.AddBlindLevelLimit {
 				go NewCsThGameRoom()
 			}
-			
+
 			return false
 		}
 	})
+
+
+	//告诉其他桌，开始游戏
+	r.BroadCastDeskRunGame()
 }
 
 //通过所有的desk可以开始游戏了
