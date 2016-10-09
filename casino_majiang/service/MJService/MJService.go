@@ -80,8 +80,9 @@ func HandlerGame_EnterRoom(m *mjProto.Game_EnterRoom, a gate.Agent) {
 	} else {
 		//3,更新userSession,返回desk 的信息
 		majiang.UpdateSession(m.GetHeader().GetUserId(), majiang.MJUSER_SESSION_GAMESTATUS_FRIEND, desk.GetRoomId(), desk.GetDeskId(), desk.GetPassword())
-		a.WriteMsg(desk.GetGame_SendGameInfo())
-
+		gameinfo := desk.GetGame_SendGameInfo()
+		*gameinfo.SenderUserId = m.GetHeader().GetUserId()
+		a.WriteMsg(gameinfo)
 	}
 }
 

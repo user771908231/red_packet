@@ -125,3 +125,10 @@ func NewCardInfo() *mjProto.CardInfo {
 	cardInfo.Value = new(int32)
 	return cardInfo
 }
+
+func NewComposeCard() *mjProto.ComposeCard {
+	ret := &mjProto.ComposeCard{}
+	ret.Type = new(int32)
+	ret.Value = new(int32)
+	return ret
+}

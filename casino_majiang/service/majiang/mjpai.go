@@ -13,3 +13,8 @@ func (p *MJPai) GetCardInfo() *mjproto.CardInfo {
 	*cardInfo.Value = p.GetValue()
 	return cardInfo
 }
+
+//返回前端需要的id号
+func (p *MJPai) GetClientId() int32 {
+	return 0
+}

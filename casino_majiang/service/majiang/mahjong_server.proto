@@ -11,7 +11,9 @@ message MJPai {
 //手里的一副牌
 message MJHandPai {
     repeated MJPai Pais = 1;
-
+    repeated MJPai PengPais = 2;
+    repeated MJPai GangPais = 3;
+    repeated MJPai HuPais = 4;
 }
 
 //麻将牌的结构

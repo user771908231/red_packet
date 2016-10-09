@@ -165,6 +165,5 @@ message DeskGameInfo {
     optional int64 initRoomCoin = 10; // 房间的初始带入金额
     optional int32 currPlayCount = 11; // 朋友桌: 当前第几局
     optional int32 totalPlayCount = 12; // 朋友桌: 总共几局
-
 }
 

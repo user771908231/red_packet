@@ -56,9 +56,47 @@ func ( u *MjUser) GetPlayerInfo() *mjproto.PlayerInfo {
 func (u *MjUser) GetPlayerCard() *mjproto.PlayerCard {
 	playerCard := newProto.NewPlayerCard()
 
+	//得到手牌
 	for _, pai := range u.MJHandPai.GetPais() {
 		if pai != nil {
 			playerCard.HandCard = append(playerCard.HandCard, pai.GetCardInfo())
+		}
+	}
+
+
+	//得到碰牌
+	for i, pai := range u.MJHandPai.GetPengPais() {
+		if pai != nil && i % 3 == 0 {
+			com := newProto.NewComposeCard()
+			*com.Value = pai.GetClientId()
+			//com.Type =	这里代表的是碰牌
+			playerCard.ComposeCard = append(playerCard.ComposeCard, com)
+		}
+	}
+
+
+	//得到杠牌
+	for i, pai := range u.MJHandPai.GetGangPais() {
+		if pai != nil && i % 4 == 0 {
+			com := newProto.NewComposeCard()
+			*com.Value = pai.GetClientId()
+			//com.Type =	这里代表的是杠牌
+			playerCard.ComposeCard = append(playerCard.ComposeCard, com)
+		}
+	}
+
+	//得到胡牌
+	for _, pai := range u.MJHandPai.GetPais() {
+		if pai != nil {
+			*playerCard.HuCard = pai.GetClientId()
+		}
+	}
+
+
+	//打出去的牌
+	for _, pai := range u.MJHandPai.GetPais() {
+		if pai != nil {
+			playerCard.OutCard = append(playerCard.OutCard, pai.GetClientId())
 		}
 	}
 
