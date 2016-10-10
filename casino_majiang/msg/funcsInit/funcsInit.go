@@ -79,3 +79,56 @@ func NewGame_SendGameInfo() *mjProto.Game_SendGameInfo {
 	ret.Header = NewHeader()
 	return ret
 }
+
+//返回deskGameInfo
+func NewDeskGameInfo() *mjProto.DeskGameInfo {
+	ret := &mjProto.DeskGameInfo{}
+	ret.GameStatus = new(int32)
+	ret.PlayerNum = new(int32)
+	ret.ActiveSeat = new(int32)
+	ret.ActionTime = new(int32)
+	ret.DelayTime = new(int32)
+	ret.NRebuyCount = new(int32)
+	ret.NInitActionTime = new(int32)
+	ret.NInitDelayTime = new(int32)
+	ret.InitRoomCoin = new(int64)
+	ret.CurrPlayCount = new(int32)
+	ret.TotalPlayCount = new(int32)
+	return ret
+}
+
+//返回一个playerInfo
+func NewPlayerInfo() *mjProto.PlayerInfo {
+	info := &mjProto.PlayerInfo{}
+	info.IsBanker = new(bool)
+	info.Coin = new(int64)
+	info.NickName = new(string)
+	info.SeatId = new(int32)
+	info.IsOwner = new(bool)
+	info.BReady = new(int32)
+	info.BDingQue = new(int32)
+	info.BExchanged = new(int32)
+	info.NHuPai = new(int32)
+	return info
+}
+
+//麻将card
+func NewPlayerCard() *mjProto.PlayerCard {
+	card := &mjProto.PlayerCard{}
+	return card
+}
+
+func NewCardInfo() *mjProto.CardInfo {
+	cardInfo := &mjProto.CardInfo{}
+	cardInfo.Id = new(int32)
+	cardInfo.Type = new(int32)
+	cardInfo.Value = new(int32)
+	return cardInfo
+}
+
+func NewComposeCard() *mjProto.ComposeCard {
+	ret := &mjProto.ComposeCard{}
+	ret.Type = new(int32)
+	ret.Value = new(int32)
+	return ret
+}

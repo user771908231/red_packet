@@ -10,6 +10,7 @@ import (
 	"os"
 	"casino_majiang/conf/config"
 	"casino_majiang/conf/log"
+	"casino_majiang/service/webserver"
 )
 
 func init() {
@@ -24,6 +25,13 @@ func init() {
 func main() {
 	lconf.LogLevel = conf.Server.LogLevel
 	lconf.LogPath = conf.Server.LogPath
+
+
+	//后台管理
+	go func() {
+		log.T("web start...")
+		webserver.InitCms()
+	}()
 
 	leaf.Run(
 		game.Module,

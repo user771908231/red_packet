@@ -29,7 +29,7 @@ func HandlerGame_CreateRoom(m *mjProto.Game_CreateRoom, a gate.Agent) {
 	//2,开始创建房间
 	desk := majiang.FMJRoomIns.CreateDesk(m)
 
-	//返回数据
+	//3,返回数据
 	result := newProto.NewGame_AckCreateRoom()
 
 	if desk == nil {
@@ -57,8 +57,8 @@ func HandlerGame_CreateRoom(m *mjProto.Game_CreateRoom, a gate.Agent) {
 
  */
 func HandlerGame_EnterRoom(m *mjProto.Game_EnterRoom, a gate.Agent) {
-	log.Debug("收到请求，HandlerGame_EnterRoom(m[%v],a[%v])", m, a)
-	//todo 根据游戏类型不同，加入房间的方式也不同...
+	log.T("收到请求，HandlerGame_EnterRoom(m[%v],a[%v])", m, a)
+	//todo 根据游戏类型不同，加入房间的方式也不同...这里可以通过agent 来区分
 
 	//1,找到合适的room
 	room := majiang.GetMJRoom()
@@ -80,7 +80,9 @@ func HandlerGame_EnterRoom(m *mjProto.Game_EnterRoom, a gate.Agent) {
 	} else {
 		//3,更新userSession,返回desk 的信息
 		majiang.UpdateSession(m.GetHeader().GetUserId(), majiang.MJUSER_SESSION_GAMESTATUS_FRIEND, desk.GetRoomId(), desk.GetDeskId(), desk.GetPassword())
-		a.WriteMsg(desk.GetGame_SendGameInfo())
+		gameinfo := desk.GetGame_SendGameInfo()
+		*gameinfo.SenderUserId = m.GetHeader().GetUserId()
+		a.WriteMsg(gameinfo)
 	}
 }
 

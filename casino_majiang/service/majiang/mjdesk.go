@@ -34,6 +34,7 @@ func (d *MjDesk) addNewUser(userId uint32, a gate.Agent) error {
 	}
 }
 
+//朋友桌用户加入房间
 func (d *MjDesk) addNewUserFriend(userId uint32, a gate.Agent) error {
 	//1,是否是重新进入
 	user := d.getUserByUserId(userId)
@@ -158,12 +159,54 @@ func (d *MjDesk) BroadCastProto(p proto.Message) error {
 	return nil
 }
 
+//得到deskGameInfo
 func (d *MjDesk) GetDeskGameInfo() *mjproto.DeskGameInfo {
-	return nil
+	deskInfo := newProto.NewDeskGameInfo()
+	//deskInfo.ActionTime
+	//deskInfo.ActiveSeat
+	//deskInfo.DelayTime
+	//deskInfo.GameStatus
+	*deskInfo.CurrPlayCount = d.GetCurrPlayCount() //当前第几局
+	*deskInfo.TotalPlayCount = d.GetTotalPlayCount()//总共几局
+	*deskInfo.PlayerNum = d.GetPlayerNum()        //玩家的人数
+	deskInfo.RoomTypeInfo = d.GetRoomTypeInfo()
+	//deskInfo.NRebuyCount
+	//deskInfo.InitRoomCoin
+	//deskInfo.NInitActionTime
+	//deskInfo.NInitDelayTime
+	return deskInfo
 }
 
+//返回玩家的数目
+func (d *MjDesk) GetPlayerInfo() []*mjproto.PlayerInfo {
+	var players []*mjproto.PlayerInfo
+	for _, user := range d.Users {
+		if user != nil {
+			players = append(players, user.GetPlayerInfo())
+		}
+	}
+	return players
+}
+
+//玩家的人数
+func (d *MjDesk) GetPlayerNum() int32 {
+	var count int32 = 0
+	for _, user := range d.Users {
+		if user != nil {
+			count ++
+		}
+	}
+	return count
+}
+
+// 发送gameInfo的信息
 func (d *MjDesk) GetGame_SendGameInfo() *mjproto.Game_SendGameInfo {
-	return nil
+	gameInfo := newProto.NewGame_SendGameInfo()
+	gameInfo.DeskGameInfo = d.GetDeskGameInfo()
+	gameInfo.PlayerInfo = d.GetPlayerInfo()
+	//gameInfo.SenderUserId   发起请求的人 ... agent 返回信息的时候 取userId
+
+	return gameInfo
 }
 
 
@@ -196,7 +239,6 @@ func (d *MjDesk) IsAllReady() bool {
 
 //用户准备之后的一些操作
 func (d *MjDesk) AfterReady() error {
-
 	//如果所有人都准备了，那么开始游戏
 	if d.IsAllReady() {
 		d.begin()
@@ -206,28 +248,59 @@ func (d *MjDesk) AfterReady() error {
 }
 
 //开始游戏
-func (d *MjDesk) begin() {
+/**
+开始游戏需要有几个步骤
+1，desk的状态是否正确，现在是否可以开始游戏
+
+
+ */
+func (d *MjDesk) begin() error {
 	//1，检查是否可以开始游戏
-	//2，初始化user的状态
+	err := d.time2begin()
+	if err != nil {
+		log.E("无法开始游戏:err[%v]", err)
+		return err
+	}
 
-
-	//3，初始化桌子的状态
+	//2，初始化桌子的状态
 	d.beginInit()
 
+	//3，发13张牌
+	err = d.initCards()
+	if err != nil {
+		log.E("初始化牌的时候出错err[%v]", err)
+		return err
+	}
 
-	//4，发13张牌
-	d.initCards()
 
 
-	//5，开始定缺
-	d.beginDingQue()
+	//4，开始定缺
+	err = d.beginDingQue()
+	if err != nil {
+		log.E("开始发送定缺广播的时候出错err[%v]", err)
+		return err
+	}
 
+	return nil
 }
 
+//是否可以开始
+func (d *MjDesk) time2begin() error {
+	return nil
+}
+
+
+/**
+1,初始化desk
+2,初始化user
+ */
 func (d *MjDesk) beginInit() error {
 	return nil
 }
 
+/**
+	初始化牌相关的信息
+ */
 func (d *MjDesk) initCards() error {
 	//得到一副已经洗好的麻将
 	d.AllMJPai = XiPai()
@@ -235,7 +308,7 @@ func (d *MjDesk) initCards() error {
 	//更别给每个人发牌
 	for i, u := range d.Users {
 		if u != nil && u.IsGaming() {
-			u.MJHnadPai.Pais = d.AllMJPai[i * 13: (i + 1) * 13]
+			u.MJHandPai.Pais = d.AllMJPai[i * 13: (i + 1) * 13]
 			*d.MJPaiNexIndex = int32((i + 1) * 13);
 		}
 	}
@@ -246,5 +319,17 @@ func (d *MjDesk) initCards() error {
 
 //开始定缺
 func (d *MjDesk) beginDingQue() error {
+	return nil
+}
+
+//把桌子的数据保存到redis中
+/**
+	需要调用的地方
+	1,新增加一个桌子的时候
+	2,
+
+ */
+func (d *MjDesk)updateRedis() error {
+
 	return nil
 }
