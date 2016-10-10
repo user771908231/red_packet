@@ -141,7 +141,7 @@ message PlayerInfo {
     optional PlayerCard playerCard = 2; // 玩家的手牌、摆牌（碰杠）、已打出的牌、胡牌信息。客户端需根据服务端的返回进行排序动画。
     optional int64 coin = 3; // 玩家当前显示的自己的筹码数
     optional string nickName = 4; // 昵称
-    optional int32 seatId = 5; // 座位号
+    optional uint32 userId = 5; // 用户id
     // ① 新增字段： repeated WeixinInfo  = 6;  //微信用户信息
     // ② EnterMatch时、广播新进用户时，才需返回 WeixinInfo；其它广播不需要。
     optional WeixinInfo weixinInfos = 6;
