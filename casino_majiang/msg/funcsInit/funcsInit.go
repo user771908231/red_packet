@@ -52,6 +52,7 @@ func NewGame_AckCreateRoom() *mjProto.Game_AckCreateRoom {
 func NewGame_AckReady() *mjProto.Game_AckReady {
 	ret := &mjProto.Game_AckReady{}
 	ret.Header = NewHeader()
+	ret.UserId = new(uint32)
 	return ret
 }
 

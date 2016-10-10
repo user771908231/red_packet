@@ -96,7 +96,7 @@ func HandlerGame_Ready(m *mjProto.Game_Ready, a gate.Agent) {
 	if desk == nil {
 		// 准备失败
 		log.E("用户[%v]准备失败.因为没有找到对应的desk", m.GetHeader().GetUserId())
-		result := newProto.NewGame_AckCreateRoom()
+		result := newProto.NewGame_AckReady()
 		*result.Header.Code = intCons.ACK_RESULT_ERROR
 		*result.Header.Error = "准备失败"
 		a.WriteMsg(result)
@@ -113,6 +113,7 @@ func HandlerGame_Ready(m *mjProto.Game_Ready, a gate.Agent) {
 			result := newProto.NewGame_AckReady()
 			*result.Header.Code = intCons.ACK_RESULT_SUCC
 			*result.Header.Error = "准备成功"
+			*result.UserId = m.GetHeader().GetUserId()
 			log.T("广播user[%v]在desk[%v]准备成功的广播..", m.GetHeader().GetUserId(), desk.GetDeskId())
 			desk.BroadCastProto(result)
 

@@ -7,6 +7,7 @@ import (
 	"casino_majiang/msg/funcsInit"
 	"github.com/name5566/leaf/gate"
 	"casino_server/common/log"
+	"casino_majiang/service/AgentService"
 )
 
 //状态表示的是当前状态.
@@ -41,6 +42,7 @@ func (d *MjDesk) addNewUserFriend(userId uint32, a gate.Agent) error {
 	if user != nil {
 		//是断线重连
 		*user.IsBreak = false;
+		AgentService.SetAgent(userId, a)
 		return nil
 
 	}
@@ -71,6 +73,9 @@ func (d *MjDesk) addNewUserFriend(userId uint32, a gate.Agent) error {
 	*newUser.IsLeave = false
 	*newUser.Status = MJUSER_STATUS_INTOROOM
 	newUser.MJHandPai = NewMJHandPai()
+
+	//设置agent
+	AgentService.SetAgent(userId, a)
 	err := d.addUser(newUser)
 	if err != nil {
 		log.E("用户[%v]加入房间[%v]失败,errMsg[%v]", userId, err)
