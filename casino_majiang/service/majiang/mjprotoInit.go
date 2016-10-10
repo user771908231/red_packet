@@ -32,6 +32,7 @@ func NewMjDesk() *MjDesk {
 	ret.BaseValue = new(int64)
 	ret.ZiMoRadio = new(int32)
 	ret.DianGangHuaRadio = new(int32)
+	ret.MJPaiNexIndex = new(int32)
 	return ret
 }
 
@@ -45,5 +46,19 @@ func NewMjUser() *MjUser {
 	ret.IsLeave = new(bool)
 	ret.DeskId = new(int32)
 	ret.RoomId = new(int32)
+	return ret
+}
+
+func NewMjSession() *MjSession {
+	s := &MjSession{}
+	s.DeskId = new(int32)
+	s.GameStatus = new(int32)
+	s.RoomId = new(int32)
+	s.UserId = new(uint32)
+	return s
+}
+
+func NewMJHandPai() *MJHandPai {
+	ret := &MJHandPai{}
 	return ret
 }

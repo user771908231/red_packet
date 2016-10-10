@@ -35,6 +35,7 @@ func NewHeader() *mjProto.ProtoHeader {
 	ret := &mjProto.ProtoHeader{}
 	ret.UserId = new(uint32)
 	ret.Code = new(int32)
+	ret.Error = new(string)
 	return ret
 }
 
@@ -48,10 +49,31 @@ func NewGame_AckCreateRoom() *mjProto.Game_AckCreateRoom {
 	return ret
 }
 
+func NewGame_AckReady() *mjProto.Game_AckReady {
+	ret := &mjProto.Game_AckReady{}
+	ret.Header = NewHeader()
+	return ret
+}
+
 func NewGame_AckEnterRoom() *mjProto.Game_AckEnterRoom {
 	ret := &mjProto.Game_AckEnterRoom{}
 	ret.Header = NewHeader()
 	return ret
+}
+
+func NewGame_BroadcastBeginDingQue() *mjProto.Game_BroadcastBeginDingQue {
+	ret := &mjProto.Game_BroadcastBeginDingQue{}
+	return ret
+}
+
+func NewGame_DingQue() *mjProto.Game_DingQue {
+	que := &mjProto.Game_DingQue{}
+	que.Header = NewHeader()
+	que.Color = new(int32)
+	que.MatchId = new(int32)
+	que.TableId = new(int32)
+	que.UserId = new(uint32)
+	return que
 }
 
 func NewRoomTypeInfo() *mjProto.RoomTypeInfo {
@@ -77,6 +99,7 @@ func NewPlayOptions() *mjProto.PlayOptions {
 func NewGame_SendGameInfo() *mjProto.Game_SendGameInfo {
 	ret := &mjProto.Game_SendGameInfo{}
 	ret.Header = NewHeader()
+	ret.SenderUserId = new(uint32)
 	return ret
 }
 
@@ -115,6 +138,7 @@ func NewPlayerInfo() *mjProto.PlayerInfo {
 //麻将card
 func NewPlayerCard() *mjProto.PlayerCard {
 	card := &mjProto.PlayerCard{}
+	card.HuCard = new(int32)
 	return card
 }
 
@@ -130,5 +154,24 @@ func NewComposeCard() *mjProto.ComposeCard {
 	ret := &mjProto.ComposeCard{}
 	ret.Type = new(int32)
 	ret.Value = new(int32)
+	return ret
+}
+
+func NewGame_OverTurn() *mjProto.Game_OverTurn {
+	ret := &mjProto.Game_OverTurn{}
+	ret.ActType = new(int32)
+	ret.CanGang = new(bool)
+	ret.CanPeng = new(bool)
+	ret.CanHu = new(bool)
+	ret.Header = NewHeader()
+	ret.UserId = new(uint32)
+	ret.NextUserId = new(uint32)
+	return ret
+}
+
+func NewGame_DealCards() *mjProto.Game_DealCards {
+	ret := &mjProto.Game_DealCards{}
+	ret.Header = NewHeader()
+	ret.PlayerCard = NewPlayerCard()
 	return ret
 }

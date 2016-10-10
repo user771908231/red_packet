@@ -25,11 +25,18 @@ func gameInfo(w http.ResponseWriter, r *http.Request) {
 
 func printDeskInfo(w http.ResponseWriter, desk *majiang.MjDesk) {
 	if desk != nil {
-		deskInfo := "开始打印desk.id[%v],roomKey[%v]的信息:\n" +
-		"------------------打印Users的信息:\n"
+		deskInfo := "开始打印desk.id[%v],roomKey[%v]的信息:\n"
 		fmt.Fprintf(w, deskInfo, desk.GetDeskId(), desk.GetPassword())
-		fmt.Fprint(w, "打印完毕:\n", desk.GetDeskGameInfo())
+		fmt.Fprintf(w, "打印完毕:\n", desk.GetDeskGameInfo())
+
+		fmt.Fprintf(w, "\n\n\n\n开始打印user的信息:\n")
+
+		for _, user := range desk.Users {
+			if user != nil {
+				fmt.Fprintf(w, "userId[%v],nickName[%v]:\n", user.GetUserId(), "nickName")
+			}
+		}
+
 	}
+
 }
-
-

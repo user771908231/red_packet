@@ -1,7 +1,6 @@
 package majiang
 
 import (
-	"casino_majiang/conf/log"
 	"casino_server/utils"
 	"casino_server/utils/numUtils"
 	"casino_majiang/msg/protogo"
@@ -11,6 +10,7 @@ import (
 	"casino_server/utils/db"
 	"casino_majiang/conf/config"
 	"casino_server/service/userService"
+	"casino_server/common/log"
 )
 
 
@@ -35,7 +35,7 @@ func (r *MjRoom) CalcCreateFee() int64 {
 
 func (r *MjRoom) CreateDesk(m *mjproto.Game_CreateRoom) *MjDesk {
 	//create 的时候，是否需要通过type 来判断,怎么样创建房间
-
+	//log.T("开始创建房间... ")
 
 	//0,先扣费,添加账单
 	var createFee int64 = r.CalcCreateFee()
@@ -51,10 +51,9 @@ func (r *MjRoom) CreateDesk(m *mjproto.Game_CreateRoom) *MjDesk {
 		return nil
 	}
 
-
-
 	//1,创建一个房间，并初始化参数
 	desk := NewMjDesk()
+	desk.Users = make([]*MjUser, 4)
 	*desk.Password = r.RandRoomKey()
 	*desk.Owner = m.GetHeader().GetUserId()        //设置房主
 	*desk.CardsNum = m.GetRoomTypeInfo().GetCardsNum()
@@ -110,6 +109,22 @@ func (r *MjRoom) GetDeskByPassword(key string) *MjDesk {
 	return nil
 }
 
+//通过房间号码得到desk
+func (r *MjRoom) GetDeskByDeskId(id int32) *MjDesk {
+	log.T("通过deskId【%v】得到desk", id)
+	//如果找到对应的房间，则返回
+	for _, d := range r.GetDesks() {
+		if d != nil && d.GetDeskId() == id {
+			log.T("通过id[%v]找到desk----d.getDeskId()[%v]", id, d.GetDeskId())
+			return d
+		}
+	}
+	//如果没有找到，则返回nil
+	return nil
+}
+
+
+
 //进入房间
 //进入的时候，需要判断牌房间的类型...
 func (r *MjRoom) EnterRoom(key string, userId uint32, a gate.Agent) (*MjDesk, error) {
@@ -118,12 +133,13 @@ func (r *MjRoom) EnterRoom(key string, userId uint32, a gate.Agent) (*MjDesk, er
 	if r.IsFriend() {
 		desk = r.GetDeskByPassword(key)
 		if desk == nil {
+			log.T("通过key[%v]没有找到对应的desk", key)
 			return nil, errors.New("没有找到对应的desk")
 		} else {
 			err := desk.addNewUserFriend(userId, a)
 			if err != nil {
 				//用户加入房间失败...
-				return desk, errors.New("用户加入房间失败...")
+				return nil, errors.New("用户加入房间失败...")
 			}
 		}
 	}
@@ -131,7 +147,7 @@ func (r *MjRoom) EnterRoom(key string, userId uint32, a gate.Agent) (*MjDesk, er
 	//如果是锦标赛
 
 	//返回结果...
-	return nil, nil
+	return desk, nil
 }
 
 func (r *MjRoom) IsFriend() bool {
@@ -174,17 +190,16 @@ func GetMjDeskBySession(userId uint32) *MjDesk {
 	if session == nil {
 		return nil
 	}
+	log.T("得到用户[%v]的session[%v]", userId, session)
 
+	//得到room
 	room := GetMjroomBySession(userId)
-	for _, d := range room.Desks {
-		if d != nil && d.GetDeskId() == session.GetDeskId() {
-			return d
-		}
+	if room == nil {
+		return nil
 	}
 
-	return nil
+
+
+	//返回desk
+	return room.GetDeskByDeskId(session.GetDeskId())
 }
-
-
-
-

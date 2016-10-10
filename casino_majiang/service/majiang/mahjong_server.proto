@@ -16,6 +16,21 @@ message MJHandPai {
     repeated MJPai HuPais = 4;
 }
 
+//需要确认的时间
+message CheckBean {
+    optional uint32 userId = 1; //需要来判断的玩家
+    optional bool CanPeng = 2;
+    optional bool CanGang = 3;
+    optional bool CanHu = 4;
+    optional int32 CheckStatus = 5; //玩家确认的状态
+}
+
+message CheckCase {
+    repeated CheckBean CheckB = 1;
+    optional int32 CheckStatus = 2; //这张牌的状态，
+    optional MJPai CheckMJPai = 3;
+}
+
 //麻将牌的结构
 message MjDesk {
     optional int32 DeskId = 1;
@@ -40,6 +55,8 @@ message MjDesk {
     optional int32 MJPaiNexIndex = 20; //下一张可以摸的牌
     optional int32 TotalPlayCount = 21; //总共几局
     optional int32 CurrPlayCount = 22; //当前玩到第几局
+    optional uint32 Banker = 23; //庄
+    optional CheckCase CheckCase = 24; //
 
 }
 
@@ -81,3 +98,5 @@ message MjRoom {
     repeated MJPai MjPais = 8;
 
 }
+
+

@@ -21,14 +21,14 @@ func (u *MjUser)WriteMsg(p proto.Message) error {
 	if agent != nil {
 		agent.WriteMsg(p)
 	} else {
-		log.Fatal("给用户[%v]发送proto[%v]失败，因为没有找到用户的agent。", u.UserId, p)
+		log.Error("给用户[%v]发送proto[%v]失败，因为没有找到用户的agent。", u.GetUserId(), p)
 	}
 	return nil
 }
 
 //是否是准备中...
 func (u *MjUser) IsReady() bool {
-	return u.GetStatus() == MJUSER_STATUS_SEATED
+	return u.GetStatus() == MJUSER_STATUS_READY
 }
 
 //玩家是否在游戏状态中
@@ -133,4 +133,12 @@ func (u *MjUser) getBReady() int32 {
 		return 0
 
 	}
+}
+
+//发牌
+func (u *MjUser) GetDealCards() *mjproto.Game_DealCards {
+	dealCards := newProto.NewGame_DealCards()
+	*dealCards.Header.UserId = u.GetUserId()
+	dealCards.PlayerCard = u.GetPlayerCard()
+	return dealCards
 }

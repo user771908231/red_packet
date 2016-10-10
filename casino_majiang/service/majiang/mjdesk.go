@@ -6,7 +6,7 @@ import (
 	"casino_majiang/msg/protogo"
 	"casino_majiang/msg/funcsInit"
 	"github.com/name5566/leaf/gate"
-	"casino_majiang/conf/log"
+	"casino_server/common/log"
 )
 
 //状态表示的是当前状态.
@@ -63,15 +63,17 @@ func (d *MjDesk) addNewUserFriend(userId uint32, a gate.Agent) error {
 
 	//加入一个新用户
 	newUser := NewMjUser()
+	*newUser.UserId = userId
 	*newUser.DeskId = d.GetDeskId()
 	*newUser.RoomId = d.GetRoomId()
 	*newUser.Coin = d.GetBaseValue()
 	*newUser.IsBreak = false
 	*newUser.IsLeave = false
 	*newUser.Status = MJUSER_STATUS_INTOROOM
+	newUser.MJHandPai = NewMJHandPai()
 	err := d.addUser(newUser)
 	if err != nil {
-		log.E("用户[%v]加入房间[%v]失败,errMsg[%v]", )
+		log.E("用户[%v]加入房间[%v]失败,errMsg[%v]", userId, err)
 		return errors.New("用户加入房间失败")
 	} else {
 		//加入房间成功
@@ -215,7 +217,7 @@ func (d *MjDesk) Ready(userId  uint32) error {
 	//找到需要准备的user
 	user := d.getUserByUserId(userId)
 	if user == nil {
-		log.E("用户[%v]在desk[%v]准备的时候失败,没有找到对应的玩家", user.GetUserId(), d.GetDeskId())
+		log.E("用户[%v]在desk[%v]准备的时候失败,没有找到对应的玩家", userId, d.GetDeskId())
 		return errors.New("没有找到用户，准备失败")
 	}
 
@@ -235,12 +237,15 @@ func (d *MjDesk) IsAllReady() bool {
 	return true
 }
 
-
+//玩家是否足够
+func (d *MjDesk) IsPlayerEnough() bool {
+	return true
+}
 
 //用户准备之后的一些操作
 func (d *MjDesk) AfterReady() error {
 	//如果所有人都准备了，那么开始游戏
-	if d.IsAllReady() {
+	if d.IsAllReady() && d.IsPlayerEnough() {
 		d.begin()
 	}
 
@@ -273,7 +278,6 @@ func (d *MjDesk) begin() error {
 	}
 
 
-
 	//4，开始定缺
 	err = d.beginDingQue()
 	if err != nil {
@@ -286,6 +290,7 @@ func (d *MjDesk) begin() error {
 
 //是否可以开始
 func (d *MjDesk) time2begin() error {
+	log.T("检测游戏是否可以开始... ")
 	return nil
 }
 
@@ -313,12 +318,29 @@ func (d *MjDesk) initCards() error {
 		}
 	}
 
+
+	//发牌的协议game_DealCards  初始化完成之后，给每个人发送牌
+	for _, user := range d.Users {
+		if user != nil {
+			dealCards := user.GetDealCards()
+			if dealCards != nil {
+				user.WriteMsg(dealCards)
+			} else {
+				log.E("给user[%v]发牌的时候出现错误..", user.GetUserId())
+			}
+		}
+	}
+
 	//发送发牌的广播
 	return nil
 }
 
 //开始定缺
 func (d *MjDesk) beginDingQue() error {
+	//给每个人发送开始定缺的信息
+	beginQue := newProto.NewGame_BroadcastBeginDingQue()
+	log.T("开始给玩家发送开始定缺的广播[%v]", beginQue)
+	d.BroadCastProto(beginQue)
 	return nil
 }
 
@@ -331,5 +353,52 @@ func (d *MjDesk) beginDingQue() error {
  */
 func (d *MjDesk)updateRedis() error {
 
+	return nil
+}
+
+//个人开始定缺
+func (d *MjDesk) DingQue(userId uint32, color int32) error {
+	return nil
+
+}
+
+//是不是全部都定缺了
+func (d *MjDesk) AllDingQue() bool {
+	return false
+}
+
+func (d *MjDesk) GetBankerUser() *MjUser {
+	return d.getUserByUserId(d.GetBanker())
+}
+
+//初始化checkCase
+func (d *MjDesk) InitCheckCase(p *MJPai) error {
+	return nil
+}
+
+//执行判断事件
+/**
+
+ */
+func (d *MjDesk) DoCheckCase() error {
+
+	//检测参数
+	if d.CheckCase == nil {
+		return errors.New("")
+	}
+
+	//1,找到胡牌的人来进行处理
+	var caseBean *CheckBean
+	for _, bean := range d.CheckCase.CheckB {
+		if bean != nil && !bean.IsChecked() && bean.GetCanHu() {
+			caseBean = bean
+			break
+		}
+	}
+
+	//如果这里的caseBean ！=nil 表示还有可以胡牌的人没有进行判定
+	if caseBean == nil {
+
+	}
 	return nil
 }

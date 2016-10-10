@@ -9,8 +9,8 @@ import (
 	"casino_majiang/login"
 	"os"
 	"casino_majiang/conf/config"
-	"casino_majiang/conf/log"
 	"casino_majiang/service/webserver"
+	"casino_server/common/log"
 )
 
 func init() {

@@ -2,7 +2,7 @@ package lock
 
 import "sync"
 
-var deskLockMap map[int32]*sync.Mutex
+var deskLockMap map[int32]*sync.Mutex = make(map[int32]*sync.Mutex)
 
 //新建一个锁
 func NewDeskLock(deskId int32) {

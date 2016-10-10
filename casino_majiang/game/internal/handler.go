@@ -22,7 +22,6 @@ func init() {
 	handler(&mjProto.Game_DingQue{}, handlerGame_DingQue)        //定缺
 	handler(&mjProto.Game_ExchangeCards{}, handlerGame_ExchangeCards)        //换3张
 
-
 	handler(&mjProto.Game_SendOutCard{}, handlerGame_SendOutCard) //出牌
 
 	//碰、杠、过、胡
@@ -50,7 +49,7 @@ func handlerGame_CreateRoom(args []interface{}) {
 func handlerGame_EnterRoom(args []interface{}) {
 	m := args[0].(*mjProto.Game_EnterRoom)
 	a := args[1].(gate.Agent)
-	MJService.HandlerGame_EnterRoom(m, a)
+	MJService.HandlerGame_EnterRoom(m.GetHeader().GetUserId(), m.GetPassWord(), a)
 }
 
 //准备游戏

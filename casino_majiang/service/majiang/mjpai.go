@@ -18,3 +18,16 @@ func (p *MJPai) GetCardInfo() *mjproto.CardInfo {
 func (p *MJPai) GetClientId() int32 {
 	return 0
 }
+
+//是否可以胡牌
+func (p *MJHandPai) GetCanHu() bool {
+	return false
+}
+
+func (p *MJHandPai) GetCanPeng() bool {
+	return false
+}
+
+func (p *MJHandPai) GetCanGang() bool {
+	return false
+}
