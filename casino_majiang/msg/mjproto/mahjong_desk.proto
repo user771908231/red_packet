@@ -62,49 +62,41 @@ message game_SendMessage {
 }
 
 
-// Start: 本局结束
-// 赢牌牌型和类型
-message CardType {
-    repeated CardInfo cards = 1; // 赢牌牌型，用于牌局结束时展示结果
-    optional int32 cardType = 2; // 赢牌类型，如：没有赢、平胡、杠上花、清一色
-}
 // 赢牌信息：谁赢了多少
 message WinCoinInfo {
     optional string nickName = 1;
-    optional int32 seat = 2;
-    optional int64 winCoin = 3; // 赢了多少，返回负数表示输了多少
+    optional uint32 userId = 2;
+    optional int64 winCoin = 3; // 本次输赢多少(负数表示输了)
     optional int64 coin = 4; // 输赢以后，当前筹码是多少
-    optional CardType cardType = 5; // 赢牌牌型和类型
+    optional string cardTitle = 5; // 赢牌牌型信息( 如:"点炮x2 明杠x2 根x2 自摸 3番" )
+    repeated CardInfo cards = 6; // 手牌
+    optional bool isDealer = 7; //是否庄家
 }
 
-// 牌局的结果（收到后客户端可以先 play 赢牌、亮牌动画，再显示结果弹窗）
-message game_CurrentResult {
-    optional ProtoHeader header = 1;
-    optional int32 matchId = 2;
-    optional int32 tableId = 3;
-    repeated WinCoinInfo winCoinInfo = 4; // 当前桌所有玩家的赢牌信息（包括输赢）
-    optional int32 rank = 5; //查看自己的排名
-    optional int32 rankUserCount = 6; //参赛总人数
-    optional bool canRebuy = 7; //是否可以重购买
-    optional int32 rebuyCount = 8; //重购的次数
-}
-// End  : 本局结束
-
-// Start: 全场结束
 message EndLotteryInfo {
-    optional int32 seat = 1; //用户座位号
-    optional int64 coin = 2; //总共输赢筹码
+    optional uint32 userId = 1;
+    optional string nickName = 2; //玩家姓名
     optional bool bigWin = 3; //是否为大赢家
-    optional bool owner = 4; //是否为房主
-    optional string rolename = 5; //玩家姓名
-    optional uint32 userId = 6; //用户的Id
+    optional bool isOwner = 4; //是否房主
+    optional int64 winCoin = 5;     //总输赢筹码数
+    optional int32 countHu = 6;     //胡牌次数(含自摸+接炮)
+    optional int32 countZiMo = 7;       //自摸次数
+    optional int32 countDianPao = 8;    //点炮次数
+    optional int32 countAnGang = 9;     //暗杠次数
+    optional int32 countMingGang = 10;  //明杠次数
+    optional int32 countDianGang = 11;  //点杠次数
+    optional int32 countChaJiao = 12;   //查叫次数
+}
+
+// 本局结果(广播)
+message game_SendCurrentResult {
+    optional ProtoHeader header = 1;
+    repeated WinCoinInfo winCoinInfo = 2; // 本局玩家的输赢明细
 }
 
 // 牌局结束(广播)
 message game_SendEndLottery {
     optional ProtoHeader header = 1;
-    repeated EndLotteryInfo coinInfo = 2; //胜负的情况
+    repeated EndLotteryInfo coinInfo = 2; //4人的汇总输赢明细
 }
-// End  : 全场结束
-
 

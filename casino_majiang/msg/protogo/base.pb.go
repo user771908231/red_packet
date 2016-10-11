@@ -29,10 +29,9 @@ It has these top-level messages:
 	Game_AckReady
 	Game_Message
 	Game_SendMessage
-	CardType
 	WinCoinInfo
-	Game_CurrentResult
 	EndLotteryInfo
+	Game_SendCurrentResult
 	Game_SendEndLottery
 	Game_QuickConn
 	Game_AckQuickConn
