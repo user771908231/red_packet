@@ -217,6 +217,27 @@ func HandlerGame_ActPeng(m *mjProto.Game_ActPeng, a gate.Agent) {
 	result := &mjProto.Game_AckActPeng{}
 	result.Header = newProto.SuccessHeader()
 
+	desk := majiang.GetMjDeskBySession(m.GetHeader().GetUserId()) //通过userId 的session 得到对应的desk
+	if desk == nil {
+		//这里属于服务器错误... 是否需要给客户端返回信息？
+		log.E("没有找到对应的desk ..")
+		result.Header = newProto.ErrorHeader()
+		return
+	}
+
+	//找到玩家
+	user := desk.GetUserByUserId(m.GetHeader().GetUserId())
+	if user == nil {
+		return
+	}
+
+	user.ActHu()        //这里碰牌的逻辑
+
+	//todo 设置checkCase 为已经验证过了
+
+	//设置下一个人摸牌
+	desk.SendMopaiOverTurn(nil)
+
 	a.WriteMsg(result)
 }
 
@@ -227,6 +248,28 @@ func HandlerGame_ActGang(m *mjProto.Game_ActGang, a gate.Agent) {
 	result := &mjProto.Game_AckActGang{}
 	result.Header = newProto.SuccessHeader()
 
+	desk := majiang.GetMjDeskBySession(m.GetHeader().GetUserId()) //通过userId 的session 得到对应的desk
+	if desk == nil {
+		//这里属于服务器错误... 是否需要给客户端返回信息？
+		log.E("没有找到对应的desk ..")
+		result.Header = newProto.ErrorHeader()
+		return
+	}
+
+	//找到玩家
+	user := desk.GetUserByUserId(m.GetHeader().GetUserId())
+	if user == nil {
+		return
+	}
+
+	user.ActHu()        //这里碰牌的逻辑
+
+	//todo 设置checkCase 为已经验证过了
+
+	//设置下一个人摸牌
+	desk.SendMopaiOverTurn(user)
+
+	//杠牌之后 自己摸牌
 	a.WriteMsg(result)
 }
 
@@ -241,6 +284,8 @@ func HandlerGame_ActGuo(m *mjProto.Game_ActGuo, a gate.Agent) {
 
 	result := &mjProto.Game_AckActGuo{}
 	result.Header = newProto.SuccessHeader()
+	// 设置当前CheckBean 为已经check ，处理下一个checkBean
+
 
 	a.WriteMsg(result)
 }
@@ -264,8 +309,10 @@ func HandlerGame_ActHu(m *mjProto.Game_ActHu) {
 	//区分自摸点炮:1,如果自己的手牌就已经糊了（或者如果自己自己的牌是14，11，8，5，2 张的时候），那么就自摸，如果需要加上判定牌，那就是点炮
 	desk := majiang.GetMjDeskBySession(m.GetHeader().GetUserId()) //通过userId 的session 得到对应的desk
 	if desk == nil {
+		//这里属于服务器错误... 是否需要给客户端返回信息？
 		log.E("没有找到对应的desk ..")
 		result.Header = newProto.ErrorHeader()
+		return
 	}
 
 	//找到玩家
@@ -279,22 +326,14 @@ func HandlerGame_ActHu(m *mjProto.Game_ActHu) {
 	if err != nil {
 		//如果这里出现胡牌失败，证明是系统有问题...
 		log.E("用户[%v]胡牌失败...", m.GetHeader().GetUserId())
-		result.Header = newProto.SuccessHeader()
-		return
-
-	} else {
 		result.Header = newProto.ErrorHeader()
-		// 胡牌之后 设置当前操作的用户为当前胡牌的人...
-		desk.SetNestUserCursor(user.GetUserId())
-		// update checkCase...
-		for _, bean := range desk.CheckCase.CheckB {
-			if bean != nil && bean.GetUserId() == user.GetUserId() {
-				*bean.CheckStatus = 1        //已经check过了
-			}
-
-		}
-
+		user.WriteMsg(result)        //返回失败的信息
+		return
 	}
+
+	//胡牌成功之后的处理...
+	desk.SetNestUserCursor(user.GetUserId())        // 胡牌之后 设置当前操作的用户为当前胡牌的人...
+	desk.CheckCase.UpdateCheckBeanStatus(user.GetUserId(), majiang.CHECK_CASE_bean_STATUS_CHECKED)        // update checkCase...
 
 	//todo 胡牌之后，如果只剩下一个人..那么这句游戏结束...
 	if desk.Time2Lottery() {
@@ -312,22 +351,33 @@ func HandlerGame_ActHu(m *mjProto.Game_ActHu) {
 
 	//胡牌之后的处理
 	if mjHandPai.GetZiMo() {
-		//todo  如果是自摸，则轮到下一个人摸排，轮到胡牌的下一个人...
-		//给下一个人发送overTurn 发牌的类型...
-
+		// 如果是自摸，则轮到下一个人摸排，轮到胡牌的下一个人...
+		desk.SendMopaiOverTurn(nil)                //给下一个人发送overTurn 发牌的类型...
 	} else {
 		//todo 如果是点炮,那么计算判断其他人是否需要继续胡牌,有的话继续胡牌，没有的话设置下一个人摸牌...
 
 		//1,找到checkCase 是否有下一个人胡牌，如果有，那么让下一个人验证，如果没有，下一个人摸牌。。
-		nextBean := desk.CheckCase.GetBuBean(majiang.CHECK_CASE_bean_STATUS_1)
+		nextBean := desk.CheckCase.GetBuBean(majiang.CHECK_CASE_bean_STATUS_CHECKED)
 		if nextBean == nil {
 			//表示没有下一个胡牌的人了,和自摸同样的处理
-			//todo desk.CheckCase.CheckStatus = 已经check
+			desk.CheckCase.UpdateChecStatus(majiang.CHECK_CASE_STATUS_CHECKED)
+			desk.SendMopaiOverTurn(nil)                //给下一个人发送overTurn 发牌的类型...
 		} else {
 			//发送overTurn 给下一个判定的人...
+
+			overTurn := newProto.NewGame_OverTurn()
+			*overTurn.UserId = nextBean.GetUserId()
+			*overTurn.CanGang = nextBean.GetCanGang()
+			*overTurn.CanPeng = nextBean.GetCanPeng()
+			*overTurn.CanHu = nextBean.GetCanHu()
+			overTurn.ActCard = desk.CheckCase.CheckMJPai.GetCardInfo()        //
+			*overTurn.ActType = majiang.OVER_TURN_ACTTYPE_OTHER
+
+			///发送overTurn 的信息
+			desk.GetUserByUserId(nextBean.GetUserId()).SendOverTurn(overTurn)
+
 		}
 	}
-
-	//给用户返回数据...
-	desk.GetUserByUserId(m.GetHeader().GetUserId()).WriteMsg(result)
 }
+
+
