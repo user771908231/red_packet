@@ -42,7 +42,7 @@ func init() {
 	Processor.Register(&majiangProto.Game_BroadcastBeginDingQue{})	//28 开始定缺(广播)
 	Processor.Register(&majiangProto.Game_BroadcastBeginExchange{})	//29 开始换牌(广播)
 	Processor.Register(&majiangProto.Game_OverTurn{})        		//30 轮到下一人
-	Processor.Register(&majiangProto.Game_CurrentResult{})    		//31 本局结果
+	Processor.Register(&majiangProto.Game_SendCurrentResult{})    	//31 本局结果
 	Processor.Register(&majiangProto.Game_SendEndLottery{})    		//32 牌局结束
 	Processor.Register(&majiangProto.Game_DissolveDesk{})    		//33 解散房间
 	Processor.Register(&majiangProto.Game_AckDissolveDesk{})    	//34
