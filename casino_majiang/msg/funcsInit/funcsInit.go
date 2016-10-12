@@ -127,7 +127,7 @@ func NewPlayerInfo() *mjProto.PlayerInfo {
 	info.IsBanker = new(bool)
 	info.Coin = new(int64)
 	info.NickName = new(string)
-	info.SeatId = new(int32)
+	info.UserId = new(uint32)
 	info.IsOwner = new(bool)
 	info.BReady = new(int32)
 	info.BDingQue = new(int32)
@@ -175,5 +175,13 @@ func NewGame_DealCards() *mjProto.Game_DealCards {
 	ret := &mjProto.Game_DealCards{}
 	ret.Header = NewHeader()
 	ret.PlayerCard = NewPlayerCard()
+	return ret
+}
+
+func NewGame_Opening() *mjProto.Game_Opening {
+	ret := &mjProto.Game_Opening{}
+	ret.Header = NewHeader()
+	ret.MatchId = new(int32)
+	ret.TableId = new(int32)
 	return ret
 }

@@ -62,6 +62,8 @@ message MjDesk {
     optional int32 CurrPlayCount = 22; //当前玩到第几局
     optional uint32 Banker = 23; //庄
     optional CheckCase CheckCase = 24; //
+    optional uint32 NextUserCursor = 25; //
+
 
 }
 

@@ -252,9 +252,26 @@ func (d *MjDesk) IsAllReady() bool {
 	return true
 }
 
+
+//得到当前桌子的人数..
+func (d *MjDesk) GetUserCount() int32 {
+	var count int32 = 0
+	for _, user := range d.Users {
+		if user != nil {
+			count ++
+		}
+	}
+	return count;
+
+}
+
 //玩家是否足够
 func (d *MjDesk) IsPlayerEnough() bool {
-	return true
+	if d.GetUserCount() == 4 {
+		return true
+	} else {
+		return false;
+	}
 }
 
 //用户准备之后的一些操作
@@ -284,6 +301,7 @@ func (d *MjDesk) begin() error {
 
 	//2，初始化桌子的状态
 	d.beginInit()
+
 
 	//3，发13张牌
 	err = d.initCards()
@@ -315,6 +333,11 @@ func (d *MjDesk) time2begin() error {
 2,初始化user
  */
 func (d *MjDesk) beginInit() error {
+
+	//发送游戏开始的协议...
+	log.T("发送游戏开始的协议..")
+	open := newProto.NewGame_Opening()
+	d.BroadCastProto(open)
 	return nil
 }
 
@@ -325,9 +348,10 @@ func (d *MjDesk) initCards() error {
 	//得到一副已经洗好的麻将
 	d.AllMJPai = XiPai()
 
-	//更别给每个人发牌
+	//给每个人初始化...
 	for i, u := range d.Users {
 		if u != nil && u.IsGaming() {
+			log.T("开始给你玩家[%v]初始化手牌...", u.GetUserId())
 			u.MJHandPai.Pais = d.AllMJPai[i * 13: (i + 1) * 13]
 			*d.MJPaiNexIndex = int32((i + 1) * 13);
 		}
@@ -339,6 +363,7 @@ func (d *MjDesk) initCards() error {
 		if user != nil {
 			dealCards := user.GetDealCards()
 			if dealCards != nil {
+				log.T("把玩家[%v]的牌[%v]发送到客户端...", user.GetUserId(), dealCards)
 				user.WriteMsg(dealCards)
 			} else {
 				log.E("给user[%v]发牌的时候出现错误..", user.GetUserId())
@@ -452,7 +477,7 @@ func (d *MjDesk) DoCheckCase() error {
 	overTurn := newProto.NewGame_OverTurn()
 	*overTurn.UserId = caseBean.GetUserId()
 	overTurn.ActCard = d.CheckCase.CheckMJPai.GetCardInfo()        //
-	overTurn.ActType = 2                                //1,摸排，2，碰杠胡
+	*overTurn.ActType = int32(2)                                //1,摸排，2，碰杠胡
 	*overTurn.CanGang = caseBean.GetCanGang()
 	*overTurn.CanPeng = caseBean.GetCanPeng()
 	*overTurn.CanHu = caseBean.GetCanHu()
@@ -461,5 +486,19 @@ func (d *MjDesk) DoCheckCase() error {
 	///发送overTurn 的信息
 	d.GetUserByUserId(caseBean.GetUserId()).SendOverTurn(overTurn)
 
+	return nil
+}
+
+func (d *MjDesk) Time2Lottery() bool {
+	return false
+}
+
+// 一盘麻将结束....
+func (d *MjDesk) Lottery() error {
+	return nil
+}
+
+func (d *MjDesk) SetNestUserCursor(userId uint32) error {
+	*d.NextUserCursor = userId
 	return nil
 }

@@ -31,7 +31,7 @@ func (u *MjUser) IsReady() bool {
 	return u.GetStatus() == MJUSER_STATUS_READY
 }
 
-//玩家是否在游戏状态中
+//todo 玩家是否在游戏状态中
 func (u *MjUser) IsGaming() bool {
 	return true
 
@@ -48,7 +48,7 @@ func ( u *MjUser) GetPlayerInfo() *mjproto.PlayerInfo {
 	*info.IsBanker = u.GetIsBanker()
 	info.PlayerCard = u.GetPlayerCard()
 	*info.NickName = "测试nickName"
-	//info.SeatId = u
+	*info.UserId = u.GetUserId()
 	return info
 }
 

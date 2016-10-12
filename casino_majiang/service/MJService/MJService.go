@@ -8,7 +8,6 @@ import (
 	"casino_majiang/service/majiang"
 	"casino_server/conf/intCons"
 	"casino_server/service/userService"
-	"errors"
 )
 
 
@@ -77,7 +76,7 @@ func HandlerGame_EnterRoom(userId uint32, key string, a gate.Agent) {
 	desk, err := room.EnterRoom(key, userId, a)
 	if err != nil || desk == nil {
 		//进入房间失败
-		log.E("用户[%v]进入房间失败err[%v]", userId, err)
+		log.E("用户[%v]进入房间,key[%v]失败err[%v]", userId, key, err)
 		ack := newProto.NewGame_AckEnterRoom()
 		*ack.Header.Code = intCons.ACK_RESULT_ERROR
 		a.WriteMsg(ack)
@@ -232,6 +231,11 @@ func HandlerGame_ActGang(m *mjProto.Game_ActGang, a gate.Agent) {
 }
 
 //过
+
+/**
+
+	设置checkCaseBean为已经check过就行了，不做其他的处理...
+ */
 func HandlerGame_ActGuo(m *mjProto.Game_ActGuo, a gate.Agent) {
 	log.Debug("收到请求，game_ActGuo(m[%v],a[%v])", m, a)
 
@@ -240,6 +244,9 @@ func HandlerGame_ActGuo(m *mjProto.Game_ActGuo, a gate.Agent) {
 
 	a.WriteMsg(result)
 }
+
+
+
 
 //胡
 
@@ -255,7 +262,7 @@ func HandlerGame_ActHu(m *mjProto.Game_ActHu) {
 	result := &mjProto.Game_AckActHu{}
 
 	//区分自摸点炮:1,如果自己的手牌就已经糊了（或者如果自己自己的牌是14，11，8，5，2 张的时候），那么就自摸，如果需要加上判定牌，那就是点炮
-	desk := majiang.GetMjDeskBySession(majiang.GetSession(m.GetHeader().GetUserId())) //通过userId 的session 得到对应的desk
+	desk := majiang.GetMjDeskBySession(m.GetHeader().GetUserId()) //通过userId 的session 得到对应的desk
 	if desk == nil {
 		log.E("没有找到对应的desk ..")
 		result.Header = newProto.ErrorHeader()
@@ -264,34 +271,62 @@ func HandlerGame_ActHu(m *mjProto.Game_ActHu) {
 	//找到玩家
 	user := desk.GetUserByUserId(m.GetHeader().GetUserId())
 	if user == nil {
-		return errors.New("胡牌失败，没有找到对应的玩家...")
+		return
 	}
 
 	//玩家胡牌
 	err := user.ActHu()
 	if err != nil {
+		//如果这里出现胡牌失败，证明是系统有问题...
 		log.E("用户[%v]胡牌失败...", m.GetHeader().GetUserId())
 		result.Header = newProto.SuccessHeader()
+		return
+
 	} else {
 		result.Header = newProto.ErrorHeader()
+		// 胡牌之后 设置当前操作的用户为当前胡牌的人...
+		desk.SetNestUserCursor(user.GetUserId())
+		// update checkCase...
+		for _, bean := range desk.CheckCase.CheckB {
+			if bean != nil && bean.GetUserId() == user.GetUserId() {
+				*bean.CheckStatus = 1        //已经check过了
+			}
+
+		}
 
 	}
 
+	//todo 胡牌之后，如果只剩下一个人..那么这句游戏结束...
+	if desk.Time2Lottery() {
+		desk.Lottery()
+		//因为可以开奖了，所以不操作后边的，直接返回
+		return
+	}
 
-	//todo  如果是自摸，则轮到下一个人摸排
+	//还没有到牌局结束的时候，轮到下一个人...
 	mjHandPai := user.GetMJHandPai()
 	if mjHandPai == nil {
 		//服务器出错
 		return
 	}
 
-	if mjHandPai.GetCanGang() {
+	//胡牌之后的处理
+	if mjHandPai.GetZiMo() {
+		//todo  如果是自摸，则轮到下一个人摸排，轮到胡牌的下一个人...
+		//给下一个人发送overTurn 发牌的类型...
 
+	} else {
+		//todo 如果是点炮,那么计算判断其他人是否需要继续胡牌,有的话继续胡牌，没有的话设置下一个人摸牌...
+
+		//1,找到checkCase 是否有下一个人胡牌，如果有，那么让下一个人验证，如果没有，下一个人摸牌。。
+		nextBean := desk.CheckCase.GetBuBean(majiang.CHECK_CASE_bean_STATUS_1)
+		if nextBean == nil {
+			//表示没有下一个胡牌的人了,和自摸同样的处理
+			//todo desk.CheckCase.CheckStatus = 已经check
+		} else {
+			//发送overTurn 给下一个判定的人...
+		}
 	}
-
-
-	//todo 如果是点炮,那么计算判断其他人是否需要继续胡牌
-
 
 	//给用户返回数据...
 	desk.GetUserByUserId(m.GetHeader().GetUserId()).WriteMsg(result)
