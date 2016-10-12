@@ -38,7 +38,7 @@ func (d *MjDesk) addNewUser(userId uint32, a gate.Agent) error {
 //朋友桌用户加入房间
 func (d *MjDesk) addNewUserFriend(userId uint32, a gate.Agent) error {
 	//1,是否是重新进入
-	user := d.getUserByUserId(userId)
+	user := d.GetUserByUserId(userId)
 	if user != nil {
 		//是断线重连
 		*user.IsBreak = false;
@@ -93,7 +93,7 @@ func (d *MjDesk) rmLeaveUser(userId uint32) error {
 }
 
 //通过userId得到user
-func (d *MjDesk) getUserByUserId(userId uint32) *MjUser {
+func (d *MjDesk) GetUserByUserId(userId uint32) *MjUser {
 	for _, u := range d.GetUsers() {
 		if u != nil && u.GetUserId() == userId {
 			return u
@@ -166,6 +166,16 @@ func (d *MjDesk) BroadCastProto(p proto.Message) error {
 	return nil
 }
 
+// 广播 但是不好办 userId
+func (d *MjDesk) BroadCastProtoExclusive(p proto.Message, userId uint32) error {
+	for _, u := range d.Users {
+		if u != nil && u.GetUserId() != userId {
+			u.WriteMsg(p)
+		}
+	}
+	return nil
+}
+
 //得到deskGameInfo
 func (d *MjDesk) GetDeskGameInfo() *mjproto.DeskGameInfo {
 	deskInfo := newProto.NewDeskGameInfo()
@@ -220,7 +230,7 @@ func (d *MjDesk) GetGame_SendGameInfo() *mjproto.Game_SendGameInfo {
 //用户准备
 func (d *MjDesk) Ready(userId  uint32) error {
 	//找到需要准备的user
-	user := d.getUserByUserId(userId)
+	user := d.GetUserByUserId(userId)
 	if user == nil {
 		log.E("用户[%v]在desk[%v]准备的时候失败,没有找到对应的玩家", userId, d.GetDeskId())
 		return errors.New("没有找到用户，准备失败")
@@ -373,7 +383,7 @@ func (d *MjDesk) AllDingQue() bool {
 }
 
 func (d *MjDesk) GetBankerUser() *MjUser {
-	return d.getUserByUserId(d.GetBanker())
+	return d.GetUserByUserId(d.GetBanker())
 }
 
 //初始化checkCase
@@ -384,13 +394,43 @@ func (d *MjDesk) InitCheckCase(p *MJPai) error {
 //执行判断事件
 /**
 
+	这里仅仅是用于判断打牌之后别人的碰杠胡
+
  */
 func (d *MjDesk) DoCheckCase() error {
 
 	//检测参数
 	if d.CheckCase == nil {
+		//直接跳转到下一个操作的玩家...
+
+
 		return errors.New("")
 	}
+
+	switch d.CheckCase.GetCheckStatus() {
+	case CHECK_CASE_STATUS_0:
+
+	/**
+		0 表示没有进行判断过，优先选择胡牌的case来进行判断，如果没有找到胡牌的case,那么找到其他的bean来进行判断
+	 */
+	case CHECK_CASE_STATUS_1:
+
+	/**
+		1 表示已经进行过胡牌的事件进行来判断，接下来进行另一个胡牌的判断，其他的不判断了
+	 */
+
+	case CHECK_CASE_STATUS_2:
+
+	/**
+		2 表示全部都已经判断完了...s
+	 */
+
+
+	}
+
+
+
+
 
 	//1,找到胡牌的人来进行处理
 	var caseBean *CheckBean
@@ -402,8 +442,24 @@ func (d *MjDesk) DoCheckCase() error {
 	}
 
 	//如果这里的caseBean ！=nil 表示还有可以胡牌的人没有进行判定
-	if caseBean == nil {
+	if caseBean == nil && d.CheckCase.GetCheckStatus() == 0 {
 
 	}
+
+
+
+	//找到需要判断bean之后，发送给判断人	//send overTurn
+	overTurn := newProto.NewGame_OverTurn()
+	*overTurn.UserId = caseBean.GetUserId()
+	overTurn.ActCard = d.CheckCase.CheckMJPai.GetCardInfo()        //
+	overTurn.ActType = 2                                //1,摸排，2，碰杠胡
+	*overTurn.CanGang = caseBean.GetCanGang()
+	*overTurn.CanPeng = caseBean.GetCanPeng()
+	*overTurn.CanHu = caseBean.GetCanHu()
+	//overTurn.NextUserId
+
+	///发送overTurn 的信息
+	d.GetUserByUserId(caseBean.GetUserId()).SendOverTurn(overTurn)
+
 	return nil
 }

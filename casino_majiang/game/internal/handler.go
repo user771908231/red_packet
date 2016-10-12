@@ -105,6 +105,5 @@ func handlerGame_ActGuo(args []interface{}) {
 //胡
 func handlerGame_ActHu(args []interface{}) {
 	m := args[0].(*mjProto.Game_ActHu)
-	a := args[1].(gate.Agent)
-	MJService.HandlerGame_ActHu(m, a)
+	MJService.HandlerGame_ActHu(m)
 }

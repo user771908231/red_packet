@@ -8,6 +8,7 @@ import (
 	"casino_majiang/service/majiang"
 	"casino_server/conf/intCons"
 	"casino_server/service/userService"
+	"errors"
 )
 
 
@@ -150,23 +151,23 @@ func HandlerGame_DingQue(m *mjProto.Game_DingQue, a gate.Agent) {
 		//通知庄家打一张牌,这里初始化信息，这里应该是广播的..
 
 		//注意是否可以碰，可以杠牌，可以胡牌，只有当时人才能看到，所以广播的和当事人的收到的数据不一样...
-		result := newProto.NewGame_OverTurn()
-		result.ActCard = nil
-		*result.ActType = 1
-		*result.CanHu = false
-		*result.CanPeng = false
-		*result.CanGang = false
-		desk.BroadCastProto(result)
+		overTurn := newProto.NewGame_OverTurn()
+		overTurn.ActCard = nil
+		*overTurn.ActType = 1
+		*overTurn.CanHu = false
+		*overTurn.CanPeng = false
+		*overTurn.CanGang = false
+		desk.BroadCastProtoExclusive(overTurn, desk.GetBanker())
 
 		//发送给当事人
 		bankUser := desk.GetBankerUser()
 
-		result.ActCard = nil
-		*result.ActType = 1
-		*result.CanHu = bankUser.MJHandPai.GetCanHu()
-		*result.CanGang = bankUser.MJHandPai.GetCanGang()
-		*result.CanPeng = bankUser.MJHandPai.GetCanPeng()
-		bankUser.WriteMsg(result)
+		overTurn.ActCard = nil
+		*overTurn.ActType = 1
+		*overTurn.CanHu = bankUser.MJHandPai.GetCanHu()
+		*overTurn.CanGang = bankUser.MJHandPai.GetCanGang()
+		*overTurn.CanPeng = bankUser.MJHandPai.GetCanPeng()
+		bankUser.SendOverTurn(overTurn)
 	}
 
 }
@@ -241,11 +242,57 @@ func HandlerGame_ActGuo(m *mjProto.Game_ActGuo, a gate.Agent) {
 }
 
 //胡
-func HandlerGame_ActHu(m *mjProto.Game_ActHu, a gate.Agent) {
-	log.Debug("收到请求，game_ActHu(m[%v],a[%v])", m, a)
 
+/**
+	胡牌需要注意的是：
+	1,如何区分 只自摸还是点炮...
+	2,点炮的时候需要注意区分  抢杠，杠上炮，普通点炮
+ */
+func HandlerGame_ActHu(m *mjProto.Game_ActHu) {
+	log.Debug("收到请求，game_ActHu(m[%v])", m)
+
+	//需要返回的数据
 	result := &mjProto.Game_AckActHu{}
-	result.Header = newProto.SuccessHeader()
 
-	a.WriteMsg(result)
+	//区分自摸点炮:1,如果自己的手牌就已经糊了（或者如果自己自己的牌是14，11，8，5，2 张的时候），那么就自摸，如果需要加上判定牌，那就是点炮
+	desk := majiang.GetMjDeskBySession(majiang.GetSession(m.GetHeader().GetUserId())) //通过userId 的session 得到对应的desk
+	if desk == nil {
+		log.E("没有找到对应的desk ..")
+		result.Header = newProto.ErrorHeader()
+	}
+
+	//找到玩家
+	user := desk.GetUserByUserId(m.GetHeader().GetUserId())
+	if user == nil {
+		return errors.New("胡牌失败，没有找到对应的玩家...")
+	}
+
+	//玩家胡牌
+	err := user.ActHu()
+	if err != nil {
+		log.E("用户[%v]胡牌失败...", m.GetHeader().GetUserId())
+		result.Header = newProto.SuccessHeader()
+	} else {
+		result.Header = newProto.ErrorHeader()
+
+	}
+
+
+	//todo  如果是自摸，则轮到下一个人摸排
+	mjHandPai := user.GetMJHandPai()
+	if mjHandPai == nil {
+		//服务器出错
+		return
+	}
+
+	if mjHandPai.GetCanGang() {
+
+	}
+
+
+	//todo 如果是点炮,那么计算判断其他人是否需要继续胡牌
+
+
+	//给用户返回数据...
+	desk.GetUserByUserId(m.GetHeader().GetUserId()).WriteMsg(result)
 }

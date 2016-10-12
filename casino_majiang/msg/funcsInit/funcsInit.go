@@ -133,6 +133,7 @@ func NewPlayerInfo() *mjProto.PlayerInfo {
 	info.BDingQue = new(int32)
 	info.BExchanged = new(int32)
 	info.NHuPai = new(int32)
+	info.NickName = new(string)
 	return info
 }
 

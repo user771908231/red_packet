@@ -47,8 +47,8 @@ func ( u *MjUser) GetPlayerInfo() *mjproto.PlayerInfo {
 	*info.Coin = u.GetCoin()
 	*info.IsBanker = u.GetIsBanker()
 	info.PlayerCard = u.GetPlayerCard()
+	*info.NickName = "测试nickName"
 	//info.SeatId = u
-
 	return info
 }
 
@@ -141,4 +141,31 @@ func (u *MjUser) GetDealCards() *mjproto.Game_DealCards {
 	*dealCards.Header.UserId = u.GetUserId()
 	dealCards.PlayerCard = u.GetPlayerCard()
 	return dealCards
+}
+
+//发送overTrun
+func (u *MjUser) SendOverTurn(p *mjproto.Game_OverTurn) error {
+
+	go u.Wait()
+
+	u.WriteMsg(p)
+
+	return nil
+}
+
+
+//等待超时
+func (u *MjUser) Wait() error {
+	return nil
+
+}
+
+//用户胡牌
+func (u *MjUser) ActHu() error {
+
+	//判断自摸
+
+	//判断点炮
+
+	return nil
 }

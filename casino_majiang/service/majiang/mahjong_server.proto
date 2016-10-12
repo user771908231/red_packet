@@ -14,6 +14,11 @@ message MJHandPai {
     repeated MJPai PengPais = 2;
     repeated MJPai GangPais = 3;
     repeated MJPai HuPais = 4;
+    optional bool Hu = 5;
+    optional bool ZiMo = 6;
+    optional bool GangShangPao = 7;
+    optional bool QiangGang = 8;
+
 }
 
 //需要确认的时间
