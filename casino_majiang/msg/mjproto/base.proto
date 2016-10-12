@@ -141,29 +141,30 @@ message PlayerInfo {
     optional PlayerCard playerCard = 2; // 玩家的手牌、摆牌（碰杠）、已打出的牌、胡牌信息。客户端需根据服务端的返回进行排序动画。
     optional int64 coin = 3; // 玩家当前显示的自己的筹码数
     optional string nickName = 4; // 昵称
-    optional uint32 userId = 5; // 用户id
-    // ① 新增字段： repeated WeixinInfo  = 6;  //微信用户信息
-    // ② EnterMatch时、广播新进用户时，才需返回 WeixinInfo；其它广播不需要。
-    optional WeixinInfo weixinInfos = 6;
+    optional int32 sex = 5;     // 性别: 1=男  2=女
+    optional uint32 userId = 6; // 用户id
     optional bool isOwner = 7;   // 当前用户是否房主
     optional int32 bReady = 8; // 是否已准备
     optional int32 bDingQue = 9; // 是否已定缺
     optional int32 bExchanged = 10; // 是否已换牌(换3张)
-    optional int32 nHuPai = 11;     // 0:未胡牌; >=1: 已胡牌(血流成河时,表示次数)
+    optional int32 nHuPai = 11;     // 0:未胡牌; >=1: 已胡牌(血流成河时,表示已胡次数)
+    optional int32 quePai = 12;     // 缺哪门牌: 1=万 2=条 3=筒
+    optional WeixinInfo wxInfo = 13; // 微信用户信息( 进入房间时、广播新进用户时，才需返回WeixinInfo；其它广播不需要。)
 }
 
 message DeskGameInfo {
     optional int32 GameStatus = 1; // 当前的游戏状态：等待、游戏中、结算中等
     optional RoomTypeInfo roomTypeInfo = 2; // 房间类型信息，包括：房间类型、局数、封顶、玩法、牌张、结算、底
     optional int32 playerNum = 3; // 玩家数量
-    optional int32 activeSeat = 4;  // 当前谁操作，决定：中间的指针应该指向谁，哪个玩家当前是可操作状态
+    optional uint32 activeUserId = 4;  // 当前谁操作，决定：中间的指针应该指向谁，哪个玩家当前是可操作状态
     optional int32 actionTime = 5; // 玩家当前操作时间
     optional int32 delayTime = 6; //当前延时时间
-    optional int32 nRebuyCount = 7; // REBUY 次数
-    optional int32 nInitActionTime = 8; // 初始操作时间
-    optional int32 nInitDelayTime = 9; // 初始延时时间
-    optional int64 initRoomCoin = 10; // 房间的初始带入金额
-    optional int32 currPlayCount = 11; // 朋友桌: 当前第几局
-    optional int32 totalPlayCount = 12; // 朋友桌: 总共几局
+    optional int32 nInitActionTime = 7; // 初始操作时间
+    optional int32 nInitDelayTime = 8; // 初始延时时间
+    optional int64 initRoomCoin = 9; // 房间的初始带入金额
+    optional int32 currPlayCount = 10; // 朋友桌: 当前第几局
+    optional int32 totalPlayCount = 11; // 朋友桌: 总共几局
+    optional string roomNumber = 12;    // 房间号
+    optional int32 remainCards = 13; // 还剩几张麻将牌
 }
 
