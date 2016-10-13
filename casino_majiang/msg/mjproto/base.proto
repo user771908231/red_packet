@@ -43,6 +43,8 @@ enum EProtoId {
 
     PID_MESSAGE             = 37; //聊天信息
     PID_SEND_MESSAGE        = 38; //广播聊天
+
+    PID_GAME_DINGQUEEND     = 39;   //定缺结束的广播
 }
 
 enum ErrorCode {

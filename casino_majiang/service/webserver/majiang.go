@@ -19,7 +19,7 @@ func gameInfo(w http.ResponseWriter, r *http.Request) {
 	for _, desk := range majiang.FMJRoomIns.Desks {
 		printDeskInfo(w, desk)
 	}
-	fmt.Fprint(w, "\n朋友桌房间的信息打印完毕\n")
+	fmt.Fprint(w, "\n朋友桌房间的信息打印完毕\n\n\n\n\n\n\n\n")
 }
 
 func printDeskInfo(w http.ResponseWriter, desk *majiang.MjDesk) {
@@ -29,7 +29,7 @@ func printDeskInfo(w http.ResponseWriter, desk *majiang.MjDesk) {
 		fmt.Fprintf(w, deskInfo, desk.GetDeskId(), desk.GetPassword(),
 			desk.GetOwner())
 
-		fmt.Fprintf(w, "\n\n\n\n开始打印user的信息:\n")
+		fmt.Fprintf(w, "\n开始打印user的信息:\n")
 		for i, user := range desk.Users {
 			if user != nil {
 				fmt.Fprintf(w, "[%v],玩家的信息userId[%v],nickName[%v],status[%v],是否定缺[%v],定缺的花色[%v]\n", i, user.GetUserId(), "nickName", user.GetStatus(), user.GetDingQue(), user.MJHandPai.GetDingQueColor())

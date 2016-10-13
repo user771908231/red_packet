@@ -210,3 +210,11 @@ func NewGame_DingQueEndBean() *mjProto.Game_DingQueEndBean {
 	ret.Flower = new(int32)
 	return ret
 }
+
+func NewGame_AckActHu() *mjProto.Game_AckActHu {
+	ret := &mjProto.Game_AckActHu{}
+	ret.Header = NewHeader()
+	ret.UserIdIn = new(uint32)
+	ret.UserIdOut = new(uint32)
+	return ret
+}

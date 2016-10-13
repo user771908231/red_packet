@@ -16,7 +16,7 @@ func (c *CheckBean) IsChecked() bool {
 }
 
 //checkCase
-func (c *CheckCase) GetBuBean(checkStatus int32) *CheckBean {
+func (c *CheckCase) GetHuBean(checkStatus int32) *CheckBean {
 	for _, b := range c.CheckB {
 		if b != nil && b.GetCheckStatus() == checkStatus  && b.GetCanHu() {
 			return b
