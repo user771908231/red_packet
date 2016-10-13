@@ -39,6 +39,10 @@ var _ = math.Inf
 
 // Ignoring public import of MahjongColor from base.proto
 
+// Ignoring public import of GangType from base.proto
+
+// Ignoring public import of HuPaiType from base.proto
+
 // 开局（接收服务端消息）
 type Game_Opening struct {
 	Header           *ProtoHeader `protobuf:"bytes,1,opt,name=header" json:"header,omitempty"`

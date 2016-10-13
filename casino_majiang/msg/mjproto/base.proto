@@ -113,6 +113,46 @@ enum MahjongColor{
     TONG = 3; //筒
 }
 
+//杠的类型
+enum GangType {
+    G_MINGGANG    = 1; //明杠
+    G_BAGANG      = 2; //巴杠
+    G_ANGANG      = 3; //暗杠
+}
+
+//胡牌的类型
+enum HuPaiType {
+    H_DuiDuiHu    = 1; //1番:对对胡
+    H_QingYiSe    = 2; //2番:清一色
+    H_QiDui       = 3; //2番:七对
+    H_DaiYaoJiu   = 4; //2番:带幺九
+    H_LongQiDui   = 5; //3番:龙七对
+    H_JiangDui    = 6; //3番:将对(2、5、8组成的对对胡)
+    H_TianHu      = 7; //5番:天胡 庄家起牌后胡牌
+    H_DiHu        = 8; //5番:地胡 第一回合中,没有任何玩家操作,非庄家自摸
+
+//附加番数
+    H_GangShangHua = 9;  //+1番 杠上花
+    H_GangShangPao = 10;  //+1番 杠上炮
+    H_QiangGang    = 11; //+1番 抢杠
+    H_HaiDiLao     = 12; //+1番 海底捞
+    H_HaiDiPao     = 13; //+1番 海底炮
+    H_JinGouDiao   = 14; //+1番 金钩钓
+
+//可选附加玩法
+    H_ZiMoJiaFan   = 15; //+1番 自摸加番
+    H_ZiMoJiaDi    = 16; //+底 自摸加底
+
+    H_MenQing      = 17; //+1番 门清
+    H_ZhongZhang   = 18; //+1番 中张(胡牌时不含1,9)
+
+//(内江麻将)
+    H_KaErTiao     = 19; //+1番 卡二条
+//(德阳麻将)
+    H_JiaXin5      = 20; //+1番 夹心五
+}
+
+
 message RoomTypeInfo {
     optional MJRoomType mjRoomType = 1; // 房间类型，如：血战到底、三人两房、四人两房、德阳麻将、倒倒胡、血流成河
     optional int32 boardsCout = 2; // 局数，如：4局（房卡 × 2）、8局（房卡 × 3）
