@@ -157,18 +157,19 @@ func HandlerGame_DingQue(m *mjProto.Game_DingQue, a gate.Agent) {
 
 		//注意是否可以碰，可以杠牌，可以胡牌，只有当时人才能看到，所以广播的和当事人的收到的数据不一样...
 		overTurn := newProto.NewGame_OverTurn()
+		*overTurn.UserId = desk.GetBanker()
+		*overTurn.ActType = majiang.OVER_TURN_ACTTYPE_MOPAI
+
+		//广播时候的信息
 		overTurn.ActCard = nil
-		*overTurn.ActType = 1
 		*overTurn.CanHu = false
 		*overTurn.CanPeng = false
 		*overTurn.CanGang = false
 		desk.BroadCastProtoExclusive(overTurn, desk.GetBanker())
 
-		//发送给当事人
+		//发送给当事人时候的信息
 		bankUser := desk.GetBankerUser()
-
-		overTurn.ActCard = nil
-		*overTurn.ActType = 1
+		overTurn.ActCard = desk.GetNextPai().GetCardInfo()
 		*overTurn.CanHu = bankUser.MJHandPai.GetCanHu()
 		*overTurn.CanGang = bankUser.MJHandPai.GetCanGang()
 		*overTurn.CanPeng = bankUser.MJHandPai.GetCanPeng()
@@ -307,7 +308,7 @@ func HandlerGame_ActHu(m *mjProto.Game_ActHu) {
 	log.Debug("收到请求，game_ActHu(m[%v])", m)
 
 	//需要返回的数据
-	result := &mjProto.Game_AckActHu{}
+	result := newProto.NewGame_AckActHu()
 
 	//区分自摸点炮:1,如果自己的手牌就已经糊了（或者如果自己自己的牌是14，11，8，5，2 张的时候），那么就自摸，如果需要加上判定牌，那就是点炮
 	desk := majiang.GetMjDeskBySession(m.GetHeader().GetUserId()) //通过userId 的session 得到对应的desk
@@ -324,6 +325,8 @@ func HandlerGame_ActHu(m *mjProto.Game_ActHu) {
 		return
 	}
 
+	desk.ActHu(m.GetHeader().GetUserId())
+
 	//玩家胡牌
 	err := user.ActHu()
 	if err != nil {
@@ -337,6 +340,10 @@ func HandlerGame_ActHu(m *mjProto.Game_ActHu) {
 	//胡牌成功之后的处理...
 	desk.SetNestUserCursor(user.GetUserId())        // 胡牌之后 设置当前操作的用户为当前胡牌的人...
 	desk.CheckCase.UpdateCheckBeanStatus(user.GetUserId(), majiang.CHECK_CASE_bean_STATUS_CHECKED)        // update checkCase...
+	*result.UserIdIn = user.GetUserId()
+	*result.UserIdOut = desk.CheckCase.GetUserIdOut()        //打牌的人
+
+	//这里是否需要广播胡牌的广播...
 
 	//todo 胡牌之后，如果只剩下一个人..那么这句游戏结束...
 	if desk.Time2Lottery() {
@@ -360,7 +367,7 @@ func HandlerGame_ActHu(m *mjProto.Game_ActHu) {
 		//todo 如果是点炮,那么计算判断其他人是否需要继续胡牌,有的话继续胡牌，没有的话设置下一个人摸牌...
 
 		//1,找到checkCase 是否有下一个人胡牌，如果有，那么让下一个人验证，如果没有，下一个人摸牌。。
-		nextBean := desk.CheckCase.GetBuBean(majiang.CHECK_CASE_bean_STATUS_CHECKED)
+		nextBean := desk.CheckCase.GetHuBean(majiang.CHECK_CASE_bean_STATUS_CHECKED)
 		if nextBean == nil {
 			//表示没有下一个胡牌的人了,和自摸同样的处理
 			desk.CheckCase.UpdateChecStatus(majiang.CHECK_CASE_STATUS_CHECKED)

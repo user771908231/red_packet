@@ -35,6 +35,7 @@ message CheckCase {
     repeated CheckBean CheckB = 1;
     optional int32 CheckStatus = 2; //这张牌的状态，
     optional MJPai CheckMJPai = 3;
+    optional uint32 UserIdOut = 4;
 }
 
 //麻将牌的结构
