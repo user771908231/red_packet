@@ -39,6 +39,10 @@ var _ = math.Inf
 
 // Ignoring public import of MahjongColor from base.proto
 
+// Ignoring public import of GangType from base.proto
+
+// Ignoring public import of HuPaiType from base.proto
+
 // 解散房间
 type Game_DissolveDesk struct {
 	Header           *ProtoHeader `protobuf:"bytes,1,opt,name=header" json:"header,omitempty"`

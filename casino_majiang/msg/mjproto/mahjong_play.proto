@@ -50,14 +50,14 @@ message game_DingQue {
     optional uint32 userId = 5; // 操作人 (广播给其它用户时用到)
 }
 
-message game_DingQueEndBean {
+message DingQueEndBean {
     optional uint32 userId = 1; // 定缺的人
     optional int32 flower = 2; // 定缺的花色
 }
 
 message game_DingQueEnd {
-    repeated game_DingQueEndBean Ques = 5; // 要换出的 3 张牌
-
+    optional ProtoHeader header = 1;
+    repeated DingQueEndBean Ques = 2;
 }
 
 // 定缺开始广播（和ACK）

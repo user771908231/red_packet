@@ -3,23 +3,44 @@ package majiang;
 //麻将牌的结构
 message MJPai {
     optional int32 index = 1;
-    optional int32 flower = 2;
-    optional int32 value = 3;
+    optional int32 flower = 2; //
+    optional int32 value = 3;  //取值为:1~9
     optional string des = 4;
 }
 
 //手里的一副牌
 message MJHandPai {
-    repeated MJPai Pais = 1;
-    repeated MJPai PengPais = 2;
+    repeated MJPai Pais = 1;      //手牌
+    repeated MJPai PengPais = 2;  
     repeated MJPai GangPais = 3;
     repeated MJPai HuPais = 4;
-    optional bool Hu = 5;
-    optional bool ZiMo = 6;
-    optional bool GangShangPao = 7;
-    optional bool QiangGang = 8;
-    optional int32 DingQueColor = 9;
+    optional MJPai inPai = 5;     //+1摸起来(或别人打出)的那张牌，用计算判胡的番数时用
+    optional int32 queFlower = 6; //缺哪门牌
+}
 
+message HuPaiInfo {
+    optional uint32     sendUserId = 1;  //点胡的人
+    optional int32      byWho = 2;       //1=自己胡  2=别人胡
+    optional HuPaiType  huType = 3;      //杠上炮 杠上花 抢杠 海底捞 海底炮 天胡 地胡
+    optional int32      cardType = 4;    //胡的牌型:清一色...
+    optional int32      fan = 5;         //胡的番数
+    optional MJPai      pai = 6;        //胡的哪张牌
+}
+
+message GangPaiInfo {
+    optional uint32   sendUserId = 1; //点杠的人
+    optional int32    byWho      = 2; //1=自己杠  2=点别人杠
+    optional GangType gangType   = 3; //1=明杠、2=巴杠、3=暗杠
+    optional MJPai    pai       = 4; //杠的哪张牌
+}
+
+//一个玩家的游戏信息
+message PlayerGameData {
+    optional MJHandPai      handPai = 1;  //手牌
+    repeated HuPaiInfo      huInfo  = 2;    //胡牌信息
+    repeated HuPaiInfo      dianHuInfo = 3; //点胡信息
+    repeated GangPaiInfo    gangInfo = 4;     //杠牌信息
+    repeated GangPaiInfo    dianGangInfo = 5; //点杠信息
 }
 
 //需要确认的时间

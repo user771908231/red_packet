@@ -39,6 +39,10 @@ var _ = math.Inf
 
 // Ignoring public import of MahjongColor from base.proto
 
+// Ignoring public import of GangType from base.proto
+
+// Ignoring public import of HuPaiType from base.proto
+
 // 服务器信息
 type ServerInfo struct {
 	Ip               *string `protobuf:"bytes,1,opt,name=ip" json:"ip,omitempty"`
