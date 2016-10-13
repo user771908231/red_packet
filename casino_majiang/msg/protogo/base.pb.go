@@ -54,7 +54,7 @@ It has these top-level messages:
 	Game_ExchangeCards
 	Game_AckExchangeCards
 	Game_DingQue
-	Game_DingQueEndBean
+	DingQueEndBean
 	Game_DingQueEnd
 	Game_BroadcastBeginDingQue
 	Game_BroadcastBeginExchange
