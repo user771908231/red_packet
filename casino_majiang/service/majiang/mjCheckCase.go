@@ -2,17 +2,23 @@ package majiang
 
 var CHECK_CASE_STATUS_CHECKING int32 = 0        //表示没有判定过
 var CHECK_CASE_STATUS_CHECKED int32 = 1        //表示碰／杠 判定过
+var CHECK_CASE_STATUS_CHECKING_HUED int32 = 2        //已经有人胡了
 
 
-var CHECK_CASE_bean_STATUS_CHECKING int32 = 0
-var CHECK_CASE_bean_STATUS_CHECKED int32 = 1      //已经check 了
+var CHECK_CASE_BEAN_STATUS_CHECKING int32 = 0
+var CHECK_CASE_BEAN_STATUS_CHECKED int32 = 1  //已经check 了
+var CHECK_CASE_BEAN_STATUS_PASS int32 = 2     //已经check 了
 
 
 //checkBean
 
 
 func (c *CheckBean) IsChecked() bool {
-	return false;
+	return c.GetCheckStatus() == CHECK_CASE_BEAN_STATUS_CHECKED;
+}
+
+func (c *CheckBean) IsChecking() bool {
+	return c.GetCheckStatus() == CHECK_CASE_BEAN_STATUS_CHECKING
 }
 
 //checkCase
@@ -26,6 +32,38 @@ func (c *CheckCase) GetHuBean(checkStatus int32) *CheckBean {
 	return nil
 }
 
+//得到下一个需要判断的checkBean
+func (c *CheckCase) GetNextBean() *CheckBean {
+	//判断是否已经checked了
+	if c.IsChecked() {
+		return nil
+	}
+
+	var caseBean *CheckBean = nil
+	for _, bean := range c.CheckB {
+		if bean != nil && !bean.IsChecked() && bean.GetCanHu() {
+			caseBean = bean
+			break
+		}
+	}
+
+	//如果之前已经有人胡过了，那么不能再碰或者杠牌了
+	if c.GetCheckStatus() == CHECK_CASE_STATUS_CHECKING_HUED {
+		return caseBean
+	}
+
+	//如果这里的caseBean ！=nil 表示还有可以胡牌的人没有进行判定
+	if caseBean == nil {
+		for _, bean := range c.CheckB {
+			if bean != nil && !bean.IsChecked() && !bean.GetCanHu() {
+				caseBean = bean
+				break
+			}
+		}
+	}
+
+	return caseBean
+}
 
 //修改判断事件的状态
 func (c *CheckCase) UpdateChecStatus(status int32) error {

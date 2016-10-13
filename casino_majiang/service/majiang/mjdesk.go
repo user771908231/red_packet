@@ -440,7 +440,24 @@ func (d *MjDesk) GetBankerUser() *MjUser {
 }
 
 //初始化checkCase
-func (d *MjDesk) InitCheckCase(p *MJPai) error {
+//如果出错 设置checkCase为nil
+func (d *MjDesk) InitCheckCase(p *MJPai, outUser *MjUser) error {
+
+	checkCase := NewCheckCase()
+	*checkCase.UserIdOut = outUser.GetUserId()
+	*checkCase.CheckStatus = CHECK_CASE_STATUS_CHECKING        //正在判定
+	checkCase.CheckMJPai = p
+	checkCase.PreOutGangInfo = outUser.GetPreMoGangInfo()
+
+	//初始化checkbean
+	for _, checkUser := range d.GetUsers() {
+		if checkUser != nil && checkUser.GetUserId() != outUser.GetUserId() {
+			bean := checkUser.GetCheckBean(p)
+			if bean != nil {
+				checkCase.CheckB = append(checkCase.CheckB, bean)
+			}
+		}
+	}
 	return nil
 }
 
@@ -450,73 +467,30 @@ func (d *MjDesk) InitCheckCase(p *MJPai) error {
 	这里仅仅是用于判断打牌之后别人的碰杠胡
 
  */
-func (d *MjDesk) DoCheckCase() error {
-
+func (d *MjDesk) DoCheckCase(gangUser *MjUser) error {
 	//检测参数
-	if d.CheckCase == nil || d.CheckCase.IsChecked() {
+	if d.CheckCase == nil || d.CheckCase.GetNextBean() == nil {
 		//直接跳转到下一个操作的玩家...,这里表示判断已经玩了...
-		return errors.New("")
+		d.CheckCase = nil
+		d.SendMopaiOverTurn(gangUser)
+		return nil
+	} else {
+		//1,找到胡牌的人来进行处理
+		caseBean := d.CheckCase.GetNextBean()
+		//找到需要判断bean之后，发送给判断人	//send overTurn
+		overTurn := newProto.NewGame_OverTurn()
+		*overTurn.UserId = caseBean.GetUserId()
+		*overTurn.CanGang = caseBean.GetCanGang()
+		*overTurn.CanPeng = caseBean.GetCanPeng()
+		*overTurn.CanHu = caseBean.GetCanHu()
+		overTurn.ActCard = d.CheckCase.CheckMJPai.GetCardInfo()        //
+		*overTurn.ActType = OVER_TURN_ACTTYPE_OTHER
+
+		///发送overTurn 的信息
+		d.GetUserByUserId(caseBean.GetUserId()).SendOverTurn(overTurn)
+		return nil
 	}
 
-	//switch d.CheckCase.GetCheckStatus() {
-	//case CHECK_CASE_STATUS_0:
-	//
-	///**
-	//	0 表示没有进行判断过，优先选择胡牌的case来进行判断，如果没有找到胡牌的case,那么找到其他的bean来进行判断
-	// */
-	//case CHECK_CASE_STATUS_1:
-	//
-	///**
-	//	1 表示已经进行过胡牌的事件进行来判断，接下来进行另一个胡牌的判断，其他的不判断了
-	// */
-	//
-	//case CHECK_CASE_STATUS_2:
-	//
-	///**
-	//	2 表示全部都已经判断完了...s
-	// */
-	//
-	//
-	//}
-
-	//1,找到胡牌的人来进行处理
-	var caseBean *CheckBean
-	for _, bean := range d.CheckCase.CheckB {
-		if bean != nil && !bean.IsChecked() && bean.GetCanHu() {
-			caseBean = bean
-			break
-		}
-	}
-
-	//如果这里的caseBean ！=nil 表示还有可以胡牌的人没有进行判定
-	if caseBean == nil {
-		for _, bean := range d.CheckCase.CheckB {
-			if bean != nil && !bean.IsChecked() && !bean.GetCanHu() {
-				caseBean = bean
-				break
-			}
-		}
-	}
-
-	if caseBean == nil {
-		log.E("服务器错误....这里不应该出现的...checkCae[%v]", d.CheckCase)
-		return errors.New("已经没有需要处理的了")
-
-	}
-
-	//找到需要判断bean之后，发送给判断人	//send overTurn
-	overTurn := newProto.NewGame_OverTurn()
-	*overTurn.UserId = caseBean.GetUserId()
-	*overTurn.CanGang = caseBean.GetCanGang()
-	*overTurn.CanPeng = caseBean.GetCanPeng()
-	*overTurn.CanHu = caseBean.GetCanHu()
-	overTurn.ActCard = d.CheckCase.CheckMJPai.GetCardInfo()        //
-	*overTurn.ActType = OVER_TURN_ACTTYPE_OTHER
-
-	///发送overTurn 的信息
-	d.GetUserByUserId(caseBean.GetUserId()).SendOverTurn(overTurn)
-
-	return nil
 }
 
 
@@ -547,8 +521,26 @@ func (d *MjDesk) SetNestUserCursor(userId uint32) error {
 
 //得到下一个摸牌的人...
 func (d *MjDesk) GetNextMoPaiUser() *MjUser {
+	var activeUser *MjUser = nil
+	activeIndex := 0
+	for i, u := range d.GetUsers() {
+		if u != nil && u.GetUserId() == d.GetNextUserCursor() {
+			activeIndex = i
+			break
+		}
+	}
 
-	return nil
+	for i := activeIndex + 1; i < i + int(d.GetUserCount()); i++ {
+		user := d.GetUsers()[i]
+		if user != nil && user.IsNotHu() {
+			activeUser = user
+			break
+		}
+	}
+
+	//找到下一个操作的user
+	return activeUser
+
 }
 
 //得到下一张牌...
@@ -561,9 +553,14 @@ func (d *MjDesk) GetNextPai() *MJPai {
 //指定一个摸牌，如果没有指定，则系统通过游标来判断
 func (d *MjDesk) SendMopaiOverTurn(user *MjUser) error {
 	if user == nil {
-		log.E("服务器错误：user==nil 不能摸牌...")
 		user = d.GetNextMoPaiUser()
 	}
+
+	if user == nil {
+		log.E("服务器出现错误..没有找到下一个摸牌的玩家...")
+		return errors.New("没有找到下一家")
+	}
+
 	overTrun := newProto.NewGame_OverTurn()
 	*overTrun.UserId = user.GetUserId()                //这个是摸牌的，所以是广播...
 	*overTrun.ActType = OVER_TURN_ACTTYPE_MOPAI        //摸牌
@@ -652,10 +649,5 @@ func (d *MjDesk) ActGang(userId uint32) error {
 	result.GangCard[3] = user.PreMoGangInfo.GetPai().GetCardInfo()
 
 	user.WriteMsg(result)
-
-	//todo  这里应该又一个操作延时，之后发送摸牌的协议
-	//发送过一个摸牌的协议
-	d.SendMopaiOverTurn(user)
-
 	return nil
 }

@@ -31,6 +31,16 @@ func (u *MjUser) IsReady() bool {
 	return u.GetStatus() == MJUSER_STATUS_READY
 }
 
+//用户是否胡牌
+func (u *MjUser) IsHu() bool {
+	return true
+}
+
+func (u *MjUser) IsNotHu() bool {
+	return !u.IsHu()
+}
+
+
 //todo 玩家是否在游戏状态中
 func (u *MjUser) IsGaming() bool {
 	return true
@@ -201,5 +211,10 @@ func (u *MjUser) Gang(p *MJPai, sendUserId uint32) error {
 	//增加杠牌状态
 	u.PreMoGangInfo = info
 
+	return nil
+}
+
+//得到判定bean
+func (u *MjUser) GetCheckBean(p *MJPai) *CheckBean {
 	return nil
 }

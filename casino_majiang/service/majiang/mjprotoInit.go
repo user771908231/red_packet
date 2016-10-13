@@ -80,3 +80,10 @@ func NewGangPaiInfo() *GangPaiInfo {
 	ret.SendUserId = new(uint32)
 	return ret
 }
+
+func NewCheckCase() *CheckCase {
+	ret := &CheckCase{}
+	ret.UserIdOut = new(uint32)
+	ret.CheckStatus = new(int32)
+	return ret
+}
