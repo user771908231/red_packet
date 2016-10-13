@@ -85,7 +85,9 @@ func HandlerGame_EnterRoom(userId uint32, key string, a gate.Agent) {
 		majiang.UpdateSession(userId, majiang.MJUSER_SESSION_GAMESTATUS_FRIEND, desk.GetRoomId(), desk.GetDeskId(), desk.GetPassword())
 		gameinfo := desk.GetGame_SendGameInfo()
 		*gameinfo.SenderUserId = userId
-		a.WriteMsg(gameinfo)
+		//a.WriteMsg(gameinfo)
+		desk.BroadCastProto(gameinfo)
+
 	}
 }
 
@@ -146,6 +148,10 @@ func HandlerGame_DingQue(m *mjProto.Game_DingQue, a gate.Agent) {
 
 	//如果所有人都定缺了，那么可以通知庄打牌了..
 	if desk.AllDingQue() {
+		//首先发送定缺结束的广播，然后发送庄家出牌的广播...
+
+		ques := desk.GetDingQueEndInfo()
+		desk.BroadCastProto(ques)
 
 		//通知庄家打一张牌,这里初始化信息，这里应该是广播的..
 
@@ -170,6 +176,7 @@ func HandlerGame_DingQue(m *mjProto.Game_DingQue, a gate.Agent) {
 	}
 
 }
+
 
 //换3张
 func HandlerGame_ExchangeCards(m *mjProto.Game_ExchangeCards, a gate.Agent) {
@@ -241,6 +248,7 @@ func HandlerGame_ActPeng(m *mjProto.Game_ActPeng, a gate.Agent) {
 	a.WriteMsg(result)
 }
 
+
 //杠
 func HandlerGame_ActGang(m *mjProto.Game_ActGang, a gate.Agent) {
 	log.Debug("收到请求，game_ActGang(m[%v],a[%v])", m, a)
@@ -285,13 +293,8 @@ func HandlerGame_ActGuo(m *mjProto.Game_ActGuo, a gate.Agent) {
 	result := &mjProto.Game_AckActGuo{}
 	result.Header = newProto.SuccessHeader()
 	// 设置当前CheckBean 为已经check ，处理下一个checkBean
-
-
 	a.WriteMsg(result)
 }
-
-
-
 
 //胡
 

@@ -80,12 +80,7 @@ func handlerREQQuickConn(args []interface{}) {
 	//如果得到的user ==nil 或者 用密码登陆的时候密码不正确
 	if resultUser == nil {
 		log.E("没有找到用户,返回登陆失败...")
-		if m.GetWxInfo().GetOpenId() == "" {
-			*result.Header.Code = intCons.ACK_RESULT_SUCC
-		} else {
-			*result.Header.Code = intCons.ACK_RESULT_ERROR
-		}
-
+		*result.Header.Code = intCons.ACK_RESULT_ERROR
 		a.WriteMsg(result)
 		return
 	} else {

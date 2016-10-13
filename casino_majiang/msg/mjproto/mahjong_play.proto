@@ -4,7 +4,6 @@ import public "base.proto";
 package mjproto;
 option optimize_for = LITE_RUNTIME;
 
-
 ////////////////////////////////////////////////////////////////////
 // 通信协议
 
@@ -15,13 +14,11 @@ message game_Opening {
     optional int32 tableId = 3;
 }
 
-
 // 发牌
 message game_DealCards {
     optional ProtoHeader header = 1;
     optional PlayerCard playerCard = 2;
 }
-
 
 // 换牌（3张）
 message game_ExchangeCards {
@@ -53,6 +50,16 @@ message game_DingQue {
     optional uint32 userId = 5; // 操作人 (广播给其它用户时用到)
 }
 
+message game_DingQueEndBean {
+    optional uint32 userId = 1; // 定缺的人
+    optional int32 flower = 2; // 定缺的花色
+}
+
+message game_DingQueEnd {
+    repeated game_DingQueEndBean Ques = 5; // 要换出的 3 张牌
+
+}
+
 // 定缺开始广播（和ACK）
 message game_BroadcastBeginDingQue {
     optional ProtoHeader header = 1;
@@ -69,7 +76,6 @@ message game_GetInCard {
     optional ProtoHeader header = 1;
     optional CardInfo card = 2;
 }
-
 
 // 出牌
 message game_SendOutCard {
@@ -94,8 +100,8 @@ message game_ActPeng {
 message game_AckActPeng {
     optional ProtoHeader header = 1;
     repeated CardInfo pengCard = 2; //广播碰的哪几张牌
-    optional uint32 userIdOut = 3;  //出牌的人
-    optional uint32 userIdIn = 4;   //碰牌的人
+    optional uint32 userIdOut = 3; //出牌的人
+    optional uint32 userIdIn = 4; //碰牌的人
 }
 
 // 杠牌
@@ -106,10 +112,10 @@ message game_ActGang {
 }
 message game_AckActGang {
     optional ProtoHeader header = 1;
-    optional int32 gangType = 2;    //1:点杠  2:巴杠  3:暗杠
+    optional int32 gangType = 2; //1:点杠  2:巴杠  3:暗杠
     repeated CardInfo GangCard = 3;
-    optional uint32 userIdOut = 4;  //出牌的人
-    optional uint32 userIdIn = 5;   //杠牌的人
+    optional uint32 userIdOut = 4; //出牌的人
+    optional uint32 userIdIn = 5; //杠牌的人
 }
 
 // 胡牌
@@ -121,10 +127,10 @@ message game_ActHu {
 
 message game_AckActHu {
     optional ProtoHeader header = 1;
-    optional int32 huType = 2;      //胡牌类型: 1=点炮、2=自摸、3=抢杠、4=杠上炮、5=杠上花、6=海底捞、7=一炮双响、8=一炮三响
+    optional int32 huType = 2; //胡牌类型: 1=点炮、2=自摸、3=抢杠、4=杠上炮、5=杠上花、6=海底捞、7=一炮双响、8=一炮三响
     optional CardInfo huCard = 3;
-    optional uint32 userIdOut = 4;  //出牌的人
-    optional uint32 userIdIn = 5;   //胡牌的人
+    optional uint32 userIdOut = 4; //出牌的人
+    optional uint32 userIdIn = 5; //胡牌的人
 }
 
 // 过牌
@@ -136,21 +142,20 @@ message game_ActGuo {
 // 过牌收到服务器确认后，还是要协议 【PID_game_SENDOVERTURN ：game_SendOverTurn】 后结束此轮
 message game_AckActGuo {
     optional ProtoHeader header = 1;
-    optional uint32 userId = 2;  //操作人(广播时用)
+    optional uint32 userId = 2; //操作人(广播时用)
 }
 
 // 轮到谁操作(摸牌、碰/杠/过/胡)
 message game_OverTurn {
     optional ProtoHeader header = 1;
-    optional uint32 userId = 2;  // 当前谁正在操作
+    optional uint32 userId = 2; // 当前谁正在操作
     optional uint32 nextUserId = 3;
-    optional int32 actType = 4;  // 1:正常摸牌/出牌 2:其它
+    optional int32 actType = 4; // 1:正常摸牌/出牌 2:其它
     optional bool canPeng = 5;
     optional bool canGang = 6;
-    optional bool canHu   = 7;
+    optional bool canHu = 7;
     optional CardInfo actCard = 8; // 如果有出牌，表示出的是哪张牌，否则置为空
 }
-
 
 // 发送游戏信息(广播)
 message game_SendGameInfo {

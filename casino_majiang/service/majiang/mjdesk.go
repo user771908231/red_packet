@@ -337,6 +337,13 @@ func (d *MjDesk) time2begin() error {
  */
 func (d *MjDesk) beginInit() error {
 
+	//初始化每个玩家的信息
+	for _, user := range d.GetUsers() {
+		if user != nil {
+			user.MJHandPai = NewMJHandPai()        //初始化一个空的麻将牌
+		}
+	}
+
 	//发送游戏开始的协议...
 	log.T("发送游戏开始的协议..")
 	open := newProto.NewGame_Opening()
@@ -564,4 +571,18 @@ func (d *MjDesk) SendMopaiOverTurn(user *MjUser) error {
 	*overTrun.CanGang = false
 	overTrun.ActCard = d.GetNextPai().GetCardInfo() //得到下一张牌
 	return nil
+}
+
+func (d *MjDesk) GetDingQueEndInfo() *mjproto.Game_DingQueEnd {
+	end := newProto.NewGame_DingQueEnd()
+
+	for _, u := range d.GetUsers() {
+		if u != nil && u.MJHandPai != nil {
+			bean := newProto.NewGame_DingQueEndBean()
+			*bean.UserId = u.GetUserId()
+			*bean.Flower = u.MJHandPai.GetDingQueColor()
+			end.Ques = append(end.Ques, bean)
+		}
+	}
+	return end
 }

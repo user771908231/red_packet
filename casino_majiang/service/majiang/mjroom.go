@@ -60,6 +60,7 @@ func (r *MjRoom) CreateDesk(m *mjproto.Game_CreateRoom) *MjDesk {
 	//desk.BaseValue
 	*desk.CreateFee = createFee
 	*desk.DeskId, _ = db.GetNextSeq(config.DBT_MJ_DESK)
+	*desk.Banker = m.GetHeader().GetUserId()
 	//desk.HuRadio
 
 	//把创建的desk加入到room中

@@ -50,4 +50,5 @@ func init() {
 	Processor.Register(&majiangProto.Game_AckLeaveDesk{})    		//36
 	Processor.Register(&majiangProto.Game_Message{})    			//37 发送聊天消息
 	Processor.Register(&majiangProto.Game_SendMessage{})    		//38 广播聊天
+	Processor.Register(&majiangProto.Game_DingQueEnd{})			//39 定缺结束
 }

@@ -198,3 +198,15 @@ func NewGame_AckQuickConn() *mjProto.Game_AckQuickConn {
 	ret.UserId = new(uint32)
 	return ret
 }
+
+func NewGame_DingQueEnd() *mjProto.Game_DingQueEnd {
+	ret := &mjProto.Game_DingQueEnd{}
+	return ret
+}
+
+func NewGame_DingQueEndBean() *mjProto.Game_DingQueEndBean {
+	ret := &mjProto.Game_DingQueEndBean{}
+	ret.UserId = new(uint32)
+	ret.Flower = new(int32)
+	return ret
+}
