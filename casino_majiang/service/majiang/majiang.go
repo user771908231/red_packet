@@ -268,42 +268,42 @@ type PairMjPai struct {
 
 
 //统计麻将牌
-func (p *PairMjPai)  InitPaiStatistics() error {
+func (p *PairMjPai)  InitHandPaisStats(handPai *MJHandPai) []int {
 	//统计牌的张数
-	for i := 0; i < len(p.pais); i++ {
-		pai := p.pais[i]
+
+	//p.InitPaiStats( handPai.PengPais )  //已碰的牌
+	//p.InitPaiStats( handPai.GangPais )  //已杠的牌
+
+	return p.GettPaiStats( handPai.Pais ) //手里剩余牌
+}
+
+func (p *PairMjPai)  GettPaiStats(pais []*MJPai) []int {
+	//统计每张牌的重复次数
+	counts := make([]int, 27) //0~27
+	for i := 0; i < len(pais); i++ {
+		pai := pais[i]
+		value := pai.GetValue() - 1
 		if pai.GetFlower() == T {
-			p.paiStatistics[pai.GetValue() - 1]++
+			value += 0
 		} else if pai.GetFlower() == S {
-			p.paiStatistics[pai.GetValue() - 1 + 9]++
+			value += 9
 		} else if pai.GetFlower() == W {
-			p.paiStatistics[pai.GetValue() - 1 + 9 + 9 ]++
+			value += (9 + 9)
 		}
-	}
-	return nil
-}
 
-//判断打这张牌能不能胡牌
-func (p *PairMjPai) IsHuPai(pai *MJPai) bool {
-	//在所有的牌中增加 pai,判断此牌是否能和
-
-	p.pais = append(p.pais, pai)
-	p.InitPaiStatistics()
-
-	if tryHU(p.paiStatistics, len(p.pais)) {
-		log.Debug("胡牌了")
-	} else {
-		log.Debug("没有胡牌")
+		counts[ value ] ++
 	}
 
-	//最后需要删除最后一张牌
-	p.pais = p.pais[0:len(p.pais) - 1]
-	return false;
+	return counts
 }
 
+func is19(val int) {
+	return (val % 9 == 0) || (val % 9 == 8)
+}
 
 //胡牌的算法
-func tryHU(count []int, len int) bool {
+func tryHU(count []int, len int, isAll19 *bool) bool {
+	*is19 = true //全带幺
 
 	//递归完所有的牌表示 胡了
 	if (len == 0) {
@@ -315,7 +315,10 @@ func tryHU(count []int, len int) bool {
 		for i := 0; i < 27; i++ {
 			if (count[i] >= 2) {
 				count[i] -= 2;
-				if (tryHU(count, len - 2)) {
+				if (tryHU(count, len - 2, isAll19)) {
+					if ! is19(i) { //不是幺九
+						*isAll19 = false
+					}
 					return true;
 				}
 				count[i] += 2;
@@ -326,7 +329,10 @@ func tryHU(count []int, len int) bool {
 		for i := 0; i < 27; i++ {
 			if (count[i] >= 3) {
 				count[i] -= 3;
-				if (tryHU(count, len - 3)) {
+				if (tryHU(count, len - 3, isAll19)) {
+					if !is19(i) { //不是幺九
+						*isAll19 = false
+					}
 					return true;
 				}
 				count[i] += 3;
@@ -338,7 +344,10 @@ func tryHU(count []int, len int) bool {
 				count[i] -= 1;
 				count[i + 1] -= 1;
 				count[i + 2] -= 1;
-				if (tryHU(count, len - 3)) {
+				if (tryHU(count, len - 3, isAll19)) {
+					if !is19(i) && !is19(i+1) && !is19(i+2) { //不是幺九
+						*isAll19 = false
+					}
 					return true;
 				}
 				count[i] += 1;
@@ -352,7 +361,10 @@ func tryHU(count []int, len int) bool {
 				count[i] -= 1;
 				count[i + 1] -= 1;
 				count[i + 2] -= 1;
-				if (tryHU(count, len - 3)) {
+				if (tryHU(count, len - 3, isAll19)) {
+					if !is19(i) && !is19(i+1) && !is19(i+2) { //不是幺九
+						*isAll19 = false
+					}
 					return true;
 				}
 				count[i] += 1;
@@ -366,7 +378,10 @@ func tryHU(count []int, len int) bool {
 				count[i] -= 1;
 				count[i + 1] -= 1;
 				count[i + 2] -= 1;
-				if (tryHU(count, len - 3)) {
+				if (tryHU(count, len - 3, isAll19)) {
+					if !is19(i) && !is19(i+1) && !is19(i+2) { //不是幺九
+						*isAll19 = false
+					}
 					return true;
 
 				}
@@ -380,42 +395,180 @@ func tryHU(count []int, len int) bool {
 	return false;
 }
 
-
-//是否能碰牌
-func (p *PairMjPai) IsPengPai(pai *MJPai) bool {
-	return true
-}
-
-//是否能杠牌
-func (p *PairMjPai) IsGangPai(Pai *MJPai) bool {
-	return true
-}
-
 //确定要胡牌的时候,做出的处理
-func (p *PairMjPai) HuPai(pai *MJPai) error {
+func (p *PairMjPai) HuPai(handPai *MJHandPai) error {
 	//排序
 	//统计
-	p.InitPaiStatistics()
+	//p.InitHandPaisStats()
 	//p.IsDaDui        //判断是否是大队子
 	//p.IsQingYiSe        //判断是否是清一色
 	//p.IsJiangDui        //判断是否是将对
-	//
+
 	return nil
 
 }
 
-//碰牌
-func (p *PairMjPai) CanPengPai(pai *MJPai) error {
-	return nil
+//这张pai能不能胡
+func (p *PairMjPai) CanHuPai(pai *MJPai, handPai *MJHandPai) bool {
+	//在所有的牌中增加 pai,判断此牌是否能和
+	handPai.Pais = append(handPai.Pais, pai)
+	counts := p.InitHandPaisStats( handPai )
+
+	isAll19 := false //全带幺
+	result := tryHU(counts, len(handPai.Pais), &isAll19)
+	if result {
+		log.Debug("牌= %d  可以胡! isAll19=%V", *pai.Value, isAll19)
+	} else {
+		log.Debug("牌= %d  不能胡! isAll19=%V", *pai.Value, isAll19)
+	}
+
+	//最后需要删除最后一张牌
+	handPai.Pais = handPai.Pais[0:len(handPai.Pais) - 1]
+	return result
+}
+
+func (p *PairMjPai) getHuFan(handPai *MJHandPai) int32 {
+	fan := int32(0)
+
+
+	return fan
 }
 
 
-//杠牌
-func (p *PairMjPai) CanGangPai(pai *MJPai) error {
-	return nil
+//这张pai是否可碰
+func (p *PairMjPai) CanPengPai(pai *MJPai, handPai *MJHandPai) bool {
+
+	existCount := 0
+	for i:=0; i < len(handPai.Pais); i++ {
+		if *pai.Value == *handPai.Pais[i].Value {
+			existCount ++
+		}
+	}
+
+	return ( existCount == 2 || existCount == 3 )
 }
 
 
+//这张pai是否可杠
+func (p *PairMjPai) CanGangPai(pai *MJPai, handPai *MJHandPai) bool {
+
+	existCount := 0
+	for i:=0; i < len(handPai.Pais); i++ {
+		if *pai.Value == *handPai.Pais[i].Value {
+			existCount ++
+		}
+	}
+
+	return ( existCount == 3 )
+}
+
+//清一色
+func (p *PairMjPai) IsQingYiSe(pais []*MJPai) bool {
+	flower := pais[0].Flower
+	for i := 1; i < len(pais); i++ {
+		if flower != *pais[i].Flower {
+			return false //不是清一色
+		}
+	}
+
+	return true
+}
+
+//大对子
+func (p *PairMjPai) IsDaDuiZi(pais []*MJPai) bool {
+	counts := p.GettPaiStats( pais )
+
+	jiangDui := 0
+	for i := 0; i < len(pais); i++ {
+		count := counts [ *pais[i].Value - 1]
+		if count < 2 {
+			return false
+		} else if count == 2 {
+			jiangDui ++
+		}
+	}
+
+	if jiangDui != 1 {
+		return false
+	}
+
+	return true
+}
+
+//七对
+func (p *PairMjPai) IsQiDui(handPai *MJHandPai) bool {
+
+	if len(handPai.Pais) != 13 { //手牌需为13张
+		return false
+	}
+
+	pais := handPai.Pais
+	counts := p.GettPaiStats( pais )
+	for i := 0; i < len(pais); i++ {
+		if counts [ *pais[i].Value - 1 ] != 2 {
+			return false
+		}
+	}
+
+	return true
+}
+
+//龙七对
+func (p *PairMjPai) IsLongQiDui(handPai *MJHandPai) bool {
+	pais := handPai.Pais
+
+	if !p.IsQiDui( pais ) { //首先是七对
+		return false
+	}
+
+	counts := p.GettPaiStats( pais )
+	for i := 0; i < len(pais); i++ {
+		if counts [ *pais[i].Value - 1 ] == 4 { //有一杠
+			return true
+		}
+	}
+
+	return false
+}
+
+//将对(全是2,5,8的大对子)
+func (p *PairMjPai) IsJiangDui(handPai *MJHandPai) bool {
+	pais := handPai.Pais
+
+	for i := 0; i < len(pais); i++ {
+		if *pais[i].Value != 2 && *pais[i].Value != 5 && *pais[i].Value != 8 {
+			return false
+		}
+	}
+
+	return p.IsDaDuiZi(pais) //是大对子
+}
+
+//将七对(全是2,5,8的七对)
+func (p *PairMjPai) IsJiangQiDui(handPai *MJHandPai) bool {
+	pais := handPai.Pais
+
+	for i := 0; i < len(pais); i++ {
+		if *pais[i].Value != 2 && *pais[i].Value != 5 && *pais[i].Value != 8 {
+			return false
+		}
+	}
+
+	return p.IsQiDui(pais) //是七对
+}
+
+//全带幺
+func (p *PairMjPai) IsDaiYaoJiu(handPai *MJHandPai) bool {
+	pais := handPai.Pais
+
+	for i := 0; i < len(pais); i++ {
+		if *pais[i].Value != 1 && *pais[i].Value != 2 && *pais[i].Value != 3 && *pais[i].Value != 7 && *pais[i].Value != 8 && *pais[i].Value != 9 {
+			return false
+		}
+	}
+
+	return true
+}
 
 //通过描述初始化牌的同条玩和大小
 func (p *MJPai) InitByDes() error {
