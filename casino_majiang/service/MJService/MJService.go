@@ -143,9 +143,6 @@ func HandlerGame_DingQue(m *mjProto.Game_DingQue, a gate.Agent) {
 		return
 	}
 
-	//发送成功的回复
-	a.WriteMsg(m)
-
 	//如果所有人都定缺了，那么可以通知庄打牌了..
 	if desk.AllDingQue() {
 		//首先发送定缺结束的广播，然后发送庄家出牌的广播...
