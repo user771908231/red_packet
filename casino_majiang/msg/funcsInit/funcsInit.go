@@ -109,10 +109,9 @@ func NewDeskGameInfo() *mjProto.DeskGameInfo {
 	ret := &mjProto.DeskGameInfo{}
 	ret.GameStatus = new(int32)
 	ret.PlayerNum = new(int32)
-	ret.ActiveSeat = new(int32)
+	ret.ActiveUserId = new(uint32)
 	ret.ActionTime = new(int32)
 	ret.DelayTime = new(int32)
-	ret.NRebuyCount = new(int32)
 	ret.NInitActionTime = new(int32)
 	ret.NInitDelayTime = new(int32)
 	ret.InitRoomCoin = new(int64)
@@ -183,5 +182,19 @@ func NewGame_Opening() *mjProto.Game_Opening {
 	ret.Header = NewHeader()
 	ret.MatchId = new(int32)
 	ret.TableId = new(int32)
+	return ret
+}
+
+func NewGame_AckQuickConn() *mjProto.Game_AckQuickConn {
+	ret := &mjProto.Game_AckQuickConn{}
+	ret.CurrVersion = new(int32)
+	ret.DownloadUrl = new(string)
+	ret.Header = NewHeader()
+	ret.IsMaintain = new(int32)
+	ret.IsUpdate = new(int32)
+	ret.NickName = new(string)
+	ret.ReleaseTag = new(int32)
+	ret.VersionInfo = new(string)
+	ret.UserId = new(uint32)
 	return ret
 }

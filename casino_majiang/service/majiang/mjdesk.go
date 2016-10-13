@@ -404,12 +404,28 @@ func (d *MjDesk)updateRedis() error {
 
 //个人开始定缺
 func (d *MjDesk) DingQue(userId uint32, color int32) error {
+	user := d.GetUserByUserId(userId)
+	if user == nil {
+		log.E("定缺的时候，服务器出现错误，没有找到对应的user【%v】", userId)
+		return errors.New("没有找到用户，定缺失败")
+	}
+
+	//设置定缺
+	*user.DingQue = true
+	*user.MJHandPai.DingQueColor = color
+
 	return nil
 }
 
 //是不是全部都定缺了
 func (d *MjDesk) AllDingQue() bool {
-	return false
+	for _, user := range d.GetUsers() {
+		if user != nil && !user.IsDingQue() {
+			log.T("用户[%v]还没有缺牌，等待定缺之后庄家开始打牌...", user.GetUserId())
+			return false
+		}
+	}
+	return true
 }
 
 func (d *MjDesk) GetBankerUser() *MjUser {

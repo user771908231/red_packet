@@ -41,12 +41,12 @@ func NewMjUser() *MjUser {
 	ret := &MjUser{}
 	ret.UserId = new(uint32)
 	ret.Coin = new(int64)
-	ret.RebuyCount = new(int32)
 	ret.Status = new(int32)
 	ret.IsBreak = new(bool)
 	ret.IsLeave = new(bool)
 	ret.DeskId = new(int32)
 	ret.RoomId = new(int32)
+	ret.DingQue = new(bool)
 	return ret
 }
 

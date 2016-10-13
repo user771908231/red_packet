@@ -132,7 +132,7 @@ func HandlerGame_Ready(m *mjProto.Game_Ready, a gate.Agent) {
 
  */
 func HandlerGame_DingQue(m *mjProto.Game_DingQue, a gate.Agent) {
-	log.Debug("收到请求，HandlerGame_DingQue(m[%v],a[%v])", m, a)
+	log.T("收到请求，HandlerGame_DingQue(m[%v],a[%v])", m, a)
 
 	desk := majiang.GetMjDeskBySession(m.GetHeader().GetUserId())
 	err := desk.DingQue(m.GetHeader().GetUserId(), m.GetColor())
@@ -212,7 +212,7 @@ func HandlerGame_SendOutCard(m *mjProto.Game_SendOutCard, a gate.Agent) {
 
 //碰
 func HandlerGame_ActPeng(m *mjProto.Game_ActPeng, a gate.Agent) {
-	log.Debug("收到请求，HandlerGame_ActPeng(m[%v],a[%v])", m, a)
+	log.T("收到请求，HandlerGame_ActPeng(m[%v],a[%v])", m, a)
 
 	result := &mjProto.Game_AckActPeng{}
 	result.Header = newProto.SuccessHeader()
