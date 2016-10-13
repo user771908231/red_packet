@@ -170,9 +170,9 @@ func HandlerGame_DingQue(m *mjProto.Game_DingQue, a gate.Agent) {
 		//发送给当事人时候的信息
 		bankUser := desk.GetBankerUser()
 		overTurn.ActCard = desk.GetNextPai().GetCardInfo()
-		*overTurn.CanHu = bankUser.MJHandPai.GetCanHu()
-		*overTurn.CanGang = bankUser.MJHandPai.GetCanGang()
-		*overTurn.CanPeng = bankUser.MJHandPai.GetCanPeng()
+		*overTurn.CanHu = bankUser.GameData.HandPai.GetCanHu()
+		*overTurn.CanGang = bankUser.GameData.HandPai.GetCanGang()
+		*overTurn.CanPeng = bankUser.GameData.HandPai.GetCanPeng()
 		bankUser.SendOverTurn(overTurn)
 	}
 
@@ -265,18 +265,10 @@ func HandlerGame_ActGang(m *mjProto.Game_ActGang, a gate.Agent) {
 		return
 	}
 
-	//找到玩家
-	user := desk.GetUserByUserId(m.GetHeader().GetUserId())
-	if user == nil {
-		return
-	}
-
-	user.ActHu()        //这里碰牌的逻辑
-
-	//todo 设置checkCase 为已经验证过了
+	desk.ActGang(m.GetHeader().GetUserId())
 
 	//设置下一个人摸牌
-	desk.SendMopaiOverTurn(user)
+	desk.SendMopaiOverTurn(desk.GetUserByUserId(m.GetHeader().GetUserId()))
 
 	//杠牌之后 自己摸牌
 	a.WriteMsg(result)
@@ -353,14 +345,14 @@ func HandlerGame_ActHu(m *mjProto.Game_ActHu) {
 	}
 
 	//还没有到牌局结束的时候，轮到下一个人...
-	mjHandPai := user.GetMJHandPai()
+	mjHandPai := user.GameData.HandPai
 	if mjHandPai == nil {
 		//服务器出错
 		return
 	}
 
 	//胡牌之后的处理
-	if mjHandPai.GetZiMo() {
+	if true {
 		// 如果是自摸，则轮到下一个人摸排，轮到胡牌的下一个人...
 		desk.SendMopaiOverTurn(nil)                //给下一个人发送overTurn 发牌的类型...
 	} else {

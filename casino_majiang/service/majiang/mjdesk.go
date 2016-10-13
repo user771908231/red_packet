@@ -75,7 +75,7 @@ func (d *MjDesk) addNewUserFriend(userId uint32, a gate.Agent) error {
 	*newUser.IsBreak = false
 	*newUser.IsLeave = false
 	*newUser.Status = MJUSER_STATUS_INTOROOM
-	newUser.MJHandPai = NewMJHandPai()
+	newUser.GameData = NewPlayerGameData()
 
 	//设置agent
 	AgentService.SetAgent(userId, a)
@@ -340,7 +340,7 @@ func (d *MjDesk) beginInit() error {
 	//初始化每个玩家的信息
 	for _, user := range d.GetUsers() {
 		if user != nil {
-			user.MJHandPai = NewMJHandPai()        //初始化一个空的麻将牌
+			user.GameData = NewPlayerGameData()        //初始化一个空的麻将牌
 		}
 	}
 
@@ -362,7 +362,7 @@ func (d *MjDesk) initCards() error {
 	for i, u := range d.Users {
 		if u != nil && u.IsGaming() {
 			log.T("开始给你玩家[%v]初始化手牌...", u.GetUserId())
-			u.MJHandPai.Pais = d.AllMJPai[i * 13: (i + 1) * 13]
+			u.GameData.HandPai.Pais = d.AllMJPai[i * 13: (i + 1) * 13]
 			*d.MJPaiNexIndex = int32((i + 1) * 13);
 		}
 	}
@@ -419,7 +419,7 @@ func (d *MjDesk) DingQue(userId uint32, color int32) error {
 
 	//设置定缺
 	*user.DingQue = true
-	*user.MJHandPai.DingQueColor = color
+	*user.GameData.HandPai.QueFlower = color
 
 	return nil
 }
@@ -561,6 +561,7 @@ func (d *MjDesk) GetNextPai() *MJPai {
 //指定一个摸牌，如果没有指定，则系统通过游标来判断
 func (d *MjDesk) SendMopaiOverTurn(user *MjUser) error {
 	if user == nil {
+		log.E("服务器错误：user==nil 不能摸牌...")
 		user = d.GetNextMoPaiUser()
 	}
 	overTrun := newProto.NewGame_OverTurn()
@@ -577,10 +578,10 @@ func (d *MjDesk) GetDingQueEndInfo() *mjproto.Game_DingQueEnd {
 	end := newProto.NewGame_DingQueEnd()
 
 	for _, u := range d.GetUsers() {
-		if u != nil && u.MJHandPai != nil {
-			bean := newProto.NewGame_DingQueEndBean()
+		if u != nil && u.GameData.HandPai != nil {
+			bean := newProto.NewDingQueEndBean()
 			*bean.UserId = u.GetUserId()
-			*bean.Flower = u.MJHandPai.GetDingQueColor()
+			*bean.Flower = u.GameData.HandPai.GetQueFlower()
 			end.Ques = append(end.Ques, bean)
 		}
 	}
@@ -618,12 +619,43 @@ func (d *MjDesk)ActHu(userId uint32) error {
 	 */
 
 
-	/**
+	return nil
+}
 
 
+//杠牌   怎么判断是明杠，暗杠，巴杠...
+func (d *MjDesk) ActGang(userId uint32) error {
 
-	 */
+	user := d.GetUserByUserId(userId)
+	if user == nil {
+		log.E("用户[%v]没有找到杠牌失败...", userId)
+		return nil
+	}
 
+	//todo 判断是不是可以杠，如果可以杠牌，那么就开始杠牌
+
+	//开始杠牌
+	err := user.Gang(d.CheckCase.CheckMJPai, d.CheckCase.GetUserIdOut())
+	if err != nil {
+		//杠牌失败，这里是非法请求，或者服务器错误...
+	}
+
+	//todo 返回杠牌成功的逻辑，返回一个摸牌的overTurn
+	result := newProto.NewGame_AckActGang()
+	*result.GangType = user.PreMoGangInfo.GetGangType()
+	*result.UserIdOut = user.PreMoGangInfo.GetSendUserId()
+
+	//todo 暂时着这么处理的，之后需要修改...
+	result.GangCard[0] = user.PreMoGangInfo.GetPai().GetCardInfo()
+	result.GangCard[1] = user.PreMoGangInfo.GetPai().GetCardInfo()
+	result.GangCard[2] = user.PreMoGangInfo.GetPai().GetCardInfo()
+	result.GangCard[3] = user.PreMoGangInfo.GetPai().GetCardInfo()
+
+	user.WriteMsg(result)
+
+	//todo  这里应该又一个操作延时，之后发送摸牌的协议
+	//发送过一个摸牌的协议
+	d.SendMopaiOverTurn(user)
 
 	return nil
 }

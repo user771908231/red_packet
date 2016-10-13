@@ -204,8 +204,8 @@ func NewGame_DingQueEnd() *mjProto.Game_DingQueEnd {
 	return ret
 }
 
-func NewGame_DingQueEndBean() *mjProto.Game_DingQueEndBean {
-	ret := &mjProto.Game_DingQueEndBean{}
+func NewDingQueEndBean() *mjProto.DingQueEndBean {
+	ret := &mjProto.DingQueEndBean{}
 	ret.UserId = new(uint32)
 	ret.Flower = new(int32)
 	return ret
@@ -213,6 +213,15 @@ func NewGame_DingQueEndBean() *mjProto.Game_DingQueEndBean {
 
 func NewGame_AckActHu() *mjProto.Game_AckActHu {
 	ret := &mjProto.Game_AckActHu{}
+	ret.Header = NewHeader()
+	ret.UserIdIn = new(uint32)
+	ret.UserIdOut = new(uint32)
+	return ret
+}
+
+func NewGame_AckActGang() *mjProto.Game_AckActGang {
+	ret := &mjProto.Game_AckActGang{}
+	ret.GangType = new(int32)
 	ret.Header = NewHeader()
 	ret.UserIdIn = new(uint32)
 	ret.UserIdOut = new(uint32)

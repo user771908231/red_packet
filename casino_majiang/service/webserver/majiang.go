@@ -32,7 +32,7 @@ func printDeskInfo(w http.ResponseWriter, desk *majiang.MjDesk) {
 		fmt.Fprintf(w, "\n开始打印user的信息:\n")
 		for i, user := range desk.Users {
 			if user != nil {
-				fmt.Fprintf(w, "[%v],玩家的信息userId[%v],nickName[%v],status[%v],是否定缺[%v],定缺的花色[%v]\n", i, user.GetUserId(), "nickName", user.GetStatus(), user.GetDingQue(), user.MJHandPai.GetDingQueColor())
+				fmt.Fprintf(w, "[%v],玩家的信息userId[%v],nickName[%v],status[%v],是否定缺[%v],定缺的花色[%v]\n", i, user.GetUserId(), "nickName", user.GetStatus(), user.GetDingQue(), user.GameData.HandPai.GetQueFlower())
 			}
 		}
 	}

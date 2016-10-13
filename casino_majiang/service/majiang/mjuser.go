@@ -62,7 +62,7 @@ func (u *MjUser) GetPlayerCard() *mjproto.PlayerCard {
 	playerCard := newProto.NewPlayerCard()
 
 	//得到手牌
-	for _, pai := range u.MJHandPai.GetPais() {
+	for _, pai := range u.GameData.HandPai.GetPais() {
 		if pai != nil {
 			playerCard.HandCard = append(playerCard.HandCard, pai.GetCardInfo())
 		}
@@ -70,7 +70,7 @@ func (u *MjUser) GetPlayerCard() *mjproto.PlayerCard {
 
 
 	//得到碰牌
-	for i, pai := range u.MJHandPai.GetPengPais() {
+	for i, pai := range u.GameData.HandPai.GetPengPais() {
 		if pai != nil && i % 3 == 0 {
 			com := newProto.NewComposeCard()
 			*com.Value = pai.GetClientId()
@@ -81,7 +81,7 @@ func (u *MjUser) GetPlayerCard() *mjproto.PlayerCard {
 
 
 	//得到杠牌
-	for i, pai := range u.MJHandPai.GetGangPais() {
+	for i, pai := range u.GameData.HandPai.GetGangPais() {
 		if pai != nil && i % 4 == 0 {
 			com := newProto.NewComposeCard()
 			*com.Value = pai.GetClientId()
@@ -91,7 +91,7 @@ func (u *MjUser) GetPlayerCard() *mjproto.PlayerCard {
 	}
 
 	//得到胡牌
-	for _, pai := range u.MJHandPai.GetPais() {
+	for _, pai := range u.GameData.HandPai.GetPais() {
 		if pai != nil {
 			*playerCard.HuCard = pai.GetClientId()
 		}
@@ -99,7 +99,7 @@ func (u *MjUser) GetPlayerCard() *mjproto.PlayerCard {
 
 
 	//打出去的牌
-	for _, pai := range u.MJHandPai.GetPais() {
+	for _, pai := range u.GameData.HandPai.GetPais() {
 		if pai != nil {
 			playerCard.OutCard = append(playerCard.OutCard, pai.GetClientId())
 		}
@@ -171,6 +171,35 @@ func (u *MjUser) ActHu() error {
 	//判断自摸
 
 	//判断点炮
+
+	return nil
+}
+
+//用户杠牌,主要是存储数据
+func (u *MjUser) Gang(p *MJPai, sendUserId uint32) error {
+
+	//杠牌的类型
+	var gangType int32 = 0
+
+	//增加杠牌
+	u.GameData.HandPai.GangPais = append(u.GameData.HandPai.GangPais, p)
+	for i, pai := range u.GameData.HandPai.Pais {
+		if pai.GetFlower() == p.GetFlower() && pai.GetValue() == p.GetValue() {
+			//增加杠牌
+			u.GameData.HandPai.GangPais = append(u.GameData.HandPai.GangPais, pai)
+			u.GameData.HandPai.Pais[i] = nil
+		}
+	}
+
+	//增加杠牌info
+	info := NewGangPaiInfo()
+	*info.SendUserId = sendUserId
+	*info.GangType = gangType
+	info.Pai = p
+	u.GameData.GangInfo = append(u.GameData.GangInfo, info)
+
+	//增加杠牌状态
+	u.PreMoGangInfo = info
 
 	return nil
 }

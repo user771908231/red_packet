@@ -62,6 +62,21 @@ func NewMjSession() *MjSession {
 
 func NewMJHandPai() *MJHandPai {
 	ret := &MJHandPai{}
-	ret.DingQueColor = new(int32)
+	ret.QueFlower = new(int32)
+	return ret
+}
+
+func NewPlayerGameData() *PlayerGameData {
+	ret := &PlayerGameData{}
+	ret.HandPai = NewMJHandPai()
+	return ret
+
+}
+
+func NewGangPaiInfo() *GangPaiInfo {
+	ret := &GangPaiInfo{}
+	ret.ByWho = new(int32)
+	ret.GangType = new(int32)
+	ret.SendUserId = new(uint32)
 	return ret
 }
