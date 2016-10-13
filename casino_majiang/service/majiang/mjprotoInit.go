@@ -32,7 +32,7 @@ func NewMjDesk() *MjDesk {
 	ret.BaseValue = new(int64)
 	ret.ZiMoRadio = new(int32)
 	ret.DianGangHuaRadio = new(int32)
-	ret.MJPaiNexIndex = new(int32)
+	ret.MJPaiCursor = new(int32)
 	ret.NextUserCursor = new(uint32)
 	ret.Banker = new(uint32)
 	return ret

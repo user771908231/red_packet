@@ -175,6 +175,7 @@ func (u *MjUser) Wait() error {
 
 }
 
+
 //用户胡牌
 func (u *MjUser) ActHu() error {
 
@@ -216,5 +217,10 @@ func (u *MjUser) Gang(p *MJPai, sendUserId uint32) error {
 
 //得到判定bean
 func (u *MjUser) GetCheckBean(p *MJPai) *CheckBean {
+	return nil
+}
+
+//玩家打一张牌
+func (u *MjUser) DaPai(p *MJPai) error {
 	return nil
 }

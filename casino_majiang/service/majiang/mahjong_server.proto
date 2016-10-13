@@ -81,7 +81,7 @@ message MjDesk {
     optional int32 huRadio = 17; // 胡法，如：自摸胡、点炮胡（可抢杠）
     repeated MJPai AllMJPai = 18;
     repeated MJPai DeskMJPai = 19; //桌面上的牌
-    optional int32 MJPaiNexIndex = 20; //下一张可以摸的牌
+    optional int32 MJPaiCursor = 20; //下一张可以摸的牌
     optional int32 TotalPlayCount = 21; //总共几局
     optional int32 CurrPlayCount = 22; //当前玩到第几局
     optional uint32 Banker = 23; //庄

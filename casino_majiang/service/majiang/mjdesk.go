@@ -163,7 +163,7 @@ func (d *MjDesk) GetPlayOptions() *mjproto.PlayOptions {
 func (d *MjDesk) BroadCastProto(p proto.Message) error {
 	for _, u := range d.Users {
 		if u != nil {
-			u.WriteMsg(p)
+			go u.WriteMsg(p)
 		}
 	}
 	return nil
@@ -363,10 +363,13 @@ func (d *MjDesk) initCards() error {
 		if u != nil && u.IsGaming() {
 			log.T("开始给你玩家[%v]初始化手牌...", u.GetUserId())
 			u.GameData.HandPai.Pais = d.AllMJPai[i * 13: (i + 1) * 13]
-			*d.MJPaiNexIndex = int32((i + 1) * 13);
+			*d.MJPaiCursor = int32((i + 1) * 13) - 1;
 		}
 	}
 
+	//庄需要多发一张牌
+	bankUser := d.GetBankerUser()
+	bankUser.GameData.HandPai.AddPai(d.GetNextPai())
 
 	//发牌的协议game_DealCards  初始化完成之后，给每个人发送牌
 	for _, user := range d.Users {
@@ -555,7 +558,14 @@ func (d *MjDesk) GetNextMoPaiUser() *MjUser {
 
 //得到下一张牌...
 func (d *MjDesk) GetNextPai() *MJPai {
-	return nil
+	*d.MJPaiCursor ++
+	//目前暂时是108张牌...
+	if d.GetMJPaiCursor() >= 108 {
+		log.E("服务器错误:要找的牌的坐标[%v]已经超过整副麻将的坐标了... ", d.GetMJPaiCursor())
+		return nil
+	} else {
+		return d.AllMJPai[0]
+	}
 }
 
 
@@ -605,6 +615,54 @@ func (d *MjDesk) GetDingQueEndInfo() *mjproto.Game_DingQueEnd {
 	}
 	return end
 }
+
+func (d *MjDesk) ActPeng(userId uint32) error {
+	//1找到玩家
+	user := d.GetUserByUserId(userId)
+	if user == nil {
+		return errors.New("服务器错误碰牌失败")
+	}
+
+	//todo 需要判断是否是可以碰
+
+
+	//2.1开始碰牌的操作
+	var pengKeys []int32
+	pengPai := d.CheckCase.CheckMJPai
+	user.GameData.HandPai.PengPais = append(user.GameData.HandPai.PengPais, pengPai)        //碰牌
+	pengKeys = append(pengKeys, pengPai.GetIndex())
+
+	for _, pai := range user.GameData.HandPai.Pais {
+		if pai != nil && pai.GetIndex() == pengPai.GetIndex() {
+			user.GameData.HandPai.PengPais = append(user.GameData.HandPai.PengPais, pai)        //碰牌
+			pengKeys = append(pengKeys, pai.GetIndex())
+		}
+	}
+
+	//2.2 删除手牌
+	for _, key := range pengKeys {
+		user.GameData.HandPai.DelPai(key)
+	}
+
+	//3,生成碰牌信息
+	//user.GameData.
+
+	//4,处理 checkCase
+	d.CheckCase.UpdateCheckBeanStatus(user.GetUserId(), CHECK_CASE_BEAN_STATUS_CHECKED)
+	d.CheckCase.UpdateChecStatus(CHECK_CASE_STATUS_CHECKED) //碰牌之后，checkcase处理完毕
+
+	//5,发送碰牌的广播
+	ack := newProto.NewGame_AckActPeng()
+	*ack.UserIdOut = d.CheckCase.GetUserIdOut()
+	//todo 临时处理
+	ack.PengCard[0] = d.CheckCase.CheckMJPai.GetCardInfo()
+	ack.PengCard[1] = d.CheckCase.CheckMJPai.GetCardInfo()
+	ack.PengCard[2] = d.CheckCase.CheckMJPai.GetCardInfo()
+	d.BroadCastProto(ack)
+
+	return nil
+}
+
 
 //某人胡牌...
 func (d *MjDesk)ActHu(userId uint32) error {
@@ -669,6 +727,6 @@ func (d *MjDesk) ActGang(userId uint32) error {
 	result.GangCard[2] = user.PreMoGangInfo.GetPai().GetCardInfo()
 	result.GangCard[3] = user.PreMoGangInfo.GetPai().GetCardInfo()
 
-	user.WriteMsg(result)
+	d.BroadCastProto(result)
 	return nil
 }

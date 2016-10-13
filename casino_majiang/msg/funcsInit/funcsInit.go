@@ -227,3 +227,12 @@ func NewGame_AckActGang() *mjProto.Game_AckActGang {
 	ret.UserIdOut = new(uint32)
 	return ret
 }
+
+func NewGame_AckActPeng() *mjProto.Game_AckActPeng {
+	ret := &mjProto.Game_AckActPeng{}
+	ret.Header = NewHeader()
+	ret.UserIdIn = new(uint32)
+	ret.UserIdOut = new(uint32)
+	ret.PengCard = make([]*mjProto.CardInfo, 3)
+	return ret
+}

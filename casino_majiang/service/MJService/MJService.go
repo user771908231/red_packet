@@ -224,42 +224,38 @@ func HandlerGame_SendOutCard(m *mjProto.Game_SendOutCard, a gate.Agent) {
 func HandlerGame_ActPeng(m *mjProto.Game_ActPeng, a gate.Agent) {
 	log.T("收到请求，HandlerGame_ActPeng(m[%v],a[%v])", m, a)
 
-	result := &mjProto.Game_AckActPeng{}
-	result.Header = newProto.SuccessHeader()
-
+	//找到桌子
 	desk := majiang.GetMjDeskBySession(m.GetHeader().GetUserId()) //通过userId 的session 得到对应的desk
 	if desk == nil {
 		//这里属于服务器错误... 是否需要给客户端返回信息？
 		log.E("没有找到对应的desk ..")
+		result := &mjProto.Game_AckActPeng{}
 		result.Header = newProto.ErrorHeader()
+		a.WriteMsg(result)
 		return
 	}
 
-	//找到玩家
-	user := desk.GetUserByUserId(m.GetHeader().GetUserId())
-	if user == nil {
-		return
+	//开始碰牌
+	err := desk.ActPeng(m.GetHeader().GetUserId())
+	if err != nil {
+		log.E("服务器错误: 用户[%v]碰牌失败...", m.GetHeader().GetUserId())
+		//todo 需要做特殊处理
 	}
 
-	user.ActHu()        //这里碰牌的逻辑
-
-	//todo 设置checkCase 为已经验证过了
-
-	//设置下一个人摸牌
-	//desk.SendMopaiOverTurn(nil)
+	//操作下一个
 	desk.DoCheckCase(nil)        //碰牌之后，别人判定牌
-	a.WriteMsg(result)
 }
 
 
 //杠
 func HandlerGame_ActGang(m *mjProto.Game_ActGang) {
 	log.Debug("收到请求，game_ActGang(m[%v])", m)
+	userId := m.GetHeader().GetUserId()
 
 	result := &mjProto.Game_AckActGang{}
 	result.Header = newProto.SuccessHeader()
 
-	desk := majiang.GetMjDeskBySession(m.GetHeader().GetUserId()) //通过userId 的session 得到对应的desk
+	desk := majiang.GetMjDeskBySession(userId) //通过userId 的session 得到对应的desk
 	if desk == nil {
 		//这里属于服务器错误... 是否需要给客户端返回信息？
 		log.E("没有找到对应的desk ..")
@@ -268,10 +264,13 @@ func HandlerGame_ActGang(m *mjProto.Game_ActGang) {
 	}
 
 	//先杠牌
-	desk.ActGang(m.GetHeader().GetUserId())
+	err := desk.ActGang(m.GetHeader().GetUserId())
+	if err != nil {
+		log.E("服务器错误：用户[%v]杠牌的时候出错err[%v]", userId, err)
+	}
 
 	//处理下一个人
-	desk.DoCheckCase(desk.GetUserByUserId(m.GetHeader().GetUserId()))        //杠牌之后，处理下一个判定牌
+	desk.DoCheckCase(desk.GetUserByUserId(userId))        //杠牌之后，处理下一个判定牌
 }
 
 //过
