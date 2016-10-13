@@ -14,6 +14,27 @@ message MJHandPai {
     repeated MJPai PengPais = 2;
     repeated MJPai GangPais = 3;
     repeated MJPai HuPais = 4;
+    optional bool Hu = 5;
+    optional bool ZiMo = 6;
+    optional bool GangShangPao = 7;
+    optional bool QiangGang = 8;
+    optional int32 DingQueColor = 9;
+
+}
+
+//需要确认的时间
+message CheckBean {
+    optional uint32 userId = 1; //需要来判断的玩家
+    optional bool CanPeng = 2;
+    optional bool CanGang = 3;
+    optional bool CanHu = 4;
+    optional int32 CheckStatus = 5; //玩家确认的状态
+}
+
+message CheckCase {
+    repeated CheckBean CheckB = 1;
+    optional int32 CheckStatus = 2; //这张牌的状态，
+    optional MJPai CheckMJPai = 3;
 }
 
 //麻将牌的结构
@@ -40,6 +61,10 @@ message MjDesk {
     optional int32 MJPaiNexIndex = 20; //下一张可以摸的牌
     optional int32 TotalPlayCount = 21; //总共几局
     optional int32 CurrPlayCount = 22; //当前玩到第几局
+    optional uint32 Banker = 23; //庄
+    optional CheckCase CheckCase = 24; //
+    optional uint32 NextUserCursor = 25; //
+
 
 }
 
@@ -47,17 +72,16 @@ message MjDesk {
 message MjUser {
     optional uint32 UserId = 1;
     optional int64 Coin = 2; //游戏中的带入金额
-    optional int32 RebuyCount = 3; //重购次数
-    optional MJHandPai MJHandPai = 4; //用户的麻将牌
-    optional int32 Status = 5; //玩家当前的状态
-    optional bool IsBreak = 6; //是否断线
-    optional bool IsLeave = 7; //是否离开
-    optional int32 DeskId = 8; //
-    optional int32 RoomId = 9;
-    optional bool DingQue = 10;
-    optional bool Exchanged = 11;
-    optional bool Ready = 12;
-    optional bool IsBanker = 13; //是否是庄家
+    optional MJHandPai MJHandPai = 3; //用户的麻将牌
+    optional int32 Status = 4; //玩家当前的状态
+    optional bool IsBreak = 5; //是否断线
+    optional bool IsLeave = 6; //是否离开
+    optional int32 DeskId = 7; //
+    optional int32 RoomId = 8;
+    optional bool DingQue = 9;
+    optional bool Exchanged = 10;
+    optional bool Ready = 11;
+    optional bool IsBanker = 12; //是否是庄家
 }
 
 //用户的session
@@ -81,3 +105,5 @@ message MjRoom {
     repeated MJPai MjPais = 8;
 
 }
+
+

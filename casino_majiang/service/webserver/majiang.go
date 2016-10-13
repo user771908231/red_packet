@@ -15,21 +15,26 @@ func InitCms() {
 }
 
 func gameInfo(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprint(w, "麻将....朋友桌房间的信息:\n")
-
+	fmt.Fprint(w, "\n\n\n\n\n\n\n\n\n打印朋友桌麻将的信息\n")
 	for _, desk := range majiang.FMJRoomIns.Desks {
 		printDeskInfo(w, desk)
 	}
-	fmt.Fprint(w, "朋友桌房间的信息打印完毕:\n")
+	fmt.Fprint(w, "\n朋友桌房间的信息打印完毕\n")
 }
 
 func printDeskInfo(w http.ResponseWriter, desk *majiang.MjDesk) {
 	if desk != nil {
-		deskInfo := "开始打印desk.id[%v],roomKey[%v]的信息:\n" +
-		"------------------打印Users的信息:\n"
-		fmt.Fprintf(w, deskInfo, desk.GetDeskId(), desk.GetPassword())
-		fmt.Fprint(w, "打印完毕:\n", desk.GetDeskGameInfo())
+		deskInfo := "开始打印desk.id[%v], \t房间号roomKey[%v]的信息:\n" +
+		"房主Owner[%v],\t "
+		fmt.Fprintf(w, deskInfo, desk.GetDeskId(), desk.GetPassword(),
+			desk.GetOwner())
+
+		fmt.Fprintf(w, "\n\n\n\n开始打印user的信息:\n")
+		for i, user := range desk.Users {
+			if user != nil {
+				fmt.Fprintf(w, "[%v],玩家的信息userId[%v],nickName[%v],status[%v],是否定缺[%v],定缺的花色[%v]\n", i, user.GetUserId(), "nickName", user.GetStatus(), user.GetDingQue(), user.MJHandPai.GetDingQueColor())
+			}
+		}
 	}
+
 }
-
-

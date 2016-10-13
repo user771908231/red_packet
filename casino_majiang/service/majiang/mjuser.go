@@ -21,20 +21,25 @@ func (u *MjUser)WriteMsg(p proto.Message) error {
 	if agent != nil {
 		agent.WriteMsg(p)
 	} else {
-		log.Fatal("给用户[%v]发送proto[%v]失败，因为没有找到用户的agent。", u.UserId, p)
+		log.Error("给用户[%v]发送proto[%v]失败，因为没有找到用户的agent。", u.GetUserId(), p)
 	}
 	return nil
 }
 
 //是否是准备中...
 func (u *MjUser) IsReady() bool {
-	return u.GetStatus() == MJUSER_STATUS_SEATED
+	return u.GetStatus() == MJUSER_STATUS_READY
 }
 
-//玩家是否在游戏状态中
+//todo 玩家是否在游戏状态中
 func (u *MjUser) IsGaming() bool {
 	return true
 
+}
+
+//判断用户是否已经定缺
+func (u *MjUser) IsDingQue() bool {
+	return u.GetDingQue()
 }
 
 //返回一个用户信息
@@ -47,8 +52,8 @@ func ( u *MjUser) GetPlayerInfo() *mjproto.PlayerInfo {
 	*info.Coin = u.GetCoin()
 	*info.IsBanker = u.GetIsBanker()
 	info.PlayerCard = u.GetPlayerCard()
-	//info.SeatId = u
-
+	*info.NickName = "测试nickName"
+	*info.UserId = u.GetUserId()
 	return info
 }
 
@@ -133,4 +138,39 @@ func (u *MjUser) getBReady() int32 {
 		return 0
 
 	}
+}
+
+//发牌
+func (u *MjUser) GetDealCards() *mjproto.Game_DealCards {
+	dealCards := newProto.NewGame_DealCards()
+	*dealCards.Header.UserId = u.GetUserId()
+	dealCards.PlayerCard = u.GetPlayerCard()
+	return dealCards
+}
+
+//发送overTrun
+func (u *MjUser) SendOverTurn(p *mjproto.Game_OverTurn) error {
+
+	go u.Wait()
+
+	u.WriteMsg(p)
+
+	return nil
+}
+
+
+//等待超时
+func (u *MjUser) Wait() error {
+	return nil
+
+}
+
+//用户胡牌
+func (u *MjUser) ActHu() error {
+
+	//判断自摸
+
+	//判断点炮
+
+	return nil
 }

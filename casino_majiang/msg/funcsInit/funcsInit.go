@@ -35,6 +35,7 @@ func NewHeader() *mjProto.ProtoHeader {
 	ret := &mjProto.ProtoHeader{}
 	ret.UserId = new(uint32)
 	ret.Code = new(int32)
+	ret.Error = new(string)
 	return ret
 }
 
@@ -48,10 +49,32 @@ func NewGame_AckCreateRoom() *mjProto.Game_AckCreateRoom {
 	return ret
 }
 
+func NewGame_AckReady() *mjProto.Game_AckReady {
+	ret := &mjProto.Game_AckReady{}
+	ret.Header = NewHeader()
+	ret.UserId = new(uint32)
+	return ret
+}
+
 func NewGame_AckEnterRoom() *mjProto.Game_AckEnterRoom {
 	ret := &mjProto.Game_AckEnterRoom{}
 	ret.Header = NewHeader()
 	return ret
+}
+
+func NewGame_BroadcastBeginDingQue() *mjProto.Game_BroadcastBeginDingQue {
+	ret := &mjProto.Game_BroadcastBeginDingQue{}
+	return ret
+}
+
+func NewGame_DingQue() *mjProto.Game_DingQue {
+	que := &mjProto.Game_DingQue{}
+	que.Header = NewHeader()
+	que.Color = new(int32)
+	que.MatchId = new(int32)
+	que.TableId = new(int32)
+	que.UserId = new(uint32)
+	return que
 }
 
 func NewRoomTypeInfo() *mjProto.RoomTypeInfo {
@@ -77,6 +100,7 @@ func NewPlayOptions() *mjProto.PlayOptions {
 func NewGame_SendGameInfo() *mjProto.Game_SendGameInfo {
 	ret := &mjProto.Game_SendGameInfo{}
 	ret.Header = NewHeader()
+	ret.SenderUserId = new(uint32)
 	return ret
 }
 
@@ -85,10 +109,9 @@ func NewDeskGameInfo() *mjProto.DeskGameInfo {
 	ret := &mjProto.DeskGameInfo{}
 	ret.GameStatus = new(int32)
 	ret.PlayerNum = new(int32)
-	ret.ActiveSeat = new(int32)
+	ret.ActiveUserId = new(uint32)
 	ret.ActionTime = new(int32)
 	ret.DelayTime = new(int32)
-	ret.NRebuyCount = new(int32)
 	ret.NInitActionTime = new(int32)
 	ret.NInitDelayTime = new(int32)
 	ret.InitRoomCoin = new(int64)
@@ -103,18 +126,20 @@ func NewPlayerInfo() *mjProto.PlayerInfo {
 	info.IsBanker = new(bool)
 	info.Coin = new(int64)
 	info.NickName = new(string)
-	info.SeatId = new(int32)
+	info.UserId = new(uint32)
 	info.IsOwner = new(bool)
 	info.BReady = new(int32)
 	info.BDingQue = new(int32)
 	info.BExchanged = new(int32)
 	info.NHuPai = new(int32)
+	info.NickName = new(string)
 	return info
 }
 
 //麻将card
 func NewPlayerCard() *mjProto.PlayerCard {
 	card := &mjProto.PlayerCard{}
+	card.HuCard = new(int32)
 	return card
 }
 
@@ -130,5 +155,58 @@ func NewComposeCard() *mjProto.ComposeCard {
 	ret := &mjProto.ComposeCard{}
 	ret.Type = new(int32)
 	ret.Value = new(int32)
+	return ret
+}
+
+func NewGame_OverTurn() *mjProto.Game_OverTurn {
+	ret := &mjProto.Game_OverTurn{}
+	ret.ActType = new(int32)
+	ret.CanGang = new(bool)
+	ret.CanPeng = new(bool)
+	ret.CanHu = new(bool)
+	ret.Header = NewHeader()
+	ret.UserId = new(uint32)
+	ret.NextUserId = new(uint32)
+	return ret
+}
+
+func NewGame_DealCards() *mjProto.Game_DealCards {
+	ret := &mjProto.Game_DealCards{}
+	ret.Header = NewHeader()
+	ret.PlayerCard = NewPlayerCard()
+	return ret
+}
+
+func NewGame_Opening() *mjProto.Game_Opening {
+	ret := &mjProto.Game_Opening{}
+	ret.Header = NewHeader()
+	ret.MatchId = new(int32)
+	ret.TableId = new(int32)
+	return ret
+}
+
+func NewGame_AckQuickConn() *mjProto.Game_AckQuickConn {
+	ret := &mjProto.Game_AckQuickConn{}
+	ret.CurrVersion = new(int32)
+	ret.DownloadUrl = new(string)
+	ret.Header = NewHeader()
+	ret.IsMaintain = new(int32)
+	ret.IsUpdate = new(int32)
+	ret.NickName = new(string)
+	ret.ReleaseTag = new(int32)
+	ret.VersionInfo = new(string)
+	ret.UserId = new(uint32)
+	return ret
+}
+
+func NewGame_DingQueEnd() *mjProto.Game_DingQueEnd {
+	ret := &mjProto.Game_DingQueEnd{}
+	return ret
+}
+
+func NewGame_DingQueEndBean() *mjProto.Game_DingQueEndBean {
+	ret := &mjProto.Game_DingQueEndBean{}
+	ret.UserId = new(uint32)
+	ret.Flower = new(int32)
 	return ret
 }
