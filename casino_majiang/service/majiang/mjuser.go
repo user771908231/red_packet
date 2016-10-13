@@ -37,6 +37,11 @@ func (u *MjUser) IsGaming() bool {
 
 }
 
+//判断用户是否已经定缺
+func (u *MjUser) IsDingQue() bool {
+	return u.GetDingQue()
+}
+
 //返回一个用户信息
 func ( u *MjUser) GetPlayerInfo() *mjproto.PlayerInfo {
 	info := newProto.NewPlayerInfo()

@@ -337,6 +337,13 @@ func (d *MjDesk) time2begin() error {
  */
 func (d *MjDesk) beginInit() error {
 
+	//初始化每个玩家的信息
+	for _, user := range d.GetUsers() {
+		if user != nil {
+			user.MJHandPai = NewMJHandPai()        //初始化一个空的麻将牌
+		}
+	}
+
 	//发送游戏开始的协议...
 	log.T("发送游戏开始的协议..")
 	open := newProto.NewGame_Opening()
@@ -404,12 +411,28 @@ func (d *MjDesk)updateRedis() error {
 
 //个人开始定缺
 func (d *MjDesk) DingQue(userId uint32, color int32) error {
+	user := d.GetUserByUserId(userId)
+	if user == nil {
+		log.E("定缺的时候，服务器出现错误，没有找到对应的user【%v】", userId)
+		return errors.New("没有找到用户，定缺失败")
+	}
+
+	//设置定缺
+	*user.DingQue = true
+	*user.MJHandPai.DingQueColor = color
+
 	return nil
 }
 
 //是不是全部都定缺了
 func (d *MjDesk) AllDingQue() bool {
-	return false
+	for _, user := range d.GetUsers() {
+		if user != nil && !user.IsDingQue() {
+			log.T("用户[%v]还没有缺牌，等待定缺之后庄家开始打牌...", user.GetUserId())
+			return false
+		}
+	}
+	return true
 }
 
 func (d *MjDesk) GetBankerUser() *MjUser {
@@ -548,4 +571,18 @@ func (d *MjDesk) SendMopaiOverTurn(user *MjUser) error {
 	*overTrun.CanGang = false
 	overTrun.ActCard = d.GetNextPai().GetCardInfo() //得到下一张牌
 	return nil
+}
+
+func (d *MjDesk) GetDingQueEndInfo() *mjproto.Game_DingQueEnd {
+	end := newProto.NewGame_DingQueEnd()
+
+	for _, u := range d.GetUsers() {
+		if u != nil && u.MJHandPai != nil {
+			bean := newProto.NewGame_DingQueEndBean()
+			*bean.UserId = u.GetUserId()
+			*bean.Flower = u.MJHandPai.GetDingQueColor()
+			end.Ques = append(end.Ques, bean)
+		}
+	}
+	return end
 }

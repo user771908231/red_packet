@@ -10,11 +10,12 @@ message MJPai {
 
 //手里的一副牌
 message MJHandPai {
-    repeated MJPai Pais = 1;
-    repeated MJPai PengPais = 2;
+    repeated MJPai Pais = 1;      //手牌
+    repeated MJPai PengPais = 2;  
     repeated MJPai GangPais = 3;
     repeated MJPai HuPais = 4;
-    optional int32 queFlower = 5; //缺哪门牌
+    optional MJPai inPai = 5;     //+1摸起来(或别人打出)的那张牌，用计算判胡的番数时用
+    optional int32 queFlower = 6; //缺哪门牌
 }
 
 message HuPaiInfo {
@@ -92,17 +93,16 @@ message MjDesk {
 message MjUser {
     optional uint32 UserId = 1;
     optional int64 Coin = 2; //游戏中的带入金额
-    optional int32 RebuyCount = 3; //重购次数
-    optional MJHandPai MJHandPai = 4; //用户的麻将牌
-    optional int32 Status = 5; //玩家当前的状态
-    optional bool IsBreak = 6; //是否断线
-    optional bool IsLeave = 7; //是否离开
-    optional int32 DeskId = 8; //
-    optional int32 RoomId = 9;
-    optional bool DingQue = 10;
-    optional bool Exchanged = 11;
-    optional bool Ready = 12;
-    optional bool IsBanker = 13; //是否是庄家
+    optional MJHandPai MJHandPai = 3; //用户的麻将牌
+    optional int32 Status = 4; //玩家当前的状态
+    optional bool IsBreak = 5; //是否断线
+    optional bool IsLeave = 6; //是否离开
+    optional int32 DeskId = 7; //
+    optional int32 RoomId = 8;
+    optional bool DingQue = 9;
+    optional bool Exchanged = 10;
+    optional bool Ready = 11;
+    optional bool IsBanker = 12; //是否是庄家
 }
 
 //用户的session

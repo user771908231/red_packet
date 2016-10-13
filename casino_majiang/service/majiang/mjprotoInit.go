@@ -34,6 +34,7 @@ func NewMjDesk() *MjDesk {
 	ret.DianGangHuaRadio = new(int32)
 	ret.MJPaiNexIndex = new(int32)
 	ret.NextUserCursor = new(uint32)
+	ret.Banker = new(uint32)
 	return ret
 }
 
@@ -41,12 +42,12 @@ func NewMjUser() *MjUser {
 	ret := &MjUser{}
 	ret.UserId = new(uint32)
 	ret.Coin = new(int64)
-	ret.RebuyCount = new(int32)
 	ret.Status = new(int32)
 	ret.IsBreak = new(bool)
 	ret.IsLeave = new(bool)
 	ret.DeskId = new(int32)
 	ret.RoomId = new(int32)
+	ret.DingQue = new(bool)
 	return ret
 }
 
@@ -61,5 +62,6 @@ func NewMjSession() *MjSession {
 
 func NewMJHandPai() *MJHandPai {
 	ret := &MJHandPai{}
+	ret.DingQueColor = new(int32)
 	return ret
 }
