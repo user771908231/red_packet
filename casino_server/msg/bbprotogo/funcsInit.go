@@ -192,7 +192,7 @@ func NewThServerUser() *ThServerUser {
 	user.IsShowCard = new(bool)
 	user.MatchId = new(int32)
 	user.CloseCheck = new(int32)
-	user.IsRebuy = new(bool)
+	user.IsAutoReady = new(bool)
 	user.WaitRebuyFlag = new(bool)
 	return user
 }

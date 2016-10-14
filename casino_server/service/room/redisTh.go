@@ -66,7 +66,7 @@ func RedisThuserTransThuser(b *bbproto.ThServerUser) *ThUser {
 	t.IsShowCard = b.GetIsShowCard()
 	t.MatchId = b.GetMatchId()                //得到matchId
 	t.CloseCheck = b.GetCloseCheck()
-	t.IsRebuy = b.GetIsRebuy()
+	t.IsAutoReady = b.GetIsAutoReady()
 	t.WaitRebuyFlag = b.GetWaitRebuyFlag()
 	return t
 }
@@ -120,7 +120,7 @@ func UpdateRedisThuser(u *ThUser) error {
 	*ruser.IsShowCard = u.IsShowCard
 	*ruser.MatchId = u.MatchId
 	*ruser.CloseCheck = u.CloseCheck
-	*ruser.IsRebuy = u.IsRebuy
+	*ruser.IsAutoReady = u.IsAutoReady
 	*ruser.WaitRebuyFlag = u.WaitRebuyFlag
 
 	//3,保存到数据库

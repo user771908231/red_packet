@@ -73,7 +73,7 @@ type ThUser struct {
 	LotteryCheck       bool                  //这个字段用于判断是否可以开奖,默认是false:   1,如果用户操作弃牌,则直接设置为true,2,如果本局是all in,那么要到本轮次押注完成之后,才能设置为true
 	CloseCheck         int32                 //是否已经结算清楚了
 	IsShowCard         bool                  //是否亮牌
-	IsRebuy            bool                  //是否重购
+	IsAutoReady        bool                  //是否重购
 	WaitRebuyFlag      bool                  //等待重购的标志
 }
 

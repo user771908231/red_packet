@@ -320,6 +320,7 @@ func (t *ThDesk) AddThUser(userId uint32, userStatus int32, a gate.Agent) (*ThUs
 	thUser.IsLeave = false
 	thUser.LotteryCheck = true
 	thUser.MatchId = t.MatchId
+	thUser.IsAutoReady = true
 
 	//根据桌子的状态 设置用户的游戏状态
 	if t.IsChampionship() {
@@ -402,7 +403,7 @@ func (t *ThDesk) IsAllReady() bool {
 		if u != nil {
 			//用户既没有掉线,也没有离开的情况下,并且钱是充足的情况下,如果没有准备,那么返回false
 			if !u.IsLeave && !u.IsBreak {
-				if !u.IsReady() && t.IsUserRoomCoinEnough(u) && !u.IsRebuy {
+				if !u.IsReady() && t.IsUserRoomCoinEnough(u) && !u.IsAutoReady {
 					return false
 				}
 			}
@@ -656,14 +657,13 @@ func (t *ThDesk) InitUserStatus() error {
 		}
 
 		//如果用户已经准备好，或者重构
-		if u.IsReady() || u.IsRebuy {
+		if u.IsReady() || u.IsAutoReady {
 			log.T("由于用户[%v]的status[%v]BreakStatus[%v],所以设置状态为TH_USER_STATUS_BETING", u.UserId, u.Status, u.IsBreak)
 			u.Status = TH_USER_STATUS_BETING
 			u.LotteryCheck = false
-			u.IsRebuy = false
+			u.IsAutoReady = false
 			u.CloseCheck = TH_USER_CLOSECHECK_GAMING        //用户在游戏中
 		}
-
 		//
 
 	}
@@ -2366,7 +2366,7 @@ func (t *ThDesk) FRebuy(userId uint32) error {
 	user.AddRoomCoin(t.InitRoomCoin)
 	user.AddTotalRoomCoin(t.InitRoomCoin)
 	user.Update2redis()                         //rebuy需要更新redis中的缓存
-	user.IsRebuy = true        //表示已经重购
+	user.IsAutoReady = true        //表示已经重购
 
 	*ret.Result = intCons.ACK_RESULT_SUCC                        //错误码
 	*ret.CurrChip = user.RoomCoin
