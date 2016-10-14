@@ -35,6 +35,8 @@ var _ = math.Inf
 
 // Ignoring public import of ErrorCode from base.proto
 
+// Ignoring public import of MJOption from base.proto
+
 // Ignoring public import of MJRoomType from base.proto
 
 // Ignoring public import of MahjongColor from base.proto
