@@ -145,7 +145,7 @@ func HandlerGame_DingQue(m *mjProto.Game_DingQue, a gate.Agent) {
 	desk := majiang.GetMjDeskBySession(m.GetHeader().GetUserId())
 	err := desk.DingQue(m.GetHeader().GetUserId(), m.GetColor())
 	if err != nil {
-		log.E("定缺失败...")
+		log.E("用户[%v]定缺失败...", m.GetHeader().GetUserId())
 		return
 	}
 
@@ -212,8 +212,9 @@ func HandlerGame_SendOutCard(m *mjProto.Game_SendOutCard, a gate.Agent) {
 	if err != nil {
 		//打牌失败
 	}
-	desk.DoCheckCase(nil)        //打牌之后，别人判定牌
 
+	log.T("用户[%v]已经打牌，处理下一个checkCase",userId)
+	desk.DoCheckCase(nil)        //打牌之后，别人判定牌
 
 }
 

@@ -260,6 +260,7 @@ func (d *MjDesk) GetUserCount() int32 {
 			count ++
 		}
 	}
+	//log.T("当前桌子的玩家数量是count[%v]", count)
 	return count;
 
 }
@@ -346,6 +347,9 @@ func (d *MjDesk) beginInit() error {
 	if d.GetBanker() == 0 {
 		*d.Banker = d.GetOwner()
 	}
+
+	//2,设置当前的活动玩家
+	d.SetActiveUser(d.GetBanker())
 
 	//发送游戏开始的协议...
 	log.T("发送游戏开始的协议..")
@@ -493,6 +497,13 @@ func (d *MjDesk) InitCheckCase(p *MJPai, outUser *MjUser) error {
 			}
 		}
 	}
+
+	if checkCase.CheckB == nil || len(checkCase.CheckB) > 0 {
+		d.CheckCase = checkCase
+	} else {
+		d.CheckCase = nil
+	}
+
 	return nil
 }
 
@@ -505,11 +516,13 @@ func (d *MjDesk) InitCheckCase(p *MJPai, outUser *MjUser) error {
 func (d *MjDesk) DoCheckCase(gangUser *MjUser) error {
 	//检测参数
 	if d.CheckCase == nil || d.CheckCase.GetNextBean() == nil {
+		log.T("已经没有需要处理的CheckCase,下一个玩家摸牌...")
 		//直接跳转到下一个操作的玩家...,这里表示判断已经玩了...
 		d.CheckCase = nil
 		d.SendMopaiOverTurn(gangUser)
 		return nil
 	} else {
+		log.T("继续处理CheckCase,开处理下一个checkBean...")
 		//1,找到胡牌的人来进行处理
 		caseBean := d.CheckCase.GetNextBean()
 		//找到需要判断bean之后，发送给判断人	//send overTurn
@@ -567,6 +580,7 @@ func (d *MjDesk) SetActiveUser(userId uint32) error {
 
 //得到下一个摸牌的人...
 func (d *MjDesk) GetNextMoPaiUser() *MjUser {
+	log.T("得到下一个玩家...当前的activeUser[%v]", d.GetActiveUser())
 	var activeUser *MjUser = nil
 	activeIndex := 0
 	for i, u := range d.GetUsers() {
@@ -576,9 +590,8 @@ func (d *MjDesk) GetNextMoPaiUser() *MjUser {
 		}
 	}
 
-	for i := activeIndex + 1; i < i + int(d.GetUserCount()); i++ {
-
-		user := d.GetUsers()[i / int(d.GetUserCount())]
+	for i := activeIndex + 1; i < activeIndex + int(d.GetUserCount()); i++ {
+		user := d.GetUsers()[i % int(d.GetUserCount())]
 		if user != nil && user.IsNotHu() {
 			activeUser = user
 			break
@@ -628,6 +641,7 @@ func (d *MjDesk) SendMopaiOverTurn(user *MjUser) error {
 	*overTrun.CanGang = user.GameData.HandPai.GetCanGang()
 	*overTrun.CanPeng = user.GameData.HandPai.GetCanPeng()
 	user.SendOverTurn(overTrun)
+	log.T("玩家[%v]开始摸牌【%v】...", user.GetUserId(), *overTrun.ActCard)
 
 	//给其他人广播协议
 	*overTrun.CanHu = false
@@ -703,6 +717,7 @@ func (d *MjDesk) ActPeng(userId uint32) error {
 
 //用户打一张牌出来
 func (d *MjDesk)ActOut(userId uint32, paiKey int32) error {
+	log.T("开始处理用户[%v]打牌[%v]的逻辑", userId, paiKey)
 
 	outPai := InitMjPaiByIndex(int(paiKey))
 	outUser := d.GetUserByUserId(userId)
@@ -717,12 +732,24 @@ func (d *MjDesk)ActOut(userId uint32, paiKey int32) error {
 		//表示无人需要，直接给用户返回无人需要
 		//给下一个人摸排，并且移动指针
 		log.E("服务器错误，初始化判定牌的时候出错err[%v]", err)
-	} else {
-
 	}
 
-	//最后需要清楚杠牌的信息...
+
+	//回复消息
 	outUser.PreMoGangInfo = nil        //清楚摸牌前的杠牌info
+	result := newProto.NewGame_AckSendOutCard()
+	*result.UserId = userId
+	result.Card = outPai.GetCardInfo()
+
+	if d.CheckCase == nil {
+		//表示没有人判定，直接下一家，发送结果给你自己
+		//*result.Result = 0
+	} else {
+		//表示有人判定，需要等待之后的通知
+		//*result.Result = 0
+	}
+
+	d.BroadCastProto(result)
 
 	return nil
 

@@ -6,6 +6,8 @@ import (
 	"casino_majiang/msg/protogo"
 	"casino_majiang/msg/funcsInit"
 	"casino_server/common/log"
+	"casino_server/utils/jobUtils"
+	"time"
 )
 
 var MJUSER_STATUS_INTOROOM int32 = 1; ///刚进入游戏
@@ -169,6 +171,15 @@ func (u *MjUser) SendOverTurn(p *mjproto.Game_OverTurn) error {
 //等待超时
 func (u *MjUser) Wait() error {
 
+	//这里需要根据等待的类型来做不同的处理...
+	/**
+		如果是摸牌之后等带,需要自动打一张牌
+		如果是判定，系统自动过
+	 */
+	jobUtils.DoAsynJob(time.Second * 1, func() bool {
+		//如果超时，那么系统自动打一张牌...
+		return true
+	})
 	return nil
 
 }

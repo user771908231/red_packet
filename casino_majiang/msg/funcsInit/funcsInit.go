@@ -217,6 +217,14 @@ func NewGame_AckActHu() *mjProto.Game_AckActHu {
 	return ret
 }
 
+func NewGame_AckSendOutCard() *mjProto.Game_AckSendOutCard {
+	ret := &mjProto.Game_AckSendOutCard{}
+	ret.Header = NewHeader()
+	ret.Result = new(int32)
+	ret.UserId = new(uint32)
+	return ret
+}
+
 func NewGame_AckActGang() *mjProto.Game_AckActGang {
 	ret := &mjProto.Game_AckActGang{}
 	ret.GangType = new(int32)
