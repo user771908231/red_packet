@@ -12,7 +12,15 @@ func (p *MJPai) GetCardInfo() *mjproto.CardInfo {
 	cardInfo := newProto.NewCardInfo()
 	*cardInfo.Id = p.GetIndex()
 	*cardInfo.Type = p.GetFlower()
-	*cardInfo.Value = p.GetValue()
+	*cardInfo.Value = p.GetValue() * p.GetFlower()
+	return cardInfo
+}
+
+func (p *MJPai) GetBackPai() *mjproto.CardInfo {
+	cardInfo := newProto.NewCardInfo()
+	*cardInfo.Id = 0
+	*cardInfo.Type = 0
+	*cardInfo.Value = 0
 	return cardInfo
 }
 

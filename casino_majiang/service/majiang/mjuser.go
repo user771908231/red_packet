@@ -6,6 +6,8 @@ import (
 	"casino_majiang/msg/protogo"
 	"casino_majiang/msg/funcsInit"
 	"casino_server/common/log"
+	"casino_server/utils/jobUtils"
+	"time"
 )
 
 var MJUSER_STATUS_INTOROOM int32 = 1; ///刚进入游戏
@@ -53,7 +55,7 @@ func (u *MjUser) IsDingQue() bool {
 }
 
 //返回一个用户信息
-func ( u *MjUser) GetPlayerInfo() *mjproto.PlayerInfo {
+func ( u *MjUser) GetPlayerInfo(showHand bool) *mjproto.PlayerInfo {
 	info := newProto.NewPlayerInfo()
 	*info.NHuPai = u.GetNHuPai()
 	*info.BDingQue = u.GetBDingQue()
@@ -61,20 +63,26 @@ func ( u *MjUser) GetPlayerInfo() *mjproto.PlayerInfo {
 	*info.BReady = u.getBReady()
 	*info.Coin = u.GetCoin()
 	*info.IsBanker = u.GetIsBanker()
-	info.PlayerCard = u.GetPlayerCard()
+	info.PlayerCard = u.GetPlayerCard(showHand)
 	*info.NickName = "测试nickName"
 	*info.UserId = u.GetUserId()
 	return info
 }
 
 //得到手牌
-func (u *MjUser) GetPlayerCard() *mjproto.PlayerCard {
+//showHand 是否显示手牌
+func (u *MjUser) GetPlayerCard(showHand bool) *mjproto.PlayerCard {
 	playerCard := newProto.NewPlayerCard()
+	*playerCard.UserId = u.GetUserId()
 
 	//得到手牌
 	for _, pai := range u.GameData.HandPai.GetPais() {
 		if pai != nil {
-			playerCard.HandCard = append(playerCard.HandCard, pai.GetCardInfo())
+			if showHand {
+				playerCard.HandCard = append(playerCard.HandCard, pai.GetCardInfo())
+			} else {
+				playerCard.HandCard = append(playerCard.HandCard, pai.GetBackPai())
+			}
 		}
 	}
 
@@ -101,7 +109,7 @@ func (u *MjUser) GetPlayerCard() *mjproto.PlayerCard {
 	}
 
 	//得到胡牌
-	for _, pai := range u.GameData.HandPai.GetPais() {
+	for _, pai := range u.GameData.HandPai.GetHuPais() {
 		if pai != nil {
 			*playerCard.HuCard = pai.GetClientId()
 		}
@@ -109,7 +117,7 @@ func (u *MjUser) GetPlayerCard() *mjproto.PlayerCard {
 
 
 	//打出去的牌
-	for _, pai := range u.GameData.HandPai.GetPais() {
+	for _, pai := range u.GameData.HandPai.GetOutPais() {
 		if pai != nil {
 			playerCard.OutCard = append(playerCard.OutCard, pai.GetClientId())
 		}
@@ -150,14 +158,6 @@ func (u *MjUser) getBReady() int32 {
 	}
 }
 
-//发牌
-func (u *MjUser) GetDealCards() *mjproto.Game_DealCards {
-	dealCards := newProto.NewGame_DealCards()
-	*dealCards.Header.UserId = u.GetUserId()
-	dealCards.PlayerCard = u.GetPlayerCard()
-	return dealCards
-}
-
 //发送overTrun
 func (u *MjUser) SendOverTurn(p *mjproto.Game_OverTurn) error {
 
@@ -171,6 +171,15 @@ func (u *MjUser) SendOverTurn(p *mjproto.Game_OverTurn) error {
 //等待超时
 func (u *MjUser) Wait() error {
 
+	//这里需要根据等待的类型来做不同的处理...
+	/**
+		如果是摸牌之后等带,需要自动打一张牌
+		如果是判定，系统自动过
+	 */
+	jobUtils.DoAsynJob(time.Second * 1, func() bool {
+		//如果超时，那么系统自动打一张牌...
+		return true
+	})
 	return nil
 
 }
@@ -241,6 +250,7 @@ func (u *MjUser) GetCheckBean(p *MJPai) *CheckBean {
 
 //玩家打一张牌
 func (u *MjUser) DaPai(p *MJPai) error {
+	u.GameData.HandPai.DelPai(p.GetIndex())
 	return nil
 }
 

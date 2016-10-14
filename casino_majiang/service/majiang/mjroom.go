@@ -73,10 +73,10 @@ func (r *MjRoom) RandRoomKey() string {
 	roomKey, _ := numUtils.Int2String(a)
 	//1,判断roomKey是否已经存在
 	if r.IsRoomKeyExist(roomKey) {
-		log.E("房间密钥[%v]已经存在,创建房间失败,重新创建", roomKey)
+		//log.E("房间密钥[%v]已经存在,创建房间失败,重新创建", roomKey)
 		return r.RandRoomKey()
 	} else {
-		log.T("最终得到的密钥是[%v]", roomKey)
+		//log.T("最终得到的密钥是[%v]", roomKey)
 		return roomKey
 	}
 	return ""
@@ -112,11 +112,11 @@ func (r *MjRoom) GetDeskByPassword(key string) *MjDesk {
 
 //通过房间号码得到desk
 func (r *MjRoom) GetDeskByDeskId(id int32) *MjDesk {
-	log.T("通过deskId【%v】查询desk", id)
+	//log.T("通过deskId【%v】查询desk", id)
 	//如果找到对应的房间，则返回
 	for _, d := range r.GetDesks() {
 		if d != nil && d.GetDeskId() == id {
-			log.T("通过id[%v]找到desk----d.getDeskId()[%v]", id, d.GetDeskId())
+			//log.T("通过id[%v]找到desk----d.getDeskId()[%v]", id, d.GetDeskId())
 			return d
 		}
 	}

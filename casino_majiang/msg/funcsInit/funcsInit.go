@@ -140,6 +140,7 @@ func NewPlayerInfo() *mjProto.PlayerInfo {
 func NewPlayerCard() *mjProto.PlayerCard {
 	card := &mjProto.PlayerCard{}
 	card.HuCard = new(int32)
+	card.UserId = new(uint32)
 	return card
 }
 
@@ -173,7 +174,6 @@ func NewGame_OverTurn() *mjProto.Game_OverTurn {
 func NewGame_DealCards() *mjProto.Game_DealCards {
 	ret := &mjProto.Game_DealCards{}
 	ret.Header = NewHeader()
-	ret.PlayerCard = NewPlayerCard()
 	return ret
 }
 
@@ -214,6 +214,14 @@ func NewGame_AckActHu() *mjProto.Game_AckActHu {
 	ret.Header = NewHeader()
 	ret.UserIdIn = new(uint32)
 	ret.UserIdOut = new(uint32)
+	return ret
+}
+
+func NewGame_AckSendOutCard() *mjProto.Game_AckSendOutCard {
+	ret := &mjProto.Game_AckSendOutCard{}
+	ret.Header = NewHeader()
+	ret.Result = new(int32)
+	ret.UserId = new(uint32)
 	return ret
 }
 

@@ -29,23 +29,17 @@ func (d *MjDesk) IsFriend() bool {
 	return true
 }
 
-//用户加入房间
-func (d *MjDesk) addNewUser(userId uint32, a gate.Agent) error {
-	if d.IsFriend() {
-		return d.addNewUserFriend(userId, a)
-	} else {
-		return nil
-	}
-}
-
 //朋友桌用户加入房间
 func (d *MjDesk) addNewUserFriend(userId uint32, a gate.Agent) error {
+
+	// 设置agent
+	AgentService.SetAgent(userId, a)
+
 	//1,是否是重新进入
 	user := d.GetUserByUserId(userId)
 	if user != nil {
 		//是断线重连
 		*user.IsBreak = false;
-		AgentService.SetAgent(userId, a)
 		return nil
 
 	}
@@ -78,7 +72,6 @@ func (d *MjDesk) addNewUserFriend(userId uint32, a gate.Agent) error {
 	newUser.GameData = NewPlayerGameData()
 
 	//设置agent
-	AgentService.SetAgent(userId, a)
 	err := d.addUser(newUser)
 	if err != nil {
 		log.E("用户[%v]加入房间[%v]失败,errMsg[%v]", userId, err)
@@ -198,11 +191,15 @@ func (d *MjDesk) GetDeskGameInfo() *mjproto.DeskGameInfo {
 }
 
 //返回玩家的数目
-func (d *MjDesk) GetPlayerInfo() []*mjproto.PlayerInfo {
+func (d *MjDesk) GetPlayerInfo(receiveUserId uint32) []*mjproto.PlayerInfo {
 	var players []*mjproto.PlayerInfo
 	for _, user := range d.Users {
 		if user != nil {
-			players = append(players, user.GetPlayerInfo())
+			if user.GetUserId() == receiveUserId {
+				players = append(players, user.GetPlayerInfo(true))
+			} else {
+				players = append(players, user.GetPlayerInfo(false))
+			}
 		}
 	}
 	return players
@@ -220,12 +217,11 @@ func (d *MjDesk) GetPlayerNum() int32 {
 }
 
 // 发送gameInfo的信息
-func (d *MjDesk) GetGame_SendGameInfo() *mjproto.Game_SendGameInfo {
+func (d *MjDesk) GetGame_SendGameInfo(receiveUserId uint32) *mjproto.Game_SendGameInfo {
 	gameInfo := newProto.NewGame_SendGameInfo()
 	gameInfo.DeskGameInfo = d.GetDeskGameInfo()
-	gameInfo.PlayerInfo = d.GetPlayerInfo()
-	//gameInfo.SenderUserId   发起请求的人 ... agent 返回信息的时候 取userId
-
+	*gameInfo.SenderUserId = receiveUserId
+	gameInfo.PlayerInfo = d.GetPlayerInfo(receiveUserId)
 	return gameInfo
 }
 
@@ -264,6 +260,7 @@ func (d *MjDesk) GetUserCount() int32 {
 			count ++
 		}
 	}
+	//log.T("当前桌子的玩家数量是count[%v]", count)
 	return count;
 
 }
@@ -351,6 +348,9 @@ func (d *MjDesk) beginInit() error {
 		*d.Banker = d.GetOwner()
 	}
 
+	//2,设置当前的活动玩家
+	d.SetActiveUser(d.GetBanker())
+
 	//发送游戏开始的协议...
 	log.T("发送游戏开始的协议..")
 	open := newProto.NewGame_Opening()
@@ -381,7 +381,7 @@ func (d *MjDesk) initCards() error {
 	//发牌的协议game_DealCards  初始化完成之后，给每个人发送牌
 	for _, user := range d.Users {
 		if user != nil {
-			dealCards := user.GetDealCards()
+			dealCards := d.GetDealCards(user)
 			if dealCards != nil {
 				log.T("把玩家[%v]的牌[%v]发送到客户端...", user.GetUserId(), dealCards)
 				user.WriteMsg(dealCards)
@@ -393,6 +393,26 @@ func (d *MjDesk) initCards() error {
 
 	//发送发牌的广播
 	return nil
+}
+
+//发牌的协议
+func (d *MjDesk) GetDealCards(user *MjUser) *mjproto.Game_DealCards {
+	dealCards := newProto.NewGame_DealCards()
+	for _, u := range d.GetUsers() {
+		if u != nil {
+			if u.GetUserId() == user.GetUserId() {
+				//表示是自己，可以看到手牌
+				dealCards.PlayerCard = append(dealCards.PlayerCard, u.GetPlayerCard(true))
+			} else {
+				dealCards.PlayerCard = append(dealCards.PlayerCard, u.GetPlayerCard(false))
+				//表示不是自己，不能看到手牌
+			}
+
+		}
+
+	}
+
+	return dealCards
 }
 
 //开始定缺
@@ -477,6 +497,13 @@ func (d *MjDesk) InitCheckCase(p *MJPai, outUser *MjUser) error {
 			}
 		}
 	}
+
+	if checkCase.CheckB == nil || len(checkCase.CheckB) > 0 {
+		d.CheckCase = checkCase
+	} else {
+		d.CheckCase = nil
+	}
+
 	return nil
 }
 
@@ -489,11 +516,13 @@ func (d *MjDesk) InitCheckCase(p *MJPai, outUser *MjUser) error {
 func (d *MjDesk) DoCheckCase(gangUser *MjUser) error {
 	//检测参数
 	if d.CheckCase == nil || d.CheckCase.GetNextBean() == nil {
+		log.T("已经没有需要处理的CheckCase,下一个玩家摸牌...")
 		//直接跳转到下一个操作的玩家...,这里表示判断已经玩了...
 		d.CheckCase = nil
 		d.SendMopaiOverTurn(gangUser)
 		return nil
 	} else {
+		log.T("继续处理CheckCase,开处理下一个checkBean...")
 		//1,找到胡牌的人来进行处理
 		caseBean := d.CheckCase.GetNextBean()
 		//找到需要判断bean之后，发送给判断人	//send overTurn
@@ -551,6 +580,7 @@ func (d *MjDesk) SetActiveUser(userId uint32) error {
 
 //得到下一个摸牌的人...
 func (d *MjDesk) GetNextMoPaiUser() *MjUser {
+	log.T("得到下一个玩家...当前的activeUser[%v]", d.GetActiveUser())
 	var activeUser *MjUser = nil
 	activeIndex := 0
 	for i, u := range d.GetUsers() {
@@ -560,9 +590,8 @@ func (d *MjDesk) GetNextMoPaiUser() *MjUser {
 		}
 	}
 
-	for i := activeIndex + 1; i < i + int(d.GetUserCount()); i++ {
-
-		user := d.GetUsers()[i / int(d.GetUserCount())]
+	for i := activeIndex + 1; i < activeIndex + int(d.GetUserCount()); i++ {
+		user := d.GetUsers()[i % int(d.GetUserCount())]
 		if user != nil && user.IsNotHu() {
 			activeUser = user
 			break
@@ -612,6 +641,7 @@ func (d *MjDesk) SendMopaiOverTurn(user *MjUser) error {
 	*overTrun.CanGang = user.GameData.HandPai.GetCanGang()
 	*overTrun.CanPeng = user.GameData.HandPai.GetCanPeng()
 	user.SendOverTurn(overTrun)
+	log.T("玩家[%v]开始摸牌【%v】...", user.GetUserId(), *overTrun.ActCard)
 
 	//给其他人广播协议
 	*overTrun.CanHu = false
@@ -682,6 +712,47 @@ func (d *MjDesk) ActPeng(userId uint32) error {
 	d.BroadCastProto(ack)
 
 	return nil
+}
+
+
+//用户打一张牌出来
+func (d *MjDesk)ActOut(userId uint32, paiKey int32) error {
+	log.T("开始处理用户[%v]打牌[%v]的逻辑", userId, paiKey)
+
+	outPai := InitMjPaiByIndex(int(paiKey))
+	outUser := d.GetUserByUserId(userId)
+	outUser.DaPai(outPai)
+
+	//自己桌子前面打出的牌，如果其他人碰杠胡了之后，需要把牌删除掉...
+	outUser.GameData.HandPai.OutPais = append(outUser.GameData.HandPai.OutPais, outPai)
+
+	//打牌之后的逻辑,初始化判定事件
+	err := d.InitCheckCase(outPai, outUser)
+	if err != nil {
+		//表示无人需要，直接给用户返回无人需要
+		//给下一个人摸排，并且移动指针
+		log.E("服务器错误，初始化判定牌的时候出错err[%v]", err)
+	}
+
+
+	//回复消息
+	outUser.PreMoGangInfo = nil        //清楚摸牌前的杠牌info
+	result := newProto.NewGame_AckSendOutCard()
+	*result.UserId = userId
+	result.Card = outPai.GetCardInfo()
+
+	if d.CheckCase == nil {
+		//表示没有人判定，直接下一家，发送结果给你自己
+		//*result.Result = 0
+	} else {
+		//表示有人判定，需要等待之后的通知
+		//*result.Result = 0
+	}
+
+	d.BroadCastProto(result)
+
+	return nil
+
 }
 
 
@@ -764,4 +835,9 @@ func (d *MjDesk) ActGang(userId uint32) error {
 
 	d.BroadCastProto(result)
 	return nil
+}
+
+//设置用户的状态为离线
+func (d *MjDesk) SetOfflineStatus(userId uint32) {
+
 }

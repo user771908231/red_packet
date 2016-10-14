@@ -28,26 +28,28 @@ func HandlerGame_CreateRoom(m *mjProto.Game_CreateRoom, a gate.Agent) {
 
 	//2,开始创建房间
 	desk := majiang.FMJRoomIns.CreateDesk(m)
-
 	//3,返回数据
-	result := newProto.NewGame_AckCreateRoom()
 
 	if desk == nil {
+		result := newProto.NewGame_AckCreateRoom()
 		*result.Header.Code = intCons.ACK_RESULT_ERROR
 		log.Error("用户[%v]创建房间失败...")
+		a.WriteMsg(result)
+
 	} else {
+		log.T("用户[%v]创建房间成功，roomKey[%v]", desk.GetOwner(), desk.GetPassword())
+		result := newProto.NewGame_AckCreateRoom()
 		*result.Header.Code = intCons.ACK_RESULT_SUCC
 		*result.Password = desk.GetPassword()
 		*result.DeskId = desk.GetDeskId()
 		*result.CreateFee = desk.GetCreateFee()
 		result.RoomTypeInfo = desk.GetRoomTypeInfo()
 		*result.UserBalance = userService.GetUserDiamond(m.GetHeader().GetUserId())
+		a.WriteMsg(result)
 
 		//创建成功之后，用户自动进入房间...
 		HandlerGame_EnterRoom(m.GetHeader().GetUserId(), desk.GetPassword(), a)
 	}
-
-	a.WriteMsg(result)
 
 }
 
@@ -59,7 +61,7 @@ func HandlerGame_CreateRoom(m *mjProto.Game_CreateRoom, a gate.Agent) {
 3，进入失败【只】返回AckEnterRoom
  */
 func HandlerGame_EnterRoom(userId uint32, key string, a gate.Agent) {
-	log.T("收到请求，HandlerGame_EnterRoom(m[%v],a[%v])", userId, a)
+	log.T("收到请求，HandlerGame_EnterRoom(m[%v])", userId)
 
 	//1,找到合适的room
 	room := majiang.GetMJRoom()
@@ -82,8 +84,13 @@ func HandlerGame_EnterRoom(userId uint32, key string, a gate.Agent) {
 		a.WriteMsg(ack)
 	} else {
 		//3,更新userSession,返回desk 的信息
-		majiang.UpdateSession(userId, majiang.MJUSER_SESSION_GAMESTATUS_FRIEND, desk.GetRoomId(), desk.GetDeskId(), desk.GetPassword())
-		gameinfo := desk.GetGame_SendGameInfo()
+		s, _ := majiang.UpdateSession(userId, majiang.MJUSER_SESSION_GAMESTATUS_FRIEND, desk.GetRoomId(), desk.GetDeskId(), desk.GetPassword())
+		if s != nil {
+			//给agent设置session
+			a.SetUserData(s)
+		}
+
+		gameinfo := desk.GetGame_SendGameInfo(userId)
 		*gameinfo.SenderUserId = userId
 		//a.WriteMsg(gameinfo)
 		desk.BroadCastProto(gameinfo)
@@ -138,7 +145,7 @@ func HandlerGame_DingQue(m *mjProto.Game_DingQue, a gate.Agent) {
 	desk := majiang.GetMjDeskBySession(m.GetHeader().GetUserId())
 	err := desk.DingQue(m.GetHeader().GetUserId(), m.GetColor())
 	if err != nil {
-		log.E("定缺失败...")
+		log.E("用户[%v]定缺失败...", m.GetHeader().GetUserId())
 		return
 	}
 
@@ -201,20 +208,12 @@ func HandlerGame_SendOutCard(m *mjProto.Game_SendOutCard, a gate.Agent) {
 		return
 	}
 
-	outUser := desk.GetUserByUserId(userId)
-	//打牌之后的逻辑,初始化判定事件
-	err := desk.InitCheckCase(majiang.InitMjPaiByIndex(int(m.GetCardId())), outUser)
+	err := desk.ActOut(userId, m.GetCardId())
 	if err != nil {
-		//表示无人需要，直接给用户返回无人需要
-		//给下一个人摸排，并且移动指针
-		log.E("服务器错误，初始化判定牌的时候出错err[%v]", err)
-	} else {
-
+		//打牌失败
 	}
 
-	//最后需要清楚杠牌的信息...
-	outUser.PreMoGangInfo = nil        //清楚摸牌前的杠牌info
-
+	log.T("用户[%v]已经打牌，处理下一个checkCase",userId)
 	desk.DoCheckCase(nil)        //打牌之后，别人判定牌
 
 }
