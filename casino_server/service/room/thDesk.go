@@ -268,6 +268,7 @@ func (t *ThDesk) IsrepeatIntoWithRoomKey(userId uint32, a gate.Agent) bool {
 			u.IsBreak = false               //设置用户的离线状态
 			u.IsLeave = false
 			u.GameStatus = TH_USER_GAME_STATUS_FRIEND
+			u.IsAutoReady = true
 			u.UpdateAgentUserData()         //更新回话信息
 			return true
 		}
