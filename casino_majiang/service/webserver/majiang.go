@@ -16,7 +16,7 @@ func InitCms() {
 }
 
 func gameInfo(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprint(w, "\n\n\n\n\n\n\n\n\n打印朋友桌麻将的信息\n")
+	fmt.Fprint(w, "\n打印朋友桌麻将的信息\n")
 	for _, desk := range majiang.FMJRoomIns.Desks {
 		printDeskInfo(w, desk)
 	}
@@ -25,13 +25,11 @@ func gameInfo(w http.ResponseWriter, r *http.Request) {
 
 func printDeskInfo(w http.ResponseWriter, desk *majiang.MjDesk) {
 	if desk != nil {
-		deskInfo := "开始打印desk.id[%v], \t房间号roomKey[%v]的信息:\n" +
-		"麻将的信息：当前的游标[%v]\n" +
-		"%v \n" +
-		"房主Owner[%v],\t "
-		fmt.Fprintf(w, deskInfo, desk.GetDeskId(), desk.GetPassword(), desk.GetMJPaiCursor(),
-			GetDeskMJInfo(desk),
-			desk.GetOwner())
+		deskInfo := "开始打印desk.id[%v], \t房间号roomKey[%v]的信息:\t 房主Owner[%v],\t \n" +
+		"麻将的信息：庄家的信息[%v]\t当前的游标[%v]：\n 麻将:%v"
+
+		fmt.Fprintf(w, deskInfo, desk.GetDeskId(), desk.GetPassword(), desk.GetOwner(),
+			desk.GetBanker(), desk.GetMJPaiCursor(), GetDeskMJInfo(desk))
 
 		fmt.Fprintf(w, "\n开始打印user的信息:\n")
 		for i, user := range desk.Users {

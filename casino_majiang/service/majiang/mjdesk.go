@@ -240,7 +240,7 @@ func (d *MjDesk) Ready(userId  uint32) error {
 	}
 
 	//设置为准备的状态
-	*user.Status = MJUSER_STATUS_READY        //用户准备
+	user.SetStatus(MJUSER_STATUS_READY)
 
 	return nil
 }
@@ -344,6 +344,13 @@ func (d *MjDesk) beginInit() error {
 		}
 	}
 
+	//初始化桌子的信息
+
+	//1,初始化庄的信息,如果目前没有庄，则设置房主为庄,如果有庄，则不用管，每局游戏借宿的时候，会设置下一局的庄
+	if d.GetBanker() == 0 {
+		*d.Banker = d.Owner
+	}
+
 	//发送游戏开始的协议...
 	log.T("发送游戏开始的协议..")
 	open := newProto.NewGame_Opening()
@@ -422,6 +429,7 @@ func (d *MjDesk) DingQue(userId uint32, color int32) error {
 
 	//设置定缺
 	*user.DingQue = true
+	user.SetStatus(MJUSER_STATUS_DINGQUE)        //设置目前的状态是已经定缺
 	*user.GameData.HandPai.QueFlower = color
 
 	//回复定缺成功的消息
@@ -524,11 +532,20 @@ func (d *MjDesk) Lottery() error {
 		2，没有生育麻将的时候.需要分别做处理...
 	 */
 
+	//判断是否可以胡牌
+
+	//保存数据
+
+	//发送结束的广播
+
+
+	//判断牌局结束(整场游戏结束)
+
 	return nil
 }
 
-func (d *MjDesk) SetNestUserCursor(userId uint32) error {
-	*d.NextUserCursor = userId
+func (d *MjDesk) SetActiveUser(userId uint32) error {
+	*d.ActiveUser = userId
 	return nil
 }
 
@@ -537,14 +554,15 @@ func (d *MjDesk) GetNextMoPaiUser() *MjUser {
 	var activeUser *MjUser = nil
 	activeIndex := 0
 	for i, u := range d.GetUsers() {
-		if u != nil && u.GetUserId() == d.GetNextUserCursor() {
+		if u != nil && u.GetUserId() == d.GetActiveUser() {
 			activeIndex = i
 			break
 		}
 	}
 
 	for i := activeIndex + 1; i < i + int(d.GetUserCount()); i++ {
-		user := d.GetUsers()[i]
+
+		user := d.GetUsers()[i / int(d.GetUserCount())]
 		if user != nil && user.IsNotHu() {
 			activeUser = user
 			break
@@ -581,6 +599,9 @@ func (d *MjDesk) SendMopaiOverTurn(user *MjUser) error {
 		return errors.New("没有找到下一家")
 	}
 
+	d.SetActiveUser(user.GetUserId())        //用户摸牌之后，设置当前活动玩家为摸牌的玩家
+
+	//发送广播
 	overTrun := newProto.NewGame_OverTurn()
 	*overTrun.UserId = user.GetUserId()                //这个是摸牌的，所以是广播...
 	*overTrun.ActType = OVER_TURN_ACTTYPE_MOPAI        //摸牌
@@ -694,6 +715,21 @@ func (d *MjDesk)ActHu(userId uint32) error {
 		3，杠上花
 	 */
 
+	//玩家胡牌
+	user := d.GetUserByUserId(userId)
+	if user == nil {
+		log.E("服务器错误：没有找到胡牌的user[%v]", userId)
+		return errors.New("服务器错误，没有找到胡牌的user")
+	}
+
+	err := user.ActHu(d.CheckCase.CheckMJPai, d.CheckCase.GetUserIdOut())
+	if err != nil {
+		//如果这里出现胡牌失败，证明是系统有问题...
+		log.E("用户[%v]胡牌失败...", userId)
+		//result.Header = newProto.ErrorHeader()
+		//user.WriteMsg(result)        //返回失败的信息
+		return nil
+	}
 
 	return nil
 }
@@ -701,7 +737,6 @@ func (d *MjDesk)ActHu(userId uint32) error {
 
 //杠牌   怎么判断是明杠，暗杠，巴杠...
 func (d *MjDesk) ActGang(userId uint32) error {
-
 	user := d.GetUserByUserId(userId)
 	if user == nil {
 		log.E("用户[%v]没有找到杠牌失败...", userId)

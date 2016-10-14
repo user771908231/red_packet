@@ -121,7 +121,6 @@ func HandlerGame_Ready(m *mjProto.Game_Ready, a gate.Agent) {
 
 			//准备成功之后，是否需要开始游戏...
 			desk.AfterReady()
-
 		}
 	}
 }
@@ -166,7 +165,6 @@ func HandlerGame_DingQue(m *mjProto.Game_DingQue, a gate.Agent) {
 
 		//发送给当事人时候的信息
 		bankUser := desk.GetBankerUser()
-		overTurn.ActCard = desk.GetNextPai().GetCardInfo()
 		*overTurn.CanHu = bankUser.GameData.HandPai.GetCanHu()
 		*overTurn.CanGang = bankUser.GameData.HandPai.GetCanGang()
 		*overTurn.CanPeng = bankUser.GameData.HandPai.GetCanPeng()
@@ -194,21 +192,22 @@ func HandlerGame_ExchangeCards(m *mjProto.Game_ExchangeCards, a gate.Agent) {
 
 func HandlerGame_SendOutCard(m *mjProto.Game_SendOutCard, a gate.Agent) {
 	log.Debug("收到请求，HandlerGame_SendOutCard(m[%v],a[%v])", m, a)
-
+	userId := m.GetHeader().GetUserId()
 	//检测参数
-	desk := majiang.GetMjDeskBySession(m.GetHeader().GetUserId())
+	desk := majiang.GetMjDeskBySession(userId)
 	if desk == nil {
 		//打牌失败，因为没有找到对应的麻将桌子
+		log.E("用户[%v]打牌", userId)
 		return
 	}
 
-	outUser := desk.GetUserByUserId(m.GetHeader().GetUserId())
+	outUser := desk.GetUserByUserId(userId)
 	//打牌之后的逻辑,初始化判定事件
 	err := desk.InitCheckCase(majiang.InitMjPaiByIndex(int(m.GetCardId())), outUser)
 	if err != nil {
 		//表示无人需要，直接给用户返回无人需要
 		//给下一个人摸排，并且移动指针
-
+		log.E("服务器错误，初始化判定牌的时候出错err[%v]", err)
 	} else {
 
 	}
@@ -311,6 +310,7 @@ func HandlerGame_ActHu(m *mjProto.Game_ActHu) {
 	log.Debug("收到请求，game_ActHu(m[%v])", m)
 
 	//需要返回的数据
+	userId := m.GetHeader().GetUserId()
 	result := newProto.NewGame_AckActHu()
 
 	//区分自摸点炮:1,如果自己的手牌就已经糊了（或者如果自己自己的牌是14，11，8，5，2 张的时候），那么就自摸，如果需要加上判定牌，那就是点炮
@@ -322,29 +322,18 @@ func HandlerGame_ActHu(m *mjProto.Game_ActHu) {
 		return
 	}
 
-	//找到玩家
-	user := desk.GetUserByUserId(m.GetHeader().GetUserId())
-	if user == nil {
-		return
-	}
-
-	desk.ActHu(m.GetHeader().GetUserId())
-
-	//玩家胡牌
-	err := user.ActHu()
+	//开始胡牌...
+	err := desk.ActHu(userId)
 	if err != nil {
-		//如果这里出现胡牌失败，证明是系统有问题...
-		log.E("用户[%v]胡牌失败...", m.GetHeader().GetUserId())
-		result.Header = newProto.ErrorHeader()
-		user.WriteMsg(result)        //返回失败的信息
-		return
+		log.E("服务器错误，胡牌失败..")
+
 	}
 
 	//胡牌成功之后的处理...
-	desk.SetNestUserCursor(user.GetUserId())        // 胡牌之后 设置当前操作的用户为当前胡牌的人...
-	desk.CheckCase.UpdateCheckBeanStatus(user.GetUserId(), majiang.CHECK_CASE_BEAN_STATUS_CHECKED)        // update checkCase...
+	desk.SetActiveUser(userId)        // 胡牌之后 设置当前操作的用户为当前胡牌的人...
+	desk.CheckCase.UpdateCheckBeanStatus(userId, majiang.CHECK_CASE_BEAN_STATUS_CHECKED)        // update checkCase...
 	desk.CheckCase.UpdateChecStatus(majiang.CHECK_CASE_STATUS_CHECKING_HUED)        //已经有人胡了，后边的人就不能碰或者杠了
-	*result.UserIdIn = user.GetUserId()
+	*result.UserIdIn = userId
 	*result.UserIdOut = desk.CheckCase.GetUserIdOut()        //打牌的人
 
 	//这里是否需要广播胡牌的广播...

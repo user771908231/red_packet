@@ -112,7 +112,7 @@ func (r *MjRoom) GetDeskByPassword(key string) *MjDesk {
 
 //通过房间号码得到desk
 func (r *MjRoom) GetDeskByDeskId(id int32) *MjDesk {
-	log.T("通过deskId【%v】得到desk", id)
+	log.T("通过deskId【%v】查询desk", id)
 	//如果找到对应的房间，则返回
 	for _, d := range r.GetDesks() {
 		if d != nil && d.GetDeskId() == id {

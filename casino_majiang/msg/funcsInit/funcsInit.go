@@ -236,3 +236,4 @@ func NewGame_AckActPeng() *mjProto.Game_AckActPeng {
 	ret.PengCard = make([]*mjProto.CardInfo, 3)
 	return ret
 }
+

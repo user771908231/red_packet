@@ -33,7 +33,7 @@ func NewMjDesk() *MjDesk {
 	ret.ZiMoRadio = new(int32)
 	ret.DianGangHuaRadio = new(int32)
 	ret.MJPaiCursor = new(int32)
-	ret.NextUserCursor = new(uint32)
+	ret.ActiveUser = new(uint32)
 	ret.Banker = new(uint32)
 	return ret
 }
@@ -86,4 +86,15 @@ func NewCheckCase() *CheckCase {
 	ret.UserIdOut = new(uint32)
 	ret.CheckStatus = new(int32)
 	return ret
+}
+
+func NewHuPaiInfo() *HuPaiInfo {
+	ret := &HuPaiInfo{}
+	ret.ByWho = new(int32)
+	ret.CardType = new(int32)
+	ret.Fan = new(int32)
+	ret.HuType = new(int32)
+	ret.SendUserId = new(uint32)
+	return ret
+
 }

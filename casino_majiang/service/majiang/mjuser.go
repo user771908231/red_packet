@@ -3,15 +3,15 @@ package majiang
 import (
 	"github.com/golang/protobuf/proto"
 	"casino_majiang/service/AgentService"
-	"github.com/name5566/leaf/log"
 	"casino_majiang/msg/protogo"
 	"casino_majiang/msg/funcsInit"
+	"casino_server/common/log"
 )
 
 var MJUSER_STATUS_INTOROOM int32 = 1; ///刚进入游戏
-var MJUSER_STATUS_SEATED int32 = 2; ///刚进入游戏
-var MJUSER_STATUS_READY int32 = 3; ///刚进入游戏
-
+var MJUSER_STATUS_SEATED int32 = 2; //坐下游戏
+var MJUSER_STATUS_READY int32 = 3; ///准备游戏
+var MJUSER_STATUS_DINGQUE int32 = 4; ///准备游戏
 
 //麻将玩家
 
@@ -21,7 +21,7 @@ func (u *MjUser)WriteMsg(p proto.Message) error {
 	if agent != nil {
 		agent.WriteMsg(p)
 	} else {
-		log.Error("给用户[%v]发送proto[%v]失败，因为没有找到用户的agent。", u.GetUserId(), p)
+		log.T("给用户[%v]发送proto[%v]失败，因为没有找到用户的agent。", u.GetUserId(), p)
 	}
 	return nil
 }
@@ -161,8 +161,7 @@ func (u *MjUser) GetDealCards() *mjproto.Game_DealCards {
 //发送overTrun
 func (u *MjUser) SendOverTurn(p *mjproto.Game_OverTurn) error {
 
-	go u.Wait()
-
+	u.Wait()
 	u.WriteMsg(p)
 
 	return nil
@@ -171,18 +170,33 @@ func (u *MjUser) SendOverTurn(p *mjproto.Game_OverTurn) error {
 
 //等待超时
 func (u *MjUser) Wait() error {
+
 	return nil
 
 }
 
 
 //用户胡牌
-func (u *MjUser) ActHu() error {
+func (u *MjUser) ActHu(p *MJPai, sendUserId uint32) error {
+	//判断能不能胡
 
-	//判断自摸
+	//得到胡牌的信息
 
-	//判断点炮
+	//胡牌之后的信息
+	hu := NewHuPaiInfo()
+	*hu.SendUserId = sendUserId
+	hu.Pai = p
+	//hu.Fan
+	u.GameData.HuInfo = append(u.GameData.HuInfo, hu)
 
+	//增加胡牌
+	u.GameData.HandPai.HuPais = append(u.GameData.HandPai.HuPais, p)
+
+	//发送胡牌成功的回复
+	ack := newProto.NewGame_AckActHu()
+
+	log.T("给用户[%v]发送胡牌的ack[%v]", u.GetUserId(), ack)
+	u.WriteMsg(ack)
 	return nil
 }
 
@@ -191,14 +205,14 @@ func (u *MjUser) Gang(p *MJPai, sendUserId uint32) error {
 
 	//杠牌的类型
 	var gangType int32 = 0
-
+	var gangKey []int32
 	//增加杠牌
 	u.GameData.HandPai.GangPais = append(u.GameData.HandPai.GangPais, p)
-	for i, pai := range u.GameData.HandPai.Pais {
+	for _, pai := range u.GameData.HandPai.Pais {
 		if pai.GetFlower() == p.GetFlower() && pai.GetValue() == p.GetValue() {
 			//增加杠牌
 			u.GameData.HandPai.GangPais = append(u.GameData.HandPai.GangPais, pai)
-			u.GameData.HandPai.Pais[i] = nil
+			gangKey = append(gangKey, pai.GetIndex())
 		}
 	}
 
@@ -212,6 +226,11 @@ func (u *MjUser) Gang(p *MJPai, sendUserId uint32) error {
 	//增加杠牌状态
 	u.PreMoGangInfo = info
 
+	//减少手中的杠牌
+	for _, key := range gangKey {
+		u.GameData.HandPai.DelPai(key)
+	}
+
 	return nil
 }
 
@@ -223,4 +242,10 @@ func (u *MjUser) GetCheckBean(p *MJPai) *CheckBean {
 //玩家打一张牌
 func (u *MjUser) DaPai(p *MJPai) error {
 	return nil
+}
+
+//设置用户的状态
+func (u *MjUser) SetStatus(s int32) error {
+	*u.Status = s
+
 }
