@@ -16,6 +16,7 @@ message MJHandPai {
     repeated MJPai HuPais = 4;
     optional MJPai inPai = 5; //+1摸起来(或别人打出)的那张牌，用计算判胡的番数时用
     optional int32 queFlower = 6; //缺哪门牌
+    repeated MJPai OutPais = 7;
 }
 
 message HuPaiInfo {

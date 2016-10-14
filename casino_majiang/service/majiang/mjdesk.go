@@ -29,23 +29,17 @@ func (d *MjDesk) IsFriend() bool {
 	return true
 }
 
-//用户加入房间
-func (d *MjDesk) addNewUser(userId uint32, a gate.Agent) error {
-	if d.IsFriend() {
-		return d.addNewUserFriend(userId, a)
-	} else {
-		return nil
-	}
-}
-
 //朋友桌用户加入房间
 func (d *MjDesk) addNewUserFriend(userId uint32, a gate.Agent) error {
+
+	// 设置agent
+	AgentService.SetAgent(userId, a)
+
 	//1,是否是重新进入
 	user := d.GetUserByUserId(userId)
 	if user != nil {
 		//是断线重连
 		*user.IsBreak = false;
-		AgentService.SetAgent(userId, a)
 		return nil
 
 	}
@@ -78,7 +72,6 @@ func (d *MjDesk) addNewUserFriend(userId uint32, a gate.Agent) error {
 	newUser.GameData = NewPlayerGameData()
 
 	//设置agent
-	AgentService.SetAgent(userId, a)
 	err := d.addUser(newUser)
 	if err != nil {
 		log.E("用户[%v]加入房间[%v]失败,errMsg[%v]", userId, err)
@@ -708,6 +701,34 @@ func (d *MjDesk) ActPeng(userId uint32) error {
 }
 
 
+//用户打一张牌出来
+func (d *MjDesk)ActOut(userId uint32, paiKey int32) error {
+
+	outPai := InitMjPaiByIndex(int(paiKey))
+	outUser := d.GetUserByUserId(userId)
+	outUser.DaPai(outPai)
+
+	//自己桌子前面打出的牌，如果其他人碰杠胡了之后，需要把牌删除掉...
+	outUser.GameData.HandPai.OutPais = append(outUser.GameData.HandPai.OutPais, outPai)
+
+	//打牌之后的逻辑,初始化判定事件
+	err := d.InitCheckCase(outPai, outUser)
+	if err != nil {
+		//表示无人需要，直接给用户返回无人需要
+		//给下一个人摸排，并且移动指针
+		log.E("服务器错误，初始化判定牌的时候出错err[%v]", err)
+	} else {
+
+	}
+
+	//最后需要清楚杠牌的信息...
+	outUser.PreMoGangInfo = nil        //清楚摸牌前的杠牌info
+
+	return nil
+
+}
+
+
 //某人胡牌...
 func (d *MjDesk)ActHu(userId uint32) error {
 
@@ -787,4 +808,9 @@ func (d *MjDesk) ActGang(userId uint32) error {
 
 	d.BroadCastProto(result)
 	return nil
+}
+
+//设置用户的状态为离线
+func (d *MjDesk) SetOfflineStatus(userId uint32) {
+
 }

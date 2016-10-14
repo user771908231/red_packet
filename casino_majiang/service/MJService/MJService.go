@@ -84,7 +84,12 @@ func HandlerGame_EnterRoom(userId uint32, key string, a gate.Agent) {
 		a.WriteMsg(ack)
 	} else {
 		//3,更新userSession,返回desk 的信息
-		majiang.UpdateSession(userId, majiang.MJUSER_SESSION_GAMESTATUS_FRIEND, desk.GetRoomId(), desk.GetDeskId(), desk.GetPassword())
+		s, _ := majiang.UpdateSession(userId, majiang.MJUSER_SESSION_GAMESTATUS_FRIEND, desk.GetRoomId(), desk.GetDeskId(), desk.GetPassword())
+		if s != nil {
+			//给agent设置session
+			a.SetUserData(s)
+		}
+
 		gameinfo := desk.GetGame_SendGameInfo(userId)
 		*gameinfo.SenderUserId = userId
 		//a.WriteMsg(gameinfo)
@@ -203,21 +208,12 @@ func HandlerGame_SendOutCard(m *mjProto.Game_SendOutCard, a gate.Agent) {
 		return
 	}
 
-	outUser := desk.GetUserByUserId(userId)
-	//打牌之后的逻辑,初始化判定事件
-	err := desk.InitCheckCase(majiang.InitMjPaiByIndex(int(m.GetCardId())), outUser)
+	err := desk.ActOut(userId, m.GetCardId())
 	if err != nil {
-		//表示无人需要，直接给用户返回无人需要
-		//给下一个人摸排，并且移动指针
-		log.E("服务器错误，初始化判定牌的时候出错err[%v]", err)
-	} else {
-
+		//打牌失败
 	}
-
-	//最后需要清楚杠牌的信息...
-	outUser.PreMoGangInfo = nil        //清楚摸牌前的杠牌info
-
 	desk.DoCheckCase(nil)        //打牌之后，别人判定牌
+
 
 }
 

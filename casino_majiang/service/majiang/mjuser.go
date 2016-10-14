@@ -71,6 +71,7 @@ func ( u *MjUser) GetPlayerInfo(showHand bool) *mjproto.PlayerInfo {
 //showHand 是否显示手牌
 func (u *MjUser) GetPlayerCard(showHand bool) *mjproto.PlayerCard {
 	playerCard := newProto.NewPlayerCard()
+	*playerCard.UserId = u.GetUserId()
 
 	//得到手牌
 	for _, pai := range u.GameData.HandPai.GetPais() {
@@ -106,7 +107,7 @@ func (u *MjUser) GetPlayerCard(showHand bool) *mjproto.PlayerCard {
 	}
 
 	//得到胡牌
-	for _, pai := range u.GameData.HandPai.GetPais() {
+	for _, pai := range u.GameData.HandPai.GetHuPais() {
 		if pai != nil {
 			*playerCard.HuCard = pai.GetClientId()
 		}
@@ -114,7 +115,7 @@ func (u *MjUser) GetPlayerCard(showHand bool) *mjproto.PlayerCard {
 
 
 	//打出去的牌
-	for _, pai := range u.GameData.HandPai.GetPais() {
+	for _, pai := range u.GameData.HandPai.GetOutPais() {
 		if pai != nil {
 			playerCard.OutCard = append(playerCard.OutCard, pai.GetClientId())
 		}
@@ -238,6 +239,7 @@ func (u *MjUser) GetCheckBean(p *MJPai) *CheckBean {
 
 //玩家打一张牌
 func (u *MjUser) DaPai(p *MJPai) error {
+	u.GameData.HandPai.DelPai(p.GetIndex())
 	return nil
 }
 

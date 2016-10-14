@@ -140,6 +140,7 @@ func NewPlayerInfo() *mjProto.PlayerInfo {
 func NewPlayerCard() *mjProto.PlayerCard {
 	card := &mjProto.PlayerCard{}
 	card.HuCard = new(int32)
+	card.UserId = new(uint32)
 	return card
 }
 

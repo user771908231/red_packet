@@ -36,6 +36,7 @@ func UpdateSession(userId uint32, gameStatus int32, roomId int32, deskId int32, 
 	var session *MjSession
 	s := redisUtils.GetObj(getSessionKey(userId), &MjSession{})
 	if s != nil {
+		log.T("没有找到user[%v]的session,需要重新申请一个并保存...", userId)
 		session = s.(*MjSession)
 	} else {
 		session = NewMjSession()

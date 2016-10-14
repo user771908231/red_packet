@@ -15,7 +15,6 @@ import (
 	"casino_server/common/Error"
 	"casino_server/utils/redisUtils"
 	"errors"
-	"fmt"
 )
 
 var NEW_USER_DIAMOND_REWARD int64 = 20                //新用户登陆的时候,默认的砖石数量
@@ -85,7 +84,6 @@ func GetUserById(id uint32) *bbproto.User {
 	var buser *bbproto.User = nil
 	result := redisUtils.GetObj(GetRedisUserKey(id), &bbproto.User{})
 	if result == nil {
-		fmt.Println("redis中没有找到user")
 		log.E("redis中没有找到user[%v],需要在mongo中查询,并且缓存在redis中。", id)
 		// 获取连接 connection
 		tuser := &mode.T_user{}
