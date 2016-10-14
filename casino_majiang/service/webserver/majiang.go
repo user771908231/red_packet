@@ -5,6 +5,7 @@ import (
 	"casino_server/common/log"
 	"fmt"
 	"casino_majiang/service/majiang"
+	"casino_server/utils/numUtils"
 )
 
 func InitCms() {
@@ -15,7 +16,7 @@ func InitCms() {
 }
 
 func gameInfo(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprint(w, "\n\n\n\n\n\n\n\n\n打印朋友桌麻将的信息\n")
+	fmt.Fprint(w, "\n打印朋友桌麻将的信息\n")
 	for _, desk := range majiang.FMJRoomIns.Desks {
 		printDeskInfo(w, desk)
 	}
@@ -24,17 +25,43 @@ func gameInfo(w http.ResponseWriter, r *http.Request) {
 
 func printDeskInfo(w http.ResponseWriter, desk *majiang.MjDesk) {
 	if desk != nil {
-		deskInfo := "开始打印desk.id[%v], \t房间号roomKey[%v]的信息:\n" +
-		"房主Owner[%v],\t "
-		fmt.Fprintf(w, deskInfo, desk.GetDeskId(), desk.GetPassword(),
-			desk.GetOwner())
+		deskInfo := "开始打印desk.id[%v], \t房间号roomKey[%v]的信息:\t 房主Owner[%v],\t \n" +
+		"麻将的信息：庄家的信息[%v]\t当前的游标[%v]：\n 麻将:%v"
+
+		fmt.Fprintf(w, deskInfo, desk.GetDeskId(), desk.GetPassword(), desk.GetOwner(),
+			desk.GetBanker(), desk.GetMJPaiCursor(), GetDeskMJInfo(desk))
 
 		fmt.Fprintf(w, "\n开始打印user的信息:\n")
 		for i, user := range desk.Users {
 			if user != nil {
-				fmt.Fprintf(w, "[%v],玩家的信息userId[%v],nickName[%v],status[%v],是否定缺[%v],定缺的花色[%v]\n", i, user.GetUserId(), "nickName", user.GetStatus(), user.GetDingQue(), user.MJHandPai.GetDingQueColor())
+				fmt.Fprintf(w, "[%v],玩家的信息userId[%v],nickName[%v],status[%v],是否定缺[%v],定缺的花色[%v]\n", i, user.GetUserId(), "nickName", user.GetStatus(), user.GetDingQue(), user.GameData.HandPai.GetQueFlower())
 			}
 		}
+	}
+}
+
+func GetDeskMJInfo(desk *majiang.MjDesk) string {
+	if desk == nil || desk.AllMJPai == nil {
+		return "暂时没有初始化麻将"
+	}
+	s := ""
+	for i, p := range desk.AllMJPai {
+		ii, _ := numUtils.Int2String(int32(i))
+		pi, _ := numUtils.Int2String(p.GetValue())
+		s = s + "\t (" + ii + "---" + pi + GetFlow(p.GetFlower()) + ")"
+	}
+	return s
+}
+
+func GetFlow(f int32) string {
+	if f == 1 {
+		return "铜"
+	} else if f == 2 {
+		return "条"
+	} else if f == 3 {
+		return "万"
+	} else {
+		return "白"
 	}
 
 }

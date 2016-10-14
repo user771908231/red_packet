@@ -118,11 +118,15 @@ func HandlerREQQuickConn(args []interface{}) {
 }
 
 //通过客户端的版本号设置releaseTag
+/**
+	conf.Server.CurVersion 表示已经发布的 客户端版本...
+	如果客户端的version < conf.Server.CurVersion  表示游戏已经发布了，所以返回1 显示游戏，否则显示马甲...
+ */
 func getReleaseTagByVersion(v int32) int32 {
 	if v <= conf.Server.CurVersion {
-		return 1
+		return 1        //显示游戏
 	} else {
-		return 0
+		return 0        //显马甲
 	}
 }
 

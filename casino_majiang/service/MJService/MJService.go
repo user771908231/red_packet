@@ -121,7 +121,6 @@ func HandlerGame_Ready(m *mjProto.Game_Ready, a gate.Agent) {
 
 			//准备成功之后，是否需要开始游戏...
 			desk.AfterReady()
-
 		}
 	}
 }
@@ -142,9 +141,6 @@ func HandlerGame_DingQue(m *mjProto.Game_DingQue, a gate.Agent) {
 		log.E("定缺失败...")
 		return
 	}
-
-	//发送成功的回复
-	a.WriteMsg(m)
 
 	//如果所有人都定缺了，那么可以通知庄打牌了..
 	if desk.AllDingQue() {
@@ -169,10 +165,9 @@ func HandlerGame_DingQue(m *mjProto.Game_DingQue, a gate.Agent) {
 
 		//发送给当事人时候的信息
 		bankUser := desk.GetBankerUser()
-		overTurn.ActCard = desk.GetNextPai().GetCardInfo()
-		*overTurn.CanHu = bankUser.MJHandPai.GetCanHu()
-		*overTurn.CanGang = bankUser.MJHandPai.GetCanGang()
-		*overTurn.CanPeng = bankUser.MJHandPai.GetCanPeng()
+		*overTurn.CanHu = bankUser.GameData.HandPai.GetCanHu()
+		*overTurn.CanGang = bankUser.GameData.HandPai.GetCanGang()
+		*overTurn.CanPeng = bankUser.GameData.HandPai.GetCanPeng()
 		bankUser.SendOverTurn(overTurn)
 	}
 
@@ -197,67 +192,69 @@ func HandlerGame_ExchangeCards(m *mjProto.Game_ExchangeCards, a gate.Agent) {
 
 func HandlerGame_SendOutCard(m *mjProto.Game_SendOutCard, a gate.Agent) {
 	log.Debug("收到请求，HandlerGame_SendOutCard(m[%v],a[%v])", m, a)
-
+	userId := m.GetHeader().GetUserId()
 	//检测参数
-	desk := majiang.GetMjDeskBySession(m.GetHeader().GetUserId())
+	desk := majiang.GetMjDeskBySession(userId)
 	if desk == nil {
 		//打牌失败，因为没有找到对应的麻将桌子
-
+		log.E("用户[%v]打牌", userId)
 		return
 	}
 
+	outUser := desk.GetUserByUserId(userId)
 	//打牌之后的逻辑,初始化判定事件
-	desk.InitCheckCase(majiang.InitMjPaiByIndex(int(m.GetCardId())))
-	if desk.GetCheckCase() == nil {
+	err := desk.InitCheckCase(majiang.InitMjPaiByIndex(int(m.GetCardId())), outUser)
+	if err != nil {
 		//表示无人需要，直接给用户返回无人需要
 		//给下一个人摸排，并且移动指针
+		log.E("服务器错误，初始化判定牌的时候出错err[%v]", err)
 	} else {
-		//如果判定事件不为空，那么开始执行判断事件
-		desk.DoCheckCase()
-		//并且给用户返回，牌需要判定，牌是正在打出的状态，并没有落到桌子上
+
 	}
+
+	//最后需要清楚杠牌的信息...
+	outUser.PreMoGangInfo = nil        //清楚摸牌前的杠牌info
+
+	desk.DoCheckCase(nil)        //打牌之后，别人判定牌
+
 }
 
 //碰
 func HandlerGame_ActPeng(m *mjProto.Game_ActPeng, a gate.Agent) {
 	log.T("收到请求，HandlerGame_ActPeng(m[%v],a[%v])", m, a)
 
-	result := &mjProto.Game_AckActPeng{}
-	result.Header = newProto.SuccessHeader()
-
+	//找到桌子
 	desk := majiang.GetMjDeskBySession(m.GetHeader().GetUserId()) //通过userId 的session 得到对应的desk
 	if desk == nil {
 		//这里属于服务器错误... 是否需要给客户端返回信息？
 		log.E("没有找到对应的desk ..")
+		result := &mjProto.Game_AckActPeng{}
 		result.Header = newProto.ErrorHeader()
+		a.WriteMsg(result)
 		return
 	}
 
-	//找到玩家
-	user := desk.GetUserByUserId(m.GetHeader().GetUserId())
-	if user == nil {
-		return
+	//开始碰牌
+	err := desk.ActPeng(m.GetHeader().GetUserId())
+	if err != nil {
+		log.E("服务器错误: 用户[%v]碰牌失败...", m.GetHeader().GetUserId())
+		//todo 需要做特殊处理
 	}
 
-	user.ActHu()        //这里碰牌的逻辑
-
-	//todo 设置checkCase 为已经验证过了
-
-	//设置下一个人摸牌
-	desk.SendMopaiOverTurn(nil)
-
-	a.WriteMsg(result)
+	//操作下一个
+	desk.DoCheckCase(nil)        //碰牌之后，别人判定牌
 }
 
 
 //杠
-func HandlerGame_ActGang(m *mjProto.Game_ActGang, a gate.Agent) {
-	log.Debug("收到请求，game_ActGang(m[%v],a[%v])", m, a)
+func HandlerGame_ActGang(m *mjProto.Game_ActGang) {
+	log.Debug("收到请求，game_ActGang(m[%v])", m)
+	userId := m.GetHeader().GetUserId()
 
 	result := &mjProto.Game_AckActGang{}
 	result.Header = newProto.SuccessHeader()
 
-	desk := majiang.GetMjDeskBySession(m.GetHeader().GetUserId()) //通过userId 的session 得到对应的desk
+	desk := majiang.GetMjDeskBySession(userId) //通过userId 的session 得到对应的desk
 	if desk == nil {
 		//这里属于服务器错误... 是否需要给客户端返回信息？
 		log.E("没有找到对应的desk ..")
@@ -265,21 +262,14 @@ func HandlerGame_ActGang(m *mjProto.Game_ActGang, a gate.Agent) {
 		return
 	}
 
-	//找到玩家
-	user := desk.GetUserByUserId(m.GetHeader().GetUserId())
-	if user == nil {
-		return
+	//先杠牌
+	err := desk.ActGang(m.GetHeader().GetUserId())
+	if err != nil {
+		log.E("服务器错误：用户[%v]杠牌的时候出错err[%v]", userId, err)
 	}
 
-	user.ActHu()        //这里碰牌的逻辑
-
-	//todo 设置checkCase 为已经验证过了
-
-	//设置下一个人摸牌
-	desk.SendMopaiOverTurn(user)
-
-	//杠牌之后 自己摸牌
-	a.WriteMsg(result)
+	//处理下一个人
+	desk.DoCheckCase(desk.GetUserByUserId(userId))        //杠牌之后，处理下一个判定牌
 }
 
 //过
@@ -287,14 +277,26 @@ func HandlerGame_ActGang(m *mjProto.Game_ActGang, a gate.Agent) {
 /**
 
 	设置checkCaseBean为已经check过就行了，不做其他的处理...
- */
-func HandlerGame_ActGuo(m *mjProto.Game_ActGuo, a gate.Agent) {
-	log.Debug("收到请求，game_ActGuo(m[%v],a[%v])", m, a)
 
+	注意 *   本协议  只有判断别人出牌是否需要的时候，才会请求...
+	胡牌的过，之后的人可以继续碰或者杠
+ */
+func HandlerGame_ActGuo(m *mjProto.Game_ActGuo) {
+	log.Debug("收到请求，game_ActGuo(m[%v])", m)
+
+	desk := majiang.GetMjDeskBySession(m.GetHeader().GetUserId()) //通过userId 的session 得到对应的desk
+	user := desk.GetUserByUserId(m.GetHeader().GetUserId())
+	desk.CheckCase.UpdateCheckBeanStatus(user.GetUserId(), majiang.CHECK_CASE_BEAN_STATUS_PASS)        // update checkCase...
+	//设置为过
+
+	//返回信息,过 只返回给过的
 	result := &mjProto.Game_AckActGuo{}
 	result.Header = newProto.SuccessHeader()
 	// 设置当前CheckBean 为已经check ，处理下一个checkBean
-	a.WriteMsg(result)
+	user.WriteMsg(result)
+
+	//进行下一个判断
+	desk.DoCheckCase(nil)        //过牌之后，处理下一个判定牌
 }
 
 //胡
@@ -308,6 +310,7 @@ func HandlerGame_ActHu(m *mjProto.Game_ActHu) {
 	log.Debug("收到请求，game_ActHu(m[%v])", m)
 
 	//需要返回的数据
+	userId := m.GetHeader().GetUserId()
 	result := newProto.NewGame_AckActHu()
 
 	//区分自摸点炮:1,如果自己的手牌就已经糊了（或者如果自己自己的牌是14，11，8，5，2 张的时候），那么就自摸，如果需要加上判定牌，那就是点炮
@@ -319,28 +322,18 @@ func HandlerGame_ActHu(m *mjProto.Game_ActHu) {
 		return
 	}
 
-	//找到玩家
-	user := desk.GetUserByUserId(m.GetHeader().GetUserId())
-	if user == nil {
-		return
-	}
-
-	desk.ActHu(m.GetHeader().GetUserId())
-
-	//玩家胡牌
-	err := user.ActHu()
+	//开始胡牌...
+	err := desk.ActHu(userId)
 	if err != nil {
-		//如果这里出现胡牌失败，证明是系统有问题...
-		log.E("用户[%v]胡牌失败...", m.GetHeader().GetUserId())
-		result.Header = newProto.ErrorHeader()
-		user.WriteMsg(result)        //返回失败的信息
-		return
+		log.E("服务器错误，胡牌失败..")
+
 	}
 
 	//胡牌成功之后的处理...
-	desk.SetNestUserCursor(user.GetUserId())        // 胡牌之后 设置当前操作的用户为当前胡牌的人...
-	desk.CheckCase.UpdateCheckBeanStatus(user.GetUserId(), majiang.CHECK_CASE_bean_STATUS_CHECKED)        // update checkCase...
-	*result.UserIdIn = user.GetUserId()
+	desk.SetActiveUser(userId)        // 胡牌之后 设置当前操作的用户为当前胡牌的人...
+	desk.CheckCase.UpdateCheckBeanStatus(userId, majiang.CHECK_CASE_BEAN_STATUS_CHECKED)        // update checkCase...
+	desk.CheckCase.UpdateChecStatus(majiang.CHECK_CASE_STATUS_CHECKING_HUED)        //已经有人胡了，后边的人就不能碰或者杠了
+	*result.UserIdIn = userId
 	*result.UserIdOut = desk.CheckCase.GetUserIdOut()        //打牌的人
 
 	//这里是否需要广播胡牌的广播...
@@ -350,44 +343,11 @@ func HandlerGame_ActHu(m *mjProto.Game_ActHu) {
 		desk.Lottery()
 		//因为可以开奖了，所以不操作后边的，直接返回
 		return
-	}
-
-	//还没有到牌局结束的时候，轮到下一个人...
-	mjHandPai := user.GetMJHandPai()
-	if mjHandPai == nil {
-		//服务器出错
-		return
-	}
-
-	//胡牌之后的处理
-	if mjHandPai.GetZiMo() {
-		// 如果是自摸，则轮到下一个人摸排，轮到胡牌的下一个人...
-		desk.SendMopaiOverTurn(nil)                //给下一个人发送overTurn 发牌的类型...
 	} else {
-		//todo 如果是点炮,那么计算判断其他人是否需要继续胡牌,有的话继续胡牌，没有的话设置下一个人摸牌...
-
-		//1,找到checkCase 是否有下一个人胡牌，如果有，那么让下一个人验证，如果没有，下一个人摸牌。。
-		nextBean := desk.CheckCase.GetHuBean(majiang.CHECK_CASE_bean_STATUS_CHECKED)
-		if nextBean == nil {
-			//表示没有下一个胡牌的人了,和自摸同样的处理
-			desk.CheckCase.UpdateChecStatus(majiang.CHECK_CASE_STATUS_CHECKED)
-			desk.SendMopaiOverTurn(nil)                //给下一个人发送overTurn 发牌的类型...
-		} else {
-			//发送overTurn 给下一个判定的人...
-
-			overTurn := newProto.NewGame_OverTurn()
-			*overTurn.UserId = nextBean.GetUserId()
-			*overTurn.CanGang = nextBean.GetCanGang()
-			*overTurn.CanPeng = nextBean.GetCanPeng()
-			*overTurn.CanHu = nextBean.GetCanHu()
-			overTurn.ActCard = desk.CheckCase.CheckMJPai.GetCardInfo()        //
-			*overTurn.ActType = majiang.OVER_TURN_ACTTYPE_OTHER
-
-			///发送overTurn 的信息
-			desk.GetUserByUserId(nextBean.GetUserId()).SendOverTurn(overTurn)
-
-		}
+		//处理下一个
+		desk.DoCheckCase(nil)        //胡牌之后，处理下一个判定牌
 	}
+
 }
 
 

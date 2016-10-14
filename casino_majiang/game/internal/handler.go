@@ -91,15 +91,13 @@ func handlerGame_ActPeng(args []interface{}) {
 //杠
 func handlerGame_ActGang(args []interface{}) {
 	m := args[0].(*mjProto.Game_ActGang)
-	a := args[1].(gate.Agent)
-	MJService.HandlerGame_ActGang(m, a)
+	MJService.HandlerGame_ActGang(m)
 }
 
 //过
 func handlerGame_ActGuo(args []interface{}) {
 	m := args[0].(*mjProto.Game_ActGuo)
-	a := args[1].(gate.Agent)
-	MJService.HandlerGame_ActGuo(m, a)
+	MJService.HandlerGame_ActGuo(m)
 }
 
 //胡

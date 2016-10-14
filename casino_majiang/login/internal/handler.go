@@ -5,8 +5,6 @@ import (
 	"casino_server/common/log"
 	"casino_majiang/msg/protogo"
 	"github.com/name5566/leaf/gate"
-	"casino_server/msg/bbprotogo"
-	"casino_server/service/userService"
 	"casino_server/conf/intCons"
 	"casino_majiang/msg/funcsInit"
 )
@@ -34,33 +32,14 @@ func handlerREQQuickConn(args []interface{}) {
 	result := newProto.NewGame_AckQuickConn()
 
 	//设置releasTag
-	*result.ReleaseTag = getReleaseTagByVersion(m.GetCurVersion())                   ///todo  需要把这个值加入到配置文件读取
-
-	//设置用户的信息
-	var resultUser *bbproto.User
-
-	//首先判断是否是微信登陆
-	if m.GetWxInfo() != nil && m.GetWxInfo().GetOpenId() != "" {
-		//log.T("用户是使用微信登陆")
-		//微信登陆,如果是微信新用户,则创建一个user,并且保存
-		openId := m.GetWxInfo().GetOpenId()
-		resultUser = userService.GetUserByOpenId(openId)
-		if resultUser == nil {
-			//重新生成一个并保存到数据库
-			if m.GetWxInfo().GetHeadUrl() == "" || m.GetWxInfo().GetNickName() == "" || m.GetWxInfo().GetOpenId() == "" {
-				//表示参数非法 返回错误
-			} else {
-				resultUser, _ = userService.NewUserAndSave(m.GetWxInfo().GetOpenId(), m.GetWxInfo().GetNickName(), m.GetWxInfo().GetHeadUrl())
-			}
-		}
-	}
+	*result.ReleaseTag = getReleaseTagByVersion(m.GetCurrVersion())                   ///todo  需要把这个值加入到配置文件读取
 
 	//处理客户端版本升级
 	LatestClientVersion := int32(0) //当前已发布客户端版本, TODO:放到配置文件中
 	result.IsUpdate = new(int32)
 	*result.IsUpdate = 0
-	if m.GetCurVersion() < LatestClientVersion {
-		log.T("客户端需要升级, 版本为:%v", m.GetCurVersion())
+	if m.GetCurrVersion() < LatestClientVersion {
+		log.T("客户端需要升级, 版本为:%v", m.GetCurrVersion())
 		*result.IsUpdate = 0 //1=强制升级 0=可选升级
 		result.DownloadUrl = new(string)
 		*result.DownloadUrl = "http://d.tondeen.com/sjtexas.html" //TODO:放入配置文件中
@@ -78,16 +57,8 @@ func handlerREQQuickConn(args []interface{}) {
 
 
 	//如果得到的user ==nil 或者 用密码登陆的时候密码不正确
-	if resultUser == nil {
-		log.E("没有找到用户,返回登陆失败...")
-		*result.Header.Code = intCons.ACK_RESULT_ERROR
-		a.WriteMsg(result)
-		return
-	} else {
-		*result.Header.Code = intCons.ACK_RESULT_SUCC                           //返回结果
-		*result.UserId = resultUser.GetId()
-		*result.NickName = resultUser.GetNickName()
-		log.T("快速登录,有userId,没有密码时返回的信息:[%v]", result)
-		a.WriteMsg(result)
-	}
+	*result.Header.Code = intCons.ACK_RESULT_SUCC                           //返回结果
+	log.T("快速登录,有userId,没有密码时返回的信息:[%v]", result)
+	a.WriteMsg(result)
+
 }
