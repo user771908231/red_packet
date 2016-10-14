@@ -97,6 +97,33 @@ message PlayOptions {
     optional int32 huRadio = 4; // 胡法，如：自摸胡、点炮胡（可抢杠）
 }
 
+enum MJOption {
+    EXCHANGE_CARDS          = 1; //换3张
+
+    ZIMO_JIA_DI             = 2; //自摸加底
+    ZIMO_JIA_FAN            = 3; //自摸加番
+
+    DIANGANG_HUA_DIANPAO    = 4; //点杠花（点炮）
+    DIANGANG_HUA_ZIMO       = 5; //点杠花（自摸）
+
+    YAOJIU_JIANGDUI         = 6; //幺九+将对
+    MENQING_MID_CARD        = 7; //门清+中张
+    TIAN_DI_HU              = 8; //天/地胡
+    KA_ER_TIAO              = 9; //卡2条
+
+//三人两房牌
+    DIANPAO_CAN_HU          = 10; //点炮可平胡
+    DUIDUIHU_2_FAN          = 11; //对对胡2番
+    JIA_XIN_WU              = 12; //夹心五
+
+//倒倒胡
+    DDH_QIDUI_HU            = 13; //可胡7对(倒倒胡)
+    DDH_ZIMO_HU             = 14; //自摸胡(倒倒胡)
+    DDH_DIANPAO_HU          = 15; //点炮胡(倒倒胡)
+
+}
+
+
 // 房间类型信息：包含房间类型和对应的局数、封顶、玩法等信息
 // 房间类型枚举
 enum MJRoomType {
@@ -133,25 +160,29 @@ enum HuPaiType {
     H_TianHu      = 7; //5番:天胡 庄家起牌后胡牌
     H_DiHu        = 8; //5番:地胡 第一回合中,没有任何玩家操作,非庄家自摸
 
-//附加番数
+//附加番数(特定操作)
     H_GangShangHua = 9;  //+1番 杠上花
     H_GangShangPao = 10;  //+1番 杠上炮
     H_QiangGang    = 11; //+1番 抢杠
     H_HaiDiLao     = 12; //+1番 海底捞
     H_HaiDiPao     = 13; //+1番 海底炮
-    H_JinGouDiao   = 14; //+1番 金钩钓
+    H_HaidiGangShangHua = 14;  //+2番 海底杠上花
+    H_HaidiGangShangPao = 15;  //+2番 海底杠上炮
 
-//可选附加玩法
-    H_ZiMoJiaFan   = 15; //+1番 自摸加番
-    H_ZiMoJiaDi    = 16; //+底 自摸加底
+//
+    H_JinGouDiao   = 16; //+1番 金钩钓
 
-    H_MenQing      = 17; //+1番 门清
-    H_ZhongZhang   = 18; //+1番 中张(胡牌时不含1,9)
+    //可选附加玩法
+    H_ZiMoJiaFan   = 17; //+1番 自摸加番
+    H_ZiMoJiaDi    = 18; //+底 自摸加底
+
+    H_MenQing      = 19; //+1番 门清
+    H_ZhongZhang   = 20; //+1番 中张(胡牌时不含1,9)
 
 //(内江麻将)
-    H_KaErTiao     = 19; //+1番 卡二条
+    H_KaErTiao     = 21; //+1番 卡二条
 //(德阳麻将)
-    H_JiaXin5      = 20; //+1番 夹心五
+    H_JiaXin5      = 22; //+1番 夹心五
 }
 
 

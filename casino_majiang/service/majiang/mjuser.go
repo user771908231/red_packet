@@ -247,5 +247,5 @@ func (u *MjUser) DaPai(p *MJPai) error {
 //设置用户的状态
 func (u *MjUser) SetStatus(s int32) error {
 	*u.Status = s
-
+	return nil
 }

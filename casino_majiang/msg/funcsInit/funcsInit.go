@@ -192,10 +192,8 @@ func NewGame_AckQuickConn() *mjProto.Game_AckQuickConn {
 	ret.Header = NewHeader()
 	ret.IsMaintain = new(int32)
 	ret.IsUpdate = new(int32)
-	ret.NickName = new(string)
 	ret.ReleaseTag = new(int32)
 	ret.VersionInfo = new(string)
-	ret.UserId = new(uint32)
 	return ret
 }
 

@@ -199,6 +199,7 @@ message game_TestResult {
     optional int32 RankUserCount = 10; //参赛总人数
     optional bool CanRebuy = 11; //是否可以重购买
     optional int32 RebuyCount = 12; //重购的次数
+    optional int32 RebuyCoin = 13;  //重购的筹码额(客户端提示给用户用)
 }
 
 message game_LeaveMatch {

@@ -17,7 +17,9 @@ message game_Opening {
 // 发牌
 message game_DealCards {
     optional ProtoHeader header = 1;
-    optional PlayerCard playerCard = 2;
+    optional PlayerCard playerCard = 2;  //发给我的牌
+    repeated int32 otherPlayerCards = 3;    //其它3个人的发牌数量
+    optional uint32 dealerUserId = 4;    //庄家的userId
 }
 
 // 换牌（3张）
@@ -150,7 +152,7 @@ message game_OverTurn {
     optional ProtoHeader header = 1;
     optional uint32 userId = 2; // 当前谁正在操作
     optional uint32 nextUserId = 3;
-    optional int32 actType = 4; // 1:正常摸牌/出牌 2:其它
+    optional int32 actType = 4; // 1:正常摸牌 2:其它
     optional bool canPeng = 5;
     optional bool canGang = 6;
     optional bool canHu = 7;

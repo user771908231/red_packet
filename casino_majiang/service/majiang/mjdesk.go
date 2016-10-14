@@ -348,7 +348,7 @@ func (d *MjDesk) beginInit() error {
 
 	//1,初始化庄的信息,如果目前没有庄，则设置房主为庄,如果有庄，则不用管，每局游戏借宿的时候，会设置下一局的庄
 	if d.GetBanker() == 0 {
-		*d.Banker = d.Owner
+		*d.Banker = d.GetOwner()
 	}
 
 	//发送游戏开始的协议...
