@@ -53,7 +53,7 @@ func (u *MjUser) IsDingQue() bool {
 }
 
 //返回一个用户信息
-func ( u *MjUser) GetPlayerInfo() *mjproto.PlayerInfo {
+func ( u *MjUser) GetPlayerInfo(showHand bool) *mjproto.PlayerInfo {
 	info := newProto.NewPlayerInfo()
 	*info.NHuPai = u.GetNHuPai()
 	*info.BDingQue = u.GetBDingQue()
@@ -61,20 +61,25 @@ func ( u *MjUser) GetPlayerInfo() *mjproto.PlayerInfo {
 	*info.BReady = u.getBReady()
 	*info.Coin = u.GetCoin()
 	*info.IsBanker = u.GetIsBanker()
-	info.PlayerCard = u.GetPlayerCard()
+	info.PlayerCard = u.GetPlayerCard(showHand)
 	*info.NickName = "测试nickName"
 	*info.UserId = u.GetUserId()
 	return info
 }
 
 //得到手牌
-func (u *MjUser) GetPlayerCard() *mjproto.PlayerCard {
+//showHand 是否显示手牌
+func (u *MjUser) GetPlayerCard(showHand bool) *mjproto.PlayerCard {
 	playerCard := newProto.NewPlayerCard()
 
 	//得到手牌
 	for _, pai := range u.GameData.HandPai.GetPais() {
 		if pai != nil {
-			playerCard.HandCard = append(playerCard.HandCard, pai.GetCardInfo())
+			if showHand {
+				playerCard.HandCard = append(playerCard.HandCard, pai.GetCardInfo())
+			} else {
+				playerCard.HandCard = append(playerCard.HandCard, pai.GetBackPai())
+			}
 		}
 	}
 
@@ -148,14 +153,6 @@ func (u *MjUser) getBReady() int32 {
 		return 0
 
 	}
-}
-
-//发牌
-func (u *MjUser) GetDealCards() *mjproto.Game_DealCards {
-	dealCards := newProto.NewGame_DealCards()
-	*dealCards.Header.UserId = u.GetUserId()
-	dealCards.PlayerCard = u.GetPlayerCard()
-	return dealCards
 }
 
 //发送overTrun

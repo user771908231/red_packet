@@ -83,7 +83,7 @@ func HandlerGame_EnterRoom(userId uint32, key string, a gate.Agent) {
 	} else {
 		//3,更新userSession,返回desk 的信息
 		majiang.UpdateSession(userId, majiang.MJUSER_SESSION_GAMESTATUS_FRIEND, desk.GetRoomId(), desk.GetDeskId(), desk.GetPassword())
-		gameinfo := desk.GetGame_SendGameInfo()
+		gameinfo := desk.GetGame_SendGameInfo(userId)
 		*gameinfo.SenderUserId = userId
 		//a.WriteMsg(gameinfo)
 		desk.BroadCastProto(gameinfo)

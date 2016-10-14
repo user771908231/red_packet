@@ -16,6 +16,14 @@ func (p *MJPai) GetCardInfo() *mjproto.CardInfo {
 	return cardInfo
 }
 
+func (p *MJPai) GetBackPai() *mjproto.CardInfo {
+	cardInfo := newProto.NewCardInfo()
+	*cardInfo.Id = 0
+	*cardInfo.Type = 0
+	*cardInfo.Value = 0
+	return cardInfo
+}
+
 //返回前端需要的id号
 func (p *MJPai) GetClientId() int32 {
 	return 0

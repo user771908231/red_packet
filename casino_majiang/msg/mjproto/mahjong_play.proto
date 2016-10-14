@@ -14,13 +14,11 @@ message game_Opening {
     optional int32 tableId = 3;
 }
 
-
-
 // 发牌
 message game_DealCards {
     optional ProtoHeader header = 1;
-    repeated PlayerCard playerCard = 2;  //发给我的牌
-    optional uint32 dealerUserId = 3;    //庄家的userId
+    repeated PlayerCard playerCard = 2; //发给我的牌
+    optional uint32 dealerUserId = 3; //庄家的userId
 }
 
 // 换牌（3张）

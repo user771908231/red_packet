@@ -198,11 +198,15 @@ func (d *MjDesk) GetDeskGameInfo() *mjproto.DeskGameInfo {
 }
 
 //返回玩家的数目
-func (d *MjDesk) GetPlayerInfo() []*mjproto.PlayerInfo {
+func (d *MjDesk) GetPlayerInfo(receiveUserId uint32) []*mjproto.PlayerInfo {
 	var players []*mjproto.PlayerInfo
 	for _, user := range d.Users {
 		if user != nil {
-			players = append(players, user.GetPlayerInfo())
+			if user.GetUserId() == receiveUserId {
+				players = append(players, user.GetPlayerInfo(true))
+			} else {
+				players = append(players, user.GetPlayerInfo(false))
+			}
 		}
 	}
 	return players
@@ -220,12 +224,11 @@ func (d *MjDesk) GetPlayerNum() int32 {
 }
 
 // 发送gameInfo的信息
-func (d *MjDesk) GetGame_SendGameInfo() *mjproto.Game_SendGameInfo {
+func (d *MjDesk) GetGame_SendGameInfo(receiveUserId uint32) *mjproto.Game_SendGameInfo {
 	gameInfo := newProto.NewGame_SendGameInfo()
 	gameInfo.DeskGameInfo = d.GetDeskGameInfo()
-	gameInfo.PlayerInfo = d.GetPlayerInfo()
-	//gameInfo.SenderUserId   发起请求的人 ... agent 返回信息的时候 取userId
-
+	*gameInfo.SenderUserId = receiveUserId
+	gameInfo.PlayerInfo = d.GetPlayerInfo(receiveUserId)
 	return gameInfo
 }
 
@@ -381,7 +384,7 @@ func (d *MjDesk) initCards() error {
 	//发牌的协议game_DealCards  初始化完成之后，给每个人发送牌
 	for _, user := range d.Users {
 		if user != nil {
-			dealCards := user.GetDealCards()
+			dealCards := d.GetDealCards(user)
 			if dealCards != nil {
 				log.T("把玩家[%v]的牌[%v]发送到客户端...", user.GetUserId(), dealCards)
 				user.WriteMsg(dealCards)
@@ -393,6 +396,25 @@ func (d *MjDesk) initCards() error {
 
 	//发送发牌的广播
 	return nil
+}
+
+func (d *MjDesk) GetDealCards(user *MjUser) *mjproto.Game_DealCards {
+	dealCards := newProto.NewGame_DealCards()
+	for _, u := range d.GetUsers() {
+		if u != nil {
+			if u.GetUserId() == user.GetUserId() {
+				//表示是自己，可以看到手牌
+				dealCards.PlayerCard = append(dealCards.PlayerCard, u.GetPlayerCard(true))
+			} else {
+				dealCards.PlayerCard = append(dealCards.PlayerCard, u.GetPlayerCard(false))
+				//表示不是自己，不能看到手牌
+			}
+
+		}
+
+	}
+
+	return dealCards
 }
 
 //开始定缺

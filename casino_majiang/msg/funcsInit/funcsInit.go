@@ -173,7 +173,6 @@ func NewGame_OverTurn() *mjProto.Game_OverTurn {
 func NewGame_DealCards() *mjProto.Game_DealCards {
 	ret := &mjProto.Game_DealCards{}
 	ret.Header = NewHeader()
-	ret.PlayerCard = NewPlayerCard()
 	return ret
 }
 
