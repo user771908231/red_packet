@@ -28,26 +28,28 @@ func HandlerGame_CreateRoom(m *mjProto.Game_CreateRoom, a gate.Agent) {
 
 	//2,开始创建房间
 	desk := majiang.FMJRoomIns.CreateDesk(m)
-
 	//3,返回数据
-	result := newProto.NewGame_AckCreateRoom()
 
 	if desk == nil {
+		result := newProto.NewGame_AckCreateRoom()
 		*result.Header.Code = intCons.ACK_RESULT_ERROR
 		log.Error("用户[%v]创建房间失败...")
+		a.WriteMsg(result)
+
 	} else {
+		log.T("用户[%v]创建房间成功，roomKey[%v]", desk.GetOwner(), desk.GetPassword())
+		result := newProto.NewGame_AckCreateRoom()
 		*result.Header.Code = intCons.ACK_RESULT_SUCC
 		*result.Password = desk.GetPassword()
 		*result.DeskId = desk.GetDeskId()
 		*result.CreateFee = desk.GetCreateFee()
 		result.RoomTypeInfo = desk.GetRoomTypeInfo()
 		*result.UserBalance = userService.GetUserDiamond(m.GetHeader().GetUserId())
+		a.WriteMsg(result)
 
 		//创建成功之后，用户自动进入房间...
 		HandlerGame_EnterRoom(m.GetHeader().GetUserId(), desk.GetPassword(), a)
 	}
-
-	a.WriteMsg(result)
 
 }
 
@@ -59,7 +61,7 @@ func HandlerGame_CreateRoom(m *mjProto.Game_CreateRoom, a gate.Agent) {
 3，进入失败【只】返回AckEnterRoom
  */
 func HandlerGame_EnterRoom(userId uint32, key string, a gate.Agent) {
-	log.T("收到请求，HandlerGame_EnterRoom(m[%v],a[%v])", userId, a)
+	log.T("收到请求，HandlerGame_EnterRoom(m[%v])", userId)
 
 	//1,找到合适的room
 	room := majiang.GetMJRoom()

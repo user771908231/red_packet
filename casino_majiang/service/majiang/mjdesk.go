@@ -398,6 +398,7 @@ func (d *MjDesk) initCards() error {
 	return nil
 }
 
+//发牌的协议
 func (d *MjDesk) GetDealCards(user *MjUser) *mjproto.Game_DealCards {
 	dealCards := newProto.NewGame_DealCards()
 	for _, u := range d.GetUsers() {

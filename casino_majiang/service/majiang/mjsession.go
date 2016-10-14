@@ -33,7 +33,6 @@ func GetSession(userId uint32) *MjSession {
 
 //更新用户的session信息，具体更新什么信息待定
 func UpdateSession(userId uint32, gameStatus int32, roomId int32, deskId int32, deskPassWord string) (*MjSession, error) {
-	log.T("更新的session数据  deskId[%v]", deskId)
 	var session *MjSession
 	s := redisUtils.GetObj(getSessionKey(userId), &MjSession{})
 	if s != nil {
