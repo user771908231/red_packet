@@ -591,7 +591,7 @@ func  CanPengPai(pai *MJPai, handPai *MJHandPai) bool {
 
 	existCount := 0
 	for i := 0; i < len(handPai.Pais); i++ {
-		if *pai.Value == *handPai.Pais[i].Value {
+		if *pai.Flower == *handPai.Pais[i].Flower && *pai.Value == *handPai.Pais[i].Value {
 			existCount ++
 		}
 	}
@@ -599,18 +599,33 @@ func  CanPengPai(pai *MJPai, handPai *MJHandPai) bool {
 	return ( existCount == 2 || existCount == 3 )
 }
 
+//这张pai是否可杠( 当pai为nil时, 检测handPai中是否有杠)
+func  CanGangPai(pai *MJPai, handPai *MJHandPai) (canGang bool, gangPais []*MJPai) {
 
-//这张pai是否可杠
-func  CanGangPai(pai *MJPai, handPai *MJHandPai) bool {
+	if( pai != nil ) { //判断别人打入的牌是否可杠
+		existCount := 0
+		for _, p := range handPai.Pais {
+			if *pai.Flower == *p.Flower && *pai.Value == *p.Value {
+				existCount ++
+			}
+		}
 
-	existCount := 0
-	for i := 0; i < len(handPai.Pais); i++ {
-		if *pai.Value == *handPai.Pais[i].Value {
-			existCount ++
+		canGang = ( existCount == 3 )
+		if ( canGang ) {
+			append(gangPais, pai)
+		}
+
+	} else { //检测手牌中是否有杠
+		counts := GettPaiStats(handPai.Pais)
+		for _, p := range handPai.Pais {
+			if( 4 == counts[ p.GetValue() + (p.GetFlower() - 1) * 9 ] ) {
+				canGang = true
+				append(gangPais, p)
+			}
 		}
 	}
 
-	return ( existCount == 3 )
+	return canGang, gangPais
 }
 
 //清一色
