@@ -14,6 +14,8 @@ var MJUSER_STATUS_INTOROOM int32 = 1; ///刚进入游戏
 var MJUSER_STATUS_SEATED int32 = 2; //坐下游戏
 var MJUSER_STATUS_READY int32 = 3; ///准备游戏
 var MJUSER_STATUS_DINGQUE int32 = 4; ///准备游戏
+var MJUSER_STATUS_HUPAI int32 = 5; ///准备游戏
+
 
 //麻将玩家
 
@@ -35,7 +37,7 @@ func (u *MjUser) IsReady() bool {
 
 //用户是否胡牌
 func (u *MjUser) IsHu() bool {
-	return true
+	return u.GetStatus() == MJUSER_STATUS_HUPAI
 }
 
 func (u *MjUser) IsNotHu() bool {
@@ -258,4 +260,13 @@ func (u *MjUser) DaPai(p *MJPai) error {
 func (u *MjUser) SetStatus(s int32) error {
 	*u.Status = s
 	return nil
+}
+
+//判断用户是否可以摸牌
+func (u *MjUser) CanMoPai() bool {
+	if u.IsNotHu() {
+		return true
+	} else {
+		return false
+	}
 }

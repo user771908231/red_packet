@@ -25,10 +25,10 @@ func gameInfo(w http.ResponseWriter, r *http.Request) {
 
 func printDeskInfo(w http.ResponseWriter, desk *majiang.MjDesk) {
 	if desk != nil {
-		deskInfo := "开始打印desk.id[%v], \t房间号roomKey[%v]的信息:\t 房主Owner[%v],\t \n" +
-		"麻将的信息：庄家的信息[%v]\t当前的游标[%v]：\n 麻将:%v"
+		deskInfo := "开始打印desk.id[%v], \t房间号roomKey[%v]的信息:\t 房主Owner[%v],activeUser[%v]\t \n" +
+		"麻将的信息：庄家的信息[%v]\t当前的游标[%v]：\n 麻将:\n %v"
 
-		fmt.Fprintf(w, deskInfo, desk.GetDeskId(), desk.GetPassword(), desk.GetOwner(),
+		fmt.Fprintf(w, deskInfo, desk.GetDeskId(), desk.GetPassword(), desk.GetOwner(), desk.GetActiveUser(),
 			desk.GetBanker(), desk.GetMJPaiCursor(), GetDeskMJInfo(desk))
 
 		fmt.Fprintf(w, "\n开始打印user的信息:\n")
@@ -37,7 +37,10 @@ func printDeskInfo(w http.ResponseWriter, desk *majiang.MjDesk) {
 				fmt.Fprintf(w, "[%v],玩家的信息userId[%v],nickName[%v],status[%v],是否定缺[%v],定缺的花色[%v]\n", i, user.GetUserId(), "nickName", user.GetStatus(), user.GetDingQue(), user.GameData.HandPai.GetQueFlower())
 			}
 		}
+
+		fmt.Fprintf(w, "打印desk.id[%v]完毕 \n\n\n\n\n\n", desk.GetDeskId())
 	}
+
 }
 
 func GetDeskMJInfo(desk *majiang.MjDesk) string {

@@ -12,7 +12,7 @@ func (p *MJPai) GetCardInfo() *mjproto.CardInfo {
 	cardInfo := newProto.NewCardInfo()
 	*cardInfo.Id = p.GetIndex()
 	*cardInfo.Type = p.GetFlower()
-	*cardInfo.Value = p.GetValue() * p.GetFlower()
+	*cardInfo.Value = p.GetClientId()
 	return cardInfo
 }
 
@@ -26,7 +26,7 @@ func (p *MJPai) GetBackPai() *mjproto.CardInfo {
 
 //返回前端需要的id号
 func (p *MJPai) GetClientId() int32 {
-	return 0
+	return clienMap[int(p.GetIndex())]
 }
 
 //是否可以胡牌

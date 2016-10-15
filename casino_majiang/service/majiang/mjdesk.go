@@ -580,19 +580,24 @@ func (d *MjDesk) SetActiveUser(userId uint32) error {
 
 //得到下一个摸牌的人...
 func (d *MjDesk) GetNextMoPaiUser() *MjUser {
-	log.T("得到下一个玩家...当前的activeUser[%v]", d.GetActiveUser())
+	log.T("查询下一个玩家...当前的activeUser[%v]", d.GetActiveUser())
 	var activeUser *MjUser = nil
-	activeIndex := 0
+	activeIndex := -1
 	for i, u := range d.GetUsers() {
 		if u != nil && u.GetUserId() == d.GetActiveUser() {
 			activeIndex = i
 			break
 		}
 	}
+	log.T("查询下一个玩家...当前的activeUser[%v],activeIndex[%v]", d.GetActiveUser(), activeIndex)
+	if activeIndex == -1 {
+		return nil
+	}
 
 	for i := activeIndex + 1; i < activeIndex + int(d.GetUserCount()); i++ {
 		user := d.GetUsers()[i % int(d.GetUserCount())]
-		if user != nil && user.IsNotHu() {
+		log.T("查询下一个玩家...当前的activeUser[%v],activeIndex[%v],循环检测index[%v],user.IsNotHu(%v),user.CanMoPai[%v]", d.GetActiveUser(), activeIndex, i, user.IsNotHu(), user.CanMoPai())
+		if user != nil && user.CanMoPai() {
 			activeUser = user
 			break
 		}
@@ -611,7 +616,7 @@ func (d *MjDesk) GetNextPai() *MJPai {
 		log.E("服务器错误:要找的牌的坐标[%v]已经超过整副麻将的坐标了... ", d.GetMJPaiCursor())
 		return nil
 	} else {
-		return d.AllMJPai[0]
+		return d.AllMJPai[d.GetMJPaiCursor()]
 	}
 }
 
@@ -734,21 +739,11 @@ func (d *MjDesk)ActOut(userId uint32, paiKey int32) error {
 		log.E("服务器错误，初始化判定牌的时候出错err[%v]", err)
 	}
 
-
-	//回复消息
+	//回复消息,打牌之后，广播打牌的信息...s
 	outUser.PreMoGangInfo = nil        //清楚摸牌前的杠牌info
 	result := newProto.NewGame_AckSendOutCard()
 	*result.UserId = userId
 	result.Card = outPai.GetCardInfo()
-
-	if d.CheckCase == nil {
-		//表示没有人判定，直接下一家，发送结果给你自己
-		//*result.Result = 0
-	} else {
-		//表示有人判定，需要等待之后的通知
-		//*result.Result = 0
-	}
-
 	d.BroadCastProto(result)
 
 	return nil
@@ -839,5 +834,6 @@ func (d *MjDesk) ActGang(userId uint32) error {
 
 //设置用户的状态为离线
 func (d *MjDesk) SetOfflineStatus(userId uint32) {
-
+	user := d.GetUserByUserId(userId)
+	*user.IsBreak = true
 }

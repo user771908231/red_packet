@@ -129,6 +129,7 @@ func (r *MjRoom) GetDeskByDeskId(id int32) *MjDesk {
 //进入房间
 //进入的时候，需要判断牌房间的类型...
 func (r *MjRoom) EnterRoom(key string, userId uint32, a gate.Agent) (*MjDesk, error) {
+
 	var desk *MjDesk
 	//如果是朋友桌,需要通过房间好来找到desk
 	if r.IsFriend() {
@@ -143,12 +144,14 @@ func (r *MjRoom) EnterRoom(key string, userId uint32, a gate.Agent) (*MjDesk, er
 				return nil, errors.New("用户加入房间失败...")
 			}
 		}
+		return desk, nil        //朋友桌 数据返回...
 	}
+
+	return nil, nil
 
 	//如果是锦标赛
 
 	//返回结果...
-	return desk, nil
 }
 
 func (r *MjRoom) IsFriend() bool {
