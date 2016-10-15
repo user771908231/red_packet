@@ -162,11 +162,11 @@ func HandlerGame_DingQue(m *mjProto.Game_DingQue, a gate.Agent) {
 		overTurn := newProto.NewGame_OverTurn()
 		*overTurn.UserId = desk.GetBanker()
 		*overTurn.ActType = majiang.OVER_TURN_ACTTYPE_MOPAI
+		*overTurn.CanPeng = false        ///自己的手牌不能碰
 
 		//广播时候的信息
 		overTurn.ActCard = nil
 		*overTurn.CanHu = false
-		*overTurn.CanPeng = false
 		*overTurn.CanGang = false
 		desk.BroadCastProtoExclusive(overTurn, desk.GetBanker())
 
@@ -174,7 +174,6 @@ func HandlerGame_DingQue(m *mjProto.Game_DingQue, a gate.Agent) {
 		bankUser := desk.GetBankerUser()
 		*overTurn.CanHu = bankUser.GameData.HandPai.GetCanHu()
 		*overTurn.CanGang = bankUser.GameData.HandPai.GetCanGang()
-		*overTurn.CanPeng = bankUser.GameData.HandPai.GetCanPeng()
 		bankUser.SendOverTurn(overTurn)
 	}
 
@@ -213,7 +212,7 @@ func HandlerGame_SendOutCard(m *mjProto.Game_SendOutCard, a gate.Agent) {
 		//打牌失败
 	}
 
-	log.T("用户[%v]已经打牌，处理下一个checkCase",userId)
+	log.T("用户[%v]已经打牌，处理下一个checkCase", userId)
 	desk.DoCheckCase(nil)        //打牌之后，别人判定牌
 
 }

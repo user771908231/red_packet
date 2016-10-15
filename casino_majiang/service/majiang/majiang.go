@@ -2,10 +2,10 @@ package majiang
 
 import (
 	"strings"
-	"github.com/name5566/leaf/log"
 	"casino_server/utils/numUtils"
 	"casino_server/utils"
 	. "casino_majiang/msg/protogo"
+	"casino_server/common/log"
 )
 
 //得到一副牌...
@@ -254,9 +254,9 @@ func GettPaiStats(pais []*MJPai) []int {
 		pai := pais[i]
 		value := pai.GetValue() - 1
 		flower := pai.GetFlower()    //flower=1,2,3
-
+		//log.T("getValue(%v)", value)
 		value += (flower - 1) * 9
-
+		//log.T("value", value)
 		counts[ value ] ++
 	}
 
@@ -373,7 +373,7 @@ func tryHU(count []int, len int) (result bool, isAll19 bool) {
 }
 
 //确定要胡牌的时候,做出的处理
-func  HuPai(handPai *MJHandPai) error {
+func HuPai(handPai *MJHandPai) error {
 	//排序
 	//统计
 	//p.InitHandPaisStats()
@@ -386,16 +386,21 @@ func  HuPai(handPai *MJHandPai) error {
 }
 
 //这张pai能不能胡
-func  CanHuPai(pai *MJPai, handPai *MJHandPai) bool {
+func CanHuPai(pai *MJPai, handPai *MJHandPai) bool {
 	//在所有的牌中增加 pai,判断此牌是否能和
-	handPai.Pais = append(handPai.Pais, pai)
+	if pai != nil {
+		handPai.Pais = append(handPai.Pais, pai)
+	} else {
+		pai = handPai.Pais[0]
+	}
+
 	counts := GettPaiStats(handPai.Pais)
 
 	canHu, isAll19 := tryHU(counts, len(handPai.Pais))
 	if canHu {
-		log.Debug("牌= %d  可以胡! isAll19=%V", *pai.Value, isAll19)
+		log.T("牌= %d  可以胡! isAll19=%V", *pai.Value, isAll19)
 	} else {
-		log.Debug("牌= %d  不能胡! isAll19=%V", *pai.Value, isAll19)
+		log.T("牌= %d  不能胡! isAll19=%V", *pai.Value, isAll19)
 	}
 
 	//最后需要删除最后一张牌
@@ -404,7 +409,7 @@ func  CanHuPai(pai *MJPai, handPai *MJHandPai) bool {
 	return canHu
 }
 
-func  getHuScore(handPai *MJHandPai, isZimo bool, extraAct HuPaiType, roomInfo RoomTypeInfo) (fan int32, score int64, huCardStr[] string) {
+func getHuScore(handPai *MJHandPai, isZimo bool, extraAct HuPaiType, roomInfo RoomTypeInfo) (fan int32, score int64, huCardStr[] string) {
 	//底分
 	score = int64(*roomInfo.BaseValue)
 
@@ -428,7 +433,7 @@ func  getHuScore(handPai *MJHandPai, isZimo bool, extraAct HuPaiType, roomInfo R
 }
 
 //计算带几个"勾"
-func  getGou(handPai *MJHandPai, counts[] int) (gou int32) {
+func getGou(handPai *MJHandPai, counts[] int) (gou int32) {
 	// 已杠的牌
 	gou = int32(len(handPai.GangPais))
 
@@ -455,7 +460,7 @@ func  getGou(handPai *MJHandPai, counts[] int) (gou int32) {
 // 返回胡牌番数
 // extraAct:指定HuPaiType.H_GangShangHua(杠上花/炮,海底等)
 //
-func  getHuFan(handPai *MJHandPai, isZimo bool, extraAct HuPaiType, roomInfo RoomTypeInfo) (fan int32, huCardStr[] string) {
+func getHuFan(handPai *MJHandPai, isZimo bool, extraAct HuPaiType, roomInfo RoomTypeInfo) (fan int32, huCardStr[] string) {
 	fan = int32(0)
 	pais := []*MJPai{}
 	pais = append(pais, handPai.Pais...)
@@ -587,7 +592,7 @@ func  getHuFan(handPai *MJHandPai, isZimo bool, extraAct HuPaiType, roomInfo Roo
 
 
 //这张pai是否可碰
-func  CanPengPai(pai *MJPai, handPai *MJHandPai) bool {
+func CanPengPai(pai *MJPai, handPai *MJHandPai) bool {
 
 	existCount := 0
 	for i := 0; i < len(handPai.Pais); i++ {
@@ -601,7 +606,8 @@ func  CanPengPai(pai *MJPai, handPai *MJHandPai) bool {
 
 
 //这张pai是否可杠
-func  CanGangPai(pai *MJPai, handPai *MJHandPai) bool {
+func CanGangPai(pai *MJPai, handPai *MJHandPai) bool {
+
 
 	existCount := 0
 	for i := 0; i < len(handPai.Pais); i++ {
@@ -614,7 +620,7 @@ func  CanGangPai(pai *MJPai, handPai *MJHandPai) bool {
 }
 
 //清一色
-func  IsQingYiSe(pais []*MJPai) bool {
+func IsQingYiSe(pais []*MJPai) bool {
 	flower := pais[0].Flower
 	for i := 1; i < len(pais); i++ {
 		if *flower != *pais[i].Flower {
@@ -626,7 +632,7 @@ func  IsQingYiSe(pais []*MJPai) bool {
 }
 
 //大对子
-func  IsDaDuiZi(pais []*MJPai) bool {
+func IsDaDuiZi(pais []*MJPai) bool {
 	counts := GettPaiStats(pais)
 
 	jiangDui := 0
@@ -646,7 +652,7 @@ func  IsDaDuiZi(pais []*MJPai) bool {
 }
 
 //七对
-func  IsQiDui(handPai *MJHandPai) bool {
+func IsQiDui(handPai *MJHandPai) bool {
 
 	if len(handPai.Pais) != 13 {
 		//手牌需为13张
@@ -665,7 +671,7 @@ func  IsQiDui(handPai *MJHandPai) bool {
 }
 
 //龙七对
-func  IsLongQiDui(handPai *MJHandPai) bool {
+func IsLongQiDui(handPai *MJHandPai) bool {
 	pais := handPai.Pais
 
 	if !IsQiDui(handPai) {
@@ -685,7 +691,7 @@ func  IsLongQiDui(handPai *MJHandPai) bool {
 }
 
 //将对(全是2,5,8的大对子)
-func  IsJiangDui(handPai *MJHandPai) bool {
+func IsJiangDui(handPai *MJHandPai) bool {
 	pais := handPai.Pais
 
 	for i := 0; i < len(pais); i++ {
@@ -698,7 +704,7 @@ func  IsJiangDui(handPai *MJHandPai) bool {
 }
 
 //将七对(全是2,5,8的七对)
-func  IsJiangQiDui(handPai *MJHandPai) bool {
+func IsJiangQiDui(handPai *MJHandPai) bool {
 	pais := handPai.Pais
 
 	for i := 0; i < len(pais); i++ {
@@ -711,7 +717,7 @@ func  IsJiangQiDui(handPai *MJHandPai) bool {
 }
 
 //全带幺
-func  IsAllDaiYao(handPai *MJHandPai) bool {
+func IsAllDaiYao(handPai *MJHandPai) bool {
 	pais := handPai.Pais
 
 	for i := 0; i < len(pais); i++ {
@@ -764,7 +770,7 @@ func XiPai() []*MJPai {
 		pmap = append(pmap[:int(rand)], pmap[int(rand) + 1:]...)
 	}
 
-	log.Debug("洗牌之后,得到的随机的index数组[%v]", pResult)
+	log.T("洗牌之后,得到的随机的index数组[%v]", pResult)
 
 	//开始得到牌的信息
 	result := make([]*MJPai, MJPAI_COUNT)
@@ -772,7 +778,7 @@ func XiPai() []*MJPai {
 		result[i] = InitMjPaiByIndex(pResult[i])
 	}
 
-	log.Debug("洗牌之后,得到的牌的数组[%v]", result)
+	log.T("洗牌之后,得到的牌的数组[%v]", result)
 	return result
 }
 

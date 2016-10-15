@@ -71,8 +71,6 @@ func NewGame_DingQue() *mjProto.Game_DingQue {
 	que := &mjProto.Game_DingQue{}
 	que.Header = NewHeader()
 	que.Color = new(int32)
-	que.MatchId = new(int32)
-	que.TableId = new(int32)
 	que.UserId = new(uint32)
 	return que
 }
@@ -180,8 +178,6 @@ func NewGame_DealCards() *mjProto.Game_DealCards {
 func NewGame_Opening() *mjProto.Game_Opening {
 	ret := &mjProto.Game_Opening{}
 	ret.Header = NewHeader()
-	ret.MatchId = new(int32)
-	ret.TableId = new(int32)
 	return ret
 }
 

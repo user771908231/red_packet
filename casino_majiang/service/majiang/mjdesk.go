@@ -455,10 +455,10 @@ func (d *MjDesk) DingQue(userId uint32, color int32) error {
 	//回复定缺成功的消息
 	ack := newProto.NewGame_DingQue()
 	//*ack.Color = color
+	*ack.Header.UserId = userId
 	*ack.Color = -1
-	*ack.MatchId = d.GetRoomId()
-	*ack.TableId = d.GetDeskId()
 	*ack.UserId = userId
+	log.T("回复定缺的协议ack[%v]", ack)
 	d.BroadCastProto(ack)        //发送定缺成功的广播
 	return nil
 }
@@ -641,12 +641,13 @@ func (d *MjDesk) SendMopaiOverTurn(user *MjUser) error {
 	*overTrun.ActType = OVER_TURN_ACTTYPE_MOPAI        //摸牌
 
 	//发送给当事人时候的信息
-	overTrun.ActCard = d.GetNextPai().GetCardInfo()
+	nextPai := d.GetNextPai()
+	overTrun.ActCard = nextPai.GetCardInfo()
 	*overTrun.CanHu = user.GameData.HandPai.GetCanHu()
-	*overTrun.CanGang = user.GameData.HandPai.GetCanGang()
-	*overTrun.CanPeng = user.GameData.HandPai.GetCanPeng()
+	//*overTrun.CanGang = user.GameData.HandPai.GetCanGang()
+	*overTrun.CanPeng = user.GameData.HandPai.GetCanPeng(nextPai)
 	user.SendOverTurn(overTrun)
-	log.T("玩家[%v]开始摸牌【%v】...", user.GetUserId(), *overTrun.ActCard)
+	log.T("玩家[%v]开始摸牌【%v】...", user.GetUserId(), overTrun.ActCard)
 
 	//给其他人广播协议
 	*overTrun.CanHu = false

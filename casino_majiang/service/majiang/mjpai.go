@@ -31,17 +31,15 @@ func (p *MJPai) GetClientId() int32 {
 
 //是否可以胡牌
 func (p *MJHandPai) GetCanHu() bool {
-
-
-	return false
+	return CanHuPai(nil, p)
 }
 
-func (p *MJHandPai) GetCanPeng() bool {
-	return false
+func (p *MJHandPai) GetCanPeng(pai *MJPai) bool {
+	return CanPengPai(pai, p)
 }
 
 func (p *MJHandPai) GetCanGang() bool {
-	return false
+	return CanGangPai(nil, p)
 }
 
 //增加一张牌
