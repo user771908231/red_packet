@@ -3,6 +3,7 @@ package internal
 import (
 	"github.com/name5566/leaf/module"
 	"casino_majiang/base"
+	"fmt"
 )
 
 var (
@@ -19,5 +20,6 @@ func (m *Module) OnInit() {
 }
 
 func (m *Module) OnDestroy() {
+	fmt.Println("")
 
 }

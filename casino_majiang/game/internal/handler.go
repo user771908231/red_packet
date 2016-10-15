@@ -11,6 +11,7 @@ import (
 )
 
 func handler(m interface{}, h interface{}) {
+	fmt.Println("gameHandler,", m)
 	skeleton.RegisterChanRPC(reflect.TypeOf(m), h)
 }
 

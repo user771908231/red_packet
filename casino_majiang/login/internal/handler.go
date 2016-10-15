@@ -7,9 +7,11 @@ import (
 	"github.com/name5566/leaf/gate"
 	"casino_server/conf/intCons"
 	"casino_majiang/msg/funcsInit"
+	"fmt"
 )
 
 func handler(m interface{}, h interface{}) {
+	fmt.Println("loginHandler,", m)
 	skeleton.RegisterChanRPC(reflect.TypeOf(m), h)
 }
 

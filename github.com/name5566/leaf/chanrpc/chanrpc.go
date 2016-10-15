@@ -37,7 +37,7 @@ type RetInfo struct {
 	// func(err error)
 	// func(ret interface{}, err error)
 	// func(ret []interface{}, err error)
-	cb interface{}
+	cb  interface{}
 }
 
 type Client struct {
@@ -68,6 +68,7 @@ func (s *Server) Register(id interface{}, f interface{}) {
 		panic(fmt.Sprintf("function id %v: already registered", id))
 	}
 
+	fmt.Println("注册id[%v],f[%v]", id, f)
 	s.functions[id] = f
 }
 
@@ -122,6 +123,8 @@ func (s *Server) Exec(ci *CallInfo) (err error) {
 func (s *Server) Go(id interface{}, args ...interface{}) {
 	f := s.functions[id]
 	if f == nil {
+
+		fmt.Println("没有找到id[%v]对应的方法", id)
 		return
 	}
 
@@ -283,11 +286,11 @@ func (c *Client) AsynCall(id interface{}, _args ...interface{}) {
 	// args
 	var args []interface{}
 	if len(_args) > 1 {
-		args = _args[:len(_args)-1]
+		args = _args[:len(_args) - 1]
 	}
 
 	// cb
-	cb := _args[len(_args)-1]
+	cb := _args[len(_args) - 1]
 	switch cb.(type) {
 	case func(error):
 		err := c.asynCall(id, args, cb, 0)
