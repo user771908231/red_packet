@@ -10,8 +10,6 @@ option optimize_for = LITE_RUNTIME;
 // 开局（接收服务端消息）
 message game_Opening {
     optional ProtoHeader header = 1;
-    optional int32 matchId = 2;
-    optional int32 tableId = 3;
 }
 
 // 发牌
@@ -24,31 +22,27 @@ message game_DealCards {
 // 换牌（3张）
 message game_ExchangeCards {
     optional ProtoHeader header = 1;
-    optional int32 matchId = 2;
-    optional int32 tableId = 3;
-    optional int32 seat = 4;
-    repeated CardInfo exchangeOutCards = 5; // 要换出的 3 张牌
-    optional uint32 userId = 6; // 操作人 (广播给其它用户时用到)
+    optional int32 seat = 2;
+    repeated CardInfo exchangeOutCards = 3; // 要换出的 3 张牌
+    optional uint32 userId = 4; // 操作人 (广播给其它用户时用到)
+    optional int32 exchangeNum = 5; //换几张: 3张, 2张
 }
+
 message game_AckExchangeCards {
     optional ProtoHeader header = 1;
-    optional int32 matchId = 2;
-    optional int32 tableId = 3;
-    optional int32 seat = 4;
-    repeated CardInfo exchangeOutCards = 5; // 要换出的 3 张牌
-    optional int32 exchangeOutseat = 6; // 换给谁
-    repeated CardInfo exchangeInCards = 7; // 换入的 3 张牌
-    optional int32 exchangeInseat = 8; // 谁换给我的
-    optional int32 dice = 9; // 庄家掷出的骰子点数（决定换三张的方向，服务器返回这个只是展示用）
+    optional int32 seat = 2;
+    repeated CardInfo exchangeOutCards = 3; // 要换出的 3 张牌
+    optional int32 exchangeOutseat = 4; // 换给谁
+    repeated CardInfo exchangeInCards = 5; // 换入的 3 张牌
+    optional int32 exchangeInseat = 6; // 谁换给我的
+    optional int32 dice = 7; // 庄家掷出的骰子点数（决定换三张的方向，服务器返回这个只是展示用）
 }
 
 // 定缺（和个人玩家ACK）
 message game_DingQue {
     optional ProtoHeader header = 1;
-    optional int32 matchId = 2;
-    optional int32 tableId = 3;
-    optional int32 color = 4; // 定缺的花色
-    optional uint32 userId = 5; // 操作人 (广播给其它用户时用到)
+    optional int32 color = 2; // 定缺的花色
+    optional uint32 userId = 3; // 操作人 (广播给其它用户时用到)
 }
 
 message DingQueEndBean {
