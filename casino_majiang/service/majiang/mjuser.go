@@ -191,7 +191,8 @@ func (u *MjUser) Wait() error {
 //用户胡牌
 func (u *MjUser) ActHu(p *MJPai, sendUserId uint32) error {
 	//判断能不能胡
-	canHu := u.GameData.HandPai.GetCanHu(p)
+	u.GameData.HandPai.InPai = p
+	canHu := u.GameData.HandPai.GetCanHu()
 	if !canHu {
 		return errors.New("不可以胡牌...")
 	}

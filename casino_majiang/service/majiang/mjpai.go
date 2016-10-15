@@ -35,8 +35,8 @@ func (p *MJPai) GetClientId() int32 {
 }
 
 //是否可以胡牌
-func (p *MJHandPai) GetCanHu(pai *MJPai) bool {
-	return CanHuPai(pai, p)
+func (p *MJHandPai) GetCanHu() bool {
+	return CanHuPai(p)
 }
 
 func (p *MJHandPai) GetCanPeng(pai *MJPai) bool {

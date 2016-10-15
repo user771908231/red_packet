@@ -652,14 +652,13 @@ func (d *MjDesk) SendMopaiOverTurn(user *MjUser) error {
 
 	//发送给当事人时候的信息
 	nextPai := d.GetNextPai()
-
-	canGangBool, gangPais := user.GameData.HandPai.GetCanGang(nextPai)
-
+	user.GameData.HandPai.InPai = nextPai
 	overTrun.ActCard = nextPai.GetCardInfo()
 
 	//是否可以胡牌
-	*overTrun.CanHu = user.GameData.HandPai.GetCanHu(nextPai)
+	*overTrun.CanHu = user.GameData.HandPai.GetCanHu()
 	//是否可以杠牌
+	canGangBool, gangPais := user.GameData.HandPai.GetCanGang(nextPai)
 	*overTrun.CanGang = canGangBool
 	if canGangBool && gangPais != nil {
 		overTrun.ActCard = gangPais[0].GetCardInfo()

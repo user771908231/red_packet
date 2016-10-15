@@ -172,9 +172,10 @@ func HandlerGame_DingQue(m *mjProto.Game_DingQue, a gate.Agent) {
 
 		//发送给当事人时候的信息
 		bankUser := desk.GetBankerUser()
-		canGangBool, gangPais := bankUser.GameData.HandPai.GetCanGang(nil)//判断自己摸牌的情况，有可能有多个杠牌
+		*overTurn.CanHu = bankUser.GameData.HandPai.GetCanHu()
 
-		*overTurn.CanHu = bankUser.GameData.HandPai.GetCanHu(nil)
+		//判断是否可以杠牌
+		canGangBool, gangPais := bankUser.GameData.HandPai.GetCanGang(nil)//判断自己摸牌的情况，有可能有多个杠牌
 		*overTurn.CanGang = canGangBool
 		if canGangBool && gangPais != nil {
 			for _, p := range gangPais {

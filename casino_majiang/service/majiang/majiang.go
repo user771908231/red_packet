@@ -386,25 +386,21 @@ func HuPai(handPai *MJHandPai) error {
 }
 
 //这张pai能不能胡
-func CanHuPai(pai *MJPai, handPai *MJHandPai) bool {
-	//在所有的牌中增加 pai,判断此牌是否能和
-	if pai != nil {
-		handPai.Pais = append(handPai.Pais, pai)
-	} else {
-		pai = handPai.Pais[0]
-	}
 
-	counts := GettPaiStats(handPai.Pais)
+func CanHuPai(handPai *MJHandPai) bool {
+	//在所有的牌中增加 pai,判断此牌是否能和
+	pais := []*MJPai{}
+	pais = append(pais, handPai.Pais...)
+	pais = append(pais, handPai.InPai)
+
+	counts := GettPaiStats(pais)
 
 	canHu, isAll19 := tryHU(counts, len(handPai.Pais))
 	if canHu {
-		log.T("牌= %d  可以胡! isAll19=%v", *pai.Value, isAll19)
+		log.Debug("牌= %d  可以胡! isAll19=%V", handPai.InPai.GetValue(), isAll19)
 	} else {
-		log.T("牌= %d  不能胡! isAll19=%v", *pai.Value, isAll19)
+		log.Debug("牌= %d  不能胡! isAll19=%V", handPai.InPai.GetValue(), isAll19)
 	}
-
-	//最后需要删除最后一张牌
-	handPai.Pais = handPai.Pais[0:len(handPai.Pais) - 1]
 
 	return canHu
 }
@@ -433,7 +429,7 @@ func getHuScore(handPai *MJHandPai, isZimo bool, extraAct HuPaiType, roomInfo Ro
 }
 
 //计算带几个"勾"
-func getGou(handPai *MJHandPai, counts[] int) (gou int32) {
+func getGou(handPai *MJHandPai, handCounts[] int) (gou int32) {
 	// 已杠的牌
 	gou = int32(len(handPai.GangPais))
 
@@ -447,9 +443,8 @@ func getGou(handPai *MJHandPai, counts[] int) (gou int32) {
 	}
 
 	// 计算手牌中的勾数(未暗杠)
-	for _, pai := range handPai.Pais {
-		count := counts [ pai.GetValue() - 1 + (pai.GetFlower() - 1) * 9]
-		if count == 4 {
+	for _, cnt := range handCounts {
+		if cnt == 4 {
 			gou ++
 		}
 	}
@@ -466,16 +461,18 @@ func getHuFan(handPai *MJHandPai, isZimo bool, extraAct HuPaiType, roomInfo Room
 	pais = append(pais, handPai.Pais...)
 	pais = append(pais, handPai.InPai)
 
-	handCounts := GettPaiStats(handPai.Pais) //计算手牌的每张牌数量
+	handCounts := GettPaiStats(pais) //计算手牌的每张牌数量
 
+	pais = append(pais, handPai.PengPais...)
+	pais = append(pais, handPai.GangPais...)
 
 	isDaDuiZi := IsDaDuiZi(pais) //大对子
 
 	isQingYiSe := IsQingYiSe(pais) //清一色
 
-	isQiDui := IsQiDui(handPai) //七对
+	isQiDui := IsQiDui(handPai, handCounts) //七对
 
-	isLongQiDui := IsLongQiDui(handPai) //龙七对
+	isLongQiDui := IsLongQiDui(handPai, handCounts) //龙七对
 
 	if isQiDui {
 		if isLongQiDui && isQingYiSe {
@@ -487,7 +484,7 @@ func getHuFan(handPai *MJHandPai, isZimo bool, extraAct HuPaiType, roomInfo Room
 		} else if isQingYiSe {
 			fan = 4
 			huCardStr = append(huCardStr, "清七对")
-		} else if IsJiangQiDui(handPai) {
+		} else if IsJiangQiDui(handPai, handCounts) {
 			fan = 4
 			huCardStr = append(huCardStr, "将七对")
 		}
@@ -667,17 +664,17 @@ func IsDaDuiZi(pais []*MJPai) bool {
 }
 
 //七对
-func IsQiDui(handPai *MJHandPai) bool {
+func IsQiDui(handPai *MJHandPai, handCounts[] int) bool {
+	pais := handPai.Pais
 
-	if len(handPai.Pais) != 13 {
+	if len(pais) != 13 {
 		//手牌需为13张
 		return false
 	}
 
-	pais := handPai.Pais
-	counts := GettPaiStats(pais)
 	for i := 0; i < len(pais); i++ {
-		if counts [ pais[i].GetValue() - 1 + (pais[i].GetFlower() - 1) * 9 ] != 2 {
+		if handCounts [ pais[i].GetValue() - 1 + (pais[i].GetFlower() - 1) * 9 ] != 2 {
+			//每张牌都是2张
 			return false
 		}
 	}
@@ -686,17 +683,16 @@ func IsQiDui(handPai *MJHandPai) bool {
 }
 
 //龙七对
-func IsLongQiDui(handPai *MJHandPai) bool {
+func IsLongQiDui(handPai *MJHandPai, handCounts[] int) bool {
 	pais := handPai.Pais
 
-	if !IsQiDui(handPai) {
+	if !IsQiDui(handPai, handCounts) {
 		//首先是七对
 		return false
 	}
 
-	counts := GettPaiStats(pais)
 	for i := 0; i < len(pais); i++ {
-		if counts [ *pais[i].Value - 1 + (pais[i].GetFlower() - 1) * 9 ] == 4 {
+		if handCounts [ *pais[i].Value - 1 + (pais[i].GetFlower() - 1) * 9 ] == 4 {
 			//有一杠
 			return true
 		}
@@ -719,7 +715,7 @@ func IsJiangDui(handPai *MJHandPai) bool {
 }
 
 //将七对(全是2,5,8的七对)
-func IsJiangQiDui(handPai *MJHandPai) bool {
+func IsJiangQiDui(handPai *MJHandPai, handCounts[] int) bool {
 	pais := handPai.Pais
 
 	for i := 0; i < len(pais); i++ {
@@ -728,7 +724,7 @@ func IsJiangQiDui(handPai *MJHandPai) bool {
 		}
 	}
 
-	return IsQiDui(handPai) //是七对
+	return IsQiDui(handPai, handCounts) //是七对
 }
 
 //全带幺
@@ -743,6 +739,8 @@ func IsAllDaiYao(handPai *MJHandPai) bool {
 
 	return true
 }
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 //通过描述初始化牌的同条玩和大小
 func (p *MJPai) InitByDes() error {
