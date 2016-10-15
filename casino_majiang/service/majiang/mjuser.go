@@ -8,7 +8,6 @@ import (
 	"casino_server/common/log"
 	"casino_server/utils/jobUtils"
 	"time"
-	"errors"
 )
 
 var MJUSER_STATUS_INTOROOM int32 = 1; ///刚进入游戏
@@ -189,32 +188,8 @@ func (u *MjUser) Wait() error {
 
 
 //用户胡牌
-func (u *MjUser) ActHu(p *MJPai, sendUserId uint32) error {
-	//判断能不能胡
-	u.GameData.HandPai.InPai = p
-	canHu := u.GameData.HandPai.GetCanHu()
-	if !canHu {
-		return errors.New("不可以胡牌...")
-	}
+func (u *MjUser) ActHu(p *MJPai, sendUserId uint32, desk *MjDesk) error {
 
-	//得到胡牌的信息
-	//getHuFan()
-
-	//胡牌之后的信息
-	hu := NewHuPaiInfo()
-	*hu.SendUserId = sendUserId
-	hu.Pai = p
-	//hu.Fan
-	u.GameData.HuInfo = append(u.GameData.HuInfo, hu)
-
-	//增加胡牌
-	u.GameData.HandPai.HuPais = append(u.GameData.HandPai.HuPais, p)
-
-	//发送胡牌成功的回复
-	ack := newProto.NewGame_AckActHu()
-
-	log.T("给用户[%v]发送胡牌的ack[%v]", u.GetUserId(), ack)
-	u.WriteMsg(ack)
 	return nil
 }
 

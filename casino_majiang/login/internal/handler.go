@@ -14,7 +14,8 @@ func handler(m interface{}, h interface{}) {
 }
 
 func init() {
-	handler(mjproto.Game_QuickConn{}, handlerREQQuickConn)
+	handler(&mjproto.Game_QuickConn{}, handlerREQQuickConn)
+	handler(&mjproto.Game_Login{}, handlerGame_Login)
 }
 
 func getReleaseTagByVersion(version int32) int32 {
@@ -62,3 +63,10 @@ func handlerREQQuickConn(args []interface{}) {
 	a.WriteMsg(result)
 
 }
+
+func handlerGame_Login(args []interface{}) {
+	a := args[1].(gate.Agent)
+	ack := &mjproto.Game_AckLogin{}
+	a.WriteMsg(ack)
+}
+

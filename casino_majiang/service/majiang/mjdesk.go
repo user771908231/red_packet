@@ -765,6 +765,7 @@ func (d *MjDesk)ActOut(userId uint32, paiKey int32) error {
 	//得到参数
 	outPai := InitMjPaiByIndex(int(paiKey))
 	outUser := d.GetUserByUserId(userId)
+	outUser.GameData.HandPai.AddPai(outUser.GameData.HandPai.InPai)        //把inpai放置到手牌上
 	outUser.DaPai(outPai)
 
 	//自己桌子前面打出的牌，如果其他人碰杠胡了之后，需要把牌删除掉...
@@ -789,14 +790,7 @@ func (d *MjDesk)ActOut(userId uint32, paiKey int32) error {
 
 }
 
-
-//某人胡牌...
-func (d *MjDesk)ActHu(userId uint32) error {
-
-	//对于杠，有摸牌前 杠的状态，有打牌前杠的状态
-
-	//1,胡的牌是当前check里面的牌，如果没有check，则表示是自摸
-	/**
+/**
 		自摸
 
 		//		出牌之前都有一个杠的状态，出牌之后设置这个杠为nil，胡牌的时候判断是否有杠的状态，有的话就根据杠的状态来判断是怎么胡的
@@ -819,22 +813,49 @@ func (d *MjDesk)ActHu(userId uint32) error {
 		2，抢杠
 		3，杠上花
 	 */
+//某人胡牌...
+func (d *MjDesk)ActHu(userId uint32) error {
+
+	//对于杠，有摸牌前 杠的状态，有打牌前杠的状态
+	//1,胡的牌是当前check里面的牌，如果没有check，则表示是自摸
 
 	//玩家胡牌
-	user := d.GetUserByUserId(userId)
-	if user == nil {
+	u := d.GetUserByUserId(userId)
+	if u == nil {
 		log.E("服务器错误：没有找到胡牌的user[%v]", userId)
 		return errors.New("服务器错误，没有找到胡牌的user")
 	}
 
-	err := user.ActHu(d.CheckCase.CheckMJPai, d.CheckCase.GetUserIdOut())
-	if err != nil {
-		//如果这里出现胡牌失败，证明是系统有问题...
-		log.E("用户[%v]胡牌失败...", userId)
-		//result.Header = newProto.ErrorHeader()
-		//user.WriteMsg(result)        //返回失败的信息
-		return nil
+	//判断能不能胡
+	u.GameData.HandPai.InPai = d.CheckCase.CheckMJPai
+	canHu := u.GameData.HandPai.GetCanHu()
+	if !canHu {
+		return errors.New("不可以胡牌...")
 	}
+
+	var isZimo bool = false; //是否是自摸
+	var extraAct mjproto.HuPaiType = 0        //杠上牌，杠上花，
+	var roomInfo mjproto.RoomTypeInfo  //roomType  桌子的规则
+
+	//得到胡牌的信息getHuScore(handPai *MJHandPai, isZimo bool, extraAct HuPaiType, roomInfo RoomTypeInfo) (fan int32, score int64, huCardStr[] string) {
+	fan, score, huCardStr := getHuScore(u.GameData.HandPai, isZimo, extraAct, roomInfo)
+	log.T("胡牌之后的信息fan[%v],score[%v],huCardStr[%v]", fan, score, huCardStr)
+
+	//胡牌之后的信息
+	hu := NewHuPaiInfo()
+	*hu.SendUserId = d.CheckCase.GetUserIdOut()
+	hu.Pai = d.CheckCase.CheckMJPai
+	*hu.Fan = fan
+	u.GameData.HuInfo = append(u.GameData.HuInfo, hu)
+
+	//增加胡牌
+	u.GameData.HandPai.HuPais = append(u.GameData.HandPai.HuPais, d.CheckCase.CheckMJPai)
+
+	//发送胡牌成功的回复
+	ack := newProto.NewGame_AckActHu()
+
+	log.T("给用户[%v]发送胡牌的ack[%v]", u.GetUserId(), ack)
+	u.WriteMsg(ack)
 
 	return nil
 }
