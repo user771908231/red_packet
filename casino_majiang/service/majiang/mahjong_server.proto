@@ -33,9 +33,9 @@ message HuPaiInfo {
 
 message GangPaiInfo {
     optional uint32 sendUserId = 1; //被杠的人
-    optional uint32 getUserId = 2; //得杠的人
+    optional uint32 getUserId = 2; //杠的人
     optional int32 byWho = 3; //1=自己杠  1=下家 2=对家 3=上家 4=三家
-    optional int32 gangType = 4; //1=明杠、2=巴杠、3=暗杠
+    optional int32 gangType = 4; //1=明杠、2=巴杠、3=暗杠、4=呼叫转移
     optional MJPai pai = 5; //杠的哪张牌
 }
 

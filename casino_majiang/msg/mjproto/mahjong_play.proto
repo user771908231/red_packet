@@ -150,6 +150,7 @@ message game_OverTurn {
     optional bool canGang = 6;
     optional bool canHu = 7;
     optional CardInfo actCard = 8; // 如果有出牌，表示出的是哪张牌，否则置为空
+    repeated CardInfo gangCards = 9;// 手牌中可杠的牌(可能多张)
 }
 
 // 发送游戏信息(广播)
