@@ -87,9 +87,9 @@ type agent struct {
 
 func (a *agent) Run() {
 	for {
-		//log.Debug("开始读取数据:")
+		log.Debug("开始读取数据:")
 		data, err := a.conn.ReadMsg()
-		//log.Debug("读取到的数据是: total len=[%v] data:%v", len(data), data)
+		log.Debug("读取到的数据是: total len=[%v] data:%v", len(data), data)
 
 		if err != nil {
 			log.Debug("read message: %v", err)

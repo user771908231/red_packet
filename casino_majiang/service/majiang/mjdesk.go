@@ -376,7 +376,7 @@ func (d *MjDesk) initCards() error {
 
 	//庄需要多发一张牌
 	bankUser := d.GetBankerUser()
-	bankUser.GameData.HandPai.AddPai(d.GetNextPai())
+	bankUser.GameData.HandPai.InPai = d.GetNextPai()
 
 	//发牌的协议game_DealCards  初始化完成之后，给每个人发送牌
 	for _, user := range d.Users {
@@ -402,10 +402,20 @@ func (d *MjDesk) GetDealCards(user *MjUser) *mjproto.Game_DealCards {
 		if u != nil {
 			if u.GetUserId() == user.GetUserId() {
 				//表示是自己，可以看到手牌
-				dealCards.PlayerCard = append(dealCards.PlayerCard, u.GetPlayerCard(true))
+				pc := u.GetPlayerCard(true)
+				if d.GetBanker() == user.GetUserId() {
+					pc.HandCard = append(pc.HandCard, u.GameData.HandPai.InPai.GetCardInfo())
+				}
+
+				dealCards.PlayerCard = append(dealCards.PlayerCard, pc)
 			} else {
-				dealCards.PlayerCard = append(dealCards.PlayerCard, u.GetPlayerCard(false))
-				//表示不是自己，不能看到手牌
+				pc := u.GetPlayerCard(false)                                //表示不是自己，不能看到手牌
+
+				if d.GetBanker() == user.GetUserId() {
+					pc.HandCard = append(pc.HandCard, NewBackPai())
+				}
+
+				dealCards.PlayerCard = append(dealCards.PlayerCard, pc)
 			}
 
 		}
@@ -642,9 +652,20 @@ func (d *MjDesk) SendMopaiOverTurn(user *MjUser) error {
 
 	//发送给当事人时候的信息
 	nextPai := d.GetNextPai()
+
+	canGangBool, gangPais := user.GameData.HandPai.GetCanGang(nextPai)
+
 	overTrun.ActCard = nextPai.GetCardInfo()
-	*overTrun.CanHu = user.GameData.HandPai.GetCanHu()
-	//*overTrun.CanGang = user.GameData.HandPai.GetCanGang()
+
+	//是否可以胡牌
+	*overTrun.CanHu = user.GameData.HandPai.GetCanHu(nextPai)
+	//是否可以杠牌
+	*overTrun.CanGang = canGangBool
+	if canGangBool && gangPais != nil {
+		overTrun.ActCard = gangPais[0].GetCardInfo()
+	}
+
+	//是否可以碰牌
 	*overTrun.CanPeng = user.GameData.HandPai.GetCanPeng(nextPai)
 	user.SendOverTurn(overTrun)
 	log.T("玩家[%v]开始摸牌【%v】...", user.GetUserId(), overTrun.ActCard)
@@ -653,7 +674,7 @@ func (d *MjDesk) SendMopaiOverTurn(user *MjUser) error {
 	*overTrun.CanHu = false
 	*overTrun.CanPeng = false
 	*overTrun.CanGang = false
-	overTrun.ActCard = nil
+	overTrun.ActCard = NewBackPai()
 	d.BroadCastProtoExclusive(overTrun, user.GetUserId())
 
 	return nil

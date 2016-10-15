@@ -8,6 +8,7 @@ import (
 	"casino_server/common/log"
 	"casino_server/utils/jobUtils"
 	"time"
+	"errors"
 )
 
 var MJUSER_STATUS_INTOROOM int32 = 1; ///刚进入游戏
@@ -190,8 +191,13 @@ func (u *MjUser) Wait() error {
 //用户胡牌
 func (u *MjUser) ActHu(p *MJPai, sendUserId uint32) error {
 	//判断能不能胡
+	canHu := u.GameData.HandPai.GetCanHu(p)
+	if !canHu {
+		return errors.New("不可以胡牌...")
+	}
 
 	//得到胡牌的信息
+	//getHuFan()
 
 	//胡牌之后的信息
 	hu := NewHuPaiInfo()

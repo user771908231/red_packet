@@ -17,6 +17,11 @@ func (p *MJPai) GetCardInfo() *mjproto.CardInfo {
 }
 
 func (p *MJPai) GetBackPai() *mjproto.CardInfo {
+	return NewBackPai()
+}
+
+//生成一张只有背面的牌
+func NewBackPai() *mjproto.CardInfo {
 	cardInfo := newProto.NewCardInfo()
 	*cardInfo.Id = 0
 	*cardInfo.Type = 0
@@ -30,16 +35,16 @@ func (p *MJPai) GetClientId() int32 {
 }
 
 //是否可以胡牌
-func (p *MJHandPai) GetCanHu() bool {
-	return CanHuPai(nil, p)
+func (p *MJHandPai) GetCanHu(pai *MJPai) bool {
+	return CanHuPai(pai, p)
 }
 
 func (p *MJHandPai) GetCanPeng(pai *MJPai) bool {
 	return CanPengPai(pai, p)
 }
 
-func (p *MJHandPai) GetCanGang() bool {
-	return CanGangPai(nil, p)
+func (p *MJHandPai) GetCanGang(pai *MJPai) (bool, []*MJPai) {
+	return CanGangPai(pai, p)
 }
 
 //增加一张牌
