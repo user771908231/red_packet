@@ -719,11 +719,29 @@ func (d *MjDesk) ActPeng(userId uint32) error {
 	return nil
 }
 
+//检测是否轮到当前玩家打牌...
+func (d *MjDesk) CheckActive(userId uint32) bool {
+	if d.GetActiveUser() == userId {
+		return true        //检测通过
+	} else {
+		//没有轮到当前玩家
+		log.E("非法请求，没有轮到当前玩家打牌..")
+		return false
+	}
+
+}
 
 //用户打一张牌出来
 func (d *MjDesk)ActOut(userId uint32, paiKey int32) error {
 	log.T("开始处理用户[%v]打牌[%v]的逻辑", userId, paiKey)
 
+
+	//判断是否轮到当前玩家打牌了...
+	if !d.CheckActive(userId) {
+		return errors.New("没有轮到当前玩家....")
+	}
+
+	//得到参数
 	outPai := InitMjPaiByIndex(int(paiKey))
 	outUser := d.GetUserByUserId(userId)
 	outUser.DaPai(outPai)
