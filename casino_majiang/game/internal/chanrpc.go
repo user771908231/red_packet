@@ -29,5 +29,4 @@ func rpcCloseAgent(args []interface{}) {
 			desk.SetOfflineStatus(userData.GetUserId())
 		}
 	}
-
 }
