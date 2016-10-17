@@ -34,7 +34,7 @@ func printDeskInfo(w http.ResponseWriter, desk *majiang.MjDesk) {
 		fmt.Fprintf(w, "\n开始打印user的信息:\n")
 		for i, user := range desk.Users {
 			if user != nil {
-				fmt.Fprintf(w, "[%v],玩家的信息userId[%v],nickName[%v],status[%v],是否定缺[%v],定缺的花色[%v]\n", i, user.GetUserId(), "nickName", user.GetStatus(), user.GetDingQue(), user.GameData.HandPai.GetQueFlower())
+				fmt.Fprintf(w, "[%v],玩家的信息userId[%v],nickName[%v],status[%v],是否定缺[%v],定缺的花色[%v]\n 玩家的牌[%v]", i, user.GetUserId(), "nickName", user.GetStatus(), user.GetDingQue(), user.GameData.HandPai.GetQueFlower(), getUserPaiInfo(user))
 			}
 		}
 
@@ -48,23 +48,25 @@ func GetDeskMJInfo(desk *majiang.MjDesk) string {
 		return "暂时没有初始化麻将"
 	}
 	s := ""
-	for i, p := range desk.AllMJPai {
-		ii, _ := numUtils.Int2String(int32(i))
-		pi, _ := numUtils.Int2String(p.GetValue())
-		s = s + "\t (" + ii + "---" + pi + GetFlow(p.GetFlower()) + ")"
+	for _, p := range desk.AllMJPai {
+		ii, _ := numUtils.Int2String(int32(p.GetIndex()))
+		s = s + "\t (" + ii + "-" + p.LogDes() + ")\t"
 	}
 	return s
 }
 
-func GetFlow(f int32) string {
-	if f == 1 {
-		return "铜"
-	} else if f == 2 {
-		return "条"
-	} else if f == 3 {
-		return "万"
-	} else {
-		return "白"
+func getUserPaiInfo(user *majiang.MjUser) string {
+	if user.GameData == nil || user.GameData.HandPai == nil {
+		return "用户还没有牌"
 	}
 
+	s := ""
+	for _, p := range user.GameData.HandPai.Pais {
+		ii, _ := numUtils.Int2String(int32(p.GetIndex()))
+		s = s + " \t" + ii + " -" + p.LogDes() + "\t "
+	}
+
+	return s
+
 }
+

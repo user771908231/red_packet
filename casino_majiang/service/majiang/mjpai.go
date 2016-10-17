@@ -5,6 +5,7 @@ import (
 	"casino_majiang/msg/funcsInit"
 	"errors"
 	"casino_server/common/log"
+	"casino_server/utils/numUtils"
 )
 
 //得到一张牌的信息
@@ -20,19 +21,16 @@ func (p *MJPai) GetBackPai() *mjproto.CardInfo {
 	return NewBackPai()
 }
 
-//生成一张只有背面的牌
-func NewBackPai() *mjproto.CardInfo {
-	cardInfo := newProto.NewCardInfo()
-	*cardInfo.Id = 0
-	*cardInfo.Type = 0
-	*cardInfo.Value = 0
-	return cardInfo
-}
-
 //返回前端需要的id号
 func (p *MJPai) GetClientId() int32 {
 	return clienMap[int(p.GetIndex())]
 }
+
+func ( p *MJPai) LogDes() string {
+	valueStr, _ := numUtils.Int2String(p.GetValue())
+	return valueStr + GetFlow(p.GetFlower())
+}
+
 
 //是否可以胡牌
 func (p *MJHandPai) GetCanHu() bool {

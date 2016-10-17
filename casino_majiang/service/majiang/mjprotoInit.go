@@ -1,5 +1,10 @@
 package majiang
 
+import (
+	"casino_majiang/msg/protogo"
+	"casino_majiang/msg/funcsInit"
+)
+
 func NewMjpai() *MJPai {
 	ret := &MJPai{}
 	ret.Value = new(int32)
@@ -97,4 +102,13 @@ func NewHuPaiInfo() *HuPaiInfo {
 	ret.SendUserId = new(uint32)
 	return ret
 
+}
+
+//生成一张只有背面的牌
+func NewBackPai() *mjproto.CardInfo {
+	cardInfo := newProto.NewCardInfo()
+	*cardInfo.Id = 0
+	*cardInfo.Type = 0
+	*cardInfo.Value = 0
+	return cardInfo
 }

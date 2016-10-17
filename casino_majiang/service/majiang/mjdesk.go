@@ -368,7 +368,7 @@ func (d *MjDesk) initCards() error {
 	//给每个人初始化...
 	for i, u := range d.Users {
 		if u != nil && u.IsGaming() {
-			log.T("开始给你玩家[%v]初始化手牌...", u.GetUserId())
+			//log.T("开始给你玩家[%v]初始化手牌...", u.GetUserId())
 			u.GameData.HandPai.Pais = d.AllMJPai[i * 13: (i + 1) * 13]
 			*d.MJPaiCursor = int32((i + 1) * 13) - 1;
 		}

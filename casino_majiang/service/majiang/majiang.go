@@ -134,6 +134,8 @@ func init() {
 	mjpaiMap[106] = "W_9"
 	mjpaiMap[107] = "W_9"
 
+
+	//0---27 万条筒
 	clienMap = make(map[int]int32, 108)
 	clienMap[0] = 19
 	clienMap[1] = 19
@@ -803,4 +805,17 @@ func InitMjPaiByIndex(index int) *MJPai {
 	*result.Des = mjpaiMap[index]
 	result.InitByDes()
 	return result
+}
+
+func GetFlow(f int32) string {
+	if f == 1 {
+		return "万"
+	} else if f == 2 {
+		return "条"
+	} else if f == 3 {
+		return "筒"
+	} else {
+		return "白"
+	}
+
 }
