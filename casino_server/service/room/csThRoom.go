@@ -249,7 +249,7 @@ func RMCSThgame(r *CSThGameRoom) error {
 	return nil
 }
 
-func (r *CSThGameRoom) isRun() bool{
+func (r *CSThGameRoom) isRun() bool {
 	return r.Status == CSTHGAMEROOM_STATUS_RUN        //竞标赛当前的状态
 
 }
@@ -541,6 +541,8 @@ func (r *CSThGameRoom) AddUser(userId uint32, a gate.Agent) (*ThDesk, error) {
 	remain, err = userService.DECRUserDiamond(userId, r.Fee)
 	if err != nil {
 		//用户扣费失败，不能参加锦标赛
+		log.T("用户【%v】余额不足，无法参加锦标赛", userId)
+		return nil, err
 	} else {
 		//增加余额记录
 		err = userService.CreateDiamonDetail(userId, mode.T_USER_DIAMOND_DETAILS_TYPE_CSFEE, r.Fee, remain, "参加锦标赛扣费用")
