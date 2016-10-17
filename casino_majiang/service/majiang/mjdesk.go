@@ -464,7 +464,6 @@ func (d *MjDesk) DingQue(userId uint32, color int32) error {
 
 	//回复定缺成功的消息
 	ack := newProto.NewGame_DingQue()
-	//*ack.Color = color
 	*ack.Header.UserId = userId
 	*ack.Color = -1
 	*ack.UserId = userId

@@ -7,11 +7,10 @@ import (
 	"github.com/name5566/leaf/gate"
 	"casino_server/conf/intCons"
 	"casino_majiang/msg/funcsInit"
-	"fmt"
+	"casino_server/service/userService"
 )
 
 func handler(m interface{}, h interface{}) {
-	fmt.Println("loginHandler,", m)
 	skeleton.RegisterChanRPC(reflect.TypeOf(m), h)
 }
 
@@ -66,9 +65,53 @@ func handlerREQQuickConn(args []interface{}) {
 
 }
 
+
+/**
+	登陆的协议...
+ */
 func handlerGame_Login(args []interface{}) {
+	m := args[0].(*mjproto.Game_Login)
 	a := args[1].(gate.Agent)
-	ack := &mjproto.Game_AckLogin{}
+
+	weixin := m.GetWxInfo()
+	if weixin == nil || weixin.GetOpenId() == "" {
+		//登陆失败
+		ack := newProto.NewGame_AckLogin()
+		*ack.Header.Code = intCons.ACK_RESULT_ERROR
+		a.WriteMsg(ack)
+		return
+	}
+
+	//1,首先通过weixinInfo 在数据库中查找 用户是否存在，如果用户存在，则表示，登陆成功
+	user := userService.GetUserByOpenId(weixin.GetOpenId())
+	if user == nil {
+		//表示数据库中不存在次用户，新增加一个人后返回
+		if weixin.GetOpenId() == "" || weixin.GetHeadUrl() == "" || weixin.GetNickName() == "" {
+			ack := newProto.NewGame_AckLogin()
+			*ack.Header.Code = intCons.ACK_RESULT_ERROR
+			a.WriteMsg(ack)
+			return
+		}
+
+		//如果数据库中不存在用户，那么重新生成一个user
+		user, _ = userService.NewUserAndSave(weixin.GetOpenId(), weixin.GetNickName(), weixin.GetHeadUrl())
+		if user == nil {
+			ack := newProto.NewGame_AckLogin()
+			*ack.Header.Code = intCons.ACK_RESULT_ERROR
+			a.WriteMsg(ack)
+			return
+		}
+	}
+
+	//返回登陆成功的结果
+	ack := newProto.NewGame_AckLogin()
+	*ack.Header.Code = intCons.ACK_RESULT_SUCC
+	*ack.UserId = user.GetId()
+	*ack.NickName = user.GetNickName()
+	*ack.Chip = user.GetDiamond()
+
 	a.WriteMsg(ack)
+	return
+
 }
 

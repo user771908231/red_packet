@@ -7,11 +7,9 @@ import (
 	"github.com/name5566/leaf/gate"
 	mjProto "casino_majiang/msg/protogo"
 	"casino_majiang/service/MJService"
-	"fmt"
 )
 
 func handler(m interface{}, h interface{}) {
-	fmt.Println("gameHandler,", m)
 	skeleton.RegisterChanRPC(reflect.TypeOf(m), h)
 }
 
@@ -106,10 +104,5 @@ func handlerGame_ActGuo(args []interface{}) {
 func handlerGame_ActHu(args []interface{}) {
 	m := args[0].(*mjProto.Game_ActHu)
 	MJService.HandlerGame_ActHu(m)
-}
-
-func getReleaseTagByVersion(version int32) int32 {
-	return 0
-
 }
 

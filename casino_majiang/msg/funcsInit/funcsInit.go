@@ -239,3 +239,18 @@ func NewGame_AckActPeng() *mjProto.Game_AckActPeng {
 	return ret
 }
 
+func NewGame_AckLogin() *mjProto.Game_AckLogin {
+	ret := &mjProto.Game_AckLogin{}
+	ret.Header = NewHeader()
+	ret.UserId = new(uint32)
+	ret.NickName = new(string)
+	ret.RoomPassword = new(string)
+	ret.CostCreateRoom = new(int64)
+	ret.CostRebuy = new(int64)
+	ret.Championship = new(bool)
+	ret.Chip = new(int64)
+	ret.MailCount = new(int32)
+	ret.Notice = new(string)
+	ret.GameStatus = new(int32)
+	return ret
+}

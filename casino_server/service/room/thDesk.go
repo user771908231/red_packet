@@ -1372,6 +1372,7 @@ func (t *ThDesk) broadLotteryResult() error {
 	result.Handcard = t.GetHandCard()               //手牌
 	result.WinCoinInfo = t.getWinCoinInfo()
 	result.HandCoin = t.GetRoomCoin()                //现实用户的余额
+	*result.RebuyCoin = int32(t.InitRoomCoin)        //带入的jine
 	t.BroadcastTestResult(result)
 	return nil
 }
