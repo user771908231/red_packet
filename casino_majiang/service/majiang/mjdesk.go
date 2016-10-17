@@ -8,7 +8,7 @@ import (
 	"github.com/name5566/leaf/gate"
 	"casino_server/common/log"
 	"casino_majiang/service/AgentService"
-	//"time"
+	"casino_server/conf/intCons"
 	"time"
 )
 
@@ -434,6 +434,8 @@ func (d *MjDesk) beginDingQue() error {
 	//给每个人发送开始定缺的信息
 	beginQue := newProto.NewGame_BroadcastBeginDingQue()
 	log.T("开始给玩家发送开始定缺的广播[%v]", beginQue)
+	//
+	time.Sleep(time.Second * 5)
 	d.BroadCastProto(beginQue)
 	return nil
 }
@@ -504,6 +506,7 @@ func (d *MjDesk) InitCheckCase(p *MJPai, outUser *MjUser) error {
 	//初始化checkbean
 	for _, checkUser := range d.GetUsers() {
 		if checkUser != nil && checkUser.GetUserId() != outUser.GetUserId() {
+			log.T("用户[%v]打牌，判断user[%v]是否可以碰杠胡...", outUser.GetUserId(), checkUser.GetUserId())
 			checkUser.GameData.HandPai.InPai = p
 			bean := checkUser.GetCheckBean(p)
 			if bean != nil {
@@ -601,15 +604,58 @@ func (d *MjDesk) Lottery() error {
 	 */
 
 	//判断是否可以胡牌
+	if !d.Time2Lottery() {
+		return errors.New("没有到lottery()的时间...")
+	}
+
+	d.DoLottery()
 
 	//保存数据
+	d.SaveLotteryData()
 
 	//发送结束的广播
+	d.SendLotteryData()
 
+	//
+	d.AfterLottery()
 
 	//判断牌局结束(整场游戏结束)
+	if !d.End() {
+		go d.begin()
+	}
 
 	return nil
+}
+
+//处理lottery的数据
+func (d *MjDesk) DoLottery() error {
+	return nil
+
+}
+
+func (d *MjDesk) SaveLotteryData() error {
+	//保存开奖的信息
+	return nil
+}
+
+func (d *MjDesk) SendLotteryData() error {
+	//发送开奖的数据
+
+	return nil
+}
+
+func (d *MjDesk) AfterLottery() error {
+	//开奖完成之后的一些处理
+	return nil
+
+}
+
+func (d *MjDesk) End() bool {
+	return true
+}
+
+func (d *MjDesk)DoEnd() error {
+
 }
 
 func (d *MjDesk) SetActiveUser(userId uint32) error {
@@ -701,13 +747,12 @@ func (d *MjDesk) SendMopaiOverTurn(user *MjUser) error {
 	}
 
 	//是否可以碰牌
-	*overTrun.CanPeng = user.GameData.HandPai.GetCanPeng(nextPai)
+	*overTrun.CanPeng = false
 	user.SendOverTurn(overTrun)
 	log.T("玩家[%v]开始摸牌【%v】...", user.GetUserId(), overTrun.ActCard)
 
 	//给其他人广播协议
 	*overTrun.CanHu = false
-	*overTrun.CanPeng = false
 	*overTrun.CanGang = false
 	overTrun.ActCard = NewBackPai()
 	d.BroadCastProtoExclusive(overTrun, user.GetUserId())
@@ -736,15 +781,21 @@ func (d *MjDesk) ActPeng(userId uint32) error {
 		return errors.New("服务器错误碰牌失败")
 	}
 
+	if d.CheckCase == nil {
+		log.E("用户[%v]碰牌的时候，没有找到可以碰的牌...", userId)
+		return errors.New("服务器错误碰牌失败")
+
+	}
 	//todo 需要判断是否是可以碰
 
 
 	//2.1开始碰牌的操作
-	var pengKeys []int32
 	pengPai := d.CheckCase.CheckMJPai
 	user.GameData.HandPai.PengPais = append(user.GameData.HandPai.PengPais, pengPai)        //碰牌
-	pengKeys = append(pengKeys, pengPai.GetIndex())
 
+	//碰牌之后，需要删掉的pai...
+	var pengKeys []int32
+	//pengKeys = append(pengKeys, pengPai.GetIndex())
 	for _, pai := range user.GameData.HandPai.Pais {
 		if pai != nil && pai.GetIndex() == pengPai.GetIndex() {
 			user.GameData.HandPai.PengPais = append(user.GameData.HandPai.PengPais, pai)        //碰牌
@@ -766,13 +817,18 @@ func (d *MjDesk) ActPeng(userId uint32) error {
 
 	//5,发送碰牌的广播
 	ack := newProto.NewGame_AckActPeng()
+	*ack.Header.Code = intCons.ACK_RESULT_SUCC
 	*ack.UserIdOut = d.CheckCase.GetUserIdOut()
+	*ack.UserIdIn = user.GetUserId()
+
 	//todo 临时处理
 	ack.PengCard[0] = d.CheckCase.CheckMJPai.GetCardInfo()
 	ack.PengCard[1] = d.CheckCase.CheckMJPai.GetCardInfo()
 	ack.PengCard[2] = d.CheckCase.CheckMJPai.GetCardInfo()
 	d.BroadCastProto(ack)
 
+	//最后设置checkCase = nil
+	d.CheckCase = nil        //设置为nil
 	return nil
 }
 
@@ -814,7 +870,6 @@ func (d *MjDesk)ActOut(userId uint32, paiKey int32) error {
 		//给下一个人摸排，并且移动指针
 		log.E("服务器错误，初始化判定牌的时候出错err[%v]", err)
 	}
-	time.Sleep(time.Second * 100)
 
 	log.T("InitCheckCase之后的checkCase[%v]", d.CheckCase)
 	//回复消息,打牌之后，广播打牌的信息...s

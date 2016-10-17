@@ -254,3 +254,14 @@ func NewGame_AckLogin() *mjProto.Game_AckLogin {
 	ret.GameStatus = new(int32)
 	return ret
 }
+
+func NewWeixinInfo() *mjProto.WeixinInfo {
+	ret := &mjProto.WeixinInfo{}
+	ret.City = new(string)
+	ret.HeadUrl = new(string)
+	ret.NickName = new(string)
+	ret.OpenId = new(string)
+	ret.Sex = new(int32)
+	ret.UnionId = new(string)
+	return ret
+}

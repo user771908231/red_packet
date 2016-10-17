@@ -94,7 +94,7 @@ func handlerGame_Login(args []interface{}) {
 		}
 
 		//如果数据库中不存在用户，那么重新生成一个user
-		user, _ = userService.NewUserAndSave(weixin.GetOpenId(), weixin.GetNickName(), weixin.GetHeadUrl())
+		user, _ = userService.NewUserAndSave(weixin.GetOpenId(), weixin.GetNickName(), weixin.GetHeadUrl(), weixin.GetSex(), weixin.GetCity())
 		if user == nil {
 			ack := newProto.NewGame_AckLogin()
 			*ack.Header.Code = intCons.ACK_RESULT_ERROR

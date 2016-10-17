@@ -34,7 +34,11 @@ func printDeskInfo(w http.ResponseWriter, desk *majiang.MjDesk) {
 		fmt.Fprintf(w, "\n开始打印user的信息:\n")
 		for i, user := range desk.Users {
 			if user != nil {
-				fmt.Fprintf(w, "[%v],玩家的信息userId[%v],nickName[%v],status[%v],是否定缺[%v],定缺的花色[%v]\n 玩家的牌[%v]\n", i, user.GetUserId(), "nickName", user.GetStatus(), user.GetDingQue(), user.GameData.HandPai.GetQueFlower(), getUserPaiInfo(user))
+				fmt.Fprintf(w, "[%v],玩家的信息userId[%v],nickName[%v],status[%v],是否定缺[%v],定缺的花色[%v]\n 玩家的手牌[%v]\n玩家的碰牌[%v],玩家的杠牌[%v],玩家的胡牌[%v],玩家的inpai[%v]\n",
+					i, user.GetUserId(), "nickName", user.GetStatus(), user.GetDingQue(), user.GameData.HandPai.GetQueFlower(), getUserPaiInfo(user),
+					getUserPengPaiInfo(user),
+					getUserGnagPaiInfo(user),
+					getUserHuPaiInfo(user), getUserInPaiInfo(user))
 			}
 		}
 
@@ -72,3 +76,55 @@ func getUserPaiInfo(user *majiang.MjUser) string {
 
 }
 
+func getUserPengPaiInfo(user *majiang.MjUser) string {
+	if user.GameData == nil || user.GameData.HandPai == nil {
+		return "用户还没有牌"
+	}
+
+	s := ""
+	for _, p := range user.GameData.HandPai.PengPais {
+		ii, _ := numUtils.Int2String(int32(p.GetIndex()))
+		s = s + ii + "-" + p.LogDes() + "\t "
+	}
+
+	return s
+
+}
+
+func getUserGnagPaiInfo(user *majiang.MjUser) string {
+	if user.GameData == nil || user.GameData.HandPai == nil {
+		return "用户还没有牌"
+	}
+
+	s := ""
+	for _, p := range user.GameData.HandPai.GangPais {
+		ii, _ := numUtils.Int2String(int32(p.GetIndex()))
+		s = s + ii + "-" + p.LogDes() + "\t "
+	}
+
+	return s
+
+}
+
+func getUserHuPaiInfo(user *majiang.MjUser) string {
+	if user.GameData == nil || user.GameData.HandPai == nil {
+		return "用户还没有牌"
+	}
+
+	s := ""
+	for _, p := range user.GameData.HandPai.HuPais {
+		ii, _ := numUtils.Int2String(int32(p.GetIndex()))
+		s = s + ii + "-" + p.LogDes() + "\t "
+	}
+
+	return s
+
+}
+func getUserInPaiInfo(user *majiang.MjUser) string {
+	if user.GameData == nil || user.GameData.HandPai == nil {
+		return "用户还没有牌"
+	}
+
+	return user.GameData.HandPai.InPai.LogDes()
+
+}

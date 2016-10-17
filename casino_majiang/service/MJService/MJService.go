@@ -168,6 +168,7 @@ func HandlerGame_DingQue(m *mjProto.Game_DingQue, a gate.Agent) {
 		overTurn.ActCard = nil
 		*overTurn.CanHu = false
 		*overTurn.CanGang = false
+		*overTurn.CanPeng = false
 		desk.BroadCastProtoExclusive(overTurn, desk.GetBanker())
 
 		//发送给当事人时候的信息
@@ -233,7 +234,8 @@ func HandlerGame_ActPeng(m *mjProto.Game_ActPeng, a gate.Agent) {
 	log.T("收到请求，HandlerGame_ActPeng(m[%v],a[%v])", m, a)
 
 	//找到桌子
-	desk := majiang.GetMjDeskBySession(m.GetHeader().GetUserId()) //通过userId 的session 得到对应的desk
+	userId := m.GetHeader().GetUserId()
+	desk := majiang.GetMjDeskBySession(userId) //通过userId 的session 得到对应的desk
 	if desk == nil {
 		//这里属于服务器错误... 是否需要给客户端返回信息？
 		log.E("没有找到对应的desk ..")
@@ -244,14 +246,14 @@ func HandlerGame_ActPeng(m *mjProto.Game_ActPeng, a gate.Agent) {
 	}
 
 	//开始碰牌
-	err := desk.ActPeng(m.GetHeader().GetUserId())
+	err := desk.ActPeng(userId)
 	if err != nil {
-		log.E("服务器错误: 用户[%v]碰牌失败...", m.GetHeader().GetUserId())
+		log.E("服务器错误: 用户[%v]碰牌失败...", userId)
 		//todo 需要做特殊处理
 	}
 
 	//操作下一个
-	desk.DoCheckCase(nil)        //碰牌之后，别人判定牌
+	//desk.DoCheckCase(desk.GetUserByUserId(userId))        //碰牌之后，别人判定牌	//碰牌之后不需要处理desk.DoCheckCase
 }
 
 
@@ -295,7 +297,10 @@ func HandlerGame_ActGuo(m *mjProto.Game_ActGuo) {
 
 	desk := majiang.GetMjDeskBySession(m.GetHeader().GetUserId()) //通过userId 的session 得到对应的desk
 	user := desk.GetUserByUserId(m.GetHeader().GetUserId())
-	desk.CheckCase.UpdateCheckBeanStatus(user.GetUserId(), majiang.CHECK_CASE_BEAN_STATUS_PASS)        // update checkCase...
+	err := desk.CheckCase.UpdateCheckBeanStatus(user.GetUserId(), majiang.CHECK_CASE_BEAN_STATUS_PASS)        // update checkCase...
+	if err != nil {
+		log.T("过牌的时候失败，err[%v]", err)
+	}
 	//设置为过
 
 	//返回信息,过 只返回给过的

@@ -55,18 +55,19 @@ func HandlerREQQuickConn(args []interface{}) {
 	//设置用户的信息
 	var resultUser *bbproto.User
 
+	weixinInfo := m.GetWx()
 	//首先判断是否是微信登陆
-	if m.GetWx() != nil && m.GetWx().GetOpenId() != "" {
+	if weixinInfo != nil && weixinInfo.GetOpenId() != "" {
 		//log.T("用户是使用微信登陆")
 		//微信登陆,如果是微信新用户,则创建一个user,并且保存
-		openId := m.GetWx().GetOpenId()
+		openId := weixinInfo.GetOpenId()
 		resultUser = userService.GetUserByOpenId(openId)
 		if resultUser == nil {
 			//重新生成一个并保存到数据库
-			if m.GetWx().GetHeadUrl() == "" || m.GetWx().GetNickName() == "" || m.GetWx().GetOpenId() == "" {
+			if weixinInfo.GetHeadUrl() == "" || weixinInfo.GetNickName() == "" || weixinInfo.GetOpenId() == "" {
 				//表示参数非法 返回错误
 			} else {
-				resultUser, _ = userService.NewUserAndSave(m.GetWx().GetOpenId(), m.GetWx().GetNickName(), m.GetWx().GetHeadUrl())
+				resultUser, _ = userService.NewUserAndSave(weixinInfo.GetOpenId(), weixinInfo.GetNickName(), weixinInfo.GetHeadUrl(), 1, "addr")
 			}
 		}
 	}
@@ -98,7 +99,7 @@ func HandlerREQQuickConn(args []interface{}) {
 		log.E("没有找到用户,返回登陆失败...")
 
 		//todo 这里是特殊处理,以后要修改
-		if m.GetWx().GetOpenId() == "" {
+		if weixinInfo.GetOpenId() == "" {
 			*result.AckResult = intCons.ACK_RESULT_SUCC
 		} else {
 			*result.AckResult = intCons.ACK_RESULT_ERROR

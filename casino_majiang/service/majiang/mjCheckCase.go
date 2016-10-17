@@ -1,5 +1,7 @@
 package majiang
 
+import "errors"
+
 var CHECK_CASE_STATUS_CHECKING int32 = 0        //表示没有判定过
 var CHECK_CASE_STATUS_CHECKED int32 = 1        //表示碰／杠 判定过
 var CHECK_CASE_STATUS_CHECKING_HUED int32 = 2        //已经有人胡了
@@ -15,6 +17,10 @@ var CHECK_CASE_BEAN_STATUS_PASS int32 = 2     //已经check 了
 
 func (c *CheckBean) IsChecked() bool {
 	return c.GetCheckStatus() == CHECK_CASE_BEAN_STATUS_CHECKED;
+}
+
+func (c *CheckBean) IsPassed() bool {
+	return c.GetCheckStatus() == CHECK_CASE_BEAN_STATUS_PASS;
 }
 
 func (c *CheckBean) IsChecking() bool {
@@ -41,7 +47,7 @@ func (c *CheckCase) GetNextBean() *CheckBean {
 
 	var caseBean *CheckBean = nil
 	for _, bean := range c.CheckB {
-		if bean != nil && !bean.IsChecked() && bean.GetCanHu() {
+		if bean != nil && !bean.IsChecked() && !bean.IsPassed() && bean.GetCanHu() {
 			caseBean = bean
 			break
 		}
@@ -55,7 +61,7 @@ func (c *CheckCase) GetNextBean() *CheckBean {
 	//如果这里的caseBean ！=nil 表示还有可以胡牌的人没有进行判定
 	if caseBean == nil {
 		for _, bean := range c.CheckB {
-			if bean != nil && !bean.IsChecked() && !bean.GetCanHu() {
+			if bean != nil && !bean.IsChecked() && !bean.IsPassed()  && !bean.GetCanHu() {
 				caseBean = bean
 				break
 			}
@@ -72,6 +78,9 @@ func (c *CheckCase) UpdateChecStatus(status int32) error {
 }
 
 func (c *CheckCase) UpdateCheckBeanStatus(userId uint32, status int32) error {
+	if c.CheckB == nil {
+		return errors.New("不能设置状态，因为checkB 为nil")
+	}
 	for _, bean := range c.CheckB {
 		if bean != nil && bean.GetUserId() == userId {
 			*bean.CheckStatus = status        //已经check过了

@@ -8,6 +8,7 @@ import (
 	"casino_server/common/log"
 	"casino_server/utils/jobUtils"
 	"time"
+	"casino_server/service/userService"
 )
 
 var MJUSER_STATUS_INTOROOM int32 = 1; ///刚进入游戏
@@ -68,7 +69,17 @@ func ( u *MjUser) GetPlayerInfo(showHand bool) *mjproto.PlayerInfo {
 	info.PlayerCard = u.GetPlayerCard(showHand)
 	*info.NickName = "测试nickName"
 	*info.UserId = u.GetUserId()
+	info.WxInfo = u.GetWxInfo()
 	return info
+}
+
+func (u *MjUser) GetWxInfo() *mjproto.WeixinInfo {
+	user := userService.GetUserById(u.GetUserId())
+	weixinInfo := newProto.NewWeixinInfo()
+	*weixinInfo.NickName = user.GetNickName()
+	*weixinInfo.HeadUrl = user.GetHeadUrl()
+	*weixinInfo.OpenId = user.GetOpenId()
+	return weixinInfo
 }
 
 //得到手牌
