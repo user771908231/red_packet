@@ -403,7 +403,7 @@ func (d *MjDesk) GetDealCards(user *MjUser) *mjproto.Game_DealCards {
 			if u.GetUserId() == user.GetUserId() {
 				//表示是自己，可以看到手牌
 				pc := u.GetPlayerCard(true)
-				if d.GetBanker() == user.GetUserId() {
+				if d.GetBanker() == u.GetUserId() {
 					pc.HandCard = append(pc.HandCard, u.GameData.HandPai.InPai.GetCardInfo())
 				}
 
@@ -411,7 +411,7 @@ func (d *MjDesk) GetDealCards(user *MjUser) *mjproto.Game_DealCards {
 			} else {
 				pc := u.GetPlayerCard(false)                                //表示不是自己，不能看到手牌
 
-				if d.GetBanker() == user.GetUserId() {
+				if d.GetBanker() == u.GetUserId() {
 					pc.HandCard = append(pc.HandCard, NewBackPai())
 				}
 
@@ -515,6 +515,24 @@ func (d *MjDesk) InitCheckCase(p *MJPai, outUser *MjUser) error {
 
 	return nil
 }
+
+//暂时不用？？ 摸牌之后
+func (d *MjDesk) InitMoPaiCheckCase(p *MJPai, moPaiUser *MjUser) error {
+	checkCase := NewCheckCase()
+	*checkCase.UserIdOut = moPaiUser.GetUserId()
+	*checkCase.CheckStatus = CHECK_CASE_STATUS_CHECKING        //正在判定
+	checkCase.CheckMJPai = p
+	checkCase.PreOutGangInfo = moPaiUser.GetPreMoGangInfo()
+	checkCase.CheckB = append(checkCase.CheckB, moPaiUser.GetCheckBean(p))
+	if checkCase.CheckB == nil || len(checkCase.CheckB) > 0 {
+		d.CheckCase = checkCase
+	} else {
+		d.CheckCase = nil
+	}
+
+	return nil
+}
+
 
 //执行判断事件
 /**
@@ -824,17 +842,45 @@ func (d *MjDesk)ActHu(userId uint32) error {
 		log.E("服务器错误：没有找到胡牌的user[%v]", userId)
 		return errors.New("服务器错误，没有找到胡牌的user")
 	}
+	checkCase := d.GetCheckCase()
 
-	//判断能不能胡
-	u.GameData.HandPai.InPai = d.CheckCase.CheckMJPai
+	//设置判定牌
+	if checkCase != nil {
+		u.GameData.HandPai.InPai = checkCase.CheckMJPai
+	}
+	//判断是否可以胡牌，如果不能胡牌直接返回
 	canHu := u.GameData.HandPai.GetCanHu()
 	if !canHu {
 		return errors.New("不可以胡牌...")
 	}
 
-	var isZimo bool = false; //是否是自摸
-	var extraAct mjproto.HuPaiType = 0        //杠上牌，杠上花，
-	var roomInfo mjproto.RoomTypeInfo  //roomType  桌子的规则
+
+	//得到胡牌的信息
+	var isZimo bool = false //是否是自摸
+	var isGangShangHua bool = false //是否是杠上花
+	var isGangShangPao bool = false
+	var extraAct mjproto.HuPaiType = 0        //杠上花，
+	var outUserId uint32
+	var roomInfo mjproto.RoomTypeInfo = *d.GetRoomTypeInfo()  //roomType  桌子的规则
+
+	if checkCase == nil {
+		//表示是自摸
+		isZimo = true
+		outUserId = userId
+		if u.GetPreMoGangInfo() != nil {
+			isGangShangHua = true  //杠上花
+		}
+
+	} else {
+		isZimo = false                //表示是点炮
+		outUserId = checkCase.GetUserIdOut()
+		if checkCase.GetPreOutGangInfo() != nil {
+			isGangShangPao = true//杠上炮
+		}
+	}
+
+	//
+	log.T("点炮的人[%v],胡牌的人[%v],杠上花[%v],杠上炮[%v],", userId, outUserId, isGangShangHua, isGangShangPao)
 
 	//得到胡牌的信息getHuScore(handPai *MJHandPai, isZimo bool, extraAct HuPaiType, roomInfo RoomTypeInfo) (fan int32, score int64, huCardStr[] string) {
 	fan, score, huCardStr := getHuScore(u.GameData.HandPai, isZimo, extraAct, roomInfo)
@@ -842,17 +888,15 @@ func (d *MjDesk)ActHu(userId uint32) error {
 
 	//胡牌之后的信息
 	hu := NewHuPaiInfo()
-	*hu.SendUserId = d.CheckCase.GetUserIdOut()
-	hu.Pai = d.CheckCase.CheckMJPai
+	*hu.SendUserId = outUserId
+	hu.Pai = u.GameData.HandPai.InPai
 	*hu.Fan = fan
 	u.GameData.HuInfo = append(u.GameData.HuInfo, hu)
 
-	//增加胡牌
-	u.GameData.HandPai.HuPais = append(u.GameData.HandPai.HuPais, d.CheckCase.CheckMJPai)
+	u.GameData.HandPai.HuPais = append(u.GameData.HandPai.HuPais, d.CheckCase.CheckMJPai)        //增加胡牌
 
 	//发送胡牌成功的回复
 	ack := newProto.NewGame_AckActHu()
-
 	log.T("给用户[%v]发送胡牌的ack[%v]", u.GetUserId(), ack)
 	u.WriteMsg(ack)
 
