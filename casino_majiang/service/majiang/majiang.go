@@ -6,6 +6,7 @@ import (
 	"casino_server/utils"
 	. "casino_majiang/msg/protogo"
 	"casino_server/common/log"
+	"errors"
 )
 
 //得到一副牌...
@@ -372,19 +373,6 @@ func tryHU(count []int, len int) (result bool, isAll19 bool) {
 	}
 
 	return false, isAll19
-}
-
-//确定要胡牌的时候,做出的处理
-func HuPai(handPai *MJHandPai) error {
-	//排序
-	//统计
-	//p.InitHandPaisStats()
-	//p.IsDaDui        //判断是否是大队子
-	//p.IsQingYiSe        //判断是否是清一色
-	//p.IsJiangDui        //判断是否是将对
-
-	return nil
-
 }
 
 //这张pai能不能胡
@@ -787,6 +775,8 @@ func XiPai() []*MJPai {
 	}
 
 	log.T("洗牌之后,得到的随机的index数组[%v]", pResult)
+	TestCheckRanIndex(pResult)        //todo  测试代码，之后需要删除
+
 
 	//开始得到牌的信息
 	result := make([]*MJPai, MJPAI_COUNT)
@@ -796,6 +786,23 @@ func XiPai() []*MJPai {
 
 	log.T("洗牌之后,得到的牌的数组[%v]", result)
 	return result
+}
+
+func TestCheckRanIndex(r []int) {
+	copyCheck := make([]int, MJPAI_COUNT)
+	copy(copyCheck, r)
+	for _, a := range copyCheck {
+		count := 0
+		for _, b := range copyCheck {
+			if a == b {
+				count ++
+				if count > 1 {
+					log.Fatal("随机牌的index[%v] 出错", a)
+					panic(errors.New("随便牌的index 出错"))
+				}
+			}
+		}
+	}
 }
 
 

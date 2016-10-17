@@ -68,7 +68,7 @@ func (s *Server) Register(id interface{}, f interface{}) {
 		panic(fmt.Sprintf("function id %v: already registered", id))
 	}
 
-	fmt.Println("注册id[%v],f[%v]", id, f)
+	//fmt.Println("注册id[%v],f[%v]", id, f)
 	s.functions[id] = f
 }
 

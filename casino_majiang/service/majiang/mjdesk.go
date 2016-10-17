@@ -8,6 +8,8 @@ import (
 	"github.com/name5566/leaf/gate"
 	"casino_server/common/log"
 	"casino_majiang/service/AgentService"
+	//"time"
+	"time"
 )
 
 //状态表示的是当前状态.
@@ -369,7 +371,9 @@ func (d *MjDesk) initCards() error {
 	for i, u := range d.Users {
 		if u != nil && u.IsGaming() {
 			//log.T("开始给你玩家[%v]初始化手牌...", u.GetUserId())
-			u.GameData.HandPai.Pais = d.AllMJPai[i * 13: (i + 1) * 13]
+			ps := make([]*MJPai, 13)
+			copy(ps, d.AllMJPai[i * 13: (i + 1) * 13])                //这里这样做的目的是不能更改base的值
+			u.GameData.HandPai.Pais = ps
 			*d.MJPaiCursor = int32((i + 1) * 13) - 1;
 		}
 	}
@@ -651,7 +655,14 @@ func (d *MjDesk) GetNextPai() *MJPai {
 		log.E("服务器错误:要找的牌的坐标[%v]已经超过整副麻将的坐标了... ", d.GetMJPaiCursor())
 		return nil
 	} else {
-		return d.AllMJPai[d.GetMJPaiCursor()]
+
+		p := d.AllMJPai[d.GetMJPaiCursor()]
+		pai := NewMjpai()
+		*pai.Des = p.GetDes()
+		*pai.Flower = p.GetFlower()
+		*pai.Index = p.GetIndex()
+		*pai.Value = p.GetValue()
+		return pai
 	}
 }
 
@@ -803,6 +814,7 @@ func (d *MjDesk)ActOut(userId uint32, paiKey int32) error {
 		//给下一个人摸排，并且移动指针
 		log.E("服务器错误，初始化判定牌的时候出错err[%v]", err)
 	}
+	time.Sleep(time.Second * 100)
 
 	log.T("InitCheckCase之后的checkCase[%v]", d.CheckCase)
 	//回复消息,打牌之后，广播打牌的信息...s
