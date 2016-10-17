@@ -229,7 +229,19 @@ func (u *MjUser) Gang(p *MJPai, sendUserId uint32) error {
 
 //得到判定bean
 func (u *MjUser) GetCheckBean(p *MJPai) *CheckBean {
-	return nil
+	bean := NewCheckBean()
+	*bean.CheckStatus = CHECK_CASE_BEAN_STATUS_CHECKING
+	*bean.CanHu = u.GameData.HandPai.GetCanHu()
+	*bean.CanPeng = u.GameData.HandPai.GetCanPeng(p)
+	*bean.CanGang, _ = u.GameData.HandPai.GetCanGang(p)
+	*bean.UserId = u.GetUserId()
+	log.T("得到用户[%v]对牌[%v]的check , bean[%v]", u.GetUserId(), p.LogDes(), bean)
+
+	if bean.GetCanGang() || bean.GetCanHu() || bean.GetCanPeng() {
+		return bean
+	} else {
+		return nil
+	}
 }
 
 //玩家打一张牌

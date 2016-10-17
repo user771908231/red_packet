@@ -623,7 +623,8 @@ func CanGangPai(pai *MJPai, handPai *MJHandPai) (canGang bool, gangPais []*MJPai
 		//检测手牌中是否有杠
 		counts := GettPaiStats(handPai.Pais)
 		for _, p := range handPai.Pais {
-			if ( 4 == counts[ p.GetValue() + (p.GetFlower() - 1) * 9 ] ) {
+			//log.T("判断杠牌 p.getValue(%v)+p.GetFlower[%v]*9 = %v", p.GetValue(), p.GetFlower(), p.GetValue() + (p.GetFlower() - 1) * 9)
+			if ( 4 == counts[ p.GetValue() - 1 + (p.GetFlower() - 1) * 9 ] ) {
 				canGang = true
 				gangPais = append(gangPais, p)
 			}

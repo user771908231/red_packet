@@ -500,6 +500,7 @@ func (d *MjDesk) InitCheckCase(p *MJPai, outUser *MjUser) error {
 	//初始化checkbean
 	for _, checkUser := range d.GetUsers() {
 		if checkUser != nil && checkUser.GetUserId() != outUser.GetUserId() {
+			checkUser.GameData.HandPai.InPai = p
 			bean := checkUser.GetCheckBean(p)
 			if bean != nil {
 				checkCase.CheckB = append(checkCase.CheckB, bean)
@@ -507,7 +508,8 @@ func (d *MjDesk) InitCheckCase(p *MJPai, outUser *MjUser) error {
 		}
 	}
 
-	if checkCase.CheckB == nil || len(checkCase.CheckB) > 0 {
+	log.T("判断最终的checkCase[%v]", checkCase)
+	if checkCase.CheckB != nil || len(checkCase.CheckB) > 0 {
 		d.CheckCase = checkCase
 	} else {
 		d.CheckCase = nil
@@ -518,10 +520,16 @@ func (d *MjDesk) InitCheckCase(p *MJPai, outUser *MjUser) error {
 
 //暂时不用？？ 摸牌之后
 func (d *MjDesk) InitMoPaiCheckCase(p *MJPai, moPaiUser *MjUser) error {
+
+	//初始化参数
+	moPaiUser.GameData.HandPai.InPai = p
+
+	//判断可能性
 	checkCase := NewCheckCase()
 	*checkCase.UserIdOut = moPaiUser.GetUserId()
 	*checkCase.CheckStatus = CHECK_CASE_STATUS_CHECKING        //正在判定
 	checkCase.CheckMJPai = p
+
 	checkCase.PreOutGangInfo = moPaiUser.GetPreMoGangInfo()
 	checkCase.CheckB = append(checkCase.CheckB, moPaiUser.GetCheckBean(p))
 	if checkCase.CheckB == nil || len(checkCase.CheckB) > 0 {
@@ -796,6 +804,7 @@ func (d *MjDesk)ActOut(userId uint32, paiKey int32) error {
 		log.E("服务器错误，初始化判定牌的时候出错err[%v]", err)
 	}
 
+	log.T("InitCheckCase之后的checkCase[%v]", d.CheckCase)
 	//回复消息,打牌之后，广播打牌的信息...s
 	outUser.PreMoGangInfo = nil        //清楚摸牌前的杠牌info
 	result := newProto.NewGame_AckSendOutCard()

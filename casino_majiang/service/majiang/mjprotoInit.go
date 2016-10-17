@@ -93,6 +93,16 @@ func NewCheckCase() *CheckCase {
 	return ret
 }
 
+func NewCheckBean() *CheckBean {
+	ret := &CheckBean{}
+	ret.UserId = new(uint32)
+	ret.CanGang = new(bool)
+	ret.CanHu = new(bool)
+	ret.CanPeng = new(bool)
+	ret.CheckStatus = new(int32)
+	return ret
+}
+
 func NewHuPaiInfo() *HuPaiInfo {
 	ret := &HuPaiInfo{}
 	ret.ByWho = new(int32)
