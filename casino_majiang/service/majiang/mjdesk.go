@@ -655,7 +655,7 @@ func (d *MjDesk) End() bool {
 }
 
 func (d *MjDesk)DoEnd() error {
-
+	return nil
 }
 
 func (d *MjDesk) SetActiveUser(userId uint32) error {

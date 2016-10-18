@@ -73,6 +73,7 @@ func handlerGame_Login(args []interface{}) {
 	m := args[0].(*mjproto.Game_Login)
 	a := args[1].(gate.Agent)
 
+	log.T("请求handlerGame_Login  m[%v]", m)
 	weixin := m.GetWxInfo()
 	if weixin == nil || weixin.GetOpenId() == "" {
 		//登陆失败
