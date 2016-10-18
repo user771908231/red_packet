@@ -5,7 +5,7 @@ package mjproto;
 option optimize_for = LITE_RUNTIME;
 
 
-//解散房间
+//房主解散房间(未开局)
 message game_DissolveDesk {
     optional ProtoHeader header = 1;
     optional uint32 userId = 2; // 解散房间的用户 id
@@ -17,6 +17,20 @@ message game_AckDissolveDesk {
     optional int32 deskId = 3; //房间Id
     optional string passWord = 4; //房间密钥
 }
+
+// 申请解散房间(游戏中)
+message game_ReqDissolveDesk {
+    optional ProtoHeader    header = 1;
+    optional uint32         userId = 2; // 申请解散房间的人
+}
+
+message game_AckReqDissolveDesk {
+    optional ProtoHeader    header = 1;
+    repeated uint32         userIdAgree = 2;    //已同意解散的人
+    repeated uint32         userIdWait = 3;     //等待答复的人
+    repeated uint32         userIdDisagree = 4; //不同意解散的人
+}
+
 
 // 离开房间
 message game_LeaveDesk {

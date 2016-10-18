@@ -23,6 +23,8 @@ It has these top-level messages:
 	DeskGameInfo
 	Game_DissolveDesk
 	Game_AckDissolveDesk
+	Game_ReqDissolveDesk
+	Game_AckReqDissolveDesk
 	Game_LeaveDesk
 	Game_AckLeaveDesk
 	Game_Ready
