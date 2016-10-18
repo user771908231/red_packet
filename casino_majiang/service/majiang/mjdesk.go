@@ -10,6 +10,8 @@ import (
 	"casino_majiang/service/AgentService"
 	"casino_server/conf/intCons"
 	"time"
+	"casino_majiang/conf/config"
+	"casino_server/utils/db"
 )
 
 //状态表示的是当前状态.
@@ -352,6 +354,7 @@ func (d *MjDesk) beginInit() error {
 
 	//2,设置当前的活动玩家
 	d.SetActiveUser(d.GetBanker())
+	*d.GameNumber, _ = db.GetNextSeq(config.DBT_T_TH_GAMENUMBER_SEQ)
 
 	//发送游戏开始的协议...
 	log.T("发送游戏开始的协议..")
@@ -369,7 +372,7 @@ func (d *MjDesk) initCards() error {
 	d.AllMJPai = XiPaiTestHu()
 	//给每个人初始化...
 	for i, u := range d.Users {
-		if u != nil && u.IsGaming() {
+		if u != nil && u.IsReady() {
 			//log.T("开始给你玩家[%v]初始化手牌...", u.GetUserId())
 			ps := make([]*MJPai, 13)
 			copy(ps, d.AllMJPai[i * 13: (i + 1) * 13])                //这里这样做的目的是不能更改base的值
@@ -645,6 +648,8 @@ func (d *MjDesk) Lottery() error {
 }
 
 //处理lottery的数据
+
+//需要保存到 ..T_mj_desk_round
 func (d *MjDesk) DoLottery() error {
 	//一次处理每个胡牌的人
 	for _, user := range d.GetUsers() {
@@ -785,7 +790,11 @@ func (d *MjDesk) SendMopaiOverTurn(user *MjUser) error {
 	//是否可以碰牌
 	*overTrun.CanPeng = false
 	user.SendOverTurn(overTrun)
-	log.T("玩家[%v]开始摸牌【%v】...", user.GetUserId(), overTrun.ActCard)
+	log.T("玩家[%v]开始摸牌【%v】...", user.GetUserId(), overTrun)
+
+
+
+
 
 	//给其他人广播协议
 	*overTrun.CanHu = false
@@ -975,6 +984,7 @@ func (d *MjDesk)ActHu(userId uint32) error {
 	var outUserId uint32
 	var roomInfo mjproto.RoomTypeInfo = *d.GetRoomTypeInfo()  //roomType  桌子的规则
 
+
 	if checkCase == nil {
 		//表示是自摸
 		isZimo = true
@@ -1004,8 +1014,9 @@ func (d *MjDesk)ActHu(userId uint32) error {
 	hu.Pai = u.GameData.HandPai.InPai
 	*hu.Fan = fan
 	u.GameData.HuInfo = append(u.GameData.HuInfo, hu)
-
 	u.GameData.HandPai.HuPais = append(u.GameData.HandPai.HuPais, d.CheckCase.CheckMJPai)        //增加胡牌
+
+	//todo 判断是否是巴杠,如果是巴杠 抢杠需要对巴杠做特殊处理
 
 	//发送胡牌成功的回复
 	ack := newProto.NewGame_AckActHu()
@@ -1016,6 +1027,11 @@ func (d *MjDesk)ActHu(userId uint32) error {
 }
 
 func (d *MjDesk)getPaiById(paiId int32) *MJPai {
+	for _, pai := range d.AllMJPai {
+		if pai != nil && pai.GetIndex() == paiId {
+			return pai
+		}
+	}
 	return nil
 
 }
@@ -1053,7 +1069,6 @@ func (d *MjDesk) ActGang(userId uint32, paiId int32) error {
 			gangType = GANG_TYPE_AN        //暗杠
 		}
 		sendUserId = userId
-
 	}
 
 
@@ -1065,6 +1080,7 @@ func (d *MjDesk) ActGang(userId uint32, paiId int32) error {
 
 
 	if gangType == GANG_TYPE_BA {
+		log.T("用户[%v]杠牌是巴杠,现在处理巴杠...", userId)
 		//循环碰牌来处理
 		var pengKeys []int32
 		user.GameData.HandPai.GangPais = append(user.GameData.HandPai.GangPais, gangPai)
@@ -1082,33 +1098,32 @@ func (d *MjDesk) ActGang(userId uint32, paiId int32) error {
 			user.GameData.HandPai.DelPengPai(key)
 		}
 	} else if gangType == GANG_TYPE_MING || gangType == GANG_TYPE_AN {
+		log.T("用户[%v]杠牌不是巴杠...", userId)
+
 		//杠牌的类型
 		var gangKey []int32
 		//增加杠牌
-		user.GameData.HandPai.GangPais = append(user.GameData.HandPai.GangPais, gangPai)
-
+		user.GameData.HandPai.Pais = append(user.GameData.HandPai.Pais, gangPai)
 		//如果不是摸的牌，而是手中本来就有的牌，那么需要把他移除
-		if user.GameData.HandPai.InPai.GetIndex() != gangPai.GetIndex() {
-			gangKey = append(gangKey, gangPai.GetIndex())
-		}
-
 		for _, pai := range user.GameData.HandPai.Pais {
-			if pai.GetFlower() == gangPai.GetFlower() && pai.GetValue() == gangPai.GetValue() && pai.GetIndex() != gangPai.GetIndex() {
+			if pai.GetFlower() == gangPai.GetFlower() && pai.GetValue() == gangPai.GetValue() {
 				//增加杠牌
 				user.GameData.HandPai.GangPais = append(user.GameData.HandPai.GangPais, pai)
 				gangKey = append(gangKey, pai.GetIndex())
 			}
 		}
 
+		log.T("用户杠牌[%v]之后移除需要移除的手牌id数组[%v]", userId, gangKey)
 		//减少手中的杠牌
 		for _, key := range gangKey {
+			log.T("用户杠牌[%v]之后移除手牌id[%v]", userId, key)
 			user.GameData.HandPai.DelHandlPai(key)
 		}
-
 	}
 
 	//增加杠牌info
 	info := NewGangPaiInfo()
+	*info.GetUserId = user.GetUserId()
 	*info.SendUserId = sendUserId
 	*info.GangType = gangType
 	info.Pai = gangPai
@@ -1122,14 +1137,26 @@ func (d *MjDesk) ActGang(userId uint32, paiId int32) error {
 	result := newProto.NewGame_AckActGang()
 	*result.GangType = user.PreMoGangInfo.GetGangType()
 	*result.UserIdOut = user.PreMoGangInfo.GetSendUserId()
+	*result.UserIdIn = user.GetUserId()
 
 	//todo 暂时着这么处理的，之后需要修改...
 	result.GangCard[0] = user.PreMoGangInfo.GetPai().GetCardInfo()
 	result.GangCard[1] = user.PreMoGangInfo.GetPai().GetCardInfo()
 	result.GangCard[2] = user.PreMoGangInfo.GetPai().GetCardInfo()
 	result.GangCard[3] = user.PreMoGangInfo.GetPai().GetCardInfo()
-
 	d.BroadCastProto(result)
+
+	//设置 判断的为nil
+	d.CheckCase = nil
+
+	///如果是巴杠，需要设置巴杠的判断
+	if gangType == GANG_TYPE_BA {
+		d.InitCheckCase(gangPai, user)
+		if d.CheckCase == nil {
+			log.T("巴杠没有人可以抢杠...")
+		}
+	}
+
 	return nil
 }
 

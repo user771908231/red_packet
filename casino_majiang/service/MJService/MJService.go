@@ -259,7 +259,7 @@ func HandlerGame_ActPeng(m *mjProto.Game_ActPeng, a gate.Agent) {
 
 //杠
 func HandlerGame_ActGang(m *mjProto.Game_ActGang) {
-	log.Debug("收到请求，game_ActGang(m[%v])", m)
+	log.T("收到请求，game_ActGang(m[%v])", m)
 	userId := m.GetHeader().GetUserId()
 
 	result := &mjProto.Game_AckActGang{}
@@ -279,7 +279,6 @@ func HandlerGame_ActGang(m *mjProto.Game_ActGang) {
 		log.E("服务器错误：用户[%v]杠牌的时候出错err[%v]", userId, err)
 	}
 
-	desk.CheckCase = nil        //杠牌之后设置checkCase为nil
 
 	//处理下一个人
 	desk.DoCheckCase(desk.GetUserByUserId(userId))        //杠牌之后，处理下一个判定牌

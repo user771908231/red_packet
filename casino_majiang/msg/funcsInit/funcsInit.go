@@ -227,6 +227,7 @@ func NewGame_AckActGang() *mjProto.Game_AckActGang {
 	ret.Header = NewHeader()
 	ret.UserIdIn = new(uint32)
 	ret.UserIdOut = new(uint32)
+	ret.GangCard = make([]*mjProto.CardInfo, 4)
 	return ret
 }
 

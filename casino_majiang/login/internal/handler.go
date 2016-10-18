@@ -74,11 +74,26 @@ func handlerGame_Login(args []interface{}) {
 
 	log.T("请求handlerGame_Login  m[%v]", m)
 	weixin := m.GetWxInfo()
-	if weixin == nil || weixin.GetOpenId() == "" {
-		//登陆失败
-		ack := newProto.NewGame_AckLogin()
-		*ack.Header.Code = intCons.ACK_RESULT_ERROR
-		a.WriteMsg(ack)
+
+	//不是初次登录
+	if weixin == nil {
+		//判断uerId
+		userId := m.GetHeader().GetUserId()
+		user := userService.GetUserById(userId)
+		if user == nil {
+			//登陆失败
+			ack := newProto.NewGame_AckLogin()
+			*ack.Header.Code = intCons.ACK_RESULT_ERROR
+			a.WriteMsg(ack)
+		} else {
+			//返回登陆成功的结果
+			ack := newProto.NewGame_AckLogin()
+			*ack.Header.Code = intCons.ACK_RESULT_SUCC
+			*ack.UserId = user.GetId()
+			*ack.NickName = user.GetNickName()
+			*ack.Chip = user.GetDiamond()
+			a.WriteMsg(ack)
+		}
 		return
 	}
 

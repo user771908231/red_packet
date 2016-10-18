@@ -69,7 +69,7 @@ func (hand *MJHandPai) DelHandlPai(key int32) error {
 		return nil
 
 	} else {
-		log.E("服务器错误：删除手牌的时候出错，没有找到对应的手牌")
+		log.E("服务器错误：删除手牌的时候出错，没有找到对应的手牌[%v]", key)
 		return errors.New("删除手牌时出错，没有找到对应的手牌...")
 	}
 }
@@ -87,7 +87,7 @@ func (hand *MJHandPai) DelPengPai(key int32) error {
 		return nil
 
 	} else {
-		log.E("服务器错误：删除手牌的时候出错，没有找到对应的手牌")
+		log.E("服务器错误：删除碰牌的时候出错，没有找到对应的碰牌[%v]", key)
 		return errors.New("删除手牌时出错，没有找到对应的手牌...")
 	}
 }

@@ -40,6 +40,7 @@ func NewMjDesk() *MjDesk {
 	ret.MJPaiCursor = new(int32)
 	ret.ActiveUser = new(uint32)
 	ret.Banker = new(uint32)
+	ret.GameNumber = new(int32)
 	return ret
 }
 
@@ -83,6 +84,7 @@ func NewGangPaiInfo() *GangPaiInfo {
 	ret.ByWho = new(int32)
 	ret.GangType = new(int32)
 	ret.SendUserId = new(uint32)
+	ret.GetUserId = new(uint32)
 	return ret
 }
 

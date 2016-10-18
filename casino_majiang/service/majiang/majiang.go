@@ -789,7 +789,6 @@ func XiPai() []*MJPai {
 }
 
 func XiPaiTestHu() []*MJPai {
-
 	//初始化一个顺序的牌的集合
 	pmap := make([]int, MJPAI_COUNT)
 	for i := 0; i < MJPAI_COUNT; i++ {
@@ -798,44 +797,9 @@ func XiPaiTestHu() []*MJPai {
 
 	//打乱牌的集合
 	pResult := make([]int, MJPAI_COUNT)
-	//测试的发牌数据
-	pResult[0] = 0
-	pResult[1] = 1
-	pResult[2] = 2
-
-	pResult[3] = 4
-	pResult[4] = 5
-	pResult[5] = 6
-
-	pResult[6] = 8
-	pResult[7] = 9
-	pResult[8] = 10
-
-	pResult[9] = 12
-	pResult[10] = 13
-
-	pResult[11] = 16 //5条
-	pResult[12] = 20 //6条
-
-	pResult[12] = 17 //5条
-	pResult[13] = 18 //5条
-	pResult[14] = 19 //5条
-	pResult[15] = 21 //6条
-	pResult[16] = 22 //6条
-	pResult[17] = 22 //6条
-
-
-	for i := 18; i < 53; i++ {
-		pResult[i] = pmap[i]
+	for i := 0; i < 108; i++ {
+		pResult[i] = i;
 	}
-
-	for i := 53; i < MJPAI_COUNT; i++ {
-		rand := utils.Rand(0, (int32(MJPAI_COUNT - i)))
-		//log.Debug("得到的rand[%v]", rand)
-		pResult[i] = pmap[rand]
-		pmap = append(pmap[:int(rand)], pmap[int(rand) + 1:]...)
-	}
-
 
 	//开始得到牌的信息
 	result := make([]*MJPai, MJPAI_COUNT)
