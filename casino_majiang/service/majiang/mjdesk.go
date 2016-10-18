@@ -365,8 +365,8 @@ func (d *MjDesk) beginInit() error {
  */
 func (d *MjDesk) initCards() error {
 	//得到一副已经洗好的麻将
-	d.AllMJPai = XiPai()
-
+	//d.AllMJPai = XiPai()
+	d.AllMJPai = XiPaiTestHu()
 	//给每个人初始化...
 	for i, u := range d.Users {
 		if u != nil && u.IsGaming() {
@@ -592,8 +592,28 @@ func (d *MjDesk) DoCheckCase(gangUser *MjUser) error {
  */
 
 func (d *MjDesk) Time2Lottery() bool {
-	return false
+	//游戏中的玩家只剩下一个人，表示游戏结束...
+	gamingCount := d.GetGamingCount()        //正在游戏中的玩家数量
+	if gamingCount != 1 {
+		//正在游戏中的玩家的数量不为1，表示还没有结束
+		return false
+
+	}
+
+	//所有的条件都满足，一局麻将结束...
+	return true
 }
+
+func (d *MjDesk) GetGamingCount() int32 {
+	var gamingCount int32 = 0        //正在游戏中的玩家数量
+	for _, user := range d.GetUsers() {
+		if user != nil && user.IsGaming() {
+			gamingCount ++
+		}
+	}
+	return gamingCount
+}
+
 
 // 一盘麻将结束....这里需要针对每个人结账...并且对desk和user的数据做清楚...
 func (d *MjDesk) Lottery() error {
@@ -609,9 +629,6 @@ func (d *MjDesk) Lottery() error {
 	}
 
 	d.DoLottery()
-
-	//保存数据
-	d.SaveLotteryData()
 
 	//发送结束的广播
 	d.SendLotteryData()
@@ -629,12 +646,31 @@ func (d *MjDesk) Lottery() error {
 
 //处理lottery的数据
 func (d *MjDesk) DoLottery() error {
+	//一次处理每个胡牌的人
+	for _, user := range d.GetUsers() {
+		if user != nil && user.IsHu() {
+			//处理胡牌之后，分数相关的逻辑.
+			huinfo := user.GameData.HuInfo
+			for _, info := range huinfo {
+				//一次处理每张赢牌,如果不是血流成河，那么这里一般只有一个huinfo
+				if info != nil {
+					//info.Fan	翻数
+					//info.HuType 胡牌的类型
+
+
+				}
+			}
+
+		}
+	}
+
 	return nil
 
 }
 
 func (d *MjDesk) SaveLotteryData() error {
 	//保存开奖的信息
+
 	return nil
 }
 
@@ -805,7 +841,7 @@ func (d *MjDesk) ActPeng(userId uint32) error {
 
 	//2.2 删除手牌
 	for _, key := range pengKeys {
-		user.GameData.HandPai.DelPai(key)
+		user.GameData.HandPai.DelHandlPai(key)
 	}
 
 	//3,生成碰牌信息
@@ -979,22 +1015,108 @@ func (d *MjDesk)ActHu(userId uint32) error {
 	return nil
 }
 
+func (d *MjDesk)getPaiById(paiId int32) *MJPai {
+	return nil
+
+}
 
 //杠牌   怎么判断是明杠，暗杠，巴杠...
-func (d *MjDesk) ActGang(userId uint32) error {
+func (d *MjDesk) ActGang(userId uint32, paiId int32) error {
+
+	//检测参数是否正确
 	user := d.GetUserByUserId(userId)
 	if user == nil {
 		log.E("用户[%v]没有找到杠牌失败...", userId)
 		return nil
 	}
 
-	//todo 判断是不是可以杠，如果可以杠牌，那么就开始杠牌
-
-	//开始杠牌
-	err := user.Gang(d.CheckCase.CheckMJPai, d.CheckCase.GetUserIdOut())
-	if err != nil {
-		//杠牌失败，这里是非法请求，或者服务器错误...
+	gangPai := d.getPaiById(paiId);
+	if gangPai == nil {
+		log.E("用户[%v]没有找到杠牌,id[%v]，杠牌失败...", userId, paiId)
+		return errors.New("服务器错误,杠牌失败..")
 	}
+
+	var gangType int32 = 0
+	var sendUserId uint32 = 0        //打出牌的人，暗杠的话 就表示是自己..
+
+	if d.CheckCase != nil {
+		//表示是明港
+		gangType = GANG_TYPE_MING        //明杠
+		sendUserId = d.CheckCase.GetUserIdOut()
+	} else {
+
+		//如果碰牌中有这张牌表示是巴杠 //如果碰牌中没有这张牌，表示是暗杠
+		isBaGang := user.GameData.HandPai.IsExistPengPai(gangPai)
+		if isBaGang {
+			gangType = GANG_TYPE_BA        //巴杠
+		} else {
+			gangType = GANG_TYPE_AN        //暗杠
+		}
+		sendUserId = userId
+
+	}
+
+
+	/**
+		根据杠牌的类型不同，处理的方式也不同
+		1,如果是巴杠，移除碰牌中的牌和碰牌info , 并且生成杠牌，和杠牌info
+		2,如果是明杠或者暗杠，需要把所有的牌放在杠牌中，不用处理碰牌
+	 */
+
+
+	if gangType == GANG_TYPE_BA {
+		//循环碰牌来处理
+		var pengKeys []int32
+		user.GameData.HandPai.GangPais = append(user.GameData.HandPai.GangPais, gangPai)
+		for _, pengPai := range user.GameData.HandPai.PengPais {
+			if pengPai != nil && pengPai.GetValue() == gangPai.GetValue() && pengPai.GetFlower() == gangPai.GetFlower() {
+				//增加杠牌
+				user.GameData.HandPai.GangPais = append(user.GameData.HandPai.GangPais, pengPai)
+				pengKeys = append(pengKeys, pengPai.GetIndex())
+			}
+		}
+
+		//删除碰牌
+		//减少手中的杠牌
+		for _, key := range pengKeys {
+			user.GameData.HandPai.DelPengPai(key)
+		}
+	} else if gangType == GANG_TYPE_MING || gangType == GANG_TYPE_AN {
+		//杠牌的类型
+		var gangKey []int32
+		//增加杠牌
+		user.GameData.HandPai.GangPais = append(user.GameData.HandPai.GangPais, gangPai)
+
+		//如果不是摸的牌，而是手中本来就有的牌，那么需要把他移除
+		if user.GameData.HandPai.InPai.GetIndex() != gangPai.GetIndex() {
+			gangKey = append(gangKey, gangPai.GetIndex())
+		}
+
+		for _, pai := range user.GameData.HandPai.Pais {
+			if pai.GetFlower() == gangPai.GetFlower() && pai.GetValue() == gangPai.GetValue() && pai.GetIndex() != gangPai.GetIndex() {
+				//增加杠牌
+				user.GameData.HandPai.GangPais = append(user.GameData.HandPai.GangPais, pai)
+				gangKey = append(gangKey, pai.GetIndex())
+			}
+		}
+
+		//减少手中的杠牌
+		for _, key := range gangKey {
+			user.GameData.HandPai.DelHandlPai(key)
+		}
+
+	}
+
+	//增加杠牌info
+	info := NewGangPaiInfo()
+	*info.SendUserId = sendUserId
+	*info.GangType = gangType
+	info.Pai = gangPai
+	//info.ByWho
+	user.GameData.GangInfo = append(user.GameData.GangInfo, info)
+
+	//增加杠牌状态
+	user.PreMoGangInfo = info
 
 	//todo 返回杠牌成功的逻辑，返回一个摸牌的overTurn
 	result := newProto.NewGame_AckActGang()

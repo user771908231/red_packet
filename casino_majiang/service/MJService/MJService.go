@@ -274,10 +274,12 @@ func HandlerGame_ActGang(m *mjProto.Game_ActGang) {
 	}
 
 	//先杠牌
-	err := desk.ActGang(m.GetHeader().GetUserId())
+	err := desk.ActGang(m.GetHeader().GetUserId(), m.GetGangCard().GetId())
 	if err != nil {
 		log.E("服务器错误：用户[%v]杠牌的时候出错err[%v]", userId, err)
 	}
+
+	desk.CheckCase = nil        //杠牌之后设置checkCase为nil
 
 	//处理下一个人
 	desk.DoCheckCase(desk.GetUserByUserId(userId))        //杠牌之后，处理下一个判定牌

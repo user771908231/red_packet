@@ -15,8 +15,8 @@ var MJUSER_STATUS_INTOROOM int32 = 1; ///刚进入游戏
 var MJUSER_STATUS_SEATED int32 = 2; //坐下游戏
 var MJUSER_STATUS_READY int32 = 3; ///准备游戏
 var MJUSER_STATUS_DINGQUE int32 = 4; ///准备游戏
-var MJUSER_STATUS_HUPAI int32 = 5; ///准备游戏
-
+var MJUSER_STATUS_GAMING int32 = 5; ///正在游戏，这里的正在游戏，表示还没有胡牌..
+var MJUSER_STATUS_HUPAI int32 = 6; ///准备游戏
 
 //麻将玩家
 
@@ -46,10 +46,9 @@ func (u *MjUser) IsNotHu() bool {
 }
 
 
-//todo 玩家是否在游戏状态中
+//玩家正在游戏中，
 func (u *MjUser) IsGaming() bool {
-	return true
-
+	return u.GetStatus() == MJUSER_STATUS_GAMING
 }
 
 //判断用户是否已经定缺
@@ -207,33 +206,6 @@ func (u *MjUser) ActHu(p *MJPai, sendUserId uint32, desk *MjDesk) error {
 //用户杠牌,主要是存储数据
 func (u *MjUser) Gang(p *MJPai, sendUserId uint32) error {
 
-	//杠牌的类型
-	var gangType int32 = 0
-	var gangKey []int32
-	//增加杠牌
-	u.GameData.HandPai.GangPais = append(u.GameData.HandPai.GangPais, p)
-	for _, pai := range u.GameData.HandPai.Pais {
-		if pai.GetFlower() == p.GetFlower() && pai.GetValue() == p.GetValue() {
-			//增加杠牌
-			u.GameData.HandPai.GangPais = append(u.GameData.HandPai.GangPais, pai)
-			gangKey = append(gangKey, pai.GetIndex())
-		}
-	}
-
-	//增加杠牌info
-	info := NewGangPaiInfo()
-	*info.SendUserId = sendUserId
-	*info.GangType = gangType
-	info.Pai = p
-	u.GameData.GangInfo = append(u.GameData.GangInfo, info)
-
-	//增加杠牌状态
-	u.PreMoGangInfo = info
-
-	//减少手中的杠牌
-	for _, key := range gangKey {
-		u.GameData.HandPai.DelPai(key)
-	}
 
 	return nil
 }
@@ -257,7 +229,7 @@ func (u *MjUser) GetCheckBean(p *MJPai) *CheckBean {
 
 //玩家打一张牌
 func (u *MjUser) DaPai(p *MJPai) error {
-	u.GameData.HandPai.DelPai(p.GetIndex())
+	u.GameData.HandPai.DelHandlPai(p.GetIndex())
 	return nil
 }
 

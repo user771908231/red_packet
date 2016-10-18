@@ -57,10 +57,9 @@ func handlerREQQuickConn(args []interface{}) {
 		*result.MaintainMsg = "服务器正在例行维护中，请于今日5:00后再登录游戏!"
 	}
 
-
 	//如果得到的user ==nil 或者 用密码登陆的时候密码不正确
 	*result.Header.Code = intCons.ACK_RESULT_SUCC                           //返回结果
-	log.T("快速登录,有userId,没有密码时返回的信息:[%v]", result)
+	log.T("handlerREQQuickConn 协议返回的信息:[%v]", result)
 	a.WriteMsg(result)
 
 }
