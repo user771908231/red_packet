@@ -12,6 +12,7 @@ import (
 	"time"
 	"casino_majiang/conf/config"
 	"casino_server/utils/db"
+	"strings"
 )
 
 //状态表示的是当前状态.
@@ -187,6 +188,7 @@ func (d *MjDesk) GetDeskGameInfo() *mjproto.DeskGameInfo {
 	*deskInfo.TotalPlayCount = d.GetTotalPlayCount()//总共几局
 	*deskInfo.PlayerNum = d.GetPlayerNum()        //玩家的人数
 	deskInfo.RoomTypeInfo = d.GetRoomTypeInfo()
+	*deskInfo.RoomNumber = d.GetPassword()        //房间号码...
 	//deskInfo.NRebuyCount
 	//deskInfo.InitRoomCoin
 	//deskInfo.NInitActionTime
@@ -987,6 +989,16 @@ func (d *MjDesk)ActHu(userId uint32) error {
 	}
 
 
+	/**
+	HuPaiType_H_GangShangHua      HuPaiType = 9
+	HuPaiType_H_GangShangPao      HuPaiType = 10
+	HuPaiType_H_QiangGang         HuPaiType = 11 todo
+	HuPaiType_H_HaiDiLao          HuPaiType = 12 todo
+	HuPaiType_H_HaiDiPao          HuPaiType = 13 todo
+	HuPaiType_H_HaidiGangShangHua HuPaiType = 14 todo
+	HuPaiType_H_HaidiGangShangPao HuPaiType = 15 todo
+	 */
+
 	//得到胡牌的信息
 	var isZimo bool = false //是否是自摸
 	var isGangShangHua bool = false //是否是杠上花
@@ -995,39 +1007,50 @@ func (d *MjDesk)ActHu(userId uint32) error {
 	var outUserId uint32
 	var roomInfo mjproto.RoomTypeInfo = *d.GetRoomTypeInfo()  //roomType  桌子的规则
 
-
 	if checkCase == nil {
 		//表示是自摸
 		isZimo = true
 		outUserId = userId
 		if u.GetPreMoGangInfo() != nil {
 			isGangShangHua = true  //杠上花
+			extraAct = mjproto.HuPaiType_H_GangShangHua
 		}
 
 	} else {
 		isZimo = false                //表示是点炮
 		outUserId = checkCase.GetUserIdOut()
 		if checkCase.GetPreOutGangInfo() != nil {
+
+			//这里需要判断是杠上炮，还是抢杠
 			isGangShangPao = true//杠上炮
+			extraAct = mjproto.HuPaiType_H_GangShangPao
 		}
 	}
 
-	//
-	log.T("点炮的人[%v],胡牌的人[%v],杠上花[%v],杠上炮[%v],", userId, outUserId, isGangShangHua, isGangShangPao)
+	log.T("点炮的人[%v],胡牌的人[%v],杠上花[%v],杠上炮[%v],接下来开始getHuScore(%v,%v,%v,%v)", userId, outUserId, isGangShangHua, isGangShangPao,
+		u.GameData.HandPai, isZimo, extraAct, roomInfo)
 
-	//得到胡牌的信息getHuScore(handPai *MJHandPai, isZimo bool, extraAct HuPaiType, roomInfo RoomTypeInfo) (fan int32, score int64, huCardStr[] string) {
 	fan, score, huCardStr := getHuScore(u.GameData.HandPai, isZimo, extraAct, roomInfo)
-	log.T("胡牌之后的信息fan[%v],score[%v],huCardStr[%v]", fan, score, huCardStr)
+	log.T("胡牌(getHuScore)之后的结果fan[%v],score[%v],huCardStr[%v]", fan, score, huCardStr)
 
 	//胡牌之后的信息
 	hu := NewHuPaiInfo()
+	*hu.GetUserId = u.GetUserId()
 	*hu.SendUserId = outUserId
+	//*hu.ByWho = 打牌的方位，对家，上家，下家？
+	*hu.HuType = int32(extraAct)        ////杠上炮 杠上花 抢杠 海底捞 海底炮 天胡 地胡
+	//*hu.CardType = //胡的牌型:清一色...
+	//*hu.HuDesc = huCardStr
+	*hu.HuDesc = strings.Join(huCardStr, " ");
 	hu.Pai = u.GameData.HandPai.InPai
 	*hu.Fan = fan
+	*hu.Score = score        //只是胡牌的分数，不是赢了多少钱
+
 	u.GameData.HuInfo = append(u.GameData.HuInfo, hu)
 	u.GameData.HandPai.HuPais = append(u.GameData.HandPai.HuPais, d.CheckCase.CheckMJPai)        //增加胡牌
 
 	//todo 判断是否是巴杠,如果是巴杠 抢杠需要对巴杠做特殊处理
+
 
 	//发送胡牌成功的回复
 	ack := newProto.NewGame_AckActHu()
@@ -1035,7 +1058,7 @@ func (d *MjDesk)ActHu(userId uint32) error {
 	*ack.UserIdIn = hu.GetGetUserId()
 	*ack.UserIdOut = hu.GetSendUserId()
 	ack.HuCard = hu.Pai.GetCardInfo()
-	log.T("给用户[%v]发送胡牌的ack[%v]", u.GetUserId(), ack)
+	log.T("给用户[%v]发送胡牌的ack[%v]", hu.GetGetUserId(), ack)
 	u.WriteMsg(ack)
 
 	return nil
@@ -1182,11 +1205,6 @@ func (d *MjDesk) SetOfflineStatus(userId uint32) {
 }
 
 //返回一个牌局结果
-
-/**
-    optional int32 huCount = 8;
-
- */
 
 func (d *MjDesk) GetWinCoinInfo(user *MjUser) *mjproto.WinCoinInfo {
 	win := newProto.NewWinCoinInfo()

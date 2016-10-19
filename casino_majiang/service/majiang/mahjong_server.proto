@@ -28,7 +28,7 @@ message HuPaiInfo {
     optional string huDesc = 6; //如:"自摸(清一色) 中张 3番"
     optional MJPai pai = 7; //胡的哪张牌
     optional int32 fan = 8; //胡的番数
-    optional int32 score = 9; //胡的得分
+    optional int64 score = 9; //胡的得分
 }
 
 message GangPaiInfo {

@@ -115,6 +115,7 @@ func NewDeskGameInfo() *mjProto.DeskGameInfo {
 	ret.InitRoomCoin = new(int64)
 	ret.CurrPlayCount = new(int32)
 	ret.TotalPlayCount = new(int32)
+	ret.RoomNumber = new(string)
 	return ret
 }
 

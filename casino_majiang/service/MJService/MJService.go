@@ -100,17 +100,18 @@ func HandlerGame_EnterRoom(userId uint32, key string, a gate.Agent) {
 
 //用户开始准备游戏
 func HandlerGame_Ready(m *mjProto.Game_Ready, a gate.Agent) {
-	log.T("收到请求，game_Ready(m[%v],a[%v])", m, a)
-	desk := majiang.GetMjDeskBySession(m.GetHeader().GetUserId())
+	log.T("收到请求，game_Ready(m[%v])", m)
+	userId := m.GetHeader().GetUserId()
+	desk := majiang.GetMjDeskBySession(userId)
 	if desk == nil {
 		// 准备失败
-		log.E("用户[%v]准备失败.因为没有找到对应的desk", m.GetHeader().GetUserId())
+		log.E("用户[%v]准备失败.因为没有找到对应的desk", userId)
 		result := newProto.NewGame_AckReady()
 		*result.Header.Code = intCons.ACK_RESULT_ERROR
 		*result.Header.Error = "准备失败"
 		a.WriteMsg(result)
 	} else {
-		err := desk.Ready(m.GetHeader().GetUserId())
+		err := desk.Ready(userId)
 		if err != nil {
 			//准备失败
 			result := newProto.NewGame_AckReady()
@@ -122,8 +123,8 @@ func HandlerGame_Ready(m *mjProto.Game_Ready, a gate.Agent) {
 			result := newProto.NewGame_AckReady()
 			*result.Header.Code = intCons.ACK_RESULT_SUCC
 			*result.Header.Error = "准备成功"
-			*result.UserId = m.GetHeader().GetUserId()
-			log.T("广播user[%v]在desk[%v]准备成功的广播..", m.GetHeader().GetUserId(), desk.GetDeskId())
+			*result.UserId = userId
+			log.T("广播user[%v]在desk[%v]准备成功的广播..", userId, desk.GetDeskId())
 			desk.BroadCastProto(result)
 
 			//准备成功之后，是否需要开始游戏...
