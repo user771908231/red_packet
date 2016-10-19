@@ -781,19 +781,18 @@ func (d *MjDesk) SendMopaiOverTurn(user *MjUser) error {
 	//是否可以胡牌
 	*overTrun.CanHu = user.GameData.HandPai.GetCanHu()
 	//是否可以杠牌
-	canGangBool, gangPais := user.GameData.HandPai.GetCanGang(nextPai)
+	canGangBool, gangPais := user.GameData.HandPai.GetCanGang(nil)
 	*overTrun.CanGang = canGangBool
 	if canGangBool && gangPais != nil {
-		overTrun.ActCard = gangPais[0].GetCardInfo()
+		for _, g := range gangPais {
+			overTrun.GangCards = append(overTrun.GangCards, g.GetCardInfo())
+		}
 	}
 
 	//是否可以碰牌
 	*overTrun.CanPeng = false
 	user.SendOverTurn(overTrun)
 	log.T("玩家[%v]开始摸牌【%v】...", user.GetUserId(), overTrun)
-
-
-
 
 
 	//给其他人广播协议
@@ -1103,7 +1102,7 @@ func (d *MjDesk) ActGang(userId uint32, paiId int32) error {
 		//杠牌的类型
 		var gangKey []int32
 		//增加杠牌
-		user.GameData.HandPai.Pais = append(user.GameData.HandPai.Pais, gangPai)
+		user.GameData.HandPai.Pais = append(user.GameData.HandPai.Pais, user.GameData.HandPai.InPai)
 		//如果不是摸的牌，而是手中本来就有的牌，那么需要把他移除
 		for _, pai := range user.GameData.HandPai.Pais {
 			if pai.GetFlower() == gangPai.GetFlower() && pai.GetValue() == gangPai.GetValue() {
