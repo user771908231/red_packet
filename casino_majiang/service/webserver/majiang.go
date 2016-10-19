@@ -26,15 +26,19 @@ func gameInfo(w http.ResponseWriter, r *http.Request) {
 func printDeskInfo(w http.ResponseWriter, desk *majiang.MjDesk) {
 	if desk != nil {
 		deskInfo := "开始打印desk.id[%v], \t房间号roomKey[%v]的信息:\t 房主Owner[%v],activeUser[%v]\t \n" +
-		"麻将的信息：庄家的信息[%v]\t当前的游标[%v]：\n 麻将:\n %v"
+		"麻将的信息：庄家的信息[%v]\t当前的游标[%v]：\n 麻将:\n %v checkCase:%v \n"
 
 		fmt.Fprintf(w, deskInfo, desk.GetDeskId(), desk.GetPassword(), desk.GetOwner(), desk.GetActiveUser(),
-			desk.GetBanker(), desk.GetMJPaiCursor(), GetDeskMJInfo(desk))
+			desk.GetBanker(), desk.GetMJPaiCursor(), GetDeskMJInfo(desk), desk.CheckCase)
 
 		fmt.Fprintf(w, "\n开始打印user的信息:\n")
 		for i, user := range desk.Users {
 			if user != nil {
-				fmt.Fprintf(w, "[%v],玩家的信息userId[%v],nickName[%v],status[%v],是否定缺[%v],定缺的花色[%v]\n", i, user.GetUserId(), "nickName", user.GetStatus(), user.GetDingQue(), user.GameData.HandPai.GetQueFlower())
+				fmt.Fprintf(w, "[%v],玩家的信息userId[%v],nickName[%v],status[%v],是否定缺[%v],定缺的花色[%v]\n 玩家的手牌[%v]\n玩家的碰牌[%v],玩家的杠牌[%v],玩家的胡牌[%v],玩家的inpai[%v]\n",
+					i, user.GetUserId(), "nickName", user.GetStatus(), user.GetDingQue(), user.GameData.HandPai.GetQueFlower(), getUserPaiInfo(user),
+					getUserPengPaiInfo(user),
+					getUserGnagPaiInfo(user),
+					getUserHuPaiInfo(user), getUserInPaiInfo(user))
 			}
 		}
 
@@ -49,22 +53,78 @@ func GetDeskMJInfo(desk *majiang.MjDesk) string {
 	}
 	s := ""
 	for i, p := range desk.AllMJPai {
-		ii, _ := numUtils.Int2String(int32(i))
-		pi, _ := numUtils.Int2String(p.GetValue())
-		s = s + "\t (" + ii + "---" + pi + GetFlow(p.GetFlower()) + ")"
+		is, _ := numUtils.Int2String(int32(i))
+
+		ii, _ := numUtils.Int2String(int32(p.GetIndex()))
+		s = s + " (" + is + "-" + ii + "-" + p.LogDes() + ")"
 	}
 	return s
 }
 
-func GetFlow(f int32) string {
-	if f == 1 {
-		return "铜"
-	} else if f == 2 {
-		return "条"
-	} else if f == 3 {
-		return "万"
-	} else {
-		return "白"
+func getUserPaiInfo(user *majiang.MjUser) string {
+	if user.GameData == nil || user.GameData.HandPai == nil {
+		return "用户还没有牌"
 	}
+
+	s := ""
+	for _, p := range user.GameData.HandPai.Pais {
+		ii, _ := numUtils.Int2String(int32(p.GetIndex()))
+		s = s + ii + "-" + p.LogDes() + "\t "
+	}
+
+	return s
+
+}
+
+func getUserPengPaiInfo(user *majiang.MjUser) string {
+	if user.GameData == nil || user.GameData.HandPai == nil {
+		return "用户还没有牌"
+	}
+
+	s := ""
+	for _, p := range user.GameData.HandPai.PengPais {
+		ii, _ := numUtils.Int2String(int32(p.GetIndex()))
+		s = s + ii + "-" + p.LogDes() + "\t "
+	}
+
+	return s
+
+}
+
+func getUserGnagPaiInfo(user *majiang.MjUser) string {
+	if user.GameData == nil || user.GameData.HandPai == nil {
+		return "用户还没有牌"
+	}
+
+	s := ""
+	for _, p := range user.GameData.HandPai.GangPais {
+		ii, _ := numUtils.Int2String(int32(p.GetIndex()))
+		s = s + ii + "-" + p.LogDes() + "\t "
+	}
+
+	return s
+
+}
+
+func getUserHuPaiInfo(user *majiang.MjUser) string {
+	if user.GameData == nil || user.GameData.HandPai == nil {
+		return "用户还没有牌"
+	}
+
+	s := ""
+	for _, p := range user.GameData.HandPai.HuPais {
+		ii, _ := numUtils.Int2String(int32(p.GetIndex()))
+		s = s + ii + "-" + p.LogDes() + "\t "
+	}
+
+	return s
+
+}
+func getUserInPaiInfo(user *majiang.MjUser) string {
+	if user.GameData == nil || user.GameData.HandPai == nil {
+		return "用户还没有牌"
+	}
+
+	return user.GameData.HandPai.InPai.LogDes()
 
 }

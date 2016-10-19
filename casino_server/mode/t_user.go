@@ -33,6 +33,8 @@ type T_user struct {
 				    //微信
 	OpenId            string    //openId
 	HeadUrl           string    //头像
+	Sex               int32
+	City              string
 }
 
 func (t *T_user) GetMid() bson.ObjectId {

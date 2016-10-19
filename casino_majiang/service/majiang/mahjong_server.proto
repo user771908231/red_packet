@@ -20,15 +20,15 @@ message MJHandPai {
 }
 
 message HuPaiInfo {
-    optional uint32 sendUserId  = 1; //点胡的人
-    optional uint32 getUserId   = 2; //得胡的人
-    optional int32  byWho = 3; //0=自己胡  1=下家 2=对家 3=上家 4=三家
-    optional int32  huType = 4; //杠上炮 杠上花 抢杠 海底捞 海底炮 天胡 地胡
-    optional int32  cardType = 5; //胡的牌型:清一色...
+    optional uint32 sendUserId = 1; //点胡的人
+    optional uint32 getUserId = 2; //得胡的人
+    optional int32 byWho = 3; //0=自己胡  1=下家 2=对家 3=上家 4=三家
+    optional int32 huType = 4; //杠上炮 杠上花 抢杠 海底捞 海底炮 天胡 地胡
+    optional int32 cardType = 5; //胡的牌型:清一色...
     optional string huDesc = 6; //如:"自摸(清一色) 中张 3番"
-    optional MJPai  pai = 7; //胡的哪张牌
-    optional int32  fan = 8; //胡的番数
-    optional int32  score = 9; //胡的得分
+    optional MJPai pai = 7; //胡的哪张牌
+    optional int32 fan = 8; //胡的番数
+    optional int32 score = 9; //胡的得分
 }
 
 message GangPaiInfo {
@@ -37,17 +37,19 @@ message GangPaiInfo {
     optional int32 byWho = 3; //1=自己杠  1=下家 2=对家 3=上家 4=三家
     optional int32 gangType = 4; //1=明杠、2=巴杠、3=暗杠、4=呼叫转移
     optional MJPai pai = 5; //杠的哪张牌
+    optional int32 transfer = 6; //呼叫转移
+
 }
 
 //一个玩家的游戏信息
 message PlayerGameData {
-    optional MJHandPai      handPai = 1;    //手牌
-    repeated HuPaiInfo      huInfo = 2;     //胡牌信息
-    repeated HuPaiInfo      dianHuInfo = 3; //被胡信息
-    repeated GangPaiInfo    gangInfo = 4;   //杠牌信息
-    repeated GangPaiInfo    dianGangInfo = 5;  //被杠信息
-    repeated GangPaiInfo    gangTransfer = 6;   //呼叫转移
-    optional int32          totalScore = 7; //牌局结果得分
+    optional MJHandPai handPai = 1; //手牌
+    repeated HuPaiInfo huInfo = 2; //胡牌信息
+    repeated HuPaiInfo dianHuInfo = 3; //被胡信息
+    repeated GangPaiInfo gangInfo = 4; //杠牌信息
+    repeated GangPaiInfo dianGangInfo = 5; //被杠信息
+    repeated GangPaiInfo gangTransfer = 6; //呼叫转移
+    optional int32 totalScore = 7; //牌局结果得分
 }
 
 //需要确认的时间
@@ -94,6 +96,7 @@ message MjDesk {
     optional uint32 Banker = 23; //庄
     optional CheckCase CheckCase = 24; //
     optional uint32 ActiveUser = 25; //
+    optional int32 GameNumber = 26; //游戏编号，每一句游戏都有编号
 
 
 }

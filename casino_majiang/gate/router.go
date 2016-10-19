@@ -4,8 +4,8 @@ import (
 	"casino_majiang/msg"
 	"casino_majiang/game"
 	"casino_majiang/msg/protogo"
-	"casino_majiang/login"
 	"casino_server/msg/bbprotogo"
+	"casino_majiang/login"
 )
 
 func init() {
@@ -24,6 +24,5 @@ func init() {
 	msg.Processor.SetRouter(&mjproto.Game_ActGang{}, game.ChanRPC)                //杠
 	msg.Processor.SetRouter(&mjproto.Game_ActGuo{}, game.ChanRPC)                //过
 	msg.Processor.SetRouter(&mjproto.Game_ActHu{}, game.ChanRPC)                        //胡
-
-
+	msg.Processor.SetRouter(&mjproto.Game_Login{}, login.ChanRPC)
 }

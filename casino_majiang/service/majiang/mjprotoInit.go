@@ -1,5 +1,10 @@
 package majiang
 
+import (
+	"casino_majiang/msg/protogo"
+	"casino_majiang/msg/funcsInit"
+)
+
 func NewMjpai() *MJPai {
 	ret := &MJPai{}
 	ret.Value = new(int32)
@@ -35,6 +40,7 @@ func NewMjDesk() *MjDesk {
 	ret.MJPaiCursor = new(int32)
 	ret.ActiveUser = new(uint32)
 	ret.Banker = new(uint32)
+	ret.GameNumber = new(int32)
 	return ret
 }
 
@@ -78,12 +84,23 @@ func NewGangPaiInfo() *GangPaiInfo {
 	ret.ByWho = new(int32)
 	ret.GangType = new(int32)
 	ret.SendUserId = new(uint32)
+	ret.GetUserId = new(uint32)
 	return ret
 }
 
 func NewCheckCase() *CheckCase {
 	ret := &CheckCase{}
 	ret.UserIdOut = new(uint32)
+	ret.CheckStatus = new(int32)
+	return ret
+}
+
+func NewCheckBean() *CheckBean {
+	ret := &CheckBean{}
+	ret.UserId = new(uint32)
+	ret.CanGang = new(bool)
+	ret.CanHu = new(bool)
+	ret.CanPeng = new(bool)
 	ret.CheckStatus = new(int32)
 	return ret
 }
@@ -97,4 +114,13 @@ func NewHuPaiInfo() *HuPaiInfo {
 	ret.SendUserId = new(uint32)
 	return ret
 
+}
+
+//生成一张只有背面的牌
+func NewBackPai() *mjproto.CardInfo {
+	cardInfo := newProto.NewCardInfo()
+	*cardInfo.Id = 0
+	*cardInfo.Type = 0
+	*cardInfo.Value = 0
+	return cardInfo
 }

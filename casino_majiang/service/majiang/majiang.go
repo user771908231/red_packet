@@ -2,10 +2,11 @@ package majiang
 
 import (
 	"strings"
-	"github.com/name5566/leaf/log"
 	"casino_server/utils/numUtils"
 	"casino_server/utils"
 	. "casino_majiang/msg/protogo"
+	"casino_server/common/log"
+	"errors"
 )
 
 //得到一副牌...
@@ -134,111 +135,139 @@ func init() {
 	mjpaiMap[106] = "W_9"
 	mjpaiMap[107] = "W_9"
 
+
+	//0---27 万条筒
 	clienMap = make(map[int]int32, 108)
 	clienMap[0] = 19
 	clienMap[1] = 19
 	clienMap[2] = 19
 	clienMap[3] = 19
+
 	clienMap[4] = 20
 	clienMap[5] = 20
 	clienMap[6] = 20
 	clienMap[7] = 20
+
 	clienMap[8] = 21
 	clienMap[9] = 21
 	clienMap[10] = 21
 	clienMap[11] = 21
+
 	clienMap[12] = 22
 	clienMap[13] = 22
 	clienMap[14] = 22
 	clienMap[15] = 22
+
 	clienMap[16] = 23
 	clienMap[17] = 23
 	clienMap[18] = 23
 	clienMap[19] = 23
+
 	clienMap[20] = 24
 	clienMap[21] = 24
 	clienMap[22] = 24
 	clienMap[23] = 24
+
 	clienMap[24] = 25
 	clienMap[25] = 25
 	clienMap[26] = 25
 	clienMap[27] = 25
+
 	clienMap[28] = 26
 	clienMap[29] = 26
 	clienMap[30] = 26
 	clienMap[31] = 26
+
 	clienMap[32] = 27
 	clienMap[33] = 27
 	clienMap[34] = 27
 	clienMap[35] = 27
+
 	clienMap[36] = 10
 	clienMap[37] = 10
 	clienMap[38] = 10
 	clienMap[39] = 10
+
 	clienMap[40] = 11
 	clienMap[41] = 11
 	clienMap[42] = 11
 	clienMap[43] = 11
+
 	clienMap[44] = 12
 	clienMap[45] = 12
 	clienMap[46] = 12
 	clienMap[47] = 12
+
 	clienMap[48] = 13
 	clienMap[49] = 13
 	clienMap[50] = 13
 	clienMap[51] = 13
-	clienMap[52] = 13
+
+	clienMap[52] = 14
 	clienMap[53] = 14
 	clienMap[54] = 14
 	clienMap[55] = 14
+
 	clienMap[56] = 15
 	clienMap[57] = 15
 	clienMap[58] = 15
 	clienMap[59] = 15
+
 	clienMap[60] = 16
 	clienMap[61] = 16
 	clienMap[62] = 16
 	clienMap[63] = 16
+
 	clienMap[64] = 17
 	clienMap[65] = 17
 	clienMap[66] = 17
 	clienMap[67] = 17
+
 	clienMap[68] = 18
 	clienMap[69] = 18
 	clienMap[70] = 18
 	clienMap[71] = 18
+
 	clienMap[72] = 1
 	clienMap[73] = 1
 	clienMap[74] = 1
 	clienMap[75] = 1
+
 	clienMap[76] = 2
 	clienMap[77] = 2
 	clienMap[78] = 2
 	clienMap[79] = 2
+
 	clienMap[80] = 3
 	clienMap[81] = 3
 	clienMap[82] = 3
 	clienMap[83] = 3
+
 	clienMap[84] = 4
 	clienMap[85] = 4
 	clienMap[86] = 4
 	clienMap[87] = 4
+
 	clienMap[88] = 5
 	clienMap[89] = 5
 	clienMap[90] = 5
 	clienMap[91] = 5
+
 	clienMap[92] = 6
 	clienMap[93] = 6
 	clienMap[94] = 6
 	clienMap[95] = 6
+
 	clienMap[96] = 7
 	clienMap[97] = 7
 	clienMap[98] = 7
 	clienMap[99] = 7
+
 	clienMap[100] = 8
 	clienMap[101] = 8
 	clienMap[102] = 8
 	clienMap[103] = 8
+
 	clienMap[104] = 9
 	clienMap[105] = 9
 	clienMap[106] = 9
@@ -254,9 +283,9 @@ func GettPaiStats(pais []*MJPai) []int {
 		pai := pais[i]
 		value := pai.GetValue() - 1
 		flower := pai.GetFlower()    //flower=1,2,3
-
+		//log.T("getValue(%v)", value)
 		value += (flower - 1) * 9
-
+		//log.T("value", value)
 		counts[ value ] ++
 	}
 
@@ -372,27 +401,15 @@ func tryHU(count []int, len int) (result bool, isAll19 bool) {
 	return false, isAll19
 }
 
-//确定要胡牌的时候,做出的处理
-func  HuPai(handPai *MJHandPai) error {
-	//排序
-	//统计
-	//p.InitHandPaisStats()
-	//p.IsDaDui        //判断是否是大队子
-	//p.IsQingYiSe        //判断是否是清一色
-	//p.IsJiangDui        //判断是否是将对
-
-	return nil
-
-}
-
 //这张pai能不能胡
-func  CanHuPai(handPai *MJHandPai) bool {
+
+func CanHuPai(handPai *MJHandPai) bool {
 	//在所有的牌中增加 pai,判断此牌是否能和
 	pais := []*MJPai{}
 	pais = append(pais, handPai.Pais...)
 	pais = append(pais, handPai.InPai)
 
-	counts := GettPaiStats( pais )
+	counts := GettPaiStats(pais)
 
 	canHu, isAll19 := tryHU(counts, len(handPai.Pais))
 	if canHu {
@@ -404,7 +421,7 @@ func  CanHuPai(handPai *MJHandPai) bool {
 	return canHu
 }
 
-func  getHuScore(handPai *MJHandPai, isZimo bool, extraAct HuPaiType, roomInfo RoomTypeInfo) (fan int32, score int64, huCardStr[] string) {
+func getHuScore(handPai *MJHandPai, isZimo bool, extraAct HuPaiType, roomInfo RoomTypeInfo) (fan int32, score int64, huCardStr[] string) {
 	//底分
 	score = int64(*roomInfo.BaseValue)
 
@@ -428,7 +445,7 @@ func  getHuScore(handPai *MJHandPai, isZimo bool, extraAct HuPaiType, roomInfo R
 }
 
 //计算带几个"勾"
-func  getGou(handPai *MJHandPai, handCounts[] int) (gou int32) {
+func getGou(handPai *MJHandPai, handCounts[] int) (gou int32) {
 	// 已杠的牌
 	gou = int32(len(handPai.GangPais))
 
@@ -454,7 +471,7 @@ func  getGou(handPai *MJHandPai, handCounts[] int) (gou int32) {
 // 返回胡牌番数
 // extraAct:指定HuPaiType.H_GangShangHua(杠上花/炮,海底等)
 //
-func  getHuFan(handPai *MJHandPai, isZimo bool, extraAct HuPaiType, roomInfo RoomTypeInfo) (fan int32, huCardStr[] string) {
+func getHuFan(handPai *MJHandPai, isZimo bool, extraAct HuPaiType, roomInfo RoomTypeInfo) (fan int32, huCardStr[] string) {
 	fan = int32(0)
 	pais := []*MJPai{}
 	pais = append(pais, handPai.Pais...)
@@ -588,7 +605,7 @@ func  getHuFan(handPai *MJHandPai, isZimo bool, extraAct HuPaiType, roomInfo Roo
 
 
 //这张pai是否可碰
-func  CanPengPai(pai *MJPai, handPai *MJHandPai) bool {
+func CanPengPai(pai *MJPai, handPai *MJHandPai) bool {
 
 	existCount := 0
 	for i := 0; i < len(handPai.Pais); i++ {
@@ -601,9 +618,9 @@ func  CanPengPai(pai *MJPai, handPai *MJHandPai) bool {
 }
 
 //这张pai是否可杠( 当pai为nil时, 检测handPai中是否有杠)
-func  CanGangPai(pai *MJPai, handPai *MJHandPai) (canGang bool, gangPais []*MJPai) {
-
-	if( pai != nil ) { //判断别人打入的牌是否可杠
+func CanGangPai(pai *MJPai, handPai *MJHandPai) (canGang bool, gangPais []*MJPai) {
+	if ( pai != nil ) {
+		//判断别人打入的牌是否可杠
 		existCount := 0
 		for _, p := range handPai.Pais {
 			if *pai.Flower == *p.Flower && *pai.Value == *p.Value {
@@ -616,10 +633,18 @@ func  CanGangPai(pai *MJPai, handPai *MJHandPai) (canGang bool, gangPais []*MJPa
 			gangPais = append(gangPais, pai)
 		}
 
-	} else { //检测手牌中是否有杠
-		counts := GettPaiStats(handPai.Pais)
-		for _, p := range handPai.Pais {
-			if( 4 == counts[ p.GetValue() + (p.GetFlower() - 1) * 9 ] ) {
+	} else {
+		//检测手牌中是否有杠
+		tempPais := make([]*MJPai, len(handPai.Pais) + 1)
+		copy(tempPais[0:len(handPai.Pais)], handPai.Pais)
+		tempPais[len(handPai.Pais)] = handPai.InPai
+
+
+		//counts := GettPaiStats(handPai.Pais)
+		counts := GettPaiStats(tempPais)
+		for _, p := range tempPais {
+			//log.T("判断杠牌 p.getValue(%v)+p.GetFlower[%v]*9 = %v", p.GetValue(), p.GetFlower(), p.GetValue() + (p.GetFlower() - 1) * 9)
+			if ( 4 == counts[ p.GetValue() - 1 + (p.GetFlower() - 1) * 9 ] ) {
 				canGang = true
 				gangPais = append(gangPais, p)
 			}
@@ -630,7 +655,7 @@ func  CanGangPai(pai *MJPai, handPai *MJHandPai) (canGang bool, gangPais []*MJPa
 }
 
 //清一色
-func  IsQingYiSe(pais []*MJPai) bool {
+func IsQingYiSe(pais []*MJPai) bool {
 	flower := pais[0].Flower
 	for i := 1; i < len(pais); i++ {
 		if *flower != *pais[i].Flower {
@@ -642,7 +667,7 @@ func  IsQingYiSe(pais []*MJPai) bool {
 }
 
 //大对子
-func  IsDaDuiZi(pais []*MJPai) bool {
+func IsDaDuiZi(pais []*MJPai) bool {
 	counts := GettPaiStats(pais)
 
 	jiangDui := 0
@@ -662,7 +687,7 @@ func  IsDaDuiZi(pais []*MJPai) bool {
 }
 
 //七对
-func  IsQiDui(handPai *MJHandPai, handCounts[] int) bool {
+func IsQiDui(handPai *MJHandPai, handCounts[] int) bool {
 	pais := handPai.Pais
 
 	if len(pais) != 13 {
@@ -671,7 +696,8 @@ func  IsQiDui(handPai *MJHandPai, handCounts[] int) bool {
 	}
 
 	for i := 0; i < len(pais); i++ {
-		if handCounts [ pais[i].GetValue() - 1 + (pais[i].GetFlower() - 1) * 9 ] != 2 { //每张牌都是2张
+		if handCounts [ pais[i].GetValue() - 1 + (pais[i].GetFlower() - 1) * 9 ] != 2 {
+			//每张牌都是2张
 			return false
 		}
 	}
@@ -680,7 +706,7 @@ func  IsQiDui(handPai *MJHandPai, handCounts[] int) bool {
 }
 
 //龙七对
-func  IsLongQiDui(handPai *MJHandPai, handCounts[] int) bool {
+func IsLongQiDui(handPai *MJHandPai, handCounts[] int) bool {
 	pais := handPai.Pais
 
 	if !IsQiDui(handPai, handCounts) {
@@ -699,7 +725,7 @@ func  IsLongQiDui(handPai *MJHandPai, handCounts[] int) bool {
 }
 
 //将对(全是2,5,8的大对子)
-func  IsJiangDui(handPai *MJHandPai) bool {
+func IsJiangDui(handPai *MJHandPai) bool {
 	pais := handPai.Pais
 
 	for i := 0; i < len(pais); i++ {
@@ -712,7 +738,7 @@ func  IsJiangDui(handPai *MJHandPai) bool {
 }
 
 //将七对(全是2,5,8的七对)
-func  IsJiangQiDui(handPai *MJHandPai, handCounts[] int) bool {
+func IsJiangQiDui(handPai *MJHandPai, handCounts[] int) bool {
 	pais := handPai.Pais
 
 	for i := 0; i < len(pais); i++ {
@@ -725,7 +751,7 @@ func  IsJiangQiDui(handPai *MJHandPai, handCounts[] int) bool {
 }
 
 //全带幺
-func  IsAllDaiYao(handPai *MJHandPai) bool {
+func IsAllDaiYao(handPai *MJHandPai) bool {
 	pais := handPai.Pais
 
 	for i := 0; i < len(pais); i++ {
@@ -780,7 +806,9 @@ func XiPai() []*MJPai {
 		pmap = append(pmap[:int(rand)], pmap[int(rand) + 1:]...)
 	}
 
-	log.Debug("洗牌之后,得到的随机的index数组[%v]", pResult)
+	log.T("洗牌之后,得到的随机的index数组[%v]", pResult)
+	TestCheckRanIndex(pResult)        //todo  测试代码，之后需要删除
+	pResult = []int{94, 55, 13, 40, 106, 28, 100, 31, 57, 44, 83, 58, 101, 104, 9, 92, 62, 67, 25, 38, 41, 86, 6, 48, 65, 61, 71, 4, 36, 49, 63, 7, 26, 75, 56, 43, 35, 103, 91, 27, 33, 50, 3, 11, 10, 8, 93, 76, 45, 12, 22, 68, 29, 17, 105, 19, 23, 95, 87, 34, 53, 37, 102, 88, 0, 69, 79, 80, 60, 81, 47, 85, 98, 2, 15, 16, 96, 59, 42, 30, 99, 77, 64, 46, 84, 52, 51, 70, 32, 21, 66, 1, 90, 72, 97, 78, 20, 74, 14, 24, 89, 5, 18, 73, 54, 82, 39, 107}
 
 	//开始得到牌的信息
 	result := make([]*MJPai, MJPAI_COUNT)
@@ -788,8 +816,48 @@ func XiPai() []*MJPai {
 		result[i] = InitMjPaiByIndex(pResult[i])
 	}
 
-	log.Debug("洗牌之后,得到的牌的数组[%v]", result)
+	log.T("洗牌之后,得到的牌的数组[%v]", result)
 	return result
+}
+
+func XiPaiTestHu() []*MJPai {
+	//初始化一个顺序的牌的集合
+	pmap := make([]int, MJPAI_COUNT)
+	for i := 0; i < MJPAI_COUNT; i++ {
+		pmap[i] = i
+	}
+
+	//打乱牌的集合
+	pResult := make([]int, MJPAI_COUNT)
+	for i := 0; i < 108; i++ {
+		pResult[i] = i;
+	}
+
+	//开始得到牌的信息
+	result := make([]*MJPai, MJPAI_COUNT)
+	for i := 0; i < MJPAI_COUNT; i++ {
+		result[i] = InitMjPaiByIndex(pResult[i])
+	}
+
+	log.T("洗牌之后,得到的牌的数组[%v]", result)
+	return result
+}
+
+func TestCheckRanIndex(r []int) {
+	copyCheck := make([]int, MJPAI_COUNT)
+	copy(copyCheck, r)
+	for _, a := range copyCheck {
+		count := 0
+		for _, b := range copyCheck {
+			if a == b {
+				count ++
+				if count > 1 {
+					log.Fatal("随机牌的index[%v] 出错", a)
+					panic(errors.New("随便牌的index 出错"))
+				}
+			}
+		}
+	}
 }
 
 
@@ -800,4 +868,17 @@ func InitMjPaiByIndex(index int) *MJPai {
 	*result.Des = mjpaiMap[index]
 	result.InitByDes()
 	return result
+}
+
+func GetFlow(f int32) string {
+	if f == 1 {
+		return "万"
+	} else if f == 2 {
+		return "条"
+	} else if f == 3 {
+		return "筒"
+	} else {
+		return "白"
+	}
+
 }

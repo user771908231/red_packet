@@ -71,8 +71,6 @@ func NewGame_DingQue() *mjProto.Game_DingQue {
 	que := &mjProto.Game_DingQue{}
 	que.Header = NewHeader()
 	que.Color = new(int32)
-	que.MatchId = new(int32)
-	que.TableId = new(int32)
 	que.UserId = new(uint32)
 	return que
 }
@@ -180,8 +178,6 @@ func NewGame_DealCards() *mjProto.Game_DealCards {
 func NewGame_Opening() *mjProto.Game_Opening {
 	ret := &mjProto.Game_Opening{}
 	ret.Header = NewHeader()
-	ret.MatchId = new(int32)
-	ret.TableId = new(int32)
 	return ret
 }
 
@@ -214,6 +210,7 @@ func NewGame_AckActHu() *mjProto.Game_AckActHu {
 	ret.Header = NewHeader()
 	ret.UserIdIn = new(uint32)
 	ret.UserIdOut = new(uint32)
+	ret.HuType = new(int32)
 	return ret
 }
 
@@ -231,6 +228,7 @@ func NewGame_AckActGang() *mjProto.Game_AckActGang {
 	ret.Header = NewHeader()
 	ret.UserIdIn = new(uint32)
 	ret.UserIdOut = new(uint32)
+	ret.GangCard = make([]*mjProto.CardInfo, 4)
 	return ret
 }
 
@@ -243,3 +241,54 @@ func NewGame_AckActPeng() *mjProto.Game_AckActPeng {
 	return ret
 }
 
+func NewGame_AckLogin() *mjProto.Game_AckLogin {
+	ret := &mjProto.Game_AckLogin{}
+	ret.Header = NewHeader()
+	ret.UserId = new(uint32)
+	ret.NickName = new(string)
+	ret.RoomPassword = new(string)
+	ret.CostCreateRoom = new(int64)
+	ret.CostRebuy = new(int64)
+	ret.Championship = new(bool)
+	ret.Chip = new(int64)
+	ret.MailCount = new(int32)
+	ret.Notice = new(string)
+	ret.GameStatus = new(int32)
+	return ret
+}
+
+func NewWeixinInfo() *mjProto.WeixinInfo {
+	ret := &mjProto.WeixinInfo{}
+	ret.City = new(string)
+	ret.HeadUrl = new(string)
+	ret.NickName = new(string)
+	ret.OpenId = new(string)
+	ret.Sex = new(int32)
+	ret.UnionId = new(string)
+	return ret
+}
+
+func NewGame_SendCurrentResult() *mjProto.Game_SendCurrentResult {
+	ret := &mjProto.Game_SendCurrentResult{}
+	ret.Header = NewHeader()
+	return ret
+
+}
+
+func NewGame_SendEndLottery() *mjProto.Game_SendEndLottery {
+	ret := &mjProto.Game_SendEndLottery{}
+	ret.Header = NewHeader()
+	return ret
+}
+
+func NewWinCoinInfo() *mjProto.WinCoinInfo {
+	ret := &mjProto.WinCoinInfo{}
+	ret.CardTitle = new(string)
+	ret.Coin = new(int64)
+	ret.HuCount = new(int32)
+	ret.IsDealer = new(bool)
+	ret.UserId = new(uint32)
+	ret.NickName = new(string)
+	ret.WinCoin = new(int64)
+	return ret
+}

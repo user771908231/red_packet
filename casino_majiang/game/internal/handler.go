@@ -105,3 +105,4 @@ func handlerGame_ActHu(args []interface{}) {
 	m := args[0].(*mjProto.Game_ActHu)
 	MJService.HandlerGame_ActHu(m)
 }
+

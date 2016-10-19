@@ -26,7 +26,7 @@ var USER_DIAMOND_REDIS_KEY = "user_diamond_redis_key"
 	2,保存mongo
 	3,缓存到redis
  */
-func NewUserAndSave(openId, wxNickName, headUrl string) (*bbproto.User, error) {
+func NewUserAndSave(openId, wxNickName, headUrl string, sex int32, city string) (*bbproto.User, error) {
 
 	//1,创建user获得自增主键
 	id, err := db.GetNextSeq(casinoConf.DBT_T_USER)
@@ -37,6 +37,8 @@ func NewUserAndSave(openId, wxNickName, headUrl string) (*bbproto.User, error) {
 	nuser := &mode.T_user{}
 	nuser.Mid = bson.NewObjectId()
 	nuser.Id = uint32(id)
+	nuser.Sex = sex
+	nuser.City = city
 	nuser.Diamond = NEW_USER_DIAMOND_REWARD                //新用户注册的时候,默认的钻石数量
 	if wxNickName == "" {
 		nuser.NickName = config.RandNickname()
@@ -210,6 +212,8 @@ func Tuser2Ruser(tu *mode.T_user) (*bbproto.User, error) {
 	result.Diamond = &tu.Diamond
 	result.OpenId = &tu.OpenId
 	result.HeadUrl = &tu.HeadUrl
+	result.Sex = &tu.Sex
+	result.City = &tu.City
 	return result, nil
 }
 
@@ -233,6 +237,8 @@ func Ruser2Tuser(ru *bbproto.User) (*mode.T_user, error) {
 	result.HeadUrl = ru.GetHeadUrl()
 	result.OpenId = ru.GetOpenId()
 	result.Diamond = ru.GetDiamond()
+	result.Sex = ru.GetSex()
+	result.City = ru.GetCity()
 
 	return result, nil
 }

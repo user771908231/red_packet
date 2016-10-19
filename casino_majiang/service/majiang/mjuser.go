@@ -8,14 +8,15 @@ import (
 	"casino_server/common/log"
 	"casino_server/utils/jobUtils"
 	"time"
+	"casino_server/service/userService"
 )
 
 var MJUSER_STATUS_INTOROOM int32 = 1; ///刚进入游戏
 var MJUSER_STATUS_SEATED int32 = 2; //坐下游戏
 var MJUSER_STATUS_READY int32 = 3; ///准备游戏
 var MJUSER_STATUS_DINGQUE int32 = 4; ///准备游戏
-var MJUSER_STATUS_HUPAI int32 = 5; ///准备游戏
-
+var MJUSER_STATUS_GAMING int32 = 5; ///正在游戏，这里的正在游戏，表示还没有胡牌..
+var MJUSER_STATUS_HUPAI int32 = 6; ///准备游戏
 
 //麻将玩家
 
@@ -45,10 +46,9 @@ func (u *MjUser) IsNotHu() bool {
 }
 
 
-//todo 玩家是否在游戏状态中
+//玩家正在游戏中，
 func (u *MjUser) IsGaming() bool {
-	return true
-
+	return u.GetStatus() == MJUSER_STATUS_GAMING
 }
 
 //判断用户是否已经定缺
@@ -68,7 +68,17 @@ func ( u *MjUser) GetPlayerInfo(showHand bool) *mjproto.PlayerInfo {
 	info.PlayerCard = u.GetPlayerCard(showHand)
 	*info.NickName = "测试nickName"
 	*info.UserId = u.GetUserId()
+	info.WxInfo = u.GetWxInfo()
 	return info
+}
+
+func (u *MjUser) GetWxInfo() *mjproto.WeixinInfo {
+	user := userService.GetUserById(u.GetUserId())
+	weixinInfo := newProto.NewWeixinInfo()
+	*weixinInfo.NickName = user.GetNickName()
+	*weixinInfo.HeadUrl = user.GetHeadUrl()
+	*weixinInfo.OpenId = user.GetOpenId()
+	return weixinInfo
 }
 
 //得到手牌
@@ -188,71 +198,37 @@ func (u *MjUser) Wait() error {
 
 
 //用户胡牌
-func (u *MjUser) ActHu(p *MJPai, sendUserId uint32) error {
-	//判断能不能胡
+func (u *MjUser) ActHu(p *MJPai, sendUserId uint32, desk *MjDesk) error {
 
-	//得到胡牌的信息
-
-	//胡牌之后的信息
-	hu := NewHuPaiInfo()
-	*hu.SendUserId = sendUserId
-	hu.Pai = p
-	//hu.Fan
-	u.GameData.HuInfo = append(u.GameData.HuInfo, hu)
-
-	//增加胡牌
-	u.GameData.HandPai.HuPais = append(u.GameData.HandPai.HuPais, p)
-
-	//发送胡牌成功的回复
-	ack := newProto.NewGame_AckActHu()
-
-	log.T("给用户[%v]发送胡牌的ack[%v]", u.GetUserId(), ack)
-	u.WriteMsg(ack)
 	return nil
 }
 
 //用户杠牌,主要是存储数据
 func (u *MjUser) Gang(p *MJPai, sendUserId uint32) error {
 
-	//杠牌的类型
-	var gangType int32 = 0
-	var gangKey []int32
-	//增加杠牌
-	u.GameData.HandPai.GangPais = append(u.GameData.HandPai.GangPais, p)
-	for _, pai := range u.GameData.HandPai.Pais {
-		if pai.GetFlower() == p.GetFlower() && pai.GetValue() == p.GetValue() {
-			//增加杠牌
-			u.GameData.HandPai.GangPais = append(u.GameData.HandPai.GangPais, pai)
-			gangKey = append(gangKey, pai.GetIndex())
-		}
-	}
-
-	//增加杠牌info
-	info := NewGangPaiInfo()
-	*info.SendUserId = sendUserId
-	*info.GangType = gangType
-	info.Pai = p
-	u.GameData.GangInfo = append(u.GameData.GangInfo, info)
-
-	//增加杠牌状态
-	u.PreMoGangInfo = info
-
-	//减少手中的杠牌
-	for _, key := range gangKey {
-		u.GameData.HandPai.DelPai(key)
-	}
-
 	return nil
 }
 
 //得到判定bean
 func (u *MjUser) GetCheckBean(p *MJPai) *CheckBean {
-	return nil
+	bean := NewCheckBean()
+	*bean.CheckStatus = CHECK_CASE_BEAN_STATUS_CHECKING
+	*bean.CanHu = u.GameData.HandPai.GetCanHu()
+	*bean.CanPeng = u.GameData.HandPai.GetCanPeng(p)
+	*bean.CanGang, _ = u.GameData.HandPai.GetCanGang(p)
+	*bean.UserId = u.GetUserId()
+	log.T("得到用户[%v]对牌[%v]的check , bean[%v]", u.GetUserId(), p.LogDes(), bean)
+
+	if bean.GetCanGang() || bean.GetCanHu() || bean.GetCanPeng() {
+		return bean
+	} else {
+		return nil
+	}
 }
 
 //玩家打一张牌
 func (u *MjUser) DaPai(p *MJPai) error {
-	u.GameData.HandPai.DelPai(p.GetIndex())
+	u.GameData.HandPai.DelHandlPai(p.GetIndex())
 	return nil
 }
 
@@ -270,3 +246,8 @@ func (u *MjUser) CanMoPai() bool {
 		return false
 	}
 }
+//得到用户的昵称
+func (u *MjUser) GetNickName() string {
+	return "nickName"
+}
+

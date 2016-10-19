@@ -149,8 +149,8 @@ message game_OverTurn {
     optional bool canPeng = 5;
     optional bool canGang = 6;
     optional bool canHu = 7;
-    optional CardInfo actCard = 8; // 如果有出牌，表示出的是哪张牌，否则置为空
-    repeated CardInfo gangCards = 9;// 手牌中可杠的牌(可能多张)
+    optional CardInfo actCard = 8; // 如果有出牌，表示出的是哪张牌，否则置为空 别人打牌的判断
+    repeated CardInfo gangCards = 9; // 手牌中可杠的牌(可能多张) 自己摸牌的时候
 }
 
 // 发送游戏信息(广播)

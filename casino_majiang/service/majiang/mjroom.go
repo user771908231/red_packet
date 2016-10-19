@@ -69,6 +69,9 @@ func (r *MjRoom) CreateDesk(m *mjproto.Game_CreateRoom) *MjDesk {
 }
 
 func (r *MjRoom) RandRoomKey() string {
+
+	//return "666666"
+
 	a := utils.Rand(100000, 1000000)
 	roomKey, _ := numUtils.Int2String(a)
 	//1,判断roomKey是否已经存在
