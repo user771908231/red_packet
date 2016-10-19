@@ -209,7 +209,7 @@ func HandlerGame_ExchangeCards(m *mjProto.Game_ExchangeCards, a gate.Agent) {
  */
 
 func HandlerGame_SendOutCard(m *mjProto.Game_SendOutCard, a gate.Agent) {
-	log.Debug("收到请求，HandlerGame_SendOutCard(m[%v],a[%v])", m, a)
+	log.T("收到请求，HandlerGame_SendOutCard(m[%v],a[%v])", m, a)
 	userId := m.GetHeader().GetUserId()
 	//检测参数
 	desk := majiang.GetMjDeskBySession(userId)
@@ -294,10 +294,19 @@ func HandlerGame_ActGang(m *mjProto.Game_ActGang) {
 	胡牌的过，之后的人可以继续碰或者杠
  */
 func HandlerGame_ActGuo(m *mjProto.Game_ActGuo) {
-	log.Debug("收到请求，game_ActGuo(m[%v])", m)
+	log.T("收到杠牌的请求，game_ActGuo(m[%v])", m)
 
-	desk := majiang.GetMjDeskBySession(m.GetHeader().GetUserId()) //通过userId 的session 得到对应的desk
-	user := desk.GetUserByUserId(m.GetHeader().GetUserId())
+	userId := m.GetHeader().GetUserId()
+	desk := majiang.GetMjDeskBySession(userId) //通过userId 的session 得到对应的desk
+	user := desk.GetUserByUserId(userId)
+	if desk.CheckCase == nil {
+		/**
+			只有判断别人打的牌的时候，需要过的时候才会请求这个协议，自己摸牌 需不需要过的时候不需要请求这个协议...
+		 */
+		log.E("玩家【%v】过牌的时候出错，因为checkCase为nil", userId)
+		return
+
+	}
 	err := desk.CheckCase.UpdateCheckBeanStatus(user.GetUserId(), majiang.CHECK_CASE_BEAN_STATUS_PASS)        // update checkCase...
 	if err != nil {
 		log.T("过牌的时候失败，err[%v]", err)
@@ -322,7 +331,7 @@ func HandlerGame_ActGuo(m *mjProto.Game_ActGuo) {
 	2,点炮的时候需要注意区分  抢杠，杠上炮，普通点炮
  */
 func HandlerGame_ActHu(m *mjProto.Game_ActHu) {
-	log.Debug("收到请求，game_ActHu(m[%v])", m)
+	log.T("收到胡牌请求，game_ActHu(m[%v])", m)
 
 	//需要返回的数据
 	userId := m.GetHeader().GetUserId()

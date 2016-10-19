@@ -661,8 +661,6 @@ func (d *MjDesk) DoLottery() error {
 				if info != nil {
 					//info.Fan	翻数
 					//info.HuType 胡牌的类型
-
-
 				}
 			}
 
@@ -680,7 +678,15 @@ func (d *MjDesk) SaveLotteryData() error {
 }
 
 func (d *MjDesk) SendLotteryData() error {
-	//发送开奖的数据
+	//发送开奖的数据,需要得到每个人的winCoinInfo
+	result := newProto.NewGame_SendCurrentResult()
+	for _, user := range d.GetUsers() {
+		if user != nil {
+			result.WinCoinInfo = append(result.WinCoinInfo, d.GetWinCoinInfo(user))
+		}
+	}
+
+	d.BroadCastProto(result)
 
 	return nil
 }
@@ -692,10 +698,16 @@ func (d *MjDesk) AfterLottery() error {
 }
 
 func (d *MjDesk) End() bool {
+
+	d.DoEnd()
 	return true
 }
 
 func (d *MjDesk)DoEnd() error {
+	//game_SendEndLottery
+	result := newProto.NewGame_SendEndLottery()
+	//发送游戏结束的结果
+	d.BroadCastProto(result)
 	return nil
 }
 
@@ -1019,6 +1031,10 @@ func (d *MjDesk)ActHu(userId uint32) error {
 
 	//发送胡牌成功的回复
 	ack := newProto.NewGame_AckActHu()
+	*ack.HuType = hu.GetHuType()
+	*ack.UserIdIn = hu.GetGetUserId()
+	*ack.UserIdOut = hu.GetSendUserId()
+	ack.HuCard = hu.Pai.GetCardInfo()
 	log.T("给用户[%v]发送胡牌的ack[%v]", u.GetUserId(), ack)
 	u.WriteMsg(ack)
 
@@ -1163,4 +1179,24 @@ func (d *MjDesk) ActGang(userId uint32, paiId int32) error {
 func (d *MjDesk) SetOfflineStatus(userId uint32) {
 	user := d.GetUserByUserId(userId)
 	*user.IsBreak = true
+}
+
+//返回一个牌局结果
+
+/**
+    optional int32 huCount = 8;
+
+ */
+
+func (d *MjDesk) GetWinCoinInfo(user *MjUser) *mjproto.WinCoinInfo {
+	win := newProto.NewWinCoinInfo()
+	*win.NickName = user.GetNickName()
+	*win.UserId = user.GetUserId()
+	//*win.WinCoin =本次输赢多少(负数表示输了)
+	*win.Coin = user.GetCoin()        // 输赢以后，当前筹码是多少
+	//*win.CardTitle =// 赢牌牌型信息( 如:"点炮x2 明杠x2 根x2 自摸 3番" )
+	win.Cards = user.GetPlayerCard(true) //牌信息,true 表示要显示牌的信息...
+	*win.IsDealer = (d.GetBanker() == user.GetUserId() )        //是否是庄家
+	*win.HuCount = 1        //本局胡的次数(血流成河会多次胡)
+	return win
 }

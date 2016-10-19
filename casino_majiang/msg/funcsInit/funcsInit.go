@@ -210,6 +210,7 @@ func NewGame_AckActHu() *mjProto.Game_AckActHu {
 	ret.Header = NewHeader()
 	ret.UserIdIn = new(uint32)
 	ret.UserIdOut = new(uint32)
+	ret.HuType = new(int32)
 	return ret
 }
 
@@ -264,5 +265,30 @@ func NewWeixinInfo() *mjProto.WeixinInfo {
 	ret.OpenId = new(string)
 	ret.Sex = new(int32)
 	ret.UnionId = new(string)
+	return ret
+}
+
+func NewGame_SendCurrentResult() *mjProto.Game_SendCurrentResult {
+	ret := &mjProto.Game_SendCurrentResult{}
+	ret.Header = NewHeader()
+	return ret
+
+}
+
+func NewGame_SendEndLottery() *mjProto.Game_SendEndLottery {
+	ret := &mjProto.Game_SendEndLottery{}
+	ret.Header = NewHeader()
+	return ret
+}
+
+func NewWinCoinInfo() *mjProto.WinCoinInfo {
+	ret := &mjProto.WinCoinInfo{}
+	ret.CardTitle = new(string)
+	ret.Coin = new(int64)
+	ret.HuCount = new(int32)
+	ret.IsDealer = new(bool)
+	ret.UserId = new(uint32)
+	ret.NickName = new(string)
+	ret.WinCoin = new(int64)
 	return ret
 }

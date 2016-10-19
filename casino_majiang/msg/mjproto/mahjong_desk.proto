@@ -83,7 +83,7 @@ message WinCoinInfo {
     optional int64 winCoin = 3; // 本次输赢多少(负数表示输了)
     optional int64 coin = 4; // 输赢以后，当前筹码是多少
     optional string cardTitle = 5; // 赢牌牌型信息( 如:"点炮x2 明杠x2 根x2 自摸 3番" )
-    repeated CardInfo cards = 6; // 手牌
+    optional PlayerCard cards = 6; // 手牌
     optional bool isDealer = 7; //是否庄家
     optional int32 huCount = 8; //本局胡的次数(血流成河会多次胡)
 }

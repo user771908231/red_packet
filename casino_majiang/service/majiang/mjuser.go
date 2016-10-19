@@ -206,7 +206,6 @@ func (u *MjUser) ActHu(p *MJPai, sendUserId uint32, desk *MjDesk) error {
 //用户杠牌,主要是存储数据
 func (u *MjUser) Gang(p *MJPai, sendUserId uint32) error {
 
-
 	return nil
 }
 
@@ -247,3 +246,8 @@ func (u *MjUser) CanMoPai() bool {
 		return false
 	}
 }
+//得到用户的昵称
+func (u *MjUser) GetNickName() string {
+	return "nickName"
+}
+
