@@ -8,6 +8,7 @@ import (
 	"casino_majiang/service/majiang"
 	"casino_server/conf/intCons"
 	"casino_server/service/userService"
+	"time"
 )
 
 
@@ -61,7 +62,7 @@ func HandlerGame_CreateRoom(m *mjProto.Game_CreateRoom, a gate.Agent) {
 3，进入失败【只】返回AckEnterRoom
  */
 func HandlerGame_EnterRoom(userId uint32, key string, a gate.Agent) {
-	log.T("收到请求，HandlerGame_EnterRoom(m[%v])", userId)
+	log.T("收到请求，HandlerGame_EnterRoom(userId[%v],key[%v])", userId, key)
 
 	//1,找到合适的room
 	room := majiang.GetMJRoom()
@@ -93,6 +94,7 @@ func HandlerGame_EnterRoom(userId uint32, key string, a gate.Agent) {
 		gameinfo := desk.GetGame_SendGameInfo(userId)
 		*gameinfo.SenderUserId = userId
 		//a.WriteMsg(gameinfo)
+		log.T("用户[%v]进入房间之后，返回的数据gameInfo[%v]", userId, gameinfo)
 		desk.BroadCastProto(gameinfo)
 
 	}
@@ -280,7 +282,7 @@ func HandlerGame_ActGang(m *mjProto.Game_ActGang) {
 		log.E("服务器错误：用户[%v]杠牌的时候出错err[%v]", userId, err)
 	}
 
-
+	time.Sleep(time.Second * 1)        //间隔两秒 进行下一个动作
 	//处理下一个人
 	desk.DoCheckCase(desk.GetUserByUserId(userId))        //杠牌之后，处理下一个判定牌
 }
@@ -363,7 +365,7 @@ func HandlerGame_ActHu(m *mjProto.Game_ActHu) {
 
 	//这里是否需要广播胡牌的广播...
 
-	//todo 胡牌之后，如果只剩下一个人..那么这句游戏结束...
+	//胡牌之后，需要判断游戏是否结束...
 	if desk.Time2Lottery() {
 		desk.Lottery()
 		//因为可以开奖了，所以不操作后边的，直接返回

@@ -9,6 +9,8 @@ import (
 	"casino_server/utils/jobUtils"
 	"time"
 	"casino_server/service/userService"
+	"sync/atomic"
+	"errors"
 )
 
 var MJUSER_STATUS_INTOROOM int32 = 1; ///刚进入游戏
@@ -72,6 +74,8 @@ func ( u *MjUser) GetPlayerInfo(showHand bool) *mjproto.PlayerInfo {
 	return info
 }
 
+
+
 func (u *MjUser) GetWxInfo() *mjproto.WeixinInfo {
 	user := userService.GetUserById(u.GetUserId())
 	weixinInfo := newProto.NewWeixinInfo()
@@ -98,13 +102,13 @@ func (u *MjUser) GetPlayerCard(showHand bool) *mjproto.PlayerCard {
 		}
 	}
 
-
+	//类型（1,碰，2,明杠，3,暗杠）
 	//得到碰牌
 	for i, pai := range u.GameData.HandPai.GetPengPais() {
 		if pai != nil && i % 3 == 0 {
 			com := newProto.NewComposeCard()
 			*com.Value = pai.GetClientId()
-			//com.Type =	这里代表的是碰牌
+			*com.Type = 1        //todo ,需要把type 放置在常量里面 这里代表的是碰牌
 			playerCard.ComposeCard = append(playerCard.ComposeCard, com)
 		}
 	}
@@ -115,7 +119,7 @@ func (u *MjUser) GetPlayerCard(showHand bool) *mjproto.PlayerCard {
 		if pai != nil && i % 4 == 0 {
 			com := newProto.NewComposeCard()
 			*com.Value = pai.GetClientId()
-			//com.Type =	这里代表的是杠牌
+			*com.Type = 2       // 这里代表的是杠牌
 			playerCard.ComposeCard = append(playerCard.ComposeCard, com)
 		}
 	}
@@ -228,8 +232,7 @@ func (u *MjUser) GetCheckBean(p *MJPai) *CheckBean {
 
 //玩家打一张牌
 func (u *MjUser) DaPai(p *MJPai) error {
-	u.GameData.HandPai.DelHandlPai(p.GetIndex())
-	return nil
+	return u.GameData.HandPai.DelHandlPai(p.GetIndex())
 }
 
 //设置用户的状态
@@ -249,5 +252,38 @@ func (u *MjUser) CanMoPai() bool {
 //得到用户的昵称
 func (u *MjUser) GetNickName() string {
 	return "nickName"
+}
+
+func (u *MjUser) AddBillAmount(amount int64) {
+	atomic.AddInt64(u.Bill.WinAmount, amount)
+}
+
+//删除账单
+func (u *MjUser)DelBillBean(pai *MJPai) (error, BillBean) {
+	var bean *BillBean
+	index := -1
+	for i, info := range u.Bill.Bills {
+		if info != nil && info.GetPai().GetIndex() == pai.GetIndex() {
+			index = i
+			bean = info
+			break
+		}
+	}
+
+	if index > -1 {
+		u.Bill.Bills = append(u.Bill.Bills[:index], u.Bill.Bills[index + 1:]...)
+		return nil, bean
+	} else {
+		log.E("服务器错误：删除账单 billBean的时候出错，没有找到对应的杠牌[%v]", pai)
+		return errors.New("删除手牌时出错，没有找到对应的手牌..."), nil
+	}
+
+}
+
+//增加一条账单
+func (u *MjUser) AddBillBean(bean *BillBean) error {
+	u.Bill.Bills = append(u.Bill.Bills, bean)
+	u.AddBillAmount(bean.GetAmount())
+	return nil
 }
 

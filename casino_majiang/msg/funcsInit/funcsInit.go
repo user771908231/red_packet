@@ -293,3 +293,9 @@ func NewWinCoinInfo() *mjProto.WinCoinInfo {
 	ret.WinCoin = new(int64)
 	return ret
 }
+
+func NewEndLotteryInfo() *mjProto.EndLotteryInfo {
+	ret := &mjProto.EndLotteryInfo{}
+	return ret
+
+}

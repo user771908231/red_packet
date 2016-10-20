@@ -54,6 +54,23 @@ func NewMjUser() *MjUser {
 	ret.DeskId = new(int32)
 	ret.RoomId = new(int32)
 	ret.DingQue = new(bool)
+	ret.Bill = NewBill()
+	return ret
+}
+
+func NewBill() *Bill {
+	ret := &Bill{}
+	ret.WinAmount = new(int64)
+	return ret
+}
+
+func NewBillBean() *BillBean {
+	ret := &BillBean{}
+	ret.UserId = new(uint32)
+	ret.Des = new(string)
+	ret.OutUserId = new(uint32)
+	ret.Type = new(int32)
+
 	return ret
 }
 

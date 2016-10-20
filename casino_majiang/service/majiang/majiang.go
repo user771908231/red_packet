@@ -833,6 +833,16 @@ func XiPaiTestHu() []*MJPai {
 		pResult[i] = i;
 	}
 
+	//pResult[0] = 15
+	//pResult[1] = 16
+	//pResult[4] = 19
+	//pResult[5] = 20
+	//
+	//pResult[15] = 0
+	//pResult[16] = 1
+	//pResult[19] = 4
+	//pResult[20] = 5
+
 	//开始得到牌的信息
 	result := make([]*MJPai, MJPAI_COUNT)
 	for i := 0; i < MJPAI_COUNT; i++ {

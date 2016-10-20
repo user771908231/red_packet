@@ -104,3 +104,24 @@ func (hand *MJHandPai) IsExistPengPai(pai *MJPai) bool {
 	}
 	return false;
 }
+
+//删除杠牌的信息
+func (d *PlayerGameData) DelGangInfo(pai *MJPai) error {
+	index := -1
+	for i, info := range d.GangInfo {
+		if info != nil && info.GetPai().GetClientId() == pai.GetClientId() {
+			index = i
+			break
+		}
+	}
+
+	if index > -1 {
+		d.GangInfo = append(d.GangInfo[:index], d.GangInfo[index + 1:]...)
+		return nil
+	} else {
+		log.E("服务器错误：删除gangInfo的时候出错，没有找到对应的杠牌[%v]", pai)
+		return errors.New("删除手牌时出错，没有找到对应的手牌...")
+	}
+
+	return nil
+}
