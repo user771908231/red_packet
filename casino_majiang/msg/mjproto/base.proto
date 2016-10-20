@@ -149,6 +149,14 @@ enum GangType {
     G_ANGANG      = 3; //暗杠
 }
 
+//碰杠类型(客户端显示用)
+enum ComposeCardType {
+    C_MINGGANG    = 1; //明杠
+    C_BAGANG      = 2; //巴杠
+    C_ANGANG      = 3; //暗杠
+    C_PENG        = 4; //碰
+}
+
 //胡牌的类型
 enum HuPaiType {
     H_DuiDuiHu    = 1; //1番:对对胡
