@@ -13,7 +13,6 @@ import (
 	"casino_majiang/conf/config"
 	"casino_server/utils/db"
 	"strings"
-	"os/user"
 )
 
 //状态表示的是当前状态.
@@ -930,15 +929,23 @@ func (d *MjDesk) CheckActive(userId uint32) bool {
 func (d *MjDesk)ActOut(userId uint32, paiKey int32) error {
 	log.T("开始处理用户[%v]打牌[%v]的逻辑", userId, paiKey)
 
+	outUser := d.GetUserByUserId(userId)
+	if outUser == nil {
+		log.E("打牌失败，没有找到玩家[%v]", userId)
+		return errors.New("玩家[%v]没有找到，打牌失败...")
+	}
 
 	//判断是否轮到当前玩家打牌了...
 	if !d.CheckActive(userId) {
+		result := newProto.NewGame_AckSendOutCard()
+		*result.Header.Code = intCons.ACK_RESULT_ERROR
+		*result.Header.Error = "不是打牌的状态"
+		outUser.WriteMsg(result)
 		return errors.New("没有轮到当前玩家....")
 	}
 
 	//得到参数
 	outPai := InitMjPaiByIndex(int(paiKey))
-	outUser := d.GetUserByUserId(userId)
 	outUser.GameData.HandPai.AddPai(outUser.GameData.HandPai.InPai)        //把inpai放置到手牌上
 	errDapai := outUser.DaPai(outPai)
 	if errDapai != nil {
@@ -1084,9 +1091,9 @@ func (d *MjDesk)ActHu(userId uint32) error {
 
 
 	hupai := u.GameData.HandPai.InPai
-	if d.CheckCase != nil && d.CheckCase.PreOutGangInfo != nil && d.CheckCase.PreOutGangInfo.GangType == GANG_TYPE_BA {
+	if d.CheckCase != nil && d.CheckCase.PreOutGangInfo != nil && d.CheckCase.PreOutGangInfo.GetGangType() == GANG_TYPE_BA {
 		log.T("开始处理抢杠的逻辑....")
-		dianUser := d.GetUserByUserId(hu.SendUserId)
+		dianUser := d.GetUserByUserId(hu.GetSendUserId())
 
 		//1,首先是清楚杠牌的info
 		var gangKeys []int32
@@ -1141,7 +1148,7 @@ func (d *MjDesk)ActHu(userId uint32) error {
 				*shubill.Type = 1
 				*shubill.Des = "用户自摸，输钱"
 				*shubill.Amount = -d.GetBaseValue()        //杠牌的收入金额
-				*shubill.Pai = hupai
+				shubill.Pai = hupai
 				shuUser.AddBillBean(shubill)
 			}
 		}
@@ -1165,7 +1172,7 @@ func (d *MjDesk)ActHu(userId uint32) error {
 		*shubill.Type = 1
 		*shubill.Des = "用户自摸，输钱"
 		*shubill.Amount = -d.GetBaseValue()        //杠牌的收入金额
-		*shubill.Pai = hupai
+		shubill.Pai = hupai
 		shuUser.AddBillBean(shubill)
 
 	}
@@ -1323,7 +1330,7 @@ func (d *MjDesk) ActGang(userId uint32, paiId int32) error {
 				*shubill.Type = 1
 				*shubill.Des = "用户杠牌，获得收入"
 				*shubill.Amount = d.GetBaseValue()        //杠牌的收入金额
-				*shubill.Pai = gangPai
+				shubill.Pai = gangPai
 				ou.AddBillAmount(-bill.GetAmount())
 				ou.Bill.Bills = append(ou.Bill.Bills, bill)
 			}

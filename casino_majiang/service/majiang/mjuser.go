@@ -74,8 +74,6 @@ func ( u *MjUser) GetPlayerInfo(showHand bool) *mjproto.PlayerInfo {
 	return info
 }
 
-
-
 func (u *MjUser) GetWxInfo() *mjproto.WeixinInfo {
 	user := userService.GetUserById(u.GetUserId())
 	weixinInfo := newProto.NewWeixinInfo()
@@ -259,7 +257,7 @@ func (u *MjUser) AddBillAmount(amount int64) {
 }
 
 //删除账单
-func (u *MjUser)DelBillBean(pai *MJPai) (error, BillBean) {
+func (u *MjUser)DelBillBean(pai *MJPai) (error, *BillBean) {
 	var bean *BillBean
 	index := -1
 	for i, info := range u.Bill.Bills {

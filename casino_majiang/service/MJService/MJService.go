@@ -225,6 +225,8 @@ func HandlerGame_SendOutCard(m *mjProto.Game_SendOutCard, a gate.Agent) {
 	err := desk.ActOut(userId, m.GetCardId())
 	if err != nil {
 		//打牌失败
+		log.E("打牌失败...errMsg[%v]", err)
+		return
 	}
 
 	log.T("用户[%v]已经打牌，处理下一个checkCase", userId)
