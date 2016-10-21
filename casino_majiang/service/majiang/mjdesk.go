@@ -599,6 +599,7 @@ func (d *MjDesk) DoCheckCase(gangUser *MjUser) error {
 		*overTurn.ActType = OVER_TURN_ACTTYPE_OTHER
 
 		///发送overTurn 的信息
+		log.T("开始发送overTurn[%v]", overTurn)
 		d.GetUserByUserId(caseBean.GetUserId()).SendOverTurn(overTurn)
 
 		return nil
@@ -668,7 +669,7 @@ func (d *MjDesk) Lottery() error {
 
 //处理lottery的数据
 
-//需要保存到 ..T_mj_desk_round
+//需要保存到 ..T_mj_desk_round   ...这里设计到保存数据，战绩相关的查询都要从这里查询
 func (d *MjDesk) DoLottery() error {
 	//一次处理每个胡牌的人
 	for _, user := range d.GetUsers() {
@@ -717,8 +718,14 @@ func (d *MjDesk) AfterLottery() error {
 }
 
 func (d *MjDesk) End() bool {
+	//判断结束的条件,目前只有局数能判断
+	if d.GetCurrPlayCount() < d.GetTotalPlayCount() {
+		//表示游戏还没有结束。。。.
+		return false;
+	} else {
+		d.DoEnd()
+	}
 
-	d.DoEnd()
 	return true
 }
 
@@ -895,6 +902,7 @@ func (d *MjDesk) ActPeng(userId uint32) error {
 	//4,处理 checkCase
 	d.CheckCase.UpdateCheckBeanStatus(user.GetUserId(), CHECK_CASE_BEAN_STATUS_CHECKED)
 	d.CheckCase.UpdateChecStatus(CHECK_CASE_STATUS_CHECKED) //碰牌之后，checkcase处理完毕
+	d.SetActiveUser(user.GetUserId())
 
 	//5,发送碰牌的广播
 	ack := newProto.NewGame_AckActPeng()
@@ -1262,8 +1270,12 @@ func (d *MjDesk) ActGang(userId uint32, paiId int32) error {
 		for _, key := range pengKeys {
 			user.GameData.HandPai.DelPengPai(key)
 		}
+
+		//用户ba杠次数+1
+		//user.sat
+
 	} else if gangType == GANG_TYPE_MING || gangType == GANG_TYPE_AN {
-		log.T("用户[%v]杠牌不是巴杠...", userId)
+		log.T("用户[%v]杠牌不是巴杠 是 gangType[%v]...", userId, gangType)
 
 		//杠牌的类型
 		var gangKey []int32
@@ -1316,7 +1328,7 @@ func (d *MjDesk) ActGang(userId uint32, paiId int32) error {
 				bill := NewBillBean()
 				*bill.UserId = user.GetUserId()
 				*bill.OutUserId = ou.GetUserId()
-				*bill.Type = 1
+				*bill.Type = MJUSER_BILL_TYPE_YING_GNAG
 				*bill.Des = "用户杠牌，获得收入"
 				*bill.Amount = d.GetBaseValue()        //杠牌的收入金额
 				bill.Pai = gangPai
@@ -1327,7 +1339,7 @@ func (d *MjDesk) ActGang(userId uint32, paiId int32) error {
 				shubill := NewBillBean()
 				*shubill.UserId = ou.GetUserId()
 				*shubill.OutUserId = user.GetUserId()
-				*shubill.Type = 1
+				*shubill.Type = MJUSER_BILL_TYPE_SHU_GNAG
 				*shubill.Des = "用户杠牌，获得收入"
 				*shubill.Amount = d.GetBaseValue()        //杠牌的收入金额
 				shubill.Pai = gangPai
@@ -1338,8 +1350,6 @@ func (d *MjDesk) ActGang(userId uint32, paiId int32) error {
 
 		//} else if info.GetGangType() == GANG_TYPE_MING {
 		//明杠的处理方式
-
-
 	}
 
 
@@ -1384,9 +1394,9 @@ func (d *MjDesk) GetWinCoinInfo(user *MjUser) *mjproto.WinCoinInfo {
 	win := newProto.NewWinCoinInfo()
 	*win.NickName = user.GetNickName()
 	*win.UserId = user.GetUserId()
-	//*win.WinCoin =本次输赢多少(负数表示输了)
+	*win.WinCoin = user.Bill.GetWinAmount()        //本次输赢多少(负数表示输了)
 	*win.Coin = user.GetCoin()        // 输赢以后，当前筹码是多少
-	//*win.CardTitle =// 赢牌牌型信息( 如:"点炮x2 明杠x2 根x2 自摸 3番" )
+	//*win.CardTitle =user.GameData.h // 赢牌牌型信息( 如:"点炮x2 明杠x2 根x2 自摸 3番" )
 	win.Cards = user.GetPlayerCard(true) //牌信息,true 表示要显示牌的信息...
 	*win.IsDealer = (d.GetBanker() == user.GetUserId() )        //是否是庄家
 	*win.HuCount = 1        //本局胡的次数(血流成河会多次胡)
@@ -1396,5 +1406,14 @@ func (d *MjDesk) GetWinCoinInfo(user *MjUser) *mjproto.WinCoinInfo {
 //得到EndLotteryInfo结果...
 func (d *MjDesk)GetEndLotteryInfo(user *MjUser) *mjproto.EndLotteryInfo {
 	end := newProto.NewEndLotteryInfo()
+	*end.UserId = user.GetUserId()
+	*end.BigWin = false             //是否是大赢家...
+	*end.CountAnGang = user.Statisc.GetCountAnGang()            //暗杠的次数
+	*end.CountChaJiao = user.Statisc.GetCountChaJiao()          //查叫的次数..
+	*end.CountDianGang = user.Statisc.GetCountDianGang()          // 点杠的次数
+	*end.CountDianPao = user.Statisc.GetCountDianPao()          //点炮的次数
+	*end.CountHu = user.Statisc.GetCountHu()//胡牌的次数
+	*end.CountZiMo = user.Statisc.GetCountZiMo()              //自摸的次数
+	*end.WinCoin = user.Statisc.GetWinCoin()//赢了多少钱
 	return end
 }

@@ -55,12 +55,26 @@ func NewMjUser() *MjUser {
 	ret.RoomId = new(int32)
 	ret.DingQue = new(bool)
 	ret.Bill = NewBill()
+	ret.Statisc = NewMjUserStatisc()
 	return ret
 }
 
 func NewBill() *Bill {
 	ret := &Bill{}
 	ret.WinAmount = new(int64)
+	return ret
+}
+
+func NewMjUserStatisc() *MjUserStatisc {
+	ret := &MjUserStatisc{}
+	ret.WinCoin = new(int64)
+	ret.CountZiMo = new(int32)
+	ret.CountHu = new(int32)
+	ret.CountDianPao = new(int32)
+	ret.CountDianGang = new(int32)
+	ret.CountAnGang = new(int32)
+	ret.CountMingGang = new(int32)
+	ret.CountChaJiao = new(int32)
 	return ret
 }
 

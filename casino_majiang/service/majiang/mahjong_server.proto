@@ -116,6 +116,17 @@ message Bill {
     repeated BillBean bills = 2;
 }
 
+message MjUserStatisc {
+    optional int64 WinCoin = 1; //输赢的金额
+    optional int32 CountHu = 2; //胡牌的次数
+    optional int32 CountZiMo = 3; //自摸的次数
+    optional int32 CountDianPao = 4; //点炮的次数
+    optional int32 CountAnGang = 5; //暗杠的次数
+    optional int32 CountMingGang = 6; //明杠的次数
+    optional int32 CountDianGang = 7; //点杠的次数
+    optional int32 CountChaJiao = 8; //
+}
+
 //手里的一副牌
 message MjUser {
     optional uint32 UserId = 1;
@@ -132,7 +143,7 @@ message MjUser {
     optional bool IsBanker = 12; //是否是庄家
     optional GangPaiInfo PreMoGangInfo = 13; //摸牌前 用户的杠牌信息
     optional Bill bill = 14; //用户的账单
-
+    optional MjUserStatisc statisc = 15; //证据游戏的统计...
 }
 
 //用户的session

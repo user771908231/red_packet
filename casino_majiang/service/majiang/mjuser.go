@@ -20,6 +20,11 @@ var MJUSER_STATUS_DINGQUE int32 = 4; ///准备游戏
 var MJUSER_STATUS_GAMING int32 = 5; ///正在游戏，这里的正在游戏，表示还没有胡牌..
 var MJUSER_STATUS_HUPAI int32 = 6; ///准备游戏
 
+
+var MJUSER_BILL_TYPE_YING_GNAG int32 = 1; //杠牌赢钱
+var MJUSER_BILL_TYPE_SHU_GNAG int32 = 1; //杠牌赢钱
+
+
 //麻将玩家
 
 //发送接口
@@ -283,5 +288,13 @@ func (u *MjUser) AddBillBean(bean *BillBean) error {
 	u.Bill.Bills = append(u.Bill.Bills, bean)
 	u.AddBillAmount(bean.GetAmount())
 	return nil
+}
+
+func (u *MjUser) ADDCountBaGang() {
+	atomic.AddInt32(u.Statisc.CountMingGang, 1)
+}
+
+func (u *MjUser) SubCountBaGang() {
+	atomic.AddInt32(u.Statisc.CountMingGang, -1)
 }
 

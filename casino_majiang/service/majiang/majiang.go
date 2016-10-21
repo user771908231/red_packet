@@ -278,14 +278,15 @@ func init() {
 //统计麻将牌
 func GettPaiStats(pais []*MJPai) []int {
 	//统计每张牌的重复次数
+	log.T("GettPaiStats : %v", pais)
 	counts := make([]int, 27) //0~27
 	for i := 0; i < len(pais); i++ {
 		pai := pais[i]
 		value := pai.GetValue() - 1
 		flower := pai.GetFlower()    //flower=1,2,3
-		//log.T("getValue(%v)", value)
+		log.T("getValue(%v),pai.GetFlower(%v) ", value, pai.GetFlower())
 		value += (flower - 1) * 9
-		//log.T("value", value)
+		log.T("value[%v]", value)
 		counts[ value ] ++
 	}
 
@@ -298,6 +299,7 @@ func is19(val int) bool {
 
 //胡牌的算法
 func tryHU(count []int, len int) (result bool, isAll19 bool) {
+	log.T("开始判断tryHu(%v,%v)", count, len)
 	isAll19 = true //全带幺
 	result = false
 
@@ -413,9 +415,9 @@ func CanHuPai(handPai *MJHandPai) bool {
 
 	canHu, isAll19 := tryHU(counts, len(handPai.Pais))
 	if canHu {
-		log.Debug("牌= %d  可以胡! isAll19=%V", handPai.InPai.GetValue(), isAll19)
+		log.T("牌= %v  可以胡! isAll19=%V", handPai.InPai.LogDes(), isAll19)
 	} else {
-		log.Debug("牌= %d  不能胡! isAll19=%V", handPai.InPai.GetValue(), isAll19)
+		log.T("牌= %v  不能胡! isAll19=%V", handPai.InPai.LogDes(), isAll19)
 	}
 
 	return canHu
@@ -432,7 +434,7 @@ func getHuScore(handPai *MJHandPai, isZimo bool, extraAct HuPaiType, roomInfo Ro
 		score *= 2
 	}
 
-	log.Debug("胡[%d]番 (%v)", huFan, huCardStr)
+	log.T("胡[%d]番 (%v)", huFan, huCardStr)
 
 	if isZimo {
 		if MJOption(*roomInfo.PlayOptions.ZiMoRadio) == MJOption_ZIMO_JIA_DI {
