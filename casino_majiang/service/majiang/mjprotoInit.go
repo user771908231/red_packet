@@ -84,7 +84,7 @@ func NewBillBean() *BillBean {
 	ret.Des = new(string)
 	ret.OutUserId = new(uint32)
 	ret.Type = new(int32)
-
+	ret.Amount = new(int64)
 	return ret
 }
 
@@ -141,8 +141,11 @@ func NewHuPaiInfo() *HuPaiInfo {
 	ret.ByWho = new(int32)
 	ret.CardType = new(int32)
 	ret.Fan = new(int32)
+	ret.Score = new(int64)
 	ret.HuType = new(int32)
+	ret.GetUserId = new(uint32)
 	ret.SendUserId = new(uint32)
+	ret.HuDesc = new(string)
 	return ret
 
 }

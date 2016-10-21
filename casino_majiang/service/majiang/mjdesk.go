@@ -1050,6 +1050,7 @@ func (d *MjDesk)ActHu(userId uint32) error {
 	var outUserId uint32
 	var roomInfo mjproto.RoomTypeInfo = *d.GetRoomTypeInfo()  //roomType  桌子的规则
 
+	hupai := u.GameData.HandPai.InPai
 	if checkCase == nil {
 		//表示是自摸
 		isZimo = true
@@ -1083,12 +1084,12 @@ func (d *MjDesk)ActHu(userId uint32) error {
 	//*hu.ByWho = 打牌的方位，对家，上家，下家？
 	*hu.HuType = int32(extraAct)        ////杠上炮 杠上花 抢杠 海底捞 海底炮 天胡 地胡
 	*hu.HuDesc = strings.Join(huCardStr, " ");
-	hu.Pai = u.GameData.HandPai.InPai
 	*hu.Fan = fan
 	*hu.Score = score        //只是胡牌的分数，不是赢了多少钱
+	hu.Pai = hupai
 
 	u.GameData.HuInfo = append(u.GameData.HuInfo, hu)
-	u.GameData.HandPai.HuPais = append(u.GameData.HandPai.HuPais, d.CheckCase.CheckMJPai)        //增加胡牌
+	u.GameData.HandPai.HuPais = append(u.GameData.HandPai.HuPais, hu.Pai)        //增加胡牌
 
 	//todo 判断是否是巴杠,如果是巴杠 抢杠需要对巴杠做特殊处理
 	/**
@@ -1098,7 +1099,6 @@ func (d *MjDesk)ActHu(userId uint32) error {
 	 */
 
 
-	hupai := u.GameData.HandPai.InPai
 	if d.CheckCase != nil && d.CheckCase.PreOutGangInfo != nil && d.CheckCase.PreOutGangInfo.GetGangType() == GANG_TYPE_BA {
 		log.T("开始处理抢杠的逻辑....")
 		dianUser := d.GetUserByUserId(hu.GetSendUserId())
@@ -1162,6 +1162,11 @@ func (d *MjDesk)ActHu(userId uint32) error {
 		}
 
 	} else {
+		//胡牌成功之后的处理... 处理checkCase
+		d.SetActiveUser(userId)        // 胡牌之后 设置当前操作的用户为当前胡牌的人...
+		d.CheckCase.UpdateCheckBeanStatus(userId, CHECK_CASE_BEAN_STATUS_CHECKED)        // update checkCase...
+		d.CheckCase.UpdateChecStatus(CHECK_CASE_STATUS_CHECKING_HUED)        //已经有人胡了，后边的人就不能碰或者杠了
+
 		//如果是点炮的话，只有一家需要给钱...
 		shuUser := d.GetUserByUserId(outUserId)
 		bill := NewBillBean()

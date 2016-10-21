@@ -299,7 +299,7 @@ func is19(val int) bool {
 
 //胡牌的算法
 func tryHU(count []int, len int) (result bool, isAll19 bool) {
-	log.T("开始判断tryHu(%v,%v)", count, len)
+	//log.T("开始判断tryHu(%v,%v)", count, len)
 	isAll19 = true //全带幺
 	result = false
 

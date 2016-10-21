@@ -340,13 +340,13 @@ func HandlerGame_ActHu(m *mjProto.Game_ActHu) {
 
 	//需要返回的数据
 	userId := m.GetHeader().GetUserId()
-	result := newProto.NewGame_AckActHu()
 
 	//区分自摸点炮:1,如果自己的手牌就已经糊了（或者如果自己自己的牌是14，11，8，5，2 张的时候），那么就自摸，如果需要加上判定牌，那就是点炮
 	desk := majiang.GetMjDeskBySession(m.GetHeader().GetUserId()) //通过userId 的session 得到对应的desk
 	if desk == nil {
 		//这里属于服务器错误... 是否需要给客户端返回信息？
 		log.E("没有找到对应的desk ..")
+		result := newProto.NewGame_AckActHu()
 		result.Header = newProto.ErrorHeader()
 		return
 	}
@@ -355,15 +355,7 @@ func HandlerGame_ActHu(m *mjProto.Game_ActHu) {
 	err := desk.ActHu(userId)
 	if err != nil {
 		log.E("服务器错误，胡牌失败..")
-
 	}
-
-	//胡牌成功之后的处理...
-	desk.SetActiveUser(userId)        // 胡牌之后 设置当前操作的用户为当前胡牌的人...
-	desk.CheckCase.UpdateCheckBeanStatus(userId, majiang.CHECK_CASE_BEAN_STATUS_CHECKED)        // update checkCase...
-	desk.CheckCase.UpdateChecStatus(majiang.CHECK_CASE_STATUS_CHECKING_HUED)        //已经有人胡了，后边的人就不能碰或者杠了
-	*result.UserIdIn = userId
-	*result.UserIdOut = desk.CheckCase.GetUserIdOut()        //打牌的人
 
 	//这里是否需要广播胡牌的广播...
 
