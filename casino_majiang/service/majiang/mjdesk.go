@@ -13,6 +13,7 @@ import (
 	"casino_majiang/conf/config"
 	"casino_server/utils/db"
 	"strings"
+	"sync/atomic"
 )
 
 //状态表示的是当前状态.
@@ -369,6 +370,7 @@ func (d *MjDesk) beginInit() error {
 	//2,设置当前的活动玩家
 	d.SetActiveUser(d.GetBanker())
 	*d.GameNumber, _ = db.GetNextSeq(config.DBT_T_TH_GAMENUMBER_SEQ)
+	d.AddCurrPlayCount()        //场次数目加一
 
 	//发送游戏开始的协议...
 	log.T("发送游戏开始的协议..")
@@ -376,6 +378,11 @@ func (d *MjDesk) beginInit() error {
 	d.BroadCastProto(open)
 	return nil
 }
+
+func (d *MjDesk) AddCurrPlayCount() {
+	atomic.AddInt32(d.CurrPlayCount, 1)
+}
+
 
 /**
 	初始化牌相关的信息
