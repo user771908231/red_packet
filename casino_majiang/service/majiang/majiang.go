@@ -413,7 +413,7 @@ func CanHuPai(handPai *MJHandPai) bool {
 
 	counts := GettPaiStats(pais)
 
-	canHu, isAll19 := tryHU(counts, len(handPai.Pais))
+	canHu, isAll19 := tryHU(counts, len(pais))
 	if canHu {
 		log.T("牌= %v  可以胡! isAll19=%V", handPai.InPai.LogDes(), isAll19)
 	} else {
