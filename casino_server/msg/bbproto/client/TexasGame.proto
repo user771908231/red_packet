@@ -1314,6 +1314,9 @@ message WeixinInfo {
     optional string openId = 1; // 微信授权用户唯一id
     optional string nickName = 2; // 微信昵称
     optional string headUrl = 3; // 微信头像
+    optional int32  sex = 4; // 性别: 1=男  2=女
+    optional string  city = 5; // 城市
+    optional string  unionId = 6; // unionId
 }
 
 //聊天的内容

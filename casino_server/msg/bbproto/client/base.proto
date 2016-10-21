@@ -150,4 +150,6 @@ message User {
 	optional int64				Diamond				= 11;	//通过钻石开房间
 	optional string				openId				= 12;	//微信openId
 	optional string 			headUrl				= 13;	//头像
+	optional string 			city				= 14;  //
+	optional int32 				sex 				=15;
 }
