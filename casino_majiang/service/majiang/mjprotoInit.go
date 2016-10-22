@@ -42,6 +42,7 @@ func NewMjDesk() *MjDesk {
 	ret.Banker = new(uint32)
 	ret.GameNumber = new(int32)
 	ret.TotalPlayCount = new(int32)
+	ret.CurrPlayCount = new(int32)
 	return ret
 }
 
