@@ -242,5 +242,6 @@ message DeskGameInfo {
     optional int32 totalPlayCount = 11; // 朋友桌: 总共几局
     optional string roomNumber = 12;    // 房间号
     optional int32 remainCards = 13; // 还剩几张麻将牌
+    optional int32 gameStatus = 14; //游戏所处状态: 0:INIT 1:DINGQUE 2;EXCHANGE 3:PLAYING 4:FINISH
 }
 

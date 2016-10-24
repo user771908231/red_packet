@@ -80,7 +80,7 @@ func HandlerREQQuickConn(args []interface{}) {
 		log.T("客户端需要升级, 版本为:%v", m.GetCurVersion())
 		*result.ForceUpdate = 0 //1=强制升级 0=可选升级
 		result.DownloadUrl = new(string)
-		*result.DownloadUrl = "http://d.tondeen.com/sjtexas.html" //TODO:放入配置文件中
+		*result.DownloadUrl = "http://d.tondeen.com/app/sjtexas.html" //TODO:放入配置文件中
 	}
 	result.CurVersion = new(int32)
 	*result.CurVersion = LatestClientVersion
