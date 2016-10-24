@@ -310,3 +310,12 @@ func NewEndLotteryInfo() *mjProto.EndLotteryInfo {
 	ret.CountChaJiao = new(int32)
 	return ret
 }
+
+func NewGame_AckDissolveDesk() *mjProto.Game_AckDissolveDesk {
+	ret := &mjProto.Game_AckDissolveDesk{}
+	ret.DeskId = new(int32)
+	ret.Header = NewHeader()
+	ret.PassWord = new(string)
+	ret.UserId = new(uint32)
+	return ret
+}

@@ -254,6 +254,11 @@ func (d *MjDesk) Ready(userId  uint32) error {
 		return errors.New("没有找到用户，准备失败")
 	}
 
+	if user.IsReady() {
+		log.E("玩家[%v]已经准备好了...请不要重新准备...", userId)
+		return errors.New("玩家已经准备了，请不要重复准备...")
+	}
+
 	//设置为准备的状态
 	user.SetStatus(MJUSER_STATUS_READY)
 
@@ -590,6 +595,7 @@ func (d *MjDesk) DoCheckCase(gangUser *MjUser) error {
 		log.T("已经没有需要处理的CheckCase,下一个玩家摸牌...")
 		//直接跳转到下一个操作的玩家...,这里表示判断已经玩了...
 		d.CheckCase = nil
+		//在这之前需要保证 activeUser 是正确的...
 		d.SendMopaiOverTurn(gangUser)
 		return nil
 	} else {
@@ -627,7 +633,6 @@ func (d *MjDesk) Time2Lottery() bool {
 	if gamingCount != 1 {
 		//正在游戏中的玩家的数量不为1，表示还没有结束
 		return false
-
 	}
 
 	//所有的条件都满足，一局麻将结束...
@@ -690,7 +695,6 @@ func (d *MjDesk) DoLottery() error {
 					//info.HuType 胡牌的类型
 				}
 			}
-
 		}
 	}
 

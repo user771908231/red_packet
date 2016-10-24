@@ -12,6 +12,16 @@ var Server struct {
 	WSAddr     string
 	TCPAddr    string
 	MaxConnNum int
+
+	//mongo数据库相关的配置
+	MongoIp    string
+	MongoPort  int
+
+	//redis配置
+	RedisAddr  string
+
+	//curVersion的配置
+	CurVersion int32
 }
 
 func init() {

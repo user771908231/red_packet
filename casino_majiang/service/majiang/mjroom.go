@@ -11,6 +11,7 @@ import (
 	"casino_majiang/conf/config"
 	"casino_server/service/userService"
 	"casino_server/common/log"
+	"casino_majiang/msg/funcsInit"
 )
 
 
@@ -171,6 +172,57 @@ func (r *MjRoom) AddDesk(desk *MjDesk) error {
 	//加入之后需要更新数据到redis
 	desk.updateRedis()
 	return nil
+}
+
+// room 解散房间...
+func (r *MjRoom)DissolveDesk(desk *MjDesk) error {
+	//清楚数据,1,session相关。2,
+	log.T("开始解散desk[%v]...", desk.GetDeskId())
+	log.T("开始解散desk[%v]user的session数据...", desk.GetDeskId())
+	for _, user := range desk.GetUsers() {
+		if user != nil {
+			user.ClearAgentGameData()
+		}
+	}
+
+	log.T("开始删除desk[%v]...", desk.GetDeskId())
+
+	//发送解散房间的广播
+	rmErr := r.RmDesk(desk)
+	if rmErr != nil {
+		log.E("删除房间失败,errmsg[%v]", rmErr)
+		return rmErr
+	}
+
+	//删除房间
+	log.T("删除desk[%v]之后，发送删除的广播...", desk.GetDeskId())
+	//发送解散房间的广播
+	dissolve := newProto.NewGame_AckDissolveDesk()
+	*dissolve.DeskId = desk.GetDeskId()
+	*dissolve.PassWord = desk.GetPassword()
+	*dissolve.UserId = desk.GetOwner()
+	desk.BroadCastProto(dissolve)
+
+	return nil
+
+}
+
+func (r *MjRoom) RmDesk(desk *MjDesk) error {
+	index := -1
+	for i, d := range r.Desks {
+		if d != nil && d.GetDeskId() == desk.GetDeskId() {
+			index = i
+			break
+		}
+	}
+
+	if index >= 0 {
+		r.Desks = append(r.Desks[:index], r.Desks[index + 1:]...)
+		return nil
+	} else {
+		return errors.New("删除失败，没有找到对应的desk")
+	}
+
 }
 
 func GetMJRoom() *MjRoom {

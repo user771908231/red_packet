@@ -9,6 +9,7 @@ import (
 	"casino_server/conf/intCons"
 	"casino_server/service/userService"
 	"time"
+	"errors"
 )
 
 
@@ -98,6 +99,29 @@ func HandlerGame_EnterRoom(userId uint32, key string, a gate.Agent) {
 		desk.BroadCastProto(gameinfo)
 
 	}
+}
+
+//解散房间
+func HandlerDissolveDesk(owner uint32) error {
+	//1,通过房主找到房间
+	desk := majiang.GetMjDeskBySession(owner)
+	if desk == nil {
+		log.T("没有找到user[%v]对应的desk，解散房间失败", owner)
+		return errors.New("解散房间失败...")
+	}
+
+	if desk.GetOwner() != owner {
+		log.T("通过owner[%v]找到的desk的owner  不正确..", owner, desk.GetOwner())
+		return errors.New("房间的房主不正确")
+	}
+
+	//开始解散房间
+	err := majiang.GetMJRoom().DissolveDesk(desk);
+	if err != nil {
+		return errors.New("解散朋友桌子的desk 失败...")
+	}
+
+	return nil
 }
 
 //用户开始准备游戏

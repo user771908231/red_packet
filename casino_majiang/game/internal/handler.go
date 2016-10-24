@@ -17,6 +17,7 @@ func init() {
 	handler(&bbproto.NullMsg{}, handlerNull)
 	handler(&mjProto.Game_CreateRoom{}, handlerGame_CreateRoom)
 	handler(&mjProto.Game_EnterRoom{}, handlerGame_EnterRoom)
+	handler(&mjProto.Game_DissolveDesk{}, handlerDissolveDesk)
 	handler(&mjProto.Game_Ready{}, handlerGame_Ready)
 
 	handler(&mjProto.Game_DingQue{}, handlerGame_DingQue)        //定缺
@@ -29,6 +30,7 @@ func init() {
 	handler(&mjProto.Game_ActGang{}, handlerGame_ActGang)
 	handler(&mjProto.Game_ActGuo{}, handlerGame_ActGuo)
 	handler(&mjProto.Game_ActHu{}, handlerGame_ActHu)
+
 }
 
 func handlerNull(args []interface{}) {
@@ -50,6 +52,13 @@ func handlerGame_EnterRoom(args []interface{}) {
 	m := args[0].(*mjProto.Game_EnterRoom)
 	a := args[1].(gate.Agent)
 	MJService.HandlerGame_EnterRoom(m.GetHeader().GetUserId(), m.GetPassWord(), a)
+}
+
+
+//解散房间
+func handlerDissolveDesk(args []interface{}) {
+	m := args[0].(*mjProto.Game_DissolveDesk)        //解散房间
+	MJService.HandlerDissolveDesk(m.GetHeader().GetUserId())
 }
 
 //准备游戏
@@ -105,4 +114,6 @@ func handlerGame_ActHu(args []interface{}) {
 	m := args[0].(*mjProto.Game_ActHu)
 	MJService.HandlerGame_ActHu(m)
 }
+
+
 

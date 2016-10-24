@@ -298,3 +298,10 @@ func (u *MjUser) SubCountBaGang() {
 	atomic.AddInt32(u.Statisc.CountMingGang, -1)
 }
 
+//当删除桌子的时候，需要清除掉用户的会话信息,设置deskId = 0 ，roomId = 0
+func (u *MjUser)ClearAgentGameData() {
+	log.T("清楚用户[%v]的session信息为默认状态....", u.GetUserId())
+	UpdateSession(u.GetUserId(), MJUSER_SESSION_GAMESTATUS_NOGAME, 0, 0, "")
+}
+
+
