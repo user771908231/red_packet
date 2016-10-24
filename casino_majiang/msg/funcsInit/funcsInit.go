@@ -115,6 +115,7 @@ func NewDeskGameInfo() *mjProto.DeskGameInfo {
 	ret.InitRoomCoin = new(int64)
 	ret.CurrPlayCount = new(int32)
 	ret.TotalPlayCount = new(int32)
+	ret.RoomNumber = new(string)
 	return ret
 }
 
@@ -290,5 +291,31 @@ func NewWinCoinInfo() *mjProto.WinCoinInfo {
 	ret.UserId = new(uint32)
 	ret.NickName = new(string)
 	ret.WinCoin = new(int64)
+	return ret
+}
+
+func NewEndLotteryInfo() *mjProto.EndLotteryInfo {
+	ret := &mjProto.EndLotteryInfo{}
+	ret.UserId = new(uint32)
+	ret.NickName = new(string)
+	ret.BigWin = new(bool)
+	ret.IsOwner = new(bool)
+	ret.WinCoin = new(int64)
+	ret.CountHu = new(int32)
+	ret.CountZiMo = new(int32)
+	ret.CountDianPao = new(int32)
+	ret.CountAnGang = new(int32)
+	ret.CountMingGang = new(int32)
+	ret.CountDianGang = new(int32)
+	ret.CountChaJiao = new(int32)
+	return ret
+}
+
+func NewGame_AckDissolveDesk() *mjProto.Game_AckDissolveDesk {
+	ret := &mjProto.Game_AckDissolveDesk{}
+	ret.DeskId = new(int32)
+	ret.Header = NewHeader()
+	ret.PassWord = new(string)
+	ret.UserId = new(uint32)
 	return ret
 }

@@ -41,6 +41,8 @@ func NewMjDesk() *MjDesk {
 	ret.ActiveUser = new(uint32)
 	ret.Banker = new(uint32)
 	ret.GameNumber = new(int32)
+	ret.TotalPlayCount = new(int32)
+	ret.CurrPlayCount = new(int32)
 	return ret
 }
 
@@ -54,6 +56,37 @@ func NewMjUser() *MjUser {
 	ret.DeskId = new(int32)
 	ret.RoomId = new(int32)
 	ret.DingQue = new(bool)
+	ret.Bill = NewBill()
+	ret.Statisc = NewMjUserStatisc()
+	return ret
+}
+
+func NewBill() *Bill {
+	ret := &Bill{}
+	ret.WinAmount = new(int64)
+	return ret
+}
+
+func NewMjUserStatisc() *MjUserStatisc {
+	ret := &MjUserStatisc{}
+	ret.WinCoin = new(int64)
+	ret.CountZiMo = new(int32)
+	ret.CountHu = new(int32)
+	ret.CountDianPao = new(int32)
+	ret.CountDianGang = new(int32)
+	ret.CountAnGang = new(int32)
+	ret.CountMingGang = new(int32)
+	ret.CountChaJiao = new(int32)
+	return ret
+}
+
+func NewBillBean() *BillBean {
+	ret := &BillBean{}
+	ret.UserId = new(uint32)
+	ret.Des = new(string)
+	ret.OutUserId = new(uint32)
+	ret.Type = new(int32)
+	ret.Amount = new(int64)
 	return ret
 }
 
@@ -110,8 +143,11 @@ func NewHuPaiInfo() *HuPaiInfo {
 	ret.ByWho = new(int32)
 	ret.CardType = new(int32)
 	ret.Fan = new(int32)
+	ret.Score = new(int64)
 	ret.HuType = new(int32)
+	ret.GetUserId = new(uint32)
 	ret.SendUserId = new(uint32)
+	ret.HuDesc = new(string)
 	return ret
 
 }

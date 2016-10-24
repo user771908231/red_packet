@@ -13,6 +13,7 @@ var MJUSER_SESSION_GAMESTATUS_NOGAME int32 = 1 //没有在游戏中
 var MJUSER_SESSION_GAMESTATUS_FRIEND int32 = 2 //朋友桌
 
 
+
 var MJSESSION_KEY_PRE = "redis_majiang_session"
 
 func getSessionKey(userId uint32) string {

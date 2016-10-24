@@ -43,7 +43,11 @@ var _ = math.Inf
 
 // Ignoring public import of GangType from base.proto
 
+// Ignoring public import of ComposeCardType from base.proto
+
 // Ignoring public import of HuPaiType from base.proto
+
+// Ignoring public import of DeskGameStatus from base.proto
 
 // 房主解散房间(未开局)
 type Game_DissolveDesk struct {

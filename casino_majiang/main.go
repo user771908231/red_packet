@@ -10,14 +10,13 @@ import (
 	"os"
 	"casino_majiang/conf/config"
 	"casino_majiang/service/webserver"
-	"casino_server/common/log"
 )
 
 func init() {
 	//初始化系统
 	e := config.InitConfig(false)
 	if e.IsError() {
-		log.Error("config init failed.", e)
+		//log.Error("config init failed.", e)
 		os.Exit(-1)
 	}
 }
@@ -26,10 +25,9 @@ func main() {
 	lconf.LogLevel = conf.Server.LogLevel
 	lconf.LogPath = conf.Server.LogPath
 
-
 	//后台管理
 	go func() {
-		log.T("web start...")
+		//log.T("web start...")
 		webserver.InitCms()
 	}()
 

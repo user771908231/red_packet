@@ -9,10 +9,10 @@ import (
 	"strconv"
 	"casino_server/utils/redis"
 	"casino_server/utils/db"
-	"casino_server/conf"
 	"runtime"
 	"time"
 	"math/rand"
+	"casino_majiang/conf"
 )
 
 

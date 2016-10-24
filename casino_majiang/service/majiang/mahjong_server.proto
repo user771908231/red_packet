@@ -28,7 +28,7 @@ message HuPaiInfo {
     optional string huDesc = 6; //如:"自摸(清一色) 中张 3番"
     optional MJPai pai = 7; //胡的哪张牌
     optional int32 fan = 8; //胡的番数
-    optional int32 score = 9; //胡的得分
+    optional int64 score = 9; //胡的得分
 }
 
 message GangPaiInfo {
@@ -101,6 +101,32 @@ message MjDesk {
 
 }
 
+
+message BillBean {
+    optional uint32 UserId = 1; //账单是属于谁的
+    optional uint32 OutUserId = 2; //账单和谁关联
+    optional int32 type = 3; //账单类型
+    optional string des = 4; //账单描述
+    optional int64 amount = 5; //账单
+    optional MJPai pai = 6; //是那张牌影响的...
+}
+
+message Bill {
+    optional int64 WinAmount = 1; //输赢多少钱
+    repeated BillBean bills = 2;
+}
+
+message MjUserStatisc {
+    optional int64 WinCoin = 1; //输赢的金额
+    optional int32 CountHu = 2; //胡牌的次数
+    optional int32 CountZiMo = 3; //自摸的次数
+    optional int32 CountDianPao = 4; //点炮的次数
+    optional int32 CountAnGang = 5; //暗杠的次数
+    optional int32 CountMingGang = 6; //明杠的次数
+    optional int32 CountDianGang = 7; //点杠的次数
+    optional int32 CountChaJiao = 8; //
+}
+
 //手里的一副牌
 message MjUser {
     optional uint32 UserId = 1;
@@ -116,7 +142,8 @@ message MjUser {
     optional bool Ready = 11;
     optional bool IsBanker = 12; //是否是庄家
     optional GangPaiInfo PreMoGangInfo = 13; //摸牌前 用户的杠牌信息
-
+    optional Bill bill = 14; //用户的账单
+    optional MjUserStatisc statisc = 15; //证据游戏的统计...
 }
 
 //用户的session

@@ -8,6 +8,8 @@ import (
 	"casino_majiang/service/majiang"
 	"casino_server/conf/intCons"
 	"casino_server/service/userService"
+	"time"
+	"errors"
 )
 
 
@@ -61,7 +63,7 @@ func HandlerGame_CreateRoom(m *mjProto.Game_CreateRoom, a gate.Agent) {
 3，进入失败【只】返回AckEnterRoom
  */
 func HandlerGame_EnterRoom(userId uint32, key string, a gate.Agent) {
-	log.T("收到请求，HandlerGame_EnterRoom(m[%v])", userId)
+	log.T("收到请求，HandlerGame_EnterRoom(userId[%v],key[%v])", userId, key)
 
 	//1,找到合适的room
 	room := majiang.GetMJRoom()
@@ -93,24 +95,49 @@ func HandlerGame_EnterRoom(userId uint32, key string, a gate.Agent) {
 		gameinfo := desk.GetGame_SendGameInfo(userId)
 		*gameinfo.SenderUserId = userId
 		//a.WriteMsg(gameinfo)
+		log.T("用户[%v]进入房间之后，返回的数据gameInfo[%v]", userId, gameinfo)
 		desk.BroadCastProto(gameinfo)
 
 	}
 }
 
+//解散房间
+func HandlerDissolveDesk(owner uint32) error {
+	//1,通过房主找到房间
+	desk := majiang.GetMjDeskBySession(owner)
+	if desk == nil {
+		log.T("没有找到user[%v]对应的desk，解散房间失败", owner)
+		return errors.New("解散房间失败...")
+	}
+
+	if desk.GetOwner() != owner {
+		log.T("通过owner[%v]找到的desk的owner  不正确..", owner, desk.GetOwner())
+		return errors.New("房间的房主不正确")
+	}
+
+	//开始解散房间
+	err := majiang.GetMJRoom().DissolveDesk(desk);
+	if err != nil {
+		return errors.New("解散朋友桌子的desk 失败...")
+	}
+
+	return nil
+}
+
 //用户开始准备游戏
 func HandlerGame_Ready(m *mjProto.Game_Ready, a gate.Agent) {
-	log.T("收到请求，game_Ready(m[%v],a[%v])", m, a)
-	desk := majiang.GetMjDeskBySession(m.GetHeader().GetUserId())
+	log.T("收到请求，game_Ready(m[%v])", m)
+	userId := m.GetHeader().GetUserId()
+	desk := majiang.GetMjDeskBySession(userId)
 	if desk == nil {
 		// 准备失败
-		log.E("用户[%v]准备失败.因为没有找到对应的desk", m.GetHeader().GetUserId())
+		log.E("用户[%v]准备失败.因为没有找到对应的desk", userId)
 		result := newProto.NewGame_AckReady()
 		*result.Header.Code = intCons.ACK_RESULT_ERROR
 		*result.Header.Error = "准备失败"
 		a.WriteMsg(result)
 	} else {
-		err := desk.Ready(m.GetHeader().GetUserId())
+		err := desk.Ready(userId)
 		if err != nil {
 			//准备失败
 			result := newProto.NewGame_AckReady()
@@ -122,8 +149,8 @@ func HandlerGame_Ready(m *mjProto.Game_Ready, a gate.Agent) {
 			result := newProto.NewGame_AckReady()
 			*result.Header.Code = intCons.ACK_RESULT_SUCC
 			*result.Header.Error = "准备成功"
-			*result.UserId = m.GetHeader().GetUserId()
-			log.T("广播user[%v]在desk[%v]准备成功的广播..", m.GetHeader().GetUserId(), desk.GetDeskId())
+			*result.UserId = userId
+			log.T("广播user[%v]在desk[%v]准备成功的广播..", userId, desk.GetDeskId())
 			desk.BroadCastProto(result)
 
 			//准备成功之后，是否需要开始游戏...
@@ -222,6 +249,8 @@ func HandlerGame_SendOutCard(m *mjProto.Game_SendOutCard, a gate.Agent) {
 	err := desk.ActOut(userId, m.GetCardId())
 	if err != nil {
 		//打牌失败
+		log.E("打牌失败...errMsg[%v]", err)
+		return
 	}
 
 	log.T("用户[%v]已经打牌，处理下一个checkCase", userId)
@@ -279,7 +308,7 @@ func HandlerGame_ActGang(m *mjProto.Game_ActGang) {
 		log.E("服务器错误：用户[%v]杠牌的时候出错err[%v]", userId, err)
 	}
 
-
+	time.Sleep(time.Second * 1)        //间隔两秒 进行下一个动作
 	//处理下一个人
 	desk.DoCheckCase(desk.GetUserByUserId(userId))        //杠牌之后，处理下一个判定牌
 }
@@ -335,13 +364,13 @@ func HandlerGame_ActHu(m *mjProto.Game_ActHu) {
 
 	//需要返回的数据
 	userId := m.GetHeader().GetUserId()
-	result := newProto.NewGame_AckActHu()
 
 	//区分自摸点炮:1,如果自己的手牌就已经糊了（或者如果自己自己的牌是14，11，8，5，2 张的时候），那么就自摸，如果需要加上判定牌，那就是点炮
 	desk := majiang.GetMjDeskBySession(m.GetHeader().GetUserId()) //通过userId 的session 得到对应的desk
 	if desk == nil {
 		//这里属于服务器错误... 是否需要给客户端返回信息？
 		log.E("没有找到对应的desk ..")
+		result := newProto.NewGame_AckActHu()
 		result.Header = newProto.ErrorHeader()
 		return
 	}
@@ -350,19 +379,11 @@ func HandlerGame_ActHu(m *mjProto.Game_ActHu) {
 	err := desk.ActHu(userId)
 	if err != nil {
 		log.E("服务器错误，胡牌失败..")
-
 	}
-
-	//胡牌成功之后的处理...
-	desk.SetActiveUser(userId)        // 胡牌之后 设置当前操作的用户为当前胡牌的人...
-	desk.CheckCase.UpdateCheckBeanStatus(userId, majiang.CHECK_CASE_BEAN_STATUS_CHECKED)        // update checkCase...
-	desk.CheckCase.UpdateChecStatus(majiang.CHECK_CASE_STATUS_CHECKING_HUED)        //已经有人胡了，后边的人就不能碰或者杠了
-	*result.UserIdIn = userId
-	*result.UserIdOut = desk.CheckCase.GetUserIdOut()        //打牌的人
 
 	//这里是否需要广播胡牌的广播...
 
-	//todo 胡牌之后，如果只剩下一个人..那么这句游戏结束...
+	//胡牌之后，需要判断游戏是否结束...
 	if desk.Time2Lottery() {
 		desk.Lottery()
 		//因为可以开奖了，所以不操作后边的，直接返回

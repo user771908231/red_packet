@@ -43,7 +43,11 @@ var _ = math.Inf
 
 // Ignoring public import of GangType from base.proto
 
+// Ignoring public import of ComposeCardType from base.proto
+
 // Ignoring public import of HuPaiType from base.proto
+
+// Ignoring public import of DeskGameStatus from base.proto
 
 // 服务器信息
 type ServerInfo struct {
