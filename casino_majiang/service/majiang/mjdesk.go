@@ -14,17 +14,19 @@ import (
 	"casino_server/utils/db"
 	"strings"
 	"sync/atomic"
+	"casino_majiang/gamedata/model"
+	"casino_server/utils/numUtils"
 )
 
 //状态表示的是当前状态.
-var MJDESK_STATUS_CREATED = 1 //刚刚创建
-var MJDESK_STATUS_READY = 2//正在准备
-var MJDESK_STATUS_ONINIT = 3//准备完成之后，desk初始化数据
-var MJDESK_STATUS_EXCHANGE = 4//desk初始化完成之后，告诉玩家可以开始换牌
-var MJDESK_STATUS_DINGQUE = 5//换牌结束之后，告诉玩家可以开始定缺
-var MJDESK_STATUS_RUNNING = 6 //定缺之后，开始打牌
-var MJDESK_STATUS_LOTTERY = 7 //结算
-var MJDESK_STATUS_END = 8//一局结束
+var MJDESK_STATUS_CREATED int32 = 1 //刚刚创建
+var MJDESK_STATUS_READY int32 = 2//正在准备
+var MJDESK_STATUS_ONINIT int32 = 3//准备完成之后，desk初始化数据
+var MJDESK_STATUS_EXCHANGE int32 = 4//desk初始化完成之后，告诉玩家可以开始换牌
+var MJDESK_STATUS_DINGQUE int32 = 5//换牌结束之后，告诉玩家可以开始定缺
+var MJDESK_STATUS_RUNNING int32 = 6 //定缺之后，开始打牌
+var MJDESK_STATUS_LOTTERY int32 = 7 //结算
+var MJDESK_STATUS_END int32 = 8//一局结束
 
 
 var OVER_TURN_ACTTYPE_MOPAI int32 = 1; //摸牌的类型...
@@ -47,7 +49,6 @@ func (d *MjDesk) addNewUserFriend(userId uint32, a gate.Agent) error {
 		//是断线重连
 		*user.IsBreak = false;
 		return nil
-
 	}
 
 	//2,是否是离开之后重新进入房间
@@ -184,12 +185,13 @@ func (d *MjDesk) GetDeskGameInfo() *mjproto.DeskGameInfo {
 	//deskInfo.ActionTime
 	//deskInfo.ActiveSeat
 	//deskInfo.DelayTime
-	deskInfo.GameStatus = d.GetClientGameStatus()
+	*deskInfo.GameStatus = d.GetClientGameStatus()
 	*deskInfo.CurrPlayCount = d.GetCurrPlayCount() //当前第几局
 	*deskInfo.TotalPlayCount = d.GetTotalPlayCount()//总共几局
 	*deskInfo.PlayerNum = d.GetPlayerNum()        //玩家的人数
 	deskInfo.RoomTypeInfo = d.GetRoomTypeInfo()
 	*deskInfo.RoomNumber = d.GetPassword()        //房间号码...
+	*deskInfo.Banker = d.GetBanker()
 	//deskInfo.NRebuyCount
 	//deskInfo.InitRoomCoin
 	//deskInfo.NInitActionTime
@@ -714,33 +716,49 @@ func (d *MjDesk) Lottery() error {
 	return nil
 }
 
+func (d *MjDesk) GetUserIds() string {
+	ids := ""
+	for _, user := range d.GetUsers() {
+		if user != nil {
+			idStr, _ := numUtils.Uint2String(user.GetUserId())
+			ids = ids + "," + idStr
+		}
+
+	}
+	return ids
+
+}
+
 //处理lottery的数据
 
 //需要保存到 ..T_mj_desk_round   ...这里设计到保存数据，战绩相关的查询都要从这里查询
 func (d *MjDesk) DoLottery() error {
+	data := model.T_mj_desk_round{}
+	data.DeskId = d.GetDeskId()
+	data.GameNumber = d.GetGameNumber()
+	data.EndTime = time.Now()
+	data.UserIds = d.GetUserIds()
 	//一次处理每个胡牌的人
 	for _, user := range d.GetUsers() {
-		if user != nil && user.IsHu() {
+
+		//这里不应该是胡牌的人才有记录...而是应该记录每一个人...
+		if user != nil {
 			//处理胡牌之后，分数相关的逻辑.
-			huinfo := user.GameData.HuInfo
-			for _, info := range huinfo {
-				//一次处理每张赢牌,如果不是血流成河，那么这里一般只有一个huinfo
-				if info != nil {
-					//info.Fan	翻数
-					//info.HuType 胡牌的类型
-				}
-			}
+			//这里有一个统计...实在杠牌，或者胡牌之后会更新的数据...结算的时候，数据落地可以使用这个...
+			//user.Statisc
+			bean := model.MjRecordBean{}
+			bean.UserId = user.GetUserId()
+
+			//添加到record
+			data.Records = append(data.Records, bean)
 		}
 	}
 
-	return nil
-
-}
-
-func (d *MjDesk) SaveLotteryData() error {
-	//保存开奖的信息
+	//保存数据
+	db.InsertMgoData(config.DBT_MJ_DESK_ROUND, &data)
 
 	return nil
+
 }
 
 func (d *MjDesk) SendLotteryData() error {
@@ -752,6 +770,8 @@ func (d *MjDesk) SendLotteryData() error {
 		}
 	}
 
+	//开始发送开奖的广播
+	log.T("发送lottery的广播[%v]", result)
 	d.BroadCastProto(result)
 
 	return nil
@@ -1447,7 +1467,8 @@ func (d *MjDesk) GetWinCoinInfo(user *MjUser) *mjproto.WinCoinInfo {
 	*win.UserId = user.GetUserId()
 	*win.WinCoin = user.Bill.GetWinAmount()        //本次输赢多少(负数表示输了)
 	*win.Coin = user.GetCoin()        // 输赢以后，当前筹码是多少
-	//*win.CardTitle =user.GameData.h // 赢牌牌型信息( 如:"点炮x2 明杠x2 根x2 自摸 3番" )
+	//*win.CardTitle =user.GameData.get // 赢牌牌型信息( 如:"点炮x2 明杠x2 根x2 自摸 3番" )
+	//user.Statisc.
 	win.Cards = user.GetPlayerCard(true) //牌信息,true 表示要显示牌的信息...
 	*win.IsDealer = (d.GetBanker() == user.GetUserId() )        //是否是庄家
 	*win.HuCount = 1        //本局胡的次数(血流成河会多次胡)

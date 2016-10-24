@@ -16,6 +16,10 @@ type Module struct {
 
 func (m *Module) OnInit() {
 	m.Skeleton = skeleton
+
+	//回复数据
+	//majiang.RecoverFMJ()        //回复麻将朋友桌的数据
+
 }
 
 func (m *Module) OnDestroy() {

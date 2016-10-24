@@ -236,9 +236,9 @@ message PlayerInfo {
 
 
 enum DeskGameStatus {
-    INIT = 0; //万
-    DINGQUE = 1; //条
-    EXCHANGE = 2; //筒
+    INIT = 0; //初始化
+    DINGQUE = 1; //定缺
+    EXCHANGE = 2; //换牌
     PLAYING = 3; //游戏中
     FINISH = 4; //已经结束
 }
@@ -258,6 +258,7 @@ message DeskGameInfo {
     optional int32 totalPlayCount = 11; // 朋友桌: 总共几局
     optional string roomNumber = 12; // 房间号
     optional int32 remainCards = 13; // 还剩几张麻将牌
+    optional uint32 Banker = 14; //庄家
 
 }
 

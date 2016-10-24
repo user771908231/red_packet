@@ -10,6 +10,8 @@ type MjRecordBean struct {
 	WinAmount int64
 }
 
+
+//一把结束,战绩可以通过这个表来查询
 type T_mj_desk_round struct {
 	DeskId     int32
 	GameNumber int32

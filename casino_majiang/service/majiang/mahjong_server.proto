@@ -168,4 +168,8 @@ message MjRoom {
 
 }
 
+//
+message RunningDeskKeys {
+    repeated int32 keys = 1; //运行中的桌子的key
+}
 
