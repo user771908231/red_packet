@@ -236,9 +236,9 @@ message PlayerInfo {
 
 
 enum DeskGameStatus {
-    INIT = 0; //万
-    DINGQUE = 1; //条
-    EXCHANGE = 2; //筒
+    INIT = 0; //初始化
+    DINGQUE = 1; //定缺
+    EXCHANGE = 2; //换牌
     PLAYING = 3; //游戏中
     FINISH = 4; //已经结束
 }

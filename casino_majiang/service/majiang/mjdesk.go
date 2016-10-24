@@ -1450,7 +1450,8 @@ func (d *MjDesk) GetWinCoinInfo(user *MjUser) *mjproto.WinCoinInfo {
 	*win.UserId = user.GetUserId()
 	*win.WinCoin = user.Bill.GetWinAmount()        //本次输赢多少(负数表示输了)
 	*win.Coin = user.GetCoin()        // 输赢以后，当前筹码是多少
-	//*win.CardTitle =user.GameData.h // 赢牌牌型信息( 如:"点炮x2 明杠x2 根x2 自摸 3番" )
+	//*win.CardTitle =user.GameData.get // 赢牌牌型信息( 如:"点炮x2 明杠x2 根x2 自摸 3番" )
+	//user.Statisc.
 	win.Cards = user.GetPlayerCard(true) //牌信息,true 表示要显示牌的信息...
 	*win.IsDealer = (d.GetBanker() == user.GetUserId() )        //是否是庄家
 	*win.HuCount = 1        //本局胡的次数(血流成河会多次胡)
