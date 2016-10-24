@@ -184,7 +184,7 @@ func (d *MjDesk) GetDeskGameInfo() *mjproto.DeskGameInfo {
 	//deskInfo.ActionTime
 	//deskInfo.ActiveSeat
 	//deskInfo.DelayTime
-	//deskInfo.GameStatus
+	deskInfo.GameStatus = d.GetClientGameStatus()
 	*deskInfo.CurrPlayCount = d.GetCurrPlayCount() //当前第几局
 	*deskInfo.TotalPlayCount = d.GetTotalPlayCount()//总共几局
 	*deskInfo.PlayerNum = d.GetPlayerNum()        //玩家的人数
@@ -197,6 +197,41 @@ func (d *MjDesk) GetDeskGameInfo() *mjproto.DeskGameInfo {
 	return deskInfo
 }
 
+
+/**
+
+MJDESK_STATUS_CREATED = 1 //刚刚创建
+MJDESK_STATUS_READY = 2//正在准备
+MJDESK_STATUS_ONINIT = 3//准备完成之后，desk初始化数据
+MJDESK_STATUS_EXCHANGE = 4//desk初始化完成之后，告诉玩家可以开始换牌
+MJDESK_STATUS_DINGQUE = 5//换牌结束之后，告诉玩家可以开始定缺
+MJDESK_STATUS_RUNNING = 6 //定缺之后，开始打牌
+MJDESK_STATUS_LOTTERY = 7 //结算
+MJDESK_STATUS_END = 8//一局结束
+ */
+
+func (d *MjDesk) GetClientGameStatus() int32 {
+	var gameStatus mjproto.DeskGameStatus = mjproto.DeskGameStatus_INIT//默认状态
+	switch d.GetStatus() {
+	case MJDESK_STATUS_CREATED:
+		gameStatus = mjproto.DeskGameStatus_INIT
+	case MJDESK_STATUS_READY:
+		gameStatus = mjproto.DeskGameStatus_INIT
+	case MJDESK_STATUS_ONINIT:
+		gameStatus = mjproto.DeskGameStatus_INIT
+	case MJDESK_STATUS_EXCHANGE:
+		gameStatus = mjproto.DeskGameStatus_EXCHANGE
+	case MJDESK_STATUS_DINGQUE:
+		gameStatus = mjproto.DeskGameStatus_DINGQUE
+	case MJDESK_STATUS_RUNNING:
+		gameStatus = mjproto.DeskGameStatus_PLAYING
+	case MJDESK_STATUS_LOTTERY:
+		gameStatus = mjproto.DeskGameStatus_FINISH
+	case MJDESK_STATUS_END:
+		gameStatus = mjproto.DeskGameStatus_FINISH
+	}
+	return int32(gameStatus)
+}
 //返回玩家的数目
 func (d *MjDesk) GetPlayerInfo(receiveUserId uint32) []*mjproto.PlayerInfo {
 	var players []*mjproto.PlayerInfo

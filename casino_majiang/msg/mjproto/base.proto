@@ -245,10 +245,10 @@ enum DeskGameStatus {
 
 
 message DeskGameInfo {
-    optional int32 GameStatus = 1; // 当前的游戏状态：等待、游戏中、结算中等
-    optional RoomTypeInfo roomTypeInfo = 2; // 房间类型信息，包括：房间类型、局数、封顶、玩法、牌张、结算、底
-    optional int32 playerNum = 3; // 玩家数量
-    optional uint32 activeUserId = 4; // 当前谁操作，决定：中间的指针应该指向谁，哪个玩家当前是可操作状态
+    optional int32 GameStatus = 1; //游戏所处状态: 0:INIT 1:DINGQUE 2;EXCHANGE 3:PLAYING 4:FINISH
+    optional RoomTypeInfo roomTypeInfo = 2; //房间类型信息，包括：房间类型、局数、封顶、玩法、牌张、结算、底
+    optional int32 playerNum = 3; //玩家数量
+    optional uint32 activeUserId = 4; //当前谁操作，决定：中间的指针应该指向谁，哪个玩家当前是可操作状态
     optional int32 actionTime = 5; // 玩家当前操作时间
     optional int32 delayTime = 6; //当前延时时间
     optional int32 nInitActionTime = 7; // 初始操作时间
@@ -258,6 +258,6 @@ message DeskGameInfo {
     optional int32 totalPlayCount = 11; // 朋友桌: 总共几局
     optional string roomNumber = 12; // 房间号
     optional int32 remainCards = 13; // 还剩几张麻将牌
-    optional int32 gameStatus = 14; //游戏所处状态: 0:INIT 1:DINGQUE 2;EXCHANGE 3:PLAYING 4:FINISH
+
 }
 
