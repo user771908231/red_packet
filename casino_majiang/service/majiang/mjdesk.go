@@ -14,6 +14,8 @@ import (
 	"casino_server/utils/db"
 	"strings"
 	"sync/atomic"
+	"casino_majiang/gamedata/model"
+	"casino_server/utils/numUtils"
 )
 
 //状态表示的是当前状态.
@@ -47,7 +49,6 @@ func (d *MjDesk) addNewUserFriend(userId uint32, a gate.Agent) error {
 		//是断线重连
 		*user.IsBreak = false;
 		return nil
-
 	}
 
 	//2,是否是离开之后重新进入房间
@@ -715,33 +716,49 @@ func (d *MjDesk) Lottery() error {
 	return nil
 }
 
+func (d *MjDesk) GetUserIds() string {
+	ids := ""
+	for _, user := range d.GetUsers() {
+		if user != nil {
+			idStr, _ := numUtils.Uint2String(user.GetUserId())
+			ids = ids + "," + idStr
+		}
+
+	}
+	return ids
+
+}
+
 //处理lottery的数据
 
 //需要保存到 ..T_mj_desk_round   ...这里设计到保存数据，战绩相关的查询都要从这里查询
 func (d *MjDesk) DoLottery() error {
+	data := model.T_mj_desk_round{}
+	data.DeskId = d.GetDeskId()
+	data.GameNumber = d.GetGameNumber()
+	data.EndTime = time.Now()
+	data.UserIds = d.GetUserIds()
 	//一次处理每个胡牌的人
 	for _, user := range d.GetUsers() {
-		if user != nil && user.IsHu() {
+
+		//这里不应该是胡牌的人才有记录...而是应该记录每一个人...
+		if user != nil {
 			//处理胡牌之后，分数相关的逻辑.
-			huinfo := user.GameData.HuInfo
-			for _, info := range huinfo {
-				//一次处理每张赢牌,如果不是血流成河，那么这里一般只有一个huinfo
-				if info != nil {
-					//info.Fan	翻数
-					//info.HuType 胡牌的类型
-				}
-			}
+			//这里有一个统计...实在杠牌，或者胡牌之后会更新的数据...结算的时候，数据落地可以使用这个...
+			//user.Statisc
+			bean := model.MjRecordBean{}
+			bean.UserId = user.GetUserId()
+
+			//添加到record
+			data.Records = append(data.Records, bean)
 		}
 	}
 
-	return nil
-
-}
-
-func (d *MjDesk) SaveLotteryData() error {
-	//保存开奖的信息
+	//保存数据
+	db.InsertMgoData(config.DBT_MJ_DESK_ROUND, &data)
 
 	return nil
+
 }
 
 func (d *MjDesk) SendLotteryData() error {

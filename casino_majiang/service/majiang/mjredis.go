@@ -26,7 +26,7 @@ func UpdateMjDeskRedis(desk *MjDesk) error {
 
 //通过id得到redis中的mjdesk
 func GetDeskReids(key int32) *MjDesk {
-	data := redisUtils.GetObj(GetDeskRedisKey(key), *MjDesk{})
+	data := redisUtils.GetObj(GetDeskRedisKey(key), &MjDesk{})
 	if data == nil {
 		return nil
 	}

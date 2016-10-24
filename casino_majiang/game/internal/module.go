@@ -3,8 +3,6 @@ package internal
 import (
 	"github.com/name5566/leaf/module"
 	"casino_majiang/base"
-	"casino_majiang/service/MJService"
-	"casino_majiang/service/majiang"
 )
 
 var (
