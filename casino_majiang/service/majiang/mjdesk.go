@@ -17,14 +17,14 @@ import (
 )
 
 //状态表示的是当前状态.
-var MJDESK_STATUS_CREATED = 1 //刚刚创建
-var MJDESK_STATUS_READY = 2//正在准备
-var MJDESK_STATUS_ONINIT = 3//准备完成之后，desk初始化数据
-var MJDESK_STATUS_EXCHANGE = 4//desk初始化完成之后，告诉玩家可以开始换牌
-var MJDESK_STATUS_DINGQUE = 5//换牌结束之后，告诉玩家可以开始定缺
-var MJDESK_STATUS_RUNNING = 6 //定缺之后，开始打牌
-var MJDESK_STATUS_LOTTERY = 7 //结算
-var MJDESK_STATUS_END = 8//一局结束
+var MJDESK_STATUS_CREATED int32 = 1 //刚刚创建
+var MJDESK_STATUS_READY int32 = 2//正在准备
+var MJDESK_STATUS_ONINIT int32 = 3//准备完成之后，desk初始化数据
+var MJDESK_STATUS_EXCHANGE int32 = 4//desk初始化完成之后，告诉玩家可以开始换牌
+var MJDESK_STATUS_DINGQUE int32 = 5//换牌结束之后，告诉玩家可以开始定缺
+var MJDESK_STATUS_RUNNING int32 = 6 //定缺之后，开始打牌
+var MJDESK_STATUS_LOTTERY int32 = 7 //结算
+var MJDESK_STATUS_END int32 = 8//一局结束
 
 
 var OVER_TURN_ACTTYPE_MOPAI int32 = 1; //摸牌的类型...
@@ -184,12 +184,13 @@ func (d *MjDesk) GetDeskGameInfo() *mjproto.DeskGameInfo {
 	//deskInfo.ActionTime
 	//deskInfo.ActiveSeat
 	//deskInfo.DelayTime
-	deskInfo.GameStatus = d.GetClientGameStatus()
+	*deskInfo.GameStatus = d.GetClientGameStatus()
 	*deskInfo.CurrPlayCount = d.GetCurrPlayCount() //当前第几局
 	*deskInfo.TotalPlayCount = d.GetTotalPlayCount()//总共几局
 	*deskInfo.PlayerNum = d.GetPlayerNum()        //玩家的人数
 	deskInfo.RoomTypeInfo = d.GetRoomTypeInfo()
 	*deskInfo.RoomNumber = d.GetPassword()        //房间号码...
+	*deskInfo.Banker = d.GetBanker()
 	//deskInfo.NRebuyCount
 	//deskInfo.InitRoomCoin
 	//deskInfo.NInitActionTime
@@ -752,6 +753,8 @@ func (d *MjDesk) SendLotteryData() error {
 		}
 	}
 
+	//开始发送开奖的广播
+	log.T("发送lottery的广播[%v]", result)
 	d.BroadCastProto(result)
 
 	return nil

@@ -258,6 +258,7 @@ message DeskGameInfo {
     optional int32 totalPlayCount = 11; // 朋友桌: 总共几局
     optional string roomNumber = 12; // 房间号
     optional int32 remainCards = 13; // 还剩几张麻将牌
+    optional uint32 Banker = 14; //庄家
 
 }
 
