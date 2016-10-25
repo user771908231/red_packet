@@ -43,8 +43,8 @@ It has these top-level messages:
 	Game_Notice
 	Game_AckNotice
 	Game_GameRecord
-	Game_BeanUserRecord
-	Game_BeanGameRecord
+	BeanUserRecord
+	BeanGameRecord
 	Game_AckGameRecord
 	Game_Feedback
 	Game_CreateRoom

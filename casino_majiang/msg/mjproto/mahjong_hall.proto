@@ -83,25 +83,25 @@ message game_GameRecord {
     optional uint32 userId = 3; //用户id
 }
 // 
-message game_BeanUserRecord {
+message BeanUserRecord {
     optional ProtoHeader header = 1;
     optional uint32 UserId = 2; //用户id
     optional string NickName = 3; //用户昵称
     optional int64 WinAmount = 4; //用户输赢金额
 }
 // 
-message game_BeanGameRecord {
+message BeanGameRecord {
     optional ProtoHeader header = 1;
     optional int32 id = 2; //战绩id
     optional int32 deskId = 3; //关联的桌子的Id
     optional string beginTime = 4; //游戏开始的时间
-    repeated game_BeanUserRecord users = 5; //用户
+    repeated BeanUserRecord users = 5; //用户
 }
 //
 message game_AckGameRecord {
     optional ProtoHeader header = 1;
     optional uint32 userId = 2; //用户id
-    repeated game_BeanGameRecord records = 3; //结果
+    repeated BeanGameRecord records = 3; //结果
 }
 
 
