@@ -45,8 +45,8 @@ enum EProtoId {
     PID_SEND_MESSAGE = 38; //广播聊天
 
     PID_GAME_DINGQUEEND = 39; //定缺结束的广播
-    PID_Game_GameRecord = 40; //查询战绩
-    PID_Game_AckGameRecord = 41; //战绩回复
+    PID_GAME_GAMERECORD = 40; //查询战绩
+    PID_GAME_ACKGAMERECORD = 41; //战绩回复
 }
 
 enum ErrorCode {
