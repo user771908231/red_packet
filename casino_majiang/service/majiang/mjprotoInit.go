@@ -58,6 +58,7 @@ func NewMjUser() *MjUser {
 	ret.DingQue = new(bool)
 	ret.Bill = NewBill()
 	ret.Statisc = NewMjUserStatisc()
+	ret.IsBanker = new(bool)
 	return ret
 }
 

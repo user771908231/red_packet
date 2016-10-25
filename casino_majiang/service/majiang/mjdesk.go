@@ -75,6 +75,7 @@ func (d *MjDesk) addNewUserFriend(userId uint32, a gate.Agent) error {
 	*newUser.Coin = d.GetBaseValue()
 	*newUser.IsBreak = false
 	*newUser.IsLeave = false
+	*newUser.IsBanker = false
 	*newUser.Status = MJUSER_STATUS_INTOROOM
 	newUser.GameData = NewPlayerGameData()
 
@@ -409,6 +410,8 @@ func (d *MjDesk) beginInit() error {
 		*d.Banker = d.GetOwner()
 	}
 
+	*d.GetBankerUser().IsBanker = true
+
 	//2,设置当前的活动玩家
 	d.SetActiveUser(d.GetBanker())
 	*d.GameNumber, _ = db.GetNextSeq(config.DBT_T_TH_GAMENUMBER_SEQ)
@@ -468,6 +471,7 @@ func (d *MjDesk) initCards() error {
 //发牌的协议
 func (d *MjDesk) GetDealCards(user *MjUser) *mjproto.Game_DealCards {
 	dealCards := newProto.NewGame_DealCards()
+	*dealCards.DealerUserId = d.GetBanker()
 	for _, u := range d.GetUsers() {
 		if u != nil {
 			if u.GetUserId() == user.GetUserId() {
@@ -495,8 +499,16 @@ func (d *MjDesk) GetDealCards(user *MjUser) *mjproto.Game_DealCards {
 	return dealCards
 }
 
+func (d *MjDesk) SetStatus(status int32) {
+	*d.Status = status
+}
+
 //开始定缺
 func (d *MjDesk) beginDingQue() error {
+	//开始定缺，修改desk的状态
+	d.SetStatus(MJDESK_STATUS_DINGQUE)
+
+
 	//给每个人发送开始定缺的信息
 	beginQue := newProto.NewGame_BroadcastBeginDingQue()
 	log.T("开始给玩家发送开始定缺的广播[%v]", beginQue)
