@@ -182,6 +182,7 @@ func HandlerGame_DingQue(m *mjProto.Game_DingQue, a gate.Agent) {
 
 		//设置游戏开始的状态
 		desk.SetStatus(majiang.MJDESK_STATUS_RUNNING)
+		desk.UpdateUserStatus(majiang.MJUSER_STATUS_GAMING)
 
 		//首先发送定缺结束的广播，然后发送庄家出牌的广播...
 		ques := desk.GetDingQueEndInfo()
@@ -221,6 +222,7 @@ func HandlerGame_DingQue(m *mjProto.Game_DingQue, a gate.Agent) {
 	}
 
 }
+
 
 
 //换3张
