@@ -101,7 +101,7 @@ message BeanGameRecord {
 message game_AckGameRecord {
     optional ProtoHeader header = 1;
     optional uint32 userId = 2; //用户id
-    repeated game_BeanGameRecord records = 3; //结果
+    repeated BeanGameRecord records = 3; //结果
 }
 
 
