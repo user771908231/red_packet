@@ -32,6 +32,10 @@ var MJDESK_STATUS_END int32 = 8//一局结束
 var OVER_TURN_ACTTYPE_MOPAI int32 = 1; //摸牌的类型...
 var OVER_TURN_ACTTYPE_OTHER int32 = 2; //碰OTHER
 
+var MJDESK_ACT_TYPE_MOPAI int32 = 1; ///摸牌
+var MJDESK_ACT_TYPE_DAPAI int32 = 2; //打牌
+var MJDESK_ACT_TYPE_WAIT_CHECK int32 = 3; //等待check
+
 //判断是不是朋友桌
 func (d *MjDesk) IsFriend() bool {
 	return true
@@ -52,22 +56,16 @@ func (d *MjDesk) addNewUserFriend(userId uint32, a gate.Agent) error {
 	}
 
 	//2,是否是离开之后重新进入房间
-	userLeave := d.getLeaveUserByUserId(userId)
+	userLeave := d.GetUserByUserId(userId)
 	if userLeave != nil {
-		err := d.addUser(userLeave)
-		if err != nil {
-			//加入房间的时候错误
-			log.E("已经离开的用户[%v]重新加入desk[%v]的时候出错errMsg[%v]", userId, d.GetDeskId(), err)
-			return errors.New("已经离开的用户重新加入房间的时候出错")
-		} else {
-			*userLeave.IsBreak = false
-			*userLeave.IsLeave = false
-			d.rmLeaveUser(userLeave.GetUserId())
-			return nil
-		}
+		log.T("玩家[%v]短线重连....", userId)
+		*userLeave.IsBreak = false
+		*userLeave.IsLeave = false
+		d.SendReconnectOverTurn(userLeave.GetUserId())
+		return nil
 	}
 
-	//加入一个新用户
+	//3,加入一个新用户
 	newUser := NewMjUser()
 	*newUser.UserId = userId
 	*newUser.DeskId = d.GetDeskId()
@@ -88,6 +86,79 @@ func (d *MjDesk) addNewUserFriend(userId uint32, a gate.Agent) error {
 		//加入房间成功
 		return nil
 	}
+}
+
+//发送重新连接之后的overTurn
+func (d *MjDesk) SendReconnectOverTurn(userId uint32) error {
+
+	//得到玩家
+	user := d.GetUserByUserId(userId)
+	if user == nil {
+		log.T("发送SendReconnectOverTurn(%v)失败,因为没有找到玩家", userId)
+		return errors.New("发送SendReconnectOverTurn()失败,因为没有找到玩家")
+	}
+
+	//开发发送overTurn
+	if d.IsReady() && user.IsNotReady() {
+		//给玩家发送开始准备的消息...
+	} else if d.IsExchange() {
+		//给玩家发送换牌的消息...
+	} else if d.IsDingQue() && user.IsNotDingQue() {
+		//给玩家发送定缺的信息...
+		beginQue := newProto.NewGame_BroadcastBeginDingQue()
+		user.WriteMsg(beginQue)
+
+	} else if d.IsGaming() && user.GetUserId() == d.GetActUser() {
+		//游戏中的情况，发送act的消息,这里需要更具当前的状态来发送overTurn
+		if d.GetActType() == MJDESK_ACT_TYPE_MOPAI {
+			//发送摸牌的协议
+			overTrun := newProto.NewGame_OverTurn()
+			*overTrun.UserId = user.GetUserId()                //这个是摸牌的，所以是广播...
+			*overTrun.ActType = OVER_TURN_ACTTYPE_MOPAI        //摸牌
+			overTrun.ActCard = user.GameData.HandPai.InPai.GetCardInfo()
+			*overTrun.CanHu = user.GameData.HandPai.GetCanHu()                //是否可以胡牌
+			canGangBool, gangPais := user.GameData.HandPai.GetCanGang(nil)    //是否可以杠牌
+
+			*overTrun.CanGang = canGangBool
+			if canGangBool && gangPais != nil {
+				for _, g := range gangPais {
+					overTrun.GangCards = append(overTrun.GangCards, g.GetCardInfo())
+				}
+			}
+			//是否可以碰牌
+			*overTrun.CanPeng = false
+			//user.SendOverTurn(overTrun) 这里不能使用sendOverTurn 有wait 的逻辑
+			user.WriteMsg(overTrun)
+			log.T("玩家重新进入游戏之后 [%v]开始摸牌【%v】...", user.GetUserId(), overTrun)
+
+		} else if d.GetActType() == MJDESK_ACT_TYPE_DAPAI {
+			//发送打牌的协议
+		} else if d.GetActType() == MJDESK_ACT_TYPE_WAIT_CHECK {
+			caseBean := d.CheckCase.GetBeanByUserIdAndStatus(user.GetUserId(), CHECK_CASE_BEAN_STATUS_CHECKING)
+			if caseBean == nil {
+				log.E("没有找到玩家[%v]对应的checkBean", user.GetUserId())
+				return errors.New("玩家重新进入房间发送check overturn的时候出错")
+			}
+
+			//找到需要判断bean之后，发送给判断人	//send overTurn
+			overTurn := newProto.NewGame_OverTurn()
+			*overTurn.UserId = caseBean.GetUserId()
+			*overTurn.CanGang = caseBean.GetCanGang()
+			*overTurn.CanPeng = caseBean.GetCanPeng()
+			*overTurn.CanHu = caseBean.GetCanHu()
+			overTurn.ActCard = d.CheckCase.CheckMJPai.GetCardInfo()        //
+			*overTurn.ActType = OVER_TURN_ACTTYPE_OTHER
+			*overTurn.Time = int32(user.GetWaitTime() - time.Now().Unix())
+
+			///发送overTurn 的信息
+			log.T("开始发送玩家[%v]断线重连的overTurn[%v]", user.GetUserId(), overTurn)
+			user.WriteMsg(overTurn)
+			//这里不需要设置actUser and type 因为在断线之前已经设置过了...
+			//d.SetActUserAndType(caseBean.GetUserId(), MJDESK_ACT_TYPE_WAIT_CHECK)        //设置当前活动的玩家
+		}
+	}
+
+	return nil
 }
 
 
@@ -114,7 +185,6 @@ func (d *MjDesk) getLeaveUserByUserId(userId uint32) *MjUser {
 			return u
 		}
 	}
-
 	return nil
 }
 
@@ -163,7 +233,8 @@ func (d *MjDesk) GetPlayOptions() *mjproto.PlayOptions {
 //广播协议
 func (d *MjDesk) BroadCastProto(p proto.Message) error {
 	for _, u := range d.Users {
-		if u != nil {
+		//user不为空，并且user没有离开，没有短线的时候才能发送消息...
+		if u != nil && !u.GetIsBreak() && !u.GetIsLeave() {
 			u.WriteMsg(p)
 		}
 	}
@@ -184,7 +255,6 @@ func (d *MjDesk) BroadCastProtoExclusive(p proto.Message, userId uint32) error {
 func (d *MjDesk) GetDeskGameInfo() *mjproto.DeskGameInfo {
 	deskInfo := newProto.NewDeskGameInfo()
 	//deskInfo.ActionTime
-	//deskInfo.ActiveSeat
 	//deskInfo.DelayTime
 	*deskInfo.GameStatus = d.GetClientGameStatus()
 	*deskInfo.CurrPlayCount = d.GetCurrPlayCount() //当前第几局
@@ -197,6 +267,7 @@ func (d *MjDesk) GetDeskGameInfo() *mjproto.DeskGameInfo {
 	//deskInfo.InitRoomCoin
 	//deskInfo.NInitActionTime
 	//deskInfo.NInitDelayTime
+	*deskInfo.ActiveUserId = d.GetActiveUser()
 	return deskInfo
 }
 
@@ -313,6 +384,23 @@ func (d *MjDesk) IsAllReady() bool {
 	return true
 }
 
+//是否在准备中
+func (d *MjDesk) IsReady() bool {
+	return true
+}
+
+//是否在定缺中
+func (d *MjDesk) IsDingQue() bool {
+	return true
+}
+
+func (d *MjDesk) IsExchange() bool {
+	return true
+}
+
+func (d *MjDesk) IsGaming() bool {
+	return true
+}
 
 //得到当前桌子的人数..
 func (d *MjDesk) GetUserCount() int32 {
@@ -672,6 +760,7 @@ func (d *MjDesk) DoCheckCase(gangUser *MjUser) error {
 		///发送overTurn 的信息
 		log.T("开始发送overTurn[%v]", overTurn)
 		d.GetUserByUserId(caseBean.GetUserId()).SendOverTurn(overTurn)
+		d.SetActUserAndType(caseBean.GetUserId(), MJDESK_ACT_TYPE_WAIT_CHECK)        //设置当前活动的玩家
 
 		return nil
 
@@ -834,8 +923,16 @@ func (d *MjDesk)DoEnd() error {
 	return nil
 }
 
+//当前指针指向的玩家
 func (d *MjDesk) SetActiveUser(userId uint32) error {
 	*d.ActiveUser = userId
+	return nil
+}
+
+//当前操作的玩家
+func (d *MjDesk) SetActUserAndType(userId uint32, actType int32) error {
+	*d.ActUser = userId
+	*d.ActType = actType
 	return nil
 }
 
@@ -888,7 +985,6 @@ func (d *MjDesk) GetNextPai() *MJPai {
 	}
 }
 
-
 //发送摸牌的广播
 //指定一个摸牌，如果没有指定，则系统通过游标来判断
 func (d *MjDesk) SendMopaiOverTurn(user *MjUser) error {
@@ -901,7 +997,8 @@ func (d *MjDesk) SendMopaiOverTurn(user *MjUser) error {
 		return errors.New("没有找到下一家")
 	}
 
-	d.SetActiveUser(user.GetUserId())        //用户摸牌之后，设置当前活动玩家为摸牌的玩家
+	d.SetActiveUser(user.GetUserId())        //用户摸牌之后，设置前端指针指向的玩家
+	d.SetActUserAndType(user.GetUserId(), MJDESK_ACT_TYPE_MOPAI)                //用户摸牌之后，设置当前活动的玩家
 
 	//发送广播
 	overTrun := newProto.NewGame_OverTurn()
@@ -994,6 +1091,7 @@ func (d *MjDesk) ActPeng(userId uint32) error {
 	d.CheckCase.UpdateCheckBeanStatus(user.GetUserId(), CHECK_CASE_BEAN_STATUS_CHECKED)
 	d.CheckCase.UpdateChecStatus(CHECK_CASE_STATUS_CHECKED) //碰牌之后，checkcase处理完毕
 	d.SetActiveUser(user.GetUserId())
+	d.SetActUserAndType(user.GetUserId(), MJDESK_ACT_TYPE_DAPAI) //轮到用户打牌
 
 	//5,发送碰牌的广播
 	ack := newProto.NewGame_AckActPeng()
@@ -1284,15 +1382,14 @@ func (d *MjDesk)ActHu(userId uint32) error {
 	}
 
 	//发送胡牌成功的回复
-	log.T("玩家[%v]胡牌，开始处理发送胡牌成功广播的逻辑...", userId)
-
 	ack := newProto.NewGame_AckActHu()
 	*ack.HuType = hu.GetHuType()
 	*ack.UserIdIn = hu.GetGetUserId()
 	*ack.UserIdOut = hu.GetSendUserId()
 	ack.HuCard = hu.Pai.GetCardInfo()
-	log.T("给用户[%v]发送胡牌的ack[%v]", hu.GetGetUserId(), ack)
-	u.WriteMsg(ack)
+	log.T("给用户[%v]广播胡牌的ack[%v]", hu.GetGetUserId(), ack)
+	//u.WriteMsg(ack)
+	d.BroadCastProto(ack)
 
 	return nil
 }

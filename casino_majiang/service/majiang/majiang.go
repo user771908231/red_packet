@@ -286,7 +286,7 @@ func GettPaiStats(pais []*MJPai) []int {
 		flower := pai.GetFlower()    //flower=1,2,3
 		log.T("getValue(%v),pai.GetFlower(%v) ", value, pai.GetFlower())
 		value += (flower - 1) * 9
-		log.T("value[%v]", value)
+		//log.T("value[%v]", value)
 		counts[ value ] ++
 	}
 

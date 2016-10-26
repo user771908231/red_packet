@@ -38,9 +38,16 @@ func (u *MjUser)WriteMsg(p proto.Message) error {
 	return nil
 }
 
+
+
+
 //是否是准备中...
 func (u *MjUser) IsReady() bool {
 	return u.GetStatus() == MJUSER_STATUS_READY
+}
+
+func (u *MjUser) IsNotReady() bool {
+	return !u.IsReady()
 }
 
 //用户是否胡牌
@@ -61,6 +68,11 @@ func (u *MjUser) IsGaming() bool {
 //判断用户是否已经定缺
 func (u *MjUser) IsDingQue() bool {
 	return u.GetDingQue()
+}
+
+//判断用户有没有定缺
+func (u *MjUser) IsNotDingQue() bool {
+	return !u.IsDingQue()
 }
 
 //返回一个用户信息
@@ -189,12 +201,12 @@ func (u *MjUser) SendOverTurn(p *mjproto.Game_OverTurn) error {
 
 //等待超时
 func (u *MjUser) Wait() error {
-
 	//这里需要根据等待的类型来做不同的处理...
 	/**
 		如果是摸牌之后等带,需要自动打一张牌
 		如果是判定，系统自动过
 	 */
+	*u.WaitTime = time.Now().Add(time.Second * 30).Unix()
 	jobUtils.DoAsynJob(time.Second * 1, func() bool {
 		//如果超时，那么系统自动打一张牌...
 		return true
