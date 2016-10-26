@@ -48,17 +48,17 @@ func (d *MjDesk) addNewUserFriend(userId uint32, a gate.Agent) error {
 	AgentService.SetAgent(userId, a)
 
 	//1,是否是重新进入
-	user := d.GetUserByUserId(userId)
-	if user != nil {
-		//是断线重连
-		*user.IsBreak = false;
-		return nil
-	}
+	//user := d.GetUserByUserId(userId)
+	//if user != nil {
+	//	//是断线重连
+	//	*user.IsBreak = false;
+	//	return nil
+	//}
 
 	//2,是否是离开之后重新进入房间
 	userLeave := d.GetUserByUserId(userId)
 	if userLeave != nil {
-		log.T("玩家[%v]短线重连....", userId)
+		log.T("玩家[%v]断线重连....", userId)
 		*userLeave.IsBreak = false
 		*userLeave.IsLeave = false
 		d.SendReconnectOverTurn(userLeave.GetUserId())
@@ -685,7 +685,8 @@ func (d *MjDesk) InitCheckCase(p *MJPai, outUser *MjUser) error {
 
 	//初始化checkbean
 	for _, checkUser := range d.GetUsers() {
-		if checkUser != nil && checkUser.GetUserId() != outUser.GetUserId() {
+		//这里要判断用户是不是已经胡牌
+		if checkUser != nil && checkUser.GetUserId() != outUser.GetUserId() &&  d.CanInitCheckCase(checkUser) {
 			log.T("用户[%v]打牌，判断user[%v]是否可以碰杠胡...", outUser.GetUserId(), checkUser.GetUserId())
 			checkUser.GameData.HandPai.InPai = p
 			bean := checkUser.GetCheckBean(p)
@@ -703,6 +704,18 @@ func (d *MjDesk) InitCheckCase(p *MJPai, outUser *MjUser) error {
 	}
 
 	return nil
+}
+
+//判断是否可以initCheckCase
+
+func (d *MjDesk ) CanInitCheckCase(user *MjUser) bool {
+	//这里需要判断是否是 血流成河，目前暂时不判断...
+	if user.IsNotHu() {
+		return true
+	} else {
+		return false
+	}
+
 }
 
 //暂时不用？？ 摸牌之后
@@ -813,6 +826,8 @@ func (d *MjDesk) Lottery() error {
 		return errors.New("没有到lottery()的时间...")
 	}
 
+	log.T("现在开始处理lottery()的逻辑....")
+
 	d.DoLottery()
 
 	//发送结束的广播
@@ -846,6 +861,7 @@ func (d *MjDesk) GetUserIds() string {
 
 //需要保存到 ..T_mj_desk_round   ...这里设计到保存数据，战绩相关的查询都要从这里查询
 func (d *MjDesk) DoLottery() error {
+	log.T("desk(%v),gameNumber(%v)处理DoLottery()", d.GetDeskId(), d.GetGameNumber())
 	data := model.T_mj_desk_round{}
 	data.DeskId = d.GetDeskId()
 	data.GameNumber = d.GetGameNumber()
@@ -870,12 +886,15 @@ func (d *MjDesk) DoLottery() error {
 
 	//保存数据
 	db.InsertMgoData(config.DBT_MJ_DESK_ROUND, &data)
+	log.T("desk(%v),gameNumber(%v)处理DoLottery(),处理完毕", d.GetDeskId(), d.GetGameNumber())
 
 	return nil
 
 }
 
 func (d *MjDesk) SendLotteryData() error {
+	log.T("desk(%v),gameNumber(%v)SendLotteryData()", d.GetDeskId(), d.GetGameNumber())
+
 	//发送开奖的数据,需要得到每个人的winCoinInfo
 	result := newProto.NewGame_SendCurrentResult()
 	for _, user := range d.GetUsers() {
@@ -887,6 +906,7 @@ func (d *MjDesk) SendLotteryData() error {
 	//开始发送开奖的广播
 	log.T("发送lottery的广播[%v]", result)
 	d.BroadCastProto(result)
+	log.T("desk(%v),gameNumber(%v)SendLotteryData(),处理完毕", d.GetDeskId(), d.GetGameNumber())
 
 	return nil
 }
