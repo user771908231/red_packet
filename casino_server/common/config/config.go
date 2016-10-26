@@ -105,7 +105,7 @@ func InitMongoDb() error {
 }
 
 func InitRedis() {
-	data.InitRedis()
+	data.InitRedis(conf.Server.RedisAddr)
 }
 
 func InitLogger() {

@@ -25,7 +25,7 @@ var Server struct {
 }
 
 func init() {
-	data, err := ioutil.ReadFile("conf/majiang.json")
+	data, err := ioutil.ReadFile("../conf/majiang.json")
 	if err != nil {
 		log.Fatal("%v", err)
 	}

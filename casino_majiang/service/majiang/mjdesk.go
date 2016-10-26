@@ -885,8 +885,11 @@ func (d *MjDesk) DoLottery() error {
 	}
 
 	//保存数据
-	db.InsertMgoData(config.DBT_MJ_DESK_ROUND, &data)
-	log.T("desk(%v),gameNumber(%v)处理DoLottery(),处理完毕", d.GetDeskId(), d.GetGameNumber())
+	err := db.InsertMgoData(config.DBT_MJ_DESK_ROUND, &data)
+	if err != nil {
+		log.E("dolottery()时保存数据[%v]失败...", data)
+	}
+	log.T("desk(%v),gameNumber(%v)处理DoLottery(),处理完毕,保存数据data[%v]", d.GetDeskId(), d.GetGameNumber(), data)
 
 	return nil
 
@@ -1440,15 +1443,21 @@ func (d *MjDesk) ActGang(userId uint32, paiId int32) error {
 		return errors.New("服务器错误,杠牌失败..")
 	}
 
+
+	//判断是否可以杠牌
+
 	var gangType int32 = 0
 	var sendUserId uint32 = 0        //打出牌的人，暗杠的话 就表示是自己..
+	var canGang bool = false
 
 	if d.CheckCase != nil {
 		//表示是明港
 		gangType = GANG_TYPE_MING        //明杠
 		sendUserId = d.CheckCase.GetUserIdOut()
-	} else {
+		canGang, _ = user.GameData.HandPai.GetCanGang(gangPai)
 
+	} else {
+		canGang, _ = user.GameData.HandPai.GetCanGang(nil)
 		//如果碰牌中有这张牌表示是巴杠 //如果碰牌中没有这张牌，表示是暗杠
 		isBaGang := user.GameData.HandPai.IsExistPengPai(gangPai)
 		if isBaGang {
@@ -1458,6 +1467,14 @@ func (d *MjDesk) ActGang(userId uint32, paiId int32) error {
 		}
 		sendUserId = userId
 	}
+
+
+	//判断是否可以杠牌
+	if !canGang {
+		log.E("玩家[%v]杠牌[%v],牌id[%v]失败", userId, gangPai.LogDes(), paiId)
+		return errors.New("用户杠牌失败..")
+	}
+
 
 
 	/**
@@ -1567,7 +1584,9 @@ func (d *MjDesk) ActGang(userId uint32, paiId int32) error {
 		//明杠的处理方式
 	}
 
-
+	//杠牌之后的逻辑
+	//1,设置inpai为nil
+	user.GameData.HandPai.InPai = nil
 
 	//todo 返回杠牌成功的逻辑，返回一个摸牌的overTurn
 	result := newProto.NewGame_AckActGang()

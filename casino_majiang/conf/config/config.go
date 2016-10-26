@@ -91,7 +91,7 @@ func InitMongoDb() error {
 
 func InitRedis() error {
 	fmt.Println("3，初始化redis...")
-	data.InitRedis()
+	data.InitRedis(conf.Server.RedisAddr)
 	return nil
 }
 

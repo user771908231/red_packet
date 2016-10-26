@@ -3,7 +3,6 @@ package userService
 import (
 	"casino_server/conf/casinoConf"
 	"casino_server/msg/bbprotogo"
-	"casino_server/common/config"
 	"gopkg.in/mgo.v2/bson"
 	"casino_server/common/log"
 	"casino_server/utils/numUtils"
@@ -40,11 +39,7 @@ func NewUserAndSave(openId, wxNickName, headUrl string, sex int32, city string) 
 	nuser.Sex = sex
 	nuser.City = city
 	nuser.Diamond = NEW_USER_DIAMOND_REWARD                //新用户注册的时候,默认的钻石数量
-	if wxNickName == "" {
-		nuser.NickName = config.RandNickname()
-	} else {
-		nuser.NickName = wxNickName
-	}
+	nuser.NickName = wxNickName
 	nuser.OpenId = openId
 	nuser.HeadUrl = headUrl
 

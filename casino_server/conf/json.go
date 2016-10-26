@@ -5,6 +5,7 @@ import (
 	"github.com/name5566/leaf/log"
 	"io/ioutil"
 	"fmt"
+	"runtime/debug"
 )
 
 var Server struct {
@@ -28,6 +29,7 @@ var Server struct {
 func init() {
 	data, err := ioutil.ReadFile("../conf/server.json")
 	if err != nil {
+		debug.PrintStack()
 		log.Fatal("%v", err)
 	}
 	err = json.Unmarshal(data, &Server)
