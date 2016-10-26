@@ -47,6 +47,8 @@ var _ = math.Inf
 
 // Ignoring public import of HuPaiType from base.proto
 
+// Ignoring public import of MJUserGameStatus from base.proto
+
 // Ignoring public import of DeskGameStatus from base.proto
 
 // 服务器信息

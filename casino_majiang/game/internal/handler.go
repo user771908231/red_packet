@@ -35,6 +35,10 @@ func init() {
 	//战绩相关
 	handler(&mjProto.Game_GameRecord{}, handlerGame_GameRecord)
 
+	//聊天
+
+	handler(&mjProto.Game_Message{}, handlerGame_Message)
+
 }
 
 func handlerNull(args []interface{}) {
@@ -125,6 +129,11 @@ func handlerGame_ActHu(args []interface{}) {
 func handlerGame_GameRecord(args []interface{}) {
 	m := args[0].(*mjProto.Game_GameRecord)
 	a := args[1].(gate.Agent)
-	MJService.HandlerGame_GameRecord(m.GetUserId(),a)
+	MJService.HandlerGame_GameRecord(m.GetUserId(), a)
 }
 
+//聊天的协议
+func handlerGame_Message(args []interface{}) {
+	m := args[0].(*mjProto.Game_Message)
+	MJService.HandlerGame_Message(m)
+}

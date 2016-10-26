@@ -7,9 +7,6 @@ import (
 	"casino_server/common/log"
 )
 
-func init() {
-	data.InitRedis()
-}
 
 //在需要的地方,需要自己关闭连接
 func GetConn() data.Data {

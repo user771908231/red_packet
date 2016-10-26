@@ -43,6 +43,10 @@ func NewMjDesk() *MjDesk {
 	ret.GameNumber = new(int32)
 	ret.TotalPlayCount = new(int32)
 	ret.CurrPlayCount = new(int32)
+	ret.ActUser = new(uint32)
+	ret.ActType = new(int32)
+	ret.BeginTime = new(string)
+	ret.EndTime = new(string)
 	return ret
 }
 
@@ -59,6 +63,7 @@ func NewMjUser() *MjUser {
 	ret.Bill = NewBill()
 	ret.Statisc = NewMjUserStatisc()
 	ret.IsBanker = new(bool)
+	ret.WaitTime = new(int64)
 	return ret
 }
 

@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"github.com/name5566/leaf/log"
 	"io/ioutil"
+	"fmt"
 )
 
 var Server struct {
@@ -25,7 +26,7 @@ var Server struct {
 }
 
 func init() {
-	data, err := ioutil.ReadFile("conf/majiang.json")
+	data, err := ioutil.ReadFile("../conf/majiang.json")
 	if err != nil {
 		log.Fatal("%v", err)
 	}
@@ -33,4 +34,6 @@ func init() {
 	if err != nil {
 		log.Fatal("%v", err)
 	}
+
+	fmt.Println("读取到的配置文件的信息:", Server)
 }

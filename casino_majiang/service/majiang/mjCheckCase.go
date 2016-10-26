@@ -38,6 +38,15 @@ func (c *CheckCase) GetHuBean(checkStatus int32) *CheckBean {
 	return nil
 }
 
+func (c *CheckCase) GetBeanByUserIdAndStatus(userId uint32, status int32) *CheckBean {
+	for _, b := range c.CheckB {
+		if b != nil && b.GetCheckStatus() == status  && b.GetUserId() == userId {
+			return b
+		}
+	}
+	return nil
+}
+
 //得到下一个需要判断的checkBean
 func (c *CheckCase) GetNextBean() *CheckBean {
 	//判断是否已经checked了

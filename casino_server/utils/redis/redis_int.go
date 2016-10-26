@@ -6,17 +6,16 @@ import (
 	"github.com/garyburd/redigo/redis"
 	"time"
 	"github.com/golang/protobuf/proto"
-	"casino_server/conf"
 )
 
 var (
 	Redis_svr string
 )
 
-func InitRedis() {
+func InitRedis(redisAddr string) {
 	config := cfg.Get()
 
-	Redis_svr = conf.Server.RedisAddr
+	Redis_svr = redisAddr
 	if len(config["redis_svr"]) != 0 {
 		Redis_svr = config["redis_svr"]
 	}

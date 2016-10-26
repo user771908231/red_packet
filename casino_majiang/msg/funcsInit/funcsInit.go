@@ -168,6 +168,7 @@ func NewGame_OverTurn() *mjProto.Game_OverTurn {
 	ret.Header = NewHeader()
 	ret.UserId = new(uint32)
 	ret.NextUserId = new(uint32)
+	ret.Time = new(int32)
 	return ret
 }
 
@@ -337,4 +338,23 @@ func NewBeanGameRecord() *mjProto.BeanGameRecord {
 	ret.BeginTime = new(string)
 	ret.Id = new(int32)
 	return ret
+}
+
+func NewBeanUserRecord() *mjProto.BeanUserRecord {
+	result := &mjProto.BeanUserRecord{}
+	result.NickName = new(string)
+	result.Header = NewHeader()
+	result.UserId = new(uint32)
+	result.WinAmount = new(int64)
+	return result
+}
+
+func NewGame_SendMessage() *mjProto.Game_SendMessage {
+	result := &mjProto.Game_SendMessage{}
+	result.Header = NewHeader()
+	result.Id = new(int32)
+	result.Msg = new(string)
+	result.MsgType = new(int32)
+	result.UserId = new(uint32)
+	return result
 }

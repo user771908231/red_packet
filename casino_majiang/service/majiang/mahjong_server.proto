@@ -98,7 +98,9 @@ message MjDesk {
     optional uint32 ActiveUser = 25; //
     optional int32 GameNumber = 26; //游戏编号，每一句游戏都有编号
     optional uint32 ActUser = 27;
-    optional int32 ActType = 28;    //当前操作的人的类型
+    optional int32 ActType = 28; //当前操作的人的类型
+    optional string BeginTime = 29; //游戏开始时间
+    optional string EndTime = 30;   //游戏结束时间
 }
 
 
@@ -153,6 +155,7 @@ message MjUser {
     optional GangPaiInfo PreMoGangInfo = 13; //摸牌前 用户的杠牌信息
     optional Bill bill = 14; //用户的账单
     optional MjUserStatisc statisc = 15; //证据游戏的统计...
+    optional int64 WaitTime = 16; //用户等待的时间
 }
 
 //用户的session

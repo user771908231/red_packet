@@ -183,6 +183,7 @@ func HandlerGame_DingQue(m *mjProto.Game_DingQue, a gate.Agent) {
 		//设置游戏开始的状态
 		desk.SetStatus(majiang.MJDESK_STATUS_RUNNING)
 		desk.UpdateUserStatus(majiang.MJUSER_STATUS_GAMING)
+		desk.SetActUserAndType(desk.GetBanker(), majiang.MJDESK_ACT_TYPE_MOPAI)
 
 		//首先发送定缺结束的广播，然后发送庄家出牌的广播...
 		ques := desk.GetDingQueEndInfo()
@@ -424,3 +425,18 @@ func HandlerGame_GameRecord(userId uint32, a gate.Agent) error {
 	return nil
 }
 
+//聊天协议
+func HandlerGame_Message(m *mjProto.Game_Message) {
+	userId := m.GetHeader().GetUserId()
+	desk := majiang.GetMjDeskBySession(userId)
+	if desk == nil {
+		log.E("玩家[%v]聊天的时候没有找到desk", userId)
+		return
+	}
+	result := newProto.NewGame_SendMessage()
+	*result.UserId = m.GetHeader().GetUserId()
+	*result.Id = m.GetId()
+	*result.Msg = m.GetMsg()
+	*result.MsgType = m.GetMsgType()
+	desk.BroadCastProtoExclusive(result, result.GetUserId())
+}

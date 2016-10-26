@@ -4,6 +4,7 @@ import (
 	"time"
 	"casino_majiang/msg/protogo"
 	"casino_majiang/msg/funcsInit"
+	"casino_server/utils/timeUtils"
 )
 
 type MjRecordBean struct {
@@ -11,6 +12,15 @@ type MjRecordBean struct {
 	NickName  string
 	WinAmount int64
 }
+
+func (b MjRecordBean) TransBeanUserRecord() *mjproto.BeanUserRecord {
+	result := newProto.NewBeanUserRecord()
+	*result.NickName = b.NickName
+	*result.UserId = b.UserId
+	*result.WinAmount = b.WinAmount
+	return result
+}
+
 
 
 //一把结束,战绩可以通过这个表来查询
@@ -25,5 +35,11 @@ type T_mj_desk_round struct {
 
 func (t T_mj_desk_round) TransRecord() *mjproto.BeanGameRecord {
 	result := newProto.NewBeanGameRecord()
+	*result.BeginTime = timeUtils.Format(t.BeginTime)
+	*result.DeskId = t.DeskId
+	for _, bean := range t.Records {
+		b := bean.TransBeanUserRecord()
+		result.Users = append(result.Users, b)
+	}
 	return result
 }
