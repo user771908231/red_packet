@@ -348,3 +348,13 @@ func NewBeanUserRecord() *mjProto.BeanUserRecord {
 	result.WinAmount = new(int64)
 	return result
 }
+
+func NewGame_SendMessage() *mjProto.Game_SendMessage {
+	result := &mjProto.Game_SendMessage{}
+	result.Header = NewHeader()
+	result.Id = new(int32)
+	result.Msg = new(string)
+	result.MsgType = new(int32)
+	result.UserId = new(uint32)
+	return result
+}

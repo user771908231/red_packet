@@ -28,7 +28,6 @@ func GetSession(userId uint32) *MjSession {
 	} else {
 		return nil
 	}
-	return nil
 }
 
 //更新用户的session信息，具体更新什么信息待定

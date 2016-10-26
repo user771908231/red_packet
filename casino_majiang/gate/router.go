@@ -26,5 +26,6 @@ func init() {
 	msg.Processor.SetRouter(&mjproto.Game_ActHu{}, game.ChanRPC)                        //胡
 	msg.Processor.SetRouter(&mjproto.Game_Login{}, login.ChanRPC)
 	msg.Processor.SetRouter(&mjproto.Game_DissolveDesk{}, game.ChanRPC)        //解散房间
-	msg.Processor.SetRouter(&mjproto.Game_GameRecord{},game.ChanRPC)		//游戏战绩
+	msg.Processor.SetRouter(&mjproto.Game_GameRecord{}, game.ChanRPC)                //游戏战绩
+	msg.Processor.SetRouter(&mjproto.Game_Message{}, game.ChanRPC)                //发送聊天信息
 }

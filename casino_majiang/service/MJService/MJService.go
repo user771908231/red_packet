@@ -425,3 +425,18 @@ func HandlerGame_GameRecord(userId uint32, a gate.Agent) error {
 	return nil
 }
 
+//聊天协议
+func HandlerGame_Message(m *mjProto.Game_Message) {
+	userId := m.GetHeader().GetUserId()
+	desk := majiang.GetMjDeskBySession(userId)
+	if desk == nil {
+		log.E("玩家[%v]聊天的时候没有找到desk", userId)
+		return
+	}
+	result := newProto.NewGame_SendMessage()
+	*result.UserId = m.GetHeader().GetUserId()
+	*result.Id = m.GetId()
+	*result.Msg = m.GetMsg()
+	*result.MsgType = m.GetMsgType()
+	desk.BroadCastProtoExclusive(result, result.GetUserId())
+}

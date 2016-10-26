@@ -258,8 +258,6 @@ func GetMjDeskBySession(userId uint32) *MjDesk {
 		return nil
 	}
 
-
-
 	//返回desk
 	return room.GetDeskByDeskId(session.GetDeskId())
 }
