@@ -339,3 +339,12 @@ func NewBeanGameRecord() *mjProto.BeanGameRecord {
 	ret.Id = new(int32)
 	return ret
 }
+
+func NewBeanUserRecord() *mjProto.BeanUserRecord {
+	result := &mjProto.BeanUserRecord{}
+	result.NickName = new(string)
+	result.Header = NewHeader()
+	result.UserId = new(uint32)
+	result.WinAmount = new(int64)
+	return result
+}
