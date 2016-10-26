@@ -97,8 +97,8 @@ message MjDesk {
     optional CheckCase CheckCase = 24; //
     optional uint32 ActiveUser = 25; //
     optional int32 GameNumber = 26; //游戏编号，每一句游戏都有编号
-
-
+    optional uint32 ActUser = 27;
+    optional int32 ActType = 28;    //当前操作的人的类型
 }
 
 
@@ -121,7 +121,7 @@ message StatiscRound {
     optional int32 Round = 1;
     optional int32 GameNumber = 2;
     optional string Result = 3; //胡牌的结果
-    optional int64 WinAmount = 4;//分数
+    optional int64 WinAmount = 4; //分数
 
 }
 
