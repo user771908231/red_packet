@@ -16,6 +16,7 @@ import (
 	"sync/atomic"
 	"casino_majiang/gamedata/model"
 	"casino_server/utils/numUtils"
+	"casino_server/utils/timeUtils"
 )
 
 //状态表示的是当前状态.
@@ -502,6 +503,7 @@ func (d *MjDesk) beginInit() error {
 	d.SetActiveUser(d.GetBanker())        //设置当前的活动玩家
 	*d.GameNumber, _ = db.GetNextSeq(config.DBT_T_TH_GAMENUMBER_SEQ)        //设置游戏编号
 	d.AddCurrPlayCount()        //场次数目加一
+	*d.BeginTime = timeUtils.Format(time.Now())
 
 
 	//发送游戏开始的协议...
@@ -865,8 +867,10 @@ func (d *MjDesk) DoLottery() error {
 	data := model.T_mj_desk_round{}
 	data.DeskId = d.GetDeskId()
 	data.GameNumber = d.GetGameNumber()
+	data.BeginTime = timeUtils.String2YYYYMMDDHHMMSS(d.GetBeginTime())
 	data.EndTime = time.Now()
 	data.UserIds = d.GetUserIds()
+
 	//一次处理每个胡牌的人
 	for _, user := range d.GetUsers() {
 		//这里不应该是胡牌的人才有记录...而是应该记录每一个人...
@@ -1338,7 +1342,7 @@ func (d *MjDesk)ActHu(userId uint32) error {
 		for _, billUser := range d.GetUsers() {
 			//处理每一个人的账单,并且减去amount
 			_, bean := billUser.DelBillBean(hupai)
-			billUser.AddBillAmount(-bean.GetAmount())
+			billUser.SubBillAmount(bean.GetAmount())
 		}
 	}
 
@@ -1362,6 +1366,7 @@ func (d *MjDesk)ActHu(userId uint32) error {
 				*bill.Amount = hu.GetScore()        //杠牌的收入金额
 				bill.Pai = hupai
 				u.AddBillBean(bill)
+				u.AddBillAmount(bill.GetAmount())
 
 				//用户输钱的账单
 				shubill := NewBillBean()
@@ -1372,6 +1377,7 @@ func (d *MjDesk)ActHu(userId uint32) error {
 				*shubill.Amount = -d.GetBaseValue()        //杠牌的收入金额
 				shubill.Pai = hupai
 				shuUser.AddBillBean(shubill)
+				shuUser.SubBillAmount(shubill.GetAmount())
 			}
 		}
 
@@ -1391,6 +1397,8 @@ func (d *MjDesk)ActHu(userId uint32) error {
 		*bill.Amount = hu.GetScore()        //杠牌的收入金额
 		bill.Pai = hupai
 		u.AddBillBean(bill)
+		u.AddBillAmount(bill.GetAmount())
+
 
 		//用户输钱的账单
 		shubill := NewBillBean()
@@ -1401,7 +1409,7 @@ func (d *MjDesk)ActHu(userId uint32) error {
 		*shubill.Amount = -d.GetBaseValue()        //杠牌的收入金额
 		shubill.Pai = hupai
 		shuUser.AddBillBean(shubill)
-
+		shuUser.SubBillAmount(shubill.GetAmount())
 	}
 
 	//发送胡牌成功的回复
@@ -1575,7 +1583,7 @@ func (d *MjDesk) ActGang(userId uint32, paiId int32) error {
 				*shubill.Des = "用户杠牌，获得收入"
 				*shubill.Amount = d.GetBaseValue()        //杠牌的收入金额
 				shubill.Pai = gangPai
-				ou.AddBillAmount(-bill.GetAmount())
+				ou.SubBillAmount(bill.GetAmount())
 				ou.Bill.Bills = append(ou.Bill.Bills, bill)
 			}
 		}

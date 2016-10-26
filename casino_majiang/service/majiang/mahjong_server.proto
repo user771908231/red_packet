@@ -99,6 +99,8 @@ message MjDesk {
     optional int32 GameNumber = 26; //游戏编号，每一句游戏都有编号
     optional uint32 ActUser = 27;
     optional int32 ActType = 28; //当前操作的人的类型
+    optional string BeginTime = 29; //游戏开始时间
+    optional string EndTime = 30;   //游戏结束时间
 }
 
 

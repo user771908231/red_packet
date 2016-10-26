@@ -273,6 +273,10 @@ func (u *MjUser) AddBillAmount(amount int64) {
 	atomic.AddInt64(u.Bill.WinAmount, amount)
 }
 
+func (u *MjUser) SubBillAmount(amount int64) {
+	atomic.AddInt64(u.Bill.WinAmount, -amount)
+}
+
 //删除账单
 func (u *MjUser)DelBillBean(pai *MJPai) (error, *BillBean) {
 	var bean *BillBean

@@ -45,6 +45,8 @@ func NewMjDesk() *MjDesk {
 	ret.CurrPlayCount = new(int32)
 	ret.ActUser = new(uint32)
 	ret.ActType = new(int32)
+	ret.BeginTime = new(string)
+	ret.EndTime = new(string)
 	return ret
 }
 
