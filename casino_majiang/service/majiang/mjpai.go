@@ -47,7 +47,27 @@ func (p *MJHandPai) GetCanPeng(pai *MJPai) bool {
 }
 
 func (p *MJHandPai) GetCanGang(pai *MJPai) (bool, []*MJPai) {
-	return CanGangPai(pai, p)
+	//自己手中的杠牌，只返回一张就可以了...
+	var result []*MJPai
+	boolReuls, pais := CanGangPai(pai, p)
+	if pais != nil && len(pais) >= 4 {
+		for _, p := range pais {
+			if !IsListExisGangPais(result, p) {
+				result = append(result, p)
+			}
+		}
+	}
+	return boolReuls, result
+}
+
+func IsListExisGangPais(ps []*MJPai, p *MJPai) bool {
+	for _, pss := range ps {
+		if pss.GetClientId() == p.GetClientId() {
+			return true
+		}
+	}
+
+	return false
 }
 
 //增加一张牌

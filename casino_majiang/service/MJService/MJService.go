@@ -10,6 +10,7 @@ import (
 	"casino_server/service/userService"
 	"time"
 	"errors"
+	"casino_majiang/gamedata/dao"
 )
 
 
@@ -178,8 +179,12 @@ func HandlerGame_DingQue(m *mjProto.Game_DingQue, a gate.Agent) {
 
 	//如果所有人都定缺了，那么可以通知庄打牌了..
 	if desk.AllDingQue() {
-		//首先发送定缺结束的广播，然后发送庄家出牌的广播...
 
+		//设置游戏开始的状态
+		desk.SetStatus(majiang.MJDESK_STATUS_RUNNING)
+		desk.UpdateUserStatus(majiang.MJUSER_STATUS_GAMING)
+
+		//首先发送定缺结束的广播，然后发送庄家出牌的广播...
 		ques := desk.GetDingQueEndInfo()
 		desk.BroadCastProto(ques)
 
@@ -217,6 +222,7 @@ func HandlerGame_DingQue(m *mjProto.Game_DingQue, a gate.Agent) {
 	}
 
 }
+
 
 
 //换3张
@@ -395,4 +401,26 @@ func HandlerGame_ActHu(m *mjProto.Game_ActHu) {
 
 }
 
+//查询用户的战绩
+func HandlerGame_GameRecord(userId uint32, a gate.Agent) error {
+	log.T("用户[%v]请求战绩", userId)
+	//战绩 mongoData
+	data := dao.GetByUserId(userId)
+	log.T("data[%v]", data)
+
+	//返回数据到client
+	result := newProto.NewGame_AckGameRecord()
+	*result.UserId = userId
+	//*result.Records
+	//增加records
+	for _, d := range data {
+		bean := d.TransRecord()
+		result.Records = append(result.Records, bean)
+	}
+
+	//发送战绩
+	log.T("发送玩家[%v]的战绩[%v]", userId, result)
+	a.WriteMsg(result)
+	return nil
+}
 

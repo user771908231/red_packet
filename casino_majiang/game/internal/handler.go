@@ -31,6 +31,10 @@ func init() {
 	handler(&mjProto.Game_ActGuo{}, handlerGame_ActGuo)
 	handler(&mjProto.Game_ActHu{}, handlerGame_ActHu)
 
+
+	//战绩相关
+	handler(&mjProto.Game_GameRecord{}, handlerGame_GameRecord)
+
 }
 
 func handlerNull(args []interface{}) {
@@ -116,4 +120,11 @@ func handlerGame_ActHu(args []interface{}) {
 }
 
 
+
+//查询战绩
+func handlerGame_GameRecord(args []interface{}) {
+	m := args[0].(*mjProto.Game_GameRecord)
+	a := args[1].(gate.Agent)
+	MJService.HandlerGame_GameRecord(m.GetUserId(),a)
+}
 

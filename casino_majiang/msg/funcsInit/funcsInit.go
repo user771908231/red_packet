@@ -174,6 +174,7 @@ func NewGame_OverTurn() *mjProto.Game_OverTurn {
 func NewGame_DealCards() *mjProto.Game_DealCards {
 	ret := &mjProto.Game_DealCards{}
 	ret.Header = NewHeader()
+	ret.DealerUserId = new(uint32)
 	return ret
 }
 
@@ -318,5 +319,22 @@ func NewGame_AckDissolveDesk() *mjProto.Game_AckDissolveDesk {
 	ret.Header = NewHeader()
 	ret.PassWord = new(string)
 	ret.UserId = new(uint32)
+	return ret
+}
+
+func NewGame_AckGameRecord() *mjProto.Game_AckGameRecord {
+	ret := &mjProto.Game_AckGameRecord{}
+	ret.UserId = new(uint32)
+	ret.Header = NewHeader()
+	return ret
+}
+
+//麻将战绩的bean
+func NewBeanGameRecord() *mjProto.BeanGameRecord {
+	ret := &mjProto.BeanGameRecord{}
+	ret.Header = NewHeader()
+	ret.DeskId = new(int32)
+	ret.BeginTime = new(string)
+	ret.Id = new(int32)
 	return ret
 }

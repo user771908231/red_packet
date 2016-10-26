@@ -220,6 +220,15 @@ message PlayerCard {
 
 }
 
+
+enum MJUserGameStatus {
+    U_INIT = 0; //初始化
+    U_DINGQUE = 1; //定缺
+    U_EXCHANGE = 2; //换牌
+    U_PLAYING = 3; //游戏中
+    U_FINISH = 4; //已经结束
+}
+
 message PlayerInfo {
     optional bool isBanker = 1; // 是否庄家
     optional PlayerCard playerCard = 2; // 玩家的手牌、摆牌（碰杠）、已打出的牌、胡牌信息。客户端需根据服务端的返回进行排序动画。
@@ -234,6 +243,7 @@ message PlayerInfo {
     optional int32 nHuPai = 11; // 0:未胡牌; >=1: 已胡牌(血流成河时,表示已胡次数)
     optional int32 quePai = 12; // 缺哪门牌: 1=万 2=条 3=筒
     optional WeixinInfo wxInfo = 13; // 微信用户信息( 进入房间时、广播新进用户时，才需返回WeixinInfo；其它广播不需要。)
+    optional int32 GameStatus = 14; //玩家的游戏状态  .
 }
 
 

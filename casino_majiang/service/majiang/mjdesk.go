@@ -75,6 +75,7 @@ func (d *MjDesk) addNewUserFriend(userId uint32, a gate.Agent) error {
 	*newUser.Coin = d.GetBaseValue()
 	*newUser.IsBreak = false
 	*newUser.IsLeave = false
+	*newUser.IsBanker = false
 	*newUser.Status = MJUSER_STATUS_INTOROOM
 	newUser.GameData = NewPlayerGameData()
 
@@ -399,20 +400,21 @@ func (d *MjDesk) beginInit() error {
 	for _, user := range d.GetUsers() {
 		if user != nil {
 			user.GameData = NewPlayerGameData()        //初始化一个空的麻将牌
+			user.SetStatus(MJUSER_STATUS_READY)
 		}
 	}
 
 	//初始化桌子的信息
-
 	//1,初始化庄的信息,如果目前没有庄，则设置房主为庄,如果有庄，则不用管，每局游戏借宿的时候，会设置下一局的庄
 	if d.GetBanker() == 0 {
 		*d.Banker = d.GetOwner()
 	}
 
-	//2,设置当前的活动玩家
-	d.SetActiveUser(d.GetBanker())
-	*d.GameNumber, _ = db.GetNextSeq(config.DBT_T_TH_GAMENUMBER_SEQ)
+	*d.GetBankerUser().IsBanker = true        //设置庄
+	d.SetActiveUser(d.GetBanker())        //设置当前的活动玩家
+	*d.GameNumber, _ = db.GetNextSeq(config.DBT_T_TH_GAMENUMBER_SEQ)        //设置游戏编号
 	d.AddCurrPlayCount()        //场次数目加一
+
 
 	//发送游戏开始的协议...
 	log.T("发送游戏开始的协议..")
@@ -468,6 +470,7 @@ func (d *MjDesk) initCards() error {
 //发牌的协议
 func (d *MjDesk) GetDealCards(user *MjUser) *mjproto.Game_DealCards {
 	dealCards := newProto.NewGame_DealCards()
+	*dealCards.DealerUserId = d.GetBanker()
 	for _, u := range d.GetUsers() {
 		if u != nil {
 			if u.GetUserId() == user.GetUserId() {
@@ -495,8 +498,26 @@ func (d *MjDesk) GetDealCards(user *MjUser) *mjproto.Game_DealCards {
 	return dealCards
 }
 
+func (d *MjDesk) SetStatus(status int32) {
+	*d.Status = status
+}
+
+//设置当前用户的status
+func (d *MjDesk) UpdateUserStatus(status int32) {
+	for _, user := range d.GetUsers() {
+		if user != nil {
+			user.SetStatus(status)
+		}
+	}
+
+}
+
 //开始定缺
 func (d *MjDesk) beginDingQue() error {
+	//开始定缺，修改desk的状态
+	d.SetStatus(MJDESK_STATUS_DINGQUE)
+
+
 	//给每个人发送开始定缺的信息
 	beginQue := newProto.NewGame_BroadcastBeginDingQue()
 	log.T("开始给玩家发送开始定缺的广播[%v]", beginQue)
@@ -667,6 +688,9 @@ func (d *MjDesk) DoCheckCase(gangUser *MjUser) error {
 func (d *MjDesk) Time2Lottery() bool {
 	//游戏中的玩家只剩下一个人，表示游戏结束...
 	gamingCount := d.GetGamingCount()        //正在游戏中的玩家数量
+
+	log.T("判断是否胡牌...但钱的gamingCount[%v]", gamingCount)
+
 	if gamingCount != 1 {
 		//正在游戏中的玩家的数量不为1，表示还没有结束
 		return false
@@ -740,7 +764,6 @@ func (d *MjDesk) DoLottery() error {
 	data.UserIds = d.GetUserIds()
 	//一次处理每个胡牌的人
 	for _, user := range d.GetUsers() {
-
 		//这里不应该是胡牌的人才有记录...而是应该记录每一个人...
 		if user != nil {
 			//处理胡牌之后，分数相关的逻辑.
@@ -748,6 +771,8 @@ func (d *MjDesk) DoLottery() error {
 			//user.Statisc
 			bean := model.MjRecordBean{}
 			bean.UserId = user.GetUserId()
+			bean.NickName = user.GetNickName()
+			bean.WinAmount = user.Bill.GetWinAmount() //	赢了多少钱...
 
 			//添加到record
 			data.Records = append(data.Records, bean)
@@ -1154,16 +1179,18 @@ func (d *MjDesk)ActHu(userId uint32) error {
 	*hu.Score = score        //只是胡牌的分数，不是赢了多少钱
 	hu.Pai = hupai
 
+
+	//胡牌之后，设置用户的数据
 	u.GameData.HuInfo = append(u.GameData.HuInfo, hu)
 	u.GameData.HandPai.HuPais = append(u.GameData.HandPai.HuPais, hu.Pai)        //增加胡牌
+	u.SetStatus(MJUSER_STATUS_HUPAI)
 
-	//todo 判断是否是巴杠,如果是巴杠 抢杠需要对巴杠做特殊处理
 	/**
+		处理抢杠的逻辑，抢杠的逻辑需要特殊处理...
 		1,首先是清楚杠牌的info
 		2,增加碰牌
 		3,删除杠牌的账单
 	 */
-
 
 	if d.CheckCase != nil && d.CheckCase.PreOutGangInfo != nil && d.CheckCase.PreOutGangInfo.GetGangType() == GANG_TYPE_BA {
 		log.T("开始处理抢杠的逻辑....")
@@ -1197,7 +1224,7 @@ func (d *MjDesk)ActHu(userId uint32) error {
 
 	/**
 		增加账单
-		//todo 这里需要完善喝多逻辑,目前就自摸和点炮来做
+		//todo 这里需要完善算账的逻辑逻辑,目前就自摸和点炮来做
 	 */
 
 	log.T("玩家[%v]胡牌，开始处理计算分数的逻辑...", userId)
@@ -1228,7 +1255,7 @@ func (d *MjDesk)ActHu(userId uint32) error {
 		}
 
 	} else {
-		//胡牌成功之后的处理... 处理checkCase
+		//点炮胡牌成功之后的处理... 处理checkCase
 		d.SetActiveUser(userId)        // 胡牌之后 设置当前操作的用户为当前胡牌的人...
 		d.CheckCase.UpdateCheckBeanStatus(userId, CHECK_CASE_BEAN_STATUS_CHECKED)        // update checkCase...
 		d.CheckCase.UpdateChecStatus(CHECK_CASE_STATUS_CHECKING_HUED)        //已经有人胡了，后边的人就不能碰或者杠了

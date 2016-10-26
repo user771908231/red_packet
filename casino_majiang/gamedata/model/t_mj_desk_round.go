@@ -2,6 +2,8 @@ package model
 
 import (
 	"time"
+	"casino_majiang/msg/protogo"
+	"casino_majiang/msg/funcsInit"
 )
 
 type MjRecordBean struct {
@@ -19,4 +21,9 @@ type T_mj_desk_round struct {
 	BeginTime  time.Time
 	EndTime    time.Time
 	Records    []MjRecordBean
+}
+
+func (t T_mj_desk_round) TransRecord() *mjproto.BeanGameRecord {
+	result := newProto.NewBeanGameRecord()
+	return result
 }

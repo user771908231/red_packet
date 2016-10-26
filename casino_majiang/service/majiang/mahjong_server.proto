@@ -97,8 +97,8 @@ message MjDesk {
     optional CheckCase CheckCase = 24; //
     optional uint32 ActiveUser = 25; //
     optional int32 GameNumber = 26; //游戏编号，每一句游戏都有编号
-
-
+    optional uint32 ActUser = 27;
+    optional int32 ActType = 28;    //当前操作的人的类型
 }
 
 
@@ -116,6 +116,15 @@ message Bill {
     repeated BillBean bills = 2;
 }
 
+
+message StatiscRound {
+    optional int32 Round = 1;
+    optional int32 GameNumber = 2;
+    optional string Result = 3; //胡牌的结果
+    optional int64 WinAmount = 4; //分数
+
+}
+
 message MjUserStatisc {
     optional int64 WinCoin = 1; //输赢的金额
     optional int32 CountHu = 2; //胡牌的次数
@@ -125,9 +134,9 @@ message MjUserStatisc {
     optional int32 CountMingGang = 6; //明杠的次数
     optional int32 CountDianGang = 7; //点杠的次数
     optional int32 CountChaJiao = 8; //
-}
+    repeated StatiscRound roundBean = 9; //
+} //手里的一副牌
 
-//手里的一副牌
 message MjUser {
     optional uint32 UserId = 1;
     optional int64 Coin = 2; //游戏中的带入金额
