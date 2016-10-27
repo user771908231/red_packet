@@ -23,11 +23,12 @@ import (
 var MJDESK_STATUS_CREATED int32 = 1 //刚刚创建
 var MJDESK_STATUS_READY int32 = 2//正在准备
 var MJDESK_STATUS_ONINIT int32 = 3//准备完成之后，desk初始化数据
-var MJDESK_STATUS_EXCHANGE int32 = 4//desk初始化完成之后，告诉玩家可以开始换牌
-var MJDESK_STATUS_DINGQUE int32 = 5//换牌结束之后，告诉玩家可以开始定缺
-var MJDESK_STATUS_RUNNING int32 = 6 //定缺之后，开始打牌
-var MJDESK_STATUS_LOTTERY int32 = 7 //结算
-var MJDESK_STATUS_END int32 = 8//一局结束
+var MJDESK_STATUS_FAPAI int32 = 4//发牌的阶段
+var MJDESK_STATUS_EXCHANGE int32 = 5//desk初始化完成之后，告诉玩家可以开始换牌
+var MJDESK_STATUS_DINGQUE int32 = 6//换牌结束之后，告诉玩家可以开始定缺
+var MJDESK_STATUS_RUNNING int32 = 7 //定缺之后，开始打牌
+var MJDESK_STATUS_LOTTERY int32 = 8 //结算
+var MJDESK_STATUS_END int32 = 9//一局结束
 
 
 var OVER_TURN_ACTTYPE_MOPAI int32 = 1; //摸牌的类型...
@@ -294,6 +295,8 @@ func (d *MjDesk) GetClientGameStatus() int32 {
 		gameStatus = mjproto.DeskGameStatus_INIT
 	case MJDESK_STATUS_ONINIT:
 		gameStatus = mjproto.DeskGameStatus_INIT
+	case MJDESK_STATUS_FAPAI:
+		gameStatus = mjproto.DeskGameStatus_FAPAI
 	case MJDESK_STATUS_EXCHANGE:
 		gameStatus = mjproto.DeskGameStatus_EXCHANGE
 	case MJDESK_STATUS_DINGQUE:
@@ -505,7 +508,6 @@ func (d *MjDesk) beginInit() error {
 	d.AddCurrPlayCount()        //场次数目加一
 	*d.BeginTime = timeUtils.Format(time.Now())
 
-
 	//发送游戏开始的协议...
 	log.T("发送游戏开始的协议..")
 	open := newProto.NewGame_Opening()
@@ -524,6 +526,7 @@ func (d *MjDesk) AddCurrPlayCount() {
 func (d *MjDesk) initCards() error {
 	//得到一副已经洗好的麻将
 	//d.AllMJPai = XiPai()
+	d.SetStatus(MJDESK_STATUS_FAPAI)        //发牌的阶段
 	d.AllMJPai = XiPaiTestHu()
 	//给每个人初始化...
 	for i, u := range d.Users {
@@ -1370,11 +1373,11 @@ func (d *MjDesk)ActHu(userId uint32) error {
 
 				//用户输钱的账单
 				shubill := NewBillBean()
-				*shubill.UserId = shubill.GetUserId()
+				*shubill.UserId = shuUser.GetUserId()
 				*shubill.OutUserId = u.GetUserId()
 				*shubill.Type = 1
 				*shubill.Des = "用户自摸，输钱"
-				*shubill.Amount = -d.GetBaseValue()        //杠牌的收入金额
+				*shubill.Amount = -hu.GetScore()       //杠牌的收入金额
 				shubill.Pai = hupai
 				shuUser.AddBillBean(shubill)
 				shuUser.SubBillAmount(shubill.GetAmount())
@@ -1659,4 +1662,13 @@ func (d *MjDesk)GetEndLotteryInfo(user *MjUser) *mjproto.EndLotteryInfo {
 	*end.CountZiMo = user.Statisc.GetCountZiMo()              //自摸的次数
 	*end.WinCoin = user.Statisc.GetWinCoin()//赢了多少钱
 	return end
+}
+
+/**
+	房间是否开始游戏
+	1,开始:游戏已经开始
+	2，游戏并没有开始，round==0
+ */
+func (d *MjDesk) IsBegin() bool {
+	return d.GetCurrPlayCount() == 0
 }

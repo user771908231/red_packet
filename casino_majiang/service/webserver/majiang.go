@@ -49,7 +49,7 @@ func printUserInfo(w http.ResponseWriter, i int, user *majiang.MjUser) {
 			getUserPengPaiInfo(user),
 			getUserGnagPaiInfo(user),
 			getUserHuPaiInfo(user), getUserInPaiInfo(user),
-			user.GetBill())
+			user.BillToString())
 	}
 }
 
