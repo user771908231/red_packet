@@ -249,10 +249,11 @@ message PlayerInfo {
 
 enum DeskGameStatus {
     INIT = 0; //初始化
-    DINGQUE = 1; //定缺
+    FAPAI = 1; //发牌的阶段
     EXCHANGE = 2; //换牌
-    PLAYING = 3; //游戏中
-    FINISH = 4; //已经结束
+    DINGQUE = 3; //定缺
+    PLAYING = 4; //游戏中
+    FINISH = 5; //已经结束
 }
 
 

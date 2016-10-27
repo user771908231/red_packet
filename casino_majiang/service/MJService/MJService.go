@@ -427,6 +427,7 @@ func HandlerGame_GameRecord(userId uint32, a gate.Agent) error {
 
 //聊天协议
 func HandlerGame_Message(m *mjProto.Game_Message) {
+	log.T("请求发送信息[%v]", m)
 	userId := m.GetHeader().GetUserId()
 	desk := majiang.GetMjDeskBySession(userId)
 	if desk == nil {

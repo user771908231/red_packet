@@ -36,17 +36,28 @@ func (r *MjRoom) CalcCreateFee() int64 {
 
 func (r *MjRoom) CreateDesk(m *mjproto.Game_CreateRoom) *MjDesk {
 	//create 的时候，是否需要通过type 来判断,怎么样创建房间
+
+	userId := m.GetHeader().GetUserId()
+	//首先判断是否已经创建了房间...
+	oldDesk := GetMjDeskBySession(userId)
+	if oldDesk != nil && oldDesk.GetOwner() == userId {
+		//如果房间没有开始游戏..
+		//if oldDesk.IsBegin()
+		//目前直接返回desk
+		return oldDesk
+	}
+
 	//log.T("开始创建房间... ")
 
 	//0,先扣费,添加账单
 	var createFee int64 = r.CalcCreateFee()
-	remain, err := userService.DECRUserDiamond(m.GetHeader().GetUserId(), createFee)
+	remain, err := userService.DECRUserDiamond(userId, createFee)
 	if err != nil {
 		//扣费失败，创建房间失败
 		return nil
 	}
 
-	err = userService.CreateDiamonDetail(m.GetHeader().GetUserId(), 0, createFee, remain, "创建麻将desk")
+	err = userService.CreateDiamonDetail(userId, 0, createFee, remain, "创建麻将desk")
 	if err != nil {
 		//创建订单的时候失败
 		return nil
@@ -56,12 +67,12 @@ func (r *MjRoom) CreateDesk(m *mjproto.Game_CreateRoom) *MjDesk {
 	desk := NewMjDesk()
 	desk.Users = make([]*MjUser, 4)
 	*desk.Password = r.RandRoomKey()
-	*desk.Owner = m.GetHeader().GetUserId()        //设置房主
+	*desk.Owner = userId        //设置房主
 	*desk.CardsNum = m.GetRoomTypeInfo().GetCardsNum()
-	//desk.BaseValue
+	*desk.BaseValue = m.GetRoomTypeInfo().GetBaseValue()
 	*desk.CreateFee = createFee
 	*desk.DeskId, _ = db.GetNextSeq(config.DBT_MJ_DESK)
-	*desk.Banker = m.GetHeader().GetUserId()
+	*desk.Banker = userId
 	*desk.TotalPlayCount = m.RoomTypeInfo.GetBoardsCout()
 	//desk.HuRadio
 

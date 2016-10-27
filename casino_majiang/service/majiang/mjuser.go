@@ -11,6 +11,7 @@ import (
 	"casino_server/service/userService"
 	"sync/atomic"
 	"errors"
+	"fmt"
 )
 
 var MJUSER_STATUS_INTOROOM int32 = 1; ///刚进入游戏
@@ -320,4 +321,21 @@ func (u *MjUser)ClearAgentGameData() {
 	UpdateSession(u.GetUserId(), MJUSER_SESSION_GAMESTATUS_NOGAME, 0, 0, "")
 }
 
+func (u *MjUser) BillToString() string {
+	result := ""
+	if u.Bill != nil {
+		s1 := "玩家[%v]总共输赢[%v],下边是细节:\n"
+		s1 = fmt.Sprintf(s1, u.GetUserId(), u.Bill.GetWinAmount())
+		result += s1
+		for _, bb := range u.Bill.GetBills() {
+			if bb != nil {
+				s2 := "玩家[%v] 关联玩家[%v],牌[%v],分数[%v],类型[%v],描述[%v]\n"
+				s2 = fmt.Sprintf(s2, bb.GetUserId(), bb.GetOutUserId(), bb.GetPai().LogDes(), bb.GetAmount(), bb.GetType(), bb.GetDes())
+				result += s2
+			}
+		}
+
+	}
+	return result
+}
 
