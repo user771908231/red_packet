@@ -26,7 +26,7 @@ func gameInfo(w http.ResponseWriter, r *http.Request) {
 func printDeskInfo(w http.ResponseWriter, desk *majiang.MjDesk) {
 	if desk != nil {
 		deskInfo := "开始打印desk.id[%v], \t房间号roomKey[%v]的信息:\t 房主Owner[%v],activeUser[%v]\t \n" +
-		"麻将的信息：庄家的信息[%v]\t当前的游标[%v]：\n 麻将:\n %v checkCase:%v \n"
+		"麻将的信息：庄家的信息[%v]\t当前的游标[%v]：\n 麻将:\n %v \n checkCase:%v \n"
 
 		fmt.Fprintf(w, deskInfo, desk.GetDeskId(), desk.GetPassword(), desk.GetOwner(), desk.GetActiveUser(),
 			desk.GetBanker(), desk.GetMJPaiCursor(), GetDeskMJInfo(desk), desk.CheckCase)

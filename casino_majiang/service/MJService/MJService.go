@@ -151,7 +151,7 @@ func HandlerGame_Ready(m *mjProto.Game_Ready, a gate.Agent) {
 			*result.Header.Code = intCons.ACK_RESULT_SUCC
 			*result.Header.Error = "准备成功"
 			*result.UserId = userId
-			log.T("广播user[%v]在desk[%v]准备成功的广播..", userId, desk.GetDeskId())
+			log.T("广播user[%v]在desk[%v]准备成功的广播..string(%v)", userId, desk.GetDeskId(), result.String())
 			desk.BroadCastProto(result)
 
 			//准备成功之后，是否需要开始游戏...

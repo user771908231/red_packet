@@ -41,10 +41,10 @@ func (r *MjRoom) CreateDesk(m *mjproto.Game_CreateRoom) *MjDesk {
 	//首先判断是否已经创建了房间...
 	oldDesk := GetMjDeskBySession(userId)
 	if oldDesk != nil && oldDesk.GetOwner() == userId {
-		//如果房间没有开始游戏..
-		//if oldDesk.IsBegin()
-		//目前直接返回desk
-		return oldDesk
+		//如果房间没有开始游戏..则返回老的房间,否则创建新的房间...
+		if !oldDesk.IsBegin() {
+			return oldDesk
+		}
 	}
 
 	//log.T("开始创建房间... ")

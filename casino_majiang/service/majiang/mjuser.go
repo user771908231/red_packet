@@ -124,21 +124,38 @@ func (u *MjUser) GetPlayerCard(showHand bool) *mjproto.PlayerCard {
 		if pai != nil && i % 3 == 0 {
 			com := newProto.NewComposeCard()
 			*com.Value = pai.GetClientId()
-			*com.Type = 1        //todo ,需要把type 放置在常量里面 这里代表的是碰牌
+			*com.Type = int32(mjproto.ComposeCardType_C_PENG)        //todo ,需要把type 放置在常量里面 这里代表的是碰牌
 			playerCard.ComposeCard = append(playerCard.ComposeCard, com)
 		}
 	}
-
 
 	//得到杠牌
-	for i, pai := range u.GameData.HandPai.GetGangPais() {
-		if pai != nil && i % 4 == 0 {
+	for _, info := range u.GameData.GangInfo {
+		if info != nil {
 			com := newProto.NewComposeCard()
-			*com.Value = pai.GetClientId()
-			*com.Type = 2       // 这里代表的是杠牌
+			*com.Value = info.GetPai().GetClientId()
+
+			if info.GetGangType() == GANG_TYPE_MING {
+				*com.Type = int32(mjproto.ComposeCardType_C_MINGGANG)   // 明杠
+			} else if info.GetGangType() == GANG_TYPE_AN {
+				*com.Type = int32(mjproto.ComposeCardType_C_ANGANG)       // 暗杠
+			} else if info.GetGangType() == GANG_TYPE_BA {
+				*com.Type = int32(mjproto.ComposeCardType_C_BAGANG)      // 巴杠
+			}
+
 			playerCard.ComposeCard = append(playerCard.ComposeCard, com)
 		}
 	}
+
+	//得到杠牌
+	//for i, pai := range u.GameData.HandPai.GetGangPais() {
+	//	if pai != nil && i % 4 == 0 {
+	//		com := newProto.NewComposeCard()
+	//		*com.Value = pai.GetClientId()
+	//		*com.Type = 2       // 这里代表的是杠牌
+	//		playerCard.ComposeCard = append(playerCard.ComposeCard, com)
+	//	}
+	//}
 
 	//得到胡牌
 	for _, pai := range u.GameData.HandPai.GetHuPais() {
@@ -292,6 +309,7 @@ func (u *MjUser)DelBillBean(pai *MJPai) (error, *BillBean) {
 
 	if index > -1 {
 		u.Bill.Bills = append(u.Bill.Bills[:index], u.Bill.Bills[index + 1:]...)
+		u.SubBillAmount(bean.GetAmount())        //减去
 		return nil, bean
 	} else {
 		log.E("服务器错误：删除账单 billBean的时候出错，没有找到对应的杠牌[%v]", pai)

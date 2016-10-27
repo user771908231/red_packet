@@ -100,7 +100,7 @@ message MjDesk {
     optional uint32 ActUser = 27;
     optional int32 ActType = 28; //当前操作的人的类型
     optional string BeginTime = 29; //游戏开始时间
-    optional string EndTime = 30;   //游戏结束时间
+    optional string EndTime = 30; //游戏结束时间
 }
 
 
@@ -124,6 +124,13 @@ message StatiscRound {
     optional int32 GameNumber = 2;
     optional string Result = 3; //胡牌的结果
     optional int64 WinAmount = 4; //分数
+    optional int32 CountHu = 5;
+    optional int32 CountZiMo = 6;
+    optional int32 CountDianPao = 7;
+    optional int32 CountAnGang = 8;
+    optional int32 CountMingGang = 9;
+    optional int32 CountDianGang = 10;
+    optional int32 CountChaJiao = 11;
 
 }
 
