@@ -166,3 +166,21 @@ func NewBackPai() *mjproto.CardInfo {
 	*cardInfo.Value = 0
 	return cardInfo
 }
+
+func NewStatiscRound() *StatiscRound {
+	ret := &StatiscRound{}
+	ret.CountAnGang = new(int32)
+	ret.GameNumber = new(int32)
+	ret.Result = new(string)
+	ret.WinAmount = new(int64)
+	ret.CountHu = new(int32)
+	ret.CountZiMo = new(int32)
+	ret.CountDianPao = new(int32)
+	ret.CountAnGang = new(int32)
+	ret.CountMingGang = new(int32)
+	ret.CountDianGang = new(int32)
+	ret.CountChaJiao = new(int32)
+	ret.CountChaJiao = new(int32)
+	ret.CountBaGnag = new(int32)
+	return ret
+}

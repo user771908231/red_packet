@@ -131,6 +131,7 @@ message StatiscRound {
     optional int32 CountMingGang = 9;
     optional int32 CountDianGang = 10;
     optional int32 CountChaJiao = 11;
+    optional int32 CountBaGnag = 12;
 
 }
 

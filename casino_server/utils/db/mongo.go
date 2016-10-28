@@ -9,6 +9,7 @@ import (
 	"casino_server/mode"
 	"gopkg.in/mgo.v2"
 	"github.com/name5566/leaf/log"
+	"reflect"
 )
 
 var mongoConfig struct {
@@ -31,7 +32,7 @@ func GetMongoConn() (*mongodb.DialContext, error) {
 
 //保存数据
 func InsertMgoData(dbt string, data interface{}) error {
-	log.Debug("insert数据到数据库[%v]", data)
+	log.Debug("insert数据到数据库type[%v],content[%v]", reflect.TypeOf(data).String(),data)
 	//得到连接
 	c, err := GetMongoConn()
 	if err != nil {
