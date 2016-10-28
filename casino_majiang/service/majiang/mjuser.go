@@ -294,19 +294,27 @@ func (u *MjUser) CanBegin() bool {
 	}
 }
 
+
 //开始游戏的时候 初始化user的信息..
-func (u *MjUser) BeginInit(round int32) error {
+func (u *MjUser) BeginInit(round int32, banker uint32) error {
 	//1,游戏开始时候的初始化...
 	u.GameData = NewPlayerGameData()        //初始化一个空的麻将牌
 	*u.DingQue = false
+	*u.Exchanged = false
+	if u.GetUserId() == banker {
+		*u.IsBanker = true
+	} else {
+		*u.IsBanker = false
+	}
 
+	//杠牌信息
+	u.PreMoGangInfo = nil
+	//初始化账单
+	u.Bill = NewBill()
 	//2,初始化统计bean
 	statisticsRoundBean := NewStatiscRound()
 	*statisticsRoundBean.Round = round
 	u.Statisc.RoundBean = append(u.Statisc.RoundBean, statisticsRoundBean)
-
-	//
-
 	return nil
 }
 

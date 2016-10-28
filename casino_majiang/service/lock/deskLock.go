@@ -16,6 +16,6 @@ func GetDeskLock(deskId int32) *sync.Mutex {
 }
 
 //删除锁
-func delDeskLock(deskId int32) {
+func DelDeskLock(deskId int32) {
 	delete(deskLockMap, deskId)
 }
