@@ -44,7 +44,10 @@ func (d *MjDesk) IsFriend() bool {
 }
 
 //朋友桌用户加入房间
-func (d *MjDesk) addNewUserFriend(userId uint32, a gate.Agent) error {
+/**
+return  reconnect,error
+ */
+func (d *MjDesk) addNewUserFriend(userId uint32, a gate.Agent) (bool, error) {
 
 	// 设置agent
 	AgentService.SetAgent(userId, a)
@@ -63,8 +66,7 @@ func (d *MjDesk) addNewUserFriend(userId uint32, a gate.Agent) error {
 		log.T("玩家[%v]断线重连....", userId)
 		*userLeave.IsBreak = false
 		*userLeave.IsLeave = false
-		d.SendReconnectOverTurn(userLeave.GetUserId())
-		return nil
+		return true, nil
 	}
 
 	//3,加入一个新用户
@@ -83,15 +85,16 @@ func (d *MjDesk) addNewUserFriend(userId uint32, a gate.Agent) error {
 	err := d.addUser(newUser)
 	if err != nil {
 		log.E("用户[%v]加入房间[%v]失败,errMsg[%v]", userId, err)
-		return errors.New("用户加入房间失败")
+		return false, errors.New("用户加入房间失败")
 	} else {
 		//加入房间成功
-		return nil
+		return false, nil
 	}
 }
 
 //发送重新连接之后的overTurn
 func (d *MjDesk) SendReconnectOverTurn(userId uint32) error {
+	log.T("开始处理 sendReconnectOverTurn(%v),当前desk.status(%v),", userId, d.GetStatus())
 
 	//得到玩家
 	user := d.GetUserByUserId(userId)
@@ -101,18 +104,26 @@ func (d *MjDesk) SendReconnectOverTurn(userId uint32) error {
 	}
 
 	//开发发送overTurn
-	if d.IsReady() && user.IsNotReady() {
+	if d.IsPreparing() && user.IsNotReady() {
 		//给玩家发送开始准备的消息...
+		log.T("sendReconnectOverTurn，给user[%v]发送准备的消息....", userId)
 	} else if d.IsExchange() {
 		//给玩家发送换牌的消息...
+		log.T("sendReconnectOverTurn，给user[%v]发送换牌的消息....", userId)
+
 	} else if d.IsDingQue() && user.IsNotDingQue() {
+		log.T("sendReconnectOverTurn，给user[%v]发送定缺的消息....", userId)
+
 		//给玩家发送定缺的信息...
 		beginQue := newProto.NewGame_BroadcastBeginDingQue()
 		user.WriteMsg(beginQue)
 
 	} else if d.IsGaming() && user.GetUserId() == d.GetActUser() {
+
 		//游戏中的情况，发送act的消息,这里需要更具当前的状态来发送overTurn
 		if d.GetActType() == MJDESK_ACT_TYPE_MOPAI {
+			log.T("sendReconnectOverTurn，给user[%v]发送摸牌的消息....", userId)
+
 			//发送摸牌的协议
 			overTrun := newProto.NewGame_OverTurn()
 			*overTrun.UserId = user.GetUserId()                //这个是摸牌的，所以是广播...
@@ -135,7 +146,11 @@ func (d *MjDesk) SendReconnectOverTurn(userId uint32) error {
 
 		} else if d.GetActType() == MJDESK_ACT_TYPE_DAPAI {
 			//发送打牌的协议
+			log.T("sendReconnectOverTurn，给user[%]发送打牌的消息....", userId)
+
 		} else if d.GetActType() == MJDESK_ACT_TYPE_WAIT_CHECK {
+			log.T("sendReconnectOverTurn，给user[%]发送checkCase的消息....", userId)
+
 			caseBean := d.CheckCase.GetBeanByUserIdAndStatus(user.GetUserId(), CHECK_CASE_BEAN_STATUS_CHECKING)
 			if caseBean == nil {
 				log.E("没有找到玩家[%v]对应的checkBean", user.GetUserId())
@@ -160,6 +175,7 @@ func (d *MjDesk) SendReconnectOverTurn(userId uint32) error {
 		}
 	}
 
+	log.T("开始处理 sendReconnectOverTurn(%v),当前desk.status(%v)----处理完毕...", userId, d.GetStatus())
 	return nil
 }
 
@@ -388,22 +404,44 @@ func (d *MjDesk) IsAllReady() bool {
 	return true
 }
 
-//是否在准备中
-func (d *MjDesk) IsReady() bool {
-	return true
+//这里表示 是否是 [正在] 准备中...
+func (d *MjDesk) IsPreparing() bool {
+	if d.GetStatus() == MJDESK_STATUS_READY {
+		return true
+	} else {
+		return false
+	}
+}
+
+func (d *MjDesk) IsNotPreparing() bool {
+	return !d.IsPreparing()
 }
 
 //是否在定缺中
 func (d *MjDesk) IsDingQue() bool {
-	return true
+	if d.GetStatus() == MJDESK_STATUS_DINGQUE {
+		return true
+	} else {
+		return false
+	}
 }
 
+//是否处于换牌的阶段
 func (d *MjDesk) IsExchange() bool {
-	return true
+	if d.GetStatus() == MJDESK_STATUS_EXCHANGE {
+		return true
+	} else {
+		return false
+	}
 }
 
+//是否已经开始游戏了...
 func (d *MjDesk) IsGaming() bool {
-	return true
+	if d.GetStatus() == MJDESK_STATUS_RUNNING {
+		return true
+	} else {
+		return false
+	}
 }
 
 //得到当前桌子的人数..
@@ -456,14 +494,12 @@ func (d *MjDesk) begin() error {
 	//2，初始化桌子的状态
 	d.beginInit()
 
-
 	//3，发13张牌
 	err = d.initCards()
 	if err != nil {
 		log.E("初始化牌的时候出错err[%v]", err)
 		return err
 	}
-
 
 	//4，开始定缺
 	err = d.beginDingQue()
@@ -490,9 +526,9 @@ func (d *MjDesk) beginInit() error {
 
 	//初始化每个玩家的信息
 	for _, user := range d.GetUsers() {
-		if user != nil {
-			user.GameData = NewPlayerGameData()        //初始化一个空的麻将牌
-			user.SetStatus(MJUSER_STATUS_READY)
+		if user != nil && user.CanBegin() {
+			user.BeginInit()
+
 		}
 	}
 
@@ -650,8 +686,8 @@ func (d *MjDesk) DingQue(userId uint32, color int32) error {
 
 	//设置定缺
 	*user.DingQue = true
-	user.SetStatus(MJUSER_STATUS_DINGQUE)        //设置目前的状态是已经定缺
 	*user.GameData.HandPai.QueFlower = color
+	user.SetStatus(MJUSER_STATUS_DINGQUE)        //设置目前的状态是已经定缺
 
 	//回复定缺成功的消息
 	ack := newProto.NewGame_DingQue()

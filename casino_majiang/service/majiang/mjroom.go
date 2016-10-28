@@ -74,6 +74,7 @@ func (r *MjRoom) CreateDesk(m *mjproto.Game_CreateRoom) *MjDesk {
 	*desk.DeskId, _ = db.GetNextSeq(config.DBT_MJ_DESK)
 	*desk.Banker = userId
 	*desk.TotalPlayCount = m.RoomTypeInfo.GetBoardsCout()
+	desk.SetStatus(MJDESK_STATUS_CREATED)        //设置为刚刚创建的状态
 	//desk.HuRadio
 
 	//把创建的desk加入到room中
@@ -144,26 +145,30 @@ func (r *MjRoom) GetDeskByDeskId(id int32) *MjDesk {
 
 //进入房间
 //进入的时候，需要判断牌房间的类型...
-func (r *MjRoom) EnterRoom(key string, userId uint32, a gate.Agent) (*MjDesk, error) {
+func (r *MjRoom) EnterRoom(key string, userId uint32, a gate.Agent) (*MjDesk, bool, error) {
 
 	var desk *MjDesk
+	var reconnect bool = false
 	//如果是朋友桌,需要通过房间好来找到desk
 	if r.IsFriend() {
 		desk = r.GetDeskByPassword(key)
 		if desk == nil {
 			log.T("通过key[%v]没有找到对应的desk", key)
-			return nil, errors.New("没有找到对应的desk")
+			return nil, false, errors.New("没有找到对应的desk")
 		} else {
-			err := desk.addNewUserFriend(userId, a)
-			if err != nil {
+			var addErr error
+			reconnect, addErr = desk.addNewUserFriend(userId, a)
+			if addErr != nil {
 				//用户加入房间失败...
-				return nil, errors.New("用户加入房间失败...")
+				log.E("玩家[%v]加入房间失败errMsg[%v]", userId, addErr)
+				return nil, reconnect, errors.New("用户加入房间失败...")
 			}
 		}
-		return desk, nil        //朋友桌 数据返回...
+
+		return desk, reconnect, nil        //朋友桌 数据返回...
 	}
 
-	return nil, nil
+	return nil, reconnect, nil
 
 	//如果是锦标赛
 

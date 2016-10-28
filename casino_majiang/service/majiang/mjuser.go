@@ -282,6 +282,25 @@ func (u *MjUser) CanMoPai() bool {
 		return false
 	}
 }
+
+
+//判断用户是否可以开始游戏...
+func (u *MjUser) CanBegin() bool {
+	if u.IsReady() {
+		return false
+	} else {
+		return false
+	}
+}
+
+//开始游戏的时候 初始化user的信息..
+func (u *MjUser) BeginInit() error {
+	//游戏开始时候的初始化...
+	u.GameData = NewPlayerGameData()        //初始化一个空的麻将牌
+	*u.DingQue = false
+	return nil
+}
+
 //得到用户的昵称
 func (u *MjUser) GetNickName() string {
 	return "nickName"
