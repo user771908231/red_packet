@@ -105,6 +105,7 @@ func HandlerGame_EnterRoom(userId uint32, key string, a gate.Agent) {
 
 	//如果是重新进入房间，需要发送重近之后的处理
 	if reconnect {
+		time.Sleep(time.Second * 5)
 		desk.SendReconnectOverTurn(userId)
 	}
 }

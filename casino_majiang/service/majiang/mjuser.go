@@ -271,6 +271,7 @@ func (u *MjUser) DaPai(p *MJPai) error {
 //设置用户的状态
 func (u *MjUser) SetStatus(s int32) error {
 	*u.Status = s
+
 	return nil
 }
 
@@ -294,10 +295,18 @@ func (u *MjUser) CanBegin() bool {
 }
 
 //开始游戏的时候 初始化user的信息..
-func (u *MjUser) BeginInit() error {
-	//游戏开始时候的初始化...
+func (u *MjUser) BeginInit(round int32) error {
+	//1,游戏开始时候的初始化...
 	u.GameData = NewPlayerGameData()        //初始化一个空的麻将牌
 	*u.DingQue = false
+
+	//2,初始化统计bean
+	statisticsRoundBean := NewStatiscRound()
+	*statisticsRoundBean.Round = round
+	u.Statisc.RoundBean = append(u.Statisc.RoundBean, statisticsRoundBean)
+
+	//
+
 	return nil
 }
 
@@ -374,5 +383,35 @@ func (u *MjUser) BillToString() string {
 
 	}
 	return result
+}
+
+
+//统计杠的数量
+func (u *MjUser) StatisticsGangCount(round int32, gangType int32) error {
+	bean := u.GetStatisticsRoundBean(round)
+	if bean == nil {
+		log.E("统计的时候出错...")
+		return errors.New("没有找到统计的roundBean，无法统计")
+	}
+
+	if gangType == GANG_TYPE_MING {
+		atomic.AddInt32(bean.CountMingGang, 1)
+	} else if gangType == GANG_TYPE_BA {
+		atomic.AddInt32(bean.CountBaGnag, 1)
+	} else if gangType == GANG_TYPE_AN {
+		atomic.AddInt32(bean.CountAnGang, 1)
+	}
+
+	return nil
+}
+
+func (u *MjUser) GetStatisticsRoundBean(round int32) *StatiscRound {
+	for _, bean := range u.Statisc.RoundBean {
+		if bean != nil && bean.GetRound() == round {
+			return bean
+		}
+	}
+	//如果没有找到返回nil
+	return nil
 }
 
