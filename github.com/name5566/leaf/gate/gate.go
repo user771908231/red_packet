@@ -112,7 +112,7 @@ func (a *agent) Run() {
 				break
 			}
 
-			log.Debug("解析出来的数据m[%v]", msg)
+			log.Debug("解析出来的数据type[%v],m[%v]", reflect.TypeOf(msg).String(), msg)
 			err = a.gate.Processor.Route(msg, a)
 			if err != nil {
 				log.Debug("route message error: %v", err)
