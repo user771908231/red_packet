@@ -132,7 +132,7 @@ func (a *agent) OnClose() {
 }
 
 func (a *agent) WriteMsg(msg interface{}) {
-	log.Debug("agent发送的信息[%v]", msg)
+	log.Debug("agent发送的信息 type[%v],\t\t content[%v]", reflect.TypeOf(msg).String(), msg)
 	if a.gate.Processor != nil {
 		data, err := a.gate.Processor.Marshal(msg)
 		if err != nil {
