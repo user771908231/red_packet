@@ -331,23 +331,11 @@ func (d *MjDesk) GetPlayerInfo(receiveUserId uint32) []*mjproto.PlayerInfo {
 	var players []*mjproto.PlayerInfo
 	for _, user := range d.Users {
 		if user != nil {
-
-			//判断是否是房主
-			isOwner := false
-			if d.GetOwner() == user.GetUserId() {
-				isOwner = true
-			}
-
-			//得到信息
-			if user.GetUserId() == receiveUserId {
-				info := user.GetPlayerInfo(true)
-				*info.IsOwner = isOwner
-				players = append(players, info)
-			} else {
-				info := user.GetPlayerInfo(false)
-				*info.IsOwner = isOwner
-				players = append(players, user.GetPlayerInfo(false))
-			}
+			showHand := (user.GetUserId() == receiveUserId)                //是否需要显示手牌
+			isOwner := ( d.GetOwner() == user.GetUserId())                //判断是否是房主
+			info := user.GetPlayerInfo(showHand)
+			*info.IsOwner = isOwner
+			players = append(players, info)
 		}
 	}
 	return players
@@ -1677,8 +1665,7 @@ func (d *MjDesk) GetWinCoinInfo(user *MjUser) *mjproto.WinCoinInfo {
 
 //得到这个人的胡牌描述
 func (d *MjDesk) GetCardTitle4WinCoinInfo(user *MjUser) string {
-	var huDesk string = "胡牌的信息..."                //胡牌的描述...
-
+	var huDesk string = ""                //胡牌的描述...
 	//目前暂时返回hu的信息
 	if user.GameData.HuInfo != nil && len(user.GameData.HuInfo) > 0 {
 		huDesk = user.GameData.HuInfo[0].GetHuDesc()
