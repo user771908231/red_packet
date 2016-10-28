@@ -40,6 +40,9 @@ func HandlerGame_CreateRoom(m *mjProto.Game_CreateRoom, a gate.Agent) {
 		a.WriteMsg(result)
 
 	} else {
+		//创建desk成功...设置为开始准备的状态
+		desk.SetStatus(majiang.MJDESK_STATUS_READY)        //设置为开始准备的状态
+
 		log.T("用户[%v]创建房间成功，roomKey[%v]", desk.GetOwner(), desk.GetPassword())
 		result := newProto.NewGame_AckCreateRoom()
 		*result.Header.Code = intCons.ACK_RESULT_SUCC
@@ -77,28 +80,32 @@ func HandlerGame_EnterRoom(userId uint32, key string, a gate.Agent) {
 		return
 	}
 
-	//2,返回进入的desk
-	desk, err := room.EnterRoom(key, userId, a)
+	//2,返回进入的desk,如果进入房间失败，则返回进入房间失败...
+	desk, reconnect, err := room.EnterRoom(key, userId, a)
 	if err != nil || desk == nil {
 		//进入房间失败
 		log.E("用户[%v]进入房间,key[%v]失败err[%v]", userId, key, err)
 		ack := newProto.NewGame_AckEnterRoom()
 		*ack.Header.Code = intCons.ACK_RESULT_ERROR
 		a.WriteMsg(ack)
-	} else {
-		//3,更新userSession,返回desk 的信息
-		s, _ := majiang.UpdateSession(userId, majiang.MJUSER_SESSION_GAMESTATUS_FRIEND, desk.GetRoomId(), desk.GetDeskId(), desk.GetPassword())
-		if s != nil {
-			//给agent设置session
-			a.SetUserData(s)
-		}
+		return
+	}
 
-		gameinfo := desk.GetGame_SendGameInfo(userId)
-		*gameinfo.SenderUserId = userId
-		//a.WriteMsg(gameinfo)
-		log.T("用户[%v]进入房间之后，返回的数据gameInfo[%v]", userId, gameinfo)
-		desk.BroadCastProto(gameinfo)
+	//3,更新userSession,返回desk 的信息
+	s, _ := majiang.UpdateSession(userId, majiang.MJUSER_SESSION_GAMESTATUS_FRIEND, desk.GetRoomId(), desk.GetDeskId(), desk.GetPassword())
+	if s != nil {
+		//给agent设置session
+		a.SetUserData(s)
+	}
 
+	gameinfo := desk.GetGame_SendGameInfo(userId)
+	log.T("用户[%v]进入房间,reconnect[%v]之后，返回的数据gameInfo[%v]", userId, reconnect, gameinfo)
+	desk.BroadCastProto(gameinfo)
+
+
+	//如果是重新进入房间，需要发送重近之后的处理
+	if reconnect {
+		desk.SendReconnectOverTurn(userId)
 	}
 }
 
@@ -137,27 +144,41 @@ func HandlerGame_Ready(m *mjProto.Game_Ready, a gate.Agent) {
 		*result.Header.Code = intCons.ACK_RESULT_ERROR
 		*result.Header.Error = "准备失败"
 		a.WriteMsg(result)
-	} else {
-		err := desk.Ready(userId)
-		if err != nil {
-			//准备失败
-			result := newProto.NewGame_AckReady()
-			*result.Header.Code = intCons.ACK_RESULT_ERROR
-			*result.Header.Error = "准备失败"
-			a.WriteMsg(result)
-		} else {
-			//准备成功,发送准备成功的广播
-			result := newProto.NewGame_AckReady()
-			*result.Header.Code = intCons.ACK_RESULT_SUCC
-			*result.Header.Error = "准备成功"
-			*result.UserId = userId
-			log.T("广播user[%v]在desk[%v]准备成功的广播..", userId, desk.GetDeskId())
-			desk.BroadCastProto(result)
-
-			//准备成功之后，是否需要开始游戏...
-			desk.AfterReady()
-		}
+		return
 	}
+
+	//判断desk状态
+	if desk.IsNotPreparing() {
+		// 准备失败
+		log.E("用户[%v]准备失败.desk[%v]不再准备的状态...", userId, desk.GetDeskId())
+		result := newProto.NewGame_AckReady()
+		*result.Header.Code = intCons.ACK_RESULT_ERROR
+		*result.Header.Error = "准备失败"
+		a.WriteMsg(result)
+		return
+	}
+
+	//开始准备
+	err := desk.Ready(userId)
+	if err != nil {
+		//准备失败
+		result := newProto.NewGame_AckReady()
+		*result.Header.Code = intCons.ACK_RESULT_ERROR
+		*result.Header.Error = "准备失败"
+		a.WriteMsg(result)
+	} else {
+		//准备成功,发送准备成功的广播
+		result := newProto.NewGame_AckReady()
+		*result.Header.Code = intCons.ACK_RESULT_SUCC
+		*result.Header.Error = "准备成功"
+		*result.UserId = userId
+		log.T("广播user[%v]在desk[%v]准备成功的广播..string(%v)", userId, desk.GetDeskId(), result.String())
+		desk.BroadCastProto(result)
+
+		//准备成功之后，是否需要开始游戏...
+		desk.AfterReady()
+	}
+
 }
 
 

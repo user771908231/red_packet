@@ -126,6 +126,7 @@ message game_AckActHu {
     optional CardInfo huCard = 3;
     optional uint32 userIdOut = 4; //出牌的人
     optional uint32 userIdIn = 5; //胡牌的人
+    optional bool isZiMo = 6; //是否是自摸
 }
 
 // 过牌

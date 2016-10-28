@@ -44,7 +44,10 @@ func (d *MjDesk) IsFriend() bool {
 }
 
 //朋友桌用户加入房间
-func (d *MjDesk) addNewUserFriend(userId uint32, a gate.Agent) error {
+/**
+return  reconnect,error
+ */
+func (d *MjDesk) addNewUserFriend(userId uint32, a gate.Agent) (bool, error) {
 
 	// 设置agent
 	AgentService.SetAgent(userId, a)
@@ -63,8 +66,7 @@ func (d *MjDesk) addNewUserFriend(userId uint32, a gate.Agent) error {
 		log.T("玩家[%v]断线重连....", userId)
 		*userLeave.IsBreak = false
 		*userLeave.IsLeave = false
-		d.SendReconnectOverTurn(userLeave.GetUserId())
-		return nil
+		return true, nil
 	}
 
 	//3,加入一个新用户
@@ -83,15 +85,16 @@ func (d *MjDesk) addNewUserFriend(userId uint32, a gate.Agent) error {
 	err := d.addUser(newUser)
 	if err != nil {
 		log.E("用户[%v]加入房间[%v]失败,errMsg[%v]", userId, err)
-		return errors.New("用户加入房间失败")
+		return false, errors.New("用户加入房间失败")
 	} else {
 		//加入房间成功
-		return nil
+		return false, nil
 	}
 }
 
 //发送重新连接之后的overTurn
 func (d *MjDesk) SendReconnectOverTurn(userId uint32) error {
+	log.T("开始处理 sendReconnectOverTurn(%v),当前desk.status(%v),", userId, d.GetStatus())
 
 	//得到玩家
 	user := d.GetUserByUserId(userId)
@@ -101,18 +104,26 @@ func (d *MjDesk) SendReconnectOverTurn(userId uint32) error {
 	}
 
 	//开发发送overTurn
-	if d.IsReady() && user.IsNotReady() {
+	if d.IsPreparing() && user.IsNotReady() {
 		//给玩家发送开始准备的消息...
+		log.T("sendReconnectOverTurn，给user[%v]发送准备的消息....", userId)
 	} else if d.IsExchange() {
 		//给玩家发送换牌的消息...
+		log.T("sendReconnectOverTurn，给user[%v]发送换牌的消息....", userId)
+
 	} else if d.IsDingQue() && user.IsNotDingQue() {
+		log.T("sendReconnectOverTurn，给user[%v]发送定缺的消息....", userId)
+
 		//给玩家发送定缺的信息...
 		beginQue := newProto.NewGame_BroadcastBeginDingQue()
 		user.WriteMsg(beginQue)
 
 	} else if d.IsGaming() && user.GetUserId() == d.GetActUser() {
+
 		//游戏中的情况，发送act的消息,这里需要更具当前的状态来发送overTurn
 		if d.GetActType() == MJDESK_ACT_TYPE_MOPAI {
+			log.T("sendReconnectOverTurn，给user[%v]发送摸牌的消息....", userId)
+
 			//发送摸牌的协议
 			overTrun := newProto.NewGame_OverTurn()
 			*overTrun.UserId = user.GetUserId()                //这个是摸牌的，所以是广播...
@@ -135,7 +146,11 @@ func (d *MjDesk) SendReconnectOverTurn(userId uint32) error {
 
 		} else if d.GetActType() == MJDESK_ACT_TYPE_DAPAI {
 			//发送打牌的协议
+			log.T("sendReconnectOverTurn，给user[%]发送打牌的消息....", userId)
+
 		} else if d.GetActType() == MJDESK_ACT_TYPE_WAIT_CHECK {
+			log.T("sendReconnectOverTurn，给user[%]发送checkCase的消息....", userId)
+
 			caseBean := d.CheckCase.GetBeanByUserIdAndStatus(user.GetUserId(), CHECK_CASE_BEAN_STATUS_CHECKING)
 			if caseBean == nil {
 				log.E("没有找到玩家[%v]对应的checkBean", user.GetUserId())
@@ -160,6 +175,7 @@ func (d *MjDesk) SendReconnectOverTurn(userId uint32) error {
 		}
 	}
 
+	log.T("开始处理 sendReconnectOverTurn(%v),当前desk.status(%v)----处理完毕...", userId, d.GetStatus())
 	return nil
 }
 
@@ -388,22 +404,44 @@ func (d *MjDesk) IsAllReady() bool {
 	return true
 }
 
-//是否在准备中
-func (d *MjDesk) IsReady() bool {
-	return true
+//这里表示 是否是 [正在] 准备中...
+func (d *MjDesk) IsPreparing() bool {
+	if d.GetStatus() == MJDESK_STATUS_READY {
+		return true
+	} else {
+		return false
+	}
+}
+
+func (d *MjDesk) IsNotPreparing() bool {
+	return !d.IsPreparing()
 }
 
 //是否在定缺中
 func (d *MjDesk) IsDingQue() bool {
-	return true
+	if d.GetStatus() == MJDESK_STATUS_DINGQUE {
+		return true
+	} else {
+		return false
+	}
 }
 
+//是否处于换牌的阶段
 func (d *MjDesk) IsExchange() bool {
-	return true
+	if d.GetStatus() == MJDESK_STATUS_EXCHANGE {
+		return true
+	} else {
+		return false
+	}
 }
 
+//是否已经开始游戏了...
 func (d *MjDesk) IsGaming() bool {
-	return true
+	if d.GetStatus() == MJDESK_STATUS_RUNNING {
+		return true
+	} else {
+		return false
+	}
 }
 
 //得到当前桌子的人数..
@@ -456,14 +494,12 @@ func (d *MjDesk) begin() error {
 	//2，初始化桌子的状态
 	d.beginInit()
 
-
 	//3，发13张牌
 	err = d.initCards()
 	if err != nil {
 		log.E("初始化牌的时候出错err[%v]", err)
 		return err
 	}
-
 
 	//4，开始定缺
 	err = d.beginDingQue()
@@ -490,9 +526,9 @@ func (d *MjDesk) beginInit() error {
 
 	//初始化每个玩家的信息
 	for _, user := range d.GetUsers() {
-		if user != nil {
-			user.GameData = NewPlayerGameData()        //初始化一个空的麻将牌
-			user.SetStatus(MJUSER_STATUS_READY)
+		if user != nil && user.CanBegin() {
+			user.BeginInit()
+
 		}
 	}
 
@@ -650,8 +686,8 @@ func (d *MjDesk) DingQue(userId uint32, color int32) error {
 
 	//设置定缺
 	*user.DingQue = true
-	user.SetStatus(MJUSER_STATUS_DINGQUE)        //设置目前的状态是已经定缺
 	*user.GameData.HandPai.QueFlower = color
+	user.SetStatus(MJUSER_STATUS_DINGQUE)        //设置目前的状态是已经定缺
 
 	//回复定缺成功的消息
 	ack := newProto.NewGame_DingQue()
@@ -1233,8 +1269,8 @@ func (d *MjDesk)ActHu(userId uint32) error {
 	//1,胡的牌是当前check里面的牌，如果没有check，则表示是自摸
 
 	//玩家胡牌
-	u := d.GetUserByUserId(userId)
-	if u == nil {
+	huUser := d.GetUserByUserId(userId)
+	if huUser == nil {
 		log.E("服务器错误：没有找到胡牌的user[%v]", userId)
 		return errors.New("服务器错误，没有找到胡牌的user")
 	}
@@ -1242,10 +1278,10 @@ func (d *MjDesk)ActHu(userId uint32) error {
 
 	//设置判定牌
 	if checkCase != nil {
-		u.GameData.HandPai.InPai = checkCase.CheckMJPai
+		huUser.GameData.HandPai.InPai = checkCase.CheckMJPai
 	}
 	//判断是否可以胡牌，如果不能胡牌直接返回
-	canHu := u.GameData.HandPai.GetCanHu()
+	canHu := huUser.GameData.HandPai.GetCanHu()
 	if !canHu {
 		return errors.New("不可以胡牌...")
 	}
@@ -1269,12 +1305,12 @@ func (d *MjDesk)ActHu(userId uint32) error {
 	var outUserId uint32
 	var roomInfo mjproto.RoomTypeInfo = *d.GetRoomTypeInfo()  //roomType  桌子的规则
 
-	hupai := u.GameData.HandPai.InPai
+	hupai := huUser.GameData.HandPai.InPai
 	if checkCase == nil {
 		//表示是自摸
 		isZimo = true
 		outUserId = userId
-		if u.GetPreMoGangInfo() != nil {
+		if huUser.GetPreMoGangInfo() != nil {
 			isGangShangHua = true  //杠上花
 			extraAct = mjproto.HuPaiType_H_GangShangHua
 		}
@@ -1291,14 +1327,14 @@ func (d *MjDesk)ActHu(userId uint32) error {
 	}
 
 	log.T("点炮的人[%v],胡牌的人[%v],杠上花[%v],杠上炮[%v],接下来开始getHuScore(%v,%v,%v,%v)", userId, outUserId, isGangShangHua, isGangShangPao,
-		u.GameData.HandPai, isZimo, extraAct, roomInfo)
+		huUser.GameData.HandPai, isZimo, extraAct, roomInfo)
 
-	fan, score, huCardStr := getHuScore(u.GameData.HandPai, isZimo, extraAct, roomInfo)
+	fan, score, huCardStr := getHuScore(huUser.GameData.HandPai, isZimo, extraAct, roomInfo)
 	log.T("胡牌(getHuScore)之后的结果fan[%v],score[%v],huCardStr[%v]", fan, score, huCardStr)
 
 	//胡牌之后的信息
 	hu := NewHuPaiInfo()
-	*hu.GetUserId = u.GetUserId()
+	*hu.GetUserId = huUser.GetUserId()
 	*hu.SendUserId = outUserId
 	//*hu.ByWho = 打牌的方位，对家，上家，下家？
 	*hu.HuType = int32(extraAct)        ////杠上炮 杠上花 抢杠 海底捞 海底炮 天胡 地胡
@@ -1309,9 +1345,9 @@ func (d *MjDesk)ActHu(userId uint32) error {
 
 
 	//胡牌之后，设置用户的数据
-	u.GameData.HuInfo = append(u.GameData.HuInfo, hu)
-	u.GameData.HandPai.HuPais = append(u.GameData.HandPai.HuPais, hu.Pai)        //增加胡牌
-	u.SetStatus(MJUSER_STATUS_HUPAI)
+	huUser.GameData.HuInfo = append(huUser.GameData.HuInfo, hu)
+	huUser.GameData.HandPai.HuPais = append(huUser.GameData.HandPai.HuPais, hu.Pai)        //增加胡牌
+	huUser.SetStatus(MJUSER_STATUS_HUPAI)
 
 	/**
 		处理抢杠的逻辑，抢杠的逻辑需要特殊处理...
@@ -1344,8 +1380,7 @@ func (d *MjDesk)ActHu(userId uint32) error {
 		//删除杠牌的账单
 		for _, billUser := range d.GetUsers() {
 			//处理每一个人的账单,并且减去amount
-			_, bean := billUser.DelBillBean(hupai)
-			billUser.SubBillAmount(bean.GetAmount())
+			billUser.DelBillBean(hupai)
 		}
 	}
 
@@ -1359,28 +1394,26 @@ func (d *MjDesk)ActHu(userId uint32) error {
 	if isZimo {
 		//如果是自摸的话，三家都需要给钱
 		for _, shuUser := range d.GetUsers() {
-			if shuUser != nil  && shuUser.IsGaming() {
-				//用户赢钱的账户
+			if shuUser != nil  && shuUser.IsGaming() && shuUser.GetUserId() != huUser.GetUserId() {
+				//用户赢钱的账户,赢钱的账单
 				bill := NewBillBean()
-				*bill.UserId = u.GetUserId()
+				*bill.UserId = huUser.GetUserId()
 				*bill.OutUserId = shuUser.GetUserId()
 				*bill.Type = 1
 				*bill.Des = "用户自摸，获得收入"
 				*bill.Amount = hu.GetScore()        //杠牌的收入金额
 				bill.Pai = hupai
-				u.AddBillBean(bill)
-				u.AddBillAmount(bill.GetAmount())
+				huUser.AddBillBean(bill)
 
-				//用户输钱的账单
+				//用户输钱的账单,输钱的账单
 				shubill := NewBillBean()
 				*shubill.UserId = shuUser.GetUserId()
-				*shubill.OutUserId = u.GetUserId()
+				*shubill.OutUserId = huUser.GetUserId()
 				*shubill.Type = 1
 				*shubill.Des = "用户自摸，输钱"
 				*shubill.Amount = -hu.GetScore()       //杠牌的收入金额
 				shubill.Pai = hupai
 				shuUser.AddBillBean(shubill)
-				shuUser.SubBillAmount(shubill.GetAmount())
 			}
 		}
 
@@ -1392,27 +1425,27 @@ func (d *MjDesk)ActHu(userId uint32) error {
 
 		//如果是点炮的话，只有一家需要给钱...
 		shuUser := d.GetUserByUserId(outUserId)
+
+		//赢钱的账单
 		bill := NewBillBean()
-		*bill.UserId = u.GetUserId()
+		*bill.UserId = huUser.GetUserId()
 		*bill.OutUserId = shuUser.GetUserId()
 		*bill.Type = 1
 		*bill.Des = "用户自摸，获得收入"
 		*bill.Amount = hu.GetScore()        //杠牌的收入金额
 		bill.Pai = hupai
-		u.AddBillBean(bill)
-		u.AddBillAmount(bill.GetAmount())
+		huUser.AddBillBean(bill)
 
 
-		//用户输钱的账单
+		//输钱的账单
 		shubill := NewBillBean()
 		*shubill.UserId = shubill.GetUserId()
-		*shubill.OutUserId = u.GetUserId()
+		*shubill.OutUserId = huUser.GetUserId()
 		*shubill.Type = 1
 		*shubill.Des = "用户自摸，输钱"
-		*shubill.Amount = -d.GetBaseValue()        //杠牌的收入金额
+		*shubill.Amount = -hu.GetScore()        //杠牌的收入金额
 		shubill.Pai = hupai
 		shuUser.AddBillBean(shubill)
-		shuUser.SubBillAmount(shubill.GetAmount())
 	}
 
 	//发送胡牌成功的回复
@@ -1575,8 +1608,7 @@ func (d *MjDesk) ActGang(userId uint32, paiId int32) error {
 				*bill.Des = "用户杠牌，获得收入"
 				*bill.Amount = d.GetBaseValue()        //杠牌的收入金额
 				bill.Pai = gangPai
-				user.AddBillAmount(bill.GetAmount())
-				user.Bill.Bills = append(user.Bill.Bills, bill)
+				user.AddBillBean(bill)
 
 				//用户输钱的账单
 				shubill := NewBillBean()
@@ -1584,10 +1616,9 @@ func (d *MjDesk) ActGang(userId uint32, paiId int32) error {
 				*shubill.OutUserId = user.GetUserId()
 				*shubill.Type = MJUSER_BILL_TYPE_SHU_GNAG
 				*shubill.Des = "用户杠牌，获得收入"
-				*shubill.Amount = d.GetBaseValue()        //杠牌的收入金额
+				*shubill.Amount = -d.GetBaseValue()        //杠牌的收入金额
 				shubill.Pai = gangPai
-				ou.SubBillAmount(bill.GetAmount())
-				ou.Bill.Bills = append(ou.Bill.Bills, bill)
+				ou.AddBillBean(shubill)
 			}
 		}
 
@@ -1641,12 +1672,17 @@ func (d *MjDesk) GetWinCoinInfo(user *MjUser) *mjproto.WinCoinInfo {
 	*win.UserId = user.GetUserId()
 	*win.WinCoin = user.Bill.GetWinAmount()        //本次输赢多少(负数表示输了)
 	*win.Coin = user.GetCoin()        // 输赢以后，当前筹码是多少
-	//*win.CardTitle =user.GameData.get // 赢牌牌型信息( 如:"点炮x2 明杠x2 根x2 自摸 3番" )
-	//user.Statisc.
+	*win.CardTitle = d.GetCardTitle4WinCoinInfo(user)// 赢牌牌型信息( 如:"点炮x2 明杠x2 根x2 自摸 3番" )
 	win.Cards = user.GetPlayerCard(true) //牌信息,true 表示要显示牌的信息...
-	*win.IsDealer = (d.GetBanker() == user.GetUserId() )        //是否是庄家
-	*win.HuCount = 1        //本局胡的次数(血流成河会多次胡)
+	*win.IsDealer = user.GetIsBanker()      //是否是庄家
+	*win.HuCount = user.Statisc.GetCountHu()        //本局胡的次数(血流成河会多次胡)
 	return win
+}
+
+//得到这个人的胡牌描述
+func (d *MjDesk) GetCardTitle4WinCoinInfo(user *MjUser) string {
+	var huDesk string = "胡牌的信息..."                //胡牌的描述...
+	return huDesk
 }
 
 //得到EndLotteryInfo结果...
@@ -1670,5 +1706,5 @@ func (d *MjDesk)GetEndLotteryInfo(user *MjUser) *mjproto.EndLotteryInfo {
 	2，游戏并没有开始，round==0
  */
 func (d *MjDesk) IsBegin() bool {
-	return d.GetCurrPlayCount() == 0
+	return d.GetCurrPlayCount() > 0
 }
