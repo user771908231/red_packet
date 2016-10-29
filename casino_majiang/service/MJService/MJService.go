@@ -126,7 +126,7 @@ func HandlerDissolveDesk(owner uint32) error {
 	}
 
 	//开始解散房间
-	err := majiang.GetFMJRoom().DissolveDesk(desk);
+	err := majiang.GetFMJRoom().DissolveDesk(desk,true);
 	if err != nil {
 		return errors.New("解散朋友桌子的desk 失败...")
 	}

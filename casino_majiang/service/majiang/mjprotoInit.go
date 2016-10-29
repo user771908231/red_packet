@@ -65,6 +65,7 @@ func NewMjUser() *MjUser {
 	ret.Statisc = NewMjUserStatisc()
 	ret.IsBanker = new(bool)
 	ret.WaitTime = new(int64)
+	ret.Exchanged = new(bool)
 	return ret
 }
 
@@ -181,7 +182,7 @@ func NewStatiscRound() *StatiscRound {
 	ret.CountMingGang = new(int32)
 	ret.CountDianGang = new(int32)
 	ret.CountChaJiao = new(int32)
-	ret.CountChaJiao = new(int32)
 	ret.CountBaGnag = new(int32)
+	ret.Round = new(int32)
 	return ret
 }

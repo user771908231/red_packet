@@ -998,7 +998,7 @@ func (d *MjDesk)DoEnd() error {
 
 	//2,清楚数据，解散房间....
 	//是否需要解散房间...
-	GetFMJRoom().DissolveDesk(d)
+	GetFMJRoom().DissolveDesk(d,false)
 
 	return nil
 }

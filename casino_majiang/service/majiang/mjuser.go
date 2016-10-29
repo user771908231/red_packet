@@ -288,7 +288,7 @@ func (u *MjUser) CanMoPai() bool {
 //判断用户是否可以开始游戏...
 func (u *MjUser) CanBegin() bool {
 	if u.IsReady() {
-		return false
+		return true
 	} else {
 		return false
 	}

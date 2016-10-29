@@ -207,7 +207,7 @@ func (r *MjRoom) AddDesk(desk *MjDesk) error {
 }
 
 // room 解散房间...
-func (r *MjRoom)DissolveDesk(desk *MjDesk) error {
+func (r *MjRoom)DissolveDesk(desk *MjDesk, sendMsg bool) error {
 	//清楚数据,1,session相关。2,
 	log.T("开始解散desk[%v]...", desk.GetDeskId())
 	log.T("开始解散desk[%v]user的session数据...", desk.GetDeskId())
@@ -228,12 +228,14 @@ func (r *MjRoom)DissolveDesk(desk *MjDesk) error {
 
 	//删除房间
 	log.T("删除desk[%v]之后，发送删除的广播...", desk.GetDeskId())
-	//发送解散房间的广播
-	dissolve := newProto.NewGame_AckDissolveDesk()
-	*dissolve.DeskId = desk.GetDeskId()
-	*dissolve.PassWord = desk.GetPassword()
-	*dissolve.UserId = desk.GetOwner()
-	desk.BroadCastProto(dissolve)
+	if sendMsg {
+		//发送解散房间的广播
+		dissolve := newProto.NewGame_AckDissolveDesk()
+		*dissolve.DeskId = desk.GetDeskId()
+		*dissolve.PassWord = desk.GetPassword()
+		*dissolve.UserId = desk.GetOwner()
+		desk.BroadCastProto(dissolve)
+	}
 
 	return nil
 
