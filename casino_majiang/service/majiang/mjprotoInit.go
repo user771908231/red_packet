@@ -66,6 +66,7 @@ func NewMjUser() *MjUser {
 	ret.IsBanker = new(bool)
 	ret.WaitTime = new(int64)
 	ret.Exchanged = new(bool)
+	ret.Ready = new(bool)
 	return ret
 }
 

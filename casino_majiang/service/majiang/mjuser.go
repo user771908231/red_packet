@@ -318,6 +318,11 @@ func (u *MjUser) BeginInit(round int32, banker uint32) error {
 	return nil
 }
 
+//lottery之后，设置user为没有准备
+func (u *MjUser) AfterLottery() error {
+	*u.Ready = false        //设置为没有准备的状态...
+	return nil
+}
 //得到用户的昵称
 func (u *MjUser) GetNickName() string {
 	return "nickName"

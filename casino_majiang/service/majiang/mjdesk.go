@@ -384,6 +384,7 @@ func (d *MjDesk) Ready(userId  uint32) error {
 
 	//设置为准备的状态
 	user.SetStatus(MJUSER_STATUS_READY)
+	*user.Ready = true
 
 	return nil
 }
@@ -967,6 +968,12 @@ func (d *MjDesk) AfterLottery() error {
 
 	//设置desk为准备的状态
 	d.SetStatus(MJDESK_STATUS_READY)
+
+
+	//设置用户为没有准备
+	for _, user := range d.GetUsers() {
+		user.AfterLottery()
+	}
 	return nil
 
 }
@@ -998,7 +1005,7 @@ func (d *MjDesk)DoEnd() error {
 
 	//2,清楚数据，解散房间....
 	//是否需要解散房间...
-	GetFMJRoom().DissolveDesk(d,false)
+	GetFMJRoom().DissolveDesk(d, false)
 
 	return nil
 }
