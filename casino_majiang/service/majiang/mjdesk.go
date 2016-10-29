@@ -17,6 +17,7 @@ import (
 	"casino_majiang/gamedata/model"
 	"casino_server/utils/numUtils"
 	"casino_server/utils/timeUtils"
+	"casino_majiang/service/lock"
 )
 
 //状态表示的是当前状态.
@@ -37,6 +38,11 @@ var OVER_TURN_ACTTYPE_OTHER int32 = 2; //碰OTHER
 var MJDESK_ACT_TYPE_MOPAI int32 = 1; ///摸牌
 var MJDESK_ACT_TYPE_DAPAI int32 = 2; //打牌
 var MJDESK_ACT_TYPE_WAIT_CHECK int32 = 3; //等待check
+
+
+var DINGQUE_SLEEP_DURATION time.Duration = time.Second * 5        //定缺的延迟
+var SHAIZI_SLEEP_DURATION time.Duration = time.Second * 4        //定缺的延迟
+
 
 //判断是不是朋友桌
 func (d *MjDesk) IsFriend() bool {
@@ -414,6 +420,10 @@ func (d *MjDesk) IsDingQue() bool {
 	}
 }
 
+func (d *MjDesk) IsNotDingQue() bool {
+	return !d.IsDingQue()
+}
+
 //是否处于换牌的阶段
 func (d *MjDesk) IsExchange() bool {
 	if d.GetStatus() == MJDESK_STATUS_EXCHANGE {
@@ -430,6 +440,10 @@ func (d *MjDesk) IsGaming() bool {
 	} else {
 		return false
 	}
+}
+
+func (d *MjDesk) IsNotGaming() bool {
+	return !d.IsGaming()
 }
 
 //得到当前桌子的人数..
@@ -457,10 +471,7 @@ func (d *MjDesk) IsPlayerEnough() bool {
 //用户准备之后的一些操作
 func (d *MjDesk) AfterReady() error {
 	//如果所有人都准备了，那么开始游戏
-	if d.IsAllReady() && d.IsPlayerEnough() {
-		d.begin()
-	}
-
+	d.begin()
 	return nil
 }
 
@@ -472,6 +483,10 @@ func (d *MjDesk) AfterReady() error {
 
  */
 func (d *MjDesk) begin() error {
+	lock := lock.GetDeskLock(d.GetDeskId())
+	lock.Lock()
+	defer lock.Unlock()
+
 	//1，检查是否可以开始游戏
 	err := d.time2begin()
 	if err != nil {
@@ -502,6 +517,11 @@ func (d *MjDesk) begin() error {
 //是否可以开始
 func (d *MjDesk) time2begin() error {
 	log.T("检测游戏是否可以开始... ")
+	if d.IsAllReady() && d.IsPlayerEnough() && d.IsNotDingQue() {
+		return nil
+	} else {
+		return errors.New("开始游戏失败，因为还有两个人没有准备")
+	}
 	return nil
 }
 
@@ -518,23 +538,21 @@ func (d *MjDesk) beginInit() error {
 	}
 
 	d.AddCurrPlayCount()        //场次数目加一
-	*d.GetBankerUser().IsBanker = true        //设置庄
 	d.SetActiveUser(d.GetBanker())        //设置当前的活动玩家
 	*d.GameNumber, _ = db.GetNextSeq(config.DBT_T_TH_GAMENUMBER_SEQ)        //设置游戏编号
 	*d.BeginTime = timeUtils.Format(time.Now())
 
-
 	//初始化每个玩家的信息
 	for _, user := range d.GetUsers() {
 		if user != nil && user.CanBegin() {
-			user.BeginInit(d.GetCurrPlayCount())
-
+			user.BeginInit(d.GetCurrPlayCount(), d.GetBanker())
 		}
 	}
 	//发送游戏开始的协议...
 	log.T("发送游戏开始的协议..")
 	open := newProto.NewGame_Opening()
 	d.BroadCastProto(open)
+	time.Sleep(SHAIZI_SLEEP_DURATION)
 	return nil
 }
 
@@ -638,7 +656,7 @@ func (d *MjDesk) beginDingQue() error {
 	beginQue := newProto.NewGame_BroadcastBeginDingQue()
 	log.T("开始给玩家发送开始定缺的广播[%v]", beginQue)
 	//
-	time.Sleep(time.Second * 5)
+	time.Sleep(DINGQUE_SLEEP_DURATION)
 	d.BroadCastProto(beginQue)
 	return nil
 }
@@ -866,7 +884,7 @@ func (d *MjDesk) Lottery() error {
 
 	//判断牌局结束(整场游戏结束)
 	if !d.End() {
-		go d.begin()
+		//go d.begin()
 	}
 
 	return nil
@@ -946,6 +964,9 @@ func (d *MjDesk) SendLotteryData() error {
 
 func (d *MjDesk) AfterLottery() error {
 	//开奖完成之后的一些处理
+
+	//设置desk为准备的状态
+	d.SetStatus(MJDESK_STATUS_READY)
 	return nil
 
 }
@@ -957,22 +978,28 @@ func (d *MjDesk) End() bool {
 		return false;
 	} else {
 		d.DoEnd()
+		return true
 	}
-
-	return true
 }
 
 func (d *MjDesk)DoEnd() error {
-	//game_SendEndLottery
+
+	//1
+	//首先发送游戏 结束的广播....game_SendEndLottery
 	result := newProto.NewGame_SendEndLottery()
 	for _, user := range d.GetUsers() {
 		if user != nil {
 			result.CoinInfo = append(result.CoinInfo, d.GetEndLotteryInfo(user))
 		}
 	}
-
 	//发送游戏结束的结果
 	d.BroadCastProto(result)
+
+
+	//2,清楚数据，解散房间....
+	//是否需要解散房间...
+	GetFMJRoom().DissolveDesk(d,false)
+
 	return nil
 }
 

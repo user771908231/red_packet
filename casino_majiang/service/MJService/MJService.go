@@ -11,6 +11,7 @@ import (
 	"time"
 	"errors"
 	"casino_majiang/gamedata/dao"
+	"casino_majiang/service/lock"
 )
 
 
@@ -70,7 +71,7 @@ func HandlerGame_EnterRoom(userId uint32, key string, a gate.Agent) {
 	log.T("收到请求，HandlerGame_EnterRoom(userId[%v],key[%v])", userId, key)
 
 	//1,找到合适的room
-	room := majiang.GetMJRoom()
+	room := majiang.GetFMJRoom()
 	if room == nil {
 		//没有找到room，进入房间失败
 		log.T("用户[%v]进入房间失败，没有找到对应的room", userId)
@@ -125,11 +126,12 @@ func HandlerDissolveDesk(owner uint32) error {
 	}
 
 	//开始解散房间
-	err := majiang.GetMJRoom().DissolveDesk(desk);
+	err := majiang.GetFMJRoom().DissolveDesk(desk,true);
 	if err != nil {
 		return errors.New("解散朋友桌子的desk 失败...")
 	}
 
+	lock.DelDeskLock(desk.GetDeskId())
 	return nil
 }
 
@@ -372,8 +374,9 @@ func HandlerGame_ActGuo(m *mjProto.Game_ActGuo) {
 	//设置为过
 
 	//返回信息,过 只返回给过的
-	result := &mjProto.Game_AckActGuo{}
+	result := newProto.NewGame_AckActGuo()
 	result.Header = newProto.SuccessHeader()
+	*result.UserId = user.GetUserId()
 	// 设置当前CheckBean 为已经check ，处理下一个checkBean
 	user.WriteMsg(result)
 

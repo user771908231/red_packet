@@ -65,18 +65,34 @@ func (r *MjRoom) CreateDesk(m *mjproto.Game_CreateRoom) *MjDesk {
 
 	//1,创建一个房间，并初始化参数
 	desk := NewMjDesk()
-	desk.Users = make([]*MjUser, 4)
+	*desk.DeskId, _ = db.GetNextSeq(config.DBT_MJ_DESK)
+	*desk.RoomId = r.GetRoomId()
+	desk.SetStatus(MJDESK_STATUS_CREATED)        //设置为刚刚创建的状态
+	desk.Users = make([]*MjUser, 4)        //人数...通过前端传入的..
 	*desk.Password = r.RandRoomKey()
 	*desk.Owner = userId        //设置房主
-	*desk.CardsNum = m.GetRoomTypeInfo().GetCardsNum()
-	*desk.BaseValue = m.GetRoomTypeInfo().GetBaseValue()
 	*desk.CreateFee = createFee
-	*desk.DeskId, _ = db.GetNextSeq(config.DBT_MJ_DESK)
-	*desk.Banker = userId
+	*desk.MjRoomType = int32(m.GetRoomTypeInfo().GetMjRoomType())        // 房间类型，如：血战到底、三人两房、四人两房、德阳麻将、倒倒胡、血流成河
+	*desk.BoardsCout = m.GetRoomTypeInfo().GetBoardsCout()        //局数，如：4局（房卡 × 2）、8局（房卡 × 3）
+	*desk.CapMax = m.GetRoomTypeInfo().GetCapMax()
+	*desk.CardsNum = m.GetRoomTypeInfo().GetCardsNum()
+	*desk.Settlement = m.GetRoomTypeInfo().GetSettlement()
+	*desk.BaseValue = m.GetRoomTypeInfo().GetBaseValue()
+	*desk.ZiMoRadio = m.GetRoomTypeInfo().GetPlayOptions().GetZiMoRadio()
+	desk.OthersCheckBox = m.GetRoomTypeInfo().GetPlayOptions().GetOthersCheckBox()
+	*desk.HuRadio = m.GetRoomTypeInfo().GetPlayOptions().GetHuRadio()
+	//*desk.DeskMJPai	//暂时没有使用，桌面上的牌
+	*desk.MJPaiCursor = 0
 	*desk.TotalPlayCount = m.RoomTypeInfo.GetBoardsCout()
-	desk.SetStatus(MJDESK_STATUS_CREATED)        //设置为刚刚创建的状态
-	//desk.HuRadio
-
+	*desk.CurrPlayCount = 0
+	*desk.Banker = userId
+	desk.CheckCase = nil        //判断case
+	*desk.ActiveUser = userId
+	*desk.GameNumber = 0
+	*desk.ActUser = userId
+	*desk.ActType = MJDESK_ACT_TYPE_MOPAI
+	//*desk.BeginTime	//游戏开始时间...
+	//*desk.EndTime		//游戏结束时间...
 	//把创建的desk加入到room中
 	r.AddDesk(desk)
 	return desk
@@ -191,7 +207,7 @@ func (r *MjRoom) AddDesk(desk *MjDesk) error {
 }
 
 // room 解散房间...
-func (r *MjRoom)DissolveDesk(desk *MjDesk) error {
+func (r *MjRoom)DissolveDesk(desk *MjDesk, sendMsg bool) error {
 	//清楚数据,1,session相关。2,
 	log.T("开始解散desk[%v]...", desk.GetDeskId())
 	log.T("开始解散desk[%v]user的session数据...", desk.GetDeskId())
@@ -212,12 +228,14 @@ func (r *MjRoom)DissolveDesk(desk *MjDesk) error {
 
 	//删除房间
 	log.T("删除desk[%v]之后，发送删除的广播...", desk.GetDeskId())
-	//发送解散房间的广播
-	dissolve := newProto.NewGame_AckDissolveDesk()
-	*dissolve.DeskId = desk.GetDeskId()
-	*dissolve.PassWord = desk.GetPassword()
-	*dissolve.UserId = desk.GetOwner()
-	desk.BroadCastProto(dissolve)
+	if sendMsg {
+		//发送解散房间的广播
+		dissolve := newProto.NewGame_AckDissolveDesk()
+		*dissolve.DeskId = desk.GetDeskId()
+		*dissolve.PassWord = desk.GetPassword()
+		*dissolve.UserId = desk.GetOwner()
+		desk.BroadCastProto(dissolve)
+	}
 
 	return nil
 
@@ -241,7 +259,7 @@ func (r *MjRoom) RmDesk(desk *MjDesk) error {
 
 }
 
-func GetMJRoom() *MjRoom {
+func GetFMJRoom() *MjRoom {
 	//暂时返回朋友桌
 	return FMJRoomIns
 }
