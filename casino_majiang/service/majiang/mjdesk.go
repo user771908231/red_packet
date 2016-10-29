@@ -41,6 +41,8 @@ var MJDESK_ACT_TYPE_WAIT_CHECK int32 = 3; //等待check
 
 
 var DINGQUE_SLEEP_DURATION time.Duration = time.Second * 5        //定缺的延迟
+var SHAIZI_SLEEP_DURATION time.Duration = time.Second * 3        //定缺的延迟
+
 
 //判断是不是朋友桌
 func (d *MjDesk) IsFriend() bool {
@@ -550,6 +552,7 @@ func (d *MjDesk) beginInit() error {
 	log.T("发送游戏开始的协议..")
 	open := newProto.NewGame_Opening()
 	d.BroadCastProto(open)
+	time.Sleep(SHAIZI_SLEEP_DURATION)
 	return nil
 }
 
