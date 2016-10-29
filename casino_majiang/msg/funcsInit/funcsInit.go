@@ -358,3 +358,10 @@ func NewGame_SendMessage() *mjProto.Game_SendMessage {
 	result.UserId = new(uint32)
 	return result
 }
+
+func NewGame_AckActGuo() *mjProto.Game_AckActGuo {
+	ret := &mjProto.Game_AckActGuo{}
+	ret.Header = NewHeader()
+	ret.UserId = new(uint32)
+	return ret
+}

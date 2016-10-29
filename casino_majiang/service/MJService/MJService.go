@@ -374,8 +374,9 @@ func HandlerGame_ActGuo(m *mjProto.Game_ActGuo) {
 	//设置为过
 
 	//返回信息,过 只返回给过的
-	result := &mjProto.Game_AckActGuo{}
+	result := newProto.NewGame_AckActGuo()
 	result.Header = newProto.SuccessHeader()
+	*result.UserId = user.GetUserId()
 	// 设置当前CheckBean 为已经check ，处理下一个checkBean
 	user.WriteMsg(result)
 
