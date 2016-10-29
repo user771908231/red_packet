@@ -18,7 +18,6 @@ import (
 	"casino_server/utils/numUtils"
 	"casino_server/utils/timeUtils"
 	"casino_majiang/service/lock"
-	"github.com/golang/protobuf/ptypes/duration"
 )
 
 //状态表示的是当前状态.
@@ -41,7 +40,7 @@ var MJDESK_ACT_TYPE_DAPAI int32 = 2; //打牌
 var MJDESK_ACT_TYPE_WAIT_CHECK int32 = 3; //等待check
 
 
-var DINGQUE_SLEEP_DURATION duration.Duration = time.Second * 5        //定缺的延迟
+var DINGQUE_SLEEP_DURATION time.Duration = time.Second * 5        //定缺的延迟
 
 //判断是不是朋友桌
 func (d *MjDesk) IsFriend() bool {
@@ -962,6 +961,9 @@ func (d *MjDesk) SendLotteryData() error {
 
 func (d *MjDesk) AfterLottery() error {
 	//开奖完成之后的一些处理
+
+	//设置desk为准备的状态
+	d.SetStatus(MJDESK_STATUS_READY)
 	return nil
 
 }
@@ -973,22 +975,28 @@ func (d *MjDesk) End() bool {
 		return false;
 	} else {
 		d.DoEnd()
+		return true
 	}
-
-	return true
 }
 
 func (d *MjDesk)DoEnd() error {
-	//game_SendEndLottery
+
+	//1
+	//首先发送游戏 结束的广播....game_SendEndLottery
 	result := newProto.NewGame_SendEndLottery()
 	for _, user := range d.GetUsers() {
 		if user != nil {
 			result.CoinInfo = append(result.CoinInfo, d.GetEndLotteryInfo(user))
 		}
 	}
-
 	//发送游戏结束的结果
 	d.BroadCastProto(result)
+
+
+	//2,清楚数据，解散房间....
+	//是否需要解散房间...
+	GetFMJRoom().DissolveDesk(d)
+
 	return nil
 }
 

@@ -47,6 +47,7 @@ func NewMjDesk() *MjDesk {
 	ret.ActType = new(int32)
 	ret.BeginTime = new(string)
 	ret.EndTime = new(string)
+	ret.HuRadio = new(int32)
 	return ret
 }
 

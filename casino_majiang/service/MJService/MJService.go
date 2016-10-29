@@ -71,7 +71,7 @@ func HandlerGame_EnterRoom(userId uint32, key string, a gate.Agent) {
 	log.T("收到请求，HandlerGame_EnterRoom(userId[%v],key[%v])", userId, key)
 
 	//1,找到合适的room
-	room := majiang.GetMJRoom()
+	room := majiang.GetFMJRoom()
 	if room == nil {
 		//没有找到room，进入房间失败
 		log.T("用户[%v]进入房间失败，没有找到对应的room", userId)
@@ -126,7 +126,7 @@ func HandlerDissolveDesk(owner uint32) error {
 	}
 
 	//开始解散房间
-	err := majiang.GetMJRoom().DissolveDesk(desk);
+	err := majiang.GetFMJRoom().DissolveDesk(desk);
 	if err != nil {
 		return errors.New("解散朋友桌子的desk 失败...")
 	}
