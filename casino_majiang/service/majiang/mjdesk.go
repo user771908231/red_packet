@@ -1156,6 +1156,9 @@ func (d *MjDesk) ActPeng(userId uint32) error {
 
 
 	//2.1开始碰牌的操作
+
+	//设置inpai为nil
+	user.GameData.HandPai.InPai = nil
 	pengPai := d.CheckCase.CheckMJPai
 	user.GameData.HandPai.PengPais = append(user.GameData.HandPai.PengPais, pengPai)        //碰牌
 
@@ -1180,6 +1183,7 @@ func (d *MjDesk) ActPeng(userId uint32) error {
 
 	//3,生成碰牌信息
 	//user.GameData.
+
 
 	//4,处理 checkCase
 	d.CheckCase.UpdateCheckBeanStatus(user.GetUserId(), CHECK_CASE_BEAN_STATUS_CHECKED)
@@ -1237,7 +1241,13 @@ func (d *MjDesk)ActOut(userId uint32, paiKey int32) error {
 
 	//得到参数
 	outPai := InitMjPaiByIndex(int(paiKey))
-	outUser.GameData.HandPai.AddPai(outUser.GameData.HandPai.InPai)        //把inpai放置到手牌上
+	/**
+		1,如果是碰牌打牌的时候,inpai为nil，不需要增加
+		2,如果是摸牌打牌（杠之后也是摸牌，需要增加in牌...）
+	 */
+	if outUser.GameData.HandPai.InPai != nil {
+		outUser.GameData.HandPai.AddPai(outUser.GameData.HandPai.InPai)        //把inpai放置到手牌上
+	}
 	errDapai := outUser.DaPai(outPai)
 	if errDapai != nil {
 		log.E("打牌的时候出现错误，没有找到要到的牌,id[%v]", paiKey)

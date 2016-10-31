@@ -25,7 +25,6 @@ bill[玩家[3302]总共输赢[0],下边是细节:
 func testCanGangPai() {
 
 	//pai := majiang.InitMjPaiByIndex()
-	var pai *majiang.MJPai = nil
 	var handPai *majiang.MJHandPai = &majiang.MJHandPai{}
 	//初始化手牌
 	handPai.Pais = append(handPai.Pais, majiang.InitMjPaiByIndex(15))
@@ -44,12 +43,13 @@ func testCanGangPai() {
 	handPai.PengPais = append(handPai.PengPais, majiang.InitMjPaiByIndex(12))
 	handPai.PengPais = append(handPai.PengPais, majiang.InitMjPaiByIndex(13))
 	handPai.PengPais = append(handPai.PengPais, majiang.InitMjPaiByIndex(14))
-
+	fmt.Println("")
 	fmt.Println("处理之前的手牌:", getPaiInfo(handPai.Pais))
 	fmt.Println("处理之前的碰牌:", getPaiInfo(handPai.PengPais))
 	fmt.Println("处理之前的杠牌:", getPaiInfo(handPai.GangPais))
 
-	can, result := majiang.CanGangPai(pai, handPai)
+	can, result := handPai.GetCanGang(nil)
+
 	fmt.Println(can)
 	fmt.Println(result)
 	fmt.Println("result:", getPaiInfo(result))
