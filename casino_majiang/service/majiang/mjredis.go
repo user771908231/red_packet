@@ -14,7 +14,7 @@ var REDIS_KEY_MJ_RUNNING = "redis_key_mj_running"        //运行中的麻将
 
 //删除  和  增加 runningkey 的时候需要保存同步...
 
-var runningKey_lock sync.Mutex = new(sync.Mutex)
+var runningKey_lock sync.Mutex = sync.Mutex{}
 
 func GetDeskRedisKey(id int32) string {
 	idStr, _ := numUtils.Int2String(id)
@@ -86,7 +86,7 @@ func DelRunningDeskKey(deskId int32) error {
 
 	//删除对应的key
 	if delIndex >= 0 {
-		runningKeys.Keys = append(runningKeys[:delIndex], runningKeys[delIndex + 1:]...)
+		runningKeys.Keys = append(runningKeys.Keys[:delIndex], runningKeys.Keys[delIndex + 1:]...)
 	}
 	SaveRunningDeskKeys(runningKeys)
 	return nil
@@ -107,11 +107,11 @@ func AddRunningDeskKey(deskId int32) error {
 	//如果已经存在，则不需要增加...
 	for _, k := range runningKeys.Keys {
 		if k == deskId {
-			return
+			return nil
 		}
 	}
 
-	runningKeys.Keys = append(runningKeys, deskId)
+	runningKeys.Keys = append(runningKeys.Keys, deskId)
 	SaveRunningDeskKeys(runningKeys)
 	return nil
 }
