@@ -1528,8 +1528,12 @@ func (d *MjDesk) ActGang(userId uint32, paiId int32) error {
 
 		//删除碰牌,手中的杠牌
 		for _, key := range pengKeys {
+			log.T("巴杠删除手牌..index[%v]", key)
 			user.GameData.HandPai.DelPengPai(key)
 		}
+
+		//删除手牌
+		user.GameData.HandPai.DelHandlPai(gangPai.GetIndex())
 
 	} else if gangType == GANG_TYPE_MING || gangType == GANG_TYPE_AN {
 		log.T("用户[%v]杠牌不是巴杠 是 gangType[%v]...", userId, gangType)
