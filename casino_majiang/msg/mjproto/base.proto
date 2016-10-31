@@ -165,10 +165,11 @@ enum HuPaiType {
     H_DaiYaoJiu = 4; //2番:带幺九
     H_LongQiDui = 5; //3番:龙七对
     H_JiangDui = 6; //3番:将对(2、5、8组成的对对胡)
-    H_TianHu = 7; //5番:天胡 庄家起牌后胡牌
-    H_DiHu = 8; //5番:地胡 第一回合中,没有任何玩家操作,非庄家自摸
+
 
     //附加番数(特定操作)
+    H_TianHu = 7; //5番:天胡 庄家起牌后胡牌
+    H_DiHu = 8; //5番:地胡 第一回合中,没有任何玩家操作,非庄家自摸
     H_GangShangHua = 9; //+1番 杠上花
     H_GangShangPao = 10; //+1番 杠上炮
     H_QiangGang = 11; //+1番 抢杠
