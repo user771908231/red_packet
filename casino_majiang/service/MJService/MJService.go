@@ -131,7 +131,6 @@ func HandlerDissolveDesk(owner uint32) error {
 		return errors.New("解散朋友桌子的desk 失败...")
 	}
 
-	lock.DelDeskLock(desk.GetDeskId())
 	return nil
 }
 

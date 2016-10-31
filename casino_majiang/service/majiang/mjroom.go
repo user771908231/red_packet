@@ -203,6 +203,7 @@ func (r *MjRoom) AddDesk(desk *MjDesk) error {
 
 	//加入之后需要更新数据到redis
 	desk.updateRedis()
+	AddRunningDeskKey(desk.GetDeskId())
 	return nil
 }
 
@@ -225,6 +226,13 @@ func (r *MjRoom)DissolveDesk(desk *MjDesk, sendMsg bool) error {
 		log.E("删除房间失败,errmsg[%v]", rmErr)
 		return rmErr
 	}
+
+	//删除锁
+	lock.DelDeskLock(desk.GetDeskId())
+	//删除reids
+	DelMjDeskRedis(desk)
+
+
 
 	//删除房间
 	log.T("删除desk[%v]之后，发送删除的广播...", desk.GetDeskId())
