@@ -215,6 +215,7 @@ func NewGame_AckActHu() *mjProto.Game_AckActHu {
 	ret.UserIdIn = new(uint32)
 	ret.UserIdOut = new(uint32)
 	ret.HuType = new(int32)
+	ret.IsZiMo = new(bool)
 	return ret
 }
 

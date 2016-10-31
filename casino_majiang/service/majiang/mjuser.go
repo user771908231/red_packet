@@ -401,6 +401,8 @@ func (u *MjUser) BillToString() string {
 
 //统计杠的数量
 func (u *MjUser) StatisticsGangCount(round int32, gangType int32) error {
+
+	//统计每一轮和总的次数
 	bean := u.GetStatisticsRoundBean(round)
 	if bean == nil {
 		log.E("统计的时候出错...")
@@ -409,15 +411,44 @@ func (u *MjUser) StatisticsGangCount(round int32, gangType int32) error {
 
 	if gangType == GANG_TYPE_MING {
 		atomic.AddInt32(bean.CountMingGang, 1)
+		atomic.AddInt32(u.Statisc.CountMingGang, 1)
+
 	} else if gangType == GANG_TYPE_BA {
 		atomic.AddInt32(bean.CountBaGnag, 1)
+		atomic.AddInt32(u.Statisc.CountMingGang, 1)
+
 	} else if gangType == GANG_TYPE_AN {
 		atomic.AddInt32(bean.CountAnGang, 1)
+		atomic.AddInt32(u.Statisc.CountAnGang, 1)
 	}
 
 	return nil
 }
 
+//计算胡牌的次数,初步是胡了几次可以统计，详细的各种类型 还没有统计...
+func (u *MjUser) StatisticsHuCount(round int32, huUserId uint32, huType int32) error {
+
+	//计算总的
+	atomic.AddInt32(u.Statisc.CountHu, 1)
+
+	//计算每一句的胡牌
+	bean := u.GetStatisticsRoundBean(round)
+	if bean == nil {
+		log.E("统计的时候出错...")
+		return errors.New("没有找到统计的roundBean，无法统计")
+	}
+	atomic.AddInt32(bean.CountHu, 1)
+	return nil
+}
+
+
+//统计点炮的次数
+func (u *MjUser) StatisticsDianCount(dianUserId uint32, dianType int32) {
+	atomic.AddInt32(u.Statisc.CountDianPao, 1)
+}
+
+
+//得到每一局的统计bean...
 func (u *MjUser) GetStatisticsRoundBean(round int32) *StatiscRound {
 	for _, bean := range u.Statisc.RoundBean {
 		if bean != nil && bean.GetRound() == round {

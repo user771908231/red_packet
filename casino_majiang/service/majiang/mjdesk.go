@@ -521,7 +521,7 @@ func (d *MjDesk) time2begin() error {
 	if d.IsAllReady() && d.IsPlayerEnough() && d.IsNotDingQue() {
 		return nil
 	} else {
-		return errors.New("开始游戏失败，因为还有两个人没有准备")
+		return errors.New("开始游戏失败，因为还有人没有准备")
 	}
 	return nil
 }
@@ -999,6 +999,9 @@ func (d *MjDesk)DoEnd() error {
 			result.CoinInfo = append(result.CoinInfo, d.GetEndLotteryInfo(user))
 		}
 	}
+
+	//发送之前需要判断谁是大赢家...这里暂时没有判断...
+
 	//发送游戏结束的结果
 	d.BroadCastProto(result)
 
@@ -1322,6 +1325,7 @@ func (d *MjDesk)ActHu(userId uint32) error {
 	var extraAct mjproto.HuPaiType = 0        //杠上花，
 	var outUserId uint32
 	var roomInfo mjproto.RoomTypeInfo = *d.GetRoomTypeInfo()  //roomType  桌子的规则
+	var outUser *MjUser
 
 	hupai := huUser.GameData.HandPai.InPai
 	if checkCase == nil {
@@ -1331,18 +1335,23 @@ func (d *MjDesk)ActHu(userId uint32) error {
 		if huUser.GetPreMoGangInfo() != nil {
 			isGangShangHua = true  //杠上花
 			extraAct = mjproto.HuPaiType_H_GangShangHua
+		} else {
+			extraAct = 0
 		}
 
 	} else {
 		isZimo = false                //表示是点炮
 		outUserId = checkCase.GetUserIdOut()
 		if checkCase.GetPreOutGangInfo() != nil {
-
 			//这里需要判断是杠上炮，还是抢杠
 			isGangShangPao = true//杠上炮
 			extraAct = mjproto.HuPaiType_H_GangShangPao
+		}else{
+
 		}
 	}
+
+	outUser = d.GetUserByUserId(outUserId)
 
 	log.T("点炮的人[%v],胡牌的人[%v],杠上花[%v],杠上炮[%v],接下来开始getHuScore(%v,%v,%v,%v)", userId, outUserId, isGangShangHua, isGangShangPao,
 		huUser.GameData.HandPai, isZimo, extraAct, roomInfo)
@@ -1403,13 +1412,19 @@ func (d *MjDesk)ActHu(userId uint32) error {
 
 	//胡牌之后计算账单
 	d.DoHuBill(isZimo, outUserId, huUser, hupai, hu.GetScore())
+	//统计胡牌的次数
+	huUser.StatisticsHuCount(d.GetCurrPlayCount(), huUser.GetUserId(), hu.GetHuType())
+	if !isZimo {
+		outUser.StatisticsDianCount(outUserId, hu.GetHuType())
+	}
 
 	//发送胡牌成功的回复
 	ack := newProto.NewGame_AckActHu()
-	*ack.HuType = hu.GetHuType()
+	*ack.HuType = hu.GetHuType()	//这里需要判断是自摸还是点炮
 	*ack.UserIdIn = hu.GetGetUserId()
 	*ack.UserIdOut = hu.GetSendUserId()
 	ack.HuCard = hu.Pai.GetCardInfo()
+	*ack.IsZiMo = isZimo
 	log.T("给用户[%v]广播胡牌的ack[%v]", hu.GetGetUserId(), ack)
 	d.BroadCastProto(ack)
 
