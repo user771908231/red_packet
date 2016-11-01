@@ -41,6 +41,13 @@ message GangPaiInfo {
 
 }
 
+message GuoHuInfo {
+    optional uint32 sendUserId = 1; //打牌的人
+    optional uint32 getUserId = 2; //可以胡的人
+    optional MJPai pai = 3; //可以胡的牌是哪张
+    optional int32 fanShu = 4; //可以湖这张牌的翻数
+}
+
 //一个玩家的游戏信息
 message PlayerGameData {
     optional MJHandPai handPai = 1; //手牌
@@ -50,6 +57,7 @@ message PlayerGameData {
     repeated GangPaiInfo dianGangInfo = 5; //被杠信息
     repeated GangPaiInfo gangTransfer = 6; //呼叫转移
     optional int32 totalScore = 7; //牌局结果得分
+    repeated GuoHuInfo guoHuInfo = 8; //关于过湖的信息
 }
 
 //需要确认的时间

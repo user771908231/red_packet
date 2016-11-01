@@ -125,7 +125,7 @@ func HandlerDissolveDesk(owner uint32) error {
 	}
 
 	//开始解散房间
-	err := majiang.GetFMJRoom().DissolveDesk(desk,true);
+	err := majiang.GetFMJRoom().DissolveDesk(desk, true);
 	if err != nil {
 		return errors.New("解散朋友桌子的desk 失败...")
 	}
@@ -350,7 +350,24 @@ func HandlerGame_ActGang(m *mjProto.Game_ActGang) {
 
 	注意 *   本协议  只有判断别人出牌是否需要的时候，才会请求...
 	胡牌的过，之后的人可以继续碰或者杠
+
+
+	请求的场景:
+	1,别人点炮，自己不糊的时候，需要请求过
+	2,别人打牌，自己可以碰的时候，如果自己不碰，那么点过
+	3,别人打牌，自己可以杠的时候，如果自己不杠，那么需要点过
+
+
+	//过胡
+	1，场景：
+		别人打牌（checkBean不为nil） && 自己可以胡(canhu==true) && 自己点了过  确认为一个过胡的场景
+	过胡...在下一次操作之前，如果还有其他人打牌，你将不能胡，除非翻📖比之前的要大.. 注意自摸的要 除开，之前点炮的才需要判断...
+
+
+
  */
+
+
 func HandlerGame_ActGuo(m *mjProto.Game_ActGuo) {
 	log.T("收到杠牌的请求，game_ActGuo(m[%v])", m)
 
@@ -365,6 +382,10 @@ func HandlerGame_ActGuo(m *mjProto.Game_ActGuo) {
 		return
 
 	}
+
+	//添加一个过hu的info,下次init的时候，需要判断是否有这个guohu
+	user.AddGuoHuInfo(desk.CheckCase)
+
 	err := desk.CheckCase.UpdateCheckBeanStatus(user.GetUserId(), majiang.CHECK_CASE_BEAN_STATUS_PASS)        // update checkCase...
 	if err != nil {
 		log.T("过牌的时候失败，err[%v]", err)
