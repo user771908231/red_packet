@@ -629,21 +629,15 @@ func CanPengPai(pai *MJPai, handPai *MJHandPai) bool {
 //这张pai是否可杠( 当pai为nil时, 检测handPai中是否有杠)
 func CanGangPai(pai *MJPai, handPai *MJHandPai) (canGang bool, gangPais []*MJPai) {
 	if ( pai != nil ) {
-		//判断别人打入的牌是否可杠
+		//判断别人打入的牌是否可杠,别人打得牌，不能判断碰牌
 		existCount := 0
-
-		tempPais := make([]*MJPai, len(handPai.Pais) + len(handPai.PengPais))
-		copy(tempPais[0:len(handPai.Pais)], handPai.Pais)
-		copy(tempPais[len(handPai.Pais):], handPai.PengPais)
-
-		for _, p := range tempPais {
-
+		for _, p := range handPai.Pais {
 			//判断是不是定缺的花色
 			if p.GetFlower() == handPai.GetQueFlower() {
 				continue
 			}
 
-			if *pai.Flower == *p.Flower && *pai.Value == *p.Value {
+			if p.GetClientId() == pai.GetClientId() {
 				existCount ++
 			}
 		}
