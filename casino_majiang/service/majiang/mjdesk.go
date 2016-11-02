@@ -133,6 +133,7 @@ func (d *MjDesk) SendReconnectOverTurn(userId uint32) error {
 			//发送摸牌的协议
 			overTrun := newProto.NewGame_OverTurn()
 			*overTrun.UserId = user.GetUserId()                //这个是摸牌的，所以是广播...
+			*overTrun.PaiCount = d.GetRemainPaiCount()	//桌子剩余多少牌
 			*overTrun.ActType = OVER_TURN_ACTTYPE_MOPAI        //摸牌
 			overTrun.ActCard = user.GameData.HandPai.InPai.GetCardInfo()
 			*overTrun.CanHu = user.GameData.HandPai.GetCanHu()                //是否可以胡牌
@@ -169,6 +170,7 @@ func (d *MjDesk) SendReconnectOverTurn(userId uint32) error {
 			*overTurn.CanGang = caseBean.GetCanGang()
 			*overTurn.CanPeng = caseBean.GetCanPeng()
 			*overTurn.CanHu = caseBean.GetCanHu()
+			*overTurn.PaiCount = d.GetRemainPaiCount()
 			overTurn.ActCard = d.CheckCase.CheckMJPai.GetCardInfo()        //
 			*overTurn.ActType = OVER_TURN_ACTTYPE_OTHER
 			*overTurn.Time = int32(user.GetWaitTime() - time.Now().Unix())
@@ -567,9 +569,9 @@ func (d *MjDesk) AddCurrPlayCount() {
  */
 func (d *MjDesk) initCards() error {
 	//得到一副已经洗好的麻将
-	//d.AllMJPai = XiPai()
 	d.SetStatus(MJDESK_STATUS_FAPAI)        //发牌的阶段
-	d.AllMJPai = XiPaiTestHu()
+	d.AllMJPai = XiPai()
+	//d.AllMJPai = XiPaiTestHu()
 	//给每个人初始化...
 	for i, u := range d.Users {
 		if u != nil && u.IsReady() {
@@ -815,6 +817,7 @@ func (d *MjDesk) DoCheckCase(gangUser *MjUser) error {
 		*overTurn.CanGang = caseBean.GetCanGang()
 		*overTurn.CanPeng = caseBean.GetCanPeng()
 		*overTurn.CanHu = caseBean.GetCanHu()
+		*overTurn.PaiCount = d.GetRemainPaiCount()	//剩余多少钱
 		overTurn.ActCard = d.CheckCase.CheckMJPai.GetCardInfo()        //
 		*overTurn.ActType = OVER_TURN_ACTTYPE_OTHER
 
@@ -1095,6 +1098,7 @@ func (d *MjDesk) SendMopaiOverTurn(user *MjUser) error {
 	overTrun := newProto.NewGame_OverTurn()
 	*overTrun.UserId = user.GetUserId()                //这个是摸牌的，所以是广播...
 	*overTrun.ActType = OVER_TURN_ACTTYPE_MOPAI        //摸牌
+	*overTrun.PaiCount = d.GetRemainPaiCount()
 
 	//发送给当事人时候的信息
 	nextPai := d.GetNextPai()
@@ -1766,4 +1770,10 @@ func (d *MjDesk)GetEndLotteryInfo(user *MjUser) *mjproto.EndLotteryInfo {
  */
 func (d *MjDesk) IsBegin() bool {
 	return d.GetCurrPlayCount() > 0
+}
+
+//剩余牌的数量
+func (d *MjDesk) GetRemainPaiCount() int32 {
+	//todo 几门牌?
+	return 107 - d.GetMJPaiCursor()
 }

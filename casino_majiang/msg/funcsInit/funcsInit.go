@@ -169,6 +169,7 @@ func NewGame_OverTurn() *mjProto.Game_OverTurn {
 	ret.UserId = new(uint32)
 	ret.NextUserId = new(uint32)
 	ret.Time = new(int32)
+	ret.PaiCount = new(int32)
 	return ret
 }
 

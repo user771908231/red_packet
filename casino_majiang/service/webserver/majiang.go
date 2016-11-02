@@ -11,7 +11,7 @@ import (
 func InitCms() {
 	log.T("这里处理web请求")
 	http.HandleFunc("/f", gameInfo) //设置访问的路由
-	err := http.ListenAndServe(":9091", nil) //设置监听的端口 if err != nil {
+	err := http.ListenAndServe(":9092", nil) //设置监听的端口 if err != nil {
 	log.T("ListenAndServe: ", err)
 }
 
@@ -25,11 +25,11 @@ func gameInfo(w http.ResponseWriter, r *http.Request) {
 
 func printDeskInfo(w http.ResponseWriter, desk *majiang.MjDesk) {
 	if desk != nil {
-		deskInfo := "开始打印desk.id[%v], \t房间号roomKey[%v]的信息:\t 房主Owner[%v],activeUser[%v]\t \n" +
-		" desk.status[%v],总局数[%v]，当前局数[%v] \n" +
-		"麻将的信息：庄家的信息[%v]\t当前的游标[%v]：\n 麻将:\n %v \n checkCase:%v \n"
+		deskInfo := "开始打印desk.id[%v], \t房间号roomKey[%v]的信息:\t 房主Owner[%v],activeUser[%v],GetActUser[%v]\t \n" +
+			" desk.status[%v],总局数[%v]，当前局数[%v] \n" +
+			"麻将的信息：庄家的信息[%v]\t当前的游标[%v]：\n 麻将:\n %v \n checkCase:%v \n"
 
-		fmt.Fprintf(w, deskInfo, desk.GetDeskId(), desk.GetPassword(), desk.GetOwner(), desk.GetActiveUser(),
+		fmt.Fprintf(w, deskInfo, desk.GetDeskId(), desk.GetPassword(), desk.GetOwner(), desk.GetActiveUser(), desk.GetActUser(),
 			desk.GetStatus(), desk.GetTotalPlayCount(), desk.GetCurrPlayCount(),
 			desk.GetBanker(), desk.GetMJPaiCursor(), GetDeskMJInfo(desk), desk.CheckCase)
 
@@ -45,8 +45,8 @@ func printDeskInfo(w http.ResponseWriter, desk *majiang.MjDesk) {
 func printUserInfo(w http.ResponseWriter, i int, user *majiang.MjUser) {
 	if user != nil {
 		fmt.Fprintf(w, "[%v],玩家的信息userId[%v],nickName[%v],status[%v],是否定缺[%v]," +
-		"定缺的花色[%v]\n 玩家的手牌[%v]\n玩家的碰牌[%v],玩家的杠牌[%v],玩家的胡牌[%v],玩家的inpai[%v]\n" +
-		"bill[%v]\n",
+			"定缺的花色[%v]\n 玩家的手牌[%v]\n玩家的碰牌[%v],玩家的杠牌[%v],玩家的胡牌[%v],玩家的inpai[%v]\n" +
+			"bill[%v]\n",
 			i, user.GetUserId(), "nickName", user.GetStatus(), user.GetDingQue(), user.GameData.HandPai.GetQueFlower(), getUserPaiInfo(user),
 			getUserPengPaiInfo(user),
 			getUserGnagPaiInfo(user),

@@ -218,6 +218,7 @@ func HandlerGame_DingQue(m *mjProto.Game_DingQue, a gate.Agent) {
 		*overTurn.UserId = desk.GetBanker()
 		*overTurn.ActType = majiang.OVER_TURN_ACTTYPE_MOPAI
 		*overTurn.CanPeng = false        ///自己的手牌不能碰
+		*overTurn.PaiCount = desk.GetRemainPaiCount()
 
 		//广播时候的信息
 		overTurn.ActCard = nil
