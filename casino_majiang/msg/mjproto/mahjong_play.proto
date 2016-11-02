@@ -153,6 +153,8 @@ message game_OverTurn {
     optional CardInfo actCard = 8; // 如果有出牌，表示出的是哪张牌，否则置为空 别人打牌的判断
     repeated CardInfo gangCards = 9; // 手牌中可杠的牌(可能多张) 自己摸牌的时候
     optional int32 time = 10;
+    optional int32 paiCount = 11;   //剩余多少牌还没有摸
+
 }
 
 // 发送游戏信息(广播)

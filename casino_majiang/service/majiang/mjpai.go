@@ -51,13 +51,23 @@ func (p *MJHandPai) GetCanGang(pai *MJPai) (bool, []*MJPai) {
 	var result []*MJPai
 	boolReuls, pais := CanGangPai(pai, p)
 	if pais != nil && len(pais) >= 4 {
-		for _, p := range pais {
-			if !IsListExisGangPais(result, p) {
-				result = append(result, p)
+		for _, pai := range pais {
+			//杠牌中没有，并且手牌中有的才能放在list中...
+			if !IsListExisGangPais(result, pai) && p.IsExistHandPais(pai) {
+				result = append(result, pai)
 			}
 		}
 	}
 	return boolReuls, result
+}
+
+func (p *MJHandPai) IsExistHandPais(pai *MJPai) bool {
+	for _, p1 := range p.Pais {
+		if p1 != nil && p1.GetIndex() == pai.GetIndex() {
+			return true
+		}
+	}
+	return false;
 }
 
 func IsListExisGangPais(ps []*MJPai, p *MJPai) bool {

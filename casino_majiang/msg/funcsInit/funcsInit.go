@@ -169,6 +169,7 @@ func NewGame_OverTurn() *mjProto.Game_OverTurn {
 	ret.UserId = new(uint32)
 	ret.NextUserId = new(uint32)
 	ret.Time = new(int32)
+	ret.PaiCount = new(int32)
 	return ret
 }
 
@@ -233,7 +234,6 @@ func NewGame_AckActGang() *mjProto.Game_AckActGang {
 	ret.Header = NewHeader()
 	ret.UserIdIn = new(uint32)
 	ret.UserIdOut = new(uint32)
-	ret.GangCard = make([]*mjProto.CardInfo, 4)
 	return ret
 }
 
@@ -242,7 +242,6 @@ func NewGame_AckActPeng() *mjProto.Game_AckActPeng {
 	ret.Header = NewHeader()
 	ret.UserIdIn = new(uint32)
 	ret.UserIdOut = new(uint32)
-	ret.PengCard = make([]*mjProto.CardInfo, 3)
 	return ret
 }
 

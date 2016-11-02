@@ -539,9 +539,9 @@ const (
 	HuPaiType_H_DaiYaoJiu HuPaiType = 4
 	HuPaiType_H_LongQiDui HuPaiType = 5
 	HuPaiType_H_JiangDui  HuPaiType = 6
-	HuPaiType_H_TianHu    HuPaiType = 7
-	HuPaiType_H_DiHu      HuPaiType = 8
 	// 附加番数(特定操作)
+	HuPaiType_H_TianHu            HuPaiType = 7
+	HuPaiType_H_DiHu              HuPaiType = 8
 	HuPaiType_H_GangShangHua      HuPaiType = 9
 	HuPaiType_H_GangShangPao      HuPaiType = 10
 	HuPaiType_H_QiangGang         HuPaiType = 11

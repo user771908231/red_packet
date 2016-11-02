@@ -133,6 +133,7 @@ func (d *MjDesk) SendReconnectOverTurn(userId uint32) error {
 			//发送摸牌的协议
 			overTrun := newProto.NewGame_OverTurn()
 			*overTrun.UserId = user.GetUserId()                //这个是摸牌的，所以是广播...
+			*overTrun.PaiCount = d.GetRemainPaiCount()	//桌子剩余多少牌
 			*overTrun.ActType = OVER_TURN_ACTTYPE_MOPAI        //摸牌
 			overTrun.ActCard = user.GameData.HandPai.InPai.GetCardInfo()
 			*overTrun.CanHu = user.GameData.HandPai.GetCanHu()                //是否可以胡牌
@@ -169,6 +170,7 @@ func (d *MjDesk) SendReconnectOverTurn(userId uint32) error {
 			*overTurn.CanGang = caseBean.GetCanGang()
 			*overTurn.CanPeng = caseBean.GetCanPeng()
 			*overTurn.CanHu = caseBean.GetCanHu()
+			*overTurn.PaiCount = d.GetRemainPaiCount()
 			overTurn.ActCard = d.CheckCase.CheckMJPai.GetCardInfo()        //
 			*overTurn.ActType = OVER_TURN_ACTTYPE_OTHER
 			*overTurn.Time = int32(user.GetWaitTime() - time.Now().Unix())
@@ -567,9 +569,9 @@ func (d *MjDesk) AddCurrPlayCount() {
  */
 func (d *MjDesk) initCards() error {
 	//得到一副已经洗好的麻将
-	//d.AllMJPai = XiPai()
 	d.SetStatus(MJDESK_STATUS_FAPAI)        //发牌的阶段
-	d.AllMJPai = XiPaiTestHu()
+	d.AllMJPai = XiPai()
+	//d.AllMJPai = XiPaiTestHu()
 	//给每个人初始化...
 	for i, u := range d.Users {
 		if u != nil && u.IsReady() {
@@ -736,6 +738,7 @@ func (d *MjDesk) InitCheckCase(p *MJPai, outUser *MjUser) error {
 		if checkUser != nil && checkUser.GetUserId() != outUser.GetUserId() &&  d.CanInitCheckCase(checkUser) {
 			log.T("用户[%v]打牌，判断user[%v]是否可以碰杠胡...", outUser.GetUserId(), checkUser.GetUserId())
 			checkUser.GameData.HandPai.InPai = p
+			//添加checkBean
 			bean := checkUser.GetCheckBean(p)
 			if bean != nil {
 				checkCase.CheckB = append(checkCase.CheckB, bean)
@@ -765,28 +768,28 @@ func (d *MjDesk ) CanInitCheckCase(user *MjUser) bool {
 
 }
 
-//暂时不用？？ 摸牌之后
-func (d *MjDesk) InitMoPaiCheckCase(p *MJPai, moPaiUser *MjUser) error {
-
-	//初始化参数
-	moPaiUser.GameData.HandPai.InPai = p
-
-	//判断可能性
-	checkCase := NewCheckCase()
-	*checkCase.UserIdOut = moPaiUser.GetUserId()
-	*checkCase.CheckStatus = CHECK_CASE_STATUS_CHECKING        //正在判定
-	checkCase.CheckMJPai = p
-
-	checkCase.PreOutGangInfo = moPaiUser.GetPreMoGangInfo()
-	checkCase.CheckB = append(checkCase.CheckB, moPaiUser.GetCheckBean(p))
-	if checkCase.CheckB == nil || len(checkCase.CheckB) > 0 {
-		d.CheckCase = checkCase
-	} else {
-		d.CheckCase = nil
-	}
-
-	return nil
-}
+////暂时不用？？ 摸牌之后
+//func (d *MjDesk) InitMoPaiCheckCase(p *MJPai, moPaiUser *MjUser) error {
+//
+//	//初始化参数
+//	moPaiUser.GameData.HandPai.InPai = p
+//
+//	//判断可能性
+//	checkCase := NewCheckCase()
+//	*checkCase.UserIdOut = moPaiUser.GetUserId()
+//	*checkCase.CheckStatus = CHECK_CASE_STATUS_CHECKING        //正在判定
+//	checkCase.CheckMJPai = p
+//
+//	checkCase.PreOutGangInfo = moPaiUser.GetPreMoGangInfo()
+//	checkCase.CheckB = append(checkCase.CheckB, moPaiUser.GetCheckBean(p))
+//	if checkCase.CheckB == nil || len(checkCase.CheckB) > 0 {
+//		d.CheckCase = checkCase
+//	} else {
+//		d.CheckCase = nil
+//	}
+//
+//	return nil
+//}
 
 
 //执行判断事件
@@ -814,6 +817,7 @@ func (d *MjDesk) DoCheckCase(gangUser *MjUser) error {
 		*overTurn.CanGang = caseBean.GetCanGang()
 		*overTurn.CanPeng = caseBean.GetCanPeng()
 		*overTurn.CanHu = caseBean.GetCanHu()
+		*overTurn.PaiCount = d.GetRemainPaiCount()	//剩余多少钱
 		overTurn.ActCard = d.CheckCase.CheckMJPai.GetCardInfo()        //
 		*overTurn.ActType = OVER_TURN_ACTTYPE_OTHER
 
@@ -1094,6 +1098,7 @@ func (d *MjDesk) SendMopaiOverTurn(user *MjUser) error {
 	overTrun := newProto.NewGame_OverTurn()
 	*overTrun.UserId = user.GetUserId()                //这个是摸牌的，所以是广播...
 	*overTrun.ActType = OVER_TURN_ACTTYPE_MOPAI        //摸牌
+	*overTrun.PaiCount = d.GetRemainPaiCount()
 
 	//发送给当事人时候的信息
 	nextPai := d.GetNextPai()
@@ -1157,15 +1162,22 @@ func (d *MjDesk) ActPeng(userId uint32) error {
 
 	//2.1开始碰牌的操作
 	pengPai := d.CheckCase.CheckMJPai
+
+	user.GameData.HandPai.InPai = nil
 	user.GameData.HandPai.PengPais = append(user.GameData.HandPai.PengPais, pengPai)        //碰牌
+	user.DelGuoHuInfo()        //删除过胡的信息
 
 	//碰牌之后，需要删掉的pai...
 	var pengKeys []int32
 	//pengKeys = append(pengKeys, pengPai.GetIndex())
 	for _, pai := range user.GameData.HandPai.Pais {
-		if pai != nil && pai.GetIndex() == pengPai.GetIndex() {
+		if pai != nil && pai.GetClientId() == pengPai.GetClientId() {
 			user.GameData.HandPai.PengPais = append(user.GameData.HandPai.PengPais, pai)        //碰牌
 			pengKeys = append(pengKeys, pai.GetIndex())
+			//碰牌只需要拆掉手里的两张牌
+			if len(pengKeys) == 2 {
+				break;
+			}
 		}
 	}
 
@@ -1176,6 +1188,7 @@ func (d *MjDesk) ActPeng(userId uint32) error {
 
 	//3,生成碰牌信息
 	//user.GameData.
+
 
 	//4,处理 checkCase
 	d.CheckCase.UpdateCheckBeanStatus(user.GetUserId(), CHECK_CASE_BEAN_STATUS_CHECKED)
@@ -1188,11 +1201,12 @@ func (d *MjDesk) ActPeng(userId uint32) error {
 	*ack.Header.Code = intCons.ACK_RESULT_SUCC
 	*ack.UserIdOut = d.CheckCase.GetUserIdOut()
 	*ack.UserIdIn = user.GetUserId()
-
-	//todo 临时处理
-	ack.PengCard[0] = d.CheckCase.CheckMJPai.GetCardInfo()
-	ack.PengCard[1] = d.CheckCase.CheckMJPai.GetCardInfo()
-	ack.PengCard[2] = d.CheckCase.CheckMJPai.GetCardInfo()
+	//组装牌的信息
+	for _, ackpai := range user.GameData.HandPai.PengPais {
+		if ackpai != nil && ackpai.GetClientId() == pengPai.GetClientId() {
+			ack.PengCard = append(ack.PengCard, ackpai.GetCardInfo())
+		}
+	}
 	d.BroadCastProto(ack)
 
 	//最后设置checkCase = nil
@@ -1209,7 +1223,6 @@ func (d *MjDesk) CheckActive(userId uint32) bool {
 		log.E("非法请求，没有轮到当前玩家打牌..")
 		return false
 	}
-
 }
 
 //用户打一张牌出来
@@ -1233,7 +1246,13 @@ func (d *MjDesk)ActOut(userId uint32, paiKey int32) error {
 
 	//得到参数
 	outPai := InitMjPaiByIndex(int(paiKey))
-	outUser.GameData.HandPai.AddPai(outUser.GameData.HandPai.InPai)        //把inpai放置到手牌上
+	/**
+		1,如果是碰牌打牌的时候,inpai为nil，不需要增加
+		2,如果是摸牌打牌（杠之后也是摸牌，需要增加in牌...）
+	 */
+	if outUser.GameData.HandPai.InPai != nil {
+		outUser.GameData.HandPai.AddPai(outUser.GameData.HandPai.InPai)        //把inpai放置到手牌上
+	}
 	errDapai := outUser.DaPai(outPai)
 	if errDapai != nil {
 		log.E("打牌的时候出现错误，没有找到要到的牌,id[%v]", paiKey)
@@ -1242,7 +1261,7 @@ func (d *MjDesk)ActOut(userId uint32, paiKey int32) error {
 
 	outUser.GameData.HandPai.OutPais = append(outUser.GameData.HandPai.OutPais, outPai)        //自己桌子前面打出的牌，如果其他人碰杠胡了之后，需要把牌删除掉...
 	outUser.GameData.HandPai.InPai = nil        //打牌之后需要把自己的  inpai给移除掉...
-
+	outUser.DelGuoHuInfo()        //删除过胡的信息
 	//打牌之后的逻辑,初始化判定事件
 	err := d.InitCheckCase(outPai, outUser)
 	if err != nil {
@@ -1346,7 +1365,7 @@ func (d *MjDesk)ActHu(userId uint32) error {
 			//这里需要判断是杠上炮，还是抢杠
 			isGangShangPao = true//杠上炮
 			extraAct = mjproto.HuPaiType_H_GangShangPao
-		}else{
+		} else {
 
 		}
 	}
@@ -1420,7 +1439,7 @@ func (d *MjDesk)ActHu(userId uint32) error {
 
 	//发送胡牌成功的回复
 	ack := newProto.NewGame_AckActHu()
-	*ack.HuType = hu.GetHuType()	//这里需要判断是自摸还是点炮
+	*ack.HuType = hu.GetHuType()        //这里需要判断是自摸还是点炮
 	*ack.UserIdIn = hu.GetGetUserId()
 	*ack.UserIdOut = hu.GetSendUserId()
 	ack.HuCard = hu.Pai.GetCardInfo()
@@ -1501,10 +1520,11 @@ func (d *MjDesk) ActGang(userId uint32, paiId int32) error {
 	if gangType == GANG_TYPE_BA {
 		log.T("用户[%v]杠牌是巴杠,现在处理巴杠...", userId)
 		//循环碰牌来处理
-		var pengKeys []int32
 		user.GameData.HandPai.GangPais = append(user.GameData.HandPai.GangPais, gangPai)
+
+		var pengKeys []int32
 		for _, pengPai := range user.GameData.HandPai.PengPais {
-			if pengPai != nil && pengPai.GetValue() == gangPai.GetValue() && pengPai.GetFlower() == gangPai.GetFlower() {
+			if pengPai != nil && pengPai.GetClientId() == gangPai.GetClientId() {
 				//增加杠牌
 				user.GameData.HandPai.GangPais = append(user.GameData.HandPai.GangPais, pengPai)
 				pengKeys = append(pengKeys, pengPai.GetIndex())
@@ -1513,8 +1533,12 @@ func (d *MjDesk) ActGang(userId uint32, paiId int32) error {
 
 		//删除碰牌,手中的杠牌
 		for _, key := range pengKeys {
+			log.T("巴杠删除手牌..index[%v]", key)
 			user.GameData.HandPai.DelPengPai(key)
 		}
+
+		//删除手牌
+		user.GameData.HandPai.DelHandlPai(gangPai.GetIndex())
 
 	} else if gangType == GANG_TYPE_MING || gangType == GANG_TYPE_AN {
 		log.T("用户[%v]杠牌不是巴杠 是 gangType[%v]...", userId, gangType)
@@ -1525,7 +1549,7 @@ func (d *MjDesk) ActGang(userId uint32, paiId int32) error {
 		user.GameData.HandPai.Pais = append(user.GameData.HandPai.Pais, user.GameData.HandPai.InPai)
 		//如果不是摸的牌，而是手中本来就有的牌，那么需要把他移除
 		for _, pai := range user.GameData.HandPai.Pais {
-			if pai.GetFlower() == gangPai.GetFlower() && pai.GetValue() == gangPai.GetValue() {
+			if pai.GetClientId() == gangPai.GetClientId() {
 				//增加杠牌
 				user.GameData.HandPai.GangPais = append(user.GameData.HandPai.GangPais, pai)
 				gangKey = append(gangKey, pai.GetIndex())
@@ -1550,6 +1574,7 @@ func (d *MjDesk) ActGang(userId uint32, paiId int32) error {
 	user.PreMoGangInfo = info        //增加杠牌状态
 	user.GameData.HandPai.InPai = nil        //1,设置inpai为nil
 	user.StatisticsGangCount(d.GetCurrPlayCount(), gangType)        //处理杠牌的账单
+	user.DelGuoHuInfo()        //删除过胡的信息
 
 	d.DoGangBill(gangType, user, gangPai);
 	d.DoCheckCaseAfterGang(gangType, gangPai, user)
@@ -1561,11 +1586,12 @@ func (d *MjDesk) ActGang(userId uint32, paiId int32) error {
 	*result.UserIdOut = user.PreMoGangInfo.GetSendUserId()
 	*result.UserIdIn = user.GetUserId()
 
-	//todo 暂时着这么处理的，之后需要修改...
-	result.GangCard[0] = user.PreMoGangInfo.GetPai().GetCardInfo()
-	result.GangCard[1] = user.PreMoGangInfo.GetPai().GetCardInfo()
-	result.GangCard[2] = user.PreMoGangInfo.GetPai().GetCardInfo()
-	result.GangCard[3] = user.PreMoGangInfo.GetPai().GetCardInfo()
+	//组装杠牌的信息
+	for _, ackpai := range user.GameData.HandPai.GangPais {
+		if ackpai != nil && ackpai.GetClientId() == gangPai.GetClientId() {
+			result.GangCard = append(result.GangCard, ackpai.GetCardInfo())
+		}
+	}
 	log.T("广播玩家[%v]杠牌[%v]之后的ack[%v]", user.GetUserId(), gangPai, result)
 	d.BroadCastProto(result)
 	return nil
@@ -1744,4 +1770,10 @@ func (d *MjDesk)GetEndLotteryInfo(user *MjUser) *mjproto.EndLotteryInfo {
  */
 func (d *MjDesk) IsBegin() bool {
 	return d.GetCurrPlayCount() > 0
+}
+
+//剩余牌的数量
+func (d *MjDesk) GetRemainPaiCount() int32 {
+	//todo 几门牌?
+	return 107 - d.GetMJPaiCursor()
 }

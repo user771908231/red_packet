@@ -187,3 +187,12 @@ func NewStatiscRound() *StatiscRound {
 	ret.Round = new(int32)
 	return ret
 }
+
+//生成一个过胡的info
+func NewGuoHuInfo() *GuoHuInfo {
+	ret := &GuoHuInfo{}
+	ret.FanShu = new(int32)
+	ret.GetUserId = new(uint32)
+	ret.SendUserId = new(uint32)
+	return ret
+}

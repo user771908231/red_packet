@@ -624,7 +624,12 @@ func CanGangPai(pai *MJPai, handPai *MJHandPai) (canGang bool, gangPais []*MJPai
 	if ( pai != nil ) {
 		//判断别人打入的牌是否可杠
 		existCount := 0
-		for _, p := range handPai.Pais {
+
+		tempPais := make([]*MJPai, len(handPai.Pais) + len(handPai.PengPais))
+		copy(tempPais[0:len(handPai.Pais)], handPai.Pais)
+		copy(tempPais[len(handPai.Pais):], handPai.PengPais)
+
+		for _, p := range tempPais {
 			if *pai.Flower == *p.Flower && *pai.Value == *p.Value {
 				existCount ++
 			}
@@ -637,10 +642,10 @@ func CanGangPai(pai *MJPai, handPai *MJHandPai) (canGang bool, gangPais []*MJPai
 
 	} else {
 		//检测手牌中是否有杠
-		tempPais := make([]*MJPai, len(handPai.Pais) + 1)
+		tempPais := make([]*MJPai, len(handPai.Pais) + 1 + len(handPai.PengPais))
 		copy(tempPais[0:len(handPai.Pais)], handPai.Pais)
 		tempPais[len(handPai.Pais)] = handPai.InPai
-
+		copy(tempPais[len(handPai.Pais) + 1:], handPai.PengPais)
 
 		//counts := GettPaiStats(handPai.Pais)
 		counts := GettPaiStats(tempPais)

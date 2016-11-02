@@ -256,6 +256,11 @@ func (u *MjUser) GetCheckBean(p *MJPai) *CheckBean {
 	*bean.UserId = u.GetUserId()
 	log.T("得到用户[%v]对牌[%v]的check , bean[%v]", u.GetUserId(), p.LogDes(), bean)
 
+	//判断过胡.如果有过胡，那么就不能再胡了
+	if u.HadGuoHuInfo(p) {
+		*bean.CanHu = false
+	}
+
 	if bean.GetCanGang() || bean.GetCanHu() || bean.GetCanPeng() {
 		return bean
 	} else {
@@ -459,3 +464,49 @@ func (u *MjUser) GetStatisticsRoundBean(round int32) *StatiscRound {
 	return nil
 }
 
+//增加一个过胡的info
+/**
+	用户操作1，摸牌，2，碰牌，3，杠牌 之后，需要删除过胡的信息
+ */
+
+
+func (u *MjUser) AddGuoHuInfo(checkCase *CheckCase) {
+	if checkCase == nil {
+		return
+	}
+
+	checkBean := checkCase.GetBeanByUserIdAndStatus(u.GetUserId(), CHECK_CASE_BEAN_STATUS_CHECKING)
+	if checkBean != nil && checkBean.GetCanHu() {
+		guoHuInfo := NewGuoHuInfo()
+		*guoHuInfo.SendUserId = checkCase.GetUserIdOut()
+		guoHuInfo.Pai = checkCase.CheckMJPai
+		*guoHuInfo.FanShu = 0        //现在都设置为0翻
+		u.GameData.GuoHuInfo = append(u.GameData.GuoHuInfo, guoHuInfo)
+	}
+
+}
+
+//删除过胡的信息
+func (u *MjUser)DelGuoHuInfo() error {
+	u.GameData.GuoHuInfo = nil
+	return nil
+}
+
+//是否已经有过胡了
+func (u *MjUser) HadGuoHuInfo(pai *MJPai) bool {
+	if u.GameData.GuoHuInfo == nil || len(u.GameData.GuoHuInfo) <= 0 {
+		return false
+	}
+
+	//目前只做成  牌一样的时候再判断
+
+	//如果huinfo的牌和pai 一样，表示有guohu的info
+	for _, info := range u.GameData.GuoHuInfo {
+		if pai.GetClientId() == info.GetPai().GetClientId() {
+			return true
+		}
+	}
+
+	//没有过胡的信息
+	return false
+}
