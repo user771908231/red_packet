@@ -294,6 +294,7 @@ func (d *MjDesk) GetDeskGameInfo() *mjproto.DeskGameInfo {
 	//deskInfo.NInitActionTime
 	//deskInfo.NInitDelayTime
 	*deskInfo.ActiveUserId = d.GetActiveUser()
+	*deskInfo.RemainCards = d.GetRemainPaiCount()
 	return deskInfo
 }
 
