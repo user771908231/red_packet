@@ -117,6 +117,7 @@ func NewDeskGameInfo() *mjProto.DeskGameInfo {
 	ret.TotalPlayCount = new(int32)
 	ret.RoomNumber = new(string)
 	ret.Banker = new(uint32)
+	ret.RemainCards = new(int32)
 	return ret
 }
 

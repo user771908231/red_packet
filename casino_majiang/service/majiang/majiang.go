@@ -423,7 +423,7 @@ func CanHuPai(handPai *MJHandPai) bool {
 	return canHu
 }
 
-func getHuScore(handPai *MJHandPai, isZimo bool, extraAct HuPaiType, roomInfo RoomTypeInfo) (fan int32, score int64, huCardStr[] string) {
+func GetHuScore(handPai *MJHandPai, isZimo bool, extraAct HuPaiType, roomInfo RoomTypeInfo) (fan int32, score int64, huCardStr[] string) {
 	//底分
 	score = int64(*roomInfo.BaseValue)
 
@@ -607,10 +607,17 @@ func getHuFan(handPai *MJHandPai, isZimo bool, extraAct HuPaiType, roomInfo Room
 
 
 //这张pai是否可碰
+// add 增加缺的花色是不能碰的
 func CanPengPai(pai *MJPai, handPai *MJHandPai) bool {
 
 	existCount := 0
 	for i := 0; i < len(handPai.Pais); i++ {
+
+		//add 判断是否是定缺的花色
+		if pai.GetFlower() == handPai.GetQueFlower() {
+			continue
+		}
+
 		if *pai.Flower == *handPai.Pais[i].Flower && *pai.Value == *handPai.Pais[i].Value {
 			existCount ++
 		}
@@ -630,6 +637,12 @@ func CanGangPai(pai *MJPai, handPai *MJHandPai) (canGang bool, gangPais []*MJPai
 		copy(tempPais[len(handPai.Pais):], handPai.PengPais)
 
 		for _, p := range tempPais {
+
+			//判断是不是定缺的花色
+			if p.GetFlower() == handPai.GetQueFlower() {
+				continue
+			}
+
 			if *pai.Flower == *p.Flower && *pai.Value == *p.Value {
 				existCount ++
 			}
@@ -650,6 +663,9 @@ func CanGangPai(pai *MJPai, handPai *MJHandPai) (canGang bool, gangPais []*MJPai
 		//counts := GettPaiStats(handPai.Pais)
 		counts := GettPaiStats(tempPais)
 		for _, p := range tempPais {
+			if p.GetFlower() == handPai.GetQueFlower() {
+				continue
+			}
 			//log.T("判断杠牌 p.getValue(%v)+p.GetFlower[%v]*9 = %v", p.GetValue(), p.GetFlower(), p.GetValue() + (p.GetFlower() - 1) * 9)
 			if ( 4 == counts[ p.GetValue() - 1 + (p.GetFlower() - 1) * 9 ] ) {
 				canGang = true
