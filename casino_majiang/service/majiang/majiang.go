@@ -423,7 +423,7 @@ func CanHuPai(handPai *MJHandPai) bool {
 	return canHu
 }
 
-func getHuScore(handPai *MJHandPai, isZimo bool, extraAct HuPaiType, roomInfo RoomTypeInfo) (fan int32, score int64, huCardStr[] string) {
+func GetHuScore(handPai *MJHandPai, isZimo bool, extraAct HuPaiType, roomInfo RoomTypeInfo) (fan int32, score int64, huCardStr[] string) {
 	//底分
 	score = int64(*roomInfo.BaseValue)
 
