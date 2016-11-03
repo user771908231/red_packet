@@ -86,6 +86,7 @@ func (r *MjRoom) CreateDesk(m *mjproto.Game_CreateRoom) *MjDesk {
 	*desk.TotalPlayCount = m.RoomTypeInfo.GetBoardsCout()
 	*desk.CurrPlayCount = 0
 	*desk.Banker = userId
+	*desk.NextBanker = 0	//游戏过程中动态的计算
 	desk.CheckCase = nil        //判断case
 	*desk.ActiveUser = userId
 	*desk.GameNumber = 0

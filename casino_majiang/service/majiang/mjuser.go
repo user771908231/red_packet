@@ -486,6 +486,13 @@ func (u *MjUser) AddGuoHuInfo(checkCase *CheckCase) {
 
 }
 
+//增加胡牌的信息
+func (u *MjUser) AddHuPaiInfo(hu *HuPaiInfo){
+	u.GameData.HuInfo = append(u.GameData.HuInfo, hu)
+	u.GameData.HandPai.HuPais = append(u.GameData.HandPai.HuPais, hu.Pai)        //增加胡牌
+	u.SetStatus(MJUSER_STATUS_HUPAI)
+}
+
 //删除过胡的信息
 func (u *MjUser)DelGuoHuInfo() error {
 	u.GameData.GuoHuInfo = nil

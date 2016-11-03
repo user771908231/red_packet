@@ -11,7 +11,7 @@ import (
 func InitCms() {
 	log.T("这里处理web请求")
 	http.HandleFunc("/f", gameInfo) //设置访问的路由
-	err := http.ListenAndServe(":9092", nil) //设置监听的端口 if err != nil {
+	err := http.ListenAndServe(":9091", nil) //设置监听的端口 if err != nil {
 	log.T("ListenAndServe: ", err)
 }
 
