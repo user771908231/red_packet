@@ -845,13 +845,12 @@ func (d *MjDesk) Time2Lottery() bool {
 
 	log.T("判断是否胡牌...但钱的gamingCount[%v]", gamingCount)
 
-	if gamingCount != 1 {
-		//正在游戏中的玩家的数量不为1，表示还没有结束
-		return false
+	//只剩下一个人的时候. 表示游戏结束
+	if gamingCount == 1 {
+		return true
 	}
 
-	//所有的条件都满足，一局麻将结束...
-	return true
+	return false
 }
 
 func (d *MjDesk) GetGamingCount() int32 {
@@ -879,6 +878,10 @@ func (d *MjDesk) Lottery() error {
 	}
 
 	log.T("现在开始处理lottery()的逻辑....")
+
+
+	//查花猪
+	//查大叫
 
 	d.DoLottery()
 
@@ -1485,7 +1488,30 @@ func (d *MjDesk) IsNextBankerExist() bool {
  */
 func (d *MjDesk)InitNextBanker(hu *HuPaiInfo) {
 	if d.IsNextBankerExist {
-		//已经存在的情况  todo 这里的业务还不太清楚，需要在合适
+		//已经存在的情况 //有双响就双响点炮的人做庄，不论之前是否有人胡牌  by 亮哥
+		//这里可以用过pai 查询点炮账单的个数
+
+		//判断是否是自摸
+		isZimo := (hu.GetUserId == hu.GetSendUserId())
+		if isZimo {
+			//如果是自摸，并且nextBanker已经有值了,那么直接返回不用设置
+			return
+		}
+
+		//如果是点炮的，需要判断是不是双响
+		dianUser := d.GetUserByUserId(hu.GetSendUserId())
+		count := 0
+		for _, bill := range dianUser.GetBill().Bills {
+			if bill != nil && bill.Pai.GetIndex() == hu.GetPai().GetIndex() && bill.Type == MJUSER_BILL_TYPE_SHU_DIANPAO {
+				count++
+			}
+		}
+
+		//表示多响
+		if count > 1 {
+			//设置一炮多响的人为庄
+			d.SetNextBanker(hu.GetSendUserId())
+		}
 	} else {
 		d.SetNextBanker(hu.GetUserId)
 	}
@@ -1714,7 +1740,7 @@ func (d *MjDesk)DoHuBill(hu *HuPaiInfo) {
 				bill := NewBillBean()
 				*bill.UserId = huUser.GetUserId()
 				*bill.OutUserId = shuUser.GetUserId()
-				*bill.Type = 1
+				*bill.Type = MJUSER_BILL_TYPE_YING_HU
 				*bill.Des = "用户自摸，获得收入"
 				*bill.Amount = hu.GetScore()        //杠牌的收入金额
 				bill.Pai = hu.Pai
@@ -1724,7 +1750,7 @@ func (d *MjDesk)DoHuBill(hu *HuPaiInfo) {
 				shubill := NewBillBean()
 				*shubill.UserId = shuUser.GetUserId()
 				*shubill.OutUserId = huUser.GetUserId()
-				*shubill.Type = 1
+				*shubill.Type = MJUSER_BILL_TYPE_SHU_ZIMO
 				*shubill.Des = "用户自摸，输钱"
 				*shubill.Amount = -hu.GetScore()      //杠牌的收入金额
 				shubill.Pai = hu.Pai
@@ -1741,7 +1767,7 @@ func (d *MjDesk)DoHuBill(hu *HuPaiInfo) {
 		bill := NewBillBean()
 		*bill.UserId = huUser.GetUserId()
 		*bill.OutUserId = shuUser.GetUserId()
-		*bill.Type = 1
+		*bill.Type = MJUSER_BILL_TYPE_YING_HU
 		*bill.Des = "点炮胡牌，获得收入"
 		*bill.Amount = hu.GetScore()        //杠牌的收入金额
 		bill.Pai = hu.Pai
@@ -1751,7 +1777,7 @@ func (d *MjDesk)DoHuBill(hu *HuPaiInfo) {
 		shubill := NewBillBean()
 		*shubill.UserId = shuUser.GetUserId()
 		*shubill.OutUserId = huUser.GetUserId()
-		*shubill.Type = 1
+		*shubill.Type = MJUSER_BILL_TYPE_SHU_DIANPAO
 		*shubill.Des = "用户点炮，输钱"
 		*shubill.Amount = -hu.GetScore()       //杠牌的收入金额
 		shubill.Pai = hu.Pai

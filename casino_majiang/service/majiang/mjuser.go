@@ -23,7 +23,10 @@ var MJUSER_STATUS_HUPAI int32 = 6; ///准备游戏
 
 
 var MJUSER_BILL_TYPE_YING_GNAG int32 = 1; //杠牌赢钱
-var MJUSER_BILL_TYPE_SHU_GNAG int32 = 1; //杠牌赢钱
+var MJUSER_BILL_TYPE_SHU_GNAG int32 = 2; //杠牌赢钱
+var MJUSER_BILL_TYPE_YING_HU int32 = 3; //杠牌赢钱
+var MJUSER_BILL_TYPE_SHU_DIANPAO int32 = 4; //杠牌赢钱
+var MJUSER_BILL_TYPE_SHU_ZIMO int32 = 5; //杠牌赢钱
 
 
 //麻将玩家
@@ -487,7 +490,7 @@ func (u *MjUser) AddGuoHuInfo(checkCase *CheckCase) {
 }
 
 //增加胡牌的信息
-func (u *MjUser) AddHuPaiInfo(hu *HuPaiInfo){
+func (u *MjUser) AddHuPaiInfo(hu *HuPaiInfo) {
 	u.GameData.HuInfo = append(u.GameData.HuInfo, hu)
 	u.GameData.HandPai.HuPais = append(u.GameData.HandPai.HuPais, hu.Pai)        //增加胡牌
 	u.SetStatus(MJUSER_STATUS_HUPAI)
