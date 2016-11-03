@@ -520,3 +520,37 @@ func (u *MjUser) HadGuoHuInfo(pai *MJPai) bool {
 	//没有过胡的信息
 	return false
 }
+
+//判断是否是花猪
+func (u *MjUser) IsHuaZhu() bool {
+	for _, pai := range u.GameData.HandPai.Pais {
+		if pai != nil && pai.GetFlower() == u.GameData.HandPai.GetQueFlower() {
+			//是花猪
+			return true
+		}
+	}
+	//不是花猪
+	return false
+}
+
+
+//判断用户是不是没有叫
+func (u *MjUser) ChaJiao() bool {
+	//
+	//u.GameData.HandPai.GetCanHu()
+	for i := 0; i < 108; i++ {
+		pai := InitMjPaiByIndex(i)
+		if pai.GetFlower() == u.GameData.HandPai.GetQueFlower() {
+			continue
+		}
+
+		u.GameData.HandPai.InPai = pai
+		if u.GameData.HandPai.GetCanHu() {
+			//
+			log.T("玩家查叫的时候，查到可以胡牌[%v]", pai.LogDes())
+			return true
+		}
+
+	}
+	return false
+}

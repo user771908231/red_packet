@@ -833,6 +833,12 @@ func (d *MjDesk) DoCheckCase(gangUser *MjUser) error {
 
 }
 
+//得到麻将牌的总张数
+func (d *MjDesk) GetTotalMjPaiCount() int32 {
+	return 108; //暂时返回108张
+
+}
+
 
 /**
 	1，只剩一个玩家没有胡牌
@@ -845,9 +851,15 @@ func (d *MjDesk) Time2Lottery() bool {
 
 	log.T("判断是否胡牌...但钱的gamingCount[%v]", gamingCount)
 
-	//只剩下一个人的时候. 表示游戏结束
+	//1,只剩下一个人的时候. 表示游戏结束
 	if gamingCount == 1 {
 		return true
+	}
+
+
+	//2,当牌已经被抹完的时候，表示游戏结束
+	if d.GetMJPaiCursor() == (d.GetTotalMjPaiCount() - 1) {
+		return true;
 	}
 
 	return false
@@ -881,8 +893,10 @@ func (d *MjDesk) Lottery() error {
 
 
 	//查花猪
+	d.ChaHuaZhu()
 	//查大叫
-
+	d.ChaDaJiao()
+	//
 	d.DoLottery()
 
 	//发送结束的广播
@@ -910,6 +924,55 @@ func (d *MjDesk) GetUserIds() string {
 	}
 	return ids
 
+}
+
+//查花猪
+/**
+	查花猪是查用户是否没有缺
+ */
+func (d *MjDesk) ChaHuaZhu() error {
+	for _, u := range d.GetUsers() {
+		if u != nil && u.IsNotHu() {
+			//开对用户查花猪
+			if u.IsHuaZhu() {
+				log.T("玩家[%v]是花猪", u.GetUserId())
+				d.DoHuaZhu(u)
+			}
+		}
+	}
+	return nil
+}
+
+func (d *MjDesk) DoHuaZhu(huazhu *MjUser) error {
+	log.T("开始处理花猪[%v]", huazhu.GetUserId())
+
+	return nil
+}
+
+
+
+
+//查大叫
+/**
+	查用户有没有叫
+ */
+func (d *MjDesk) ChaDaJiao() error {
+	for _, u := range d.GetUsers() {
+		if u != nil && u.IsNotHu() && !u.IsHuaZhu() {
+			//开对用户查花猪
+			if !u.ChaJiao() {
+				log.T("玩家[%v]没叫", u.GetUserId())
+				d.DoDaJiao(u)
+			}
+		}
+	}
+	return nil
+
+}
+
+//用户没有叫的处理了
+func (d *MjDesk) DoDaJiao(u *MjUser) {
+	log.T("开始处理玩家[%v]没叫,开始处理查大叫...", u.GetUserId())
 }
 
 //处理lottery的数据
@@ -1461,10 +1524,10 @@ func (d *MjDesk) DoQiangGang(hu *HuPaiInfo) error {
 }
 
 func (d *MjDesk) DoAfterDianPao(hu *HuPaiInfo) {
-	if hu.GetUserId == hu.GetSendUserId() {
+	if hu.GetGetUserId() == hu.GetSendUserId() {
 		//点炮胡牌成功之后的处理... 处理checkCase
-		d.SetActiveUser(hu.GetUserId)        // 胡牌之后 设置当前操作的用户为当前胡牌的人...
-		d.CheckCase.UpdateCheckBeanStatus(hu.GetUserId, CHECK_CASE_BEAN_STATUS_CHECKED)        // update checkCase...
+		d.SetActiveUser(hu.GetGetUserId())        // 胡牌之后 设置当前操作的用户为当前胡牌的人...
+		d.CheckCase.UpdateCheckBeanStatus(hu.GetGetUserId(), CHECK_CASE_BEAN_STATUS_CHECKED)        // update checkCase...
 		d.CheckCase.UpdateChecStatus(CHECK_CASE_STATUS_CHECKING_HUED)        //已经有人胡了，后边的人就不能碰或者杠了
 	}
 }
@@ -1487,12 +1550,12 @@ func (d *MjDesk) IsNextBankerExist() bool {
 	2,如果当前的nextBanker有值(nextBanker > 0 ),那需要判断是不是当前的点炮的人一炮双向
  */
 func (d *MjDesk)InitNextBanker(hu *HuPaiInfo) {
-	if d.IsNextBankerExist {
+	if d.IsNextBankerExist() {
 		//已经存在的情况 //有双响就双响点炮的人做庄，不论之前是否有人胡牌  by 亮哥
 		//这里可以用过pai 查询点炮账单的个数
 
 		//判断是否是自摸
-		isZimo := (hu.GetUserId == hu.GetSendUserId())
+		isZimo := (hu.GetGetUserId() == hu.GetSendUserId())
 		if isZimo {
 			//如果是自摸，并且nextBanker已经有值了,那么直接返回不用设置
 			return
@@ -1502,7 +1565,7 @@ func (d *MjDesk)InitNextBanker(hu *HuPaiInfo) {
 		dianUser := d.GetUserByUserId(hu.GetSendUserId())
 		count := 0
 		for _, bill := range dianUser.GetBill().Bills {
-			if bill != nil && bill.Pai.GetIndex() == hu.GetPai().GetIndex() && bill.Type == MJUSER_BILL_TYPE_SHU_DIANPAO {
+			if bill != nil && bill.Pai.GetIndex() == hu.GetPai().GetIndex() && bill.GetType() == MJUSER_BILL_TYPE_SHU_DIANPAO {
 				count++
 			}
 		}
@@ -1513,7 +1576,7 @@ func (d *MjDesk)InitNextBanker(hu *HuPaiInfo) {
 			d.SetNextBanker(hu.GetSendUserId())
 		}
 	} else {
-		d.SetNextBanker(hu.GetUserId)
+		d.SetNextBanker(hu.GetGetUserId())
 	}
 }
 
@@ -1527,7 +1590,7 @@ func (d *MjDesk) SendAckActHu(hu *HuPaiInfo) {
 	*ack.UserIdIn = hu.GetGetUserId()
 	*ack.UserIdOut = hu.GetSendUserId()
 	ack.HuCard = hu.Pai.GetCardInfo()
-	*ack.IsZiMo = (hu.GetUserId == hu.GetSendUserId())
+	*ack.IsZiMo = (hu.GetGetUserId() == hu.GetSendUserId())
 	log.T("给用户[%v]广播胡牌的ack[%v]", hu.GetGetUserId(), ack)
 	d.BroadCastProto(ack)
 }
@@ -1727,9 +1790,9 @@ func (d *MjDesk) DoGangBill(gangType int32, gangUser *MjUser, gangPai *MJPai) {
 	//todo 这里需要完善算账的逻辑逻辑,目前就自摸和点炮来做
  */
 func (d *MjDesk)DoHuBill(hu *HuPaiInfo) {
-	isZimo := (hu.GetUserId == hu.GetSendUserId())
+	isZimo := (hu.GetGetUserId() == hu.GetSendUserId())
 	outUser := hu.GetSendUserId()
-	huUser := d.GetUserByUserId(hu.GetUserId)
+	huUser := d.GetUserByUserId(hu.GetGetUserId())
 
 	log.T("玩家[%v]胡牌，开始处理计算分数的逻辑...", huUser.GetUserId())
 	if isZimo {
