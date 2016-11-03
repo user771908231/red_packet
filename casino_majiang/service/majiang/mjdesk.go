@@ -494,7 +494,7 @@ func (d *MjDesk) begin() error {
 	//1，检查是否可以开始游戏
 	err := d.time2begin()
 	if err != nil {
-		log.E("无法开始游戏:err[%v]", err)
+		//log.T("无法开始游戏:err[%v]", err)
 		return err
 	}
 
@@ -943,8 +943,18 @@ func (d *MjDesk) ChaHuaZhu() error {
 	return nil
 }
 
+
+//花猪玩家需要给每一个非花猪8倍分
+//todo 花猪的情况比较少见，所以可以先不用实现..
 func (d *MjDesk) DoHuaZhu(huazhu *MjUser) error {
 	log.T("开始处理花猪[%v]", huazhu.GetUserId())
+	for _, user := range d.GetUsers() {
+		if user != nil && user.IsNotHuaZhu() {
+			//判断不是花猪，可以赢钱...
+
+		}
+
+	}
 
 	return nil
 }
@@ -958,7 +968,7 @@ func (d *MjDesk) DoHuaZhu(huazhu *MjUser) error {
  */
 func (d *MjDesk) ChaDaJiao() error {
 	for _, u := range d.GetUsers() {
-		if u != nil && u.IsNotHu() && !u.IsHuaZhu() {
+		if u != nil && u.IsNotHu() && u.IsNotHuaZhu() {
 			//开对用户查花猪
 			if !u.ChaJiao() {
 				log.T("玩家[%v]没叫", u.GetUserId())
@@ -1224,11 +1234,15 @@ func (d *MjDesk) ActPeng(userId uint32) error {
 		return errors.New("服务器错误碰牌失败")
 
 	}
-	//todo 需要判断是否是可以碰
-
 
 	//2.1开始碰牌的操作
 	pengPai := d.CheckCase.CheckMJPai
+	canPeng := user.GameData.HandPai.GetCanPeng(pengPai)
+	if !canPeng {
+		//如果不能碰，直接返回
+		log.E("玩家[%v]碰牌id[%v]-[%v]的时候，出现错误，碰不了...", userId, pengPai.GetIndex(), pengPai.LogDes())
+		return errors.New("服务器出现错误..")
+	}
 
 	user.GameData.HandPai.InPai = nil
 	user.GameData.HandPai.PengPais = append(user.GameData.HandPai.PengPais, pengPai)        //碰牌

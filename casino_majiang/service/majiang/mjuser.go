@@ -533,6 +533,11 @@ func (u *MjUser) IsHuaZhu() bool {
 	return false
 }
 
+//判断不是花猪
+func (u *MjUser) IsNotHuaZhu() bool {
+	return !u.IsHuaZhu()
+}
+
 
 //判断用户是不是没有叫
 func (u *MjUser) ChaJiao() bool {
