@@ -571,8 +571,8 @@ func (d *MjDesk) AddCurrPlayCount() {
 func (d *MjDesk) initCards() error {
 	//得到一副已经洗好的麻将
 	d.SetStatus(MJDESK_STATUS_FAPAI)        //发牌的阶段
-	//d.AllMJPai = XiPai()
-	d.AllMJPai = XiPaiTestHu()
+	d.AllMJPai = XiPai()
+	//d.AllMJPai = XiPaiTestHu()
 	//给每个人初始化...
 	for i, u := range d.Users {
 		if u != nil && u.IsReady() {
@@ -1538,12 +1538,16 @@ func (d *MjDesk) DoQiangGang(hu *HuPaiInfo) error {
 }
 
 func (d *MjDesk) DoAfterDianPao(hu *HuPaiInfo) {
+	//自摸的不用关
 	if hu.GetGetUserId() == hu.GetSendUserId() {
-		//点炮胡牌成功之后的处理... 处理checkCase
-		d.SetActiveUser(hu.GetGetUserId())        // 胡牌之后 设置当前操作的用户为当前胡牌的人...
-		d.CheckCase.UpdateCheckBeanStatus(hu.GetGetUserId(), CHECK_CASE_BEAN_STATUS_CHECKED)        // update checkCase...
-		d.CheckCase.UpdateChecStatus(CHECK_CASE_STATUS_CHECKING_HUED)        //已经有人胡了，后边的人就不能碰或者杠了
+		return
 	}
+
+	//点炮胡牌成功之后的处理... 处理checkCase
+	d.SetActiveUser(hu.GetGetUserId())        // 胡牌之后 设置当前操作的用户为当前胡牌的人...
+	d.CheckCase.UpdateCheckBeanStatus(hu.GetGetUserId(), CHECK_CASE_BEAN_STATUS_CHECKED)        // update checkCase...
+	d.CheckCase.UpdateChecStatus(CHECK_CASE_STATUS_CHECKING_HUED)        //已经有人胡了，后边的人就不能碰或者杠了
+
 }
 
 //判断下一个庄是否已经确定
