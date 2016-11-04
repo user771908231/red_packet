@@ -53,7 +53,7 @@ func (p *MJHandPai) GetCanGang(pai *MJPai) (bool, []*MJPai) {
 	if pais != nil && len(pais) >= 4 {
 		for _, pai := range pais {
 			//杠牌中没有，并且手牌中有的才能放在list中...
-			if !IsListExisGangPais(result, pai) && p.IsExistHandPais(pai) {
+			if !IsListExisGangPais(result, pai) && (p.IsExistHandPais(pai) || pai.GetIndex() == p.InPai.GetIndex()) {
 				result = append(result, pai)
 			}
 		}
@@ -126,7 +126,7 @@ func (hand *MJHandPai) DelPengPai(key int32) error {
 func (hand *MJHandPai) IsExistPengPai(pai *MJPai) bool {
 	for _, p := range hand.PengPais {
 		if p != nil {
-			if p.GetValue() == pai.GetValue() && p.GetFlower() == pai.GetFlower() {
+			if p.GetClientId() == pai.GetClientId() {
 				//表示花色相同，有碰牌
 				return true
 			}

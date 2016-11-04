@@ -1089,7 +1089,6 @@ func (d *MjDesk)DoEnd() error {
 
 
 	//2,清楚数据，解散房间....
-	//是否需要解散房间...
 	GetFMJRoom().DissolveDesk(d, false)
 
 	return nil
@@ -1180,6 +1179,13 @@ func (d *MjDesk) SendMopaiOverTurn(user *MjUser) error {
 
 	//发送给当事人时候的信息
 	nextPai := d.GetNextPai()
+
+	//这里需要判断，如果牌摸完了，需要判断游戏结束
+	if nextPai == nil {
+		d.Lottery()
+		return errors.New("牌摸完了，游戏结束...")
+	}
+
 	user.GameData.HandPai.InPai = nextPai
 	overTrun.ActCard = nextPai.GetCardInfo()
 
@@ -1702,7 +1708,7 @@ func (d *MjDesk) ActGang(userId uint32, paiId int32) error {
 		}
 
 		//删除手牌
-		user.GameData.HandPai.DelHandlPai(gangPai.GetIndex())
+		//user.GameData.HandPai.DelHandlPai(gangPai.GetIndex())	巴杠的时候，牌还在inpai里面，所以删除的时候出错...
 
 	} else if gangType == GANG_TYPE_MING || gangType == GANG_TYPE_AN {
 		log.T("用户[%v]杠牌不是巴杠 是 gangType[%v]...", userId, gangType)
