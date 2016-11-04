@@ -80,6 +80,7 @@ func (r *MjRoom) CreateDesk(m *mjproto.Game_CreateRoom) *MjDesk {
 	*desk.BaseValue = m.GetRoomTypeInfo().GetBaseValue()
 	*desk.ZiMoRadio = m.GetRoomTypeInfo().GetPlayOptions().GetZiMoRadio()
 	desk.OthersCheckBox = m.GetRoomTypeInfo().GetPlayOptions().GetOthersCheckBox()
+	//log.T("创建房间的时候，取到的othersCheckBox[%v]", desk.OthersCheckBox)
 	*desk.HuRadio = m.GetRoomTypeInfo().GetPlayOptions().GetHuRadio()
 	*desk.DianGangHuaRadio = m.GetRoomTypeInfo().GetPlayOptions().GetDianGangHuaRadio()
 	//*desk.DeskMJPai	//暂时没有使用，桌面上的牌

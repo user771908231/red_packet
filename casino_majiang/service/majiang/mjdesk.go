@@ -253,6 +253,7 @@ func (d *MjDesk) GetPlayOptions() *mjproto.PlayOptions {
 	*o.HuRadio = d.GetHuRadio()
 	*o.DianGangHuaRadio = d.GetDianGangHuaRadio()
 	o.OthersCheckBox = d.GetOthersCheckBox()
+	//log.T("回复的时候回复的othersCheckBox[%v]", o.OthersCheckBox)
 	return o
 }
 
