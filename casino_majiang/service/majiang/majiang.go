@@ -278,7 +278,7 @@ func init() {
 //统计麻将牌
 func GettPaiStats(pais []*MJPai) []int {
 	//统计每张牌的重复次数
-	log.T("GettPaiStats : %v", pais)
+	//log.T("GettPaiStats : %v", pais)
 	counts := make([]int, 27) //0~27
 	for i := 0; i < len(pais); i++ {
 		pai := pais[i]

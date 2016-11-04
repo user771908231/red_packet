@@ -92,6 +92,7 @@ func ( u *MjUser) GetPlayerInfo(showHand bool) *mjproto.PlayerInfo {
 	*info.NickName = "测试nickName"
 	*info.UserId = u.GetUserId()
 	info.WxInfo = u.GetWxInfo()
+	*info.QuePai = u.GameData.HandPai.GetQueFlower()
 	return info
 }
 
