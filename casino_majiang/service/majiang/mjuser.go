@@ -560,3 +560,17 @@ func (u *MjUser) ChaJiao() bool {
 	}
 	return false
 }
+
+//增加账单
+func (u *MjUser) AddBill(relationUserid uint32, billType int32, des string, score int64, pai *MJPai) error {
+	//用户赢钱的账户,赢钱的账单
+	bill := NewBillBean()
+	*bill.UserId = u.GetUserId()
+	*bill.OutUserId = relationUserid
+	*bill.Type = MJUSER_BILL_TYPE_YING_HU
+	*bill.Des = "用户自摸，获得收入"
+	*bill.Amount = score        //杠牌的收入金额
+	bill.Pai = pai
+	u.AddBillBean(bill)
+	return nil
+}

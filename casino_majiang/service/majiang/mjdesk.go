@@ -1774,26 +1774,10 @@ func (d *MjDesk) DoGangBill(gangType int32, gangUser *MjUser, gangPai *MJPai) {
 		for _, ou := range d.GetUsers() {
 			//不为nil 并且不是本人，并且没有胡牌
 			if ou != nil && ou.GetUserId() != gangUser.GetUserId() && ou.IsGaming() {
-
 				//用户赢钱的账户
-				bill := NewBillBean()
-				*bill.UserId = gangUser.GetUserId()
-				*bill.OutUserId = ou.GetUserId()
-				*bill.Type = MJUSER_BILL_TYPE_YING_GNAG
-				*bill.Des = "用户杠牌，获得收入"
-				*bill.Amount = d.GetBaseValue()        //杠牌的收入金额
-				bill.Pai = gangPai
-				gangUser.AddBillBean(bill)
-
+				gangUser.AddBill(ou.GetUserId(), MJUSER_BILL_TYPE_YING_GNAG, "用户杠牌，获得收入", d.GetBaseValue(), gangPai)
 				//用户输钱的账单
-				shubill := NewBillBean()
-				*shubill.UserId = ou.GetUserId()
-				*shubill.OutUserId = gangUser.GetUserId()
-				*shubill.Type = MJUSER_BILL_TYPE_SHU_GNAG
-				*shubill.Des = "用户杠牌，获得收入"
-				*shubill.Amount = -d.GetBaseValue()        //杠牌的收入金额
-				shubill.Pai = gangPai
-				ou.AddBillBean(shubill)
+				ou.AddBill(gangUser.GetUserId(), MJUSER_BILL_TYPE_SHU_GNAG, "用户杠牌，获得收入", -d.GetBaseValue(), gangPai)
 			}
 		}
 
@@ -1817,52 +1801,24 @@ func (d *MjDesk)DoHuBill(hu *HuPaiInfo) {
 		//如果是自摸的话，三家都需要给钱
 		for _, shuUser := range d.GetUsers() {
 			if shuUser != nil  && shuUser.IsGaming() && shuUser.GetUserId() != huUser.GetUserId() {
-				//用户赢钱的账户,赢钱的账单
-				bill := NewBillBean()
-				*bill.UserId = huUser.GetUserId()
-				*bill.OutUserId = shuUser.GetUserId()
-				*bill.Type = MJUSER_BILL_TYPE_YING_HU
-				*bill.Des = "用户自摸，获得收入"
-				*bill.Amount = hu.GetScore()        //杠牌的收入金额
-				bill.Pai = hu.Pai
-				huUser.AddBillBean(bill)
 
-				//用户输钱的账单,输钱的账单
-				shubill := NewBillBean()
-				*shubill.UserId = shuUser.GetUserId()
-				*shubill.OutUserId = huUser.GetUserId()
-				*shubill.Type = MJUSER_BILL_TYPE_SHU_ZIMO
-				*shubill.Des = "用户自摸，输钱"
-				*shubill.Amount = -hu.GetScore()      //杠牌的收入金额
-				shubill.Pai = hu.Pai
-				shuUser.AddBillBean(shubill)
+				//赢钱的账单
+				huUser.AddBill(shuUser.GetUserId(), MJUSER_BILL_TYPE_YING_HU, "用户自摸，获得收入", hu.GetScore(), hu.Pai)
+
+				//输钱的账单
+				shuUser.AddBill(huUser.GetUserId(), MJUSER_BILL_TYPE_SHU_ZIMO, "用户自摸，输钱", -hu.GetScore(), hu.Pai)
 			}
 		}
-
 	} else {
 
 		//如果是点炮的话，只有一家需要给钱...
 		shuUser := d.GetUserByUserId(outUser)
 
 		//赢钱的账单
-		bill := NewBillBean()
-		*bill.UserId = huUser.GetUserId()
-		*bill.OutUserId = shuUser.GetUserId()
-		*bill.Type = MJUSER_BILL_TYPE_YING_HU
-		*bill.Des = "点炮胡牌，获得收入"
-		*bill.Amount = hu.GetScore()        //杠牌的收入金额
-		bill.Pai = hu.Pai
-		huUser.AddBillBean(bill)
+		huUser.AddBill(shuUser.GetUserId(), MJUSER_BILL_TYPE_YING_HU, "点炮胡牌，获得收入", hu.GetScore(), hu.Pai)
 
 		//输钱的账单
-		shubill := NewBillBean()
-		*shubill.UserId = shuUser.GetUserId()
-		*shubill.OutUserId = huUser.GetUserId()
-		*shubill.Type = MJUSER_BILL_TYPE_SHU_DIANPAO
-		*shubill.Des = "用户点炮，输钱"
-		*shubill.Amount = -hu.GetScore()       //杠牌的收入金额
-		shubill.Pai = hu.Pai
-		shuUser.AddBillBean(shubill)
+		shuUser.AddBill(huUser.GetUserId(), MJUSER_BILL_TYPE_SHU_DIANPAO, "用户点炮，输钱", -hu.GetScore(), hu.Pai)
 	}
 
 }
