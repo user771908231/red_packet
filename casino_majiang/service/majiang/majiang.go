@@ -7,7 +7,6 @@ import (
 	. "casino_majiang/msg/protogo"
 	"casino_server/common/log"
 	"errors"
-	"fmt"
 )
 
 //得到一副牌...
@@ -285,13 +284,12 @@ func GettPaiStats(pais []*MJPai) []int {
 		pai := pais[i]
 		value := pai.GetValue() - 1
 		flower := pai.GetFlower()    //flower=1,2,3
-		log.T("getValue(%v),pai.GetFlower(%v) ", value, pai.GetFlower())
+		//log.T("getValue(%v),pai.GetFlower(%v) ", value, pai.GetFlower())
 		value += (flower - 1) * 9
-		log.T("value[%v]", value)
-		//fmt.Println("value,f")
+		//log.T("value[%v]", value)
+		//log.T("value,f")
 		counts[ value ] ++
 	}
-	fmt.Println(counts)
 	return counts
 }
 
@@ -427,7 +425,7 @@ func CanHuPai(handPai *MJHandPai) bool {
 
 func GetHuScore(handPai *MJHandPai, isZimo bool, extraAct HuPaiType, roomInfo RoomTypeInfo) (fan int32, score int64, huCardStr[] string) {
 
-	fmt.Println("pai:", handPai.GetDes(), handPai.InPai.LogDes())
+	log.T("pai: %v", handPai.GetDes(), handPai.InPai.LogDes())
 
 	//底分
 	score = int64(*roomInfo.BaseValue)
@@ -457,14 +455,19 @@ func getGou(handPai *MJHandPai, handCounts[] int) (gou int32) {
 	gou = int32(len(handPai.GangPais))
 	gou = gou / 4      //杠牌/4才是gou 的数目
 
+	log.T("杠牌的勾:%v", gou)
 	// 计算 碰牌+手牌 的勾数
-	for _, pengPai := range handPai.PengPais {
-		for _, pai := range handPai.Pais {
-			if (*pengPai.Flower == *pai.Flower && *pengPai.Value == *pai.Value ) {
+	for _, pai := range handPai.Pais {
+		for _, pengPai := range handPai.PengPais {
+			if pai.GetClientId() == pengPai.GetClientId() {
 				gou ++
+				break
 			}
 		}
 	}
+
+	log.T("碰牌的勾:%v", gou)
+
 
 	// 计算手牌中的勾数(未暗杠)
 	for _, cnt := range handCounts {
@@ -472,6 +475,8 @@ func getGou(handPai *MJHandPai, handCounts[] int) (gou int32) {
 			gou ++
 		}
 	}
+
+	log.T("手牌的勾:%v", gou)
 
 	return gou
 }
@@ -491,42 +496,47 @@ func getHuFan(handPai *MJHandPai, isZimo bool, extraAct HuPaiType, roomInfo Room
 	pais = append(pais, handPai.GangPais...)
 
 	isDaDuiZi := IsDaDuiZi(pais) //大对子
+	log.T("判断是否是大对子: %v", isDaDuiZi)
 
 	isQingYiSe := IsQingYiSe(pais) //清一色
+	log.T("判断是否是清一色: %v", isQingYiSe)
 
 	isQiDui := IsQiDui(handPai, handCounts) //七对
 
 	isLongQiDui := IsLongQiDui(handPai, handCounts) //龙七对
 
 	if isQiDui {
-		fmt.Println("是七对")
+		log.T("是七对")
 		if isLongQiDui && isQingYiSe {
-			fmt.Println("是龙七对&&清一色")
+			log.T("是龙七对&&清一色")
 			fan = 5
 			huCardStr = append(huCardStr, "清龙七对")
 		} else if isLongQiDui {
-			fmt.Println("是龙七对")
+			log.T("是龙七对")
 			fan = 3
 			huCardStr = append(huCardStr, "龙七对")
 		} else if isQingYiSe {
-			fmt.Println("是清一色")
+			log.T("是清一色")
 			fan = 4
 			huCardStr = append(huCardStr, "清七对")
 		} else if IsJiangQiDui(handPai, handCounts) {
-			fmt.Println("是将对")
+			log.T("是将对")
 			fan = 4
 			huCardStr = append(huCardStr, "将七对")
 		}
 	} else if isDaDuiZi && isQingYiSe {
-		fmt.Println("是大对子&&清一色")
+		log.T("是大对子&&清一色")
 		fan = 3
 		huCardStr = append(huCardStr, "清对")
 	} else if isDaDuiZi {
-		fmt.Println("是大对子")
+		log.T("是大对子")
 		fan = 1
 		huCardStr = append(huCardStr, "大对子")
+	} else if isQingYiSe {
+		fan = 2
+		huCardStr = append(huCardStr, "清一色")
 	} else {
-		fmt.Println("是平胡")
+		log.T("是平胡")
 		fan = 0
 		huType := "平胡"
 
@@ -700,9 +710,12 @@ func IsQingYiSe(pais []*MJPai) bool {
 //大对子
 func IsDaDuiZi(pais []*MJPai) bool {
 	counts := GettPaiStats(pais)
+	log.T("判断是否是大对子的统计数据:%v", counts)
 
 	jiangDui := 0
-	for i := 0; i < len(pais); i++ {
+
+	for i := 0; i < len(counts); i++ {
+		//log.T("判断是否是大对子count[%v] = %v", i, counts[i])
 		//count := counts [ pais[i].GetValue() - 1 + (pais[i].GetFlower() - 1) * 9]
 		//if count == 2 {
 		//	jiangDui ++
@@ -718,7 +731,7 @@ func IsDaDuiZi(pais []*MJPai) bool {
 			if jiangDui > 1 {
 				return false
 			}
-		} else if counts[i] < 2 {
+		} else if counts[i] == 1 {
 			return false
 		}
 	}
@@ -841,7 +854,7 @@ func XiPai() []*MJPai {
 
 	for i := 0; i < MJPAI_COUNT; i++ {
 		rand := utils.Rand(0, (int32(MJPAI_COUNT - i)))
-		//log.Debug("得到的rand[%v]", rand)
+		//log.T("得到的rand[%v]", rand)
 		pResult[i] = pmap[rand]
 		pmap = append(pmap[:int(rand)], pmap[int(rand) + 1:]...)
 	}

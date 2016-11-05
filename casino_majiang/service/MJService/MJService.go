@@ -251,7 +251,7 @@ func HandlerGame_DingQue(m *mjProto.Game_DingQue, a gate.Agent) {
 
 //换3张
 func HandlerGame_ExchangeCards(m *mjProto.Game_ExchangeCards, a gate.Agent) {
-	log.Debug("收到请求，HandlerGame_ExchangeCards(m[%v],a[%v])", m, a)
+	log.T("收到请求，HandlerGame_ExchangeCards(m[%v],a[%v])", m, a)
 	//result := newProto.NewGame_AckExchangeCards()
 	//a.WriteMsg(result)
 }
