@@ -285,9 +285,9 @@ func GettPaiStats(pais []*MJPai) []int {
 		pai := pais[i]
 		value := pai.GetValue() - 1
 		flower := pai.GetFlower()    //flower=1,2,3
-		log.T("getValue(%v),pai.GetFlower(%v) ", value, pai.GetFlower())
+		//log.T("getValue(%v),pai.GetFlower(%v) ", value, pai.GetFlower())
 		value += (flower - 1) * 9
-		log.T("value[%v]", value)
+		//log.T("value[%v]", value)
 		//fmt.Println("value,f")
 		counts[ value ] ++
 	}
@@ -491,6 +491,7 @@ func getHuFan(handPai *MJHandPai, isZimo bool, extraAct HuPaiType, roomInfo Room
 	pais = append(pais, handPai.GangPais...)
 
 	isDaDuiZi := IsDaDuiZi(pais) //大对子
+	log.T("判断是否是大对子: %v", isDaDuiZi)
 
 	isQingYiSe := IsQingYiSe(pais) //清一色
 
@@ -718,7 +719,7 @@ func IsDaDuiZi(pais []*MJPai) bool {
 			if jiangDui > 1 {
 				return false
 			}
-		} else if counts[i] < 2 {
+		} else if counts[i] == 1 {
 			return false
 		}
 	}
@@ -841,7 +842,7 @@ func XiPai() []*MJPai {
 
 	for i := 0; i < MJPAI_COUNT; i++ {
 		rand := utils.Rand(0, (int32(MJPAI_COUNT - i)))
-		//log.Debug("得到的rand[%v]", rand)
+		//log.T("得到的rand[%v]", rand)
 		pResult[i] = pmap[rand]
 		pmap = append(pmap[:int(rand)], pmap[int(rand) + 1:]...)
 	}
