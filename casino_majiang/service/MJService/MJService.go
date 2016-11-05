@@ -26,7 +26,7 @@ import (
 
  */
 func HandlerGame_CreateRoom(m *mjProto.Game_CreateRoom, a gate.Agent) {
-	log.T("收到请求，HandlerGame_CreateRoom(m[%v],a[%v])", m, a)
+	log.T("收到请求，HandlerGame_CreateRoom(m[%v])", m)
 	//1,查询用户是否已经创建了房间...
 
 	//2,开始创建房间
@@ -370,7 +370,7 @@ func HandlerGame_ActGang(m *mjProto.Game_ActGang) {
 
 
 func HandlerGame_ActGuo(m *mjProto.Game_ActGuo) {
-	log.T("收到杠牌的请求，game_ActGuo(m[%v])", m)
+	log.T("收到过牌的请求，game_ActGuo(m[%v])", m)
 
 	userId := m.GetHeader().GetUserId()
 	desk := majiang.GetMjDeskBySession(userId) //通过userId 的session 得到对应的desk

@@ -23,7 +23,10 @@ var MJUSER_STATUS_HUPAI int32 = 6; ///准备游戏
 
 
 var MJUSER_BILL_TYPE_YING_GNAG int32 = 1; //杠牌赢钱
-var MJUSER_BILL_TYPE_SHU_GNAG int32 = 1; //杠牌赢钱
+var MJUSER_BILL_TYPE_SHU_GNAG int32 = 2; //杠牌赢钱
+var MJUSER_BILL_TYPE_YING_HU int32 = 3; //杠牌赢钱
+var MJUSER_BILL_TYPE_SHU_DIANPAO int32 = 4; //杠牌赢钱
+var MJUSER_BILL_TYPE_SHU_ZIMO int32 = 5; //杠牌赢钱
 
 
 //麻将玩家
@@ -86,9 +89,10 @@ func ( u *MjUser) GetPlayerInfo(showHand bool) *mjproto.PlayerInfo {
 	*info.Coin = u.GetCoin()
 	*info.IsBanker = u.GetIsBanker()
 	info.PlayerCard = u.GetPlayerCard(showHand)
-	*info.NickName = "测试nickName"
+	*info.NickName = u.GetNickName()
 	*info.UserId = u.GetUserId()
 	info.WxInfo = u.GetWxInfo()
+	*info.QuePai = u.GameData.HandPai.GetQueFlower()
 	return info
 }
 
@@ -135,7 +139,7 @@ func (u *MjUser) GetPlayerCard(showHand bool) *mjproto.PlayerCard {
 			com := newProto.NewComposeCard()
 			*com.Value = info.GetPai().GetClientId()
 
-			if info.GetGangType() == GANG_TYPE_MING {
+			if info.GetGangType() == GANG_TYPE_DIAN {
 				*com.Type = int32(mjproto.ComposeCardType_C_MINGGANG)   // 明杠
 			} else if info.GetGangType() == GANG_TYPE_AN {
 				*com.Type = int32(mjproto.ComposeCardType_C_ANGANG)       // 暗杠
@@ -330,7 +334,12 @@ func (u *MjUser) AfterLottery() error {
 }
 //得到用户的昵称
 func (u *MjUser) GetNickName() string {
-	return "nickName"
+	user := userService.GetUserById(u.GetUserId())
+	if user == nil {
+		return "玩家不存在"
+	} else {
+		return user.GetNickName()
+	}
 }
 
 func (u *MjUser) AddBillAmount(amount int64) {
@@ -369,6 +378,15 @@ func (u *MjUser) AddBillBean(bean *BillBean) error {
 	u.Bill.Bills = append(u.Bill.Bills, bean)
 	u.AddBillAmount(bean.GetAmount())
 	return nil
+}
+
+//
+func (u *MjUser) AddStatisticsWinCoin(coin int64) {
+	atomic.AddInt64(u.Statisc.WinCoin, coin)
+}
+
+func (u *MjUser) AddCoin(coin int64) {
+	atomic.AddInt64(u.Coin, coin)        //更新账户余额
 }
 
 func (u *MjUser) ADDCountBaGang() {
@@ -414,13 +432,16 @@ func (u *MjUser) StatisticsGangCount(round int32, gangType int32) error {
 		return errors.New("没有找到统计的roundBean，无法统计")
 	}
 
-	if gangType == GANG_TYPE_MING {
+	if gangType == GANG_TYPE_DIAN {
 		atomic.AddInt32(bean.CountMingGang, 1)
 		atomic.AddInt32(u.Statisc.CountMingGang, 1)
 
 	} else if gangType == GANG_TYPE_BA {
 		atomic.AddInt32(bean.CountBaGnag, 1)
 		atomic.AddInt32(u.Statisc.CountMingGang, 1)
+
+		//总的统计 + 1
+		u.ADDCountBaGang()
 
 	} else if gangType == GANG_TYPE_AN {
 		atomic.AddInt32(bean.CountAnGang, 1)
@@ -486,6 +507,13 @@ func (u *MjUser) AddGuoHuInfo(checkCase *CheckCase) {
 
 }
 
+//增加胡牌的信息
+func (u *MjUser) AddHuPaiInfo(hu *HuPaiInfo) {
+	u.GameData.HuInfo = append(u.GameData.HuInfo, hu)
+	u.GameData.HandPai.HuPais = append(u.GameData.HandPai.HuPais, hu.Pai)        //增加胡牌
+	u.SetStatus(MJUSER_STATUS_HUPAI)
+}
+
 //删除过胡的信息
 func (u *MjUser)DelGuoHuInfo() error {
 	u.GameData.GuoHuInfo = nil
@@ -509,4 +537,61 @@ func (u *MjUser) HadGuoHuInfo(pai *MJPai) bool {
 
 	//没有过胡的信息
 	return false
+}
+
+//判断是否是花猪
+func (u *MjUser) IsHuaZhu() bool {
+	for _, pai := range u.GameData.HandPai.Pais {
+		if pai != nil && pai.GetFlower() == u.GameData.HandPai.GetQueFlower() {
+			//是花猪
+			return true
+		}
+	}
+	//不是花猪
+	return false
+}
+
+//判断不是花猪
+func (u *MjUser) IsNotHuaZhu() bool {
+	return !u.IsHuaZhu()
+}
+
+
+//判断用户是不是没有叫
+func (u *MjUser) ChaJiao() bool {
+	//
+	//u.GameData.HandPai.GetCanHu()
+	for i := 0; i < 108; i++ {
+		pai := InitMjPaiByIndex(i)
+		if pai.GetFlower() == u.GameData.HandPai.GetQueFlower() {
+			continue
+		}
+
+		u.GameData.HandPai.InPai = pai
+		if u.GameData.HandPai.GetCanHu() {
+			//
+			log.T("玩家查叫的时候，查到可以胡牌[%v]", pai.LogDes())
+			return true
+		}
+
+	}
+	return false
+}
+
+//增加账单
+func (u *MjUser) AddBill(relationUserid uint32, billType int32, des string, score int64, pai *MJPai) error {
+	//用户赢钱的账户,赢钱的账单
+	bill := NewBillBean()
+	*bill.UserId = u.GetUserId()
+	*bill.OutUserId = relationUserid
+	*bill.Type = MJUSER_BILL_TYPE_YING_HU
+	*bill.Des = des
+	*bill.Amount = score        //杠牌的收入金额
+	bill.Pai = pai
+	u.AddBillBean(bill)
+
+	//计算账单的地方 来加减用户的coin
+	u.AddCoin(score)                //统计用户剩余多少钱
+	u.AddStatisticsWinCoin(score)        //统计用户输赢多少钱
+	return nil
 }

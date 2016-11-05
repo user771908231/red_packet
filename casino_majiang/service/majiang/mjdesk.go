@@ -253,6 +253,7 @@ func (d *MjDesk) GetPlayOptions() *mjproto.PlayOptions {
 	*o.HuRadio = d.GetHuRadio()
 	*o.DianGangHuaRadio = d.GetDianGangHuaRadio()
 	o.OthersCheckBox = d.GetOthersCheckBox()
+	//log.T("回复的时候回复的othersCheckBox[%v]", o.OthersCheckBox)
 	return o
 }
 
@@ -494,7 +495,7 @@ func (d *MjDesk) begin() error {
 	//1，检查是否可以开始游戏
 	err := d.time2begin()
 	if err != nil {
-		log.E("无法开始游戏:err[%v]", err)
+		//log.T("无法开始游戏:err[%v]", err)
 		return err
 	}
 
@@ -571,8 +572,8 @@ func (d *MjDesk) AddCurrPlayCount() {
 func (d *MjDesk) initCards() error {
 	//得到一副已经洗好的麻将
 	d.SetStatus(MJDESK_STATUS_FAPAI)        //发牌的阶段
-	//d.AllMJPai = XiPai()
-	d.AllMJPai = XiPaiTestHu()
+	d.AllMJPai = XiPai()
+	//d.AllMJPai = XiPaiTestHu()
 	//给每个人初始化...
 	for i, u := range d.Users {
 		if u != nil && u.IsReady() {
@@ -737,7 +738,7 @@ func (d *MjDesk) InitCheckCase(p *MJPai, outUser *MjUser) error {
 	for _, checkUser := range d.GetUsers() {
 		//这里要判断用户是不是已经胡牌
 		if checkUser != nil && checkUser.GetUserId() != outUser.GetUserId() &&  d.CanInitCheckCase(checkUser) {
-			log.T("用户[%v]打牌，判断user[%v]是否可以碰杠胡...", outUser.GetUserId(), checkUser.GetUserId())
+			log.T("用户[%v]打牌，判断user[%v]是否可以碰杠胡.手牌[%v]", outUser.GetUserId(), checkUser.GetUserId(), checkUser.GameData.HandPai.GetDes())
 			checkUser.GameData.HandPai.InPai = p
 			//添加checkBean
 			bean := checkUser.GetCheckBean(p)
@@ -833,6 +834,12 @@ func (d *MjDesk) DoCheckCase(gangUser *MjUser) error {
 
 }
 
+//得到麻将牌的总张数
+func (d *MjDesk) GetTotalMjPaiCount() int32 {
+	return 108; //暂时返回108张
+
+}
+
 
 /**
 	1，只剩一个玩家没有胡牌
@@ -843,15 +850,20 @@ func (d *MjDesk) Time2Lottery() bool {
 	//游戏中的玩家只剩下一个人，表示游戏结束...
 	gamingCount := d.GetGamingCount()        //正在游戏中的玩家数量
 
-	log.T("判断是否胡牌...但钱的gamingCount[%v]", gamingCount)
+	log.T("判断是否胡牌...当前的gamingCount[%v],当前的PaiCursor[%v]", gamingCount, d.GetMJPaiCursor())
 
-	if gamingCount != 1 {
-		//正在游戏中的玩家的数量不为1，表示还没有结束
-		return false
+	//1,只剩下一个人的时候. 表示游戏结束
+	if gamingCount == 1 {
+		return true
 	}
 
-	//所有的条件都满足，一局麻将结束...
-	return true
+
+	//2,当牌已经被抹完的时候，表示游戏结束
+	if d.GetMJPaiCursor() == (d.GetTotalMjPaiCount() - 1) {
+		return true;
+	}
+
+	return false
 }
 
 func (d *MjDesk) GetGamingCount() int32 {
@@ -880,6 +892,12 @@ func (d *MjDesk) Lottery() error {
 
 	log.T("现在开始处理lottery()的逻辑....")
 
+
+	//查花猪
+	d.ChaHuaZhu()
+	//查大叫
+	d.ChaDaJiao()
+	//
 	d.DoLottery()
 
 	//发送结束的广播
@@ -907,6 +925,65 @@ func (d *MjDesk) GetUserIds() string {
 	}
 	return ids
 
+}
+
+//查花猪
+/**
+	查花猪是查用户是否没有缺
+ */
+func (d *MjDesk) ChaHuaZhu() error {
+	for _, u := range d.GetUsers() {
+		if u != nil && u.IsNotHu() {
+			//开对用户查花猪
+			if u.IsHuaZhu() {
+				log.T("玩家[%v]是花猪", u.GetUserId())
+				d.DoHuaZhu(u)
+			}
+		}
+	}
+	return nil
+}
+
+
+//花猪玩家需要给每一个非花猪8倍分
+//todo 花猪的情况比较少见，所以可以先不用实现..
+func (d *MjDesk) DoHuaZhu(huazhu *MjUser) error {
+	log.T("开始处理花猪[%v]", huazhu.GetUserId())
+	for _, user := range d.GetUsers() {
+		if user != nil && user.IsNotHuaZhu() {
+			//判断不是花猪，可以赢钱...
+
+		}
+
+	}
+
+	return nil
+}
+
+
+
+
+//查大叫
+/**
+	查用户有没有叫
+ */
+func (d *MjDesk) ChaDaJiao() error {
+	for _, u := range d.GetUsers() {
+		if u != nil && u.IsNotHu() && u.IsNotHuaZhu() {
+			//开对用户查花猪
+			if !u.ChaJiao() {
+				log.T("玩家[%v]没叫", u.GetUserId())
+				d.DoDaJiao(u)
+			}
+		}
+	}
+	return nil
+
+}
+
+//用户没有叫的处理了
+func (d *MjDesk) DoDaJiao(u *MjUser) {
+	log.T("开始处理玩家[%v]没叫,开始处理查大叫...", u.GetUserId())
 }
 
 //处理lottery的数据
@@ -1012,7 +1089,6 @@ func (d *MjDesk)DoEnd() error {
 
 
 	//2,清楚数据，解散房间....
-	//是否需要解散房间...
 	GetFMJRoom().DissolveDesk(d, false)
 
 	return nil
@@ -1067,6 +1143,7 @@ func (d *MjDesk) GetNextPai() *MJPai {
 	//目前暂时是108张牌...
 	if d.GetMJPaiCursor() >= 108 {
 		log.E("服务器错误:要找的牌的坐标[%v]已经超过整副麻将的坐标了... ", d.GetMJPaiCursor())
+		*d.MJPaiCursor --
 		return nil
 	} else {
 
@@ -1103,6 +1180,13 @@ func (d *MjDesk) SendMopaiOverTurn(user *MjUser) error {
 
 	//发送给当事人时候的信息
 	nextPai := d.GetNextPai()
+
+	//这里需要判断，如果牌摸完了，需要判断游戏结束
+	if nextPai == nil {
+		d.Lottery()
+		return errors.New("牌摸完了，游戏结束...")
+	}
+
 	user.GameData.HandPai.InPai = nextPai
 	overTrun.ActCard = nextPai.GetCardInfo()
 
@@ -1120,8 +1204,7 @@ func (d *MjDesk) SendMopaiOverTurn(user *MjUser) error {
 	//是否可以碰牌
 	*overTrun.CanPeng = false
 	user.SendOverTurn(overTrun)
-	log.T("玩家[%v]开始摸牌【%v】...", user.GetUserId(), overTrun)
-
+	log.T("玩家[%v]当前的手牌是[%v]开始摸牌【%v】...", user.GetUserId(), user.GameData.HandPai.GetDes(), overTrun)
 
 	//给其他人广播协议
 	*overTrun.CanHu = false
@@ -1158,11 +1241,15 @@ func (d *MjDesk) ActPeng(userId uint32) error {
 		return errors.New("服务器错误碰牌失败")
 
 	}
-	//todo 需要判断是否是可以碰
-
 
 	//2.1开始碰牌的操作
 	pengPai := d.CheckCase.CheckMJPai
+	canPeng := user.GameData.HandPai.GetCanPeng(pengPai)
+	if !canPeng {
+		//如果不能碰，直接返回
+		log.E("玩家[%v]碰牌id[%v]-[%v]的时候，出现错误，碰不了...", userId, pengPai.GetIndex(), pengPai.LogDes())
+		return errors.New("服务器出现错误..")
+	}
 
 	user.GameData.HandPai.InPai = nil
 	user.GameData.HandPai.PengPais = append(user.GameData.HandPai.PengPais, pengPai)        //碰牌
@@ -1391,17 +1478,41 @@ func (d *MjDesk)ActHu(userId uint32) error {
 	hu.Pai = hupai
 
 	//胡牌之后，设置用户的数据
-	huUser.GameData.HuInfo = append(huUser.GameData.HuInfo, hu)
-	huUser.GameData.HandPai.HuPais = append(huUser.GameData.HandPai.HuPais, hu.Pai)        //增加胡牌
-	huUser.SetStatus(MJUSER_STATUS_HUPAI)
 
-	/**
-		处理抢杠的逻辑，抢杠的逻辑需要特殊处理...
-		1,首先是清楚杠牌的info
-		2,增加碰牌
-		3,删除杠牌的账单
-	 */
+	huUser.AddHuPaiInfo(hu)
 
+	//统计胡牌的次数
+	huUser.StatisticsHuCount(d.GetCurrPlayCount(), huUser.GetUserId(), hu.GetHuType())
+	//统计点炮的次数
+	if !isZimo {
+		outUser.StatisticsDianCount(outUserId, hu.GetHuType())
+	}
+
+	//处理抢杠的逻辑
+	d.DoQiangGang(hu)
+
+	//胡牌之后计算账单
+	d.DoHuBill(hu)
+
+	//点炮之后设置checkCase的状态
+	d.DoAfterDianPao(hu)
+
+	//设置下一次的庄
+	d.InitNextBanker(hu)
+
+	//发送胡牌成功的回复
+	d.SendAckActHu(hu)
+	return nil
+}
+
+//处理抢杠的逻辑
+/**
+处理抢杠的逻辑，抢杠的逻辑需要特殊处理...
+1,首先是清楚杠牌的info
+2,增加碰牌
+3,删除杠牌的账单
+*/
+func (d *MjDesk) DoQiangGang(hu *HuPaiInfo) error {
 	if d.CheckCase != nil && d.CheckCase.PreOutGangInfo != nil && d.CheckCase.PreOutGangInfo.GetGangType() == GANG_TYPE_BA {
 		log.T("开始处理抢杠的逻辑....")
 		dianUser := d.GetUserByUserId(hu.GetSendUserId())
@@ -1413,42 +1524,100 @@ func (d *MjDesk)ActHu(userId uint32) error {
 				continue
 			}
 			//需要删除的杠牌
-			if pai != nil && pai.GetClientId() == hupai.GetClientId() {
+			if pai != nil && pai.GetClientId() == hu.Pai.GetClientId() {
 				gangKeys = append(gangKeys, pai.GetIndex())        //需要删除的杠牌
-				if pai.GetIndex() != hupai.GetIndex() {
+				if pai.GetIndex() != hu.Pai.GetIndex() {
 					dianUser.GameData.HandPai.PengPais = append(dianUser.GameData.HandPai.PengPais, pai)        //碰牌
 				}
 			}
 		}
 
 		//删除杠牌的信息
-		dianUser.GameData.DelGangInfo(hupai)
+		dianUser.GameData.DelGangInfo(hu.Pai)
 		//删除杠牌的账单
 		for _, billUser := range d.GetUsers() {
 			//处理每一个人的账单,并且减去amount
-			billUser.DelBillBean(hupai)
+			billUser.DelBillBean(hu.Pai)
 		}
 	}
 
-	//胡牌之后计算账单
-	d.DoHuBill(isZimo, outUserId, huUser, hupai, hu.GetScore())
-	//统计胡牌的次数
-	huUser.StatisticsHuCount(d.GetCurrPlayCount(), huUser.GetUserId(), hu.GetHuType())
-	if !isZimo {
-		outUser.StatisticsDianCount(outUserId, hu.GetHuType())
+	return nil
+}
+
+func (d *MjDesk) DoAfterDianPao(hu *HuPaiInfo) {
+	//自摸的不用关
+	if hu.GetGetUserId() == hu.GetSendUserId() {
+		return
 	}
 
-	//发送胡牌成功的回复
+	//点炮胡牌成功之后的处理... 处理checkCase
+	d.SetActiveUser(hu.GetGetUserId())        // 胡牌之后 设置当前操作的用户为当前胡牌的人...
+	d.CheckCase.UpdateCheckBeanStatus(hu.GetGetUserId(), CHECK_CASE_BEAN_STATUS_CHECKED)        // update checkCase...
+	d.CheckCase.UpdateChecStatus(CHECK_CASE_STATUS_CHECKING_HUED)        //已经有人胡了，后边的人就不能碰或者杠了
+
+}
+
+//判断下一个庄是否已经确定
+func (d *MjDesk) IsNextBankerExist() bool {
+	if d.GetNextBanker() > 0 {
+		return true
+	} else {
+		return false
+	}
+}
+
+
+
+
+//设置下一次的庄
+/**
+	1，如果当前的nextBanker 没有值(nextBanker==0)，那代表此人是第一个胡牌的，设置为nextBanekr
+	2,如果当前的nextBanker有值(nextBanker > 0 ),那需要判断是不是当前的点炮的人一炮双向
+ */
+func (d *MjDesk)InitNextBanker(hu *HuPaiInfo) {
+	if d.IsNextBankerExist() {
+		//已经存在的情况 //有双响就双响点炮的人做庄，不论之前是否有人胡牌  by 亮哥
+		//这里可以用过pai 查询点炮账单的个数
+
+		//判断是否是自摸
+		isZimo := (hu.GetGetUserId() == hu.GetSendUserId())
+		if isZimo {
+			//如果是自摸，并且nextBanker已经有值了,那么直接返回不用设置
+			return
+		}
+
+		//如果是点炮的，需要判断是不是双响
+		dianUser := d.GetUserByUserId(hu.GetSendUserId())
+		count := 0
+		for _, bill := range dianUser.GetBill().Bills {
+			if bill != nil && bill.Pai.GetIndex() == hu.GetPai().GetIndex() && bill.GetType() == MJUSER_BILL_TYPE_SHU_DIANPAO {
+				count++
+			}
+		}
+
+		//表示多响
+		if count > 1 {
+			//设置一炮多响的人为庄
+			d.SetNextBanker(hu.GetSendUserId())
+		}
+	} else {
+		d.SetNextBanker(hu.GetGetUserId())
+	}
+}
+
+func (d *MjDesk) SetNextBanker(userId uint32) {
+	*d.NextBanker = userId
+}
+
+func (d *MjDesk) SendAckActHu(hu *HuPaiInfo) {
 	ack := newProto.NewGame_AckActHu()
 	*ack.HuType = hu.GetHuType()        //这里需要判断是自摸还是点炮
 	*ack.UserIdIn = hu.GetGetUserId()
 	*ack.UserIdOut = hu.GetSendUserId()
 	ack.HuCard = hu.Pai.GetCardInfo()
-	*ack.IsZiMo = isZimo
+	*ack.IsZiMo = (hu.GetGetUserId() == hu.GetSendUserId())
 	log.T("给用户[%v]广播胡牌的ack[%v]", hu.GetGetUserId(), ack)
 	d.BroadCastProto(ack)
-
-	return nil
 }
 
 func (d *MjDesk)getPaiById(paiId int32) *MJPai {
@@ -1486,7 +1655,7 @@ func (d *MjDesk) ActGang(userId uint32, paiId int32) error {
 
 	if d.CheckCase != nil {
 		//表示是明港
-		gangType = GANG_TYPE_MING        //明杠
+		gangType = GANG_TYPE_DIAN        //明杠
 		sendUserId = d.CheckCase.GetUserIdOut()
 		canGang, _ = user.GameData.HandPai.GetCanGang(gangPai)
 
@@ -1517,6 +1686,8 @@ func (d *MjDesk) ActGang(userId uint32, paiId int32) error {
 		2,如果是明杠或者暗杠，需要把所有的牌放在杠牌中，不用处理碰牌
 	 */
 
+	//首先把需要杠的牌放在手中
+	user.GameData.HandPai.Pais = append(user.GameData.HandPai.Pais, user.GameData.HandPai.InPai)
 
 	if gangType == GANG_TYPE_BA {
 		log.T("用户[%v]杠牌是巴杠,现在处理巴杠...", userId)
@@ -1539,15 +1710,14 @@ func (d *MjDesk) ActGang(userId uint32, paiId int32) error {
 		}
 
 		//删除手牌
-		user.GameData.HandPai.DelHandlPai(gangPai.GetIndex())
+		user.GameData.HandPai.DelHandlPai(gangPai.GetIndex())//
 
-	} else if gangType == GANG_TYPE_MING || gangType == GANG_TYPE_AN {
+	} else if gangType == GANG_TYPE_DIAN || gangType == GANG_TYPE_AN {
 		log.T("用户[%v]杠牌不是巴杠 是 gangType[%v]...", userId, gangType)
 
 		//杠牌的类型
 		var gangKey []int32
 		//增加杠牌
-		user.GameData.HandPai.Pais = append(user.GameData.HandPai.Pais, user.GameData.HandPai.InPai)
 		//如果不是摸的牌，而是手中本来就有的牌，那么需要把他移除
 		for _, pai := range user.GameData.HandPai.Pais {
 			if pai.GetClientId() == gangPai.GetClientId() {
@@ -1577,11 +1747,10 @@ func (d *MjDesk) ActGang(userId uint32, paiId int32) error {
 	user.StatisticsGangCount(d.GetCurrPlayCount(), gangType)        //处理杠牌的账单
 	user.DelGuoHuInfo()        //删除过胡的信息
 
-	d.DoGangBill(gangType, user, gangPai);
+	d.DoGangBill(info);
 	d.DoCheckCaseAfterGang(gangType, gangPai, user)
 
 	//杠牌之后的逻辑
-	//todo 返回杠牌成功的逻辑，返回一个摸牌的overTurn
 	result := newProto.NewGame_AckActGang()
 	*result.GangType = user.PreMoGangInfo.GetGangType()
 	*result.UserIdOut = user.PreMoGangInfo.GetSendUserId()
@@ -1605,38 +1774,39 @@ func (d *MjDesk) ActGang(userId uint32, paiId int32) error {
  */
 
 
-func (d *MjDesk) DoGangBill(gangType int32, gangUser *MjUser, gangPai *MJPai) {
-	//现在杠牌的逻辑是,没有胡牌的人都要给钱...
-	if gangType == GANG_TYPE_BA || gangType == GANG_TYPE_AN || gangType == GANG_TYPE_MING {
-		//暗杠和巴杠的处理方式
+func (d *MjDesk) DoGangBill(info *GangPaiInfo) {
+	gangType := info.GetGangType()
+	gangUser := d.GetUserByUserId(info.GetGetUserId())
+	gangPai := info.GetPai()
+
+	if gangType == GANG_TYPE_AN {
+		//处理暗杠的账单
+		score := d.GetBaseValue() * 2        //暗杠的分数
 		for _, ou := range d.GetUsers() {
 			//不为nil 并且不是本人，并且没有胡牌
 			if ou != nil && ou.GetUserId() != gangUser.GetUserId() && ou.IsGaming() {
-
-				//用户赢钱的账户
-				bill := NewBillBean()
-				*bill.UserId = gangUser.GetUserId()
-				*bill.OutUserId = ou.GetUserId()
-				*bill.Type = MJUSER_BILL_TYPE_YING_GNAG
-				*bill.Des = "用户杠牌，获得收入"
-				*bill.Amount = d.GetBaseValue()        //杠牌的收入金额
-				bill.Pai = gangPai
-				gangUser.AddBillBean(bill)
-
-				//用户输钱的账单
-				shubill := NewBillBean()
-				*shubill.UserId = ou.GetUserId()
-				*shubill.OutUserId = gangUser.GetUserId()
-				*shubill.Type = MJUSER_BILL_TYPE_SHU_GNAG
-				*shubill.Des = "用户杠牌，获得收入"
-				*shubill.Amount = -d.GetBaseValue()        //杠牌的收入金额
-				shubill.Pai = gangPai
-				ou.AddBillBean(shubill)
+				gangUser.AddBill(ou.GetUserId(), MJUSER_BILL_TYPE_YING_GNAG, "用户暗杠，收入", score, gangPai)        //用户赢钱的账户
+				ou.AddBill(gangUser.GetUserId(), MJUSER_BILL_TYPE_SHU_GNAG, "用户暗杠，输钱", -score, gangPai)        //用户输钱的账单
 			}
 		}
 
-		//} else if info.GetGangType() == GANG_TYPE_MING {
-		//明杠的处理方式
+	} else if gangType == GANG_TYPE_DIAN {
+		//处理点杠点账单
+		score := d.GetBaseValue() * 2        //点杠的分数
+		shuUser := d.GetUserByUserId(info.GetSendUserId())
+		gangUser.AddBill(shuUser.GetUserId(), MJUSER_BILL_TYPE_YING_GNAG, "用户点杠，收入", score, gangPai)        //用户赢钱的账户
+		shuUser.AddBill(gangUser.GetUserId(), MJUSER_BILL_TYPE_SHU_GNAG, "用户点杠，输钱", -score, gangPai)        //用户输钱的账单
+
+	} else if gangType == GANG_TYPE_BA {
+		//处理巴杠的账单
+		score := d.GetBaseValue()        //巴杠的分数
+		for _, ou := range d.GetUsers() {
+			if ou != nil && ou.GetUserId() != gangUser.GetUserId() && ou.IsGaming() {
+				gangUser.AddBill(ou.GetUserId(), MJUSER_BILL_TYPE_YING_GNAG, "用户巴杠，收入", score, gangPai)        //用户赢钱的账户
+				ou.AddBill(gangUser.GetUserId(), MJUSER_BILL_TYPE_SHU_GNAG, "用户巴杠，输钱", -score, gangPai)        //用户输钱的账单
+
+			}
+		}
 	}
 }
 
@@ -1645,63 +1815,34 @@ func (d *MjDesk) DoGangBill(gangType int32, gangUser *MjUser, gangPai *MJPai) {
 	增加账单
 	//todo 这里需要完善算账的逻辑逻辑,目前就自摸和点炮来做
  */
-func (d *MjDesk)DoHuBill(isZimo bool, outUser uint32, huUser *MjUser, hupai *MJPai, score int64) {
+func (d *MjDesk)DoHuBill(hu *HuPaiInfo) {
+	isZimo := (hu.GetGetUserId() == hu.GetSendUserId())
+	outUser := hu.GetSendUserId()
+	huUser := d.GetUserByUserId(hu.GetGetUserId())
 
 	log.T("玩家[%v]胡牌，开始处理计算分数的逻辑...", huUser.GetUserId())
 	if isZimo {
 		//如果是自摸的话，三家都需要给钱
 		for _, shuUser := range d.GetUsers() {
 			if shuUser != nil  && shuUser.IsGaming() && shuUser.GetUserId() != huUser.GetUserId() {
-				//用户赢钱的账户,赢钱的账单
-				bill := NewBillBean()
-				*bill.UserId = huUser.GetUserId()
-				*bill.OutUserId = shuUser.GetUserId()
-				*bill.Type = 1
-				*bill.Des = "用户自摸，获得收入"
-				*bill.Amount = score        //杠牌的收入金额
-				bill.Pai = hupai
-				huUser.AddBillBean(bill)
 
-				//用户输钱的账单,输钱的账单
-				shubill := NewBillBean()
-				*shubill.UserId = shuUser.GetUserId()
-				*shubill.OutUserId = huUser.GetUserId()
-				*shubill.Type = 1
-				*shubill.Des = "用户自摸，输钱"
-				*shubill.Amount = -score      //杠牌的收入金额
-				shubill.Pai = hupai
-				shuUser.AddBillBean(shubill)
+				//赢钱的账单
+				huUser.AddBill(shuUser.GetUserId(), MJUSER_BILL_TYPE_YING_HU, "用户自摸，获得收入", hu.GetScore(), hu.Pai)
+
+				//输钱的账单
+				shuUser.AddBill(huUser.GetUserId(), MJUSER_BILL_TYPE_SHU_ZIMO, "用户自摸，输钱", -hu.GetScore(), hu.Pai)
 			}
 		}
-
 	} else {
-		//点炮胡牌成功之后的处理... 处理checkCase
-		d.SetActiveUser(huUser.GetUserId())        // 胡牌之后 设置当前操作的用户为当前胡牌的人...
-		d.CheckCase.UpdateCheckBeanStatus(huUser.GetUserId(), CHECK_CASE_BEAN_STATUS_CHECKED)        // update checkCase...
-		d.CheckCase.UpdateChecStatus(CHECK_CASE_STATUS_CHECKING_HUED)        //已经有人胡了，后边的人就不能碰或者杠了
 
 		//如果是点炮的话，只有一家需要给钱...
 		shuUser := d.GetUserByUserId(outUser)
 
 		//赢钱的账单
-		bill := NewBillBean()
-		*bill.UserId = huUser.GetUserId()
-		*bill.OutUserId = shuUser.GetUserId()
-		*bill.Type = 1
-		*bill.Des = "点炮胡牌，获得收入"
-		*bill.Amount = score        //杠牌的收入金额
-		bill.Pai = hupai
-		huUser.AddBillBean(bill)
+		huUser.AddBill(shuUser.GetUserId(), MJUSER_BILL_TYPE_YING_HU, "点炮胡牌，获得收入", hu.GetScore(), hu.Pai)
 
 		//输钱的账单
-		shubill := NewBillBean()
-		*shubill.UserId = shuUser.GetUserId()
-		*shubill.OutUserId = huUser.GetUserId()
-		*shubill.Type = 1
-		*shubill.Des = "用户点炮，输钱"
-		*shubill.Amount = -score       //杠牌的收入金额
-		shubill.Pai = hupai
-		shuUser.AddBillBean(shubill)
+		shuUser.AddBill(huUser.GetUserId(), MJUSER_BILL_TYPE_SHU_DIANPAO, "用户点炮，输钱", -hu.GetScore(), hu.Pai)
 	}
 
 }
@@ -1777,4 +1918,8 @@ func (d *MjDesk) IsBegin() bool {
 func (d *MjDesk) GetRemainPaiCount() int32 {
 	//todo 几门牌? 这里的107需要通过有几门牌来确定...
 	return 107 - d.GetMJPaiCursor()
+}
+
+func (d *MjDesk) GetByWho() {
+
 }

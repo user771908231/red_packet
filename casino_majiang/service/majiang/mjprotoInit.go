@@ -48,6 +48,7 @@ func NewMjDesk() *MjDesk {
 	ret.BeginTime = new(string)
 	ret.EndTime = new(string)
 	ret.HuRadio = new(int32)
+	ret.NextBanker = new(uint32)
 	return ret
 }
 

@@ -80,12 +80,15 @@ func (r *MjRoom) CreateDesk(m *mjproto.Game_CreateRoom) *MjDesk {
 	*desk.BaseValue = m.GetRoomTypeInfo().GetBaseValue()
 	*desk.ZiMoRadio = m.GetRoomTypeInfo().GetPlayOptions().GetZiMoRadio()
 	desk.OthersCheckBox = m.GetRoomTypeInfo().GetPlayOptions().GetOthersCheckBox()
+	//log.T("创建房间的时候，取到的othersCheckBox[%v]", desk.OthersCheckBox)
 	*desk.HuRadio = m.GetRoomTypeInfo().GetPlayOptions().GetHuRadio()
+	*desk.DianGangHuaRadio = m.GetRoomTypeInfo().GetPlayOptions().GetDianGangHuaRadio()
 	//*desk.DeskMJPai	//暂时没有使用，桌面上的牌
 	*desk.MJPaiCursor = 0
 	*desk.TotalPlayCount = m.RoomTypeInfo.GetBoardsCout()
 	*desk.CurrPlayCount = 0
 	*desk.Banker = userId
+	*desk.NextBanker = 0        //游戏过程中动态的计算
 	desk.CheckCase = nil        //判断case
 	*desk.ActiveUser = userId
 	*desk.GameNumber = 0
@@ -93,6 +96,7 @@ func (r *MjRoom) CreateDesk(m *mjproto.Game_CreateRoom) *MjDesk {
 	*desk.ActType = MJDESK_ACT_TYPE_MOPAI
 	//*desk.BeginTime	//游戏开始时间...
 	//*desk.EndTime		//游戏结束时间...
+
 	//把创建的desk加入到room中
 	r.AddDesk(desk)
 	return desk

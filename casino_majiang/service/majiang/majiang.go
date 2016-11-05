@@ -278,7 +278,7 @@ func init() {
 //统计麻将牌
 func GettPaiStats(pais []*MJPai) []int {
 	//统计每张牌的重复次数
-	log.T("GettPaiStats : %v", pais)
+	//log.T("GettPaiStats : %v", pais)
 	counts := make([]int, 27) //0~27
 	for i := 0; i < len(pais); i++ {
 		pai := pais[i]
@@ -417,7 +417,7 @@ func CanHuPai(handPai *MJHandPai) bool {
 	if canHu {
 		log.T("牌= %v  可以胡! isAll19=%v", handPai.InPai.LogDes(), isAll19)
 	} else {
-		log.T("牌= %v  不能胡! isAll19=%v", handPai.InPai.LogDes(), isAll19)
+		//log.T("牌= %v  不能胡! isAll19=%v", handPai.InPai.LogDes(), isAll19)
 	}
 
 	return canHu
@@ -450,6 +450,7 @@ func GetHuScore(handPai *MJHandPai, isZimo bool, extraAct HuPaiType, roomInfo Ro
 func getGou(handPai *MJHandPai, handCounts[] int) (gou int32) {
 	// 已杠的牌
 	gou = int32(len(handPai.GangPais))
+	gou = gou / 4      //杠牌/4才是gou 的数目
 
 	// 计算 碰牌+手牌 的勾数
 	for _, pengPai := range handPai.PengPais {
@@ -513,7 +514,7 @@ func getHuFan(handPai *MJHandPai, isZimo bool, extraAct HuPaiType, roomInfo Room
 		fan = 1
 		huCardStr = append(huCardStr, "大对子")
 	} else {
-		fan = 1
+		fan = 0
 		huType := "平胡"
 
 		//TODO: if 附加选项开启时
@@ -629,21 +630,15 @@ func CanPengPai(pai *MJPai, handPai *MJHandPai) bool {
 //这张pai是否可杠( 当pai为nil时, 检测handPai中是否有杠)
 func CanGangPai(pai *MJPai, handPai *MJHandPai) (canGang bool, gangPais []*MJPai) {
 	if ( pai != nil ) {
-		//判断别人打入的牌是否可杠
+		//判断别人打入的牌是否可杠,别人打得牌，不能判断碰牌
 		existCount := 0
-
-		tempPais := make([]*MJPai, len(handPai.Pais) + len(handPai.PengPais))
-		copy(tempPais[0:len(handPai.Pais)], handPai.Pais)
-		copy(tempPais[len(handPai.Pais):], handPai.PengPais)
-
-		for _, p := range tempPais {
-
+		for _, p := range handPai.Pais {
 			//判断是不是定缺的花色
 			if p.GetFlower() == handPai.GetQueFlower() {
 				continue
 			}
 
-			if *pai.Flower == *p.Flower && *pai.Value == *p.Value {
+			if p.GetClientId() == pai.GetClientId() {
 				existCount ++
 			}
 		}
@@ -830,8 +825,8 @@ func XiPai() []*MJPai {
 	}
 
 	log.T("洗牌之后,得到的随机的index数组[%v]", pResult)
-	TestCheckRanIndex(pResult)        //todo  测试代码，之后需要删除
-	pResult = []int{94, 55, 13, 40, 106, 28, 100, 31, 57, 44, 83, 58, 101, 104, 9, 92, 62, 67, 25, 38, 41, 86, 6, 48, 65, 61, 71, 4, 36, 49, 63, 7, 26, 75, 56, 43, 35, 103, 91, 27, 33, 50, 3, 11, 10, 8, 93, 76, 45, 12, 22, 68, 29, 17, 105, 19, 23, 95, 87, 34, 53, 37, 102, 88, 0, 69, 79, 80, 60, 81, 47, 85, 98, 2, 15, 16, 96, 59, 42, 30, 99, 77, 64, 46, 84, 52, 51, 70, 32, 21, 66, 1, 90, 72, 97, 78, 20, 74, 14, 24, 89, 5, 18, 73, 54, 82, 39, 107}
+	//TestCheckRanIndex(pResult)        //todo  测试代码，之后需要删除
+	//pResult = []int{94, 55, 13, 40, 106, 28, 100, 31, 57, 44, 83, 58, 101, 104, 9, 92, 62, 67, 25, 38, 41, 86, 6, 48, 65, 61, 71, 4, 36, 49, 63, 7, 26, 75, 56, 43, 35, 103, 91, 27, 33, 50, 3, 11, 10, 8, 93, 76, 45, 12, 22, 68, 29, 17, 105, 19, 23, 95, 87, 34, 53, 37, 102, 88, 0, 69, 79, 80, 60, 81, 47, 85, 98, 2, 15, 16, 96, 59, 42, 30, 99, 77, 64, 46, 84, 52, 51, 70, 32, 21, 66, 1, 90, 72, 97, 78, 20, 74, 14, 24, 89, 5, 18, 73, 54, 82, 39, 107}
 
 	//开始得到牌的信息
 	result := make([]*MJPai, MJPAI_COUNT)

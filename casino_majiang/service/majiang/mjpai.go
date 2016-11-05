@@ -6,10 +6,11 @@ import (
 	"errors"
 	"casino_server/common/log"
 	"casino_server/utils/numUtils"
+	"sort"
 )
 
 //1=明杠、2=巴杠、3=暗杠
-var GANG_TYPE_MING int32 = 1//明杠
+var GANG_TYPE_DIAN int32 = 1//明杠
 var GANG_TYPE_BA int32 = 2//明杠
 var GANG_TYPE_AN int32 = 3//明杠
 
@@ -53,7 +54,7 @@ func (p *MJHandPai) GetCanGang(pai *MJPai) (bool, []*MJPai) {
 	if pais != nil && len(pais) >= 4 {
 		for _, pai := range pais {
 			//杠牌中没有，并且手牌中有的才能放在list中...
-			if !IsListExisGangPais(result, pai) && p.IsExistHandPais(pai) {
+			if !IsListExisGangPais(result, pai) && (p.IsExistHandPais(pai) || pai.GetIndex() == p.InPai.GetIndex()) {
 				result = append(result, pai)
 			}
 		}
@@ -126,7 +127,7 @@ func (hand *MJHandPai) DelPengPai(key int32) error {
 func (hand *MJHandPai) IsExistPengPai(pai *MJPai) bool {
 	for _, p := range hand.PengPais {
 		if p != nil {
-			if p.GetValue() == pai.GetValue() && p.GetFlower() == pai.GetFlower() {
+			if p.GetClientId() == pai.GetClientId() {
 				//表示花色相同，有碰牌
 				return true
 			}
@@ -134,6 +135,54 @@ func (hand *MJHandPai) IsExistPengPai(pai *MJPai) bool {
 	}
 	return false;
 }
+
+//得到手牌的描述
+func (hand *MJHandPai) GetDes() string {
+	var tempPais MjPaiList = make([]*MJPai, len(hand.Pais))
+	copy(tempPais, hand.Pais)
+	sort.Sort(tempPais)
+
+	s := ""
+	for _, p := range tempPais {
+		if p != nil {
+			s += (" " + p.LogDes() + " ")
+		}
+	}
+	return s
+}
+
+//手牌排序
+
+type MjPaiList []*MJPai
+
+func (list MjPaiList)Len() int {
+	return len(list)
+
+}
+
+func ( list MjPaiList)Less(i, j int) bool {
+	if list[i].GetFlower() < list[j].GetFlower() {
+		return true
+	} else if list[i].GetFlower() == list[j].GetFlower() {
+		if list[i].GetValue() < list[j].GetValue() {
+			return true
+		} else {
+			return false
+		}
+
+	} else {
+		return false
+	}
+
+}
+func (list MjPaiList)Swap(i, j int) {
+	temp := list[i]
+	list[i] = list[j]
+	list[j] = temp
+}
+
+
+
 
 //删除杠牌的信息
 func (d *PlayerGameData) DelGangInfo(pai *MJPai) error {

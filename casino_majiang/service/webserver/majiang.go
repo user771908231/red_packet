@@ -72,16 +72,9 @@ func GetDeskMJInfo(desk *majiang.MjDesk) string {
 func getUserPaiInfo(user *majiang.MjUser) string {
 	if user.GameData == nil || user.GameData.HandPai == nil {
 		return "用户还没有牌"
+	} else {
+		return user.GameData.HandPai.GetDes()
 	}
-
-	s := ""
-	for _, p := range user.GameData.HandPai.Pais {
-		ii, _ := numUtils.Int2String(int32(p.GetIndex()))
-		s = s + ii + "-" + p.LogDes() + "\t "
-	}
-
-	return s
-
 }
 
 func getUserPengPaiInfo(user *majiang.MjUser) string {
