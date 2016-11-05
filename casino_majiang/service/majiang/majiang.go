@@ -514,7 +514,7 @@ func getHuFan(handPai *MJHandPai, isZimo bool, extraAct HuPaiType, roomInfo Room
 		fan = 1
 		huCardStr = append(huCardStr, "大对子")
 	} else {
-		fan = 1
+		fan = 0
 		huType := "平胡"
 
 		//TODO: if 附加选项开启时
