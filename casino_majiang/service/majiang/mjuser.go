@@ -89,7 +89,7 @@ func ( u *MjUser) GetPlayerInfo(showHand bool) *mjproto.PlayerInfo {
 	*info.Coin = u.GetCoin()
 	*info.IsBanker = u.GetIsBanker()
 	info.PlayerCard = u.GetPlayerCard(showHand)
-	*info.NickName = "测试nickName"
+	*info.NickName = u.GetNickName()
 	*info.UserId = u.GetUserId()
 	info.WxInfo = u.GetWxInfo()
 	*info.QuePai = u.GameData.HandPai.GetQueFlower()
@@ -139,7 +139,7 @@ func (u *MjUser) GetPlayerCard(showHand bool) *mjproto.PlayerCard {
 			com := newProto.NewComposeCard()
 			*com.Value = info.GetPai().GetClientId()
 
-			if info.GetGangType() == GANG_TYPE_MING {
+			if info.GetGangType() == GANG_TYPE_DIAN {
 				*com.Type = int32(mjproto.ComposeCardType_C_MINGGANG)   // 明杠
 			} else if info.GetGangType() == GANG_TYPE_AN {
 				*com.Type = int32(mjproto.ComposeCardType_C_ANGANG)       // 暗杠
@@ -334,7 +334,12 @@ func (u *MjUser) AfterLottery() error {
 }
 //得到用户的昵称
 func (u *MjUser) GetNickName() string {
-	return "nickName"
+	user := userService.GetUserById(u.GetUserId())
+	if user == nil {
+		return "玩家不存在"
+	} else {
+		return user.GetNickName()
+	}
 }
 
 func (u *MjUser) AddBillAmount(amount int64) {
@@ -373,6 +378,15 @@ func (u *MjUser) AddBillBean(bean *BillBean) error {
 	u.Bill.Bills = append(u.Bill.Bills, bean)
 	u.AddBillAmount(bean.GetAmount())
 	return nil
+}
+
+//
+func (u *MjUser) AddStatisticsWinCoin(coin int64) {
+	atomic.AddInt64(u.Statisc.WinCoin, coin)
+}
+
+func (u *MjUser) AddCoin(coin int64) {
+	atomic.AddInt64(u.Coin, coin)        //更新账户余额
 }
 
 func (u *MjUser) ADDCountBaGang() {
@@ -418,13 +432,16 @@ func (u *MjUser) StatisticsGangCount(round int32, gangType int32) error {
 		return errors.New("没有找到统计的roundBean，无法统计")
 	}
 
-	if gangType == GANG_TYPE_MING {
+	if gangType == GANG_TYPE_DIAN {
 		atomic.AddInt32(bean.CountMingGang, 1)
 		atomic.AddInt32(u.Statisc.CountMingGang, 1)
 
 	} else if gangType == GANG_TYPE_BA {
 		atomic.AddInt32(bean.CountBaGnag, 1)
 		atomic.AddInt32(u.Statisc.CountMingGang, 1)
+
+		//总的统计 + 1
+		u.ADDCountBaGang()
 
 	} else if gangType == GANG_TYPE_AN {
 		atomic.AddInt32(bean.CountAnGang, 1)
@@ -568,9 +585,13 @@ func (u *MjUser) AddBill(relationUserid uint32, billType int32, des string, scor
 	*bill.UserId = u.GetUserId()
 	*bill.OutUserId = relationUserid
 	*bill.Type = MJUSER_BILL_TYPE_YING_HU
-	*bill.Des = "用户自摸，获得收入"
+	*bill.Des = des
 	*bill.Amount = score        //杠牌的收入金额
 	bill.Pai = pai
 	u.AddBillBean(bill)
+
+	//计算账单的地方 来加减用户的coin
+	u.AddCoin(score)                //统计用户剩余多少钱
+	u.AddStatisticsWinCoin(score)        //统计用户输赢多少钱
 	return nil
 }

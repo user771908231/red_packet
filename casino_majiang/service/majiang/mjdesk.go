@@ -738,7 +738,7 @@ func (d *MjDesk) InitCheckCase(p *MJPai, outUser *MjUser) error {
 	for _, checkUser := range d.GetUsers() {
 		//这里要判断用户是不是已经胡牌
 		if checkUser != nil && checkUser.GetUserId() != outUser.GetUserId() &&  d.CanInitCheckCase(checkUser) {
-			log.T("用户[%v]打牌，判断user[%v]是否可以碰杠胡...", outUser.GetUserId(), checkUser.GetUserId())
+			log.T("用户[%v]打牌，判断user[%v]是否可以碰杠胡.手牌[%v]", outUser.GetUserId(), checkUser.GetUserId(), checkUser.GameData.HandPai.GetDes())
 			checkUser.GameData.HandPai.InPai = p
 			//添加checkBean
 			bean := checkUser.GetCheckBean(p)
@@ -850,7 +850,7 @@ func (d *MjDesk) Time2Lottery() bool {
 	//游戏中的玩家只剩下一个人，表示游戏结束...
 	gamingCount := d.GetGamingCount()        //正在游戏中的玩家数量
 
-	log.T("判断是否胡牌...但钱的gamingCount[%v]", gamingCount)
+	log.T("判断是否胡牌...当前的gamingCount[%v],当前的PaiCursor[%v]", gamingCount, d.GetMJPaiCursor())
 
 	//1,只剩下一个人的时候. 表示游戏结束
 	if gamingCount == 1 {
@@ -1143,6 +1143,7 @@ func (d *MjDesk) GetNextPai() *MJPai {
 	//目前暂时是108张牌...
 	if d.GetMJPaiCursor() >= 108 {
 		log.E("服务器错误:要找的牌的坐标[%v]已经超过整副麻将的坐标了... ", d.GetMJPaiCursor())
+		*d.MJPaiCursor --
 		return nil
 	} else {
 
@@ -1203,8 +1204,7 @@ func (d *MjDesk) SendMopaiOverTurn(user *MjUser) error {
 	//是否可以碰牌
 	*overTrun.CanPeng = false
 	user.SendOverTurn(overTrun)
-	log.T("玩家[%v]开始摸牌【%v】...", user.GetUserId(), overTrun)
-
+	log.T("玩家[%v]当前的手牌是[%v]开始摸牌【%v】...", user.GetUserId(), user.GameData.HandPai.GetDes(), overTrun)
 
 	//给其他人广播协议
 	*overTrun.CanHu = false
@@ -1655,7 +1655,7 @@ func (d *MjDesk) ActGang(userId uint32, paiId int32) error {
 
 	if d.CheckCase != nil {
 		//表示是明港
-		gangType = GANG_TYPE_MING        //明杠
+		gangType = GANG_TYPE_DIAN        //明杠
 		sendUserId = d.CheckCase.GetUserIdOut()
 		canGang, _ = user.GameData.HandPai.GetCanGang(gangPai)
 
@@ -1710,7 +1710,7 @@ func (d *MjDesk) ActGang(userId uint32, paiId int32) error {
 		//删除手牌
 		//user.GameData.HandPai.DelHandlPai(gangPai.GetIndex())	巴杠的时候，牌还在inpai里面，所以删除的时候出错...
 
-	} else if gangType == GANG_TYPE_MING || gangType == GANG_TYPE_AN {
+	} else if gangType == GANG_TYPE_DIAN || gangType == GANG_TYPE_AN {
 		log.T("用户[%v]杠牌不是巴杠 是 gangType[%v]...", userId, gangType)
 
 		//杠牌的类型
@@ -1746,11 +1746,10 @@ func (d *MjDesk) ActGang(userId uint32, paiId int32) error {
 	user.StatisticsGangCount(d.GetCurrPlayCount(), gangType)        //处理杠牌的账单
 	user.DelGuoHuInfo()        //删除过胡的信息
 
-	d.DoGangBill(gangType, user, gangPai);
+	d.DoGangBill(info);
 	d.DoCheckCaseAfterGang(gangType, gangPai, user)
 
 	//杠牌之后的逻辑
-	//todo 返回杠牌成功的逻辑，返回一个摸牌的overTurn
 	result := newProto.NewGame_AckActGang()
 	*result.GangType = user.PreMoGangInfo.GetGangType()
 	*result.UserIdOut = user.PreMoGangInfo.GetSendUserId()
@@ -1774,22 +1773,39 @@ func (d *MjDesk) ActGang(userId uint32, paiId int32) error {
  */
 
 
-func (d *MjDesk) DoGangBill(gangType int32, gangUser *MjUser, gangPai *MJPai) {
-	//现在杠牌的逻辑是,没有胡牌的人都要给钱...
-	if gangType == GANG_TYPE_BA || gangType == GANG_TYPE_AN || gangType == GANG_TYPE_MING {
-		//暗杠和巴杠的处理方式
+func (d *MjDesk) DoGangBill(info *GangPaiInfo) {
+	gangType := info.GetGangType()
+	gangUser := d.GetUserByUserId(info.GetGetUserId())
+	gangPai := info.GetPai()
+
+	if gangType == GANG_TYPE_AN {
+		//处理暗杠的账单
+		score := d.GetBaseValue() * 2        //暗杠的分数
 		for _, ou := range d.GetUsers() {
 			//不为nil 并且不是本人，并且没有胡牌
 			if ou != nil && ou.GetUserId() != gangUser.GetUserId() && ou.IsGaming() {
-				//用户赢钱的账户
-				gangUser.AddBill(ou.GetUserId(), MJUSER_BILL_TYPE_YING_GNAG, "用户杠牌，获得收入", d.GetBaseValue(), gangPai)
-				//用户输钱的账单
-				ou.AddBill(gangUser.GetUserId(), MJUSER_BILL_TYPE_SHU_GNAG, "用户杠牌，获得收入", -d.GetBaseValue(), gangPai)
+				gangUser.AddBill(ou.GetUserId(), MJUSER_BILL_TYPE_YING_GNAG, "用户暗杠，收入", score, gangPai)        //用户赢钱的账户
+				ou.AddBill(gangUser.GetUserId(), MJUSER_BILL_TYPE_SHU_GNAG, "用户暗杠，输钱", -score, gangPai)        //用户输钱的账单
 			}
 		}
 
-		//} else if info.GetGangType() == GANG_TYPE_MING {
-		//明杠的处理方式
+	} else if gangType == GANG_TYPE_DIAN {
+		//处理点杠点账单
+		score := d.GetBaseValue() * 2        //点杠的分数
+		shuUser := d.GetUserByUserId(info.GetSendUserId())
+		gangUser.AddBill(shuUser.GetUserId(), MJUSER_BILL_TYPE_YING_GNAG, "用户点杠，收入", score, gangPai)        //用户赢钱的账户
+		shuUser.AddBill(gangUser.GetUserId(), MJUSER_BILL_TYPE_SHU_GNAG, "用户点杠，输钱", -score, gangPai)        //用户输钱的账单
+
+	} else if gangType == GANG_TYPE_BA {
+		//处理巴杠的账单
+		score := d.GetBaseValue()        //巴杠的分数
+		for _, ou := range d.GetUsers() {
+			if ou != nil && ou.GetUserId() != gangUser.GetUserId() && ou.IsGaming() {
+				gangUser.AddBill(ou.GetUserId(), MJUSER_BILL_TYPE_YING_GNAG, "用户巴杠，收入", score, gangPai)        //用户赢钱的账户
+				ou.AddBill(gangUser.GetUserId(), MJUSER_BILL_TYPE_SHU_GNAG, "用户巴杠，输钱", -score, gangPai)        //用户输钱的账单
+
+			}
+		}
 	}
 }
 

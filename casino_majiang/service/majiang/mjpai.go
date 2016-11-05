@@ -9,7 +9,7 @@ import (
 )
 
 //1=明杠、2=巴杠、3=暗杠
-var GANG_TYPE_MING int32 = 1//明杠
+var GANG_TYPE_DIAN int32 = 1//明杠
 var GANG_TYPE_BA int32 = 2//明杠
 var GANG_TYPE_AN int32 = 3//明杠
 
@@ -134,6 +134,20 @@ func (hand *MJHandPai) IsExistPengPai(pai *MJPai) bool {
 	}
 	return false;
 }
+
+//得到手牌的描述
+func (hand *MJHandPai) GetDes() string {
+	s := ""
+	for _, p := range hand.Pais {
+		if p != nil {
+			s += (" " + p.LogDes() + " ")
+		}
+	}
+	return s
+}
+
+
+
 
 //删除杠牌的信息
 func (d *PlayerGameData) DelGangInfo(pai *MJPai) error {

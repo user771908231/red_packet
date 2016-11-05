@@ -450,6 +450,7 @@ func GetHuScore(handPai *MJHandPai, isZimo bool, extraAct HuPaiType, roomInfo Ro
 func getGou(handPai *MJHandPai, handCounts[] int) (gou int32) {
 	// 已杠的牌
 	gou = int32(len(handPai.GangPais))
+	gou = gou / 4      //杠牌/4才是gou 的数目
 
 	// 计算 碰牌+手牌 的勾数
 	for _, pengPai := range handPai.PengPais {

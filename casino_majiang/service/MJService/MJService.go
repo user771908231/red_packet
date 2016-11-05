@@ -370,7 +370,7 @@ func HandlerGame_ActGang(m *mjProto.Game_ActGang) {
 
 
 func HandlerGame_ActGuo(m *mjProto.Game_ActGuo) {
-	log.T("收到杠牌的请求，game_ActGuo(m[%v])", m)
+	log.T("收到过牌的请求，game_ActGuo(m[%v])", m)
 
 	userId := m.GetHeader().GetUserId()
 	desk := majiang.GetMjDeskBySession(userId) //通过userId 的session 得到对应的desk
