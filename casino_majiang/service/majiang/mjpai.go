@@ -6,6 +6,7 @@ import (
 	"errors"
 	"casino_server/common/log"
 	"casino_server/utils/numUtils"
+	"sort"
 )
 
 //1=明杠、2=巴杠、3=暗杠
@@ -137,13 +138,47 @@ func (hand *MJHandPai) IsExistPengPai(pai *MJPai) bool {
 
 //得到手牌的描述
 func (hand *MJHandPai) GetDes() string {
+	var tempPais MjPaiList = make([]*MJPai, len(hand.Pais))
+	copy(tempPais, hand.Pais)
+	sort.Sort(tempPais)
+
 	s := ""
-	for _, p := range hand.Pais {
+	for _, p := range tempPais {
 		if p != nil {
 			s += (" " + p.LogDes() + " ")
 		}
 	}
 	return s
+}
+
+//手牌排序
+
+type MjPaiList []*MJPai
+
+func (list MjPaiList)Len() int {
+	return len(list)
+
+}
+
+func ( list MjPaiList)Less(i, j int) bool {
+	if list[i].GetFlower() < list[j].GetFlower() {
+		return true
+	} else if list[i].GetFlower() == list[j].GetFlower() {
+		if list[i].GetValue() < list[j].GetValue() {
+			return true
+		} else {
+			return false
+		}
+
+	} else {
+		return false
+	}
+
+}
+func (list MjPaiList)Swap(i, j int) {
+	temp := list[i]
+	list[i] = list[j]
+	list[j] = temp
 }
 
 

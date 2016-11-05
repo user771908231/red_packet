@@ -1686,6 +1686,8 @@ func (d *MjDesk) ActGang(userId uint32, paiId int32) error {
 		2,如果是明杠或者暗杠，需要把所有的牌放在杠牌中，不用处理碰牌
 	 */
 
+	//首先把需要杠的牌放在手中
+	user.GameData.HandPai.Pais = append(user.GameData.HandPai.Pais, user.GameData.HandPai.InPai)
 
 	if gangType == GANG_TYPE_BA {
 		log.T("用户[%v]杠牌是巴杠,现在处理巴杠...", userId)
@@ -1708,7 +1710,7 @@ func (d *MjDesk) ActGang(userId uint32, paiId int32) error {
 		}
 
 		//删除手牌
-		//user.GameData.HandPai.DelHandlPai(gangPai.GetIndex())	巴杠的时候，牌还在inpai里面，所以删除的时候出错...
+		user.GameData.HandPai.DelHandlPai(gangPai.GetIndex())//
 
 	} else if gangType == GANG_TYPE_DIAN || gangType == GANG_TYPE_AN {
 		log.T("用户[%v]杠牌不是巴杠 是 gangType[%v]...", userId, gangType)
@@ -1716,7 +1718,6 @@ func (d *MjDesk) ActGang(userId uint32, paiId int32) error {
 		//杠牌的类型
 		var gangKey []int32
 		//增加杠牌
-		user.GameData.HandPai.Pais = append(user.GameData.HandPai.Pais, user.GameData.HandPai.InPai)
 		//如果不是摸的牌，而是手中本来就有的牌，那么需要把他移除
 		for _, pai := range user.GameData.HandPai.Pais {
 			if pai.GetClientId() == gangPai.GetClientId() {

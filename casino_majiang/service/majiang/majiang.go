@@ -417,7 +417,7 @@ func CanHuPai(handPai *MJHandPai) bool {
 	if canHu {
 		log.T("牌= %v  可以胡! isAll19=%v", handPai.InPai.LogDes(), isAll19)
 	} else {
-		log.T("牌= %v  不能胡! isAll19=%v", handPai.InPai.LogDes(), isAll19)
+		//log.T("牌= %v  不能胡! isAll19=%v", handPai.InPai.LogDes(), isAll19)
 	}
 
 	return canHu
