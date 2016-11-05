@@ -7,6 +7,7 @@ import (
 	. "casino_majiang/msg/protogo"
 	"casino_server/common/log"
 	"errors"
+	"fmt"
 )
 
 //得到一副牌...
@@ -284,12 +285,13 @@ func GettPaiStats(pais []*MJPai) []int {
 		pai := pais[i]
 		value := pai.GetValue() - 1
 		flower := pai.GetFlower()    //flower=1,2,3
-		//log.T("getValue(%v),pai.GetFlower(%v) ", value, pai.GetFlower())
+		log.T("getValue(%v),pai.GetFlower(%v) ", value, pai.GetFlower())
 		value += (flower - 1) * 9
-		//log.T("value[%v]", value)
+		log.T("value[%v]", value)
+		//fmt.Println("value,f")
 		counts[ value ] ++
 	}
-
+	fmt.Println(counts)
 	return counts
 }
 
@@ -424,6 +426,9 @@ func CanHuPai(handPai *MJHandPai) bool {
 }
 
 func GetHuScore(handPai *MJHandPai, isZimo bool, extraAct HuPaiType, roomInfo RoomTypeInfo) (fan int32, score int64, huCardStr[] string) {
+
+	fmt.Println("pai:",handPai.GetDes(),handPai.InPai.LogDes())
+
 	//底分
 	score = int64(*roomInfo.BaseValue)
 
@@ -494,26 +499,34 @@ func getHuFan(handPai *MJHandPai, isZimo bool, extraAct HuPaiType, roomInfo Room
 	isLongQiDui := IsLongQiDui(handPai, handCounts) //龙七对
 
 	if isQiDui {
+		fmt.Println("是七对")
 		if isLongQiDui && isQingYiSe {
+			fmt.Println("是龙七对&&清一色")
 			fan = 5
 			huCardStr = append(huCardStr, "清龙七对")
 		} else if isLongQiDui {
+			fmt.Println("是龙七对")
 			fan = 3
 			huCardStr = append(huCardStr, "龙七对")
 		} else if isQingYiSe {
+			fmt.Println("是清一色")
 			fan = 4
 			huCardStr = append(huCardStr, "清七对")
 		} else if IsJiangQiDui(handPai, handCounts) {
+			fmt.Println("是将对")
 			fan = 4
 			huCardStr = append(huCardStr, "将七对")
 		}
 	} else if isDaDuiZi && isQingYiSe {
+		fmt.Println("是大对子&&清一色")
 		fan = 3
 		huCardStr = append(huCardStr, "清对")
 	} else if isDaDuiZi {
+		fmt.Println("是大对子")
 		fan = 1
 		huCardStr = append(huCardStr, "大对子")
 	} else {
+		fmt.Println("是平胡")
 		fan = 0
 		huType := "平胡"
 
@@ -896,6 +909,39 @@ func InitMjPaiByIndex(index int) *MJPai {
 	*result.Des = mjpaiMap[index]
 	result.InitByDes()
 	return result
+}
+
+//通过一个Des描述和现持有的牌来得到一张空闲牌
+func InitMjPaiByDes(des string, hand *MJHandPai) *MJPai {
+
+	result := NewMjpai()
+	handMJPais := []*MJPai{}
+
+	//加入杠牌
+	handMJPais = append(handMJPais, hand.GangPais...)
+	//加入手牌
+	handMJPais = append(handMJPais, hand.Pais...)
+	//加入碰牌
+	handMJPais = append(handMJPais, hand.PengPais...)
+	//加入摸牌
+	handMJPais = append(handMJPais, hand.InPai)
+
+	for mjpaiIndex, mjpaiDes := range mjpaiMap {
+		for _, handMJPai := range handMJPais {
+			if des == mjpaiDes {
+				if (handMJPai != nil) && (int32(mjpaiIndex) == *handMJPai.Index) {
+					continue
+				}else {
+					*result.Index = int32(mjpaiIndex)
+					*result.Des = mjpaiDes
+					result.InitByDes()
+					return result
+				}
+			}
+		}
+	}
+
+	return nil
 }
 
 func GetFlow(f int32) string {
