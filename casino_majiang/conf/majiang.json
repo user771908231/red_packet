@@ -3,7 +3,7 @@
   "LogPath": "",
   "WSAddr": "192.168.199.120:3798",
   "MaxConnNum": 20000,
-  "MongoIp": "127.0.0.1",
+  "MongoIp": "192.168.199.120",
   "MongoPort": 51668,
   "RedisAddr": "127.0.0.1:6379",
   "CurVersion": 3
