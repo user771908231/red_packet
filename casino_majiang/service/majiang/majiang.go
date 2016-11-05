@@ -427,7 +427,7 @@ func CanHuPai(handPai *MJHandPai) bool {
 
 func GetHuScore(handPai *MJHandPai, isZimo bool, extraAct HuPaiType, roomInfo RoomTypeInfo) (fan int32, score int64, huCardStr[] string) {
 
-	fmt.Println("pai:",handPai.GetDes(),handPai.InPai.LogDes())
+	fmt.Println("pai:", handPai.GetDes(), handPai.InPai.LogDes())
 
 	//底分
 	score = int64(*roomInfo.BaseValue)
@@ -703,13 +703,22 @@ func IsDaDuiZi(pais []*MJPai) bool {
 
 	jiangDui := 0
 	for i := 0; i < len(pais); i++ {
-		count := counts [ pais[i].GetValue() - 1 + (pais[i].GetFlower() - 1) * 9]
-		if count == 2 {
+		//count := counts [ pais[i].GetValue() - 1 + (pais[i].GetFlower() - 1) * 9]
+		//if count == 2 {
+		//	jiangDui ++
+		//	if jiangDui > 1 {
+		//		return false
+		//	}
+		//} else if count < 2 {
+		//	return false
+		//}
+
+		if counts[i] == 2 {
 			jiangDui ++
 			if jiangDui > 1 {
 				return false
 			}
-		} else if count < 2 {
+		} else if counts[i] < 2 {
 			return false
 		}
 	}
@@ -931,7 +940,7 @@ func InitMjPaiByDes(des string, hand *MJHandPai) *MJPai {
 			if des == mjpaiDes {
 				if (handMJPai != nil) && (int32(mjpaiIndex) == *handMJPai.Index) {
 					continue
-				}else {
+				} else {
 					*result.Index = int32(mjpaiIndex)
 					*result.Des = mjpaiDes
 					result.InitByDes()
