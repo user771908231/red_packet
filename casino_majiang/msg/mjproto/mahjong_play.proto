@@ -36,6 +36,8 @@ message Game_ExchangeCardsEnd {
     optional ProtoHeader header = 1;
     repeated CardInfo exchangeInCards = 2; // 要换出的 3 张牌
     optional int32 exchangeNum = 3; //换几张: 3张, 2张
+    optional int32 exchangeType = 4; //换几张: 3张, 2张
+
 }
 
 // 定缺（和个人玩家ACK）
