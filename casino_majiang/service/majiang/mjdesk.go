@@ -1928,3 +1928,31 @@ func (d *MjDesk) GetByWho() {
 func (d *MjDesk) IsXueLiuChengHe() bool {
 	return true
 }
+
+//换三张
+func (d *MjDesk) DoExchange(userId uint32, exchangeNum int32, cards []*mjproto.CardInfo) error {
+	//换三张需要同步
+	user := d.GetUserByUserId(userId)
+	if user == nil {
+		log.E("换三张失败,因为没有找到对应的玩家[%v]", userId)
+		return errors.New("换三张失败")
+	}
+
+	//判断如参是否正确
+	if cards == nil || len(cards) != exchangeNum {
+		return errors.New("换三张失败...s")
+	}
+
+	for _, card := range cards {
+		pai := InitMjPaiByIndex(card.GetId())
+		user.ExchangeCards = append(user.ExchangeCards, pai)
+	}
+	//设置已经换了
+	user.Exchanged
+
+	//返回结果
+	result := newProto.NewGame_AckExchangeCards()
+	*result.Header.Code = intCons.ACK_RESULT_SUCC
+	user.WriteMsg(result)
+	return nil
+}

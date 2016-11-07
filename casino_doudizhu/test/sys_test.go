@@ -2,8 +2,8 @@ package test
 
 import (
 	"os"
-	"casino_majiang/conf/config"
 	"time"
+	"casino_doudizhu/conf/config"
 )
 
 func init() {
@@ -13,5 +13,5 @@ func init() {
 		os.Exit(-1)
 	}
 	time.Sleep(time.Second * 1)
-
 }
+

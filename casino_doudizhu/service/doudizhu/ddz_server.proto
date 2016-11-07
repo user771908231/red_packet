@@ -1,18 +1,31 @@
 package doudizhu;
 
-//牌
+//牌 ,单张扑克牌
+message PPokerPai {
+
+}
 
 //desk
+message PDdzDesk {
+
+}
 
 //user
+message PDdzUser {
+
+}
 
 //room
+message PDdzRoom {
+
+}
 
 //session
-message DdzSession {
+message PDdzSession {
     optional uint32 UserId = 1;
     optional int32 RoomId = 2;
     optional int32 DeskId = 3;
     optional int32 GameStatus = 4; //游戏的状态，
 
 }
+

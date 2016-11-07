@@ -250,10 +250,11 @@ func HandlerGame_DingQue(m *mjProto.Game_DingQue, a gate.Agent) {
 
 
 //换3张
-func HandlerGame_ExchangeCards(m *mjProto.Game_ExchangeCards, a gate.Agent) {
-	log.T("收到请求，HandlerGame_ExchangeCards(m[%v],a[%v])", m, a)
-	//result := newProto.NewGame_AckExchangeCards()
-	//a.WriteMsg(result)
+func HandlerGame_ExchangeCards(m *mjProto.Game_ExchangeCards) {
+	log.T("收到请求，HandlerGame_ExchangeCards(m[%v],a[%v])", m)
+	desk := majiang.GetMjDeskBySession(m.GetHeader().GetUserId())        //得到desk
+	//开始换三张
+	desk.DoExchange(m.GetHeader().GetUserId(), m.GetExchangeNum(), m.GetExchangeOutCards())
 }
 
 //出牌

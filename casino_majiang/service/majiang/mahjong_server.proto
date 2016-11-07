@@ -109,7 +109,7 @@ message MjDesk {
     optional int32 ActType = 28; //当前操作的人的类型
     optional string BeginTime = 29; //游戏开始时间
     optional string EndTime = 30; //游戏结束时间
-    optional uint32 nextBanker = 31;//下一句开始，谁是庄
+    optional uint32 nextBanker = 31; //下一句开始，谁是庄
 }
 
 
@@ -173,6 +173,7 @@ message MjUser {
     optional Bill bill = 14; //用户的账单
     optional MjUserStatisc statisc = 15; //证据游戏的统计...
     optional int64 WaitTime = 16; //用户等待的时间
+    repeated MJPai ExchangeCards = 17; //需要换的牌
 }
 
 //用户的session
@@ -181,7 +182,6 @@ message MjSession {
     optional int32 RoomId = 2;
     optional int32 DeskId = 3;
     optional int32 GameStatus = 4; //游戏的状态，
-
 }
 
 //一个麻将room

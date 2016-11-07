@@ -86,8 +86,7 @@ func handlerGame_DingQue(args []interface{}) {
 //换3张
 func handlerGame_ExchangeCards(args []interface{}) {
 	m := args[0].(*mjProto.Game_ExchangeCards)
-	a := args[1].(gate.Agent)
-	MJService.HandlerGame_ExchangeCards(m, a)
+	MJService.HandlerGame_ExchangeCards(m)
 }
 
 

@@ -53,10 +53,10 @@ func SetInt64(key string, value int64) {
 /**
 	保存一个对象到redis
  */
-func SetObj(key string, p proto.Message) {
+func SetObj(key string, p proto.Message) error {
 	conn := GetConn()
 	defer conn.Close()
-	conn.SetObj(key, p)
+	return conn.SetObj(key, p)
 }
 
 func Del(key string) {
