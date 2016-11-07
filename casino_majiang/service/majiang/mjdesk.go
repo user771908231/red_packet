@@ -1980,20 +1980,22 @@ func (d *MjDesk) ExchangeEnd() {
 	//开始换牌
 	exchangeType := utils.Rand(0, 3)
 	if exchangeType == int32(mjproto.ExchangeType_EXCHANGE_TYPE_DUIJIA) {
-		d.Users[0].GameData.HandPai = append(d.Users[0].GameData.HandPai, d.Users[2].ExchangeCards...)
-		d.Users[1].GameData.HandPai = append(d.Users[1].GameData.HandPai, d.Users[3].ExchangeCards...)
-		d.Users[2].GameData.HandPai = append(d.Users[2].GameData.HandPai, d.Users[0].ExchangeCards...)
-		d.Users[3].GameData.HandPai = append(d.Users[3].GameData.HandPai, d.Users[1].ExchangeCards...)
+		exchangeCards(d.Users[0], d.Users[2])
+		exchangeCards(d.Users[1], d.Users[3])
+		exchangeCards(d.Users[2], d.Users[0])
+		exchangeCards(d.Users[3], d.Users[1])
+
 	} else if exchangeType == int32(mjproto.ExchangeType_EXCHANGE_TYPE_SHUNSHIZHEN) {
-		d.Users[0].GameData.HandPai = append(d.Users[0].GameData.HandPai, d.Users[3].ExchangeCards...)
-		d.Users[1].GameData.HandPai = append(d.Users[1].GameData.HandPai, d.Users[0].ExchangeCards...)
-		d.Users[2].GameData.HandPai = append(d.Users[2].GameData.HandPai, d.Users[1].ExchangeCards...)
-		d.Users[3].GameData.HandPai = append(d.Users[3].GameData.HandPai, d.Users[2].ExchangeCards...)
+		exchangeCards(d.Users[0], d.Users[3])
+		exchangeCards(d.Users[1], d.Users[0])
+		exchangeCards(d.Users[2], d.Users[1])
+		exchangeCards(d.Users[3], d.Users[2])
+
 	} else if exchangeType == int32(mjproto.ExchangeType_EXCHANGE_TYPE_NISHIZHEN) {
-		d.Users[0].GameData.HandPai = append(d.Users[0].GameData.HandPai, d.Users[1].ExchangeCards...)
-		d.Users[1].GameData.HandPai = append(d.Users[1].GameData.HandPai, d.Users[2].ExchangeCards...)
-		d.Users[2].GameData.HandPai = append(d.Users[2].GameData.HandPai, d.Users[3].ExchangeCards...)
-		d.Users[3].GameData.HandPai = append(d.Users[3].GameData.HandPai, d.Users[0].ExchangeCards...)
+		exchangeCards(d.Users[0], d.Users[1])
+		exchangeCards(d.Users[1], d.Users[2])
+		exchangeCards(d.Users[2], d.Users[3])
+		exchangeCards(d.Users[3], d.Users[0])
 	}
 
 	//最后三张表示是已经换了的牌
@@ -2011,5 +2013,14 @@ func (d *MjDesk) ExchangeEnd() {
 		//给用户发送换牌之后的信息
 		user.WriteMsg(result)
 	}
+
+}
+
+func exchangeCards(u1 *MjUser, u2 *MjUser) {
+	//换三张的账户
+	count := 3
+	cars := make([]*MJPai, count)
+	copy(cars, u2.ExchangeCards)        //copy ，防止出错
+	u1.GameData.HandPai = append(u1.GameData.HandPai, cars...)
 
 }
