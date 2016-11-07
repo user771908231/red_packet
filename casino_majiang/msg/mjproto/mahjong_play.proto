@@ -22,10 +22,16 @@ message game_DealCards {
 // 换牌（3张）
 message game_ExchangeCards {
     optional ProtoHeader header = 1;
-    optional int32 seat = 2;
-    repeated CardInfo exchangeOutCards = 3; // 要换出的 3 张牌
-    optional uint32 userId = 4; // 操作人 (广播给其它用户时用到)
-    optional int32 exchangeNum = 5; //换几张: 3张, 2张
+    repeated CardInfo exchangeOutCards = 2; // 要换出的 3 张牌
+    optional uint32 userId = 3; // 操作人 (广播给其它用户时用到)
+    optional int32 exchangeNum = 4; //换几张: 3张, 2张
+}
+
+message Game_ExchangeCardsEnd {
+    optional ProtoHeader header = 1;
+    repeated CardInfo exchangeOutCards = 2; // 要换出的 3 张牌
+    optional uint32 userId = 3; // 操作人 (广播给其它用户时用到)
+    optional int32 exchangeNum = 4; //换几张: 3张, 2张
 }
 
 message game_AckExchangeCards {
@@ -153,7 +159,7 @@ message game_OverTurn {
     optional CardInfo actCard = 8; // 如果有出牌，表示出的是哪张牌，否则置为空 别人打牌的判断
     repeated CardInfo gangCards = 9; // 手牌中可杠的牌(可能多张) 自己摸牌的时候
     optional int32 time = 10;
-    optional int32 paiCount = 11;   //剩余多少牌还没有摸
+    optional int32 paiCount = 11; //剩余多少牌还没有摸
 
 }
 
