@@ -763,12 +763,19 @@ func (d *MjDesk) InitCheckCase(p *MJPai, outUser *MjUser) error {
 
 func (d *MjDesk ) CanInitCheckCase(user *MjUser) bool {
 	//这里需要判断是否是 血流成河，目前暂时不判断...
+
+	//1,普通规则
 	if user.IsNotHu() {
 		return true
-	} else {
-		return false
 	}
 
+	//2,血流成河
+	if user.IsHu() && d.IsXueLiuChengHe() {
+		return true
+	}
+
+	//其他情况返回false
+	return false
 }
 
 ////暂时不用？？ 摸牌之后
@@ -1927,7 +1934,7 @@ func (d *MjDesk) GetByWho() {
 
 //判断是否是血流成河
 func (d *MjDesk) IsXueLiuChengHe() bool {
-	return true
+	return false
 }
 
 //换三张
