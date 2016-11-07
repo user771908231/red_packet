@@ -2,7 +2,7 @@ package internal
 
 import (
 	"github.com/name5566/leaf/module"
-	"casino_majiang/base"
+	"casino_doudizhu/base"
 )
 
 var (

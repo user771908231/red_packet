@@ -1,7 +1,7 @@
 syntax = "proto2";
 
 import public "base.proto";
-package mjproto;
+package ddzproto;
 option optimize_for = LITE_RUNTIME;
 
 
