@@ -18,6 +18,7 @@ import (
 	"casino_server/utils/numUtils"
 	"casino_server/utils/timeUtils"
 	"casino_majiang/service/lock"
+	"casino_server/utils"
 )
 
 //状态表示的是当前状态.
@@ -1945,7 +1946,8 @@ func (d *MjDesk) DoExchange(userId uint32, exchangeNum int32, cards []*mjproto.C
 
 	for _, card := range cards {
 		pai := InitMjPaiByIndex(card.GetId())
-		user.ExchangeCards = append(user.ExchangeCards, pai)
+		user.ExchangeCards = append(user.ExchangeCards, pai)        //增加需要换的牌
+		user.GameData.HandPai.DelHandlPai(card.GetId())        //删除手牌
 	}
 	//设置已经换了
 	user.Exchanged
@@ -1954,5 +1956,60 @@ func (d *MjDesk) DoExchange(userId uint32, exchangeNum int32, cards []*mjproto.C
 	result := newProto.NewGame_AckExchangeCards()
 	*result.Header.Code = intCons.ACK_RESULT_SUCC
 	user.WriteMsg(result)
+
+
+	//之后判断
+	go d.ExchangeEnd()
+
 	return nil
+}
+
+//开始完成换三张
+func (d *MjDesk) ExchangeEnd() {
+	lock := lock.GetDeskLock(d.GetDeskId())
+	lock.Lock()
+	defer lock.Unlock()
+
+	//首先
+	for _, user := range d.GetUsers() {
+		if user == nil || !user.GetExchanged() {
+			return false
+		}
+	}
+
+	//开始换牌
+	exchangeType := utils.Rand(0, 3)
+	if exchangeType == int32(mjproto.ExchangeType_EXCHANGE_TYPE_DUIJIA) {
+		d.Users[0].GameData.HandPai = append(d.Users[0].GameData.HandPai, d.Users[2].ExchangeCards...)
+		d.Users[1].GameData.HandPai = append(d.Users[1].GameData.HandPai, d.Users[3].ExchangeCards...)
+		d.Users[2].GameData.HandPai = append(d.Users[2].GameData.HandPai, d.Users[0].ExchangeCards...)
+		d.Users[3].GameData.HandPai = append(d.Users[3].GameData.HandPai, d.Users[1].ExchangeCards...)
+	} else if exchangeType == int32(mjproto.ExchangeType_EXCHANGE_TYPE_SHUNSHIZHEN) {
+		d.Users[0].GameData.HandPai = append(d.Users[0].GameData.HandPai, d.Users[3].ExchangeCards...)
+		d.Users[1].GameData.HandPai = append(d.Users[1].GameData.HandPai, d.Users[0].ExchangeCards...)
+		d.Users[2].GameData.HandPai = append(d.Users[2].GameData.HandPai, d.Users[1].ExchangeCards...)
+		d.Users[3].GameData.HandPai = append(d.Users[3].GameData.HandPai, d.Users[2].ExchangeCards...)
+	} else if exchangeType == int32(mjproto.ExchangeType_EXCHANGE_TYPE_NISHIZHEN) {
+		d.Users[0].GameData.HandPai = append(d.Users[0].GameData.HandPai, d.Users[1].ExchangeCards...)
+		d.Users[1].GameData.HandPai = append(d.Users[1].GameData.HandPai, d.Users[2].ExchangeCards...)
+		d.Users[2].GameData.HandPai = append(d.Users[2].GameData.HandPai, d.Users[3].ExchangeCards...)
+		d.Users[3].GameData.HandPai = append(d.Users[3].GameData.HandPai, d.Users[0].ExchangeCards...)
+	}
+
+	//最后三张表示是已经换了的牌
+	for _, user := range d.GetUsers() {
+		result := newProto.NewGame_ExchangeCardsEnd()
+		*result.Header.Error = intCons.ACK_RESULT_SUCC
+		*result.Header.UserId = user.GetUserId()
+		*result.ExchangeType = mjproto.ExchangeType(exchangeType)
+		paiCount := len(user.GameData.HandPai.Pais)
+		ps := user.GameData.HandPai.Pais[paiCount - 3:paiCount]
+		for _, rp := range ps {
+			c := rp.GetCardInfo()
+			result.ExchangeInCards = append(result.ExchangeInCards, c)
+		}
+		//给用户发送换牌之后的信息
+		user.WriteMsg(result)
+	}
+
 }

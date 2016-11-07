@@ -32,6 +32,13 @@ message game_AckExchangeCards {
     optional ProtoHeader header = 1;
 }
 
+
+enum exchange_type {
+    EXCHANGE_TYPE_DUIJIA = 0;
+    EXCHANGE_TYPE_SHUNSHIZHEN = 1;
+    EXCHANGE_TYPE_NISHIZHEN = 2;
+}
+
 message Game_ExchangeCardsEnd {
     optional ProtoHeader header = 1;
     repeated CardInfo exchangeInCards = 2; // 要换出的 3 张牌
