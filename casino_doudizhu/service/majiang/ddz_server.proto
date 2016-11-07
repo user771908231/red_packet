@@ -1,0 +1,18 @@
+package doudizhu;
+
+//牌
+
+//desk
+
+//user
+
+//room
+
+//session
+message DdzSession {
+    optional uint32 UserId = 1;
+    optional int32 RoomId = 2;
+    optional int32 DeskId = 3;
+    optional int32 GameStatus = 4; //游戏的状态，
+
+}

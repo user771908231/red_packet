@@ -1,0 +1,117 @@
+syntax = "proto2";
+
+import public "base.proto";
+package mjproto;
+option optimize_for = LITE_RUNTIME;
+
+
+//房主解散房间(未开局)
+message game_DissolveDesk {
+    optional ProtoHeader header = 1;
+    optional uint32 userId = 2; // 解散房间的用户 id
+}
+//解散房间回复
+message game_AckDissolveDesk {
+    optional ProtoHeader header = 1;
+    optional uint32 userId = 2; // 解散房间的用户 id
+    optional int32 deskId = 3; //房间Id
+    optional string passWord = 4; //房间密钥
+}
+
+// 申请解散房间(游戏中)
+message game_ReqDissolveDesk {
+    optional ProtoHeader    header = 1;
+    optional uint32         userId = 2; // 申请解散房间的人
+}
+
+message game_AckReqDissolveDesk {
+    optional ProtoHeader    header = 1;
+    repeated uint32         userIdAgree = 2;    //已同意解散的人
+    repeated uint32         userIdWait = 3;     //等待答复的人
+    repeated uint32         userIdDisagree = 4; //不同意解散的人
+}
+
+
+// 离开房间
+message game_LeaveDesk {
+    optional ProtoHeader header = 1;
+}
+
+//离开房间的回复
+message game_AckLeaveDesk {
+    optional ProtoHeader header = 1;
+}
+
+//准备游戏
+message game_Ready {
+    optional ProtoHeader header = 1;
+    optional uint32 userId = 2; // 操作人 (广播给其它用户时用到)
+}
+
+//准备游戏的结果
+message game_AckReady {
+    optional ProtoHeader header = 1;
+    optional string msg = 2; //提示信息
+    optional uint32 userId = 3; //广播推送时：表示谁已准备
+}
+
+
+//聊天的内容
+message game_Message {
+    optional ProtoHeader header = 1;
+    optional int32 msgType = 2; //消息的类型,1,快捷,2,表情,3,自定义
+    optional int32 id = 3; //只有快捷和表情的时候有用
+    optional string msg = 4; //自定义的时候使用
+    optional uint32 userId = 5; //发消息的人是谁
+    optional int32 deskId = 6; //desk的id
+}
+
+//消息广播
+message game_SendMessage {
+    optional ProtoHeader header = 1;
+    optional int32 msgType = 2; //消息的类型,1,快捷,2,表情,3,自定义
+    optional int32 id = 3; //只有快捷和表情的时候有用
+    optional string msg = 4; //自定义的时候使用
+    optional uint32 userId = 5; //发消息的人是谁
+}
+
+
+// 赢牌信息：谁赢了多少
+message WinCoinInfo {
+    optional string nickName = 1;
+    optional uint32 userId = 2;
+    optional int64 winCoin = 3; // 本次输赢多少(负数表示输了)
+    optional int64 coin = 4; // 输赢以后，当前筹码是多少
+    optional string cardTitle = 5; // 赢牌牌型信息( 如:"点炮x2 明杠x2 根x2 自摸 3番" )
+    optional PlayerCard cards = 6; // 手牌
+    optional bool isDealer = 7; //是否庄家
+    optional int32 huCount = 8; //本局胡的次数(血流成河会多次胡)
+}
+
+message EndLotteryInfo {
+    optional uint32 userId = 1;
+    optional string nickName = 2; //玩家姓名
+    optional bool bigWin = 3; //是否为大赢家
+    optional bool isOwner = 4; //是否房主
+    optional int64 winCoin = 5;     //总输赢筹码数
+    optional int32 countHu = 6;     //胡牌次数(含自摸+接炮)
+    optional int32 countZiMo = 7;       //自摸次数
+    optional int32 countDianPao = 8;    //点炮次数
+    optional int32 countAnGang = 9;     //暗杠次数
+    optional int32 countMingGang = 10;  //明杠次数
+    optional int32 countDianGang = 11;  //点杠次数
+    optional int32 countChaJiao = 12;   //查叫次数
+}
+
+// 本局结果(广播)
+message game_SendCurrentResult {
+    optional ProtoHeader header = 1;
+    repeated WinCoinInfo winCoinInfo = 2; // 本局玩家的输赢明细
+}
+
+// 牌局结束(广播)
+message game_SendEndLottery {
+    optional ProtoHeader header = 1;
+    repeated EndLotteryInfo coinInfo = 2; //4人的汇总输赢明细
+}
+
