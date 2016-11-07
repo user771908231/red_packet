@@ -1923,3 +1923,8 @@ func (d *MjDesk) GetRemainPaiCount() int32 {
 func (d *MjDesk) GetByWho() {
 
 }
+
+//判断是否是血流成河
+func (d *MjDesk) IsXueLiuChengHe() bool {
+	return true
+}
