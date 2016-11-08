@@ -1,24 +1,21 @@
 package doudizhu
 
-import "casino_server/common/log"
-
 //斗地主的desk
 type DdzDesk struct {
-	key    string
-	DeskId int32
-	Users  []*DdzUser
+	*PDdzDesk
+	Users []*DdzUser
 }
 
-//New一个Desk
-func NewDdzDesk() *DdzDesk {
-	return nil
-}
-
-
-
-//斗地主的桌子
-//把数据同步到redis中去
+//斗地主的桌子//把数据同步到redis中去
 func (d *DdzDesk) Update2Redis() error {
+	bak := NewPDdzbak()
+	bak.Desk = d.PDdzDesk
+	for _, u := range d.Users {
+		bak.Users = append(d.Users, u)
+	}
+
+	//备份desk的数据
+	UpdateDesk2Redis(bak)
 	return nil
 }
 

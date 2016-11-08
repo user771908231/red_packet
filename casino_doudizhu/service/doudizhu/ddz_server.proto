@@ -7,6 +7,8 @@ message PPokerPai {
 
 //desk
 message PDdzDesk {
+    optional int32 deskId = 1;
+    optional string key = 2;
 
 }
 
@@ -20,12 +22,17 @@ message PDdzRoom {
 
 }
 
+//备份专用...
+message PDdzbak {
+    optional PDdzDesk desk = 1;
+    repeated PDdzUser users = 2;
+
+}
 //session
 message PDdzSession {
     optional uint32 UserId = 1;
     optional int32 RoomId = 2;
     optional int32 DeskId = 3;
     optional int32 GameStatus = 4; //游戏的状态，
-
 }
 

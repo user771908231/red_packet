@@ -26,8 +26,7 @@ func (room *DdzRoom) CreateDesk() *DdzDesk {
 
 	//2, newDesk and 赋值
 	desk := NewDdzDesk()
-	desk.key = key
-
+	*desk.Key = key
 	return desk
 
 }
@@ -65,15 +64,15 @@ func (r *DdzRoom) IsRoomKeyExist(roomkey string) bool {
 // room 解散房间...
 func (r *DdzRoom)DissolveDesk(desk *DdzDesk, sendMsg bool) error {
 	//清楚数据,1,session相关。2,
-	log.T("开始解散desk[%v]...", desk.DeskId)
-	log.T("开始解散desk[%v]user的session数据...", desk.DeskId)
+	log.T("开始解散desk[%v]...", desk)
+	log.T("开始解散desk[%v]user的session数据...", desk.GetDeskId())
 	for _, user := range desk.Users {
 		if user != nil {
 			user.ClearAgentGameData()
 		}
 	}
 
-	log.T("开始删除desk[%v]...", desk.DeskId)
+	log.T("开始删除desk[%v]...", desk.GetDeskId())
 
 	//发送解散房间的广播
 	rmErr := r.RmDesk(desk)
@@ -83,12 +82,12 @@ func (r *DdzRoom)DissolveDesk(desk *DdzDesk, sendMsg bool) error {
 	}
 
 	//删除锁
-	lock.DelDeskLock(desk.DeskId)
+	lock.DelDeskLock(desk.GetDeskId())
 	//删除reids
 	DelMjDeskRedis(desk)
 
 	//删除房间
-	log.T("删除desk[%v]之后，发送删除的广播...", desk.DeskId)
+	log.T("删除desk[%v]之后，发送删除的广播...", desk.GetDeskId())
 	if sendMsg {
 		//发送解散房间的广播
 	}
