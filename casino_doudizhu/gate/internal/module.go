@@ -2,9 +2,9 @@ package internal
 
 import (
 	"github.com/name5566/leaf/gate"
-	"casino_majiang/conf"
 	"casino_majiang/game"
 	"casino_majiang/msg"
+	"casino_doudizhu/conf"
 )
 
 type Module struct {
