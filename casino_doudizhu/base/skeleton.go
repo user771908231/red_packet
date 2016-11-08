@@ -3,7 +3,7 @@ package base
 import (
 	"github.com/name5566/leaf/chanrpc"
 	"github.com/name5566/leaf/module"
-	"casino_majiang/conf"
+	"casino_doudizhu/conf"
 )
 
 func NewSkeleton() *module.Skeleton {

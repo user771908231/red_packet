@@ -12,7 +12,7 @@ import (
 	"runtime"
 	"time"
 	"math/rand"
-	"casino_majiang/conf"
+	"casino_doudizhu/conf"
 )
 
 
