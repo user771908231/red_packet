@@ -2,8 +2,15 @@ package doudizhu
 
 //斗地主的desk
 type DdzDesk struct {
-
+	key string
 }
+
+//New一个Desk
+func NewDdzDesk() *DdzDesk {
+	return nil
+}
+
+
 
 //斗地主的桌子
 //把数据同步到redis中去
