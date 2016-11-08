@@ -4,7 +4,7 @@ import "sync"
 
 type DdzUser struct {
 	sync.Mutex
-	*DdzUser
+	*PDdzUser
 }
 
 //清楚session

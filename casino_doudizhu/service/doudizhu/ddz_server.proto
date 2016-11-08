@@ -14,6 +14,7 @@ message PDdzDesk {
 
 //user
 message PDdzUser {
+    optional uint32 userId = 1;
 
 }
 

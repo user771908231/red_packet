@@ -12,9 +12,22 @@ func NewPDdzDesk() *PDdzDesk {
 	return ret
 }
 
+func NewPDdzUser() *PDdzUser {
+	ret := new(PDdzUser)
+	return ret
+}
+
+
 //New一个Desk
 func NewDdzDesk() *DdzDesk {
 	desk := new(DdzDesk)
 	desk.PDdzDesk = NewPDdzDesk()
 	return desk
 }
+
+func NewDdzUser() *DdzUser {
+	user := new(DdzUser)
+	user.PDdzUser = NewPDdzUser()
+	return user
+}
+
