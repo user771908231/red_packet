@@ -380,3 +380,8 @@ func NewGame_ExchangeCardsEnd() *mjProto.Game_ExchangeCardsEnd {
 	ret.ExchangeNum = new(int32)
 	return ret
 }
+
+func NewGame_BroadcastBeginExchange() *mjProto.Game_BroadcastBeginExchange {
+	ret := &mjProto.Game_BroadcastBeginExchange{}
+	return ret
+}

@@ -510,13 +510,12 @@ func (d *MjDesk) begin() error {
 		return err
 	}
 
-	//4，开始定缺
-	err = d.beginDingQue()
+	//开始换三张
+	err = d.beginExchange()
 	if err != nil {
-		log.E("开始发送定缺广播的时候出错err[%v]", err)
+		log.E("发送开始换三张的广播的时候出错err[%v]", err)
 		return err
 	}
-
 	return nil
 }
 
@@ -651,6 +650,15 @@ func (d *MjDesk) UpdateUserStatus(status int32) {
 	}
 
 }
+
+//开始换三张
+func (d *MjDesk) beginExchange() error {
+	data := newProto.NewGame_BroadcastBeginExchange()
+	d.BroadCastProto(data)
+	return nil
+}
+
+
 
 //开始定缺
 func (d *MjDesk) beginDingQue() error {
@@ -1947,17 +1955,17 @@ func (d *MjDesk) DoExchange(userId uint32, exchangeNum int32, cards []*mjproto.C
 	}
 
 	//判断如参是否正确
-	if cards == nil || len(cards) != exchangeNum {
+	if cards == nil || int32(len(cards)) != exchangeNum {
 		return errors.New("换三张失败...s")
 	}
 
 	for _, card := range cards {
-		pai := InitMjPaiByIndex(card.GetId())
+		pai := InitMjPaiByIndex(int(card.GetId()))
 		user.ExchangeCards = append(user.ExchangeCards, pai)        //增加需要换的牌
 		user.GameData.HandPai.DelHandlPai(card.GetId())        //删除手牌
 	}
 	//设置已经换了
-	user.Exchanged
+	*user.Exchanged = true
 
 	//返回结果
 	result := newProto.NewGame_AckExchangeCards()
@@ -1972,7 +1980,7 @@ func (d *MjDesk) DoExchange(userId uint32, exchangeNum int32, cards []*mjproto.C
 }
 
 //开始完成换三张
-func (d *MjDesk) ExchangeEnd() {
+func (d *MjDesk) ExchangeEnd() error {
 	lock := lock.GetDeskLock(d.GetDeskId())
 	lock.Lock()
 	defer lock.Unlock()
@@ -1980,7 +1988,7 @@ func (d *MjDesk) ExchangeEnd() {
 	//首先
 	for _, user := range d.GetUsers() {
 		if user == nil || !user.GetExchanged() {
-			return false
+			return errors.New("还有人没有请求换三张")
 		}
 	}
 
@@ -2008,9 +2016,9 @@ func (d *MjDesk) ExchangeEnd() {
 	//最后三张表示是已经换了的牌
 	for _, user := range d.GetUsers() {
 		result := newProto.NewGame_ExchangeCardsEnd()
-		*result.Header.Error = intCons.ACK_RESULT_SUCC
+		*result.Header.Code = intCons.ACK_RESULT_SUCC
 		*result.Header.UserId = user.GetUserId()
-		*result.ExchangeType = mjproto.ExchangeType(exchangeType)
+		*result.ExchangeType = exchangeType
 		paiCount := len(user.GameData.HandPai.Pais)
 		ps := user.GameData.HandPai.Pais[paiCount - 3:paiCount]
 		for _, rp := range ps {
@@ -2021,6 +2029,20 @@ func (d *MjDesk) ExchangeEnd() {
 		user.WriteMsg(result)
 	}
 
+
+
+
+	//延时之后发送开始定缺的广播
+
+	time.Sleep(time.Second * 3)
+	//开始定缺
+	err := d.beginDingQue()
+	if err != nil {
+		log.E("开始发送定缺广播的时候出错err[%v]", err)
+		return err
+	}
+
+	return nil
 }
 
 func exchangeCards(u1 *MjUser, u2 *MjUser) {
@@ -2028,6 +2050,6 @@ func exchangeCards(u1 *MjUser, u2 *MjUser) {
 	count := 3
 	cars := make([]*MJPai, count)
 	copy(cars, u2.ExchangeCards)        //copy ，防止出错
-	u1.GameData.HandPai = append(u1.GameData.HandPai, cars...)
+	u1.GameData.HandPai.Pais = append(u1.GameData.HandPai.Pais, cars...)
 
 }
