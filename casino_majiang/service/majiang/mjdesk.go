@@ -1971,6 +1971,7 @@ func (d *MjDesk) DoExchange(userId uint32, exchangeNum int32, cards []*mjproto.C
 	//返回结果
 	result := newProto.NewGame_AckExchangeCards()
 	*result.Header.Code = intCons.ACK_RESULT_SUCC
+	*result.UserId = user.GetUserId()
 	user.WriteMsg(result)
 
 

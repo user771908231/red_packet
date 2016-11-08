@@ -371,6 +371,7 @@ func NewGame_AckActGuo() *mjProto.Game_AckActGuo {
 func NewGame_AckExchangeCards() *mjProto.Game_AckExchangeCards {
 	ret := &mjProto.Game_AckExchangeCards{}
 	ret.Header = NewHeader()
+	ret.UserId = new(uint32)
 	return ret
 }
 
