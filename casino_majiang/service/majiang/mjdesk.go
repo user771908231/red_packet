@@ -653,6 +653,7 @@ func (d *MjDesk) UpdateUserStatus(status int32) {
 
 //开始换三张
 func (d *MjDesk) beginExchange() error {
+	time.Sleep(time.Second * 3)
 	data := newProto.NewGame_BroadcastBeginExchange()
 	d.BroadCastProto(data)
 	return nil
