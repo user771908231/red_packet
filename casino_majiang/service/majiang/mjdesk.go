@@ -1990,8 +1990,7 @@ func (d *MjDesk) DoExchange(userId uint32, exchangeNum int32, cards []*mjproto.C
 	result := newProto.NewGame_AckExchangeCards()
 	*result.Header.Code = intCons.ACK_RESULT_SUCC
 	*result.UserId = user.GetUserId()
-	user.WriteMsg(result)
-
+	d.BroadCastProto(result)
 
 	//之后判断
 	go d.ExchangeEnd()

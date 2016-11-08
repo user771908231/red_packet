@@ -379,6 +379,7 @@ func NewGame_ExchangeCardsEnd() *mjProto.Game_ExchangeCardsEnd {
 	ret := &mjProto.Game_ExchangeCardsEnd{}
 	ret.Header = NewHeader()
 	ret.ExchangeNum = new(int32)
+	ret.ExchangeType = new(int32)
 	return ret
 }
 

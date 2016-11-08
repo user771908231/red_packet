@@ -32,3 +32,13 @@ func NewDdzUser() *DdzUser {
 	return user
 }
 
+func NewPPokerPai() *PPokerPai {
+	pai := new(PPokerPai)
+	pai.Des = new(string)
+	pai.Flower = new(int32)
+	pai.Id = new(int32)
+	pai.Name = new(string)
+	pai.Value = new(int32)
+	return pai
+}
+

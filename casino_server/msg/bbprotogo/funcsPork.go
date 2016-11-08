@@ -2,79 +2,15 @@ package bbproto
 
 import (
 	"strings"
-	"casino_server/utils/numUtils"
 	"sort"
 	"casino_server/utils"
 	"casino_server/common/log"
+	"casino_server/utils/pokerUtils"
 )
 
 var PLAYER_COUNT int32 = 5                                //总的玩家个数
 const PLAY_PORK_COUNT int32 = 15                        //每局需要的总牌数
 
-
-var porkMap map[int32]string
-
-func init() {
-	porkMap = make(map[int32]string, 54)
-	porkMap[0] = "POKER_diamond_14_A"
-	porkMap[1] = "POKER_diamond_2_2"
-	porkMap[2] = "POKER_diamond_3_3"
-	porkMap[3] = "POKER_diamond_4_4"
-	porkMap[4] = "POKER_diamond_5_5"
-	porkMap[5] = "POKER_diamond_6_6"
-	porkMap[6] = "POKER_diamond_7_7"
-	porkMap[7] = "POKER_diamond_8_8"
-	porkMap[8] = "POKER_diamond_9_9"
-	porkMap[9] = "POKER_diamond_10_10"
-	porkMap[10] = "POKER_diamond_11_J"
-	porkMap[11] = "POKER_diamond_12_Q"
-	porkMap[12] = "POKER_diamond_13_K"
-
-	porkMap[13] = "POKER_club_14_A"
-	porkMap[14] = "POKER_club_2_2"
-	porkMap[15] = "POKER_club_3_3"
-	porkMap[16] = "POKER_club_4_4"
-	porkMap[17] = "POKER_club_5_5"
-	porkMap[18] = "POKER_club_6_6"
-	porkMap[19] = "POKER_club_7_7"
-	porkMap[20] = "POKER_club_8_8"
-	porkMap[21] = "POKER_club_9_9"
-	porkMap[22] = "POKER_club_10_10"
-	porkMap[23] = "POKER_club_11_J	"
-	porkMap[24] = "POKER_club_12_Q"
-	porkMap[25] = "POKER_club_13_K"
-
-	porkMap[26] = "POKER_heart_14_A"
-	porkMap[27] = "POKER_heart_2_2"
-	porkMap[28] = "POKER_heart_3_3"
-	porkMap[29] = "POKER_heart_4_4"
-	porkMap[30] = "POKER_heart_5_5"
-	porkMap[31] = "POKER_heart_6_6"
-	porkMap[32] = "POKER_heart_7_7"
-	porkMap[33] = "POKER_heart_8_8"
-	porkMap[34] = "POKER_heart_9_9"
-	porkMap[35] = "POKER_heart_10_10"
-	porkMap[36] = "POKER_heart_11_J"
-	porkMap[37] = "POKER_heart_12_Q"
-	porkMap[38] = "POKER_heart_13_K"
-
-	porkMap[39] = "POKER_spade_14_A"
-	porkMap[40] = "POKER_spade_2_2"
-	porkMap[41] = "POKER_spade_3_3"
-	porkMap[42] = "POKER_spade_4_4"
-	porkMap[43] = "POKER_spade_5_5"
-	porkMap[44] = "POKER_spade_6_6"
-	porkMap[45] = "POKER_spade_7_7"
-	porkMap[46] = "POKER_spade_8_8"
-	porkMap[47] = "POKER_spade_9_9"
-	porkMap[48] = "POKER_spade_10_10"
-	porkMap[49] = "POKER_spade_11_J"
-	porkMap[50] = "POKER_spade_12_Q"
-	porkMap[51] = "POKER_spade_13_K"
-
-	porkMap[53] = "POKER_RED_JOKER"
-	porkMap[54] = "POKER_BLACK_JOKER"
-}
 
 var ZJH_TYPE_SANPAI int32 = 1;
 
@@ -131,23 +67,6 @@ func ( list ZjhPaiList) Swap(i, j int) {
 	var temp *ZjhPai = list[i]
 	list[i] = list[j]
 	list[j] = temp
-}
-
-
-/**
-通过描述来初始化一张牌
- */
-func (p *Pai) initPork() error {
-	sarry := strings.Split(p.GetMapdes(), "_")
-
-	var pvalue int32 = int32(numUtils.String2Int(sarry[2]))
-	var pname string = sarry[3]
-	var pflower string = sarry[1]
-
-	p.Value = &pvalue
-	p.Name = &pname
-	p.Flower = &pflower
-	return nil
 }
 
 func (z *ZjhPai) ToString() string {
@@ -335,12 +254,13 @@ func CreateZjhList() ZjhPaiList {
 更具index生成一张纸牌
  */
 func CreatePorkByIndex(i int32) *Pai {
-	//var rmapkey int32 = i
+	index, rmapdes, pvalue, pflower, pname := pokerUtils.ParseByIndex(i)
 	result := &Pai{}
-	result.MapKey = &i
-	var rmapdes string = porkMap[i]
+	result.MapKey = &index
 	result.Mapdes = &rmapdes
-	result.initPork()
+	result.Value = &pvalue
+	result.Flower = &pflower
+	result.Name = &pname
 	return result
 }
 
@@ -366,8 +286,4 @@ func RandomPorkIndex(min, max int32) [PLAY_PORK_COUNT]int32 {
 		}
 	}
 	return *result;
-}
-
-func CreateZjhPaiList() {
-
 }
