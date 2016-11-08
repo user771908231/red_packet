@@ -1,8 +1,12 @@
 package doudizhu
 
+import "casino_server/common/log"
+
 //斗地主的desk
 type DdzDesk struct {
-	key string
+	key    string
+	DeskId int32
+	Users  []*DdzUser
 }
 
 //New一个Desk
@@ -22,5 +26,8 @@ func (d *DdzDesk) Update2Redis() error {
 func (d *DdzDesk) AddUser() error {
 	return nil
 }
+
+
+
 
 

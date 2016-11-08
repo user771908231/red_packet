@@ -236,8 +236,6 @@ func (r *MjRoom)DissolveDesk(desk *MjDesk, sendMsg bool) error {
 	//删除reids
 	DelMjDeskRedis(desk)
 
-
-
 	//删除房间
 	log.T("删除desk[%v]之后，发送删除的广播...", desk.GetDeskId())
 	if sendMsg {

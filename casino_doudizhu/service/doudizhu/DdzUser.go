@@ -27,3 +27,8 @@ func (d *DdzUser)  String() string {
 func (d *DdzUser)  ProtoMessage() {
 
 }
+
+//清楚session
+func (u *DdzUser)ClearAgentGameData() {
+
+}

@@ -1971,6 +1971,7 @@ func (d *MjDesk) DoExchange(userId uint32, exchangeNum int32, cards []*mjproto.C
 	//返回结果
 	result := newProto.NewGame_AckExchangeCards()
 	*result.Header.Code = intCons.ACK_RESULT_SUCC
+	*result.UserId = user.GetUserId()
 	user.WriteMsg(result)
 
 
@@ -2029,8 +2030,6 @@ func (d *MjDesk) ExchangeEnd() error {
 		//给用户发送换牌之后的信息
 		user.WriteMsg(result)
 	}
-
-
 
 
 	//延时之后发送开始定缺的广播
