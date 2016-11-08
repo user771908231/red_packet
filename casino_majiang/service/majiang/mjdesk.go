@@ -2054,3 +2054,13 @@ func exchangeCards(u1 *MjUser, u2 *MjUser) {
 	u1.GameData.HandPai.Pais = append(u1.GameData.HandPai.Pais, cars...)
 
 }
+
+//判断是否开启房间的某个选项
+func IsOpenRoomOption(othersCheckBox []int32, option mjproto.MJOption) bool {
+	for _, opt := range othersCheckBox {
+		if opt == int32(option) {
+			return true
+		}
+	}
+	return false
+}
