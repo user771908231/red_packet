@@ -9,6 +9,8 @@ message PPokerPai {
 message PDdzDesk {
     optional int32 deskId = 1;
     optional string key = 2;
+    optional int32 userCountLimit = 3; //人数限制
+
 
 }
 

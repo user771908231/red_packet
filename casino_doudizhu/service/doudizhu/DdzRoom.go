@@ -27,9 +27,19 @@ func (room *DdzRoom) CreateDesk() *DdzDesk {
 	//2, newDesk and 赋值
 	desk := NewDdzDesk()
 	*desk.Key = key
+	*desk.UserCountLimit = 3
+	desk.Users = make([]*DdzUser, desk.GetUserCountLimit())
+
+	err := room.AddDeskBean(desk)
+	if err != nil {
+		log.E("创建房间失败,没有加入到room")
+		return nil
+	}
 	return desk
 
 }
+
+
 
 //得到一个roomKey
 func (r *DdzRoom) NewRoomKey() string {
@@ -51,7 +61,7 @@ func (r *DdzRoom) IsRoomKeyExist(roomkey string) bool {
 	ret := false
 	for i := 0; i < len(r.Desks); i++ {
 		d := r.Desks[i]
-		if d != nil && d.key == roomkey {
+		if d != nil && d.GetKey() == roomkey {
 			ret = true
 			break
 		}
@@ -114,10 +124,12 @@ func (r *DdzRoom) RmDesk(desk *DdzDesk) error {
 
 }
 
+//得到桌子
 func GetFDdzRoom() *DdzRoom {
 	//暂时返回朋友桌
 	return FDdzRoomIns
 }
+
 //通过用户的session 找到mjroom
 func GetMjroomBySession(userId uint32) *DdzRoom {
 	session := GetSession(userId)
@@ -134,4 +146,9 @@ func (r *DdzRoom)GetDeskByDeskId(deskId int32) *DdzDesk {
 	return nil
 }
 
-
+//room添加房间
+func (r *DdzRoom) AddDeskBean(desk *DdzDesk) error {
+	r.Desks = append(r.Desks, desk)
+	desk.Update2Redis()        //更新桌子的信息到redis中去
+	return nil        //这里的返回值不用判断...
+}

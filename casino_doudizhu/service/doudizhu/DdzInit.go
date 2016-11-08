@@ -22,6 +22,7 @@ func NewPDdzUser() *PDdzUser {
 func NewDdzDesk() *DdzDesk {
 	desk := new(DdzDesk)
 	desk.PDdzDesk = NewPDdzDesk()
+	desk.UserCountLimit = new(int32)
 	return desk
 }
 

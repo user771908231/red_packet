@@ -510,14 +510,32 @@ func (d *MjDesk) begin() error {
 		return err
 	}
 
-	//开始换三张
-	err = d.beginExchange()
-	if err != nil {
-		log.E("发送开始换三张的广播的时候出错err[%v]", err)
-		return err
+	//这里需要判断
+	if d.IsNeedExchange3zhang() {
+		//开始换三张
+		err = d.beginExchange()
+		if err != nil {
+			log.E("发送开始换三张的广播的时候出错err[%v]", err)
+			return err
+		}
+	} else {
+		//不用换三张 //直接法开始定缺的广播
+		err := d.beginDingQue()
+		if err != nil {
+			log.E("开始发送定缺广播的时候出错err[%v]", err)
+			return err
+		}
 	}
+
 	return nil
 }
+
+//是否需要换三张
+func (d *MjDesk) IsNeedExchange3zhang() bool {
+	//d.GetPlayOptions().OthersCheckBox
+	return true
+}
+
 
 //是否可以开始
 func (d *MjDesk) time2begin() error {
