@@ -2031,8 +2031,6 @@ func (d *MjDesk) ExchangeEnd() error {
 	}
 
 
-
-
 	//延时之后发送开始定缺的广播
 
 	time.Sleep(time.Second * 3)
