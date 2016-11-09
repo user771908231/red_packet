@@ -40,6 +40,7 @@ var FAN_QINGLONGQIDUI	int32	= 5 //清龙七对
 
 //加番
 var FAN_ZIMO		int32	= 1 //自摸
+var FAN_MENQ_ZHONGZ	int32	= 1 //门清中张
 var FAN_GANGSHANGHUA	int32	= 1 //杠上花
 var FAN_GANGSHANGPAO	int32	= 1 //杠上炮
 var FAN_HD_HUA		int32	= 1 //海底花
@@ -602,7 +603,16 @@ func getHuFan(handPai *MJHandPai, isZimo bool, extraAct HuPaiType, roomInfo Room
 		}
 	}
 
-
+	if IsOpenRoomOption(roomInfo.PlayOptions.OthersCheckBox, MJOption_MENQING_MID_CARD) { //门清中张选项开启
+		if IsMenqing(handPai) {
+			fan += FAN_MENQ_ZHONGZ
+			huCardStr = append(huCardStr, "门清")
+		}
+		if IsZhongzhang(handPai, handCounts) {
+			fan += FAN_MENQ_ZHONGZ
+			huCardStr = append(huCardStr, "中张")
+		}
+	}
 	isTianDiHuFlag := false //天地胡选项 避免多次搜索
 	if IsOpenRoomOption(roomInfo.PlayOptions.OthersCheckBox, MJOption_TIAN_DI_HU) { //天地胡选项开启
 		isTianDiHuFlag = true
@@ -891,8 +901,19 @@ func IsMenqing(handPai *MJHandPai) bool {
 	return true
 }
 
-func IsZhongzhang(handPai *MJHandPai) bool {
+//中张 没有1、9
+func IsZhongzhang(handPai *MJHandPai, handCounts []int) bool {
 	//
+	for i := 0; i < len(handCounts); i++ {
+		switch (i + 1) % 9 {
+		case 1, 0 : //牌值为1、9
+			if handCounts[i] > 0 { //牌中包含1、9
+				return false
+			}
+		default:
+		}
+	}
+	return true
 }
 
 //全带幺
