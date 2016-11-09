@@ -137,7 +137,7 @@ func (d *MjDesk) SendReconnectOverTurn(userId uint32) error {
 			*overTrun.PaiCount = d.GetRemainPaiCount()        //桌子剩余多少牌
 			*overTrun.ActType = OVER_TURN_ACTTYPE_MOPAI        //摸牌
 			overTrun.ActCard = user.GameData.HandPai.InPai.GetCardInfo()
-			*overTrun.CanHu = user.GameData.HandPai.GetCanHu()                //是否可以胡牌
+			*overTrun.CanHu, _ = user.GameData.HandPai.GetCanHu()                //是否可以胡牌
 			canGangBool, gangPais := user.GameData.HandPai.GetCanGang(nil)    //是否可以杠牌
 
 			*overTrun.CanGang = canGangBool
@@ -510,14 +510,31 @@ func (d *MjDesk) begin() error {
 		return err
 	}
 
-	//开始换三张
-	err = d.beginExchange()
-	if err != nil {
-		log.E("发送开始换三张的广播的时候出错err[%v]", err)
-		return err
+	//这里需要判断
+	if d.IsNeedExchange3zhang() {
+		//开始换三张
+		err = d.beginExchange()
+		if err != nil {
+			log.E("发送开始换三张的广播的时候出错err[%v]", err)
+			return err
+		}
+	} else {
+		//不用换三张 //直接法开始定缺的广播
+		err := d.beginDingQue()
+		if err != nil {
+			log.E("开始发送定缺广播的时候出错err[%v]", err)
+			return err
+		}
 	}
+
 	return nil
 }
+
+//是否需要换三张
+func (d *MjDesk) IsNeedExchange3zhang() bool {
+	return d.IsOpenOption(mjproto.MJOption_EXCHANGE_CARDS)
+}
+
 
 //是否可以开始
 func (d *MjDesk) time2begin() error {
@@ -1208,7 +1225,7 @@ func (d *MjDesk) SendMopaiOverTurn(user *MjUser) error {
 	overTrun.ActCard = nextPai.GetCardInfo()
 
 	//是否可以胡牌
-	*overTrun.CanHu = user.GameData.HandPai.GetCanHu()
+	*overTrun.CanHu, _ = user.GameData.HandPai.GetCanHu()
 	//是否可以杠牌
 	canGangBool, gangPais := user.GameData.HandPai.GetCanGang(nil)
 	*overTrun.CanGang = canGangBool
@@ -1429,7 +1446,7 @@ func (d *MjDesk)ActHu(userId uint32) error {
 		huUser.GameData.HandPai.InPai = checkCase.CheckMJPai
 	}
 	//判断是否可以胡牌，如果不能胡牌直接返回
-	canHu := huUser.GameData.HandPai.GetCanHu()
+	canHu, is19 := huUser.GameData.HandPai.GetCanHu()
 	if !canHu {
 		return errors.New("不可以胡牌...")
 	}
@@ -1480,7 +1497,7 @@ func (d *MjDesk)ActHu(userId uint32) error {
 	log.T("点炮的人[%v],胡牌的人[%v],杠上花[%v],杠上炮[%v],接下来开始getHuScore(%v,%v,%v,%v)", userId, outUserId, isGangShangHua, isGangShangPao,
 		huUser.GameData.HandPai, isZimo, extraAct, roomInfo)
 
-	fan, score, huCardStr := GetHuScore(huUser.GameData.HandPai, isZimo, extraAct, roomInfo)
+	fan, score, huCardStr := GetHuScore(huUser.GameData.HandPai, isZimo, is19, extraAct, roomInfo, )
 	log.T("胡牌(getHuScore)之后的结果fan[%v],score[%v],huCardStr[%v]", fan, score, huCardStr)
 
 	//胡牌之后的信息
@@ -1972,8 +1989,7 @@ func (d *MjDesk) DoExchange(userId uint32, exchangeNum int32, cards []*mjproto.C
 	result := newProto.NewGame_AckExchangeCards()
 	*result.Header.Code = intCons.ACK_RESULT_SUCC
 	*result.UserId = user.GetUserId()
-	user.WriteMsg(result)
-
+	d.BroadCastProto(result)
 
 	//之后判断
 	go d.ExchangeEnd()
@@ -2054,12 +2070,13 @@ func exchangeCards(u1 *MjUser, u2 *MjUser) {
 
 }
 
-//判断是否开启房间的某个选项
-func IsOpenRoomOption(othersCheckBox []int32, option mjproto.MJOption) bool {
-	for _, opt := range othersCheckBox {
+//判断是否开启房间的某个选
+func (d *MjDesk) IsOpenOption(option mjproto.MJOption) bool {
+	for _, opt := range d.GetOthersCheckBox() {
 		if opt == int32(option) {
 			return true
 		}
 	}
 	return false
+
 }
