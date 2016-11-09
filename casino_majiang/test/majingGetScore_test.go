@@ -6,6 +6,7 @@ import (
 	"casino_majiang/msg/protogo"
 	"casino_majiang/msg/funcsInit"
 	"github.com/name5566/leaf/log"
+	"time"
 )
 
 /**
@@ -25,34 +26,35 @@ func TestGetScore(t *testing.T) {
 	//tZimo1fan()
 
 	//测试平胡
-	tPinghu()
+	//tPinghu()
+	//////
+	//////测试对对胡
+	//tDuiDuihu()
 	////
-	////测试对对胡
-	tDuiDuihu()
+	//////测试清一色
+	//tQingyise()
 	//
-	////测试清一色
-	tQingyise()
-
-	////测试带幺九
-	tDaiyaojiu()
-
-	//测试七对
-	tQidui()
-
-	//测试龙七对
-	tLongqidui()
+	//////测试带幺九
+	//tDaiyaojiu()
 	//
-	//测试清对
-	tQingdui()
+	////测试七对
+	//tQidui()
+	//
+	////测试龙七对
+	//tLongqidui()
+	////
+	////测试清对
+	//tQingdui()
 
 	//测试将对
 	tJiangdui()
+	time.Sleep(1000 * 1)
 
 	//测试清七对
-	tQingqidui()
-
-	//测试青龙七对
-	tQinglongqidui()
+	//tQingqidui()
+	//
+	////测试青龙七对
+	//tQinglongqidui()
 }
 
 //func tZimo1fan() {
@@ -311,9 +313,10 @@ func getQingdui() *majiang.MJHandPai {
 //将对 4番
 func getJiangdui() *majiang.MJHandPai {
 	inPaiDes	:= "S_2" //2S
-	paisDes	:= []string{"S_5", "S_5", "S_5", "S_8", "S_8", "S_8", "S_2"} //555S 888S 2S
+	paisDes		:= []string{"S_5", "S_5", "S_5", "S_8", "S_8", "S_8", "S_2"} //555S 888S 2S
 	pengPaisDes	:= []string{"T_2", "T_2", "T_2", "T_5", "T_5", "T_5"} //222T 555T
-	return getMjHandPai(inPaiDes, pengPaisDes, nil, paisDes)
+	gangPaisDes	:= []string{"T_8", "T_8", "T_8", "T_8"}
+	return getMjHandPai(inPaiDes, pengPaisDes, gangPaisDes, paisDes)
 }
 
 //龙七对 5番
