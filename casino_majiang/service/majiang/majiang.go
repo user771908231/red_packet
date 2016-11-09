@@ -436,7 +436,7 @@ func tryHU(count []int, len int) (result bool, isAll19 bool) {
 
 //这张pai能不能胡
 
-func CanHuPai(handPai *MJHandPai) bool {
+func CanHuPai(handPai *MJHandPai) (bool,bool) {
 	//在所有的牌中增加 pai,判断此牌是否能和
 	pais := []*MJPai{}
 	pais = append(pais, handPai.Pais...)
@@ -451,10 +451,10 @@ func CanHuPai(handPai *MJHandPai) bool {
 		//log.T("牌= %v  不能胡! isAll19=%v", handPai.InPai.LogDes(), isAll19)
 	}
 
-	return canHu
+	return canHu,isAll19
 }
 
-func GetHuScore(handPai *MJHandPai, isZimo bool, extraAct HuPaiType, roomInfo RoomTypeInfo) (fan int32, score int64, huCardStr[] string) {
+func GetHuScore(handPai *MJHandPai, isZimo bool,is19 bool, extraAct HuPaiType, roomInfo RoomTypeInfo) (fan int32, score int64, huCardStr[] string) {
 
 	log.T("pai: %v", handPai.GetDes(), handPai.InPai.LogDes())
 
@@ -1102,4 +1102,15 @@ func GetFlow(f int32) string {
 		return "白"
 	}
 
+}
+
+//判断是否开启房间的某个选项
+func IsOpenRoomOption(othersCheckBox []int32, option MJOption) bool {
+	for _, opt := range othersCheckBox {
+		//判断是否开启房间的某个选
+		if opt == int32(option) {
+			return true
+		}
+	}
+	return false
 }
