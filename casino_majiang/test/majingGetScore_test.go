@@ -6,7 +6,6 @@ import (
 	"casino_majiang/msg/protogo"
 	"casino_majiang/msg/funcsInit"
 	"github.com/name5566/leaf/log"
-	"time"
 )
 
 /**
@@ -35,7 +34,7 @@ func TestGetScore(t *testing.T) {
 	//tQingyise()
 	//
 	//////测试带幺九
-	//tDaiyaojiu()
+	tDaiyaojiu()
 	//
 	////测试七对
 	//tQidui()
@@ -47,8 +46,8 @@ func TestGetScore(t *testing.T) {
 	//tQingdui()
 
 	//测试将对
-	tJiangdui()
-	time.Sleep(1000 * 1)
+	//tJiangdui()
+	//time.Sleep(1000 * 1)
 
 	//测试清七对
 	//tQingqidui()
@@ -98,13 +97,16 @@ func tQingyise() {
 }
 
 func tDaiyaojiu() {
-	isZimo := true
-	var hupaiType mjproto.HuPaiType = 1;
-	rfan, rscore, rhuCardStr := majiang.GetHuScore(getDaiyaojiu(), isZimo,false, hupaiType, *getRoomInfo())
-	if rfan != majiang.FAN_DAIYAOJIU {
-		log.Debug("error: 带幺九")
-	}
-	log.Debug("带幺九: 番数[%v],得分[%v],描述[%v]", rfan, rscore, rhuCardStr)
+	//isZimo := true
+	//var hupaiType mjproto.HuPaiType = 1
+	_, isAll19 := majiang.CanHuPai(getDaiyaojiu())
+	log.Debug("should dai 19: %v", isAll19)
+	
+	//rfan, rscore, rhuCardStr := majiang.GetHuScore(getDaiyaojiu(), isZimo,false, hupaiType, *getRoomInfo())
+	//if rfan != majiang.FAN_DAIYAOJIU {
+	//	log.Debug("error: 带幺九")
+	//}
+	//log.Debug("带幺九: 番数[%v],得分[%v],描述[%v]", rfan, rscore, rhuCardStr)
 }
 
 func tQidui() {
@@ -289,9 +291,18 @@ func getQingyise() *majiang.MJHandPai {
 
 //带幺九 3番
 func getDaiyaojiu() *majiang.MJHandPai {
+	//inPaiDes	:= "S_1" //1S
+	//paisDes		:= []string{"S_1", "S_2", "S_3", "S_9", "S_9", "S_9", "S_1"} //123S 999S 1S
+	//pengPaisDes	:= []string{"T_1", "T_1", "T_1", "T_9", "T_9", "T_9"} //111T 999T
+
 	inPaiDes	:= "S_1" //1S
-	paisDes		:= []string{"S_1", "S_2", "S_3", "S_9", "S_9", "S_9", "S_1"} //123S 999S 1S
-	pengPaisDes	:= []string{"T_1", "T_1", "T_1", "T_9", "T_9", "T_9"} //111T 999T
+	paisDes		:= []string{"S_1", "S_1", "S_2", "S_2", "S_2", "S_3", "S_3", "S_3"}
+	pengPaisDes	:= []string{"T_1", "T_1", "T_1", "T_9", "T_9", "T_9"}
+
+	//inPaiDes	:= "S_1" //1S
+	//paisDes		:= []string{"S_1", "S_2", "S_3", "S_8", "S_8", "S_8", "S_1"} //123S 999S 1S
+	//pengPaisDes	:= []string{"T_1", "T_1", "T_1", "T_9", "T_9", "T_9"} //111T 999T
+
 	return getMjHandPai(inPaiDes, pengPaisDes, nil, paisDes)
 }
 

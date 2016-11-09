@@ -356,21 +356,6 @@ func tryHU(count []int, len int) (result bool, isAll19 bool) {
 			}
 		}
 	} else {
-		// 三个一样的
-		for i := 0; i < 27; i++ {
-			if (count[i] >= 3) {
-				count[i] -= 3
-				result, isAll19 = tryHU(count, len - 3)
-				if (result) {
-					if !is19(i) {
-						//不是幺九
-						isAll19 = false
-					}
-					return true, isAll19
-				}
-				count[i] += 3
-			}
-		}
 		// 是否是顺子，这里应该分开判断
 		for i := 0; i < 7; i++ {
 			if (count[i] > 0 && count[i + 1] > 0 && count[i + 2] > 0) {
@@ -426,6 +411,22 @@ func tryHU(count []int, len int) (result bool, isAll19 bool) {
 				count[i] += 1;
 				count[i + 1] += 1;
 				count[i + 2] += 1;
+			}
+		}
+
+		// 三个一样的
+		for i := 0; i < 27; i++ {
+			if (count[i] >= 3) {
+				count[i] -= 3
+				result, isAll19 = tryHU(count, len - 3)
+				if (result) {
+					if !is19(i) {
+						//不是幺九
+						isAll19 = false
+					}
+					return true, isAll19
+				}
+				count[i] += 3
 			}
 		}
 
