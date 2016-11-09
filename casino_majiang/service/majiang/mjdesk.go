@@ -2010,6 +2010,8 @@ func (d *MjDesk) ExchangeEnd() error {
 		}
 	}
 
+	time.Sleep(time.Second * 5)
+
 	//开始换牌
 	exchangeType := utils.Rand(0, 3)
 	if exchangeType == int32(mjproto.ExchangeType_EXCHANGE_TYPE_DUIJIA) {
