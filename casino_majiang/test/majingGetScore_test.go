@@ -101,7 +101,7 @@ func tDaiyaojiu() {
 	//var hupaiType mjproto.HuPaiType = 1
 	_, isAll19 := majiang.CanHuPai(getDaiyaojiu())
 	log.Debug("should dai 19: %v", isAll19)
-	
+
 	//rfan, rscore, rhuCardStr := majiang.GetHuScore(getDaiyaojiu(), isZimo,false, hupaiType, *getRoomInfo())
 	//if rfan != majiang.FAN_DAIYAOJIU {
 	//	log.Debug("error: 带幺九")
