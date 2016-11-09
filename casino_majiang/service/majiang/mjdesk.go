@@ -532,8 +532,7 @@ func (d *MjDesk) begin() error {
 
 //是否需要换三张
 func (d *MjDesk) IsNeedExchange3zhang() bool {
-	//d.GetPlayOptions().OthersCheckBox
-	return true
+	return d.IsOpenOption(mjproto.MJOption_EXCHANGE_CARDS)
 }
 
 
@@ -2071,12 +2070,13 @@ func exchangeCards(u1 *MjUser, u2 *MjUser) {
 
 }
 
-//判断是否开启房间的某个选项
-func IsOpenRoomOption(othersCheckBox []int32, option mjproto.MJOption) bool {
-	for _, opt := range othersCheckBox {
+//判断是否开启房间的某个选
+func (d *MjDesk) IsOpenOption(option mjproto.MJOption) bool {
+	for _, opt := range d.GetOthersCheckBox() {
 		if opt == int32(option) {
 			return true
 		}
 	}
 	return false
+
 }
