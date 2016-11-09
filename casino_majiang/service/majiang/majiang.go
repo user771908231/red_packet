@@ -453,7 +453,7 @@ func CanHuPai(handPai *MJHandPai) (bool, bool) {
 	return canHu, isAll19
 }
 
-func GetHuScore(handPai *MJHandPai, isZimo bool,is19 bool, extraAct HuPaiType, roomInfo RoomTypeInfo) (fan int32, score int64, huCardStr[] string) {
+func GetHuScore(handPai *MJHandPai, isZimo bool, is19 bool, extraAct HuPaiType, roomInfo RoomTypeInfo) (fan int32, score int64, huCardStr[] string) {
 
 	log.T("pai: %v", handPai.GetDes(), handPai.InPai.LogDes())
 
@@ -461,7 +461,7 @@ func GetHuScore(handPai *MJHandPai, isZimo bool,is19 bool, extraAct HuPaiType, r
 	score = int64(*roomInfo.BaseValue)
 
 	//取得番数
-	huFan, huCardStr := getHuFan(handPai, isZimo,is19, extraAct, roomInfo)
+	huFan, huCardStr := getHuFan(handPai, isZimo, is19, extraAct, roomInfo)
 
 	for i := int32(0); i < huFan; i++ {
 		score *= 2
@@ -514,7 +514,7 @@ func getGou(handPai *MJHandPai, handCounts[] int) (gou int32) {
 // 返回胡牌番数
 // extraAct:指定HuPaiType.H_GangShangHua(杠上花/炮,海底等)
 //
-func getHuFan(handPai *MJHandPai, isZimo bool,is19 bool, extraAct HuPaiType, roomInfo RoomTypeInfo) (fan int32, huCardStr[] string) {
+func getHuFan(handPai *MJHandPai, isZimo bool, is19 bool, extraAct HuPaiType, roomInfo RoomTypeInfo) (fan int32, huCardStr[] string) {
 	fan = int32(0)
 	pais := []*MJPai{}
 	pais = append(pais, handPai.Pais...)
