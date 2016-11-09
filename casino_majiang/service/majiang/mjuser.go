@@ -254,7 +254,7 @@ func (u *MjUser) Gang(p *MJPai, sendUserId uint32) error {
 func (u *MjUser) GetCheckBean(p *MJPai) *CheckBean {
 	bean := NewCheckBean()
 	*bean.CheckStatus = CHECK_CASE_BEAN_STATUS_CHECKING
-	*bean.CanHu = u.GameData.HandPai.GetCanHu()
+	*bean.CanHu, _ = u.GameData.HandPai.GetCanHu()
 	*bean.CanPeng = u.GameData.HandPai.GetCanPeng(p)
 	*bean.CanGang, _ = u.GameData.HandPai.GetCanGang(p)
 	*bean.UserId = u.GetUserId()
@@ -568,7 +568,8 @@ func (u *MjUser) ChaJiao() bool {
 		}
 
 		u.GameData.HandPai.InPai = pai
-		if u.GameData.HandPai.GetCanHu() {
+		canhu, _ := u.GameData.HandPai.GetCanHu()
+		if canhu {
 			//
 			log.T("玩家查叫的时候，查到可以胡牌[%v]", pai.LogDes())
 			return true

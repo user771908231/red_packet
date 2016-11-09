@@ -39,7 +39,7 @@ func ( p *MJPai) LogDes() string {
 
 
 //是否可以胡牌
-func (p *MJHandPai) GetCanHu() bool {
+func (p *MJHandPai) GetCanHu() (bool,bool) {
 	return CanHuPai(p)
 }
 

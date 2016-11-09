@@ -137,7 +137,7 @@ func (d *MjDesk) SendReconnectOverTurn(userId uint32) error {
 			*overTrun.PaiCount = d.GetRemainPaiCount()        //桌子剩余多少牌
 			*overTrun.ActType = OVER_TURN_ACTTYPE_MOPAI        //摸牌
 			overTrun.ActCard = user.GameData.HandPai.InPai.GetCardInfo()
-			*overTrun.CanHu = user.GameData.HandPai.GetCanHu()                //是否可以胡牌
+			*overTrun.CanHu, _ = user.GameData.HandPai.GetCanHu()                //是否可以胡牌
 			canGangBool, gangPais := user.GameData.HandPai.GetCanGang(nil)    //是否可以杠牌
 
 			*overTrun.CanGang = canGangBool
@@ -1225,7 +1225,7 @@ func (d *MjDesk) SendMopaiOverTurn(user *MjUser) error {
 	overTrun.ActCard = nextPai.GetCardInfo()
 
 	//是否可以胡牌
-	*overTrun.CanHu = user.GameData.HandPai.GetCanHu()
+	*overTrun.CanHu, _ = user.GameData.HandPai.GetCanHu()
 	//是否可以杠牌
 	canGangBool, gangPais := user.GameData.HandPai.GetCanGang(nil)
 	*overTrun.CanGang = canGangBool
@@ -1446,7 +1446,7 @@ func (d *MjDesk)ActHu(userId uint32) error {
 		huUser.GameData.HandPai.InPai = checkCase.CheckMJPai
 	}
 	//判断是否可以胡牌，如果不能胡牌直接返回
-	canHu := huUser.GameData.HandPai.GetCanHu()
+	canHu, is19 := huUser.GameData.HandPai.GetCanHu()
 	if !canHu {
 		return errors.New("不可以胡牌...")
 	}
@@ -1497,7 +1497,7 @@ func (d *MjDesk)ActHu(userId uint32) error {
 	log.T("点炮的人[%v],胡牌的人[%v],杠上花[%v],杠上炮[%v],接下来开始getHuScore(%v,%v,%v,%v)", userId, outUserId, isGangShangHua, isGangShangPao,
 		huUser.GameData.HandPai, isZimo, extraAct, roomInfo)
 
-	fan, score, huCardStr := GetHuScore(huUser.GameData.HandPai, isZimo, extraAct, roomInfo)
+	fan, score, huCardStr := GetHuScore(huUser.GameData.HandPai, isZimo, is19, extraAct, roomInfo, )
 	log.T("胡牌(getHuScore)之后的结果fan[%v],score[%v],huCardStr[%v]", fan, score, huCardStr)
 
 	//胡牌之后的信息
