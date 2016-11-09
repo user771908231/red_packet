@@ -35,8 +35,7 @@ var FAN_LONGQIDUI	int32	= 4 //龙七对 4番
 var FAN_QINGQIDUI	int32	= 4 //清七对 4番
 var FAN_JIANGQIDUI	int32	= 4 //将七对 4番
 var FAN_QINGYAOJIU	int32	= 4 //清幺九 4番
-var FAN_TIANHU		int32	= 5 //天胡
-var FAN_DIHU		int32	= 5 //地胡
+var FAN_TIAN_DI_HU	int32	= 5 //天地胡
 var FAN_QINGLONGQIDUI	int32	= 5 //清龙七对
 
 //加番
@@ -49,6 +48,7 @@ var FAN_QIANGGANG	int32	= 1 //抢杠
 var FAN_HD_GANGSHANGHUA	int32	= 1 //海底杠上花
 var FAN_HD_GANGSHANGPAO	int32	= 2 //海底杠上炮
 
+//var FAN_TOP		int32	= 5 //顶番
 
 //初始化麻将牌
 func init() {
@@ -538,6 +538,8 @@ func getHuFan(handPai *MJHandPai, isZimo bool, extraAct HuPaiType, roomInfo Room
 	//isLongQiDui := IsLongQiDui(handPai, handCounts) //龙七对
 	//log.T("判断是否是龙七对: %v", isLongQiDui)
 	//*/
+	//log.T("判断是否是将对: %v", IsJiangDui(pais))
+
 
 	isCountGou := true //是否计算勾 七对 龙七对 清龙七对 将七对 不算勾
 
@@ -576,6 +578,10 @@ func getHuFan(handPai *MJHandPai, isZimo bool, extraAct HuPaiType, roomInfo Room
 			log.T("是清对")
 			fan = FAN_QINGDUI
 			huCardStr = append(huCardStr, "清对")
+		}else if IsOpenRoomOption(roomInfo.PlayOptions.OthersCheckBox, MJOption_YAOJIU_JIANGDUI) { //将对选项开启
+			log.T("是将对")
+			fan = FAN_DADUIZI
+			huCardStr = append(huCardStr, "将对")
 		}else { //大对子
 			log.T("是大对子")
 			fan = FAN_DADUIZI
@@ -590,119 +596,31 @@ func getHuFan(handPai *MJHandPai, isZimo bool, extraAct HuPaiType, roomInfo Room
 			log.T("是平胡")
 			fan = FAN_PINGHU
 			huType := "平胡"
-
-			//TODO: if 附加选项开启时
-			for _, opt := range roomInfo.PlayOptions.OthersCheckBox {
-				switch MJOption(opt) {
-				case MJOption_YAOJIU_JIANGDUI: {
-					//幺九将对
-					if IsJiangDui(handPai) {
-						fan = 2
-						huType = "将对"
-					} else if IsAllDaiYao(handPai) {
-						fan = 2
-						huType = "带幺九"
-					}
-				}
-
-				case MJOption_TIAN_DI_HU: {
-					//天地胡
-
-				}
-				case MJOption_KA_ER_TIAO: {
-					//卡2条
-
-				}
-
-				case MJOption_MENQING_MID_CARD: {
-					//门清中张
-
-				}
-
-				default:
-
-				}
-			}
 			huCardStr = append(huCardStr, huType)
+			//TODO: if 附加选项开启时
+
 		}
 	}
 
-	/*
-	if isQiDui { //七对
-		if isLongQiDui && isQingYiSe {
-			log.T("是龙七对&&清一色")
-			fan = 5
-			huCardStr = append(huCardStr, "清龙七对")
-		} else if isLongQiDui {
-			log.T("是龙七对")
-			fan = 3
-			huCardStr = append(huCardStr, "龙七对")
-		} else if isQingYiSe {
-			log.T("是清一色")
-			fan = 4
-			huCardStr = append(huCardStr, "清七对")
-		} else if IsJiangQiDui(handPai, handCounts) {
-			log.T("是将对")
-			fan = 4
-			huCardStr = append(huCardStr, "将对")
-		} else {
-			log.T("是七对")
-			fan = 2
-			huCardStr = append(huCardStr, "七对")
-		}
-	} else if isDaDuiZi && isQingYiSe {
-		log.T("是大对子&&清一色")
-		fan = 3
-		huCardStr = append(huCardStr, "清对")
-	} else if isDaDuiZi {
-		log.T("是大对子")
-		fan = 1
-		huCardStr = append(huCardStr, "大对子")
-	} else if isQingYiSe {
-		fan = 2
-		huCardStr = append(huCardStr, "清一色")
-	} else {
-		log.T("是平胡")
-		fan = 0
-		huType := "平胡"
 
-		//TODO: if 附加选项开启时
-		for _, opt := range roomInfo.PlayOptions.OthersCheckBox {
-			switch MJOption(opt) {
-			case MJOption_YAOJIU_JIANGDUI: {
-				//幺九将对
-				if IsJiangDui(handPai) {
-					fan = 2
-					huType = "将对"
-				} else if IsAllDaiYao(handPai) {
-					fan = 2
-					huType = "带幺九"
-				}
-			}
-
-			case MJOption_TIAN_DI_HU: {
-				//天地胡
-
-			}
-			case MJOption_KA_ER_TIAO: {
-				//卡2条
-
-			}
-
-			case MJOption_MENQING_MID_CARD: {
-				//门清中张
-
-			}
-
-			default:
-
-			}
-		}
-		huCardStr = append(huCardStr, huType)
-
-	}//*/
-
+	isTianDiHuFlag := false //天地胡选项 避免多次搜索
+	if IsOpenRoomOption(roomInfo.PlayOptions.OthersCheckBox, MJOption_TIAN_DI_HU) { //天地胡选项开启
+		isTianDiHuFlag = true
+	}
 	switch HuPaiType(extraAct) {
+
+	//天地胡为牌型番数，非加番
+	case HuPaiType_H_TianHu :
+		if isTianDiHuFlag { //天地胡选项开启
+			fan = FAN_TIAN_DI_HU
+			huCardStr = append(huCardStr, "天胡")
+		}
+	case HuPaiType_H_DiHu :
+		if isTianDiHuFlag { //天地胡选项开启
+			fan = FAN_TIAN_DI_HU
+			huCardStr = append(huCardStr, "地胡")
+		}
+
 	case HuPaiType_H_GangShangHua:
 		fan += FAN_GANGSHANGHUA
 		huCardStr = append(huCardStr, "杠上花")
@@ -754,6 +672,11 @@ func getHuFan(handPai *MJHandPai, isZimo bool, extraAct HuPaiType, roomInfo Room
 			huCardStr = append(huCardStr, "勾X" + str)
 		}
 	}
+
+	//顶番
+	//if fan > FAN_TOP {
+	//	fan = FAN_TOP
+	//}
 
 	return fan, huCardStr
 }
@@ -858,13 +781,15 @@ func IsDaDuiZi(pais []*MJPai) bool {
 		if counts[i] == 2 {
 			jiangDui ++
 			if jiangDui > 1 {
+				log.T("不是大对子")
 				return false
 			}
 		} else if counts[i] == 1 {
+			log.T("不是大对子")
 			return false
 		}
 	}
-
+	log.T("是大对子")
 	return true
 }
 
@@ -934,15 +859,13 @@ func IsLongQiDui(handPai *MJHandPai, handCounts[] int) bool {
 }
 
 //将对(全是2,5,8的大对子)
-func IsJiangDui(handPai *MJHandPai) bool {
-	pais := handPai.Pais
+func IsJiangDui(pais []*MJPai) bool {
 
 	for i := 0; i < len(pais); i++ {
 		if *pais[i].Value != 2 && *pais[i].Value != 5 && *pais[i].Value != 8 {
 			return false
 		}
 	}
-
 	return IsDaDuiZi(pais) //是大对子
 }
 
@@ -957,6 +880,19 @@ func IsJiangQiDui(handPai *MJHandPai, handCounts[] int) bool {
 	}
 
 	return IsQiDui(handPai, handCounts) //是七对
+}
+
+//门清 没有明杠 碰牌
+func IsMenqing(handPai *MJHandPai) bool {
+	//TODO 明杠判断
+	if handPai.PengPais != nil { //含碰牌
+		return false
+	}
+	return true
+}
+
+func IsZhongzhang(handPai *MJHandPai) bool {
+	//
 }
 
 //全带幺
