@@ -2,16 +2,23 @@ package doudizhu;
 
 //牌 ,单张扑克牌
 message PPokerPai {
-
+    optional int32 id = 1;
+    optional string des = 2;
+    optional int32 value = 3;
+    optional int32 flower = 4;
+    optional string name = 5;
 }
 
 //desk
 message PDdzDesk {
-
+    optional int32 deskId = 1;
+    optional string key = 2;
+    optional int32 userCountLimit = 3; //人数限制
 }
 
 //user
 message PDdzUser {
+    optional uint32 userId = 1;
 
 }
 
@@ -20,12 +27,17 @@ message PDdzRoom {
 
 }
 
+//备份专用...
+message PDdzbak {
+    optional PDdzDesk desk = 1;
+    repeated PDdzUser users = 2;
+
+}
 //session
 message PDdzSession {
     optional uint32 UserId = 1;
     optional int32 RoomId = 2;
     optional int32 DeskId = 3;
     optional int32 GameStatus = 4; //游戏的状态，
-
 }
 

@@ -229,7 +229,7 @@ func HandlerGame_DingQue(m *mjProto.Game_DingQue, a gate.Agent) {
 
 		//发送给当事人时候的信息
 		bankUser := desk.GetBankerUser()
-		*overTurn.CanHu = bankUser.GameData.HandPai.GetCanHu()
+		*overTurn.CanHu,_ = bankUser.GameData.HandPai.GetCanHu()
 
 		//判断是否可以杠牌
 		canGangBool, gangPais := bankUser.GameData.HandPai.GetCanGang(nil)//判断自己摸牌的情况，有可能有多个杠牌
@@ -251,7 +251,7 @@ func HandlerGame_DingQue(m *mjProto.Game_DingQue, a gate.Agent) {
 
 //换3张
 func HandlerGame_ExchangeCards(m *mjProto.Game_ExchangeCards) {
-	log.T("收到请求，HandlerGame_ExchangeCards(m[%v],a[%v])", m)
+	log.T("收到请求，HandlerGame_ExchangeCards(m[%v])", m)
 	desk := majiang.GetMjDeskBySession(m.GetHeader().GetUserId())        //得到desk
 	//开始换三张
 	desk.DoExchange(m.GetHeader().GetUserId(), m.GetExchangeNum(), m.GetExchangeOutCards())
