@@ -328,24 +328,35 @@ func is19(val int) bool {
 	return (val % 9 == 0) || (val % 9 == 8)
 }
 
-//胡牌的算法
+//七对 龙七对牌型胡牌判断
+func tryHU7(handPai *MJHandPai, handCounts[] int) (canHu bool, isAll19 bool) {
+	canHu, isAll19 = false, false
+	if IsQiDui(handPai, handCounts) || IsLongQiDui(handPai, handCounts) {
+		canHu = true
+	}
+	return canHu, isAll19
+}
+
+//33332牌型胡牌的算法
 func tryHU(count []int, len int) (result bool, isAll19 bool) {
-	log.T("开始判断tryHu(%v,%v)", count, len)
+	//log.T("开始判断tryHu(%v,%v)", count, len)
 	isAll19 = true //全带幺
 	result = false
-
 	//递归完所有的牌表示 胡了
 	if (len == 0) {
+		log.T("len == 0")
 		return true, isAll19
 	}
 
 	if (len % 3 == 2) {
-		// 说明对牌没出现
+		//log.T("if %v 取模 3 == 2", len)
+		// 说明对牌出现
 		for i := 0; i < 27; i++ {
 			if (count[i] >= 2) {
 				count[i] -= 2
 				result, isAll19 = tryHU(count, len - 2)
 				if (result) {
+					//log.T("i: %v, value: %v", i, count[i])
 					if ! is19(i) {
 						//不是幺九
 						isAll19 = false
@@ -356,6 +367,7 @@ func tryHU(count []int, len int) (result bool, isAll19 bool) {
 			}
 		}
 	} else {
+		//log.T("else %v", len)
 		// 是否是顺子，这里应该分开判断
 		for i := 0; i < 7; i++ {
 			if (count[i] > 0 && count[i + 1] > 0 && count[i + 2] > 0) {
@@ -364,8 +376,10 @@ func tryHU(count []int, len int) (result bool, isAll19 bool) {
 				count[i + 2] -= 1;
 				result, isAll19 = tryHU(count, len - 3)
 				if (result) {
+					//log.T("i: %v, value: %v", i, count[i])
 					if !is19(i) && !is19(i + 1) && !is19(i + 2) {
 						//不是幺九
+						//log.T("branch 2 pos%v不是幺九", i)
 						isAll19 = false
 					}
 					return true, isAll19
@@ -383,8 +397,10 @@ func tryHU(count []int, len int) (result bool, isAll19 bool) {
 				count[i + 2] -= 1
 				result, isAll19 = tryHU(count, len - 3)
 				if (result) {
+					//log.T("i: %v, value: %v", i, count[i])
 					if !is19(i) && !is19(i + 1) && !is19(i + 2) {
 						//不是幺九
+						//log.T("branch 3 pos%v不是幺九", i)
 						isAll19 = false
 					}
 					return true, isAll19
@@ -402,8 +418,10 @@ func tryHU(count []int, len int) (result bool, isAll19 bool) {
 				count[i + 2] -= 1;
 				result, isAll19 = tryHU(count, len - 3)
 				if (result) {
+					//log.T("i: %v, value: %v", i, count[i])
 					if !is19(i) && !is19(i + 1) && !is19(i + 2) {
 						//不是幺九
+						//log.T("branch 4 pos%v不是幺九", i)
 						isAll19 = false
 					}
 					return true, isAll19
@@ -420,8 +438,10 @@ func tryHU(count []int, len int) (result bool, isAll19 bool) {
 				count[i] -= 3
 				result, isAll19 = tryHU(count, len - 3)
 				if (result) {
+					//log.T("i: %v, value: %v", i, count[i])
 					if !is19(i) {
 						//不是幺九
+						//log.T("branch 5 pos%v不是幺九", i)
 						isAll19 = false
 					}
 					return true, isAll19
@@ -445,7 +465,16 @@ func CanHuPai(handPai *MJHandPai) (bool,bool) {
 
 	counts := GettPaiStats(pais)
 
-	canHu, isAll19 := tryHU(counts, len(pais))
+	var canHu, isAll19 bool
+
+	//七对 龙七对牌型 不带幺九
+	canHu, isAll19 = tryHU7(handPai, counts)
+	if canHu {
+		return canHu,isAll19
+	}
+
+	//普通33332牌型
+	canHu, isAll19 = tryHU(counts, len(pais))
 	if canHu {
 		log.T("牌= %v  可以胡! isAll19=%v", handPai.InPai.LogDes(), isAll19)
 	} else {
@@ -565,10 +594,6 @@ func getHuFan(handPai *MJHandPai, isZimo bool, is19 bool, extraAct HuPaiType, ro
 			log.T("是清七对")
 			fan = FAN_QINGQIDUI
 			huCardStr = append(huCardStr, "清七对")
-		}else if IsJiangQiDui(handPai, handCounts) { //将七对
-			log.T("是将七对")
-			fan = FAN_JIANGDUI
-			huCardStr = append(huCardStr, "将七对")
 		}else { //七对
 			log.T("是七对")
 			fan = FAN_QIDUI
@@ -582,8 +607,10 @@ func getHuFan(handPai *MJHandPai, isZimo bool, is19 bool, extraAct HuPaiType, ro
 			huCardStr = append(huCardStr, "清对")
 		}else if IsOpenRoomOption(roomInfo.PlayOptions.OthersCheckBox, MJOption_YAOJIU_JIANGDUI) { //将对选项开启
 			log.T("是将对")
-			fan = FAN_DADUIZI
-			huCardStr = append(huCardStr, "将对")
+			if IsJiangDui(handPai) {
+				fan = FAN_DADUIZI
+				huCardStr = append(huCardStr, "将对")
+			}
 		}else { //大对子
 			log.T("是大对子")
 			fan = FAN_DADUIZI
@@ -599,8 +626,15 @@ func getHuFan(handPai *MJHandPai, isZimo bool, is19 bool, extraAct HuPaiType, ro
 			fan = FAN_PINGHU
 			huType := "平胡"
 			huCardStr = append(huCardStr, huType)
-			//TODO: if 附加选项开启时
 
+		}
+	}
+
+	//附加选项
+	if IsOpenRoomOption(roomInfo.PlayOptions.OthersCheckBox, MJOption_YAOJIU_JIANGDUI) { //带幺九选项开启
+		if is19 && IsPengGang19(handPai) { //手牌带幺九 且 碰杠牌带幺九
+			fan += FAN_DAIYAOJIU
+			huCardStr = append(huCardStr, "带幺九")
 		}
 	}
 
@@ -758,6 +792,27 @@ func CanGangPai(pai *MJPai, handPai *MJHandPai) (canGang bool, gangPais []*MJPai
 	return canGang, gangPais
 }
 
+func IsPengGang19(handPai *MJHandPai) bool {
+	pengPais := handPai.PengPais
+	gangPais := handPai.GangPais
+	if pengPais != nil {
+		for i := 0; i < len(pengPais); i++ {
+			if *pengPais[i].Value != 1 || *pengPais[i].Value != 9 { //
+				return false
+			}
+		}
+	}
+
+	if gangPais != nil {
+		for i := 0; i < len(gangPais); i++ {
+			if *gangPais[i].Value != 1 || *gangPais[i].Value != 9 { //
+				return false
+			}
+		}
+	}
+	return true
+}
+
 //清一色
 func IsQingYiSe(pais []*MJPai) bool {
 	flower := pais[0].Flower
@@ -881,17 +936,17 @@ func IsJiangDui(pais []*MJPai) bool {
 }
 
 //将七对(全是2,5,8的七对)
-func IsJiangQiDui(handPai *MJHandPai, handCounts[] int) bool {
-	pais := handPai.Pais
-
-	for i := 0; i < len(pais); i++ {
-		if *pais[i].Value != 2 && *pais[i].Value != 5 && *pais[i].Value != 8 {
-			return false
-		}
-	}
-
-	return IsQiDui(handPai, handCounts) //是七对
-}
+//func IsJiangQiDui(handPai *MJHandPai, handCounts[] int) bool {
+//	pais := handPai.Pais
+//
+//	for i := 0; i < len(pais); i++ {
+//		if *pais[i].Value != 2 && *pais[i].Value != 5 && *pais[i].Value != 8 {
+//			return false
+//		}
+//	}
+//
+//	return IsQiDui(handPai, handCounts) //是七对
+//}
 
 //门清 没有明杠 碰牌
 func IsMenqing(handPai *MJHandPai) bool {
