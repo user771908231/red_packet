@@ -1898,7 +1898,7 @@ func (d *MjDesk) GetByWho() {
 
 //判断是否是血流成河
 func (d *MjDesk) IsXueLiuChengHe() bool {
-	return d.GetMjRoomType() == mjproto.MJRoomType_roomType_xueLiuChengHe
+	return d.GetMjRoomType() == int32(mjproto.MJRoomType_roomType_xueLiuChengHe)
 }
 
 //换三张
