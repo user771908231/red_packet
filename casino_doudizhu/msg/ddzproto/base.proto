@@ -1,6 +1,7 @@
 syntax = "proto2";
 
 package ddzproto;
+
 enum EProtoId {
     PID_QUICK_CONN = 1; //连接服务器
     PID_QUICK_CONN_ACK = 2; //
@@ -13,40 +14,57 @@ enum EProtoId {
     PID_SEND_GAMEINFO = 9; //游戏信息
     PID_READY = 10; //准备
     PID_READY_ACK = 11; //准备-ack
-    PID_EXCHANGECARDS = 12; //换3张
-    PID_EXCHANGECARDS_ACK = 13; //换3张-回复
-    PID_DINGQUE = 14; //定缺
-    PID_OPENING = 15; //开局
-    PID_DEAL_CARDS = 16; //发牌
-    PID_GET_IN_CARD = 17; //摸牌
-    PID_SEND_OUT_CARD = 18; //出牌
-    PID_SEND_OUT_CARD_ACK = 19; //出牌-ack
-    PID_PENG_CARD = 20; //碰
-    PID_PENG_CARD_ACK = 21;
-    PID_GANG_CARD = 22; //杠
-    PID_GANG_CARD_ACK = 23;
-    PID_GUO_CARD = 24; //过
-    PID_GUO_CARD_ACK = 25;
-    PID_HU_CARD = 26; //胡
-    PID_HU_CARD_ACK = 27;
-    PID_BROADCAST_BEGIN_DINGQUE = 28; //开始定缺(广播)
-    PID_BROADCAST_BEGIN_EXCHANGE = 29; //开始换牌(广播)
+    PID_OPENING = 12; //开局
+    PID_DEAL_CARDS = 13; //发牌
 
-    PID_OVERTURN = 30; //轮到下一人操作(广播)
-    PID_CURRENTRESULT = 31; //本局结果
-    PID_SENDENDLOTTERY = 32; //牌局结束
+    PID_CALL_DIZHU = 14; //叫地主
+    PID_CALL_DIZHU_ACK = 15; //叫地主-ack
 
-    PID_DISSOLVE_DESK = 33; //离开房间
-    PID_DISSOLVE_DESK_ACK = 34; //
-    PID_LEAVE_DESK = 35; //解散房间
-    PID_LEAVE_DESK_ACK = 36; //
+    ////////////////////////////////////////////
+    //欢乐斗地主
+    PID_ROB_DIZHU = 16; //抢地主
+    PID_ROB_DIZHU_ACK = 17; //抢地主-ack
+    PID_DOUBLE = 18; //加倍
+    PID_DOUBLE_ACK = 19; //加倍-ack
+    PID_NOT_DOUBLE = 20; //不加倍
+    PID_NOT_DOUBLE_ACK = 21; //不加倍-ack
 
-    PID_MESSAGE = 37; //聊天信息
-    PID_SEND_MESSAGE = 38; //广播聊天
+    PID_SHOW_HANDPOKERS = 22; //明牌
+    PID_SHOW_HANDPOKERS_ACK = 23; //明牌-ack
 
-    PID_GAME_DINGQUEEND = 39; //定缺结束的广播
-    PID_GAME_GAMERECORD = 40; //查询战绩
-    PID_GAME_ACKGAMERECORD = 41; //战绩回复
+    ////////////////////////////////////////////
+    //四川斗地主
+    PID_MEN_ZHUA = 24; //闷抓
+    PID_MEN_ZHUA_ACK = 25; //闷抓-ack
+    PID_LOOK_POKER = 26; //看牌
+    PID_LOOK_POKER_ACK = 27; //看牌-ack
+    PID_DAO = 28; //倒
+    PID_DAO_ACK = 29; //倒-ack
+    PID_LA = 30; //拉
+    PID_LA_ACK = 31; //拉-ack
+
+    PID_SEND_OUT_POKER = 32; //出牌
+    PID_SEND_OUT_POKER_ACK = 33; //出牌-ack
+    PID_GUO_POKER = 34; //过
+    PID_GUO_POKER_ACK = 35; //过-ack
+
+    ////////////////////////////////////////////
+
+    PID_OVERTURN = 36; //轮到下一人操作(广播)
+
+    PID_CURRENTRESULT = 37; //本局结果
+    PID_SENDENDLOTTERY = 38; //牌局结束
+
+    PID_DISSOLVE_DESK = 39; //离开房间
+    PID_DISSOLVE_DESK_ACK = 40; //
+    PID_LEAVE_DESK = 41; //解散房间
+    PID_LEAVE_DESK_ACK = 42; //
+
+    PID_MESSAGE = 43; //聊天信息
+    PID_SEND_MESSAGE = 44; //广播聊天
+
+    PID_GAME_GAMERECORD = 45; //查询战绩
+    PID_GAME_ACKGAMERECORD = 46; //战绩回复
 }
 
 enum ErrorCode {
@@ -97,7 +115,6 @@ message PlayOptions {
     repeated int32 othersCheckBox = 3; // 其他可复选的玩法，如：换三张、幺九将对、门清中张、天地胡、卡二条、可胡七对等
     optional int32 huRadio = 4; // 胡法，如：自摸胡、点炮胡（可抢杠）
 }
-
 
 // 房间类型信息：包含房间类型和对应的局数、封顶、玩法等信息
 // 房间类型枚举
