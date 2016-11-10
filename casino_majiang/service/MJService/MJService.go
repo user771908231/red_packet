@@ -213,8 +213,10 @@ func HandlerGame_DingQue(m *mjProto.Game_DingQue, a gate.Agent) {
 		//通知庄家打一张牌,这里初始化信息，这里应该是广播的..
 		//注意是否可以碰，可以杠牌，可以胡牌，只有当时人才能看到，所以广播的和当事人的收到的数据不一样...
 		bankUser := desk.GetBankerUser()
+
 		overTurn := desk.GetOverTurn(bankUser, majiang.OVER_TURN_ACTTYPE_MOPAI)        //定缺完了之后，庄摸牌
 		overTurn.JiaoInfos = desk.GetJiaoInfos(bankUser)
+
 		bankUser.SendOverTurn(overTurn)
 
 		//广播时候的信息
