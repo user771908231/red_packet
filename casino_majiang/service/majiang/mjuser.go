@@ -253,7 +253,9 @@ func (u *MjUser) Gang(p *MJPai, sendUserId uint32) error {
 //得到判定bean
 func (u *MjUser) GetCheckBean(p *MJPai, xueliuchenghe bool) *CheckBean {
 	bean := NewCheckBean()
+
 	*bean.CheckStatus = CHECK_CASE_BEAN_STATUS_CHECKING
+	*bean.UserId = u.GetUserId()
 
 	//是否可以胡牌
 	if u.IsCanInitCheckCaseHu(xueliuchenghe) {
@@ -264,10 +266,11 @@ func (u *MjUser) GetCheckBean(p *MJPai, xueliuchenghe bool) *CheckBean {
 		*bean.CanGang, _ = u.GameData.HandPai.GetCanGang(p)
 	}
 	//是否可以碰
-	*bean.CanPeng = u.GameData.HandPai.GetCanPeng(p)
-	*bean.UserId = u.GetUserId()
-	log.T("得到用户[%v]对牌[%v]的check , bean[%v]", u.GetUserId(), p.LogDes(), bean)
+	if u.IsCanInitCheckCasePeng() {
+		*bean.CanPeng = u.GameData.HandPai.GetCanPeng(p)
+	}
 
+	log.T("得到用户[%v]对牌[%v]的check , bean[%v]", u.GetUserId(), p.LogDes(), bean)
 	//判断过胡.如果有过胡，那么就不能再胡了
 	if u.HadGuoHuInfo(p) {
 		*bean.CanHu = false
@@ -298,6 +301,14 @@ func (u *MjUser) IsCanInitCheckCaseGang(xueliuchenghe bool) bool {
 	return false
 }
 
+func (u *MjUser) IsCanInitCheckCasePeng() bool {
+	//1,普通规则
+	if u.IsNotHu() {
+		return true
+	} else {
+		return false;
+	}
+}
 
 //判断用户是否可以杠
 func (u *MjUser) IsCanInitCheckCaseHu(xueliuchenghe bool) bool {
@@ -319,12 +330,15 @@ func (u *MjUser) SetStatus(s int32) error {
 }
 
 //判断用户是否可以摸牌
-func (u *MjUser) CanMoPai() bool {
+func (u *MjUser) CanMoPai(xueliuchenghe bool) bool {
 	if u.IsNotHu() {
 		return true
-	} else {
-		return false
 	}
+
+	if u.IsHu() && xueliuchenghe {
+		return true
+	}
+	return false
 }
 
 
@@ -629,4 +643,16 @@ func (u *MjUser) AddBill(relationUserid uint32, billType int32, des string, scor
 	u.AddCoin(score)                //统计用户剩余多少钱
 	u.AddStatisticsWinCoin(score)        //统计用户输赢多少钱
 	return nil
+}
+
+//通过手牌，得到杠牌的信息
+func (u *MjUser) GetJiaoPaisByHandPais() []*MJPai {
+	return nil
+}
+
+
+//比较杠牌之后的叫牌和杠牌之前的叫牌的信息是否一样
+func (u *MjUser) AfterGangEqualJiaoPai(beforPais []*MJPai) bool {
+
+	return false;
 }
