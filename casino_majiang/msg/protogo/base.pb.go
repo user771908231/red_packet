@@ -73,6 +73,8 @@ It has these top-level messages:
 	Game_ActGuo
 	Game_AckActGuo
 	Game_OverTurn
+	CanhuInfo
+	CanhuPaiInfo
 	Game_SendGameInfo
 */
 package mjproto

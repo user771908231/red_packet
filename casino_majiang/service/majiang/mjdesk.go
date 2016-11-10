@@ -130,25 +130,7 @@ func (d *MjDesk) SendReconnectOverTurn(userId uint32) error {
 		//游戏中的情况，发送act的消息,这里需要更具当前的状态来发送overTurn
 		if d.GetActType() == MJDESK_ACT_TYPE_MOPAI {
 			log.T("sendReconnectOverTurn，给user[%v]发送摸牌的消息....", userId)
-
-			//发送摸牌的协议
-			overTrun := newProto.NewGame_OverTurn()
-			*overTrun.UserId = user.GetUserId()                //这个是摸牌的，所以是广播...
-			*overTrun.PaiCount = d.GetRemainPaiCount()        //桌子剩余多少牌
-			*overTrun.ActType = OVER_TURN_ACTTYPE_MOPAI        //摸牌
-			overTrun.ActCard = user.GameData.HandPai.InPai.GetCardInfo()
-			*overTrun.CanHu, _ = user.GameData.HandPai.GetCanHu()                //是否可以胡牌
-			canGangBool, gangPais := user.GameData.HandPai.GetCanGang(nil)    //是否可以杠牌
-
-			*overTrun.CanGang = canGangBool
-			if canGangBool && gangPais != nil {
-				for _, g := range gangPais {
-					overTrun.GangCards = append(overTrun.GangCards, g.GetCardInfo())
-				}
-			}
-			//是否可以碰牌
-			*overTrun.CanPeng = false
-			//user.SendOverTurn(overTrun) 这里不能使用sendOverTurn 有wait 的逻辑
+			overTrun := d.GetOverTurn(user, OVER_TURN_ACTTYPE_MOPAI)                        //重新进入房间之后
 			user.WriteMsg(overTrun)
 			log.T("玩家重新进入游戏之后 [%v]开始摸牌【%v】...", user.GetUserId(), overTrun)
 
@@ -166,21 +148,11 @@ func (d *MjDesk) SendReconnectOverTurn(userId uint32) error {
 			}
 
 			//找到需要判断bean之后，发送给判断人	//send overTurn
-			overTurn := newProto.NewGame_OverTurn()
-			*overTurn.UserId = caseBean.GetUserId()
-			*overTurn.CanGang = caseBean.GetCanGang()
-			*overTurn.CanPeng = caseBean.GetCanPeng()
-			*overTurn.CanHu = caseBean.GetCanHu()
-			*overTurn.PaiCount = d.GetRemainPaiCount()
-			overTurn.ActCard = d.CheckCase.CheckMJPai.GetCardInfo()        //
-			*overTurn.ActType = OVER_TURN_ACTTYPE_OTHER
+			overTurn := d.GetOverTurnByCaseBean(d.CheckCase.CheckMJPai, caseBean, OVER_TURN_ACTTYPE_OTHER)
 			*overTurn.Time = int32(user.GetWaitTime() - time.Now().Unix())
-
 			///发送overTurn 的信息
 			log.T("开始发送玩家[%v]断线重连的overTurn[%v]", user.GetUserId(), overTurn)
 			user.WriteMsg(overTurn)
-			//这里不需要设置actUser and type 因为在断线之前已经设置过了...
-			//d.SetActUserAndType(caseBean.GetUserId(), MJDESK_ACT_TYPE_WAIT_CHECK)        //设置当前活动的玩家
 		}
 	}
 
@@ -764,11 +736,12 @@ func (d *MjDesk) InitCheckCase(p *MJPai, outUser *MjUser) error {
 	//初始化checkbean
 	for _, checkUser := range d.GetUsers() {
 		//这里要判断用户是不是已经胡牌
-		if checkUser != nil && checkUser.GetUserId() != outUser.GetUserId() &&  d.CanInitCheckCase(checkUser) {
+		if checkUser != nil && checkUser.GetUserId() != outUser.GetUserId() {
+
 			log.T("用户[%v]打牌，判断user[%v]是否可以碰杠胡.手牌[%v]", outUser.GetUserId(), checkUser.GetUserId(), checkUser.GameData.HandPai.GetDes())
 			checkUser.GameData.HandPai.InPai = p
 			//添加checkBean
-			bean := checkUser.GetCheckBean(p)
+			bean := checkUser.GetCheckBean(p, d.IsXueLiuChengHe())
 			if bean != nil {
 				checkCase.CheckB = append(checkCase.CheckB, bean)
 			}
@@ -785,24 +758,7 @@ func (d *MjDesk) InitCheckCase(p *MJPai, outUser *MjUser) error {
 	return nil
 }
 
-//判断是否可以initCheckCase
-
-func (d *MjDesk ) CanInitCheckCase(user *MjUser) bool {
-	//这里需要判断是否是 血流成河，目前暂时不判断...
-
-	//1,普通规则
-	if user.IsNotHu() {
-		return true
-	}
-
-	//2,血流成河
-	if user.IsHu() && d.IsXueLiuChengHe() {
-		return true
-	}
-
-	//其他情况返回false
-	return false
-}
+//判断是否可以initCheckCas
 
 ////暂时不用？？ 摸牌之后
 //func (d *MjDesk) InitMoPaiCheckCase(p *MJPai, moPaiUser *MjUser) error {
@@ -848,14 +804,7 @@ func (d *MjDesk) DoCheckCase(gangUser *MjUser) error {
 		//1,找到胡牌的人来进行处理
 		caseBean := d.CheckCase.GetNextBean()
 		//找到需要判断bean之后，发送给判断人	//send overTurn
-		overTurn := newProto.NewGame_OverTurn()
-		*overTurn.UserId = caseBean.GetUserId()
-		*overTurn.CanGang = caseBean.GetCanGang()
-		*overTurn.CanPeng = caseBean.GetCanPeng()
-		*overTurn.CanHu = caseBean.GetCanHu()
-		*overTurn.PaiCount = d.GetRemainPaiCount()        //剩余多少钱
-		overTurn.ActCard = d.CheckCase.CheckMJPai.GetCardInfo()        //
-		*overTurn.ActType = OVER_TURN_ACTTYPE_OTHER
+		overTurn := d.GetOverTurnByCaseBean(d.CheckCase.CheckMJPai, caseBean, OVER_TURN_ACTTYPE_OTHER)
 
 		///发送overTurn 的信息
 		log.T("开始发送overTurn[%v]", overTurn)
@@ -1013,6 +962,14 @@ func (d *MjDesk) ChaDaJiao() error {
 	}
 	return nil
 
+}
+
+//得到一个canhuinfos
+/**
+	一次判断打出每一张牌的时候，有哪些牌可以胡，可以胡的翻数是多少
+ */
+func (d *MjDesk) GetCanhuInfos() []*mjproto.CanhuInfo {
+	return nil
 }
 
 //用户没有叫的处理了
@@ -1206,15 +1163,8 @@ func (d *MjDesk) SendMopaiOverTurn(user *MjUser) error {
 	d.SetActiveUser(user.GetUserId())        //用户摸牌之后，设置前端指针指向的玩家
 	d.SetActUserAndType(user.GetUserId(), MJDESK_ACT_TYPE_MOPAI)                //用户摸牌之后，设置当前活动的玩家
 
-	//发送广播
-	overTrun := newProto.NewGame_OverTurn()
-	*overTrun.UserId = user.GetUserId()                //这个是摸牌的，所以是广播...
-	*overTrun.ActType = OVER_TURN_ACTTYPE_MOPAI        //摸牌
-	*overTrun.PaiCount = d.GetRemainPaiCount()
-
 	//发送给当事人时候的信息
 	nextPai := d.GetNextPai()
-
 	//这里需要判断，如果牌摸完了，需要判断游戏结束
 	if nextPai == nil {
 		d.Lottery()
@@ -1222,23 +1172,11 @@ func (d *MjDesk) SendMopaiOverTurn(user *MjUser) error {
 	}
 
 	user.GameData.HandPai.InPai = nextPai
-	overTrun.ActCard = nextPai.GetCardInfo()
 
-	//是否可以胡牌
-	*overTrun.CanHu, _ = user.GameData.HandPai.GetCanHu()
-	//是否可以杠牌
-	canGangBool, gangPais := user.GameData.HandPai.GetCanGang(nil)
-	*overTrun.CanGang = canGangBool
-	if canGangBool && gangPais != nil {
-		for _, g := range gangPais {
-			overTrun.GangCards = append(overTrun.GangCards, g.GetCardInfo())
-		}
-	}
-
-	//是否可以碰牌
-	*overTrun.CanPeng = false
+	overTrun := d.GetOverTurn(user, OVER_TURN_ACTTYPE_MOPAI)	//用户摸牌的时候,发送一个用户摸牌的overturn
 	user.SendOverTurn(overTrun)
 	log.T("玩家[%v]当前的手牌是[%v]开始摸牌【%v】...", user.GetUserId(), user.GameData.HandPai.GetDes(), overTrun)
+
 
 	//给其他人广播协议
 	*overTrun.CanHu = false
@@ -2081,4 +2019,39 @@ func (d *MjDesk) IsOpenOption(option mjproto.MJOption) bool {
 	}
 	return false
 
+}
+
+//可以把overturn放在一个地方
+func (d *MjDesk) GetOverTurn(user *MjUser, actType int32) *mjproto.Game_OverTurn {
+	overTurn := newProto.NewGame_OverTurn()
+	*overTurn.UserId = user.GetUserId()                //这个是摸牌的，所以是广播...
+	*overTurn.PaiCount = d.GetRemainPaiCount()        //桌子剩余多少牌
+	*overTurn.ActType = actType        //摸牌
+	overTurn.ActCard = user.GameData.HandPai.InPai.GetCardInfo()
+
+	*overTurn.CanHu, _ = user.GameData.HandPai.GetCanHu()                //是否可以胡牌
+
+	canGangBool, gangPais := user.GameData.HandPai.GetCanGang(nil)    //是否可以杠牌
+	*overTurn.CanGang = canGangBool
+	if canGangBool && gangPais != nil {
+		for _, g := range gangPais {
+			overTurn.GangCards = append(overTurn.GangCards, g.GetCardInfo())
+		}
+	}
+	//是否可以碰牌
+	*overTurn.CanPeng = false
+	return overTurn
+}
+
+//通过checkCase 得到一个OverTurn
+func (d *MjDesk) GetOverTurnByCaseBean(checkPai *MJPai, caseBean *CheckBean, actType int32) *mjproto.Game_OverTurn {
+	overTurn := newProto.NewGame_OverTurn()
+	*overTurn.UserId = caseBean.GetUserId()
+	*overTurn.CanGang = caseBean.GetCanGang()
+	*overTurn.CanPeng = caseBean.GetCanPeng()
+	*overTurn.CanHu = caseBean.GetCanHu()
+	*overTurn.PaiCount = d.GetRemainPaiCount()        //剩余多少钱
+	overTurn.ActCard = checkPai.GetCardInfo()        //
+	*overTurn.ActType = actType
+	return overTurn
 }

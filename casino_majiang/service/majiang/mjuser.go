@@ -251,12 +251,20 @@ func (u *MjUser) Gang(p *MJPai, sendUserId uint32) error {
 }
 
 //得到判定bean
-func (u *MjUser) GetCheckBean(p *MJPai) *CheckBean {
+func (u *MjUser) GetCheckBean(p *MJPai, xueliuchenghe bool) *CheckBean {
 	bean := NewCheckBean()
 	*bean.CheckStatus = CHECK_CASE_BEAN_STATUS_CHECKING
-	*bean.CanHu, _ = u.GameData.HandPai.GetCanHu()
+
+	//是否可以胡牌
+	if u.IsCanInitCheckCaseHu(xueliuchenghe) {
+		*bean.CanHu, _ = u.GameData.HandPai.GetCanHu()
+	}
+	//是否可以gang
+	if u.IsCanInitCheckCaseGang(xueliuchenghe) {
+		*bean.CanGang, _ = u.GameData.HandPai.GetCanGang(p)
+	}
+	//是否可以碰
 	*bean.CanPeng = u.GameData.HandPai.GetCanPeng(p)
-	*bean.CanGang, _ = u.GameData.HandPai.GetCanGang(p)
 	*bean.UserId = u.GetUserId()
 	log.T("得到用户[%v]对牌[%v]的check , bean[%v]", u.GetUserId(), p.LogDes(), bean)
 
@@ -271,6 +279,32 @@ func (u *MjUser) GetCheckBean(p *MJPai) *CheckBean {
 		return nil
 	}
 }
+
+//判断用户是否可以杠
+func (u *MjUser) IsCanInitCheckCaseGang(xueliuchenghe bool) bool {
+	//这里需要判断是否是 血流成河，目前暂时不判断...
+
+	//1,普通规则
+	if u.IsNotHu() {
+		return true
+	}
+
+	//2,血流成河
+	if u.IsHu() && xueliuchenghe {
+		return true
+	}
+
+	//其他情况返回false
+	return false
+}
+
+
+//判断用户是否可以杠
+func (u *MjUser) IsCanInitCheckCaseHu(xueliuchenghe bool) bool {
+	return u.IsCanInitCheckCaseGang(xueliuchenghe)
+}
+
+
 
 //玩家打一张牌
 func (u *MjUser) DaPai(p *MJPai) error {
