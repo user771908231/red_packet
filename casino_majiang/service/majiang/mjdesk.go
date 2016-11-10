@@ -2043,9 +2043,25 @@ func (d *MjDesk) GetMoPaiOverTurn(user *MjUser, isOpen bool) *mjproto.Game_OverT
 	canGangBool, gangPais := user.GameData.HandPai.GetCanGang(nil)    //是否可以杠牌
 	*overTurn.CanGang = canGangBool
 	if canGangBool && gangPais != nil {
-		for _, g := range gangPais {
-			overTurn.GangCards = append(overTurn.GangCards, g.GetCardInfo())
+		if user.IsHu() && d.IsXueLiuChengHe() {
+			jiaoPais := user.GetJiaoPaisByHandPais(); //得到杠牌之前的可以胡的叫牌
+			for _, g := range gangPais {
+				//判断杠牌之后的叫牌是否和杠牌之前一样
+				if user.AfterGangEqualJiaoPai(jiaoPais) {
+					overTurn.GangCards = append(overTurn.GangCards, g.GetCardInfo())
+				}
+			}
+
+		} else {
+			for _, g := range gangPais {
+				overTurn.GangCards = append(overTurn.GangCards, g.GetCardInfo())
+			}
 		}
+	}
+
+	//最后判断是否可以杠牌
+	if overTurn.GangCards == nil || len(overTurn.GangCards) <= 0 {
+		*overTurn.CanGang = false;
 	}
 
 	return overTurn

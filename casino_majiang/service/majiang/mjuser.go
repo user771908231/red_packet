@@ -644,3 +644,15 @@ func (u *MjUser) AddBill(relationUserid uint32, billType int32, des string, scor
 	u.AddStatisticsWinCoin(score)        //统计用户输赢多少钱
 	return nil
 }
+
+//通过手牌，得到杠牌的信息
+func (u *MjUser) GetJiaoPaisByHandPais() []*MJPai {
+	return nil
+}
+
+
+//比较杠牌之后的叫牌和杠牌之前的叫牌的信息是否一样
+func (u *MjUser) AfterGangEqualJiaoPai(beforPais []*MJPai) bool {
+
+	return false;
+}
