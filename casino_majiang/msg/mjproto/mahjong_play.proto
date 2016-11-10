@@ -164,15 +164,15 @@ message game_OverTurn {
     repeated CardInfo gangCards = 9; // 手牌中可杠的牌(可能多张) 自己摸牌的时候
     optional int32 time = 10;
     optional int32 paiCount = 11; //剩余多少牌还没有摸
-    repeated Canhu_info canhuInfos = 12; //可以胡牌的信息,只有在摸牌的时候才会有值
+    repeated Jiao_info  jiaoInfos = 12; //可以胡牌的信息,只有在摸牌的时候才会有值
 }
 
-message Canhu_info {
+message Jiao_info {
     optional CardInfo outCard = 1;
-    repeated Canhu_pai_info paiInfos = 2;
+    repeated Jiao_pai_info paiInfos = 2;
 }
 
-message Canhu_pai_info {
+message  Jiao_pai_info {
     optional CardInfo huCard = 1; //可以胡的牌
     optional int32 fan = 2; //可以胡的牌的翻数
     optional int32 count = 3; //可以胡的牌的剩余张数
