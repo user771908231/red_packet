@@ -925,8 +925,8 @@ func IsLongQiDui(handPai *MJHandPai, handCounts[] int) bool {
 }
 
 //将对(全是2,5,8的大对子)
-func IsJiangDui(pais []*MJPai) bool {
-
+func IsJiangDui(handPai *MJHandPai) bool {
+	pais := handPai.Pais
 	for i := 0; i < len(pais); i++ {
 		if *pais[i].Value != 2 && *pais[i].Value != 5 && *pais[i].Value != 8 {
 			return false
