@@ -319,12 +319,15 @@ func (u *MjUser) SetStatus(s int32) error {
 }
 
 //判断用户是否可以摸牌
-func (u *MjUser) CanMoPai() bool {
+func (u *MjUser) CanMoPai(xueliuchenghe bool) bool {
 	if u.IsNotHu() {
 		return true
-	} else {
-		return false
 	}
+
+	if u.IsHu() && xueliuchenghe {
+		return true
+	}
+	return false
 }
 
 

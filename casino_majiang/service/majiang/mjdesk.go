@@ -1116,8 +1116,8 @@ func (d *MjDesk) GetNextMoPaiUser() *MjUser {
 
 	for i := activeIndex + 1; i < activeIndex + int(d.GetUserCount()); i++ {
 		user := d.GetUsers()[i % int(d.GetUserCount())]
-		log.T("查询下一个玩家...当前的activeUser[%v],activeIndex[%v],循环检测index[%v],user.IsNotHu(%v),user.CanMoPai[%v]", d.GetActiveUser(), activeIndex, i, user.IsNotHu(), user.CanMoPai())
-		if user != nil && user.CanMoPai() {
+		log.T("查询下一个玩家...当前的activeUser[%v],activeIndex[%v],循环检测index[%v],user.IsNotHu(%v),user.CanMoPai[%v]", d.GetActiveUser(), activeIndex, i, user.IsNotHu(), user.CanMoPai(d.IsXueLiuChengHe()))
+		if user != nil && user.CanMoPai(d.IsXueLiuChengHe()) {
 			activeUser = user
 			break
 		}
