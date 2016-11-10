@@ -968,7 +968,7 @@ func (d *MjDesk) ChaDaJiao() error {
 /**
 	一次判断打出每一张牌的时候，有哪些牌可以胡，可以胡的翻数是多少
  */
-func (d *MjDesk) GetCanhuInfos() []*mjproto.CanhuInfo {
+func (d *MjDesk) GetCanhuInfos() []*mjproto.JiaoInfo {
 	return nil
 }
 
@@ -1173,7 +1173,7 @@ func (d *MjDesk) SendMopaiOverTurn(user *MjUser) error {
 
 	user.GameData.HandPai.InPai = nextPai
 
-	overTrun := d.GetOverTurn(user, OVER_TURN_ACTTYPE_MOPAI)	//用户摸牌的时候,发送一个用户摸牌的overturn
+	overTrun := d.GetOverTurn(user, OVER_TURN_ACTTYPE_MOPAI)        //用户摸牌的时候,发送一个用户摸牌的overturn
 	user.SendOverTurn(overTrun)
 	log.T("玩家[%v]当前的手牌是[%v]开始摸牌【%v】...", user.GetUserId(), user.GameData.HandPai.GetDes(), overTrun)
 
