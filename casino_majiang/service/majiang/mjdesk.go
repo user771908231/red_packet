@@ -507,6 +507,36 @@ func (d *MjDesk) IsNeedExchange3zhang() bool {
 	return d.IsOpenOption(mjproto.MJOption_EXCHANGE_CARDS)
 }
 
+//是否需要天地胡
+func (d *MjDesk) IsNeedTianDiHu() bool {
+	return d.IsOpenOption(mjproto.MJOption_TIAN_DI_HU)
+}
+
+//是否需要幺九将对
+func (d *MjDesk) IsNeedYaojiuJiangdui() bool {
+	return d.IsOpenOption(mjproto.MJOption_YAOJIU_JIANGDUI)
+}
+
+//是否需要门清中张
+func (d *MjDesk) IsNeedMenqingZhongzhang() bool {
+	return d.IsOpenOption(mjproto.MJOption_MENQING_MID_CARD)
+}
+
+//是否需要自摸加底
+func (d *MjDesk) IsNeedZiMoJiaDi() bool {
+	if mjproto.MJOption(d.GetRoomTypeInfo().GetPlayOptions().ZiMoRadio) == mjproto.MJOption_ZIMO_JIA_DI{
+		return true
+	}
+	return false
+}
+
+//是否需要自摸加番
+func (d *MjDesk) IsNeedZiMoJiaFan() bool {
+	if mjproto.MJOption(d.GetRoomTypeInfo().GetPlayOptions().ZiMoRadio) == mjproto.MJOption_ZIMO_JIA_FAN{
+		return true
+	}
+	return false
+}
 
 //是否可以开始
 func (d *MjDesk) time2begin() error {
@@ -968,7 +998,62 @@ func (d *MjDesk) ChaDaJiao() error {
 /**
 	一次判断打出每一张牌的时候，有哪些牌可以胡，可以胡的翻数是多少
  */
-func (d *MjDesk) GetCanhuInfos() []*mjproto.JiaoInfo {
+func (d *MjDesk) GetJiaoInfos(user *MjUser) []*mjproto.JiaoInfo {
+	jiaoInfos := []*mjproto.JiaoInfo{}
+
+	//获取用户手牌 包括inPai
+	var userPais []*MJPai
+	userHandPai := *user.GetGameData().HandPai
+	userPais = append(userPais, userHandPai.Pais)
+	userPais = append(userPais, userHandPai.InPai)
+
+
+	jiaoInfo := *mjproto.JiaoInfo{}
+	jiaoPaiInfos := []*mjproto.JiaoPaiInfo{}
+	jiaoPaiInfo := *mjproto.JiaoPaiInfo{}
+	var huCardInfo, outCardInfo *mjproto.CardInfo{}
+
+	for i := 0; i < len(userPais); i++ { //遍历用户手牌
+		//TODO 从用户手牌中移除当前遍历的元素
+
+		for l := 0; l < 27; l++ { //遍历未知牌
+			//将遍历到的未知牌与用户手牌组合成handPai 去canhu
+			//TODO 定缺花色不用循环 剩余数为零也不用循环
+			//TODO 根据i去获取一张麻将牌
+			mjPai := getMjPaiByCountsIndex(i)
+
+			handPai.InPai = mjPai
+			handPai.Pais = userPais
+			handPai.GangPais = userHandPai.GangPais
+			handPai.PengPais = userHandPai.PengPais
+
+			canHu, is19 = handPai.GetCanHu()
+
+			if canHu { //可胡
+
+				//计算番数得分胡牌类型
+				fan, score, huCardStr := GetHuScore(handPai, false, is19, 0, d.GetRoomTypeInfo(), d)
+
+				//可胡牌的信息
+
+				huCardInfo.Value =
+				huCardInfo.Type =
+				huCardInfo.Id
+
+				jiaoPaiInfo.HuCard = huCardInfo
+				jiaoPaiInfo.Fan = fan
+				jiaoPaiInfo.Count =
+
+				//打出去的牌信息
+				outCardInfo.Value
+				outCardInfo.Type
+				outCardInfo.Id
+
+				jiaoPaiInfos = append(jiaoPaiInfos, jiaoPaiInfo)
+			}
+		}
+	}
+
 	return nil
 }
 
@@ -1435,7 +1520,7 @@ func (d *MjDesk)ActHu(userId uint32) error {
 	log.T("点炮的人[%v],胡牌的人[%v],杠上花[%v],杠上炮[%v],接下来开始getHuScore(%v,%v,%v,%v)", userId, outUserId, isGangShangHua, isGangShangPao,
 		huUser.GameData.HandPai, isZimo, extraAct, roomInfo)
 
-	fan, score, huCardStr := GetHuScore(huUser.GameData.HandPai, isZimo, is19, extraAct, roomInfo, )
+	fan, score, huCardStr := GetHuScore(huUser.GameData.HandPai, isZimo, is19, extraAct, roomInfo, d)
 	log.T("胡牌(getHuScore)之后的结果fan[%v],score[%v],huCardStr[%v]", fan, score, huCardStr)
 
 	//胡牌之后的信息
