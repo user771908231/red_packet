@@ -1025,11 +1025,15 @@ func (d *MjDesk) GetJiaoInfos(user *MjUser) []*mjproto.JiaoInfo {
 		removedPai := userPais[i]
 		userPais = removePaiFromPais(userPais, i)
 
+		mjPai := GetJiaoPais(userPais)
+		if mjPai != nil {
+			
+		}
+
 		for l := 0; l < len(mjpaiMap); l += 4 {
 			//遍历未知牌
 			//将遍历到的未知牌与用户手牌组合成handPai 去canhu
 			//TODO 定缺花色不用循环 剩余数为零也不用循环
-			//TODO 根据i去获取一张麻将牌
 			mjPai := InitMjPaiByIndex(l)
 
 			handPai.InPai = mjPai
@@ -1063,7 +1067,7 @@ func (d *MjDesk) GetJiaoInfos(user *MjUser) []*mjproto.JiaoInfo {
 		}
 	}
 
-	return nil
+	return jiaoInfos
 }
 
 //用户没有叫的处理了
