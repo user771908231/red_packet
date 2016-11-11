@@ -1019,30 +1019,36 @@ func (d *MjDesk) GetJiaoInfos(user *MjUser) []*mjproto.JiaoInfo {
 	var canHu, is19 bool
 
 	for i := 0; i < len(userPais); i++ {
+		userForPais := make([]*MJPai, len(userPais))
+		copy(userForPais, userPais)
+
 		//遍历用户手牌
 
 		//从用户手牌中移除当前遍历的元素
-		removedPai := userPais[i]
+		removedPai := userForPais[i]
 		log.T("removedPai is : %v", removedPai.GetDes())
-		userPais = removePaiFromPais(userPais, i)
-
-		handPai.Pais = userPais
+		userPais = removePaiFromPais(userForPais, i)
+		log.T("after remove user pais is:%v", userForPais)
+		handPai.Pais = userForPais
 		handPai.GangPais = userHandPai.GangPais
 		handPai.PengPais = userHandPai.PengPais
 
+		//GetJiaoPais()
 		for l := 0; l < len(mjpaiMap); l += 4 {
 			//遍历未知牌
 			//将遍历到的未知牌与用户手牌组合成handPai 去canhu
 			//TODO 定缺花色不用循环
 			mjPai := InitMjPaiByIndex(l)
 			mjPaiLeftCount := int32(d.GetLeftPaiCount(user, mjPai)) //该可胡牌在桌面中的剩余数量 注 对于自己而言的剩余
-			if mjPaiLeftCount == 0 { //剩余数为零不用循环
+			if mjPaiLeftCount == 0 {
+				//剩余数为零不用循环
 				continue
 			}
 			log.T("拿%v尝试胡牌", mjPai.GetDes())
 			handPai.InPai = mjPai
 
 			log.T("handPai: %v", handPai.GetDes())
+			log.T("inPai: %v", handPai.InPai.GetDes())
 			canHu, is19 = handPai.GetCanHu()
 
 			if canHu {
@@ -1064,7 +1070,8 @@ func (d *MjDesk) GetJiaoInfos(user *MjUser) []*mjproto.JiaoInfo {
 				log.T("可以胡 且 jiaoInfo is %v", jiaoInfo)
 			}
 		}
-		userPais = addPaiIntoPais(removedPai, userPais, i) //将移除的牌添加回原位置继续遍历
+		userForPais = addPaiIntoPais(removedPai, userForPais, i) //将移除的牌添加回原位置继续遍历
+		log.T("after add user pais is:%v", userPais)
 		if jiaoInfo != nil {
 			jiaoInfos = append(jiaoInfos, jiaoInfo)
 		}
@@ -2168,6 +2175,9 @@ func (d *MjDesk) GetMoPaiOverTurn(user *MjUser, isOpen bool) *mjproto.Game_OverT
 		*overTurn.CanGang = false;
 	}
 
+	//
+	overTurn.JiaoInfos = d.GetJiaoInfos(user)
+
 	return overTurn
 }
 
@@ -2188,15 +2198,19 @@ func (d *MjDesk) GetOverTurnByCaseBean(checkPai *MJPai, caseBean *CheckBean, act
 func (d *MjDesk) GetLeftPaiCount(user *MjUser, mjPai *MJPai) int {
 	var count int = 0
 	displayPais := d.GetDisplayPais(user)
-	displayPaiCounts := GettPaiStats(displayPais)
-	//log.T("displayPaiCounts is : %v", displayPaiCounts)
-	for i := 0; i < len(displayPaiCounts); i++ {
-		//轮询hiddenPais 计算mjPai的counts
-		count := 4 - displayPaiCounts[i]
-		if count < 0 {
-			count = 0
+	//for i := 0; i < len(displayPais); i++ {
+	//	log.T("用户%v已知的牌是:%v", user.GetUserId(), displayPais[i].GetDes())
+	//}
+	for i := 0; i < len(displayPais); i++ {
+		if (displayPais[i].GetValue() == mjPai.GetValue()) && (displayPais[i].GetFlower() == mjPai.GetFlower()) {
+			count++
 		}
 	}
+	count = 4 - count
+	if count < 0 {
+		count = 0
+	}
+	log.T("leftPaiCount is : %v", count)
 	return count
 }
 
