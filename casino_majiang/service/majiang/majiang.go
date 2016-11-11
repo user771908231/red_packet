@@ -39,18 +39,18 @@ var FAN_TIAN_DI_HU int32 = 5 //天地胡
 var FAN_QINGLONGQIDUI int32 = 5 //清龙七对
 
 //加番
-var FAN_ZIMO		int32	= 1 //自摸
-var FAN_JINGOUDIAO	int32	= 1 //金钩钓
-var FAN_MENQ_ZHONGZ	int32	= 1 //门清中张
-var FAN_GANGSHANGHUA	int32	= 1 //杠上花
-var FAN_GANGSHANGPAO	int32	= 1 //杠上炮
-var FAN_HD_HUA		int32	= 1 //海底花
-var FAN_HD_PAO		int32	= 1 //海底炮
-var FAN_QIANGGANG	int32	= 1 //抢杠
-var FAN_HD_GANGSHANGHUA	int32	= 1 //海底杠上花
-var FAN_HD_GANGSHANGPAO	int32	= 2 //海底杠上炮
+var FAN_ZIMO int32 = 1 //自摸
+var FAN_JINGOUDIAO int32 = 1 //金钩钓
+var FAN_MENQ_ZHONGZ int32 = 1 //门清中张
+var FAN_GANGSHANGHUA int32 = 1 //杠上花
+var FAN_GANGSHANGPAO int32 = 1 //杠上炮
+var FAN_HD_HUA int32 = 1 //海底花
+var FAN_HD_PAO int32 = 1 //海底炮
+var FAN_QIANGGANG int32 = 1 //抢杠
+var FAN_HD_GANGSHANGHUA int32 = 1 //海底杠上花
+var FAN_HD_GANGSHANGPAO int32 = 2 //海底杠上炮
 
-var FAN_TOP		int32	= 5 //顶番
+var FAN_TOP int32 = 5 //顶番
 
 //初始化麻将牌
 func init() {
@@ -325,8 +325,6 @@ func GettPaiStats(pais []*MJPai) []int {
 	return counts
 }
 
-
-
 func GetPaisByCounts(counts []int) []*MJPai {
 	//pai := new(MJPai)
 	//clienId := pai.GetClientId() //
@@ -348,17 +346,23 @@ func GetPaisByCounts(counts []int) []*MJPai {
 
 //从pais数组里删除一张pos位置的pai 注 pos是索引值 使用覆盖的方式
 func removePaiFromPais(pais []*MJPai, pos int) []*MJPai {
-	pais[pos] = pais[len(pais)-1]
-	return pais[:len(pais)-1]
+	pais[pos] = pais[len(pais) - 1]
+	return pais[:len(pais) - 1]
 }
 
 
 //将一张pai插入到指定pos的pais数组里去
 func addPaiIntoPais(pai *MJPai, pais []*MJPai, pos int) []*MJPai {
-	tail := pais[pos:]
-	pais = append(pais[:pos], pai)
-	pais = append(pais, tail...)
-	return pais
+	//tail := pais[pos:]
+	//pais = append(pais[:pos], pai)
+	//pais = append(pais, tail...)
+	//return pais
+	tempPais := make([]*MJPai, len(pais) + 1)
+
+	copy(tempPais[:pos], pais[:pos])
+	tempPais[pos] = pai
+	copy(tempPais[pos + 1:], pais[pos:])
+	return tempPais
 }
 
 func is19(val int) bool {
@@ -491,7 +495,6 @@ func tryHU(count []int, len int) (result bool, isAll19 bool) {
 
 	return false, isAll19
 }
-
 
 func CanHuPai(handPai *MJHandPai) (bool, bool) {
 	//在所有的牌中增加 pai,判断此牌是否能和
@@ -646,7 +649,8 @@ func getHuFan(handPai *MJHandPai, isZimo bool, is19 bool, extraAct HuPaiType, mj
 			log.T("是清对")
 			fan = FAN_QINGDUI
 			huCardStr = append(huCardStr, "清对")
-		}else if mjDesk.IsNeedYaojiuJiangdui() { //将对选项开启
+		} else if mjDesk.IsNeedYaojiuJiangdui() {
+			//将对选项开启
 			log.T("是将对")
 			if IsJiangDui(handPai) {
 				fan = FAN_DADUIZI
@@ -683,14 +687,17 @@ func getHuFan(handPai *MJHandPai, isZimo bool, is19 bool, extraAct HuPaiType, mj
 	//}
 
 	//附加选项
-	if mjDesk.IsNeedYaojiuJiangdui() { //带幺九选项开启
-		if is19 && IsPengGang19(handPai) { //手牌带幺九 且 碰杠牌带幺九
+	if mjDesk.IsNeedYaojiuJiangdui() {
+		//带幺九选项开启
+		if is19 && IsPengGang19(handPai) {
+			//手牌带幺九 且 碰杠牌带幺九
 			fan += FAN_DAIYAOJIU
 			huCardStr = append(huCardStr, "带幺九")
 		}
 	}
 
-	if mjDesk.IsNeedMenqingZhongzhang() { //门清中张选项开启
+	if mjDesk.IsNeedMenqingZhongzhang() {
+		//门清中张选项开启
 		if IsMenqing(handPai) {
 			fan += FAN_MENQ_ZHONGZ
 			huCardStr = append(huCardStr, "门清")
@@ -701,7 +708,8 @@ func getHuFan(handPai *MJHandPai, isZimo bool, is19 bool, extraAct HuPaiType, mj
 		}
 	}
 	isTianDiHuFlag := false //天地胡选项 避免多次搜索
-	if mjDesk.IsNeedMenqingZhongzhang() { //天地胡选项开启
+	if mjDesk.IsNeedMenqingZhongzhang() {
+		//天地胡选项开启
 		isTianDiHuFlag = true
 	}
 
@@ -847,7 +855,6 @@ func CanGangPai(pai *MJPai, handPai *MJHandPai) (canGang bool, gangPais []*MJPai
 	return canGang, gangPais
 }
 
-
 func IsPengGang19(handPai *MJHandPai) bool {
 	pengPais := handPai.PengPais
 	gangPais := handPai.GangPais
@@ -877,7 +884,7 @@ func IsJingGouDiao(handCounts []int) bool {
 	for i := 0; i < len(handCounts); i++ {
 		if handCounts[i] != 2 {
 			return false
-		}else {
+		} else {
 			count++
 		}
 	}
