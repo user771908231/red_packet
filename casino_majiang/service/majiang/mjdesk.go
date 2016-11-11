@@ -524,7 +524,7 @@ func (d *MjDesk) IsNeedMenqingZhongzhang() bool {
 
 //是否需要自摸加底
 func (d *MjDesk) IsNeedZiMoJiaDi() bool {
-	if mjproto.MJOption(d.GetRoomTypeInfo().GetPlayOptions().ZiMoRadio) == mjproto.MJOption_ZIMO_JIA_DI{
+	if mjproto.MJOption(*d.GetRoomTypeInfo().GetPlayOptions().ZiMoRadio) == mjproto.MJOption_ZIMO_JIA_DI {
 		return true
 	}
 	return false
@@ -532,7 +532,7 @@ func (d *MjDesk) IsNeedZiMoJiaDi() bool {
 
 //是否需要自摸加番
 func (d *MjDesk) IsNeedZiMoJiaFan() bool {
-	if mjproto.MJOption(d.GetRoomTypeInfo().GetPlayOptions().ZiMoRadio) == mjproto.MJOption_ZIMO_JIA_FAN{
+	if mjproto.MJOption(*d.GetRoomTypeInfo().GetPlayOptions().ZiMoRadio) == mjproto.MJOption_ZIMO_JIA_FAN {
 		return true
 	}
 	return false
@@ -1004,25 +1004,33 @@ func (d *MjDesk) GetJiaoInfos(user *MjUser) []*mjproto.JiaoInfo {
 	//获取用户手牌 包括inPai
 	var userPais []*MJPai
 	userHandPai := *user.GetGameData().HandPai
-	userPais = append(userPais, userHandPai.Pais)
+	userPais = append(userPais, userHandPai.Pais...)
 	userPais = append(userPais, userHandPai.InPai)
 
+	//type JiaoInfo struct {
+	//	OutCard          *CardInfo      `protobuf:"bytes,1,opt,name=outCard" json:"outCard,omitempty"`
+	//	PaiInfos         []*JiaoPaiInfo `protobuf:"bytes,2,rep,name=paiInfos" json:"paiInfos,omitempty"`
+	//	XXX_unrecognized []byte         `json:"-"`
+	//}
+	var jiaoInfo *mjproto.JiaoInfo
+	var jiaoPaiInfo *mjproto.JiaoPaiInfo
 
-	jiaoInfo := *mjproto.JiaoInfo{}
-	jiaoPaiInfos := []*mjproto.JiaoPaiInfo{}
-	jiaoPaiInfo := *mjproto.JiaoPaiInfo{}
-	var huCardInfo, outCardInfo *mjproto.CardInfo{}
+	var handPai *MJHandPai
+	var canHu, is19 bool
 
-	for i := 0; i < len(userPais); i++ { //遍历用户手牌
-		//TODO 从用户手牌中移除当前遍历的元素
+	for i := 0; i < len(userPais); i++ {
+		//遍历用户手牌
 
+		//从用户手牌中移除当前遍历的元素
+		removedPai := userPais[i]
+		userPais = removePaiFromPais(userPais, i)
 
-
-		for l := 0; l < 27; l++ { //遍历未知牌
+		for l := 0; l < len(mjpaiMap); l += 4 {
+			//遍历未知牌
 			//将遍历到的未知牌与用户手牌组合成handPai 去canhu
 			//TODO 定缺花色不用循环 剩余数为零也不用循环
 			//TODO 根据i去获取一张麻将牌
-			mjPai := getMjPaiByCountsIndex(i)
+			mjPai := InitMjPaiByIndex(l)
 
 			handPai.InPai = mjPai
 			handPai.Pais = userPais
@@ -1031,28 +1039,27 @@ func (d *MjDesk) GetJiaoInfos(user *MjUser) []*mjproto.JiaoInfo {
 
 			canHu, is19 = handPai.GetCanHu()
 
-			if canHu { //可胡
+			if canHu {
+				//可胡
 
 				//计算番数得分胡牌类型
-				fan, score, huCardStr := GetHuScore(handPai, false, is19, 0, d.GetRoomTypeInfo(), d)
+				fan, _, _ := GetHuScore(handPai, false, is19, 0, *d.GetRoomTypeInfo(), d)
 
 				//可胡牌的信息
-
-				huCardInfo.Value =
-				huCardInfo.Type =
-				huCardInfo.Id
-
-				jiaoPaiInfo.HuCard = huCardInfo
-				jiaoPaiInfo.Fan = fan
-				jiaoPaiInfo.Count =
+				jiaoPaiInfo.HuCard = mjPai.GetCardInfo()
+				*jiaoPaiInfo.Fan = fan //可胡番数
+				*jiaoPaiInfo.Count = int32(d.GetLeftPaiCount(user, mjPai))//该可胡牌在桌面中的剩余数量 注 对于自己而言的剩余
 
 				//打出去的牌信息
-				outCardInfo.Value
-				outCardInfo.Type
-				outCardInfo.Id
+				jiaoInfo.OutCard = userPais[i].GetCardInfo() //当前打出去的牌
 
-				jiaoPaiInfos = append(jiaoPaiInfos, jiaoPaiInfo)
+				jiaoInfo.PaiInfos = append(jiaoInfo.PaiInfos, jiaoPaiInfo)
 			}
+		}
+		userPais = addPaiIntoPais(removedPai, userPais, i) //将移除的牌添加回原位置继续遍历
+
+		if jiaoInfo != nil {
+			jiaoInfos = append(jiaoInfos, jiaoInfo)
 		}
 	}
 
@@ -2165,4 +2172,62 @@ func (d *MjDesk) GetOverTurnByCaseBean(checkPai *MJPai, caseBean *CheckBean, act
 	overTurn.ActCard = checkPai.GetCardInfo()        //
 	*overTurn.ActType = actType
 	return overTurn
+}
+
+func (d *MjDesk) GetLeftPaiCount(user *MjUser, mjPai *MJPai) int {
+	var count int = 0
+	displayPais := d.GetDisplayPais(user)
+	displayPaiCounts := GettPaiStats(displayPais)
+
+	for i := 0; i < len(displayPaiCounts); i++ {
+		//轮询hiddenPais 计算mjPai的counts
+		count := 4 - displayPaiCounts[i]
+		if count < 0 {
+			count = 0
+		}
+	}
+	return count
+}
+
+//获取用户未知的牌 即未出现在台面上的牌
+func (d *MjDesk) GetHiddenPais(user *MjUser) []*MJPai {
+
+	//获取已知亮出台面的牌
+	displayPais := d.GetDisplayPais(user)
+	displayPaiCounts := GettPaiStats(displayPais)
+
+	//获取一副完整的牌
+	totalPais := XiPai()
+	totalPaiCounts := GettPaiStats(totalPais)
+
+	for i := 0; i < len(displayPaiCounts); i++ {
+		totalPaiCounts[i] -= displayPaiCounts[i]
+		if totalPaiCounts[i] < 0 {
+			//最低为零
+			totalPaiCounts[i] = 0
+		}
+	}
+
+	return GetPaisByCounts(totalPaiCounts)
+}
+
+//获取用户已知亮出台面的牌 包括自己手牌、自己和其他玩家碰杠牌、其他玩家outPais
+func (d *MjDesk) GetDisplayPais(user *MjUser) []*MJPai {
+	//获取所有玩家的亮出台面的牌 outPais + pengPais + gangPais
+	users := d.GetUsers()
+	displayPais := []*MJPai{}
+	for i := 0; i < len(users); i++ {
+		displayPais = append(displayPais, users[i].GetGameData().GetHandPai().OutPais...) //打出去的牌
+
+		userHandPai := users[i].GetGameData().GetHandPai()
+		displayPais = append(displayPais, userHandPai.GangPais...) //杠的牌
+		displayPais = append(displayPais, userHandPai.PengPais...) //碰的牌
+	}
+
+	//在亮出台面的牌中加入用户自己的手牌
+	userHandPai := user.GetGameData().GetHandPai()
+	displayPais = append(displayPais, userHandPai.InPai)
+	displayPais = append(displayPais, userHandPai.Pais...)
+
+	return displayPais
 }

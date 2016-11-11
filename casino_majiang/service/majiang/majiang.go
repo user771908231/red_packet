@@ -325,6 +325,42 @@ func GettPaiStats(pais []*MJPai) []int {
 	return counts
 }
 
+
+
+func GetPaisByCounts(counts []int) []*MJPai {
+	//pai := new(MJPai)
+	//clienId := pai.GetClientId() //
+	//
+	//clienId -1 = index//
+	//
+	//for i := 0; i < len(counts); i++ {
+	//	switch  {
+	//	case i >= 0 && i <= 8 :
+	//
+	//	case i >= 9 && i <= 17 :
+	//	case i < 18 :
+	//	default:
+	//
+	//	}
+	//}
+	return nil
+}
+
+//从pais数组里删除一张pos位置的pai 注 pos是索引值 使用覆盖的方式
+func removePaiFromPais(pais []*MJPai, pos int) []*MJPai {
+	pais[pos] = pais[len(pais)-1]
+	return pais[:len(pais)-1]
+}
+
+
+//将一张pai插入到指定pos的pais数组里去
+func addPaiIntoPais(pai *MJPai, pais []*MJPai, pos int) []*MJPai {
+	tail := pais[pos:]
+	pais = append(pais[:pos], pai)
+	pais = append(pais, tail...)
+	return pais
+}
+
 func is19(val int) bool {
 	return (val % 9 == 0) || (val % 9 == 8)
 }
