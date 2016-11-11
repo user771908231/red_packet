@@ -647,13 +647,43 @@ func (u *MjUser) AddBill(relationUserid uint32, billType int32, des string, scor
 
 //通过手牌，得到杠牌的信息
 func (u *MjUser) GetJiaoPaisByHandPais() []*MJPai {
-	
-	return nil
+	return GetJiaoPais(u.GameData.HandPai.Pais)
 }
 
 
 //比较杠牌之后的叫牌和杠牌之前的叫牌的信息是否一样
-func (u *MjUser) AfterGangEqualJiaoPai(beforPais []*MJPai) bool {
+func (u *MjUser) AfterGangEqualJiaoPai(beforJiaoPais []*MJPai, gangPai *MJPai) bool {
 
-	return false;
+	//1，获得杠牌之后的手牌
+	var afterPais []*MJPai
+	for _, p := range u.GameData.HandPai.Pais {
+		if p.GetClientId() != gangPai.GetClientId() {
+			afterPais = append(afterPais, p)
+		}
+	}
+
+	//2，通过杠牌之后的手牌 获得此时的叫牌
+	afterJiaoPais := GetJiaoPais(afterPais)
+
+	//2,比较beforJiaoPais 和 afterJiaoPais
+	if len(afterPais) != len(beforJiaoPais) {
+		return false
+	}
+
+	for _, aj := range afterJiaoPais {
+
+		forbool := false
+		for _, bj := range beforJiaoPais {
+			if aj.GetClientId() == bj.GetClientId() {
+				forbool = true
+				break
+			}
+		}
+
+		if !forbool {
+			return false
+		}
+	}
+
+	return true;
 }

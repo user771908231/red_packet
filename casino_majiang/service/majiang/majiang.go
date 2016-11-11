@@ -877,7 +877,7 @@ func IsDaDuiZi(pais []*MJPai) bool {
 }
 
 //七对
-func IsQiDui(pais *MJPai, handCounts[] int) bool {
+func IsQiDui(pais []*MJPai, handCounts[] int) bool {
 	if len(pais) != 13 {
 		//手牌需为13张
 		return false
@@ -1171,17 +1171,5 @@ func IsOpenRoomOption(othersCheckBox []int32, option MJOption) bool {
 
 //通过手牌，返回叫牌
 func GetJiaoPais(handPais []*MJPai) []*MJPai {
-	//在所有的牌中增加 pai,判断此牌是否能和
-	pais := []*MJPai{}
-	counts := GettPaiStats(pais)
-	//七对 龙七对牌型 不带幺九
-	canHu, isAll19 := tryHU7(pais, counts)
-	if canHu {
-		return canHu, isAll19
-	}
-
-	//普通33332牌型
-	canHu, isAll19 = tryHU(counts, len(pais))
-	return canHu, isAll19
-
+	return nil
 }
