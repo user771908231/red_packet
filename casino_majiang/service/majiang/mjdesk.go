@@ -2141,7 +2141,7 @@ func (d *MjDesk) GetMoPaiOverTurn(user *MjUser, isOpen bool) *mjproto.Game_OverT
 			jiaoPais := user.GetJiaoPaisByHandPais(); //得到杠牌之前的可以胡的叫牌
 			for _, g := range gangPais {
 				//判断杠牌之后的叫牌是否和杠牌之前一样
-				if user.AfterGangEqualJiaoPai(jiaoPais) {
+				if user.AfterGangEqualJiaoPai(jiaoPais,g) {
 					overTurn.GangCards = append(overTurn.GangCards, g.GetCardInfo())
 				}
 			}
