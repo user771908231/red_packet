@@ -647,6 +647,7 @@ func (u *MjUser) AddBill(relationUserid uint32, billType int32, des string, scor
 
 //通过手牌，得到杠牌的信息
 func (u *MjUser) GetJiaoPaisByHandPais() []*MJPai {
+	
 	return nil
 }
 
