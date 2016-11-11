@@ -110,6 +110,7 @@ message MjDesk {
     optional string BeginTime = 29; //游戏开始时间
     optional string EndTime = 30; //游戏结束时间
     optional uint32 nextBanker = 31; //下一句开始，谁是庄
+    optional int32 NInitActionTime = 32; //
 }
 
 

@@ -265,7 +265,7 @@ func (d *MjDesk) GetDeskGameInfo() *mjproto.DeskGameInfo {
 	*deskInfo.Banker = d.GetBanker()
 	//deskInfo.NRebuyCount
 	//deskInfo.InitRoomCoin
-	//deskInfo.NInitActionTime
+	*deskInfo.NInitActionTime = d.GetNInitActionTime()
 	//deskInfo.NInitDelayTime
 	*deskInfo.ActiveUserId = d.GetActiveUser()
 	*deskInfo.RemainCards = d.GetRemainPaiCount()
@@ -2128,6 +2128,7 @@ func (d *MjDesk) GetMoPaiOverTurn(user *MjUser, isOpen bool) *mjproto.Game_OverT
 	*overTurn.UserId = user.GetUserId()                     //这个是摸牌的，所以是广播...
 	*overTurn.PaiCount = d.GetRemainPaiCount()                //桌子剩余多少牌
 	*overTurn.ActType = OVER_TURN_ACTTYPE_MOPAI                //摸牌
+	*overTurn.Time = 30
 	if isOpen {
 		overTurn.ActCard = user.GameData.HandPai.InPai.GetBackPai()
 	} else {
@@ -2145,15 +2146,17 @@ func (d *MjDesk) GetMoPaiOverTurn(user *MjUser, isOpen bool) *mjproto.Game_OverT
 	*overTurn.CanGang = canGangBool
 	if canGangBool && gangPais != nil {
 		if user.IsHu() && d.IsXueLiuChengHe() {
+			//血流成河，胡牌之后 杠牌的逻辑
 			jiaoPais := user.GetJiaoPaisByHandPais(); //得到杠牌之前的可以胡的叫牌
 			for _, g := range gangPais {
 				//判断杠牌之后的叫牌是否和杠牌之前一样
-				if user.AfterGangEqualJiaoPai(jiaoPais,g) {
+				if user.AfterGangEqualJiaoPai(jiaoPais, g) {
 					overTurn.GangCards = append(overTurn.GangCards, g.GetCardInfo())
 				}
 			}
 
 		} else {
+			//没有胡牌之前，杠牌的逻辑....
 			for _, g := range gangPais {
 				overTurn.GangCards = append(overTurn.GangCards, g.GetCardInfo())
 			}
@@ -2178,6 +2181,7 @@ func (d *MjDesk) GetOverTurnByCaseBean(checkPai *MJPai, caseBean *CheckBean, act
 	*overTurn.PaiCount = d.GetRemainPaiCount()        //剩余多少钱
 	overTurn.ActCard = checkPai.GetCardInfo()        //
 	*overTurn.ActType = actType
+	*overTurn.Time = 30
 	return overTurn
 }
 

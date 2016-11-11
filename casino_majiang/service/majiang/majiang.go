@@ -1233,6 +1233,34 @@ func IsOpenRoomOption(othersCheckBox []int32, option MJOption) bool {
 }
 
 //通过手牌，返回叫牌
-func GetJiaoPais(handPais []*MJPai) []*MJPai {
-	return nil
+func GetJiaoPais(pais []*MJPai) []*MJPai {
+	var jiaoPais []*MJPai
+	for i := 0; i < len(mjpaiMap); {
+		tempPai := InitMjPaiByIndex(i)
+		canhu, _ := CanHuByPais(pais, tempPai)
+		if canhu {
+			jiaoPais = append(jiaoPais, tempPai)
+		}
+		i += 4
+	}
+
+	return jiaoPais
+}
+
+func CanHuByPais(handPais []*MJPai, huPai *MJPai) (bool, bool) {
+	var pais []*MJPai
+	pais = append(pais, handPais...)
+	pais = append(pais, huPai)
+
+	counts := GettPaiStats(pais)
+	//七对 龙七对牌型 不带幺九
+	canHu, isAll19 := tryHU7(pais, counts)
+	if canHu {
+		return canHu, isAll19
+	}
+
+	//普通33332牌型
+	canHu, isAll19 = tryHU(counts, len(pais))
+
+	return canHu, isAll19
 }
