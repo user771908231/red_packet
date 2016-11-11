@@ -39,17 +39,18 @@ var FAN_TIAN_DI_HU int32 = 5 //天地胡
 var FAN_QINGLONGQIDUI int32 = 5 //清龙七对
 
 //加番
-var FAN_ZIMO int32 = 1 //自摸
-var FAN_MENQ_ZHONGZ int32 = 1 //门清中张
-var FAN_GANGSHANGHUA int32 = 1 //杠上花
-var FAN_GANGSHANGPAO int32 = 1 //杠上炮
-var FAN_HD_HUA int32 = 1 //海底花
-var FAN_HD_PAO int32 = 1 //海底炮
-var FAN_QIANGGANG int32 = 1 //抢杠
-var FAN_HD_GANGSHANGHUA int32 = 1 //海底杠上花
-var FAN_HD_GANGSHANGPAO int32 = 2 //海底杠上炮
+var FAN_ZIMO		int32	= 1 //自摸
+var FAN_JINGOUDIAO	int32	= 1 //金钩钓
+var FAN_MENQ_ZHONGZ	int32	= 1 //门清中张
+var FAN_GANGSHANGHUA	int32	= 1 //杠上花
+var FAN_GANGSHANGPAO	int32	= 1 //杠上炮
+var FAN_HD_HUA		int32	= 1 //海底花
+var FAN_HD_PAO		int32	= 1 //海底炮
+var FAN_QIANGGANG	int32	= 1 //抢杠
+var FAN_HD_GANGSHANGHUA	int32	= 1 //海底杠上花
+var FAN_HD_GANGSHANGPAO	int32	= 2 //海底杠上炮
 
-//var FAN_TOP		int32	= 5 //顶番
+var FAN_TOP		int32	= 5 //顶番
 
 //初始化麻将牌
 func init() {
@@ -324,6 +325,42 @@ func GettPaiStats(pais []*MJPai) []int {
 	return counts
 }
 
+
+
+func GetPaisByCounts(counts []int) []*MJPai {
+	//pai := new(MJPai)
+	//clienId := pai.GetClientId() //
+	//
+	//clienId -1 = index//
+	//
+	//for i := 0; i < len(counts); i++ {
+	//	switch  {
+	//	case i >= 0 && i <= 8 :
+	//
+	//	case i >= 9 && i <= 17 :
+	//	case i < 18 :
+	//	default:
+	//
+	//	}
+	//}
+	return nil
+}
+
+//从pais数组里删除一张pos位置的pai 注 pos是索引值 使用覆盖的方式
+func removePaiFromPais(pais []*MJPai, pos int) []*MJPai {
+	pais[pos] = pais[len(pais)-1]
+	return pais[:len(pais)-1]
+}
+
+
+//将一张pai插入到指定pos的pais数组里去
+func addPaiIntoPais(pai *MJPai, pais []*MJPai, pos int) []*MJPai {
+	tail := pais[pos:]
+	pais = append(pais[:pos], pai)
+	pais = append(pais, tail...)
+	return pais
+}
+
 func is19(val int) bool {
 	return (val % 9 == 0) || (val % 9 == 8)
 }
@@ -455,7 +492,6 @@ func tryHU(count []int, len int) (result bool, isAll19 bool) {
 	return false, isAll19
 }
 
-//这张pai能不能胡
 
 func CanHuPai(handPai *MJHandPai) (bool, bool) {
 	//在所有的牌中增加 pai,判断此牌是否能和
@@ -484,7 +520,7 @@ func CanHuPai(handPai *MJHandPai) (bool, bool) {
 	return canHu, isAll19
 }
 
-func GetHuScore(handPai *MJHandPai, isZimo bool, is19 bool, extraAct HuPaiType, roomInfo RoomTypeInfo) (fan int32, score int64, huCardStr[] string) {
+func GetHuScore(handPai *MJHandPai, isZimo bool, is19 bool, extraAct HuPaiType, roomInfo RoomTypeInfo, mjDesk *MjDesk) (fan int32, score int64, huCardStr[] string) {
 
 	log.T("pai: %v", handPai.GetDes(), handPai.InPai.LogDes())
 
@@ -492,7 +528,7 @@ func GetHuScore(handPai *MJHandPai, isZimo bool, is19 bool, extraAct HuPaiType, 
 	score = int64(*roomInfo.BaseValue)
 
 	//取得番数
-	huFan, huCardStr := getHuFan(handPai, isZimo, is19, extraAct, roomInfo)
+	huFan, huCardStr := getHuFan(handPai, isZimo, is19, extraAct, mjDesk)
 
 	for i := int32(0); i < huFan; i++ {
 		score *= 2
@@ -501,7 +537,7 @@ func GetHuScore(handPai *MJHandPai, isZimo bool, is19 bool, extraAct HuPaiType, 
 	log.T("胡[%d]番 (%v)", huFan, huCardStr)
 
 	if isZimo {
-		if MJOption(*roomInfo.PlayOptions.ZiMoRadio) == MJOption_ZIMO_JIA_DI {
+		if mjDesk.IsNeedZiMoJiaDi() {
 			//自摸加底
 			score += *roomInfo.BaseValue
 		}
@@ -545,7 +581,7 @@ func getGou(handPai *MJHandPai, handCounts[] int) (gou int32) {
 // 返回胡牌番数
 // extraAct:指定HuPaiType.H_GangShangHua(杠上花/炮,海底等)
 //
-func getHuFan(handPai *MJHandPai, isZimo bool, is19 bool, extraAct HuPaiType, roomInfo RoomTypeInfo) (fan int32, huCardStr[] string) {
+func getHuFan(handPai *MJHandPai, isZimo bool, is19 bool, extraAct HuPaiType, mjDesk *MjDesk) (fan int32, huCardStr[] string) {
 	fan = int32(0)
 	pais := []*MJPai{}
 	pais = append(pais, handPai.Pais...)
@@ -610,8 +646,7 @@ func getHuFan(handPai *MJHandPai, isZimo bool, is19 bool, extraAct HuPaiType, ro
 			log.T("是清对")
 			fan = FAN_QINGDUI
 			huCardStr = append(huCardStr, "清对")
-		} else if IsOpenRoomOption(roomInfo.PlayOptions.OthersCheckBox, MJOption_YAOJIU_JIANGDUI) {
-			//将对选项开启
+		}else if mjDesk.IsNeedYaojiuJiangdui() { //将对选项开启
 			log.T("是将对")
 			if IsJiangDui(handPai) {
 				fan = FAN_DADUIZI
@@ -639,18 +674,23 @@ func getHuFan(handPai *MJHandPai, isZimo bool, is19 bool, extraAct HuPaiType, ro
 		}
 	}
 
+	//TODO MJOption_JIANGOUDIAO
+	//if IsOpenRoomOption(roomInfo.PlayOptions.OthersCheckBox, MJOption_JINGOUDIAO) { //金钩钓
+	//	if IsJingGouDiao(handCounts) {
+	//		fan += FAN_JINGOUDIAO
+	//		huCardStr = append(huCardStr, "金钩钓")
+	//	}
+	//}
+
 	//附加选项
-	if IsOpenRoomOption(roomInfo.PlayOptions.OthersCheckBox, MJOption_YAOJIU_JIANGDUI) {
-		//带幺九选项开启
-		if is19 && IsPengGang19(handPai) {
-			//手牌带幺九 且 碰杠牌带幺九
+	if mjDesk.IsNeedYaojiuJiangdui() { //带幺九选项开启
+		if is19 && IsPengGang19(handPai) { //手牌带幺九 且 碰杠牌带幺九
 			fan += FAN_DAIYAOJIU
 			huCardStr = append(huCardStr, "带幺九")
 		}
 	}
 
-	if IsOpenRoomOption(roomInfo.PlayOptions.OthersCheckBox, MJOption_MENQING_MID_CARD) {
-		//门清中张选项开启
+	if mjDesk.IsNeedMenqingZhongzhang() { //门清中张选项开启
 		if IsMenqing(handPai) {
 			fan += FAN_MENQ_ZHONGZ
 			huCardStr = append(huCardStr, "门清")
@@ -661,10 +701,10 @@ func getHuFan(handPai *MJHandPai, isZimo bool, is19 bool, extraAct HuPaiType, ro
 		}
 	}
 	isTianDiHuFlag := false //天地胡选项 避免多次搜索
-	if IsOpenRoomOption(roomInfo.PlayOptions.OthersCheckBox, MJOption_TIAN_DI_HU) {
-		//天地胡选项开启
+	if mjDesk.IsNeedMenqingZhongzhang() { //天地胡选项开启
 		isTianDiHuFlag = true
 	}
+
 	switch HuPaiType(extraAct) {
 
 	//天地胡为牌型番数，非加番
@@ -713,9 +753,9 @@ func getHuFan(handPai *MJHandPai, isZimo bool, is19 bool, extraAct HuPaiType, ro
 
 	//自摸
 	if isZimo {
-		if MJOption(*roomInfo.PlayOptions.ZiMoRadio) == MJOption_ZIMO_JIA_FAN {
+		if mjDesk.IsNeedZiMoJiaFan() {
 			fan += FAN_ZIMO
-		} else if MJOption(*roomInfo.PlayOptions.ZiMoRadio) == MJOption_ZIMO_JIA_DI {
+		} else if mjDesk.IsNeedZiMoJiaDi() {
 			//result += di
 		}
 		huCardStr = append(huCardStr, "自摸")
@@ -734,9 +774,9 @@ func getHuFan(handPai *MJHandPai, isZimo bool, is19 bool, extraAct HuPaiType, ro
 	}
 
 	//顶番
-	//if fan > FAN_TOP {
-	//	fan = FAN_TOP
-	//}
+	if fan > FAN_TOP {
+		fan = FAN_TOP
+	}
 
 	return fan, huCardStr
 }
@@ -807,6 +847,7 @@ func CanGangPai(pai *MJPai, handPai *MJHandPai) (canGang bool, gangPais []*MJPai
 	return canGang, gangPais
 }
 
+
 func IsPengGang19(handPai *MJHandPai) bool {
 	pengPais := handPai.PengPais
 	gangPais := handPai.GangPais
@@ -826,6 +867,22 @@ func IsPengGang19(handPai *MJHandPai) bool {
 				return false
 			}
 		}
+	}
+	return true
+}
+
+//金钩钓牌型判断 手牌只有一对
+func IsJingGouDiao(handCounts []int) bool {
+	var count int = 0
+	for i := 0; i < len(handCounts); i++ {
+		if handCounts[i] != 2 {
+			return false
+		}else {
+			count++
+		}
+	}
+	if count != 1 {
+		return false
 	}
 	return true
 }
@@ -1017,7 +1074,6 @@ func (p *MJPai) InitByDes() error {
 	*p.Value = int32(numUtils.String2Int(sarry[1]))
 	return nil
 }
-
 
 //洗牌的算法,这里可以得到一副洗好的麻将
 func XiPai() []*MJPai {
