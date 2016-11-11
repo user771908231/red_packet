@@ -40,7 +40,6 @@ func (room *DdzRoom) CreateDesk() *DdzDesk {
 }
 
 
-
 //得到一个roomKey
 func (r *DdzRoom) NewRoomKey() string {
 	a := utils.Rand(100000, 1000000)

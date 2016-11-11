@@ -215,7 +215,7 @@ func HandlerGame_DingQue(m *mjProto.Game_DingQue, a gate.Agent) {
 		bankUser := desk.GetBankerUser()
 
 		overTurn := desk.GetMoPaiOverTurn(bankUser, true)        //定缺完了之后，庄摸牌
-		overTurn.JiaoInfos = desk.GetJiaoInfos(bankUser)
+		//overTurn.JiaoInfos = desk.GetJiaoInfos(bankUser)
 
 		bankUser.SendOverTurn(overTurn)
 
