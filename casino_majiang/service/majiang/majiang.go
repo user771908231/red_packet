@@ -1242,7 +1242,10 @@ func GetJiaoPais(pais []*MJPai) []*MJPai {
 }
 
 func CanHuByPais(handPais []*MJPai, huPai *MJPai) (bool, bool) {
-	pais := append(handPais, huPai)
+	var pais []*MJPai
+	pais = append(pais, handPais...)
+	pais = append(pais, huPai)
+
 	counts := GettPaiStats(pais)
 	//七对 龙七对牌型 不带幺九
 	canHu, isAll19 := tryHU7(pais, counts)

@@ -96,6 +96,7 @@ func (r *MjRoom) CreateDesk(m *mjproto.Game_CreateRoom) *MjDesk {
 	*desk.ActType = MJDESK_ACT_TYPE_MOPAI
 	//*desk.BeginTime	//游戏开始时间...
 	//*desk.EndTime		//游戏结束时间...
+	*desk.NInitActionTime = 30        // 游戏操作的时间
 
 	//把创建的desk加入到room中
 	r.AddDesk(desk)
