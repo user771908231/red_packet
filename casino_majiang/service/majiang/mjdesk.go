@@ -265,7 +265,7 @@ func (d *MjDesk) GetDeskGameInfo() *mjproto.DeskGameInfo {
 	*deskInfo.Banker = d.GetBanker()
 	//deskInfo.NRebuyCount
 	//deskInfo.InitRoomCoin
-	//deskInfo.NInitActionTime
+	*deskInfo.NInitActionTime = d.GetNInitActionTime()
 	//deskInfo.NInitDelayTime
 	*deskInfo.ActiveUserId = d.GetActiveUser()
 	*deskInfo.RemainCards = d.GetRemainPaiCount()
