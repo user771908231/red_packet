@@ -107,6 +107,7 @@ message game_AckActPeng {
     repeated CardInfo pengCard = 2; //广播碰的哪几张牌
     optional uint32 userIdOut = 3; //出牌的人
     optional uint32 userIdIn = 4; //碰牌的人
+    repeated JiaoInfo  jiaoInfos = 5; //碰牌后，可以胡牌的信息
 }
 
 // 杠牌
