@@ -1381,6 +1381,7 @@ func (d *MjDesk) ActPeng(userId uint32) error {
 
 	//5,发送碰牌的广播
 	ack := newProto.NewGame_AckActPeng()
+	ack.JiaoInfos = d.GetJiaoInfos(user)
 	*ack.Header.Code = intCons.ACK_RESULT_SUCC
 	*ack.UserIdOut = d.CheckCase.GetUserIdOut()
 	*ack.UserIdIn = user.GetUserId()

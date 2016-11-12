@@ -499,8 +499,12 @@ func tryHU(count []int, len int) (result bool, isAll19 bool) {
 func CanHuPai(handPai *MJHandPai) (bool, bool) {
 	//在所有的牌中增加 pai,判断此牌是否能和
 	pais := []*MJPai{}
-	pais = append(pais, handPai.Pais...)
-	pais = append(pais, handPai.InPai)
+	if handPai.InPai != nil {
+		pais = append(pais, handPai.InPai)
+	}
+	if handPai.Pais != nil {
+		pais = append(pais, handPai.Pais...)
+	}
 
 	counts := GettPaiStats(pais)
 
