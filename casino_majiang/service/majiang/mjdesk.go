@@ -1012,35 +1012,45 @@ func (d *MjDesk) GetJiaoInfos(user *MjUser) []*mjproto.JiaoInfo {
 	//	PaiInfos         []*JiaoPaiInfo `protobuf:"bytes,2,rep,name=paiInfos" json:"paiInfos,omitempty"`
 	//	XXX_unrecognized []byte         `json:"-"`
 	//}
-	jiaoInfo := NewJiaoInfo()
-	jiaoPaiInfo := NewJiaoPaiInfo()
+
 
 	handPai := NewMJHandPai()
 	var canHu, is19 bool
 
-	for i := 0; i < len(userPais); i++ {
-		userForPais := make([]*MJPai, len(userPais))
-		copy(userForPais, userPais)
+	userForPais := make([]*MJPai, len(userPais))
+	copy(userForPais, userPais)
 
+	handPai.GangPais = userHandPai.GangPais
+	handPai.PengPais = userHandPai.PengPais
+
+	for i := 0; i < len(userPais); i++ {
 		//遍历用户手牌
 
 		//从用户手牌中移除当前遍历的元素
 		removedPai := userForPais[i]
-		log.T("removedPai is : %v", removedPai.GetDes())
-		userPais = removePaiFromPais(userForPais, i)
-		log.T("after remove user pais is:%v", userForPais)
+		//log.T("removedPai is : %v", removedPai.GetDes())
+		userForPais = removePaiFromPais(userForPais, i)
+		//log.T("after remove user pais is:%v", userForPais)
+
+		//copy(handPai.Pais, userForPais)
 		handPai.Pais = userForPais
-		handPai.GangPais = userHandPai.GangPais
-		handPai.PengPais = userHandPai.PengPais
+		jiaoInfo := NewJiaoInfo()
 
 		//GetJiaoPais()
 		for l := 0; l < len(mjpaiMap); l += 4 {
+
 			//遍历未知牌
 			//将遍历到的未知牌与用户手牌组合成handPai 去canhu
-			//TODO 定缺花色不用循环
 			mjPai := InitMjPaiByIndex(l)
+
+			//定缺花色不用循环
+			if user.GetGameData().GetHandPai().GetQueFlower() == mjPai.GetFlower() {
+				//log.T("is ding que continue")
+				continue
+			}
 			mjPaiLeftCount := int32(d.GetLeftPaiCount(user, mjPai)) //该可胡牌在桌面中的剩余数量 注 对于自己而言的剩余
 			if mjPaiLeftCount == 0 {
+				//log.T("left pai count is 0 continue")
 				//剩余数为零不用循环
 				continue
 			}
@@ -1054,29 +1064,34 @@ func (d *MjDesk) GetJiaoInfos(user *MjUser) []*mjproto.JiaoInfo {
 			if canHu {
 				log.T("可胡")
 				//可胡
+				jiaoPaiInfo := NewJiaoPaiInfo()
 
 				//计算番数得分胡牌类型
 				fan, _, _ := GetHuScore(handPai, false, is19, 0, *d.GetRoomTypeInfo(), d)
-				log.T("番数%v", fan)
+				log.T("胡的番数%v", fan)
 				//可胡牌的信息
 				jiaoPaiInfo.HuCard = mjPai.GetCardInfo()
 				*jiaoPaiInfo.Fan = fan //可胡番数
 				*jiaoPaiInfo.Count = mjPaiLeftCount
-				log.T("该牌剩余%v张", *jiaoPaiInfo.Count)
+				log.T("可胡%v, 牌剩余%v张", mjPai.GetDes(), *jiaoPaiInfo.Count)
 				//打出去的牌信息
 				jiaoInfo.OutCard = removedPai.GetCardInfo() //当前打出去的牌
 
-				jiaoInfo.PaiInfos = append(jiaoInfo.PaiInfos, jiaoPaiInfo)
-				log.T("可以胡 且 jiaoInfo is %v", jiaoInfo)
+				if jiaoPaiInfo != nil {
+					jiaoInfo.PaiInfos = append(jiaoInfo.PaiInfos, jiaoPaiInfo)
+					//log.T("可以胡 且 jiaoInfo is %v", jiaoInfo)
+				}
 			}
+
 		}
 		userForPais = addPaiIntoPais(removedPai, userForPais, i) //将移除的牌添加回原位置继续遍历
-		log.T("after add user pais is:%v", userPais)
-		if jiaoInfo != nil {
+		//log.T("after add user pais is:%v", userPais)
+		//log.T("after add user for pais is:%v", userForPais)
+		if jiaoInfo.PaiInfos != nil {
 			jiaoInfos = append(jiaoInfos, jiaoInfo)
 		}
 	}
-	log.T("jiaoInfos is %v", jiaoInfos)
+	//log.T("jiaoInfos is %v", jiaoInfos)
 	return jiaoInfos
 }
 
@@ -2210,7 +2225,7 @@ func (d *MjDesk) GetLeftPaiCount(user *MjUser, mjPai *MJPai) int {
 	if count < 0 {
 		count = 0
 	}
-	log.T("leftPaiCount is : %v", count)
+	log.T("leftPai is %v Count is : %v", mjPai.GetDes(), count)
 	return count
 }
 
