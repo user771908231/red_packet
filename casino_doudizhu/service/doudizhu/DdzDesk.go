@@ -42,3 +42,6 @@ func (d *DdzDesk) AddUserBean(user *DdzUser) error {
 	return errors.New("加入失败，没有找到合适的座位...")
 }
 
+
+
+

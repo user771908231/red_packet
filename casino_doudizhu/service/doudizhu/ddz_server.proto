@@ -9,16 +9,46 @@ message PPokerPai {
     optional string name = 5;
 }
 
+//打出去的牌
+message POutPokerPais {
+    optional int32 keyValue = 1; //比较大小的关键值
+    repeated PPokerPai pokerPais = 2; //出的牌
+    optional int32 type = 3; //牌类型,单张，对子，三代一，三代2，炸弹
+    optional bool isBomb = 4; //是否是炸弹
+    optional int32 countDuizi = 5; //对子的个数
+    optional int32 countSanzhang = 6; //三张的个数
+    optional int32 countSizhang = 7; //四张的个数
+    optional int32 countYizhang = 8; //单张的个数
+
+}
+
 //desk
 message PDdzDesk {
     optional int32 deskId = 1;
     optional string key = 2;
     optional int32 userCountLimit = 3; //人数限制
+    repeated PPokerPai allPokerPai = 4; //所有的牌
+    repeated PPokerPai diPokerPai = 5; //所有的牌
+}
+
+//游戏数据
+message PGameData {
+    repeated PPokerPai handPokers = 4; //所有的牌
+    repeated PPokerPai boomPokers = 5; //打出的炸弹 (没有打出的炸弹不会放在这里)
 }
 
 //user
 message PDdzUser {
     optional uint32 userId = 1;
+    optional PGameData gameData = 2; //游戏数据
+    optional int32 status = 3; //用户的游戏状态，本剧斗地主的状态
+
+}
+
+//玩家的session
+message PSession {
+    optional uint32 userId = 1;
+    optional int32 gameStatus = 2; //用户的游戏状态，整个应用中的状态
 
 }
 
