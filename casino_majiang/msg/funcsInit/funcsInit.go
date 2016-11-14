@@ -244,6 +244,7 @@ func NewGame_AckActPeng() *mjProto.Game_AckActPeng {
 	ret.Header = NewHeader()
 	ret.UserIdIn = new(uint32)
 	ret.UserIdOut = new(uint32)
+	ret.JiaoInfos = nil
 	return ret
 }
 

@@ -187,6 +187,16 @@ func (d *MjDesk) getLeaveUserByUserId(userId uint32) *MjUser {
 	return nil
 }
 
+//根据房间类型初始化房间玩家数
+func (d *MjDesk) InitUsers(mjOption mjproto.MJOption) {
+	switch mjOption {
+	case mjproto.MJRoomType_roomType_sanRenLiangFang :
+		d.Users = make([]*MjUser, 3)
+	default :
+		d.Users = make([]*MjUser, 4)
+	}
+}
+
 
 //新增加一个玩家
 func (d *MjDesk) addUser(user *MjUser) error {
@@ -1005,65 +1015,97 @@ func (d *MjDesk) GetJiaoInfos(user *MjUser) []*mjproto.JiaoInfo {
 	var userPais []*MJPai
 	userHandPai := *user.GetGameData().HandPai
 	userPais = append(userPais, userHandPai.Pais...)
-	userPais = append(userPais, userHandPai.InPai)
+	if userHandPai.InPai != nil { //碰牌 无inPai的情况
+		userPais = append(userPais, userHandPai.InPai)
+	}
+
 
 	//type JiaoInfo struct {
 	//	OutCard          *CardInfo      `protobuf:"bytes,1,opt,name=outCard" json:"outCard,omitempty"`
 	//	PaiInfos         []*JiaoPaiInfo `protobuf:"bytes,2,rep,name=paiInfos" json:"paiInfos,omitempty"`
 	//	XXX_unrecognized []byte         `json:"-"`
 	//}
-	var jiaoInfo *mjproto.JiaoInfo
-	var jiaoPaiInfo *mjproto.JiaoPaiInfo
 
-	var handPai *MJHandPai
+
+	handPai := NewMJHandPai()
 	var canHu, is19 bool
+
+	userForPais := make([]*MJPai, len(userPais))
+	copy(userForPais, userPais)
+
+	handPai.GangPais = userHandPai.GangPais
+	handPai.PengPais = userHandPai.PengPais
 
 	for i := 0; i < len(userPais); i++ {
 		//遍历用户手牌
 
 		//从用户手牌中移除当前遍历的元素
-		removedPai := userPais[i]
-		userPais = removePaiFromPais(userPais, i)
+		removedPai := userForPais[i]
+		//log.T("removedPai is : %v", removedPai.GetDes())
+		userForPais = removePaiFromPais(userForPais, i)
+		//log.T("after remove user pais is:%v", userForPais)
 
+		//copy(handPai.Pais, userForPais)
+		handPai.Pais = userForPais
+		jiaoInfo := NewJiaoInfo()
+
+		//GetJiaoPais()
 		for l := 0; l < len(mjpaiMap); l += 4 {
+
 			//遍历未知牌
 			//将遍历到的未知牌与用户手牌组合成handPai 去canhu
-			//TODO 定缺花色不用循环 剩余数为零也不用循环
-			//TODO 根据i去获取一张麻将牌
 			mjPai := InitMjPaiByIndex(l)
 
+			//定缺花色不用循环
+			if user.GetGameData().GetHandPai().GetQueFlower() == mjPai.GetFlower() {
+				//log.T("is ding que continue")
+				continue
+			}
+			mjPaiLeftCount := int32(d.GetLeftPaiCount(user, mjPai)) //该可胡牌在桌面中的剩余数量 注 对于自己而言的剩余
+			if mjPaiLeftCount == 0 {
+				//log.T("left pai count is 0 continue")
+				//剩余数为零不用循环
+				continue
+			}
+			log.T("拿%v尝试胡牌", mjPai.GetDes())
 			handPai.InPai = mjPai
-			handPai.Pais = userPais
-			handPai.GangPais = userHandPai.GangPais
-			handPai.PengPais = userHandPai.PengPais
 
+			log.T("handPai: %v", handPai.GetDes())
+			log.T("inPai: %v", handPai.InPai.GetDes())
 			canHu, is19 = handPai.GetCanHu()
 
 			if canHu {
+				log.T("可胡")
 				//可胡
+				jiaoPaiInfo := NewJiaoPaiInfo()
 
 				//计算番数得分胡牌类型
 				fan, _, _ := GetHuScore(handPai, false, is19, 0, *d.GetRoomTypeInfo(), d)
-
+				log.T("胡的番数%v", fan)
 				//可胡牌的信息
 				jiaoPaiInfo.HuCard = mjPai.GetCardInfo()
 				*jiaoPaiInfo.Fan = fan //可胡番数
-				*jiaoPaiInfo.Count = int32(d.GetLeftPaiCount(user, mjPai))//该可胡牌在桌面中的剩余数量 注 对于自己而言的剩余
-
+				*jiaoPaiInfo.Count = mjPaiLeftCount
+				log.T("可胡%v, 牌剩余%v张", mjPai.GetDes(), *jiaoPaiInfo.Count)
 				//打出去的牌信息
-				jiaoInfo.OutCard = userPais[i].GetCardInfo() //当前打出去的牌
+				jiaoInfo.OutCard = removedPai.GetCardInfo() //当前打出去的牌
 
-				jiaoInfo.PaiInfos = append(jiaoInfo.PaiInfos, jiaoPaiInfo)
+				if jiaoPaiInfo != nil {
+					jiaoInfo.PaiInfos = append(jiaoInfo.PaiInfos, jiaoPaiInfo)
+					//log.T("可以胡 且 jiaoInfo is %v", jiaoInfo)
+				}
 			}
-		}
-		userPais = addPaiIntoPais(removedPai, userPais, i) //将移除的牌添加回原位置继续遍历
 
-		if jiaoInfo != nil {
+		}
+		userForPais = addPaiIntoPais(removedPai, userForPais, i) //将移除的牌添加回原位置继续遍历
+		//log.T("after add user pais is:%v", userPais)
+		//log.T("after add user for pais is:%v", userForPais)
+		if jiaoInfo.PaiInfos != nil {
 			jiaoInfos = append(jiaoInfos, jiaoInfo)
 		}
 	}
-
-	return nil
+	//log.T("jiaoInfos is %v", jiaoInfos)
+	return jiaoInfos
 }
 
 //用户没有叫的处理了
@@ -1352,6 +1394,7 @@ func (d *MjDesk) ActPeng(userId uint32) error {
 
 	//5,发送碰牌的广播
 	ack := newProto.NewGame_AckActPeng()
+	ack.JiaoInfos = d.GetJiaoInfos(user)
 	*ack.Header.Code = intCons.ACK_RESULT_SUCC
 	*ack.UserIdOut = d.CheckCase.GetUserIdOut()
 	*ack.UserIdIn = user.GetUserId()
@@ -1476,6 +1519,11 @@ func (d *MjDesk)ActHu(userId uint32) error {
 	//设置判定牌
 	if checkCase != nil {
 		huUser.GameData.HandPai.InPai = checkCase.CheckMJPai
+	}
+	//判断是否包含缺，如果有缺不能胡牌
+	isContainQue := huUser.GameData.HandPai.IsContainQue(huUser)
+	if isContainQue {
+		return errors.New("有缺，不可以胡牌")
 	}
 	//判断是否可以胡牌，如果不能胡牌直接返回
 	canHu, is19 := huUser.GameData.HandPai.GetCanHu()
@@ -2161,6 +2209,9 @@ func (d *MjDesk) GetMoPaiOverTurn(user *MjUser, isOpen bool) *mjproto.Game_OverT
 		*overTurn.CanGang = false;
 	}
 
+	//
+	overTurn.JiaoInfos = d.GetJiaoInfos(user)
+
 	return overTurn
 }
 
@@ -2181,15 +2232,19 @@ func (d *MjDesk) GetOverTurnByCaseBean(checkPai *MJPai, caseBean *CheckBean, act
 func (d *MjDesk) GetLeftPaiCount(user *MjUser, mjPai *MJPai) int {
 	var count int = 0
 	displayPais := d.GetDisplayPais(user)
-	displayPaiCounts := GettPaiStats(displayPais)
-
-	for i := 0; i < len(displayPaiCounts); i++ {
-		//轮询hiddenPais 计算mjPai的counts
-		count := 4 - displayPaiCounts[i]
-		if count < 0 {
-			count = 0
+	//for i := 0; i < len(displayPais); i++ {
+	//	log.T("用户%v已知的牌是:%v", user.GetUserId(), displayPais[i].GetDes())
+	//}
+	for i := 0; i < len(displayPais); i++ {
+		if (displayPais[i].GetValue() == mjPai.GetValue()) && (displayPais[i].GetFlower() == mjPai.GetFlower()) {
+			count++
 		}
 	}
+	count = 4 - count
+	if count < 0 {
+		count = 0
+	}
+	log.T("leftPai is %v Count is : %v", mjPai.GetDes(), count)
 	return count
 }
 

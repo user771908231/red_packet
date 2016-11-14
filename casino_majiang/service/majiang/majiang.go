@@ -353,10 +353,16 @@ func removePaiFromPais(pais []*MJPai, pos int) []*MJPai {
 
 //将一张pai插入到指定pos的pais数组里去
 func addPaiIntoPais(pai *MJPai, pais []*MJPai, pos int) []*MJPai {
-	tail := pais[pos:]
-	pais = append(pais[:pos], pai)
-	pais = append(pais, tail...)
-	return pais
+	//tail := pais[pos:]
+	//pais = append(pais[:pos], pai)
+	//pais = append(pais, tail...)
+	//return pais
+	tempPais := make([]*MJPai, len(pais) + 1)
+
+	copy(tempPais[:pos], pais[:pos])
+	tempPais[pos] = pai
+	copy(tempPais[pos + 1:], pais[pos:])
+	return tempPais
 }
 
 func is19(val int) bool {
@@ -493,8 +499,12 @@ func tryHU(count []int, len int) (result bool, isAll19 bool) {
 func CanHuPai(handPai *MJHandPai) (bool, bool) {
 	//在所有的牌中增加 pai,判断此牌是否能和
 	pais := []*MJPai{}
-	pais = append(pais, handPai.Pais...)
-	pais = append(pais, handPai.InPai)
+	if handPai.InPai != nil {
+		pais = append(pais, handPai.InPai)
+	}
+	if handPai.Pais != nil {
+		pais = append(pais, handPai.Pais...)
+	}
 
 	counts := GettPaiStats(pais)
 
@@ -832,6 +842,8 @@ func CanGangPai(pai *MJPai, handPai *MJHandPai) (canGang bool, gangPais []*MJPai
 		tempPais[len(handPai.Pais)] = handPai.InPai
 		copy(tempPais[len(handPai.Pais) + 1:], handPai.PengPais)
 
+		//log.T("tempPais[len(handPai.Pais)] is %v", tempPais[len(handPai.Pais)])
+		//log.T("tempPais is %v", tempPais)
 		//counts := GettPaiStats(handPai.Pais)
 		counts := GettPaiStats(tempPais)
 		for _, p := range tempPais {

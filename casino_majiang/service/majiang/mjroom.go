@@ -69,6 +69,7 @@ func (r *MjRoom) CreateDesk(m *mjproto.Game_CreateRoom) *MjDesk {
 	*desk.RoomId = r.GetRoomId()
 	desk.SetStatus(MJDESK_STATUS_CREATED)        //设置为刚刚创建的状态
 	desk.Users = make([]*MjUser, 4)        //人数...通过前端传入的..
+	desk.InitUsers(m.GetRoomTypeInfo().GetMjRoomType()) //根据房间类型初始化房间玩家数
 	*desk.Password = r.RandRoomKey()
 	*desk.Owner = userId        //设置房主
 	*desk.CreateFee = createFee
