@@ -842,6 +842,8 @@ func CanGangPai(pai *MJPai, handPai *MJHandPai) (canGang bool, gangPais []*MJPai
 		tempPais[len(handPai.Pais)] = handPai.InPai
 		copy(tempPais[len(handPai.Pais) + 1:], handPai.PengPais)
 
+		//log.T("tempPais[len(handPai.Pais)] is %v", tempPais[len(handPai.Pais)])
+		//log.T("tempPais is %v", tempPais)
 		//counts := GettPaiStats(handPai.Pais)
 		counts := GettPaiStats(tempPais)
 		for _, p := range tempPais {

@@ -1005,7 +1005,10 @@ func (d *MjDesk) GetJiaoInfos(user *MjUser) []*mjproto.JiaoInfo {
 	var userPais []*MJPai
 	userHandPai := *user.GetGameData().HandPai
 	userPais = append(userPais, userHandPai.Pais...)
-	userPais = append(userPais, userHandPai.InPai)
+	if userHandPai.InPai != nil { //碰牌 无inPai的情况
+		userPais = append(userPais, userHandPai.InPai)
+	}
+
 
 	//type JiaoInfo struct {
 	//	OutCard          *CardInfo      `protobuf:"bytes,1,opt,name=outCard" json:"outCard,omitempty"`
@@ -1506,6 +1509,11 @@ func (d *MjDesk)ActHu(userId uint32) error {
 	//设置判定牌
 	if checkCase != nil {
 		huUser.GameData.HandPai.InPai = checkCase.CheckMJPai
+	}
+	//判断是否包含缺，如果有缺不能胡牌
+	isContainQue := huUser.GameData.HandPai.IsContainQue(huUser)
+	if isContainQue {
+		return errors.New("有缺，不可以胡牌")
 	}
 	//判断是否可以胡牌，如果不能胡牌直接返回
 	canHu, is19 := huUser.GameData.HandPai.GetCanHu()
