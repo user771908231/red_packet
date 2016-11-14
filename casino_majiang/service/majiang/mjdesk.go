@@ -45,6 +45,7 @@ var DINGQUE_SLEEP_DURATION time.Duration = time.Second * 5        //定缺的延
 var SHAIZI_SLEEP_DURATION time.Duration = time.Second * 4        //定缺的延迟
 
 
+
 //判断是不是朋友桌
 func (d *MjDesk) IsFriend() bool {
 	return true
@@ -188,8 +189,8 @@ func (d *MjDesk) getLeaveUserByUserId(userId uint32) *MjUser {
 }
 
 //根据房间类型初始化房间玩家数
-func (d *MjDesk) InitUsers(mjOption  mjproto.MJRoomType) {
-	switch mjOption {
+func (d *MjDesk) InitUsers(mjRoomType mjproto.MJRoomType) {
+	switch mjRoomType {
 	case mjproto.MJRoomType_roomType_sanRenLiangFang :
 		d.Users = make([]*MjUser, 3)
 	default :
@@ -500,6 +501,14 @@ func (d *MjDesk) begin() error {
 			log.E("发送开始换三张的广播的时候出错err[%v]", err)
 			return err
 		}
+	} else if d.IsSanRenLiangFang() {
+		//三人两房 不需要定缺
+		//TODO 服务器模拟定"万"缺
+		err = d.BeginStart()
+		if err != nil {
+			log.E("发送游戏开始的广播的时候出错err[%v]", err)
+			return err
+		}
 	} else {
 		//不用换三张 //直接法开始定缺的广播
 		err := d.beginDingQue()
@@ -510,6 +519,14 @@ func (d *MjDesk) begin() error {
 	}
 
 	return nil
+}
+
+//判断是否是三人两房
+func (d *MjDesk) IsSanRenLiangFang() bool {
+	if mjproto.MJRoomType(d.GetMjRoomType()) == mjproto.MJRoomType_roomType_sanRenLiangFang {
+		return true
+	}
+	return false
 }
 
 //是否需要换三张
@@ -678,6 +695,34 @@ func (d *MjDesk) UpdateUserStatus(status int32) {
 		}
 	}
 
+}
+
+
+
+//游戏正式开始，庄家打牌的广播
+func (d *MjDesk) BeginStart() error {
+	//设置游戏开始的状态
+	d.SetStatus(MJDESK_STATUS_RUNNING)
+	d.UpdateUserStatus(MJUSER_STATUS_GAMING)
+	d.SetActUserAndType(d.GetBanker(), MJDESK_ACT_TYPE_MOPAI)
+
+
+
+	//通知庄家打一张牌,这里初始化信息，这里应该是广播的..
+	//注意是否可以碰，可以杠牌，可以胡牌，只有当时人才能看到，所以广播的和当事人的收到的数据不一样...
+	bankUser := d.GetBankerUser()
+
+	overTurn := d.GetMoPaiOverTurn(bankUser, true)        //定缺完了之后，庄摸牌
+	bankUser.SendOverTurn(overTurn)
+
+	//广播时候的信息
+	overTurn.ActCard = nil
+	*overTurn.CanHu = false
+	*overTurn.CanGang = false
+	*overTurn.CanPeng = false
+	d.BroadCastProtoExclusive(overTurn, d.GetBanker())
+
+	return nil
 }
 
 //开始换三张
@@ -1015,8 +1060,7 @@ func (d *MjDesk) GetJiaoInfos(user *MjUser) []*mjproto.JiaoInfo {
 	var userPais []*MJPai
 	userHandPai := *user.GetGameData().HandPai
 	userPais = append(userPais, userHandPai.Pais...)
-	if userHandPai.InPai != nil {
-		//碰牌 无inPai的情况
+	if userHandPai.InPai != nil { //碰牌 无inPai的情况
 		userPais = append(userPais, userHandPai.InPai)
 	}
 
@@ -1063,26 +1107,32 @@ func (d *MjDesk) GetJiaoInfos(user *MjUser) []*mjproto.JiaoInfo {
 				continue
 			}
 			mjPaiLeftCount := int32(d.GetLeftPaiCount(user, mjPai)) //该可胡牌在桌面中的剩余数量 注 对于自己而言的剩余
-			if mjPaiLeftCount == 0 {
-				//log.T("left pai count is 0 continue")
-				//剩余数为零不用循环
-				continue
-			}
+			//if mjPaiLeftCount == 0 {
+			//	//log.T("left pai count is 0 continue")
+			//	//剩余数为零不用循环
+			//	continue
+			//}
 			log.T("拿%v尝试胡牌", mjPai.GetDes())
 			handPai.InPai = mjPai
 
-			log.T("handPai: %v", handPai.GetDes())
-			log.T("inPai: %v", handPai.InPai.GetDes())
+			//log.T("handPai: %v", handPai.GetDes())
+			//log.T("inPai: %v", handPai.InPai.GetDes())
+			//判断是否包含缺，如果有缺不能胡牌
+			isContainQue := user.GetGameData().GetHandPai().IsContainQue(user)
+			if isContainQue {
+				canHu, is19 = false, false
+			}
+
 			canHu, is19 = handPai.GetCanHu()
 
 			if canHu {
-				log.T("可胡")
+				//log.T("可胡")
 				//可胡
 				jiaoPaiInfo := NewJiaoPaiInfo()
 
 				//计算番数得分胡牌类型
 				fan, _, _ := GetHuScore(handPai, false, is19, 0, *d.GetRoomTypeInfo(), d)
-				log.T("胡的番数%v", fan)
+				//log.T("胡的番数%v", fan)
 				//可胡牌的信息
 				jiaoPaiInfo.HuCard = mjPai.GetCardInfo()
 				*jiaoPaiInfo.Fan = fan //可胡番数
@@ -1105,7 +1155,6 @@ func (d *MjDesk) GetJiaoInfos(user *MjUser) []*mjproto.JiaoInfo {
 			jiaoInfos = append(jiaoInfos, jiaoInfo)
 		}
 	}
-	//log.T("jiaoInfos is %v", jiaoInfos)
 	return jiaoInfos
 }
 
@@ -1521,6 +1570,7 @@ func (d *MjDesk)ActHu(userId uint32) error {
 	if checkCase != nil {
 		huUser.GameData.HandPai.InPai = checkCase.CheckMJPai
 	}
+
 	//判断是否包含缺，如果有缺不能胡牌
 	isContainQue := huUser.GameData.HandPai.IsContainQue(huUser)
 	if isContainQue {

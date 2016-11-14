@@ -201,29 +201,12 @@ func HandlerGame_DingQue(m *mjProto.Game_DingQue, a gate.Agent) {
 
 	//如果所有人都定缺了，那么可以通知庄打牌了..
 	if desk.AllDingQue() {
-		//设置游戏开始的状态
-		desk.SetStatus(majiang.MJDESK_STATUS_RUNNING)
-		desk.UpdateUserStatus(majiang.MJUSER_STATUS_GAMING)
-		desk.SetActUserAndType(desk.GetBanker(), majiang.MJDESK_ACT_TYPE_MOPAI)
-
 		//首先发送定缺结束的广播，然后发送庄家出牌的广播...
 		ques := desk.GetDingQueEndInfo()
 		desk.BroadCastProto(ques)
 
-		//通知庄家打一张牌,这里初始化信息，这里应该是广播的..
-		//注意是否可以碰，可以杠牌，可以胡牌，只有当时人才能看到，所以广播的和当事人的收到的数据不一样...
-		bankUser := desk.GetBankerUser()
-
-		overTurn := desk.GetMoPaiOverTurn(bankUser, true)        //定缺完了之后，庄摸牌
-		bankUser.SendOverTurn(overTurn)
-
-		//广播时候的信息
-		overTurn.ActCard = nil
-		*overTurn.CanHu = false
-		*overTurn.CanGang = false
-		*overTurn.CanPeng = false
-		desk.BroadCastProtoExclusive(overTurn, desk.GetBanker())
-
+		//游戏开始 庄家打牌
+		desk.BeginStart()
 	}
 
 }
