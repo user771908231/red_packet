@@ -52,7 +52,8 @@ func (out *POutPokerPais) init() error {
 
 	//2，通过牌来进行初始化
 	out.sortPais()        //首先对牌进行排序
-	out.Type = out.initType()        //初始化类型
+	out.initTypeAndKeyValue()        //初始化类型和比较值
+
 
 	return nil
 }
@@ -97,7 +98,7 @@ func (out *POutPokerPais) sortPais() error {
 
 
 //初始化类型
-func (out *POutPokerPais) initType() int32 {
+func (out *POutPokerPais) initTypeAndKeyValue() error {
 	//统计数据
 	counts := make([]int32, 15)
 	for _, pai := range out.PokerPais {
@@ -184,14 +185,17 @@ func (out *POutPokerPais) initType() int32 {
 	//判断是否是单张
 	if out.getPaiCount() == 1 {
 		//out.Type = 单张
+		*out.KeyValue = out.GetPokerPais()[0].GetValue()
 	} else if out.getPaiCount() == 2 {
 		if out.GetCountDuizi() == 1 {
 			//这里需要判断是否是王炸
 			if out.GetPokerPais()[0].GetValue() == -1 {
 				//判断是否是王炸
 				//out.Type = 炸弹
+				*out.KeyValue = out.GetPokerPais()[0].GetValue()
 			} else {
 				//out.Type = 对子
+				*out.KeyValue = out.GetPokerPais()[0].GetValue()
 			}
 		} else {
 			//error
@@ -199,22 +203,28 @@ func (out *POutPokerPais) initType() int32 {
 	} else if out.getPaiCount() == 3 {
 		if out.GetCountSanzhang() == 1 {
 			//out.Type == 三张
+			*out.KeyValue = countsSanzhang[0]
 		} else {
 			//error
 		}
 	} else if out.getPaiCount() == 4 {
 		if out.GetCountSizhang() == 1 {
 			//out.Type == 炸弹
+			*out.KeyValue = out.GetPokerPais()[0].GetValue()
 		} else if out.GetCountSanzhang() == 1 && out.GetCountYizhang() == 1 {
 			//out.Type == 三带一
+			*out.KeyValue = countsSanzhang[0]
+
 		} else {
 			//	error
 		}
 	} else if out.getPaiCount() == 5 {
 		if isShunZi {
 			//out.Type == 顺子
+			*out.KeyValue = out.GetPokerPais()[0].GetValue()
 		} else if out.GetCountSanzhang() == 1 && out.GetCountDuizi() == 1 {
 			//out.Type == 三带二
+			*out.KeyValue = countsSanzhang[0]
 		} else {
 			//error
 		}
@@ -231,8 +241,10 @@ func (out *POutPokerPais) initType() int32 {
 	} else if out.getPaiCount() == 8 {
 		if isShunZi {
 			//out.Type == 顺子
+			*out.KeyValue = out.GetPokerPais()[0].GetValue()
 		} else if out.GetCountSizhang() == 1 && out.GetCountDuizi() == 2 {
 			//out.Type == 四带两队
+			*out.KeyValue = countsSizhang[0]
 		} else {
 			//error
 		}
@@ -240,20 +252,18 @@ func (out *POutPokerPais) initType() int32 {
 	} else {
 		if isShunZi {
 			//out.Type == 顺子
+			*out.KeyValue = out.GetPokerPais()[0].GetValue()
 		} else if isFeiji {
 			//out.Type == 飞机
+			*out.KeyValue = out.GetPokerPais()[0].GetValue()
 		} else if isFeijiChibang {
 			//out.Type = 飞机带翅膀
+			*out.KeyValue = countsSanzhang[0]
 		} else if isLianDui {
 			//out.Type = 连队
+			*out.KeyValue = out.GetPokerPais()[0].GetValue()
 		}
-
-		//双飞 三代一
 	}
-	return 0;
-}
 
-//初始化比较值
-func (out *POutPokerPais) initKeyValue() int32 {
-	return 0;
+	return nil;
 }
