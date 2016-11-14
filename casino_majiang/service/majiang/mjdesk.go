@@ -187,6 +187,16 @@ func (d *MjDesk) getLeaveUserByUserId(userId uint32) *MjUser {
 	return nil
 }
 
+//根据房间类型初始化房间玩家数
+func (d *MjDesk) InitUsers(mjOption mjproto.MJOption) {
+	switch mjOption {
+	case mjproto.MJRoomType_roomType_sanRenLiangFang :
+		d.Users = make([]*MjUser, 3)
+	default :
+		d.Users = make([]*MjUser, 4)
+	}
+}
+
 
 //新增加一个玩家
 func (d *MjDesk) addUser(user *MjUser) error {
