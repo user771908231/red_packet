@@ -24,6 +24,7 @@ func (d *DdzDesk) Begin() error {
 
 	//开始抢地主
 
+
 	return nil
 }
 
@@ -45,5 +46,22 @@ func (d *DdzDesk) Lottery() {
 
 //牌局结束
 func (d *DdzDesk) DoEnd() {
+
+}
+
+//初始化每个人的牌
+func (d *DdzDesk) InitCards() {
+	//获得一副洗好的牌
+	d.AllPokerPai = XiPai()                //获得洗好的一副扑克牌
+
+	//为每个人分配牌
+	for i, user := range d.Users {
+		user.GameData.HandPokers = make([]*PPokerPai, 17)        //这里的17暂时写死...
+		copy(user.GameData.HandPokers, d.AllPokerPai[(i - 1) * 17:i * 17])
+	}
+
+	//底牌
+	d.DiPokerPai = make([]*PPokerPai, 3)
+	copy(d.DiPokerPai, d.AllPokerPai[54 - 3:54])
 
 }
