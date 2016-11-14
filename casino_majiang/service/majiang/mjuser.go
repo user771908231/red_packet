@@ -687,3 +687,10 @@ func (u *MjUser) AfterGangEqualJiaoPai(beforJiaoPais []*MJPai, gangPai *MJPai) b
 
 	return true;
 }
+
+func (u *MjUser) IsQuePai(mjPai *MJPai) bool {
+	if u.GetGameData().GetHandPai().GetQueFlower() == mjPai.GetFlower() {
+		return true
+	}
+	return  false
+}

@@ -198,3 +198,20 @@ func NewGuoHuInfo() *GuoHuInfo {
 	ret.SendUserId = new(uint32)
 	return ret
 }
+
+//生成一个叫的info
+func NewJiaoInfo() *mjproto.JiaoInfo {
+	ret := &mjproto.JiaoInfo{}
+	ret.OutCard = newProto.NewCardInfo()
+	ret.PaiInfos = nil
+	return ret
+}
+
+//生成一个叫牌的info
+func NewJiaoPaiInfo() *mjproto.JiaoPaiInfo {
+	ret := &mjproto.JiaoPaiInfo{}
+	ret.HuCard = newProto.NewCardInfo()
+	ret.Count = new(int32)
+	ret.Fan = new(int32)
+	return ret
+}

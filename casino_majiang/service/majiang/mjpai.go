@@ -38,6 +38,32 @@ func ( p *MJPai) LogDes() string {
 }
 
 
+func (p *MJHandPai) IsContainQue(user *MjUser) bool {
+	if p.InPai != nil {
+		return user.IsQuePai(p.InPai)
+	}
+	for i := 0; i < len(p.Pais); i++ {
+		if user.IsQuePai(p.InPai) {
+			return true
+		}
+	}
+	if p.PengPais != nil {
+		for i := 0; i < len(p.PengPais); i++ {
+			if user.IsQuePai(p.PengPais[i]) {
+				return true
+			}
+		}
+	}
+	if p.GangPais != nil {
+		for i := 0; i < len(p.GangPais); i++ {
+			if user.IsQuePai(p.GangPais[i]) {
+				return true
+			}
+		}
+	}
+	return false
+}
+
 //是否可以胡牌
 func (p *MJHandPai) GetCanHu() (bool,bool) {
 	return CanHuPai(p)
