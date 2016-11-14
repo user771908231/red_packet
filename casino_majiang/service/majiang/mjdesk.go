@@ -188,7 +188,7 @@ func (d *MjDesk) getLeaveUserByUserId(userId uint32) *MjUser {
 }
 
 //根据房间类型初始化房间玩家数
-func (d *MjDesk) InitUsers(mjOption mjproto.MJOption) {
+func (d *MjDesk) InitUsers(mjOption  mjproto.MJRoomType) {
 	switch mjOption {
 	case mjproto.MJRoomType_roomType_sanRenLiangFang :
 		d.Users = make([]*MjUser, 3)
@@ -1015,7 +1015,8 @@ func (d *MjDesk) GetJiaoInfos(user *MjUser) []*mjproto.JiaoInfo {
 	var userPais []*MJPai
 	userHandPai := *user.GetGameData().HandPai
 	userPais = append(userPais, userHandPai.Pais...)
-	if userHandPai.InPai != nil { //碰牌 无inPai的情况
+	if userHandPai.InPai != nil {
+		//碰牌 无inPai的情况
 		userPais = append(userPais, userHandPai.InPai)
 	}
 
