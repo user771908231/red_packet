@@ -68,7 +68,6 @@ func (r *MjRoom) CreateDesk(m *mjproto.Game_CreateRoom) *MjDesk {
 	*desk.DeskId, _ = db.GetNextSeq(config.DBT_MJ_DESK)
 	*desk.RoomId = r.GetRoomId()
 	desk.SetStatus(MJDESK_STATUS_CREATED)        //设置为刚刚创建的状态
-	desk.Users = make([]*MjUser, 4)        //人数...通过前端传入的..
 	desk.InitUsers(m.GetRoomTypeInfo().GetMjRoomType()) //根据房间类型初始化房间玩家数
 	*desk.Password = r.RandRoomKey()
 	*desk.Owner = userId        //设置房主
@@ -120,7 +119,6 @@ func (r *MjRoom) RandRoomKey() string {
 	}
 	return ""
 }
-
 
 //判断roomkey是否已经存在了
 func (r *MjRoom) IsRoomKeyExist(roomkey string) bool {

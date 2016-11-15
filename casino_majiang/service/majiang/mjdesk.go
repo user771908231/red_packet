@@ -45,6 +45,7 @@ var DINGQUE_SLEEP_DURATION time.Duration = time.Second * 5        //定缺的延
 var SHAIZI_SLEEP_DURATION time.Duration = time.Second * 4        //定缺的延迟
 
 
+
 //判断是不是朋友桌
 func (d *MjDesk) IsFriend() bool {
 	return true
@@ -188,8 +189,8 @@ func (d *MjDesk) getLeaveUserByUserId(userId uint32) *MjUser {
 }
 
 //根据房间类型初始化房间玩家数
-func (d *MjDesk) InitUsers(mjOption  mjproto.MJRoomType) {
-	switch mjOption {
+func (d *MjDesk) InitUsers(mjRoomType mjproto.MJRoomType) {
+	switch mjRoomType {
 	case mjproto.MJRoomType_roomType_sanRenLiangFang :
 		d.Users = make([]*MjUser, 3)
 	default :
@@ -500,6 +501,14 @@ func (d *MjDesk) begin() error {
 			log.E("发送开始换三张的广播的时候出错err[%v]", err)
 			return err
 		}
+	} else if d.IsSanRenLiangFang() {
+		//三人两房 不需要定缺
+		//TODO 服务器模拟定"万"缺
+		err = d.BeginStart()
+		if err != nil {
+			log.E("发送游戏开始的广播的时候出错err[%v]", err)
+			return err
+		}
 	} else {
 		//不用换三张 //直接法开始定缺的广播
 		err := d.beginDingQue()
@@ -510,6 +519,14 @@ func (d *MjDesk) begin() error {
 	}
 
 	return nil
+}
+
+//判断是否是三人两房
+func (d *MjDesk) IsSanRenLiangFang() bool {
+	if mjproto.MJRoomType(d.GetMjRoomType()) == mjproto.MJRoomType_roomType_sanRenLiangFang {
+		return true
+	}
+	return false
 }
 
 //是否需要换三张
@@ -594,15 +611,18 @@ func (d *MjDesk) AddCurrPlayCount() {
 	atomic.AddInt32(d.CurrPlayCount, 1)
 }
 
-
 /**
 	初始化牌相关的信息
  */
 func (d *MjDesk) initCards() error {
 	//得到一副已经洗好的麻将
 	d.SetStatus(MJDESK_STATUS_FAPAI)        //发牌的阶段
-	//d.AllMJPai = XiPai()
-	d.AllMJPai = XiPaiTestHu()
+
+	d.AllMJPai = XiPai()
+	if d.IsSanRenLiangFang() {
+
+	}
+	//d.AllMJPai = XiPaiTestHu()
 	//给每个人初始化...
 	for i, u := range d.Users {
 		if u != nil && u.IsReady() {
@@ -678,6 +698,34 @@ func (d *MjDesk) UpdateUserStatus(status int32) {
 		}
 	}
 
+}
+
+
+
+//游戏正式开始，庄家打牌的广播
+func (d *MjDesk) BeginStart() error {
+	//设置游戏开始的状态
+	d.SetStatus(MJDESK_STATUS_RUNNING)
+	d.UpdateUserStatus(MJUSER_STATUS_GAMING)
+	d.SetActUserAndType(d.GetBanker(), MJDESK_ACT_TYPE_MOPAI)
+
+
+
+	//通知庄家打一张牌,这里初始化信息，这里应该是广播的..
+	//注意是否可以碰，可以杠牌，可以胡牌，只有当时人才能看到，所以广播的和当事人的收到的数据不一样...
+	bankUser := d.GetBankerUser()
+
+	overTurn := d.GetMoPaiOverTurn(bankUser, true)        //定缺完了之后，庄摸牌
+	bankUser.SendOverTurn(overTurn)
+
+	//广播时候的信息
+	overTurn.ActCard = nil
+	*overTurn.CanHu = false
+	*overTurn.CanGang = false
+	*overTurn.CanPeng = false
+	d.BroadCastProtoExclusive(overTurn, d.GetBanker())
+
+	return nil
 }
 
 //开始换三张
@@ -1015,8 +1063,7 @@ func (d *MjDesk) GetJiaoInfos(user *MjUser) []*mjproto.JiaoInfo {
 	var userPais []*MJPai
 	userHandPai := *user.GetGameData().HandPai
 	userPais = append(userPais, userHandPai.Pais...)
-	if userHandPai.InPai != nil {
-		//碰牌 无inPai的情况
+	if userHandPai.InPai != nil { //碰牌 无inPai的情况
 		userPais = append(userPais, userHandPai.InPai)
 	}
 
@@ -1043,7 +1090,7 @@ func (d *MjDesk) GetJiaoInfos(user *MjUser) []*mjproto.JiaoInfo {
 		//从用户手牌中移除当前遍历的元素
 		removedPai := userForPais[i]
 		//log.T("removedPai is : %v", removedPai.GetDes())
-		userForPais = removePaiFromPais(userForPais, i)
+		userForPais = removeFromPais(userForPais, i)
 		//log.T("after remove user pais is:%v", userForPais)
 
 		//copy(handPai.Pais, userForPais)
@@ -1073,16 +1120,22 @@ func (d *MjDesk) GetJiaoInfos(user *MjUser) []*mjproto.JiaoInfo {
 
 			//log.T("handPai: %v", handPai.GetDes())
 			//log.T("inPai: %v", handPai.InPai.GetDes())
+			//判断是否包含缺，如果有缺不能胡牌
+			isContainQue := user.GetGameData().GetHandPai().IsContainQue(user)
+			if isContainQue {
+				canHu, is19 = false, false
+			}
+
 			canHu, is19 = handPai.GetCanHu()
 
 			if canHu {
-				log.T("可胡")
+				//log.T("可胡")
 				//可胡
 				jiaoPaiInfo := NewJiaoPaiInfo()
 
 				//计算番数得分胡牌类型
 				fan, _, _ := GetHuScore(handPai, false, is19, 0, *d.GetRoomTypeInfo(), d)
-				log.T("胡的番数%v", fan)
+				//log.T("胡的番数%v", fan)
 				//可胡牌的信息
 				jiaoPaiInfo.HuCard = mjPai.GetCardInfo()
 				*jiaoPaiInfo.Fan = fan //可胡番数
@@ -1105,7 +1158,6 @@ func (d *MjDesk) GetJiaoInfos(user *MjUser) []*mjproto.JiaoInfo {
 			jiaoInfos = append(jiaoInfos, jiaoInfo)
 		}
 	}
-	log.T("玩家[%v]的叫牌infos[%v]", user.GetUserId(), jiaoInfos)
 	return jiaoInfos
 }
 
@@ -1521,6 +1573,7 @@ func (d *MjDesk)ActHu(userId uint32) error {
 	if checkCase != nil {
 		huUser.GameData.HandPai.InPai = checkCase.CheckMJPai
 	}
+
 	//判断是否包含缺，如果有缺不能胡牌
 	isContainQue := huUser.GameData.HandPai.IsContainQue(huUser)
 	if isContainQue {
@@ -1902,8 +1955,8 @@ func (d *MjDesk) DoGangBill(info *GangPaiInfo) {
 		for _, ou := range d.GetUsers() {
 			//不为nil 并且不是本人，并且没有胡牌
 			if ou != nil && ou.GetUserId() != gangUser.GetUserId() && ou.IsGaming() {
-				gangUser.AddBill(ou.GetUserId(), MJUSER_BILL_TYPE_YING_GNAG, "用户暗杠，收入", score, gangPai)        //用户赢钱的账户
-				ou.AddBill(gangUser.GetUserId(), MJUSER_BILL_TYPE_SHU_GNAG, "用户暗杠，输钱", -score, gangPai)        //用户输钱的账单
+				gangUser.AddBill(ou.GetUserId(), MJUSER_BILL_TYPE_YING_AN_GNAG, "用户暗杠，收入", score, gangPai)        //用户赢钱的账户
+				ou.AddBill(gangUser.GetUserId(), MJUSER_BILL_TYPE_SHU_AN_GNAG, "用户暗杠，输钱", -score, gangPai)        //用户输钱的账单
 			}
 		}
 
@@ -1919,8 +1972,8 @@ func (d *MjDesk) DoGangBill(info *GangPaiInfo) {
 		score := d.GetBaseValue()        //巴杠的分数
 		for _, ou := range d.GetUsers() {
 			if ou != nil && ou.GetUserId() != gangUser.GetUserId() && ou.IsGaming() {
-				gangUser.AddBill(ou.GetUserId(), MJUSER_BILL_TYPE_YING_GNAG, "用户巴杠，收入", score, gangPai)        //用户赢钱的账户
-				ou.AddBill(gangUser.GetUserId(), MJUSER_BILL_TYPE_SHU_GNAG, "用户巴杠，输钱", -score, gangPai)        //用户输钱的账单
+				gangUser.AddBill(ou.GetUserId(), MJUSER_BILL_TYPE_YING_BA_GANG, "用户巴杠，收入", score, gangPai)        //用户赢钱的账户
+				ou.AddBill(gangUser.GetUserId(), MJUSER_BILL_TYPE_SHU_BA_GANG, "用户巴杠，输钱", -score, gangPai)        //用户输钱的账单
 
 			}
 		}
@@ -2001,6 +2054,9 @@ func (d *MjDesk) GetWinCoinInfo(user *MjUser) *mjproto.WinCoinInfo {
 //得到这个人的胡牌描述
 func (d *MjDesk) GetCardTitle4WinCoinInfo(user *MjUser) string {
 	var huDesk string = ""                //胡牌的描述...
+	//todo
+	user.GetBill().GetBills()
+	user.GetBill().GetWinAmount()
 	//目前暂时返回hu的信息
 	if user.GameData.HuInfo != nil && len(user.GameData.HuInfo) > 0 {
 		huDesk = user.GameData.HuInfo[0].GetHuDesc()

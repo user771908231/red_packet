@@ -22,11 +22,19 @@ var MJUSER_STATUS_GAMING int32 = 5; ///正在游戏，这里的正在游戏，�
 var MJUSER_STATUS_HUPAI int32 = 6; ///准备游戏
 
 
-var MJUSER_BILL_TYPE_YING_GNAG int32 = 1; //杠牌赢钱
-var MJUSER_BILL_TYPE_SHU_GNAG int32 = 2; //杠牌赢钱
-var MJUSER_BILL_TYPE_YING_HU int32 = 3; //杠牌赢钱
-var MJUSER_BILL_TYPE_SHU_DIANPAO int32 = 4; //杠牌赢钱
-var MJUSER_BILL_TYPE_SHU_ZIMO int32 = 5; //杠牌赢钱
+var MJUSER_BILL_TYPE_YING_GNAG int32 = 1 //杠赢钱
+var MJUSER_BILL_TYPE_SHU_GNAG int32 = 2 //杠输钱
+
+var MJUSER_BILL_TYPE_YING_AN_GNAG int32 = 3 //暗杠赢钱
+var MJUSER_BILL_TYPE_SHU_AN_GNAG int32 = 4 //被暗杠输钱
+
+var MJUSER_BILL_TYPE_YING_BA_GANG int32 = 5 //巴杠赢钱
+var MJUSER_BILL_TYPE_SHU_BA_GANG int32 = 6 //被巴杠输钱
+
+var MJUSER_BILL_TYPE_YING_HU int32 = 7 //自摸赢钱
+var MJUSER_BILL_TYPE_SHU_ZIMO int32 = 8 //自摸输钱
+
+var MJUSER_BILL_TYPE_SHU_DIANPAO int32 = 9 //点炮输钱
 
 
 //麻将玩家

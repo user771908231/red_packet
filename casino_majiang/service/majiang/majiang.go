@@ -7,6 +7,7 @@ import (
 	. "casino_majiang/msg/protogo"
 	"casino_server/common/log"
 	"errors"
+	"fmt"
 )
 
 //得到一副牌...
@@ -345,7 +346,7 @@ func GetPaisByCounts(counts []int) []*MJPai {
 }
 
 //从pais数组里删除一张pos位置的pai 注 pos是索引值 使用覆盖的方式
-func removePaiFromPais(pais []*MJPai, pos int) []*MJPai {
+func removeFromPais(pais []*MJPai, pos int) []*MJPai {
 	pais[pos] = pais[len(pais) - 1]
 	return pais[:len(pais) - 1]
 }
@@ -590,6 +591,12 @@ func getGou(handPai *MJHandPai, handCounts[] int) (gou int32) {
 //
 func getHuFan(handPai *MJHandPai, isZimo bool, is19 bool, extraAct HuPaiType, mjDesk *MjDesk) (fan int32, huCardStr[] string) {
 	fan = int32(0)
+
+	fanXingStr := ""
+	jiaFanStr := ""
+	gouStr := ""
+	//基本番型 勾数 总番型-加番类型(加番数)x出现次数
+
 	pais := []*MJPai{}
 	pais = append(pais, handPai.Pais...)
 	pais = append(pais, handPai.InPai)
@@ -625,12 +632,12 @@ func getHuFan(handPai *MJHandPai, isZimo bool, is19 bool, extraAct HuPaiType, mj
 			//清龙七对
 			log.T("是清龙七对")
 			fan = FAN_QINGLONGQIDUI
-			huCardStr = append(huCardStr, "清龙七对")
+			fanXingStr = "清龙七对"
 		} else {
 			//龙七对
 			log.T("是龙七对")
 			fan = FAN_LONGQIDUI
-			huCardStr = append(huCardStr, "龙七对")
+			fanXingStr = "龙七对"
 		}
 	case IsQiDui(handPai.Pais, handCounts): //case 清七对 将七对 七对
 		log.T("是七对")
@@ -639,12 +646,12 @@ func getHuFan(handPai *MJHandPai, isZimo bool, is19 bool, extraAct HuPaiType, mj
 			//清七对
 			log.T("是清七对")
 			fan = FAN_QINGQIDUI
-			huCardStr = append(huCardStr, "清七对")
+			fanXingStr = "清七对"
 		} else {
 			//七对
 			log.T("是七对")
 			fan = FAN_QIDUI
-			huCardStr = append(huCardStr, "七对")
+			fanXingStr = "七对"
 		}
 	case IsDaDuiZi(pais): //case 清对 将对 大对子
 		log.T("是大对子")
@@ -652,33 +659,31 @@ func getHuFan(handPai *MJHandPai, isZimo bool, is19 bool, extraAct HuPaiType, mj
 			//清对
 			log.T("是清对")
 			fan = FAN_QINGDUI
-			huCardStr = append(huCardStr, "清对")
+			fanXingStr = "清对"
 		} else if mjDesk.IsNeedYaojiuJiangdui() {
 			//将对选项开启
 			log.T("是将对")
 			if IsJiangDui(handPai) {
 				fan = FAN_DADUIZI
-				huCardStr = append(huCardStr, "将对")
+				fanXingStr = "将对"
 			}
 		} else {
 			//大对子
 			log.T("是大对子")
 			fan = FAN_DADUIZI
-			huCardStr = append(huCardStr, "大对子")
+			fanXingStr = "大对子"
 		}
 	default: //default 清一色 平胡
 		if isQingYiSe {
 			//平胡清一色
 			log.T("是清一色")
 			fan = FAN_QINGYISE
-			huCardStr = append(huCardStr, "清一色")
+			fanXingStr = "清一色"
 		} else {
 			//平胡
 			log.T("是平胡")
 			fan = FAN_PINGHU
-			huType := "平胡"
-			huCardStr = append(huCardStr, huType)
-
+			fanXingStr = "平胡"
 		}
 	}
 
@@ -696,7 +701,7 @@ func getHuFan(handPai *MJHandPai, isZimo bool, is19 bool, extraAct HuPaiType, mj
 		if is19 && IsPengGang19(handPai) {
 			//手牌带幺九 且 碰杠牌带幺九
 			fan += FAN_DAIYAOJIU
-			huCardStr = append(huCardStr, "带幺九")
+			jiaFanStr = "带幺九"
 		}
 	}
 
@@ -704,17 +709,29 @@ func getHuFan(handPai *MJHandPai, isZimo bool, is19 bool, extraAct HuPaiType, mj
 		//门清中张选项开启
 		if IsMenqing(handPai) {
 			fan += FAN_MENQ_ZHONGZ
-			huCardStr = append(huCardStr, "门清")
+			jiaFanStr = "门清"
 		}
 		if IsZhongzhang(handPai, handCounts) {
 			fan += FAN_MENQ_ZHONGZ
-			huCardStr = append(huCardStr, "中张")
+			jiaFanStr = "中张"
 		}
 	}
 	isTianDiHuFlag := false //天地胡选项 避免多次搜索
 	if mjDesk.IsNeedMenqingZhongzhang() {
 		//天地胡选项开启
 		isTianDiHuFlag = true
+	}
+
+	//自摸
+	if isZimo {
+		if mjDesk.IsNeedZiMoJiaFan() {
+			fan += FAN_ZIMO
+			jiaFanStr = fmt.Sprint("自摸(+%d番)", FAN_ZIMO)
+		} else if mjDesk.IsNeedZiMoJiaDi() {
+			//result += di
+			jiaFanStr = "自摸"
+		}
+
 	}
 
 	switch HuPaiType(extraAct) {
@@ -724,53 +741,43 @@ func getHuFan(handPai *MJHandPai, isZimo bool, is19 bool, extraAct HuPaiType, mj
 		if isTianDiHuFlag {
 			//天地胡选项开启
 			fan = FAN_TIAN_DI_HU
-			huCardStr = append(huCardStr, "天胡")
+			fanXingStr = "天胡"
 		}
 	case HuPaiType_H_DiHu :
 		if isTianDiHuFlag {
 			//天地胡选项开启
 			fan = FAN_TIAN_DI_HU
-			huCardStr = append(huCardStr, "地胡")
+			fanXingStr = "地胡"
 		}
 
 	case HuPaiType_H_GangShangHua:
 		fan += FAN_GANGSHANGHUA
-		huCardStr = append(huCardStr, "杠上花")
+		jiaFanStr = fmt.Sprint("杠上花(+%d番)", FAN_GANGSHANGHUA)
 
 	case HuPaiType_H_GangShangPao:
 		fan += FAN_GANGSHANGPAO
-		huCardStr = append(huCardStr, "杠上炮")
+		jiaFanStr = fmt.Sprint("杠上炮(+%d番)", FAN_GANGSHANGPAO)
 
 	case HuPaiType_H_HaiDiLao:
 		fan += FAN_HD_HUA
-		huCardStr = append(huCardStr, "海底花")
+		jiaFanStr = fmt.Sprint("海底花(+%d番)", FAN_HD_HUA)
 
 	case HuPaiType_H_HaiDiPao:
 		fan += FAN_HD_PAO
-		huCardStr = append(huCardStr, "海底炮")
+		jiaFanStr = fmt.Sprint("海底炮(+%d番)", FAN_HD_PAO)
 
 	case HuPaiType_H_QiangGang:
 		fan += FAN_QIANGGANG
-		huCardStr = append(huCardStr, "抢杠")
+		jiaFanStr = fmt.Sprint("抢杠(+%d番)", FAN_QIANGGANG)
 
 	case HuPaiType_H_HaidiGangShangHua:
 		fan += FAN_HD_GANGSHANGHUA
-		huCardStr = append(huCardStr, "海底杠上花")
+		jiaFanStr = fmt.Sprint("海底杠上花(+%d番)", FAN_HD_GANGSHANGHUA)
 
 	case HuPaiType_H_HaidiGangShangPao:
 		fan += FAN_HD_GANGSHANGPAO
-		huCardStr = append(huCardStr, "海底杠上炮")
+		jiaFanStr = fmt.Sprint("海底杠上炮(+%d番)", FAN_HD_GANGSHANGPAO)
 	default:
-	}
-
-	//自摸
-	if isZimo {
-		if mjDesk.IsNeedZiMoJiaFan() {
-			fan += FAN_ZIMO
-		} else if mjDesk.IsNeedZiMoJiaDi() {
-			//result += di
-		}
-		huCardStr = append(huCardStr, "自摸")
 	}
 
 	// 计算有几个"勾"
@@ -780,8 +787,9 @@ func getHuFan(handPai *MJHandPai, isZimo bool, is19 bool, extraAct HuPaiType, mj
 
 		fan += gou
 		if gou > 0 {
-			str, _ := numUtils.Int2String(gou)
-			huCardStr = append(huCardStr, "勾X" + str)
+			//str, _ := numUtils.Int2String(gou)
+			//gouStr = append(gouStr, "勾X" + str)
+			gouStr = fmt.Sprint("勾X%d", gou)
 		}
 	}
 
@@ -789,6 +797,13 @@ func getHuFan(handPai *MJHandPai, isZimo bool, is19 bool, extraAct HuPaiType, mj
 	if fan > FAN_TOP {
 		fan = FAN_TOP
 	}
+
+	fanStr := fmt.Sprint("%d番", fan)
+
+	huCardStr = append(huCardStr, fanXingStr)
+	huCardStr = append(huCardStr, gouStr)
+	huCardStr = append(huCardStr, fanStr)
+	huCardStr = append(huCardStr, jiaFanStr)
 
 	return fan, huCardStr
 }
@@ -1086,6 +1101,19 @@ func (p *MJPai) InitByDes() error {
 	//初始化大小
 	*p.Value = int32(numUtils.String2Int(sarry[1]))
 	return nil
+
+}
+
+//过滤一副牌中的某一个花色
+func IgnoreFlower(pais []*MJPai, flower int32) []*MJPai {
+	newPais := []*MJPai{}
+	for i := 0; i < len(pais); i++ {
+		//log.T("IgnoreFlower: pais[%v] is %v, flower is [%v]", i, pais[i].GetDes(), pais[i].GetFlower())
+		if pais[i].GetFlower() != flower { //不是需要过滤的花色 append
+			newPais = append(newPais, pais[i])
+		}
+	}
+	return newPais
 }
 
 //洗牌的算法,这里可以得到一副洗好的麻将
