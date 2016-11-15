@@ -40,10 +40,12 @@ func ( p *MJPai) LogDes() string {
 
 func (p *MJHandPai) IsContainQue(user *MjUser) bool {
 	if p.InPai != nil {
-		return user.IsQuePai(p.InPai)
+		if user.IsQuePai(p.InPai) {
+			return true
+		}
 	}
 	for i := 0; i < len(p.Pais); i++ {
-		if user.IsQuePai(p.InPai) {
+		if user.IsQuePai(p.Pais[i]) {
 			return true
 		}
 	}

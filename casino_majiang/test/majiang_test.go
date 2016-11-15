@@ -5,10 +5,23 @@ import (
 	"casino_majiang/service/majiang"
 	"fmt"
 	"casino_server/utils/numUtils"
+	"casino_server/common/log"
+	"time"
 )
 
 func Test(t *testing.T) {
-	testCanGangPai()
+	//testCanGangPai()
+	testIgnoreFlower()
+	time.Sleep(1000 * 1)
+}
+
+//测试IgnoreFlower
+func testIgnoreFlower() {
+	var handPai *majiang.MJHandPai
+	var pais []*majiang.MJPai
+	handPai = getPinghu()
+	pais = majiang.IgnoreFlower(handPai.Pais, 1)
+	log.T("after ignored pais is %v", pais)
 }
 
 //测试ganGang

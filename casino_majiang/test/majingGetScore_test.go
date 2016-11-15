@@ -64,6 +64,51 @@ func TestGetScore(t *testing.T) {
 	//
 	////测试青龙七对
 	//tQinglongqidui()
+
+	//测试包含缺牌能否胡
+	tIsContainQue()
+
+}
+
+func tIsContainQue() {
+	log.Debug("平胡 is containque [%v]", IsContainQue(getDuiduihu()))
+}
+
+func IsQuePai(mjPai *majiang.MJPai) bool {
+	log.Debug("mjPai's flower is [%v]", mjPai.GetFlower())
+	if majiang.W == mjPai.GetFlower() {
+		return true
+	}
+	return  false
+}
+
+func IsContainQue(p *majiang.MJHandPai) bool {
+	if p.InPai != nil {
+		if IsQuePai(p.InPai) {
+			return true
+		}
+
+	}
+	for i := 0; i < len(p.Pais); i++ {
+		if IsQuePai(p.Pais[i]) {
+			return true
+		}
+	}
+	if p.PengPais != nil {
+		for i := 0; i < len(p.PengPais); i++ {
+			if IsQuePai(p.PengPais[i]) {
+				return true
+			}
+		}
+	}
+	if p.GangPais != nil {
+		for i := 0; i < len(p.GangPais); i++ {
+			if IsQuePai(p.GangPais[i]) {
+				return true
+			}
+		}
+	}
+	return false
 }
 
 //func tZimo1fan() {
@@ -203,7 +248,7 @@ func tCanHuPai() {
 func tPinghu() {
 	isZimo := true
 	var hupaiType mjproto.HuPaiType = 1;
-	rfan, rscore, rhuCardStr := majiang.GetHuScore(getPinghu(), isZimo,false, hupaiType, *getRoomInfo())
+	rfan, rscore, rhuCardStr := majiang.GetHuScore(getPinghu(), isZimo,false, hupaiType, *getRoomInfo(), nil)
 	if rfan != majiang.FAN_PINGHU {
 		log.Debug("error: 平胡")
 	}
@@ -213,7 +258,7 @@ func tPinghu() {
 func tDuiDuihu() {
 	isZimo := true
 	var hupaiType mjproto.HuPaiType = 1;
-	rfan, rscore, rhuCardStr := majiang.GetHuScore(getDuiduihu(), isZimo,false, hupaiType, *getRoomInfo())
+	rfan, rscore, rhuCardStr := majiang.GetHuScore(getDuiduihu(), isZimo,false, hupaiType, *getRoomInfo(), nil)
 	if rfan != majiang.FAN_DADUIZI {
 		log.Debug("error: 对对胡")
 	}
@@ -223,7 +268,7 @@ func tDuiDuihu() {
 func tQingyise() {
 	isZimo := true
 	var hupaiType mjproto.HuPaiType = 1;
-	rfan, rscore, rhuCardStr := majiang.GetHuScore(getQingyise(), isZimo,false, hupaiType, *getRoomInfo())
+	rfan, rscore, rhuCardStr := majiang.GetHuScore(getQingyise(), isZimo,false, hupaiType, *getRoomInfo(), nil)
 	if rfan != majiang.FAN_QINGYISE {
 		log.Debug("error: 清一色")
 	}
@@ -268,7 +313,7 @@ func tDaiyaojiu() {
 func tQidui() {
 	isZimo := true
 	var hupaiType mjproto.HuPaiType = 1;
-	rfan, rscore, rhuCardStr := majiang.GetHuScore(getQidui(), isZimo,false, hupaiType, *getRoomInfo())
+	rfan, rscore, rhuCardStr := majiang.GetHuScore(getQidui(), isZimo,false, hupaiType, *getRoomInfo(), nil)
 	if rfan != majiang.FAN_QIDUI {
 		log.Debug("error: 七对")
 	}
@@ -278,7 +323,7 @@ func tQidui() {
 func tQingdui() {
 	isZimo := true
 	var hupaiType mjproto.HuPaiType = 1;
-	rfan, rscore, rhuCardStr := majiang.GetHuScore(getQingdui(), isZimo,false, hupaiType, *getRoomInfo())
+	rfan, rscore, rhuCardStr := majiang.GetHuScore(getQingdui(), isZimo,false, hupaiType, *getRoomInfo(), nil)
 	if rfan != majiang.FAN_QINGDUI {
 		log.Debug("error: 清对")
 	}
@@ -298,7 +343,7 @@ func tQingdui() {
 func tJiangdui() {
 	isZimo := true
 	var hupaiType mjproto.HuPaiType = 1;
-	rfan, rscore, rhuCardStr := majiang.GetHuScore(getJiangdui(), isZimo,false, hupaiType, *getRoomInfo())
+	rfan, rscore, rhuCardStr := majiang.GetHuScore(getJiangdui(), isZimo,false, hupaiType, *getRoomInfo(), nil)
 	if rfan != majiang.FAN_JIANGDUI {
 		log.Debug("error: 将对")
 	}
@@ -308,7 +353,7 @@ func tJiangdui() {
 func tLongqidui() {
 	isZimo := true
 	var hupaiType mjproto.HuPaiType = 1;
-	rfan, rscore, rhuCardStr := majiang.GetHuScore(getLongqidui(), isZimo,false, hupaiType, *getRoomInfo())
+	rfan, rscore, rhuCardStr := majiang.GetHuScore(getLongqidui(), isZimo,false, hupaiType, *getRoomInfo(), nil)
 	if rfan != majiang.FAN_LONGQIDUI {
 		log.Debug("error: 龙七对")
 	}
@@ -318,7 +363,7 @@ func tLongqidui() {
 func tQingqidui() {
 	isZimo := true
 	var hupaiType mjproto.HuPaiType = 1;
-	rfan, rscore, rhuCardStr := majiang.GetHuScore(getQingqidui(), isZimo,false, hupaiType, *getRoomInfo())
+	rfan, rscore, rhuCardStr := majiang.GetHuScore(getQingqidui(), isZimo,false, hupaiType, *getRoomInfo(), nil)
 	if rfan != majiang.FAN_QINGQIDUI {
 		log.Debug("error: 清七对")
 	}
@@ -328,7 +373,7 @@ func tQingqidui() {
 func tQingyaojiu() {
 	isZimo := true
 	var hupaiType mjproto.HuPaiType = 1;
-	rfan, rscore, rhuCardStr := majiang.GetHuScore(getQingyaojiu(), isZimo,false, hupaiType, *getRoomInfo())
+	rfan, rscore, rhuCardStr := majiang.GetHuScore(getQingyaojiu(), isZimo,false, hupaiType, *getRoomInfo(), nil)
 	if rfan != majiang.FAN_QINGYAOJIU {
 		log.Debug("error: 清幺九")
 	}
@@ -338,7 +383,7 @@ func tQingyaojiu() {
 func tQinglongqidui() {
 	isZimo := true
 	var hupaiType mjproto.HuPaiType = 1;
-	rfan, rscore, rhuCardStr := majiang.GetHuScore(getQinglongqidui(), isZimo,false, hupaiType, *getRoomInfo())
+	rfan, rscore, rhuCardStr := majiang.GetHuScore(getQinglongqidui(), isZimo,false, hupaiType, *getRoomInfo(), nil)
 	if rfan != majiang.FAN_QINGLONGQIDUI {
 		log.Debug("error: tQinglongqidui")
 	}
@@ -438,7 +483,8 @@ func getNoHu() *majiang.MJHandPai {
 //平胡 1番
 func getPinghu() *majiang.MJHandPai {
 	inPaiDes	:= "T_2"
-	paisDes		:= []string{"S_6", "S_7", "S_8", "T_7", "T_8", "T_9", "T_4", "T_4", "T_4", "T_2"}
+	//paisDes		:= []string{"S_6", "S_7", "S_8", "T_7", "T_8", "T_9", "T_4", "T_4", "T_4", "T_2"}
+	paisDes		:= []string{"S_6", "S_7", "S_8", "T_7", "T_7", "T_9", "W_4", "W_4", "W_4", "T_2"}
 	pengPaisDes	:= []string{"T_1", "T_1", "T_1"}
 	gangPaisDes	:= []string{"T_3", "T_3", "T_3", "T_3"}
 

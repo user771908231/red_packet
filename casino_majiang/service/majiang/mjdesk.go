@@ -611,14 +611,17 @@ func (d *MjDesk) AddCurrPlayCount() {
 	atomic.AddInt32(d.CurrPlayCount, 1)
 }
 
-
 /**
 	初始化牌相关的信息
  */
 func (d *MjDesk) initCards() error {
 	//得到一副已经洗好的麻将
 	d.SetStatus(MJDESK_STATUS_FAPAI)        //发牌的阶段
+
 	d.AllMJPai = XiPai()
+	if d.IsSanRenLiangFang() {
+
+	}
 	//d.AllMJPai = XiPaiTestHu()
 	//给每个人初始化...
 	for i, u := range d.Users {
@@ -1087,7 +1090,7 @@ func (d *MjDesk) GetJiaoInfos(user *MjUser) []*mjproto.JiaoInfo {
 		//从用户手牌中移除当前遍历的元素
 		removedPai := userForPais[i]
 		//log.T("removedPai is : %v", removedPai.GetDes())
-		userForPais = removePaiFromPais(userForPais, i)
+		userForPais = removeFromPais(userForPais, i)
 		//log.T("after remove user pais is:%v", userForPais)
 
 		//copy(handPai.Pais, userForPais)
@@ -1950,8 +1953,8 @@ func (d *MjDesk) DoGangBill(info *GangPaiInfo) {
 		for _, ou := range d.GetUsers() {
 			//不为nil 并且不是本人，并且没有胡牌
 			if ou != nil && ou.GetUserId() != gangUser.GetUserId() && ou.IsGaming() {
-				gangUser.AddBill(ou.GetUserId(), MJUSER_BILL_TYPE_YING_GNAG, "用户暗杠，收入", score, gangPai)        //用户赢钱的账户
-				ou.AddBill(gangUser.GetUserId(), MJUSER_BILL_TYPE_SHU_GNAG, "用户暗杠，输钱", -score, gangPai)        //用户输钱的账单
+				gangUser.AddBill(ou.GetUserId(), MJUSER_BILL_TYPE_YING_AN_GNAG, "用户暗杠，收入", score, gangPai)        //用户赢钱的账户
+				ou.AddBill(gangUser.GetUserId(), MJUSER_BILL_TYPE_SHU_AN_GNAG, "用户暗杠，输钱", -score, gangPai)        //用户输钱的账单
 			}
 		}
 
@@ -1967,8 +1970,8 @@ func (d *MjDesk) DoGangBill(info *GangPaiInfo) {
 		score := d.GetBaseValue()        //巴杠的分数
 		for _, ou := range d.GetUsers() {
 			if ou != nil && ou.GetUserId() != gangUser.GetUserId() && ou.IsGaming() {
-				gangUser.AddBill(ou.GetUserId(), MJUSER_BILL_TYPE_YING_GNAG, "用户巴杠，收入", score, gangPai)        //用户赢钱的账户
-				ou.AddBill(gangUser.GetUserId(), MJUSER_BILL_TYPE_SHU_GNAG, "用户巴杠，输钱", -score, gangPai)        //用户输钱的账单
+				gangUser.AddBill(ou.GetUserId(), MJUSER_BILL_TYPE_YING_BA_GANG, "用户巴杠，收入", score, gangPai)        //用户赢钱的账户
+				ou.AddBill(gangUser.GetUserId(), MJUSER_BILL_TYPE_SHU_BA_GANG, "用户巴杠，输钱", -score, gangPai)        //用户输钱的账单
 
 			}
 		}
@@ -2048,6 +2051,9 @@ func (d *MjDesk) GetWinCoinInfo(user *MjUser) *mjproto.WinCoinInfo {
 //得到这个人的胡牌描述
 func (d *MjDesk) GetCardTitle4WinCoinInfo(user *MjUser) string {
 	var huDesk string = ""                //胡牌的描述...
+	//todo
+	user.GetBill().GetBills()
+	user.GetBill().GetWinAmount()
 	//目前暂时返回hu的信息
 	if user.GameData.HuInfo != nil && len(user.GameData.HuInfo) > 0 {
 		huDesk = user.GameData.HuInfo[0].GetHuDesc()
