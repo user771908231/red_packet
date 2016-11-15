@@ -2,30 +2,17 @@ package doudizhu
 
 import "casino_server/common/log"
 
-type Session struct {
-	UserId uint32
-	RoomId int32
-	DeskId int32
-}
-
-func GetSession(userId uint32) *Session {
+func GetSession(userId uint32) *PDdzSession {
 	return nil
 }
 
-func GetMjDeskBySession(userId uint32) *DdzDesk {
-	//得到session
+//斗地主的session
+func GetDdzDeskBySession(userId uint32) *DdzDesk {
 	session := GetSession(userId)
-	if session == nil {
-		return nil
+	room := GetFDdzRoom()
+	desk := room.GetDeskByDeskId(session.GetDeskId())
+	if desk == nil {
+		log.E("通过玩家[%v]的session[%v]没有找到对应的desk.", userId, session)
 	}
-	log.T("得到用户[%v]的session[%v]", userId, session)
-
-	//得到room
-	room := GetMjroomBySession(userId)
-	if room == nil {
-		return nil
-	}
-
-	//返回desk
-	return room.GetDeskByDeskId(session.DeskId)
+	return desk
 }

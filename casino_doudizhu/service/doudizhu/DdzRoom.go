@@ -129,19 +129,17 @@ func GetFDdzRoom() *DdzRoom {
 	return FDdzRoomIns
 }
 
-//通过用户的session 找到mjroom
-func GetMjroomBySession(userId uint32) *DdzRoom {
-	session := GetSession(userId)
-	if session == nil {
-		return nil
-	}
-
-	//目前暂时返回一个房间，方便测试 todo
-	return FDdzRoomIns
-
+func (r *DdzRoom)GetDeskByDeskId(deskId int32) *DdzDesk {
+	return nil
 }
 
-func (r *DdzRoom)GetDeskByDeskId(deskId int32) *DdzDesk {
+//通过key得到房间
+func (r *DdzRoom) GetDeskByKey(key string) *DdzDesk {
+	for _, d := range r.Desks {
+		if d != nil && d.GetKey() == key {
+			return d
+		}
+	}
 	return nil
 }
 
@@ -151,3 +149,5 @@ func (r *DdzRoom) AddDeskBean(desk *DdzDesk) error {
 	desk.Update2Redis()        //更新桌子的信息到redis中去
 	return nil        //这里的返回值不用判断...
 }
+
+
