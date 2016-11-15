@@ -413,7 +413,7 @@ func HandlerGame_ActHu(m *mjProto.Game_ActHu) {
 	//开始胡牌...
 	err := desk.ActHu(userId)
 	if err != nil {
-		log.E("服务器错误，胡牌失败..")
+		log.E("服务器错误，胡牌失败..err[%v]", err)
 	}
 
 	//这里是否需要广播胡牌的广播...

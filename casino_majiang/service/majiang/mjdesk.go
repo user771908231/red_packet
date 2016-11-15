@@ -1524,11 +1524,13 @@ func (d *MjDesk)ActHu(userId uint32) error {
 	//判断是否包含缺，如果有缺不能胡牌
 	isContainQue := huUser.GameData.HandPai.IsContainQue(huUser)
 	if isContainQue {
+		log.E("玩家[%v]有缺牌，不可以胡", userId)
 		return errors.New("有缺，不可以胡牌")
 	}
 	//判断是否可以胡牌，如果不能胡牌直接返回
 	canHu, is19 := huUser.GameData.HandPai.GetCanHu()
 	if !canHu {
+		log.E("玩家[%v]不可以胡", userId)
 		return errors.New("不可以胡牌...")
 	}
 
@@ -2214,7 +2216,7 @@ func (d *MjDesk) GetMoPaiOverTurn(user *MjUser, isOpen bool) *mjproto.Game_OverT
 	//
 	overTurn.JiaoInfos = d.GetJiaoInfos(user)
 
-	time.Sleep(time.Second * 1)
+	//time.Sleep(time.Second * 3)
 
 	return overTurn
 }
