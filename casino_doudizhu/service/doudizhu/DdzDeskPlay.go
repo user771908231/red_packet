@@ -1,6 +1,9 @@
 package doudizhu
 
-import "casino_server/common/log"
+import (
+	"casino_server/common/log"
+	"casino_server/common/Error"
+)
 
 //这里主要存放 玩斗地主的一些多逻辑....其他的基本方法都放在DdzDesk中
 
@@ -13,19 +16,56 @@ func (d *DdzDesk) EnterUser(userId uint32) error {
 		//这里需要判断是否是短线重连
 		olduser.SetOnline()
 		//todo 返回信息
+		olduser.UpdateSession()       //更新session 信息，这里可以更具需求来保存对应的属性...
 		return
 	}
 
 	//新进入
 	errAddNew := d.AddUser(userId)
 	if errAddNew != nil {
-		//进入失败
+		//进入失败 //返回失败的信息
+		return Error.NewError(-1, "进入房间失败")
 	} else {
 		//进入成功
+		//todo 返回进入房间成功的消息
+		return nil
 	}
 
 	return nil
 }
+
+//开始准备
+func (d *DdzDesk) Ready(userId uint32) error {
+	d.Lock()
+	defer d.Unlock()
+
+	user := d.GetUserByUserId(userId)
+	if user == nil {
+		log.E("玩家[%v]准备游戏的时候失败，deks[%v]中没有找到对应的玩家[%v]", userId, d.GetDeskId(), userId)
+		return Error.NewError(-1, "没有找到对应的玩家")
+	}
+
+	//设置状态为准备的状态...
+	user.SetStatus(DDZUSER_STATUS_READY)
+
+	//准备之后的处理
+	d.AfterReady()
+
+	return nil
+
+}
+
+func (d *DdzDesk) AfterReady() error {
+	//如果都准备好了，那么可以开始抢地主或者发牌了..
+	if d.IsAllReady() {
+		//开始处理准备之后的事情...
+		// todo 开始抢地主.
+
+	}
+	return nil
+}
+
+
 
 
 //开始游戏
@@ -88,4 +128,77 @@ func (d *DdzDesk) InitCards() {
 	d.DiPokerPai = make([]*PPokerPai, 3)
 	copy(d.DiPokerPai, d.AllPokerPai[54 - 3:54])
 
+}
+
+//判断出牌的用户是否合法
+func (d *DdzDesk) CheckOutUser(userId uint32) error {
+	if d.GetActiveUser() == userId {
+		return nil
+	} else {
+		return Error.NewError(-1, "activeUser 不正确...")
+	}
+}
+
+//打牌
+func (d *DdzDesk) ActOut(userId uint32, out POutPokerPais) error {
+
+	err := d.CheckOutUser(userId)
+	if err != nil {
+
+	}
+
+	//判断牌是否合法
+	err = d.CheckOutPai(out)
+	if err != nil {
+		log.E("玩家[%v]出牌[%v]失败,desk.outpai[%v]", userId, out, d.OutPai)
+		return Error.NewError(-1, "出牌失败，牌型有误")
+	}
+
+	user := d.GetUserByUserId(userId)
+	if user == nil {
+		return Error.NewError(-1, "没有找到玩家,出牌失败")
+	}
+
+	//牌型合法,1保存用户出的牌，2删除手里面的牌
+	err = user.DOPoutPokerPais(out)
+	if err != nil {
+		log.E("玩家[%v]出牌的时候错误", userId)
+		return Error.NewError(-1, "玩家出牌的时候出错.")
+	}
+	//返回成功的消息 todo  返回ack
+
+	//判断游戏是否结束
+	if user.GetHandPaiCount() == 0 {
+		//出牌的人 手牌为0，表示游戏结束
+		d.Lottery()
+		return
+	}
+
+	d.NextUser()
+	return nil
+}
+
+//用户过牌，不出牌
+func (d *DdzDesk) ActPass(userId uint32) {
+
+}
+
+//轮到下一个人出牌
+func (d *DdzDesk) NextUser() error {
+	index := d.GetUserIndexByUserId(d.GetActiveUser())
+	if index < 0 {
+		log.E("轮到下一个玩家的时候出错,desk.activeUser[%v]", d.GetActiveUser())
+		return Error.NewError(-1, "轮到一下个玩家的时候出错.")
+	}
+
+	nextUser := d.Users[(index + 1) % d.UserCountLimit]
+	if nextUser == nil {
+		log.E("轮到下一个玩家的时候出错,desk.activeUser[%v]", d.GetActiveUser())
+		return Error.NewError(-1, "轮到一下个玩家的时候出错.")
+	} else {
+		d.SetActiveUser(nextUser.GetUserId())
+		//todo 发送下一个人开始出牌的广播
+	}
+
+	return nil
 }

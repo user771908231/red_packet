@@ -3,10 +3,13 @@ package doudizhu
 import (
 	"errors"
 	"casino_server/common/log"
+	"sync"
+	"casino_server/common/Error"
 )
 
 //斗地主的desk
 type DdzDesk struct {
+	sync.Mutex
 	*PDdzDesk
 	Users []*DdzUser
 }
@@ -55,6 +58,44 @@ func (d *DdzDesk) AddUserBean(user *DdzUser) error {
 	return errors.New("加入失败，没有找到合适的座位...")
 }
 
+//都准备
+func (d *DdzDesk) IsAllReady() bool {
+	for _, user := range d.Users {
+		if user != nil && user.IsNotReady() {
+			return false
+		}
+	}
 
+	return true
+}
+
+func (d *DdzDesk) CheckOutPai(out *POutPokerPais) error {
+	right, err := out.GT(d.OutPai)
+	if err != nil {
+		log.E("出牌的时候，判断牌型的时候失败...")
+		return Error.NewError(-1, "比较失败,出牌失败...")
+	}
+
+	if right {
+		return nil
+	} else {
+		return Error.NewError(-1, "出的牌比别人的牌小，没有办法出牌")
+	}
+
+}
+
+func (d *DdzDesk) GetUserIndexByUserId(userId uint32) int {
+	for i, user := range d.Users {
+		if user != nil && user.GetUserId() == userId {
+			return i
+		}
+	}
+	return -1;
+
+}
+
+func (d *DdzDesk) SetActiveUser(userId uint32) {
+	*d.ActiveUser = userId
+}
 
 

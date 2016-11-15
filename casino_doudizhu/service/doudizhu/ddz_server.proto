@@ -31,6 +31,9 @@ message PDdzDesk {
     repeated PPokerPai allPokerPai = 4; //所有的牌
     repeated PPokerPai diPokerPai = 5; //底牌
     optional POutPokerPais outPai = 6; //当前出的牌
+    optional uint32 owner = 7; //人数限制
+    optional uint32 dizhu = 8;
+    optional uint32 activeUser = 9; //当前轮到谁
 
 }
 
@@ -47,15 +50,7 @@ message PDdzUser {
     optional int32 status = 3; //用户的游戏状态，本剧斗地主的状态
     optional bool isBreak = 4; //是否掉线
     optional bool isLeave = 5; //是否掉线
-
-
-}
-
-//玩家的session
-message PSession {
-    optional uint32 userId = 1;
-    optional int32 gameStatus = 2; //用户的游戏状态，整个应用中的状态
-
+    optional POutPokerPais outPaiList = 6; //当前出的牌
 }
 
 //room

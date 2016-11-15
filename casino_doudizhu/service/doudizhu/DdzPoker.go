@@ -308,3 +308,8 @@ func (out *POutPokerPais)  GT(outb *POutPokerPais) (bool, error) {
 	}
 
 }
+
+//得到牌
+func GetOutPais() *POutPokerPais {
+	return nil
+}
