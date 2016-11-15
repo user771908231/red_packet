@@ -4,6 +4,30 @@ import "casino_server/common/log"
 
 //这里主要存放 玩斗地主的一些多逻辑....其他的基本方法都放在DdzDesk中
 
+
+//
+func (d *DdzDesk) EnterUser(userId uint32) error {
+	//判断是否是重复进入
+	olduser := d.GetUserByUserId(userId)
+	if olduser != nil {
+		//这里需要判断是否是短线重连
+		olduser.SetOnline()
+		//todo 返回信息
+		return
+	}
+
+	//新进入
+	errAddNew := d.AddUser(userId)
+	if errAddNew != nil {
+		//进入失败
+	} else {
+		//进入成功
+	}
+
+	return nil
+}
+
+
 //开始游戏
 func (d *DdzDesk) Begin() error {
 

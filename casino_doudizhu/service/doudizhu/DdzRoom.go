@@ -145,6 +145,16 @@ func (r *DdzRoom)GetDeskByDeskId(deskId int32) *DdzDesk {
 	return nil
 }
 
+//通过key得到房间
+func (r *DdzRoom) GetDeskByKey(key string) *DdzDesk {
+	for _, d := range r.Desks {
+		if d != nil && d.GetKey() == key {
+			return d
+		}
+	}
+	return nil
+}
+
 //room添加房间
 func (r *DdzRoom) AddDeskBean(desk *DdzDesk) error {
 	r.Desks = append(r.Desks, desk)

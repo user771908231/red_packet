@@ -11,3 +11,8 @@ type DdzUser struct {
 func (u *DdzUser)ClearAgentGameData() {
 
 }
+
+func (u *DdzUser) SetOnline() error {
+	*u.IsBreak = false
+	return nil
+}w

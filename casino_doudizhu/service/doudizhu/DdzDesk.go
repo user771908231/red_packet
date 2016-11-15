@@ -24,6 +24,19 @@ func (d *DdzDesk) Update2Redis() error {
 	return nil
 }
 
+//得到一个用户
+func (d *DdzDesk) GetUserByUserId(userId uint32) *DdzUser {
+	for _, u := range d.Users {
+		if u != nil && u.GetUserId() == userId {
+			return u
+		}
+	}
+
+	//哈哈哈
+	return nil
+}
+
+
 //添加一个玩家
 func (d *DdzDesk) AddUser(userId uint32) error {
 	user := NewDdzUser()
