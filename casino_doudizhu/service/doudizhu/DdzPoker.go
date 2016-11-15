@@ -5,6 +5,7 @@ import (
 	"errors"
 	"casino_server/common/log"
 	"sort"
+	"casino_doudizhu/msg/protogo"
 )
 
 //返回一张牌
@@ -150,6 +151,7 @@ func (out *POutPokerPais) initTypeAndKeyValue() error {
 		isFeiji = true
 	}
 
+	//飞机带单张
 	isFeijiChibang := false
 	if out.GetCountSanzhang() * 4 == out.getPaiCount() {
 		boolFlag := true
@@ -160,6 +162,24 @@ func (out *POutPokerPais) initTypeAndKeyValue() error {
 			}
 		}
 		isFeijiChibang = boolFlag
+	}
+
+	//飞机带对子
+	isFeijiDuizi := false
+	if out.GetCountSanzhang() * 5 == out.getPaiCount() && out.GetCountSanzhang() == out.GetCountDuizi() {
+		boolFlag := true
+		for i := 0; i < out.GetCountSanzhang() - 1; i++ {
+			if countsSanzhang[i] + 1 != countsSanzhang[i + 1] {
+				boolFlag = false
+				break
+			}
+		}
+		isFeijiDuizi = boolFlag
+	}
+
+	isSiDaiLiangDui := false
+	if out.getPaiCount() == 8 && out.GetCountSizhang() == 1 && out.GetCountDuizi() == 2 {
+		isSiDaiLiangDui = true        //四个带两队
 	}
 
 	isLianDui := false
@@ -174,95 +194,117 @@ func (out *POutPokerPais) initTypeAndKeyValue() error {
 		isLianDui = boolFlag
 	}
 
-	//飞机不带翅膀
-
-	//四个带两个单牌
-
-	//四个带两个对子
-
 
 	//判断是否是单张
 	if out.getPaiCount() == 1 {
-		//out.Type = 单张
+		out.Type = ddzproto.DdzPaiType_SINGLECARD //单张
 		*out.KeyValue = out.GetPokerPais()[0].GetValue()
 	} else if out.getPaiCount() == 2 {
 		if out.GetCountDuizi() == 1 {
 			//这里需要判断是否是王炸
 			if out.GetPokerPais()[0].GetValue() == -1 {
 				//判断是否是王炸
-				//out.Type = 炸弹
+				out.Type = ddzproto.DdzPaiType_SUPERBOMB //王炸弹
 				*out.KeyValue = out.GetPokerPais()[0].GetValue()
 			} else {
-				//out.Type = 对子
+				out.Type = ddzproto.DdzPaiType_DOUBLECARD // 对子
 				*out.KeyValue = out.GetPokerPais()[0].GetValue()
 			}
 		} else {
 			//error
+			out.Type = ddzproto.DdzPaiType_ERRORCARD   //错误牌型
 		}
 	} else if out.getPaiCount() == 3 {
 		if out.GetCountSanzhang() == 1 {
-			//out.Type == 三张
+			out.Type = ddzproto.DdzPaiType_THREECARD                //三张
 			*out.KeyValue = countsSanzhang[0]
 		} else {
 			//error
+			out.Type = ddzproto.DdzPaiType_ERRORCARD   //错误牌型
 		}
 	} else if out.getPaiCount() == 4 {
 		if out.GetCountSizhang() == 1 {
-			//out.Type == 炸弹
+			out.Type == ddzproto.DdzPaiType_BOMBCARD        // 炸弹
 			*out.KeyValue = out.GetPokerPais()[0].GetValue()
 		} else if out.GetCountSanzhang() == 1 && out.GetCountYizhang() == 1 {
-			//out.Type == 三带一
+			out.Type = ddzproto.DdzPaiType_THREEONECARD        // 三带一
 			*out.KeyValue = countsSanzhang[0]
-
 		} else {
 			//	error
+			out.Type = ddzproto.DdzPaiType_ERRORCARD   //错误牌型
+
 		}
 	} else if out.getPaiCount() == 5 {
 		if isShunZi {
-			//out.Type == 顺子
+			out.Type = ddzproto.DdzPaiType_CONNECTCARD        // 顺子
 			*out.KeyValue = out.GetPokerPais()[0].GetValue()
 		} else if out.GetCountSanzhang() == 1 && out.GetCountDuizi() == 1 {
-			//out.Type == 三带二
+			out.Type = ddzproto.DdzPaiType_THREETWOCARD        //三带二
 			*out.KeyValue = countsSanzhang[0]
 		} else {
 			//error
+			out.Type = ddzproto.DdzPaiType_ERRORCARD   //错误牌型
 		}
 
 	} else if out.getPaiCount() == 6 {
 		if isShunZi {
-			//out.Type == 顺子
+			out.Type = ddzproto.DdzPaiType_CONNECTCARD        // 顺子
 		} else if out.GetCountSizhang() == 1 && out.GetCountYizhang() == 2 {
-			//out.Type == 四带二
+			out.Type = ddzproto.DdzPaiType_BOMBTWOCARD        // 四带二个单张
 		} else {
 			//error
+			out.Type = ddzproto.DdzPaiType_ERRORCARD   //错误牌型
 		}
 
 	} else if out.getPaiCount() == 8 {
 		if isShunZi {
-			//out.Type == 顺子
+			out.Type = ddzproto.DdzPaiType_CONNECTCARD        // 顺子
 			*out.KeyValue = out.GetPokerPais()[0].GetValue()
 		} else if out.GetCountSizhang() == 1 && out.GetCountDuizi() == 2 {
-			//out.Type == 四带两队
+			out.Type = ddzproto.DdzPaiType_BOMBTWOOOCARD        // 四带两队
 			*out.KeyValue = countsSizhang[0]
 		} else {
 			//error
+			out.Type = ddzproto.DdzPaiType_ERRORCARD   //错误牌型
 		}
 
 	} else {
 		if isShunZi {
-			//out.Type == 顺子
+			out.Type = ddzproto.DdzPaiType_CONNECTCARD        // 顺子
 			*out.KeyValue = out.GetPokerPais()[0].GetValue()
 		} else if isFeiji {
-			//out.Type == 飞机
+			out.Type = ddzproto.DdzPaiType_AIRCRAFTCARD        //飞机
 			*out.KeyValue = out.GetPokerPais()[0].GetValue()
 		} else if isFeijiChibang {
-			//out.Type = 飞机带翅膀
+			out.Type = ddzproto.DdzPaiType_AIRCRAFTSINGLECARD // 飞机带翅膀
+			*out.KeyValue = countsSanzhang[0]
+		} else if isFeijiDuizi {
+			out.Type = ddzproto.DdzPaiType_AIRCRAFTDOUBLECARD // 飞机带翅膀
 			*out.KeyValue = countsSanzhang[0]
 		} else if isLianDui {
-			//out.Type = 连队
+			out.Type = ddzproto.DdzPaiType_COMPANYCARD //连队
 			*out.KeyValue = out.GetPokerPais()[0].GetValue()
+		} else if isSiDaiLiangDui {
+			out.Type = ddzproto.DdzPaiType_FOURWITHONEDOUBLE //连队
+			*out.KeyValue = countsSizhang[0]   //比较值
 		}
 	}
 
 	return nil;
+}
+
+//比较两幅牌的大小
+func (out *POutPokerPais)  GT(outb *POutPokerPais) (bool, error) {
+	if out.GetType() == outb.GetType() {
+		return out.GetKeyValue() < outb.GetKeyValue(), nil
+	} else {
+		//比较类型不同的情况
+		if out.IsBomb || outb.IsBomb {
+			return out.IsBomb
+		} else {
+			log.E("牌型[%v]和牌型[%v] 无法比较...", out.GetType(), outb.GetType())
+			return false, errors.New("无法比较，类型有错误..")
+		}
+	}
+
 }

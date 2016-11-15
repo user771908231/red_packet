@@ -601,8 +601,8 @@ func (d *MjDesk) AddCurrPlayCount() {
 func (d *MjDesk) initCards() error {
 	//得到一副已经洗好的麻将
 	d.SetStatus(MJDESK_STATUS_FAPAI)        //发牌的阶段
-	d.AllMJPai = XiPai()
-	//d.AllMJPai = XiPaiTestHu()
+	//d.AllMJPai = XiPai()
+	d.AllMJPai = XiPaiTestHu()
 	//给每个人初始化...
 	for i, u := range d.Users {
 		if u != nil && u.IsReady() {
