@@ -601,8 +601,8 @@ func (d *MjDesk) AddCurrPlayCount() {
 func (d *MjDesk) initCards() error {
 	//得到一副已经洗好的麻将
 	d.SetStatus(MJDESK_STATUS_FAPAI)        //发牌的阶段
-	d.AllMJPai = XiPai()
-	//d.AllMJPai = XiPaiTestHu()
+	//d.AllMJPai = XiPai()
+	d.AllMJPai = XiPaiTestHu()
 	//给每个人初始化...
 	for i, u := range d.Users {
 		if u != nil && u.IsReady() {
@@ -1068,11 +1068,11 @@ func (d *MjDesk) GetJiaoInfos(user *MjUser) []*mjproto.JiaoInfo {
 				//剩余数为零不用循环
 				continue
 			}
-			log.T("拿%v尝试胡牌", mjPai.GetDes())
+			//log.T("拿%v尝试胡牌", mjPai.GetDes())
 			handPai.InPai = mjPai
 
-			log.T("handPai: %v", handPai.GetDes())
-			log.T("inPai: %v", handPai.InPai.GetDes())
+			//log.T("handPai: %v", handPai.GetDes())
+			//log.T("inPai: %v", handPai.InPai.GetDes())
 			canHu, is19 = handPai.GetCanHu()
 
 			if canHu {
@@ -1105,7 +1105,7 @@ func (d *MjDesk) GetJiaoInfos(user *MjUser) []*mjproto.JiaoInfo {
 			jiaoInfos = append(jiaoInfos, jiaoInfo)
 		}
 	}
-	//log.T("jiaoInfos is %v", jiaoInfos)
+	log.T("玩家[%v]的叫牌infos[%v]", user.GetUserId(), jiaoInfos)
 	return jiaoInfos
 }
 
@@ -1976,6 +1976,7 @@ func (d *MjDesk)DoCheckCaseAfterGang(gangType int32, gangPai *MJPai, user *MjUse
 
 //设置用户的状态为离线
 func (d *MjDesk) SetOfflineStatus(userId uint32) {
+	log.T("玩家[%v]断开连接，设置当前状态为离线的状态...", userId)
 	user := d.GetUserByUserId(userId)
 	*user.IsBreak = true
 }
@@ -2213,6 +2214,8 @@ func (d *MjDesk) GetMoPaiOverTurn(user *MjUser, isOpen bool) *mjproto.Game_OverT
 	//
 	overTurn.JiaoInfos = d.GetJiaoInfos(user)
 
+	time.Sleep(time.Second * 1)
+
 	return overTurn
 }
 
@@ -2245,7 +2248,7 @@ func (d *MjDesk) GetLeftPaiCount(user *MjUser, mjPai *MJPai) int {
 	if count < 0 {
 		count = 0
 	}
-	log.T("leftPai is %v Count is : %v", mjPai.GetDes(), count)
+	//log.T("leftPai is %v Count is : %v", mjPai.GetDes(), count)
 	return count
 }
 

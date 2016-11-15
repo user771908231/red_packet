@@ -692,5 +692,5 @@ func (u *MjUser) IsQuePai(mjPai *MJPai) bool {
 	if u.GetGameData().GetHandPai().GetQueFlower() == mjPai.GetFlower() {
 		return true
 	}
-	return  false
+	return false
 }
