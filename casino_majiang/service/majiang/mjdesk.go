@@ -2214,6 +2214,8 @@ func (d *MjDesk) GetMoPaiOverTurn(user *MjUser, isOpen bool) *mjproto.Game_OverT
 	//
 	overTurn.JiaoInfos = d.GetJiaoInfos(user)
 
+	time.Sleep(time.Second * 1)
+
 	return overTurn
 }
 
