@@ -1110,12 +1110,12 @@ func (d *MjDesk) GetJiaoInfos(user *MjUser) []*mjproto.JiaoInfo {
 				continue
 			}
 			mjPaiLeftCount := int32(d.GetLeftPaiCount(user, mjPai)) //该可胡牌在桌面中的剩余数量 注 对于自己而言的剩余
-			//if mjPaiLeftCount == 0 {
-			//	//log.T("left pai count is 0 continue")
-			//	//剩余数为零不用循环
-			//	continue
-			//}
-			log.T("拿%v尝试胡牌", mjPai.GetDes())
+			if mjPaiLeftCount == 0 {
+				//log.T("left pai count is 0 continue")
+				//剩余数为零不用循环
+				continue
+			}
+			//log.T("拿%v尝试胡牌", mjPai.GetDes())
 			handPai.InPai = mjPai
 
 			//log.T("handPai: %v", handPai.GetDes())
@@ -1577,11 +1577,13 @@ func (d *MjDesk)ActHu(userId uint32) error {
 	//判断是否包含缺，如果有缺不能胡牌
 	isContainQue := huUser.GameData.HandPai.IsContainQue(huUser)
 	if isContainQue {
+		log.E("玩家[%v]有缺牌，不可以胡", userId)
 		return errors.New("有缺，不可以胡牌")
 	}
 	//判断是否可以胡牌，如果不能胡牌直接返回
 	canHu, is19 := huUser.GameData.HandPai.GetCanHu()
 	if !canHu {
+		log.E("玩家[%v]不可以胡", userId)
 		return errors.New("不可以胡牌...")
 	}
 
@@ -2029,6 +2031,7 @@ func (d *MjDesk)DoCheckCaseAfterGang(gangType int32, gangPai *MJPai, user *MjUse
 
 //设置用户的状态为离线
 func (d *MjDesk) SetOfflineStatus(userId uint32) {
+	log.T("玩家[%v]断开连接，设置当前状态为离线的状态...", userId)
 	user := d.GetUserByUserId(userId)
 	*user.IsBreak = true
 }
@@ -2269,6 +2272,8 @@ func (d *MjDesk) GetMoPaiOverTurn(user *MjUser, isOpen bool) *mjproto.Game_OverT
 	//
 	overTurn.JiaoInfos = d.GetJiaoInfos(user)
 
+	//time.Sleep(time.Second * 3)
+
 	return overTurn
 }
 
@@ -2301,7 +2306,7 @@ func (d *MjDesk) GetLeftPaiCount(user *MjUser, mjPai *MJPai) int {
 	if count < 0 {
 		count = 0
 	}
-	log.T("leftPai is %v Count is : %v", mjPai.GetDes(), count)
+	//log.T("leftPai is %v Count is : %v", mjPai.GetDes(), count)
 	return count
 }
 
