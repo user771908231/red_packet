@@ -1,8 +1,10 @@
 syntax = "proto2";
 
 package ddzproto;
-
 enum EProtoId {
+
+////////////////////////////////////
+//
     PID_QUICK_CONN = 1; //连接服务器
     PID_QUICK_CONN_ACK = 2; //
     PID_GAME_LOGIN = 3; //登录游戏
@@ -15,56 +17,55 @@ enum EProtoId {
     PID_READY = 10; //准备
     PID_READY_ACK = 11; //准备-ack
     PID_OPENING = 12; //开局
-    PID_DEAL_CARDS = 13; //发牌
+    PID_DEAL_CARDS = 13;  //发牌
 
-    PID_CALL_DIZHU = 14; //叫地主
-    PID_CALL_DIZHU_ACK = 15; //叫地主-ack
+    PID_JIAO_DIZHU = 14;     //叫地主
+    PID_JIAO_DIZHU_ACK = 15; //叫地主-ack
 
-    ////////////////////////////////////////////
-    //欢乐斗地主
-    PID_ROB_DIZHU = 16; //抢地主
-    PID_ROB_DIZHU_ACK = 17; //抢地主-ack
-    PID_DOUBLE = 18; //加倍
-    PID_DOUBLE_ACK = 19; //加倍-ack
-    PID_NOT_DOUBLE = 20; //不加倍
-    PID_NOT_DOUBLE_ACK = 21; //不加倍-ack
+////////////////////////////////////////////
+//欢乐斗地主
+    PID_ROB_DIZHU           = 16; //抢地主
+    PID_ROB_DIZHU_ACK       = 17; //抢地主-ack
+    PID_DOUBLE              = 18; //加倍
+    PID_DOUBLE_ACK          = 19; //加倍-ack
 
-    PID_SHOW_HANDPOKERS = 22; //明牌
-    PID_SHOW_HANDPOKERS_ACK = 23; //明牌-ack
+    PID_SHOW_HANDPOKERS     = 20; //明牌
+    PID_SHOW_HANDPOKERS_ACK = 21; //明牌-ack
 
-    ////////////////////////////////////////////
-    //四川斗地主
-    PID_MEN_ZHUA = 24; //闷抓
-    PID_MEN_ZHUA_ACK = 25; //闷抓-ack
-    PID_LOOK_POKER = 26; //看牌
-    PID_LOOK_POKER_ACK = 27; //看牌-ack
-    PID_DAO = 28; //倒
-    PID_DAO_ACK = 29; //倒-ack
-    PID_LA = 30; //拉
-    PID_LA_ACK = 31; //拉-ack
+////////////////////////////////////////////
+//四川斗地主
+    PID_MEN_ZHUA            = 22;     //闷抓
+    PID_MEN_ZHUA_ACK        = 23;     //闷抓-ack
+    PID_SEE_CARDS           = 24;     //看牌
+    PID_SEE_CARDS_ACK       = 25;     //看牌-ack
+    PID_PULL                = 26;     //拉/倒
+    PID_PULL_ACK            = 27;     //拉/倒-ack
 
-    PID_SEND_OUT_POKER = 32; //出牌
-    PID_SEND_OUT_POKER_ACK = 33; //出牌-ack
-    PID_GUO_POKER = 34; //过
-    PID_GUO_POKER_ACK = 35; //过-ack
+////////////////////////////////////////////
+    PID_OUT_CARDS           = 28;     //出牌
+    PID_OUT_CARDS_ACK       = 29;     //出牌-ack
+    PID_ACT_GUO             = 30;     //过
+    PID_ACT_GUO_ACK         = 31;     //过-ack
+    
+////////////////////////////////////////////
+    PID_START_PLAY          = 32; //开始打牌阶段
 
-    ////////////////////////////////////////////
+    PID_OVERTURN            = 33; //轮到下一人操作(广播)
 
-    PID_OVERTURN = 36; //轮到下一人操作(广播)
+    PID_CURRENTRESULT       = 34; //本局结果
+    PID_SENDENDLOTTERY      = 35; //牌局结束
 
-    PID_CURRENTRESULT = 37; //本局结果
-    PID_SENDENDLOTTERY = 38; //牌局结束
+////////////////////////////////////////////
+    PID_DISSOLVE_DESK       = 36; //离开房间
+    PID_DISSOLVE_DESK_ACK   = 37; //
+    PID_LEAVE_DESK          = 38; //解散房间
+    PID_LEAVE_DESK_ACK      = 39; //
 
-    PID_DISSOLVE_DESK = 39; //离开房间
-    PID_DISSOLVE_DESK_ACK = 40; //
-    PID_LEAVE_DESK = 41; //解散房间
-    PID_LEAVE_DESK_ACK = 42; //
+    PID_MESSAGE             = 40; //聊天信息
+    PID_SEND_MESSAGE        = 41; //广播聊天
 
-    PID_MESSAGE = 43; //聊天信息
-    PID_SEND_MESSAGE = 44; //广播聊天
-
-    PID_GAME_GAMERECORD = 45; //查询战绩
-    PID_GAME_ACKGAMERECORD = 46; //战绩回复
+    PID_GAME_GAMERECORD     = 42; //查询战绩
+    PID_GAME_GAMERECORD_ACK = 43; //战绩回复
 }
 
 enum ErrorCode {
@@ -75,20 +76,108 @@ enum ErrorCode {
     //-101   -200	游戏异常
     EC_CREATE_DESK_DIAMOND_NOTENOUGH = -101; // 创建房间的时候余额不足
     EC_CREATE_DESK_USER_NOTFOUND = -102; // 创建房间的时候未知用户
-
-    EC_INTO_DESK_NOTFOUND = -103; // 进入房间的时候没有找到房间
+    
+    EC_INTO_DESK_NOTFOUND = -103; // 进入房间时:没有找到房间
+    EC_INTO_DESK_ISFULL = -104; // 进入房间时:房间人数已满
 
     EC_GAME_READY_REPEAT = -110; // 重复准备
-
     EC_GAME_READY_CHIP_NOT_ENOUGH = -111; // 筹码不足
 }
 
-// ProtoHeader 需要在每个 Message 中作为第一个字段
+// 通信协议包头
 message ProtoHeader {
     optional string version = 1; // 版本号
     optional uint32 userId = 2; // 用户 id
     optional int32 code = 3; // result code
     optional string error = 4; // result error description
+}
+
+
+///////////////////////////////////////////////////
+
+// 房间类型信息：包含房间类型和对应的局数、封顶、玩法等信息
+// 房间类型枚举
+enum DDZRoomType {
+    roomType_jingDianDDZ = 0;  //  经典斗地主
+    roomType_huanLeDDZ = 1;   //  欢乐斗地主
+    roomType_siChuanDDZ = 2;  //  四川斗地主
+}
+
+//扑克花色
+enum PokerColor {
+    HONGTAO = 1; //  红桃
+    FANGKUAI = 2; // 方块
+    HEITAO = 3;  //  黑桃
+    MEIHUA = 4;  //梅花
+}
+
+
+//牌型
+enum CardType {
+    SINGLE         = 1; //单牌
+    PAIR           = 2; //对子
+    CONNECTORS     = 3; //顺子
+    CONNECT_PAIRS  = 4; //连对
+
+    THREE_CARDS    = 5; //三不带
+    THREE_WITH_ONE   = 6; //三带一
+    THREE_WITH_PAIR  = 7; //三带对
+    FOUR_WITH_TWO    = 8; //四带二
+    FOUR_WITH_2_PAIRS= 9; //四带2对
+
+    PLANE_CARDS    = 10; //飞机
+    BOMB_CARDS     = 11; //炸弹
+    ROCKET_CARDS   = 12; //王炸（火箭）
+}
+
+// 轮到玩家操作时：可执行何种操作
+enum ActType {
+    T_NORMAL_ACT    = 1; // 普通出牌 
+    T_JIAO_DIZHU     = 2; // 叫地主 
+    T_ROB_DIZHU      = 3; // 抢地主 
+    T_DOUBLE         = 4; // 加倍
+    T_MEN_ZHUA       = 5; // 闷抓/看牌
+    T_PULL_PUSH      = 6; // 拉/倒
+}
+
+
+enum DDZGameStatus {
+    U_INIT = 0; //初始化
+    U_JIAO_DIZHU = 1; //叫地主
+    U_ROB_DIZHU = 2; //抢地主
+    U_PLAYING = 3; //游戏中
+    U_FINISH = 4; //已经结束
+}
+
+
+// 玩家当前状态
+enum PlayerGameStatus {
+    S_INIT           = 0; // 初始状态
+    S_DEALCARDS      = 1; // 发牌中
+    S_JIAO_DIZHU     = 2; // 叫地主 
+    S_ROB_DIZHU      = 3; // 抢地主 
+    S_DOUBLE         = 4; // 加倍
+    S_NO_DOUBLE      = 5; // 不加倍
+    S_PULL           = 6; // 拉
+    S_PUSH           = 7; // 倒
+
+    S_ACTING         = 8; // 出牌中..
+    S_WAIT           = 9; // 等待别人出牌
+
+    S_GAME_END       = 10; // 游戏结束
+}
+
+enum DDZRoomType {
+    T_NORMAL_DDZ    = 1;  // 经典斗地主
+    T_HAPPY_DDZ     = 2;  // 欢乐斗地主
+    T_SICHUAN_DDZ   = 3;  // 四川斗地主
+}
+
+message Poker {
+    optional PokerColor suit  = 1; //花色: 1=黑桃 2=红桃 3=梅花 4=方块
+    optional int32 num   = 2;  //牌值: 2-10，J、Q、K、A、小王、大王
+
+    optional int32 value = 3; //54张牌：1-54; 0=牌背
 }
 
 // 微信信息
@@ -101,135 +190,34 @@ message WeixinInfo {
     optional string unionId = 6; // unionId
 }
 
-// 麻将牌
-message CardInfo {
-    optional int32 type = 1;
-    optional int32 value = 2; //0:牌背； 1~9：万；  10~18：条；  19~27：筒。
-    optional int32 id = 3; //牌的id
-}
-
-// 玩法：包括自摸、点炮、以及可多选的玩法
-message PlayOptions {
-    optional int32 ziMoRadio = 1; // 单选，自摸类型，如：自摸加底、自摸加番等
-    optional int32 dianGangHuaRadio = 2; // 单选，点炮类型，如：点杠花（点炮）、点杠花（自摸）等
-    repeated int32 othersCheckBox = 3; // 其他可复选的玩法，如：换三张、幺九将对、门清中张、天地胡、卡二条、可胡七对等
-    optional int32 huRadio = 4; // 胡法，如：自摸胡、点炮胡（可抢杠）
-}
-
-// 房间类型信息：包含房间类型和对应的局数、封顶、玩法等信息
-// 房间类型枚举
-enum MJRoomType {
-    roomType_xueZhanDaoDi = 0; // 血战到底
-    roomType_sanRenLiangFang = 1; // 三人两房
-    roomType_siRenLiangFang = 2; // 四人两房
-    roomType_deYangMaJiang = 3; // 德阳麻将
-    roomType_daoDaoHu = 4; // 倒倒胡
-    roomType_xueLiuChengHe = 5; // 血流成河
-}
-
-//麻将花色
-enum MahjongColor {
-    WAN = 1; //万
-    TIAO = 2; //条
-    TONG = 3; //筒
-}
-
-//杠的类型
-enum GangType {
-    G_MINGGANG = 1; //明杠
-    G_BAGANG = 2; //巴杠
-    G_ANGANG = 3; //暗杠
-}
-
-//碰杠类型(客户端显示用)
-enum ComposeCardType {
-    C_MINGGANG = 1; //明杠
-    C_BAGANG = 2; //巴杠
-    C_ANGANG = 3; //暗杠
-    C_PENG = 4; //碰
-}
-
-//胡牌的类型
-enum DdzPaiType {
-    ERRORCARD = 0; //错误牌型
-    SINGLECARD = 1; //单牌
-    DOUBLECARD = 2; //对子
-    THREECARD = 3; //三不带
-    BOMBCARD = 4; //炸弹
-    THREEONECARD = 5; //三带1
-    THREETWOCARD = 6; //三带二
-    BOMBTWOCARD = 7; //四带两个单张
-    BOMBTWOOOCARD = 8; //四带两个对子
-    CONNECTCARD = 9; //链子
-    COMPANYCARD = 10; //连队
-    AIRCRAFTCARD = 11; //飞机不带牌
-    AIRCRAFTSINGLECARD = 12; //飞机带单牌
-    AIRCRAFTDOUBLECARD = 13; //飞机带对子
-    SUPERBOMB = 14; //   王炸
-    FOURWITHONEDOUBLE = 15; //四个带一对
-}
-
-
 message RoomTypeInfo {
-    optional MJRoomType mjRoomType = 1; // 房间类型，如：血战到底、三人两房、四人两房、德阳麻将、倒倒胡、血流成河
-    optional int32 boardsCout = 2; // 局数，如：4局（房卡 × 2）、8局（房卡 × 3）
-    optional int64 capMax = 3; // 封顶，如：2番、3番、4番
-    optional PlayOptions playOptions = 4; // 玩法：包括自摸、点炮、以及可多选的玩法
-    optional int32 cardsNum = 5; // 牌张，如：7张、10张、13张
-    optional int32 settlement = 6; // 结算，如：1拖1、1拖2、3拖5
-    optional int64 baseValue = 7; // 底
-}
-
-
-message ComposeCard {
-    optional int32 value = 1; // 麻将牌值: 0~27
-    optional int32 type = 2; // 类型（碰，明杠，暗杠）
-}
-
-message PlayerCard {
-
-    repeated CardInfo handCard = 1; // 手牌数组（自己是明的，其他玩家服务器返回暗值，避免外挂获取别的玩家手牌）
-    repeated ComposeCard composeCard = 2; // 摆牌数组（碰、明杠、暗杠）
-    repeated int32 outCard = 3; // 已出牌数组
-    optional int32 huCard = 4; // 胡的牌
-    optional uint32 UserId = 5; //
-
-}
-
-
-enum MJUserGameStatus {
-    U_INIT = 0; //初始化
-    U_DINGQUE = 1; //定缺
-    U_EXCHANGE = 2; //换牌
-    U_PLAYING = 3; //游戏中
-    U_FINISH = 4; //已经结束
+    optional DDZRoomType roomType = 1; // 房间类型：经典斗地主/欢乐斗地主/四川斗地主
+    optional int32 boardsCount  = 2; // 局数，如：4局（房卡 × 2）、8局（房卡 × 3）
+    optional int64 capMax       = 3; // 封顶，如：2炸、3炸、4炸、5炸
+    optional int64 baseValue    = 4; // 底分
+    optional bool isJiaoFen     = 5; // 是否叫分（1分、2分、3分）
 }
 
 message PlayerInfo {
-    optional bool isBanker = 1; // 是否庄家
-    optional PlayerCard playerCard = 2; // 玩家的手牌、摆牌（碰杠）、已打出的牌、胡牌信息。客户端需根据服务端的返回进行排序动画。
+    optional bool isDiZhu = 1; // 是否地主
+    repeated Poker playerPokers = 2; // 玩家的手牌
     optional int64 coin = 3; // 玩家当前显示的自己的筹码数
     optional string nickName = 4; // 昵称
     optional int32 sex = 5; // 性别: 1=男  2=女
     optional uint32 userId = 6; // 用户id
     optional bool isOwner = 7; // 当前用户是否房主
     optional int32 bReady = 8; // 是否已准备
-    optional int32 bDingQue = 9; // 是否已定缺
-    optional int32 bExchanged = 10; // 是否已换牌(换3张)
-    optional int32 nHuPai = 11; // 0:未胡牌; >=1: 已胡牌(血流成河时,表示已胡次数)
-    optional int32 quePai = 12; // 缺哪门牌: 1=万 2=条 3=筒
-    optional WeixinInfo wxInfo = 13; // 微信用户信息( 进入房间时、广播新进用户时，才需返回WeixinInfo；其它广播不需要。)
-    optional int32 GameStatus = 14; //玩家的游戏状态  .
+    optional PlayerGameStatus status = 9; // 玩家当前状态
+    optional WeixinInfo wxInfo = 10; // 微信用户信息( 进入房间时、广播新进用户时，才需返回WeixinInfo；其它广播不需要。)
+    optional int32 onlineStatus = 11; //玩家在线状态: 1=在线  2=离线 3=在线托管 4=离线托管
 }
 
-
 enum DeskGameStatus {
-    INIT = 0; //初始化
-    FAPAI = 1; //发牌的阶段
-    EXCHANGE = 2; //换牌
-    DINGQUE = 3; //定缺
-    PLAYING = 4; //游戏中
-    FINISH = 5; //已经结束
+    INIT        = 0; //初始化
+    DEAL_CARDS  = 1; //发牌阶段
+    JIAO_DIZHU  = 2; //叫地主(抢地主、拉/倒)
+    PLAYING     = 3; //游戏中
+    FINISH      = 4; //已经结束
 }
 
 
@@ -239,15 +227,19 @@ message DeskGameInfo {
     optional int32 playerNum = 3; //玩家数量
     optional uint32 activeUserId = 4; //当前谁操作，决定：中间的指针应该指向谁，哪个玩家当前是可操作状态
     optional int32 actionTime = 5; // 玩家当前操作时间
-    optional int32 delayTime = 6; //当前延时时间
+    
     optional int32 nInitActionTime = 7; // 初始操作时间
-    optional int32 nInitDelayTime = 8; // 初始延时时间
     optional int64 initRoomCoin = 9; // 房间的初始带入金额
     optional int32 currPlayCount = 10; // 朋友桌: 当前第几局
     optional int32 totalPlayCount = 11; // 朋友桌: 总共几局
     optional string roomNumber = 12; // 房间号
-    optional int32 remainCards = 13; // 还剩几张麻将牌
-    optional uint32 Banker = 14; //庄家
+    
+    optional uint32 diZhuUserId = 14; //地主
+    
+    repeated Poker  footPokers = 15; // 底牌（3张）
+    optional int32  footRate = 16;   // 底牌倍率
+
+    optional int32  playRate = 17;   // 当前倍数（抢地主、炸弹、春天等产生的倍数）
 
 }
 
