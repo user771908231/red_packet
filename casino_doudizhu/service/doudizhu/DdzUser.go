@@ -4,6 +4,7 @@ import (
 	"sync"
 	"casino_server/common/log"
 	"casino_server/common/Error"
+	"sync/atomic"
 )
 
 var (
@@ -100,7 +101,18 @@ func (u *DdzUser) GetHandPaiCount() int32 {
 	return len(u.GameData.HandPokers)
 }
 
-func (u *DdzUser) beginInit() error{
+func (u *DdzUser) beginInit() error {
 	return nil
+}
 
+func (u *DdzUser) AddNewBill(coin int64, winUser, loseUser uint32, des string) {
+	bean := NewPDdzBillBean()
+	*bean.Coin = coin
+	*bean.WinUser = winUser
+	*bean.LoseUser = loseUser
+	*bean.Desc = des
+	//增加账单
+	u.Bill.BillBean = append(u.Bill.BillBean, bean)
+	//增加输的钱
+	atomic.AddInt64(u.Bill.WinCoin, coin)
 }

@@ -122,10 +122,32 @@ func (d *DdzDesk) beginQiangDiZhu() error {
 	return nil
 }
 //一场结束
-func (d *DdzDesk) Lottery() {
+func (d *DdzDesk) Lottery(user *DdzUser) {
 	//开始结算....
-	//1,计算炸弹的个数，计算分数
-	//2,发送结算的同志
+	//1,计算炸弹的个数，计算分数,这里需要判断user的身份是地主还是平民
+	if d.IsDiZhuRole(user) {
+		//地主赢了,增加账单
+		for _, loseUser := range d.Users {
+			if loseUser.GetUserId() != user.GetUserId() {
+				user.AddNewBill(d.GetWinValue(), user.GetUserId(), loseUser.GetUserId(), "地主赢了")
+				loseUser.AddNewBill(-d.GetWinValue(), user.GetUserId(), loseUser.GetUserId(), "平明输了")
+			}
+		}
+
+	} else {
+		//地主输了,增加账单
+		dizhuUser := d.GetUserByUserId(d.GetDizhu())
+		for _, winUser := range d.Users {
+			if winUser.GetUserId() != dizhuUser.GetUserId() {
+				user.AddNewBill(d.GetWinValue(), user.GetUserId(), winUser.GetUserId(), "平明赢了")
+				dizhuUser.AddNewBill(-d.GetWinValue(), user.GetUserId(), winUser.GetUserId(), "地主输了")
+			}
+		}
+	}
+
+	//2,发送结算的通知
+
+
 }
 
 //牌局结束
@@ -185,12 +207,20 @@ func (d *DdzDesk) ActOut(userId uint32, out POutPokerPais) error {
 		log.E("玩家[%v]出牌的时候错误", userId)
 		return Error.NewError(-1, "玩家出牌的时候出错.")
 	}
+
+	//成功之后需要把炸弹的信息保存下来
+	if out.GetIsBomb() {
+		d.addBombTongjiInfo(out)
+		d.setWinValue(d.GetQingDizhuValue() * 2)
+	}
+
 	//返回成功的消息 todo  返回ack
+
 
 	//判断游戏是否结束
 	if user.GetHandPaiCount() == 0 {
 		//出牌的人 手牌为0，表示游戏结束
-		d.Lottery()
+		d.Lottery(user)
 		return
 	}
 
@@ -242,6 +272,9 @@ func (d *DdzDesk) QiangDiZhu(userId uint32, qiangType int32) error {
 	if qiangType == 1 {
 		//开始抢地主的逻辑
 		d.SetDizhu(user.GetUserId())
+		d.AddCountQiangDiZhu()        //增加抢地主的次数
+		d.setQingDizhuValue(d.GetQingDizhuValue() * 2)//这里还需要计算低分
+
 		user.SetQiangDiZhuStatus(DDZUSER_QIANGDIZHU_STATUS_QIANG)
 		//表示地主都抢过来，又轮到第一家，抢地主的逻辑结束
 		if user.IsQiangDiZhu() && d.GetDizhuPaiUser() == user.GetUserId() {

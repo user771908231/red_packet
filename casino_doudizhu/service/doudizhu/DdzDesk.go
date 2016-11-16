@@ -6,6 +6,7 @@ import (
 	"sync"
 	"casino_server/common/Error"
 	"fmt"
+	"sync/atomic"
 )
 
 //斗地主的desk
@@ -40,6 +41,26 @@ func (d *DdzDesk) GetUserByUserId(userId uint32) *DdzUser {
 	return nil
 }
 
+func (d *DdzDesk) AddCountQiangDiZhu() {
+	atomic.AddInt32(d.Tongji.CountQiangDiZhu, 1)
+}
+
+//设置低分
+func (d *DdzDesk) setBaseValue(value int64) {
+	*d.BaseValue = value
+}
+
+func (d *DdzDesk) setWinValue(value int64) {
+	*d.WinValue = value
+}
+
+func (d *DdzDesk) setQingDizhuValue(value int64) {
+	*d.QingDizhuValue = value
+}
+
+func (d *DdzDesk) addBombTongjiInfo(bomb *POutPokerPais) {
+	d.Tongji.Bombs = append(d.Tongji.Bombs, bomb)
+}
 
 //添加一个玩家
 func (d *DdzDesk) AddUser(userId uint32) error {
@@ -109,5 +130,10 @@ func (d *DdzDesk) CheckActiveUser(userId uint32) error {
 	} else {
 		return Error.NewFailError(fmt.Sprintf("当前活动玩家是[%v]", d.GetActiveUser()))
 	}
+}
+
+//判断用户的身份是不是地主
+func (d *DdzDesk) IsDiZhuRole(user *DdzUser) bool {
+	return d.GetDizhu() == user.GetUserId()
 }
 
