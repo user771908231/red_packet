@@ -12,6 +12,8 @@ import (
 	"casino_server/service/userService"
 	"casino_server/common/log"
 	"casino_majiang/msg/funcsInit"
+	"casino_server/common/Error"
+	"casino_server/conf/intCons"
 )
 
 
@@ -174,14 +176,14 @@ func (r *MjRoom) EnterRoom(key string, userId uint32, a gate.Agent) (*MjDesk, bo
 		desk = r.GetDeskByPassword(key)
 		if desk == nil {
 			log.T("通过key[%v]没有找到对应的desk", key)
-			return nil, false, errors.New("没有找到对应的desk")
+			return nil, false, Error.NewError(intCons.ACK_RESULT_FAIL, "房间号输入错误")
 		} else {
 			var addErr error
 			reconnect, addErr = desk.addNewUserFriend(userId, a)
 			if addErr != nil {
 				//用户加入房间失败...
 				log.E("玩家[%v]加入房间失败errMsg[%v]", userId, addErr)
-				return nil, reconnect, errors.New("用户加入房间失败...")
+				return nil, reconnect, Error.NewFailError(Error.GetErrorMsg(addErr))
 			}
 		}
 

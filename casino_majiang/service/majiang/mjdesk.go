@@ -19,6 +19,7 @@ import (
 	"casino_server/utils/timeUtils"
 	"casino_majiang/service/lock"
 	"casino_server/utils"
+	"casino_server/common/Error"
 	"fmt"
 )
 
@@ -44,7 +45,6 @@ var MJDESK_ACT_TYPE_WAIT_CHECK int32 = 3; //等待check
 
 var DINGQUE_SLEEP_DURATION time.Duration = time.Second * 5        //定缺的延迟
 var SHAIZI_SLEEP_DURATION time.Duration = time.Second * 4        //定缺的延迟
-
 
 
 //判断是不是朋友桌
@@ -94,7 +94,7 @@ func (d *MjDesk) addNewUserFriend(userId uint32, a gate.Agent) (bool, error) {
 	err := d.addUser(newUser)
 	if err != nil {
 		log.E("用户[%v]加入房间[%v]失败,errMsg[%v]", userId, err)
-		return false, errors.New("用户加入房间失败")
+		return false, Error.NewFailError(Error.GetErrorMsg(err))
 	} else {
 		//加入房间成功
 		return false, nil
@@ -216,7 +216,7 @@ func (d *MjDesk) addUser(user *MjUser) error {
 		d.Users[seatIndex] = user
 		return nil
 	} else {
-		return errors.New("没有找到合适的位置，加入桌子失败")
+		return Error.NewFailError("没有找到合适的位置，加入桌子失败")
 	}
 }
 
@@ -1068,7 +1068,8 @@ func (d *MjDesk) GetJiaoInfos(user *MjUser) []*mjproto.JiaoInfo {
 	var userPais []*MJPai
 	userHandPai := *user.GetGameData().HandPai
 	userPais = append(userPais, userHandPai.Pais...)
-	if userHandPai.InPai != nil { //碰牌 无inPai的情况
+	if userHandPai.InPai != nil {
+		//碰牌 无inPai的情况
 		userPais = append(userPais, userHandPai.InPai)
 	}
 

@@ -11,6 +11,7 @@ import (
 	"time"
 	"errors"
 	"casino_majiang/gamedata/dao"
+	"casino_server/common/Error"
 )
 
 
@@ -76,6 +77,7 @@ func HandlerGame_EnterRoom(userId uint32, key string, a gate.Agent) {
 		log.T("用户[%v]进入房间失败，没有找到对应的room", userId)
 		ack := newProto.NewGame_AckEnterRoom()
 		*ack.Header.Code = intCons.ACK_RESULT_ERROR
+		*ack.Header.Error = "房间号输入错误"
 		a.WriteMsg(ack)
 		return
 	}
@@ -87,6 +89,7 @@ func HandlerGame_EnterRoom(userId uint32, key string, a gate.Agent) {
 		log.E("用户[%v]进入房间,key[%v]失败err[%v]", userId, key, err)
 		ack := newProto.NewGame_AckEnterRoom()
 		*ack.Header.Code = intCons.ACK_RESULT_ERROR
+		*ack.Header.Error = Error.GetErrorMsg(err)
 		a.WriteMsg(ack)
 		return
 	}
