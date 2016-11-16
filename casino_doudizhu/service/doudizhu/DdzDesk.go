@@ -5,6 +5,7 @@ import (
 	"casino_server/common/log"
 	"sync"
 	"casino_server/common/Error"
+	"fmt"
 )
 
 //斗地主的desk
@@ -91,11 +92,22 @@ func (d *DdzDesk) GetUserIndexByUserId(userId uint32) int {
 		}
 	}
 	return -1;
-
 }
 
 func (d *DdzDesk) SetActiveUser(userId uint32) {
 	*d.ActiveUser = userId
 }
 
+func (d *DdzDesk) SetDizhu(userId uint32) {
+	*d.Dizhu = userId
+}
+
+//判断是否是当前活动玩家
+func (d *DdzDesk) CheckActiveUser(userId uint32) error {
+	if d.GetActiveUser() == userId {
+		return nil
+	} else {
+		return Error.NewFailError(fmt.Sprintf("当前活动玩家是[%v]", d.GetActiveUser()))
+	}
+}
 

@@ -32,8 +32,9 @@ message PDdzDesk {
     repeated PPokerPai diPokerPai = 5; //底牌
     optional POutPokerPais outPai = 6; //当前出的牌
     optional uint32 owner = 7; //人数限制
-    optional uint32 dizhu = 8;
-    optional uint32 activeUser = 9; //当前轮到谁
+    optional uint32 dizhuPaiUser = 8; //发的地主牌
+    optional uint32 dizhu = 9;
+    optional uint32 activeUser = 10; //当前轮到谁
 
 }
 
@@ -51,6 +52,8 @@ message PDdzUser {
     optional bool isBreak = 4; //是否掉线
     optional bool isLeave = 5; //是否掉线
     optional POutPokerPais outPaiList = 6; //当前出的牌
+    optional int32 qiangDiZhuStatus = 7; //抢地主的状态
+
 }
 
 //room

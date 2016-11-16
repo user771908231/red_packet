@@ -71,7 +71,7 @@ func (d *DdzDesk) AfterReady() error {
 //开始游戏
 func (d *DdzDesk) Begin() error {
 
-	//
+	//判断是否可以开始
 	err := d.IsTime2begin()
 	if err != nil {
 		log.E("开始斗地主的时候失败,不满足开始的条件err[%v]", err)
@@ -87,7 +87,11 @@ func (d *DdzDesk) Begin() error {
 	}
 
 	//开始抢地主
-
+	err = d.beginQiangDiZhu()
+	if err != nil {
+		log.E("开始斗地主的时候,beginInit()失败..err[%v]", err)
+		return err
+	}
 
 	return nil
 }
@@ -100,9 +104,23 @@ func (d *DdzDesk) IsTime2begin() error {
 
 //开始时候的初始化
 func (d *DdzDesk) BeginInit() error {
+	//desk.init
+
+
+	//userInit
+	for _, user := range d.Users {
+		if user != nil {
+			//初始化每个用户
+			user.beginInit()
+		}
+	}
 	return nil
 }
 
+//开始抢地主的逻辑
+func (d *DdzDesk) beginQiangDiZhu() error {
+	return nil
+}
 //一场结束
 func (d *DdzDesk) Lottery() {
 
@@ -202,3 +220,62 @@ func (d *DdzDesk) NextUser() error {
 
 	return nil
 }
+
+//抢地主
+func (d *DdzDesk) QiangDiZhu(userId uint32, qiangType int32) error {
+
+	//验证活动玩家
+	err := d.CheckActiveUser(userId)
+	if err != nil {
+		return err
+	}
+
+	//验证用户是否为空
+	user := d.GetUserByUserId(userId)
+	if user == nil {
+		return Error.NewFailError("玩家没找到，抢地主失败")
+	}
+
+	//抢地主
+	if qiangType == 1 {
+		//开始抢地主的逻辑
+		d.SetDizhu(user.GetUserId())
+		user.SetQiangDiZhuStatus(DDZUSER_QIANGDIZHU_STATUS_QIANG)
+		//表示地主都抢过来，又轮到第一家，抢地主的逻辑结束
+		if user.IsQiangDiZhu() && d.GetDizhuPaiUser() == user.GetUserId() {
+			//todo 抢地主结束的操作
+			return nil
+		}
+
+	} else if qiangType == 2 {
+		//不叫地主,直接轮到下一个人抢地主
+		user.SetQiangDiZhuStatus(DDZUSER_QIANGDIZHU_STATUS_PASS)
+	}
+
+
+	//查找下一家抢地主的人
+	index := d.GetUserIndexByUserId(user.GetUserId())
+	var nextUser *DdzUser
+	for i := index + 1; i < len(d.Users) + index; i++ {
+		u := d.Users[(i) / len(d.Users)]
+		if u != nil && !u.IsBuJiao() {
+			nextUser = u
+		}
+	}
+	//表示没有下一家可以抢地主
+	if nextUser == nil {
+		//todo 抢地主结束的操作
+		d.afterQiangDizhu()
+	} else {
+		//todo 给nextUser 发送抢地主的协议
+
+	}
+
+	return nil
+}
+
+//地主开始出牌
+func (d *DdzDesk) afterQiangDizhu() {
+
+}
+

@@ -56,6 +56,25 @@ func HandlerFDdzReady(user uint32) error {
 	return nil
 }
 
+//抢地主
+func HandlerQiangDiZhu(userId uint32) error {
+	desk := doudizhu.GetDdzDeskBySession(userId)
+	if desk == nil {
+		return Error.NewFailError("米有找到desk")
+	}
+
+	err := desk.QiangDiZhu(userId)
+	if err != nil {
+		log.E("玩家[%v]抢地主失败,err[%v]", userId, err)
+		return Error.NewFailError("玩家抢地主出错")
+
+	}
+
+	return nil
+
+}
+
+
 //开始出牌
 func HandlerActOut(userId uint32) error {
 	desk := doudizhu.GetDdzDeskBySession(userId)
@@ -72,3 +91,5 @@ func HandlerActOut(userId uint32) error {
 	}
 	return nil
 }
+
+

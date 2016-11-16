@@ -11,6 +11,12 @@ var (
 
 )
 
+var (
+	DDZUSER_QIANGDIZHU_STATUS_NULL int32 = 0 //没操作
+	DDZUSER_QIANGDIZHU_STATUS_QIANG int32 = 1 //抢地主
+	DDZUSER_QIANGDIZHU_STATUS_PASS int32 = 2 //不叫
+)
+
 type DdzUser struct {
 	sync.Mutex
 	*PDdzUser
@@ -35,12 +41,26 @@ func (u *DdzUser) SetStatus(s int32) {
 	*u.Status = s
 }
 
+func (u *DdzUser) SetQiangDiZhuStatus(s int32) {
+	*u.QiangDiZhuStatus = s
+}
+
 func (u *DdzUser) IsReady() bool {
 	return u.GetStatus() == DDZUSER_STATUS_READY
 }
 
 func (u *DdzUser) IsNotReady() bool {
 	return !u.IsReady()
+}
+
+//是否抢地主
+func (u *DdzUser) IsQiangDiZhu() bool {
+	return u.GetQiangDiZhuStatus() == DDZUSER_QIANGDIZHU_STATUS_QIANG
+}
+
+//是否不叫
+func (u *DdzUser) IsBuJiao() bool {
+	return u.GetQiangDiZhuStatus() == DDZUSER_QIANGDIZHU_STATUS_PASS
 }
 
 func (u *DdzUser) DelHandlPai(pais *PPokerPai) {
@@ -80,3 +100,7 @@ func (u *DdzUser) GetHandPaiCount() int32 {
 	return len(u.GameData.HandPokers)
 }
 
+func (u *DdzUser) beginInit() error{
+	return nil
+
+}
