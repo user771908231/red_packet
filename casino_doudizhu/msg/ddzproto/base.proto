@@ -95,14 +95,6 @@ message ProtoHeader {
 
 ///////////////////////////////////////////////////
 
-// 房间类型信息：包含房间类型和对应的局数、封顶、玩法等信息
-// 房间类型枚举
-enum DDZRoomType {
-    roomType_jingDianDDZ = 0;  //  经典斗地主
-    roomType_huanLeDDZ = 1;   //  欢乐斗地主
-    roomType_siChuanDDZ = 2;  //  四川斗地主
-}
-
 //扑克花色
 enum PokerColor {
     HONGTAO = 1; //  红桃
