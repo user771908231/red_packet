@@ -49,6 +49,11 @@ func NewError(errCode int32, errStr string) error {
 	return &Error{errCode, errStr}
 }
 
+func NewFailError(msg string) error {
+	return &Error{intCons.ACK_RESULT_FAIL, msg}
+
+}
+
 func OK() Error {
 	return Error{0, ""}
 }
