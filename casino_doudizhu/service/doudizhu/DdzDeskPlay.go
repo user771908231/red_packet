@@ -123,7 +123,9 @@ func (d *DdzDesk) beginQiangDiZhu() error {
 }
 //一场结束
 func (d *DdzDesk) Lottery() {
-
+	//开始结算....
+	//1,计算炸弹的个数，计算分数
+	//2,发送结算的同志
 }
 
 //牌局结束
@@ -268,7 +270,6 @@ func (d *DdzDesk) QiangDiZhu(userId uint32, qiangType int32) error {
 		d.afterQiangDizhu()
 	} else {
 		//todo 给nextUser 发送抢地主的协议
-
 	}
 
 	return nil
