@@ -31,6 +31,11 @@ message PDdzDeskTongJi {
 
 }
 
+enum EDDZTYPE {
+    DDZ_TYPE_HUANLEDIZHU = 1; //欢乐斗地主
+    DDZ_TYPE_SICHUAN = 2; //四川地主
+}
+
 //desk
 message PDdzDesk {
     optional int32 deskId = 1;
@@ -47,13 +52,16 @@ message PDdzDesk {
     optional int64 baseValue = 12; //关于统计的数据都在这
     optional int64 qingDizhuValue = 13; //关于统计的数据都在这
     optional int64 winValue = 14; //关于统计的数据都在这
+    optional int32 ddzType = 15; //游戏类型
 
 }
 
 //游戏数据
 message PGameData {
-    repeated PPokerPai handPokers = 4; //所有的牌
-    repeated PPokerPai boomPokers = 5; //打出的炸弹 (没有打出的炸弹不会放在这里)
+    repeated PPokerPai handPokers = 1; //所有的牌
+    repeated POutPokerPais outPaiList = 2; //当前出的牌
+    optional POutPokerPais outPai = 3; //当前出的牌
+
 }
 
 
@@ -79,7 +87,6 @@ message PDdzUser {
     optional int32 status = 3; //用户的游戏状态，本剧斗地主的状态
     optional bool isBreak = 4; //是否掉线
     optional bool isLeave = 5; //是否掉线
-    optional POutPokerPais outPaiList = 6; //当前出的牌
     optional int32 qiangDiZhuStatus = 7; //抢地主的状态
     optional PDdzBill bill = 8; // 斗地主的账单
 
