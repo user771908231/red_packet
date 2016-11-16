@@ -641,7 +641,8 @@ func (u *MjUser) AddBill(relationUserid uint32, billType int32, des string, scor
 	bill := NewBillBean()
 	*bill.UserId = u.GetUserId()
 	*bill.OutUserId = relationUserid
-	*bill.Type = MJUSER_BILL_TYPE_YING_HU
+	//*bill.Type = MJUSER_BILL_TYPE_YING_HU
+	*bill.Type = billType
 	*bill.Des = des
 	*bill.Amount = score        //杠牌的收入金额
 	bill.Pai = pai

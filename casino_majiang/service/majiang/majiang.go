@@ -595,6 +595,7 @@ func getHuFan(handPai *MJHandPai, isZimo bool, is19 bool, extraAct HuPaiType, mj
 	fanXingStr := ""
 	jiaFanStr := ""
 	gouStr := ""
+	fengdingStr := ""
 	//基本番型 勾数 总番型-加番类型(加番数)x出现次数
 
 	pais := []*MJPai{}
@@ -796,6 +797,7 @@ func getHuFan(handPai *MJHandPai, isZimo bool, is19 bool, extraAct HuPaiType, mj
 	//顶番
 	if fan > FAN_TOP {
 		fan = FAN_TOP
+		fengdingStr = "封顶"
 	}
 
 	fanStr := fmt.Sprint("%d番", fan)
@@ -804,6 +806,7 @@ func getHuFan(handPai *MJHandPai, isZimo bool, is19 bool, extraAct HuPaiType, mj
 	huCardStr = append(huCardStr, gouStr)
 	huCardStr = append(huCardStr, fanStr)
 	huCardStr = append(huCardStr, jiaFanStr)
+	huCardStr = append(huCardStr, fengdingStr)
 
 	return fan, huCardStr
 }
