@@ -23,7 +23,7 @@ func init() {
 	handler(&ddzproto.Game_ShowHandPokers{}, handlerShowHandPokers)    //
 	handler(&ddzproto.Game_MenuZhua{}, handlerMenuZhua)    //
 	handler(&ddzproto.Game_SeeCards{}, handlerSeeCards)    //
-	handler(&ddzproto.Game_Pull{}, handlerull)    //
+	handler(&ddzproto.Game_Pull{}, handlePull)    //
 	handler(&ddzproto.Game_OutCards{}, handlerChuPai)    //
 	handler(&ddzproto.Game_ActGuo{}, handlerActGuo)    //
 	handler(&ddzproto.Game_SendCurrentResult{}, handlerSendCurrentResult)    //
@@ -43,71 +43,73 @@ func handlerCreateDesk(args []interface{}) {
 
 //进入房间
 func HandlerEnterRoom(args []interface{}) {
+	m := args[0].(*ddzproto.Game_EnterRoom)
 
 }
 
 //准备
 func handlerReady(args []interface{}) {
+	m := args[0].(*ddzproto.Game_Ready)
 
 }
 
 func handlerJiaoDiZhu(args []interface{}) {
-
+	m := args[0].(*ddzproto.Game_JiaoDiZhu)
 }
 
 //明牌
 func handlerShowHandPokers(args []interface{}) {
-
+	m := args[0].(*ddzproto.Game_ShowHandPokers)
 }
 
 //闷牌
 func handlerMenuZhua(args []interface{}) {
-
+	m := args[0].(*ddzproto.Game_MenuZhua)
 }
 func handlerSeeCards(args []interface{}) {
-
+	m := args[0].(*ddzproto.Game_SeeCards)
 }
 
-func handlerull(args []interface{}) {
-
+func handlePull(args []interface{}) {
+	m := args[0].(*ddzproto.Game_Pull)
 }
 
 //抢地主
 func handlerQiangDiZhu(args []interface{}) {
-
+	m := args[0].(*ddzproto.Game_RobDiZhu)
 }
 
 func handlerActGuo(args []interface{}) {
-
+	m := args[0].(*ddzproto.Game_ActGuo)
 }
 
 func handlerSendCurrentResult(args []interface{}) {
-
+	m := args[0].(*ddzproto.Game_SendCurrentResult)
 }
 
 func handlerDissolveDesk(args []interface{}) {
-
+	m := args[0].(*ddzproto.Game_DissolveDesk)
 }
 
 func handlerLeaveDesk(args []interface{}) {
-
+	m := args[0].(*ddzproto.Game_LeaveDesk)
 }
 
 func hanlerMessage(args []interface{}) {
-
+	m := args[0].(*ddzproto.Game_Message)
 }
 func handlerGameRecord(args []interface{}) {
-
+	m := args[0].(*ddzproto.Game_GameRecord)
 }
 
 //加倍
 func handlerJiaBei(args []interface{}) {
-
+	m := args[0].(*ddzproto.Game_Double)
 }
 
 //出牌
 func handlerChuPai(args []interface{}) {
-
+	m := args[0].(*ddzproto.Game_OutCards)
 }
 
 
