@@ -10,7 +10,7 @@ import (
 
 func init() {
 	msg.Processor.SetRouter(&bbproto.NullMsg{}, game.ChanRPC)        //空协议
-	msg.Processor.SetRouter(ddzproto.Game_Login{}, login.ChanRPC)    //登录协议
+	msg.Processor.SetRouter(&ddzproto.Game_Login{}, login.ChanRPC)    //登录协议
 
 	//游戏
 	msg.Processor.SetRouter(&ddzproto.Game_CreateRoom{}, game.ChanRPC)    //创建房间

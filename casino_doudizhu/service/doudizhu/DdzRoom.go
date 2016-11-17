@@ -9,7 +9,7 @@ import (
 )
 
 //初始化一个斗地主的房间实例
-var FDdzRoomIns DdzRoom = new(DdzRoom)
+var FDdzRoomIns *DdzRoom = new(DdzRoom)
 
 //斗地主的房间
 type  DdzRoom struct {

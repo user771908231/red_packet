@@ -21,7 +21,7 @@ func (d *DdzDesk) Update2Redis() error {
 	bak := NewPDdzbak()
 	bak.Desk = d.PDdzDesk
 	for _, u := range d.Users {
-		bak.Users = append(d.Users, u)
+		bak.Users = append(bak.Users, u.PDdzUser)
 	}
 
 	//备份desk的数据
@@ -70,7 +70,7 @@ func (d *DdzDesk) AddUser(userId uint32) error {
 }
 
 func (d *DdzDesk) AddUserBean(user *DdzUser) error {
-	for i := 0; len(d.Users); i++ {
+	for i := 0; i < len(d.Users); i++ {
 		if d.Users[i] == nil {
 			d.Users[i] = user
 			return nil

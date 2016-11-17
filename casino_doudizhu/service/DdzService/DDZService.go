@@ -18,7 +18,8 @@ import (
 //创建房间
 func HandlerCreateDesk(userId uint32, a gate.Agent) {
 	room := doudizhu.GetFDdzRoom()
-	room.CreateDesk()
+	desk := room.CreateDesk(userId)
+	log.T("新创建的desk[%v]", desk)
 }
 
 //进入房间的逻辑
@@ -103,6 +104,6 @@ func HandlerActOut(userId uint32) error {
 
 //pass的协议
 func HandlerActPass() error {
-
+	return nil
 }
 

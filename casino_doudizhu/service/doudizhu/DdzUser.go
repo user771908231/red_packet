@@ -64,7 +64,7 @@ func (u *DdzUser) IsBuJiao() bool {
 	return u.GetQiangDiZhuStatus() == DDZUSER_QIANGDIZHU_STATUS_PASS
 }
 
-func (u *DdzUser) DelHandlPai(pais *PPokerPai) {
+func (u *DdzUser) DelHandlPai(pais *PPokerPai) error {
 	index := -1
 	for i, pai := range u.GameData.HandPokers {
 		if pai != nil && pai.GetId() == pais.GetId() {
@@ -86,7 +86,7 @@ func (u *DdzUser) DelHandlPai(pais *PPokerPai) {
 //增加出牌
 func (u *DdzUser) DOPoutPokerPais(out *POutPokerPais) error {
 	//1，增加出的牌
-	u.OutPaiList = append(u.OutPaiList, out)
+	u.GameData.OutPaiList = append(u.GameData.OutPaiList, out)
 
 	//2，删除手牌
 	for _, p := range out.PokerPais {
@@ -98,7 +98,7 @@ func (u *DdzUser) DOPoutPokerPais(out *POutPokerPais) error {
 
 //得到玩家手牌的张数
 func (u *DdzUser) GetHandPaiCount() int32 {
-	return len(u.GameData.HandPokers)
+	return  int32(len(u.GameData.HandPokers))
 }
 
 func (u *DdzUser) beginInit() error {

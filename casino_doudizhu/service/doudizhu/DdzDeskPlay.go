@@ -17,7 +17,7 @@ func (d *DdzDesk) EnterUser(userId uint32) error {
 		olduser.SetOnline()
 		//todo 返回信息
 		olduser.UpdateSession()       //更新session 信息，这里可以更具需求来保存对应的属性...
-		return
+		return nil
 	}
 
 	//新进入
@@ -183,7 +183,7 @@ func (d *DdzDesk) CheckOutUser(userId uint32) error {
 }
 
 //打牌
-func (d *DdzDesk) ActOut(userId uint32, out POutPokerPais) error {
+func (d *DdzDesk) ActOut(userId uint32, out *POutPokerPais) error {
 
 	err := d.CheckOutUser(userId)
 	if err != nil {
@@ -222,7 +222,7 @@ func (d *DdzDesk) ActOut(userId uint32, out POutPokerPais) error {
 	if user.GetHandPaiCount() == 0 {
 		//出牌的人 手牌为0，表示游戏结束
 		d.Lottery(user)
-		return
+		return nil
 	}
 
 	d.NextUser()
@@ -242,7 +242,7 @@ func (d *DdzDesk) NextUser() error {
 		return Error.NewError(-1, "轮到一下个玩家的时候出错.")
 	}
 
-	nextUser := d.Users[(index + 1) % d.UserCountLimit]
+	nextUser := d.Users[(index + 1) % int(d.GetUserCountLimit())]
 	if nextUser == nil {
 		log.E("轮到下一个玩家的时候出错,desk.activeUser[%v]", d.GetActiveUser())
 		return Error.NewError(-1, "轮到一下个玩家的时候出错.")
