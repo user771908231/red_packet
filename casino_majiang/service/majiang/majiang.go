@@ -36,8 +36,23 @@ var FAN_LONGQIDUI int32 = 4 //龙七对 4番
 var FAN_QINGQIDUI int32 = 4 //清七对 4番
 var FAN_JIANGQIDUI int32 = 4 //将七对 4番
 var FAN_QINGYAOJIU int32 = 4 //清幺九 4番
-var FAN_TIAN_DI_HU int32 = 5 //天地胡
 var FAN_QINGLONGQIDUI int32 = 5 //清龙七对
+var FAN_TIAN_DI_HU int32 = 5 //天地胡
+
+//胡牌番型类型
+//var FAN_TYPE_PINGHU int32 = 0 //平胡
+//var FAN_TYPE_DADUIZI int32 = 1 //大对子
+//var FAN_TYPE_QINGYISE int32 = 2 //清一色
+//var FAN_TYPE_DAIYAOJIU int32 = 3 //带幺九
+//var FAN_TYPE_QIDUI int32 = 4 //七对
+//var FAN_TYPE_QINGDUI int32 = 5 //清对
+//var FAN_TYPE_JIANGDUI int32 = 6 //将对
+//var FAN_TYPE_LONGQIDUI int32 = 7 //龙七对
+//var FAN_TYPE_QINGQIDUI int32 = 8 //清七对
+//var FAN_TYPE_JIANGQIDUI int32 = 9 //将七对
+//var FAN_TYPE_QINGYAOJIU int32 = 10 //清幺九
+//var FAN_TYPE_QINGLONGQIDUI int32 = 11 //清龙七对
+
 
 //加番
 var FAN_ZIMO int32 = 1 //自摸
@@ -592,9 +607,12 @@ func getGou(handPai *MJHandPai, handCounts[] int) (gou int32) {
 func getHuFan(handPai *MJHandPai, isZimo bool, is19 bool, extraAct HuPaiType, mjDesk *MjDesk) (fan int32, huCardStr[] string) {
 	fan = int32(0)
 
+	//huFanType :=
+
 	fanXingStr := ""
 	jiaFanStr := ""
 	gouStr := ""
+	fengdingStr := ""
 	//基本番型 勾数 总番型-加番类型(加番数)x出现次数
 
 	pais := []*MJPai{}
@@ -726,7 +744,7 @@ func getHuFan(handPai *MJHandPai, isZimo bool, is19 bool, extraAct HuPaiType, mj
 	if isZimo {
 		if mjDesk.IsNeedZiMoJiaFan() {
 			fan += FAN_ZIMO
-			jiaFanStr = fmt.Sprint("自摸(+%d番)", FAN_ZIMO)
+			jiaFanStr = fmt.Sprintf("自摸(+%d番)", FAN_ZIMO)
 		} else if mjDesk.IsNeedZiMoJiaDi() {
 			//result += di
 			jiaFanStr = "自摸"
@@ -752,31 +770,31 @@ func getHuFan(handPai *MJHandPai, isZimo bool, is19 bool, extraAct HuPaiType, mj
 
 	case HuPaiType_H_GangShangHua:
 		fan += FAN_GANGSHANGHUA
-		jiaFanStr = fmt.Sprint("杠上花(+%d番)", FAN_GANGSHANGHUA)
+		jiaFanStr = fmt.Sprintf("杠上花(+%d番)", FAN_GANGSHANGHUA)
 
 	case HuPaiType_H_GangShangPao:
 		fan += FAN_GANGSHANGPAO
-		jiaFanStr = fmt.Sprint("杠上炮(+%d番)", FAN_GANGSHANGPAO)
+		jiaFanStr = fmt.Sprintf("杠上炮(+%d番)", FAN_GANGSHANGPAO)
 
 	case HuPaiType_H_HaiDiLao:
 		fan += FAN_HD_HUA
-		jiaFanStr = fmt.Sprint("海底花(+%d番)", FAN_HD_HUA)
+		jiaFanStr = fmt.Sprintf("海底花(+%d番)", FAN_HD_HUA)
 
 	case HuPaiType_H_HaiDiPao:
 		fan += FAN_HD_PAO
-		jiaFanStr = fmt.Sprint("海底炮(+%d番)", FAN_HD_PAO)
+		jiaFanStr = fmt.Sprintf("海底炮(+%d番)", FAN_HD_PAO)
 
 	case HuPaiType_H_QiangGang:
 		fan += FAN_QIANGGANG
-		jiaFanStr = fmt.Sprint("抢杠(+%d番)", FAN_QIANGGANG)
+		jiaFanStr = fmt.Sprintf("抢杠(+%d番)", FAN_QIANGGANG)
 
 	case HuPaiType_H_HaidiGangShangHua:
 		fan += FAN_HD_GANGSHANGHUA
-		jiaFanStr = fmt.Sprint("海底杠上花(+%d番)", FAN_HD_GANGSHANGHUA)
+		jiaFanStr = fmt.Sprintf("海底杠上花(+%d番)", FAN_HD_GANGSHANGHUA)
 
 	case HuPaiType_H_HaidiGangShangPao:
 		fan += FAN_HD_GANGSHANGPAO
-		jiaFanStr = fmt.Sprint("海底杠上炮(+%d番)", FAN_HD_GANGSHANGPAO)
+		jiaFanStr = fmt.Sprintf("海底杠上炮(+%d番)", FAN_HD_GANGSHANGPAO)
 	default:
 	}
 
@@ -789,21 +807,23 @@ func getHuFan(handPai *MJHandPai, isZimo bool, is19 bool, extraAct HuPaiType, mj
 		if gou > 0 {
 			//str, _ := numUtils.Int2String(gou)
 			//gouStr = append(gouStr, "勾X" + str)
-			gouStr = fmt.Sprint("勾X%d", gou)
+			gouStr = fmt.Sprintf("勾x%d", gou)
 		}
 	}
 
 	//顶番
 	if fan > FAN_TOP {
 		fan = FAN_TOP
+		fengdingStr = "封顶"
 	}
 
-	fanStr := fmt.Sprint("%d番", fan)
+	fanStr := fmt.Sprintf("%d番", fan)
 
 	huCardStr = append(huCardStr, fanXingStr)
 	huCardStr = append(huCardStr, gouStr)
 	huCardStr = append(huCardStr, fanStr)
 	huCardStr = append(huCardStr, jiaFanStr)
+	huCardStr = append(huCardStr, fengdingStr)
 
 	return fan, huCardStr
 }

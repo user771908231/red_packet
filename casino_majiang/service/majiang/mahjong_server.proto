@@ -134,15 +134,18 @@ message StatiscRound {
     optional int32 GameNumber = 2;
     optional string Result = 3; //胡牌的结果
     optional int64 WinAmount = 4; //分数
-    optional int32 CountHu = 5;
-    optional int32 CountZiMo = 6;
-    optional int32 CountDianPao = 7;
-    optional int32 CountAnGang = 8;
-    optional int32 CountMingGang = 9;
-    optional int32 CountDianGang = 10;
-    optional int32 CountChaJiao = 11;
-    optional int32 CountBaGnag = 12;
+    optional int32 CountHu = 5; //胡
+    optional int32 CountZiMo = 6; //自摸
+    optional int32 CountDianPao = 7; //点炮
+    optional int32 CountAnGang = 8; //暗杠
+    optional int32 CountMingGang = 9; //明杠
+    optional int32 CountDianGang = 10; //点杠
+    optional int32 CountChaJiao = 11; //查叫
+    optional int32 CountBaGnag = 12; //巴杠
 
+    optional int32 CountBeiBaGang = 13; //被巴杠
+    optional int32 CountBeiAnGang = 14; //被暗杠
+    optional int32 CountBeiZiMo = 15; //被自摸
 }
 
 message MjUserStatisc {
@@ -155,6 +158,11 @@ message MjUserStatisc {
     optional int32 CountDianGang = 7; //点杠的次数
     optional int32 CountChaJiao = 8; //
     repeated StatiscRound roundBean = 9; //
+
+    optional int32 CountBaGang = 10; //巴杠
+    optional int32 CountBeiBaGang = 11; //被巴杠
+    optional int32 CountBeiAnGang = 12; //被暗杠
+    optional int32 CountBeiZiMo = 13; //被自摸
 } //手里的一副牌
 
 message MjUser {

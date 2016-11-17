@@ -20,6 +20,7 @@ import (
 	"casino_majiang/service/lock"
 	"casino_server/utils"
 	"casino_server/common/Error"
+	"fmt"
 )
 
 //状态表示的是当前状态.
@@ -502,8 +503,11 @@ func (d *MjDesk) begin() error {
 			return err
 		}
 	} else if d.IsSanRenLiangFang() {
-		//三人两房 不需要定缺
-		//TODO 服务器模拟定"万"缺
+		//三人两房 模拟定"万"缺
+		users := d.GetUsers()
+		for i := 0; i < len(users); i++ {
+			d.DingQue(users[i].GetUserId(), W)
+		}
 		err = d.BeginStart()
 		if err != nil {
 			log.E("发送游戏开始的广播的时候出错err[%v]", err)
@@ -619,9 +623,10 @@ func (d *MjDesk) initCards() error {
 	d.SetStatus(MJDESK_STATUS_FAPAI)        //发牌的阶段
 
 	d.AllMJPai = XiPai()
-	if d.IsSanRenLiangFang() {
-
+	if d.IsSanRenLiangFang() { //如果是三人两房 过滤掉万牌
+		d.AllMJPai = IgnoreFlower(d.AllMJPai, W)
 	}
+	//TODO 三人两房对玩家手牌的处理
 	//d.AllMJPai = XiPaiTestHu()
 	//给每个人初始化...
 	for i, u := range d.Users {
@@ -1113,8 +1118,8 @@ func (d *MjDesk) GetJiaoInfos(user *MjUser) []*mjproto.JiaoInfo {
 			mjPaiLeftCount := int32(d.GetLeftPaiCount(user, mjPai)) //该可胡牌在桌面中的剩余数量 注 对于自己而言的剩余
 			if mjPaiLeftCount == 0 {
 				//log.T("left pai count is 0 continue")
-				//剩余数为零不用循环
-				continue
+				//桌面剩余牌数为零也要加入jiaoinfo
+				//continue
 			}
 			//log.T("拿%v尝试胡牌", mjPai.GetDes())
 			handPai.InPai = mjPai
@@ -1125,10 +1130,9 @@ func (d *MjDesk) GetJiaoInfos(user *MjUser) []*mjproto.JiaoInfo {
 			isContainQue := user.GetGameData().GetHandPai().IsContainQue(user)
 			if isContainQue {
 				canHu, is19 = false, false
+			}else {
+				canHu, is19 = handPai.GetCanHu()
 			}
-
-			canHu, is19 = handPai.GetCanHu()
-
 			if canHu {
 				//log.T("可胡")
 				//可胡
@@ -1322,6 +1326,9 @@ func (d *MjDesk) GetNextMoPaiUser() *MjUser {
 func (d *MjDesk) GetNextPai() *MJPai {
 	*d.MJPaiCursor ++
 	//目前暂时是108张牌...
+	if d.IsSanRenLiangFang() {
+		
+	}
 	if d.GetMJPaiCursor() >= 108 {
 		log.E("服务器错误:要找的牌的坐标[%v]已经超过整副麻将的坐标了... ", d.GetMJPaiCursor())
 		*d.MJPaiCursor --
@@ -1598,42 +1605,83 @@ func (d *MjDesk)ActHu(userId uint32) error {
 
 	//得到胡牌的信息
 	var isZimo bool = false //是否是自摸
-	var isGangShangHua bool = false //是否是杠上花
-	var isGangShangPao bool = false
+	var isGangShangHua	bool = false //是否是杠上花
+	var isGangShangPao	bool = false //是否是杠上炮
+	var isHaidiGangshanghua bool = false //是否是海底杠上花
+	var isHaidiGangshangpao bool = false //是否是海底杠上炮
+	var isHaiDiLao		bool = false //是否是海底捞
+
+	var isLastPai		bool = false //是否是最后一张牌
+	var isPreMoGang		bool = false //之前是否有摸杠
+
 	var extraAct mjproto.HuPaiType = 0        //杠上花，
 	var outUserId uint32
 	var roomInfo mjproto.RoomTypeInfo = *d.GetRoomTypeInfo()  //roomType  桌子的规则
 	var outUser *MjUser
 
 	hupai := huUser.GameData.HandPai.InPai
-	if checkCase == nil {
-		//表示是自摸
+
+
+	if d.GetNextPai() == nil { //海底捞 胡的时候桌面没牌了
+		isLastPai = true
+	}
+	if checkCase == nil { //自摸
 		isZimo = true
 		outUserId = userId
-		if huUser.GetPreMoGangInfo() != nil {
-			isGangShangHua = true  //杠上花
-			extraAct = mjproto.HuPaiType_H_GangShangHua
-		} else {
-			extraAct = 0
-		}
-
-	} else {
-		isZimo = false                //表示是点炮
+	}else {
 		outUserId = checkCase.GetUserIdOut()
-		if checkCase.GetPreOutGangInfo() != nil {
-			//这里需要判断是杠上炮，还是抢杠
-			isGangShangPao = true//杠上炮
-			extraAct = mjproto.HuPaiType_H_GangShangPao
-		} else {
-
-		}
 	}
+	if huUser.GetPreMoGangInfo() != nil {
+		isPreMoGang = true
+	}
+	switch {
+	case isZimo && isPreMoGang && !isLastPai : // 杠上花
+		isGangShangHua = true  //杠上花
+		extraAct = mjproto.HuPaiType_H_GangShangHua
+	case !isZimo && isPreMoGang && !isLastPai : //杠上炮
+		isGangShangPao = true//杠上炮
+		extraAct = mjproto.HuPaiType_H_GangShangPao
+	case !isZimo && isPreMoGang && isLastPai ://海底杠上炮
+		isHaidiGangshangpao = true
+		extraAct = mjproto.HuPaiType_H_HaidiGangShangPao
+	case isZimo && isPreMoGang && isLastPai ://海底杠上花
+		isHaidiGangshanghua = true
+		extraAct = mjproto.HuPaiType_H_HaidiGangShangHua
+	case isZimo && !isPreMoGang && isLastPai ://海底捞
+		isHaiDiLao = true
+		extraAct = mjproto.HuPaiType_H_HaiDiLao
+	default:
+		extraAct = 0
+	}
+
+	//if checkCase == nil {
+	//	//表示是自摸
+	//	isZimo = true
+	//	outUserId = userId
+	//	if huUser.GetPreMoGangInfo() != nil {
+	//		isGangShangHua = true  //杠上花
+	//		extraAct = mjproto.HuPaiType_H_GangShangHua
+	//	} else {
+	//		extraAct = 0
+	//	}
+	//
+	//} else {
+	//	isZimo = false                //表示是其他玩家点炮
+	//	outUserId = checkCase.GetUserIdOut()
+	//	if checkCase.GetPreOutGangInfo() != nil {
+	//		//这里需要判断是杠上炮，还是抢杠
+	//		isGangShangPao = true//杠上炮
+	//		extraAct = mjproto.HuPaiType_H_GangShangPao
+	//	} else {
+	//
+	//	}
+	//}
+
 
 	outUser = d.GetUserByUserId(outUserId)
 
-	log.T("点炮的人[%v],胡牌的人[%v],杠上花[%v],杠上炮[%v],接下来开始getHuScore(%v,%v,%v,%v)", userId, outUserId, isGangShangHua, isGangShangPao,
-		huUser.GameData.HandPai, isZimo, extraAct, roomInfo)
-
+	log.T("点炮的人[%v],胡牌的人[%v],杠上花[%v],杠上炮[%v],海底杠上花[%v],海底杠上炮[%v],海底捞[%v] ", userId, outUserId, isGangShangHua, isGangShangPao, isHaidiGangshanghua, isHaidiGangshangpao, isHaiDiLao)
+	log.T("接下来开始getHuScore(%v,%v,%v,%v)",huUser.GameData.HandPai, isZimo, extraAct, roomInfo)
 	fan, score, huCardStr := GetHuScore(huUser.GameData.HandPai, isZimo, is19, extraAct, roomInfo, d)
 	log.T("胡牌(getHuScore)之后的结果fan[%v],score[%v],huCardStr[%v]", fan, score, huCardStr)
 
@@ -2046,23 +2094,70 @@ func (d *MjDesk) GetWinCoinInfo(user *MjUser) *mjproto.WinCoinInfo {
 	*win.WinCoin = user.Bill.GetWinAmount()        //本次输赢多少(负数表示输了)
 	*win.Coin = user.GetCoin()        // 输赢以后，当前筹码是多少
 	*win.CardTitle = d.GetCardTitle4WinCoinInfo(user)// 赢牌牌型信息( 如:"点炮x2 明杠x2 根x2 自摸 3番" )
+	log.T("用户[%v]的CardTitle is [%v]", user.GetUserId(), *win.CardTitle)
 	win.Cards = user.GetPlayerCard(true) //牌信息,true 表示要显示牌的信息...
 	*win.IsDealer = user.GetIsBanker()      //是否是庄家
-	*win.HuCount = user.Statisc.GetCountHu()        //本局胡的次数(血流成河会多次胡)
+	//*win.HuCount = user.Statisc.GetCountHu()        //本局胡的次数(血流成河会多次胡)
+	*win.HuCount = user.GetStatisticsRoundBean(d.GetCurrPlayCount()).GetCountHu() //本局胡的次数(血流成河会多次胡)
+	log.T("用户[%v]的HuCount is [%v]", user.GetUserId(), *win.HuCount)
 	return win
 }
 
 //得到这个人的胡牌描述
 func (d *MjDesk) GetCardTitle4WinCoinInfo(user *MjUser) string {
-	var huDesk string = ""                //胡牌的描述...
-	//todo
-	user.GetBill().GetBills()
-	user.GetBill().GetWinAmount()
-	//目前暂时返回hu的信息
-	if user.GameData.HuInfo != nil && len(user.GameData.HuInfo) > 0 {
-		huDesk = user.GameData.HuInfo[0].GetHuDesc()
+	//todo 统计单局信息
+
+	var huDes []string
+	shuBaGangStr := ""
+	shuAnGangStr := ""
+	shuDianPaoStr := ""
+	shuGangStr := ""
+	shuZimoStr := ""
+	var shuBaGangCount, shuAnGangCount, shuDianPaoCount, shuGangCount, shuZimoCount int
+	//获取输的账单信息
+	bills := user.GetBill().GetBills()
+	count := 1 //统计数大于count才显示
+	for _, bill := range bills  {
+		switch bill.GetType() {
+		case MJUSER_BILL_TYPE_SHU_BA_GANG :
+			shuBaGangCount++
+			if shuBaGangCount > count {
+				shuBaGangStr = fmt.Sprintf("被巴杠x%d", shuBaGangCount)
+			}
+		case MJUSER_BILL_TYPE_SHU_AN_GNAG :
+			shuAnGangCount++
+			if shuAnGangCount > count {
+				shuAnGangStr = fmt.Sprintf("被暗杠x%d", shuAnGangCount)
+			}
+		case MJUSER_BILL_TYPE_SHU_DIANPAO :
+			shuDianPaoCount++
+			if shuDianPaoCount > count {
+				shuDianPaoStr = fmt.Sprintf("点炮x%d", shuDianPaoCount)
+			}
+		case MJUSER_BILL_TYPE_SHU_GNAG :
+			shuGangCount++
+			if shuGangCount > count {
+				shuGangStr = fmt.Sprintf("点杠x%d", shuGangCount)
+			}
+		case MJUSER_BILL_TYPE_SHU_ZIMO :
+			shuZimoCount++
+			if shuZimoCount > count {
+				shuZimoStr =  fmt.Sprintf("被自摸x%d", shuZimoCount)
+			}
+		default:
+		}
 	}
-	return huDesk
+	//获取胡牌的信息
+	//todo 血流成河需要计算账单
+	if user.GameData.HuInfo != nil && len(user.GameData.HuInfo) > 0 {
+		huDes = append(huDes, user.GameData.HuInfo[0].GetHuDesc())
+	}
+	huDes = append(huDes, shuBaGangStr)
+	huDes = append(huDes, shuAnGangStr)
+	huDes = append(huDes, shuDianPaoStr)
+	huDes = append(huDes, shuGangStr)
+	huDes = append(huDes, shuZimoStr)
+	return strings.Join(huDes, " ")
 }
 
 //得到EndLotteryInfo结果...

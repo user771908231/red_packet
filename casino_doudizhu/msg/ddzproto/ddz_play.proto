@@ -166,5 +166,8 @@ message game_SendGameInfo {
     optional DeskGameInfo deskGameInfo = 3; //桌面信息（包括：游戏是否结束，当前轮到哪个玩家，倒计时剩余时间）
     
     optional uint32 senderUserId = 4; // 发起请求的人
+
+    optional int32  isReconnect = 5; // 1=正常连接（默认） 2=断线重连 
+
 }
 
