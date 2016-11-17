@@ -1,6 +1,6 @@
 syntax = "proto2";
 
-import public "base.proto";
+import public "ddz_base.proto";
 package ddzproto;
 option optimize_for = LITE_RUNTIME;
 
@@ -128,7 +128,7 @@ message game_OutCards {
 message game_OutCardsAck {
     optional ProtoHeader header         = 1;
     optional uint32      userId         = 2; //出牌的人(广播)
-    optional CardType    cardType       = 3; //打出的牌型
+    optional DdzPaiType    cardType       = 3; //打出的牌型
     optional int32       remainPokers   = 4; //手牌还剩多少张
 }
 
