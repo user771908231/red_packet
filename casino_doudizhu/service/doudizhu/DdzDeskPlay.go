@@ -3,16 +3,18 @@ package doudizhu
 import (
 	"casino_server/common/log"
 	"casino_server/common/Error"
+	"github.com/name5566/leaf/gate"
 )
 
 //这里主要存放 玩斗地主的一些多逻辑....其他的基本方法都放在DdzDesk中
 
 
 //
-func (d *DdzDesk) EnterUser(userId uint32) error {
+func (d *DdzDesk) EnterUser(userId uint32, a gate.Agent) error {
 	//判断是否是重复进入
 	olduser := d.GetUserByUserId(userId)
 	if olduser != nil {
+		olduser.setAgent(a)
 		//这里需要判断是否是短线重连
 		olduser.SetOnline()
 		//todo 返回信息

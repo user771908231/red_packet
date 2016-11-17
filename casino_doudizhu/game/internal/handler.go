@@ -26,10 +26,9 @@ func init() {
 	handler(&ddzproto.Game_Pull{}, handlePull)    //
 	handler(&ddzproto.Game_OutCards{}, handlerChuPai)    //
 	handler(&ddzproto.Game_ActGuo{}, handlerActGuo)    //
-	handler(&ddzproto.Game_SendCurrentResult{}, handlerSendCurrentResult)    //
 	handler(&ddzproto.Game_DissolveDesk{}, handlerDissolveDesk)    //
 	handler(&ddzproto.Game_LeaveDesk{}, handlerLeaveDesk)    //
-	handler(&ddzproto.Game_Message{}, hanlerMessage)    //
+	handler(&ddzproto.Game_Message{}, handlerMessage)    //
 	handler(&ddzproto.Game_GameRecord{}, handlerGameRecord)    //
 }
 
@@ -43,73 +42,90 @@ func handlerCreateDesk(args []interface{}) {
 
 //进入房间
 func HandlerEnterRoom(args []interface{}) {
-	//m := args[0].(*ddzproto.Game_EnterRoom)
+	m := args[0].(*ddzproto.Game_EnterRoom)
+	a := args[1].(gate.Agent)
+
+	var enterType int32 = 0
+	DdzService.HandlerEnterDesk(m.GetUserId(), m.GetPassWord(), enterType, a)
 
 }
 
 //准备
 func handlerReady(args []interface{}) {
-	//m := args[0].(*ddzproto.Game_Ready)
-
+	m := args[0].(*ddzproto.Game_Ready)
+	DdzService.HandlerFDdzReady(m.GetUserId())
 }
 
 func handlerJiaoDiZhu(args []interface{}) {
-	//m := args[0].(*ddzproto.Game_JiaoDiZhu)
+	m := args[0].(*ddzproto.Game_JiaoDiZhu)
+	DdzService.HandlerJiaoDiZhu(m.GetUserId())
 }
 
 //明牌
 func handlerShowHandPokers(args []interface{}) {
-	//m := args[0].(*ddzproto.Game_ShowHandPokers)
+	m := args[0].(*ddzproto.Game_ShowHandPokers)
+	DdzService.HandlerShowHandPokers(m.GetUserId())
 }
 
 //闷牌
 func handlerMenuZhua(args []interface{}) {
-	//m := args[0].(*ddzproto.Game_MenuZhua)
+	m := args[0].(*ddzproto.Game_MenuZhua)
+	DdzService.HandlerMenuZhua(m.GetUserId())
+
 }
 func handlerSeeCards(args []interface{}) {
-	//m := args[0].(*ddzproto.Game_SeeCards)
+	m := args[0].(*ddzproto.Game_SeeCards)
+	DdzService.HandlerSeeCards(m.GetUserId())
 }
 
 func handlePull(args []interface{}) {
-	//m := args[0].(*ddzproto.Game_Pull)
+	m := args[0].(*ddzproto.Game_Pull)
+	DdzService.HandlePull(m.GetUserId())
 }
 
 //抢地主
 func handlerQiangDiZhu(args []interface{}) {
-	//m := args[0].(*ddzproto.Game_RobDiZhu)
+	m := args[0].(*ddzproto.Game_RobDiZhu)
+	DdzService.HandlerQiangDiZhu(m.GetUserId())
+
 }
 
 func handlerActGuo(args []interface{}) {
-	//m := args[0].(*ddzproto.Game_ActGuo)
-}
-
-func handlerSendCurrentResult(args []interface{}) {
-	//m := args[0].(*ddzproto.Game_SendCurrentResult)
+	m := args[0].(*ddzproto.Game_ActGuo)
+	DdzService.HandlerActPass(m.GetUserId())
 }
 
 func handlerDissolveDesk(args []interface{}) {
-	//m := args[0].(*ddzproto.Game_DissolveDesk)
+	m := args[0].(*ddzproto.Game_DissolveDesk)
+	DdzService.HandlerDissolveDesk(m.GetUserId())
 }
 
 func handlerLeaveDesk(args []interface{}) {
-	//m := args[0].(*ddzproto.Game_LeaveDesk)
+	m := args[0].(*ddzproto.Game_LeaveDesk)
+	DdzService.HandlerLeaveDesk(m.GetHeader().GetUserId())
 }
 
-func hanlerMessage(args []interface{}) {
+func handlerMessage(args []interface{}) {
 	//m := args[0].(*ddzproto.Game_Message)
+	DdzService.HandlerMessage()
+
 }
 func handlerGameRecord(args []interface{}) {
 	//m := args[0].(*ddzproto.Game_GameRecord)
+	DdzService.HandlerGameRecord()
+
 }
 
 //加倍
 func handlerJiaBei(args []interface{}) {
 	//m := args[0].(*ddzproto.Game_Double)
+	DdzService.HandlerJiaBei()
 }
 
 //出牌
 func handlerChuPai(args []interface{}) {
-	//m := args[0].(*ddzproto.Game_OutCards)
+	m := args[0].(*ddzproto.Game_OutCards)
+	DdzService.HandlerActOut(m.GetHeader().GetUserId())
 }
 
 

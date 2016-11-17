@@ -3,7 +3,6 @@ package internal
 import (
 	"reflect"
 	"casino_server/common/log"
-	"casino_majiang/msg/protogo"
 	"github.com/name5566/leaf/gate"
 	"casino_server/conf/intCons"
 	"casino_server/service/userService"
@@ -23,7 +22,7 @@ func init() {
 	登陆的协议...
  */
 func handlerGame_Login(args []interface{}) {
-	m := args[0].(*mjproto.Game_Login)
+	m := args[0].(*ddzproto.Game_Login)
 	a := args[1].(gate.Agent)
 
 	log.T("请求handlerGame_Login  m[%v]", m)

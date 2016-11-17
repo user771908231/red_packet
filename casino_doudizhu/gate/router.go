@@ -25,7 +25,6 @@ func init() {
 	msg.Processor.SetRouter(&ddzproto.Game_Pull{}, game.ChanRPC)    //
 	msg.Processor.SetRouter(&ddzproto.Game_OutCards{}, game.ChanRPC)    //
 	msg.Processor.SetRouter(&ddzproto.Game_ActGuo{}, game.ChanRPC)    //
-	msg.Processor.SetRouter(&ddzproto.Game_SendCurrentResult{}, game.ChanRPC)    //
 	msg.Processor.SetRouter(&ddzproto.Game_DissolveDesk{}, game.ChanRPC)    //
 	msg.Processor.SetRouter(&ddzproto.Game_LeaveDesk{}, game.ChanRPC)    //
 	msg.Processor.SetRouter(&ddzproto.Game_Message{}, game.ChanRPC)    //
