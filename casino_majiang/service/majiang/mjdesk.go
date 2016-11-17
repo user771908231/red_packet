@@ -1963,7 +1963,7 @@ func (d *MjDesk) ActGang(userId uint32, paiId int32) error {
 	user.GameData.GangInfo = append(user.GameData.GangInfo, info)
 	user.PreMoGangInfo = info        //增加杠牌状态
 	user.GameData.HandPai.InPai = nil        //1,设置inpai为nil
-	user.StatisticsGangCount(d.GetCurrPlayCount(), gangType)        //处理杠牌的账单
+	//user.StatisticsGangCount(d.GetCurrPlayCount(), gangType)        //处理杠牌的账单
 	user.DelGuoHuInfo()        //删除过胡的信息
 
 	d.DoGangBill(info);
@@ -2006,6 +2006,9 @@ func (d *MjDesk) DoGangBill(info *GangPaiInfo) {
 			if ou != nil && ou.GetUserId() != gangUser.GetUserId() && ou.IsGaming() {
 				gangUser.AddBill(ou.GetUserId(), MJUSER_BILL_TYPE_YING_AN_GNAG, "用户暗杠，收入", score, gangPai)        //用户赢钱的账户
 				ou.AddBill(gangUser.GetUserId(), MJUSER_BILL_TYPE_SHU_AN_GNAG, "用户暗杠，输钱", -score, gangPai)        //用户输钱的账单
+
+				gangUser.AddStatisticsCountAnGang(d.GetCurrPlayCount()) //暗杠用户的统计信息
+				ou.AddStatisticsCountBeiAnGang(d.GetCurrPlayCount()) //被暗杠用户的统计信息
 			}
 		}
 
@@ -2016,6 +2019,9 @@ func (d *MjDesk) DoGangBill(info *GangPaiInfo) {
 		gangUser.AddBill(shuUser.GetUserId(), MJUSER_BILL_TYPE_YING_GNAG, "用户点杠，收入", score, gangPai)        //用户赢钱的账户
 		shuUser.AddBill(gangUser.GetUserId(), MJUSER_BILL_TYPE_SHU_GNAG, "用户点杠，输钱", -score, gangPai)        //用户输钱的账单
 
+		gangUser.AddStatisticsCountMingGang(d.GetCurrPlayCount()) //明杠用户的统计信息
+		shuUser.AddStatisticsCountDianGang(d.GetCurrPlayCount()) //点杠用户的统计信息
+
 	} else if gangType == GANG_TYPE_BA {
 		//处理巴杠的账单
 		score := d.GetBaseValue()        //巴杠的分数
@@ -2023,6 +2029,9 @@ func (d *MjDesk) DoGangBill(info *GangPaiInfo) {
 			if ou != nil && ou.GetUserId() != gangUser.GetUserId() && ou.IsGaming() {
 				gangUser.AddBill(ou.GetUserId(), MJUSER_BILL_TYPE_YING_BA_GANG, "用户巴杠，收入", score, gangPai)        //用户赢钱的账户
 				ou.AddBill(gangUser.GetUserId(), MJUSER_BILL_TYPE_SHU_BA_GANG, "用户巴杠，输钱", -score, gangPai)        //用户输钱的账单
+
+				gangUser.AddStatisticsCountBaGang(d.GetCurrPlayCount()) //巴杠用户的统计信息
+				ou.AddStatisticsCountBeiBaGang(d.GetCurrPlayCount()) //被巴杠用户的统计信息
 
 			}
 		}
@@ -2050,6 +2059,8 @@ func (d *MjDesk)DoHuBill(hu *HuPaiInfo) {
 
 				//输钱的账单
 				shuUser.AddBill(huUser.GetUserId(), MJUSER_BILL_TYPE_SHU_ZIMO, "用户自摸，输钱", -hu.GetScore(), hu.Pai)
+
+				//huUser.AddStatisticsCount
 			}
 		}
 	} else {
