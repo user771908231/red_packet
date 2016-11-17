@@ -1130,10 +1130,9 @@ func (d *MjDesk) GetJiaoInfos(user *MjUser) []*mjproto.JiaoInfo {
 			isContainQue := user.GetGameData().GetHandPai().IsContainQue(user)
 			if isContainQue {
 				canHu, is19 = false, false
+			}else {
+				canHu, is19 = handPai.GetCanHu()
 			}
-
-			canHu, is19 = handPai.GetCanHu()
-
 			if canHu {
 				//log.T("可胡")
 				//可胡
@@ -1629,6 +1628,8 @@ func (d *MjDesk)ActHu(userId uint32) error {
 	if checkCase == nil { //自摸
 		isZimo = true
 		outUserId = userId
+	}else {
+		outUserId = checkCase.GetUserIdOut()
 	}
 	if huUser.GetPreMoGangInfo() != nil {
 		isPreMoGang = true
@@ -2104,6 +2105,8 @@ func (d *MjDesk) GetWinCoinInfo(user *MjUser) *mjproto.WinCoinInfo {
 
 //得到这个人的胡牌描述
 func (d *MjDesk) GetCardTitle4WinCoinInfo(user *MjUser) string {
+	//todo 统计单局信息
+
 	var huDes []string
 	shuBaGangStr := ""
 	shuAnGangStr := ""
@@ -2113,23 +2116,34 @@ func (d *MjDesk) GetCardTitle4WinCoinInfo(user *MjUser) string {
 	var shuBaGangCount, shuAnGangCount, shuDianPaoCount, shuGangCount, shuZimoCount int
 	//获取输的账单信息
 	bills := user.GetBill().GetBills()
+	count := 1 //统计数大于count才显示
 	for _, bill := range bills  {
 		switch bill.GetType() {
 		case MJUSER_BILL_TYPE_SHU_BA_GANG :
 			shuBaGangCount++
-			shuBaGangStr = fmt.Sprintf("被巴杠X%d", shuBaGangCount)
+			if shuBaGangCount > count {
+				shuBaGangStr = fmt.Sprintf("被巴杠x%d", shuBaGangCount)
+			}
 		case MJUSER_BILL_TYPE_SHU_AN_GNAG :
 			shuAnGangCount++
-			shuAnGangStr = fmt.Sprintf("被暗杠X%d", shuAnGangCount)
+			if shuAnGangCount > count {
+				shuAnGangStr = fmt.Sprintf("被暗杠x%d", shuAnGangCount)
+			}
 		case MJUSER_BILL_TYPE_SHU_DIANPAO :
 			shuDianPaoCount++
-			shuDianPaoStr = fmt.Sprintf("点炮X%d", shuDianPaoCount)
+			if shuDianPaoCount > count {
+				shuDianPaoStr = fmt.Sprintf("点炮x%d", shuDianPaoCount)
+			}
 		case MJUSER_BILL_TYPE_SHU_GNAG :
 			shuGangCount++
-			shuGangStr = fmt.Sprintf("点杠X%d", shuGangCount)
+			if shuGangCount > count {
+				shuGangStr = fmt.Sprintf("点杠x%d", shuGangCount)
+			}
 		case MJUSER_BILL_TYPE_SHU_ZIMO :
 			shuZimoCount++
-			shuZimoStr =  fmt.Sprintf("被自摸X%d", shuZimoCount)
+			if shuZimoCount > count {
+				shuZimoStr =  fmt.Sprintf("被自摸x%d", shuZimoCount)
+			}
 		default:
 		}
 	}
