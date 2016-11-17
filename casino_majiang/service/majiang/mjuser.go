@@ -380,6 +380,7 @@ func (u *MjUser) BeginInit(round int32, banker uint32) error {
 	statisticsRoundBean := NewStatiscRound()
 	*statisticsRoundBean.Round = round
 	u.Statisc.RoundBean = append(u.Statisc.RoundBean, statisticsRoundBean)
+
 	return nil
 }
 

@@ -141,7 +141,6 @@ func NewPlayerInfo() *mjProto.PlayerInfo {
 //麻将card
 func NewPlayerCard() *mjProto.PlayerCard {
 	card := &mjProto.PlayerCard{}
-	card.HuCard = new(int32)
 	card.UserId = new(uint32)
 	return card
 }
