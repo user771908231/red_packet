@@ -23,7 +23,7 @@ func init() {
 	handler(&ddzproto.Game_ShowHandPokers{}, handlerShowHandPokers)    //
 	handler(&ddzproto.Game_MenuZhua{}, handlerMenuZhua)    //
 	handler(&ddzproto.Game_SeeCards{}, handlerSeeCards)    //
-	handler(&ddzproto.Game_Pull{}, handlerull)    //
+	handler(&ddzproto.Game_Pull{}, handlePull)    //
 	handler(&ddzproto.Game_OutCards{}, handlerChuPai)    //
 	handler(&ddzproto.Game_ActGuo{}, handlerActGuo)    //
 	handler(&ddzproto.Game_SendCurrentResult{}, handlerSendCurrentResult)    //
@@ -70,13 +70,13 @@ func handlerSeeCards(args []interface{}) {
 	m := args[0].(*ddzproto.Game_SeeCards)
 }
 
-func handlerull(args []interface{}) { // rull or pull ?
+func handlePull(args []interface{}) {
 	m := args[0].(*ddzproto.Game_Pull)
 }
 
 //抢地主
 func handlerQiangDiZhu(args []interface{}) {
-	m := args[0].(*ddzproto.Game_)
+	m := args[0].(*ddzproto.Game_RobDiZhu)
 }
 
 func handlerActGuo(args []interface{}) {
@@ -104,12 +104,12 @@ func handlerGameRecord(args []interface{}) {
 
 //加倍
 func handlerJiaBei(args []interface{}) {
-	m := args[0].(*ddzproto.Game_)
+	m := args[0].(*ddzproto.Game_Double)
 }
 
 //出牌
 func handlerChuPai(args []interface{}) {
-	m := args[0].(*ddzproto.Game_)
+	m := args[0].(*ddzproto.Game_OutCards)
 }
 
 
