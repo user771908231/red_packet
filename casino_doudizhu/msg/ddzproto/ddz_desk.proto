@@ -45,7 +45,8 @@ message game_AckLeaveDesk {
 //准备游戏
 message game_Ready {
     optional ProtoHeader header = 1;
-    optional uint32 userId = 2; // 操作人 (广播给其它用户时用到)
+    optional uint32 userId = 2; // 操作人
+    optional bool isShowHandPokers = 3; // 明牌开始游戏（x5倍）
 }
 
 //准备游戏的结果
@@ -80,12 +81,13 @@ message game_SendMessage {
 message WinCoinInfo {
     optional string nickName = 1;
     optional uint32 userId = 2;
-    optional int64 winCoin = 3; // 本次输赢多少(负数表示输了)
-    optional int64 coin = 4; // 输赢以后，当前筹码是多少
-    optional string cardTitle = 5; // 赢牌牌型信息( 如:"点炮x2 明杠x2 根x2 自摸 3番" )
-    optional PlayerCard cards = 6; // 手牌
-    optional bool isDealer = 7; //是否庄家
-    optional int32 huCount = 8; //本局胡的次数(血流成河会多次胡)
+    optional int32 baseValue = 3; // 底分
+    optional int64 winCoin = 4; // 本次输赢多少(负数表示输了)
+    optional int64 coin = 5; // 输赢以后，当前筹码是多少
+    optional bool isDiZhu = 6; //是否地主
+    optional int32 rate = 7; // 倍数
+
+    optional string description = 8; // 赢牌描述信息 ( 如:"春天 炸弹x2" )
 }
 
 message EndLotteryInfo {
@@ -94,13 +96,10 @@ message EndLotteryInfo {
     optional bool bigWin = 3; //是否为大赢家
     optional bool isOwner = 4; //是否房主
     optional int64 winCoin = 5;     //总输赢筹码数
-    optional int32 countHu = 6;     //胡牌次数(含自摸+接炮)
-    optional int32 countZiMo = 7;       //自摸次数
-    optional int32 countDianPao = 8;    //点炮次数
-    optional int32 countAnGang = 9;     //暗杠次数
-    optional int32 countMingGang = 10;  //明杠次数
-    optional int32 countDianGang = 11;  //点杠次数
-    optional int32 countChaJiao = 12;   //查叫次数
+    optional int32 maxWinCoin = 6;   //单局最高分
+    optional int32 countBomb = 7;  //炸弹总数
+    optional int32 countWin = 8;    //赢了几局
+    optional int32 countLose = 9;   //输了几局
 }
 
 // 本局结果(广播)
@@ -112,6 +111,6 @@ message game_SendCurrentResult {
 // 牌局结束(广播)
 message game_SendEndLottery {
     optional ProtoHeader header = 1;
-    repeated EndLotteryInfo coinInfo = 2; //4人的汇总输赢明细
+    repeated EndLotteryInfo coinInfo = 2; //各人的汇总输赢明细
 }
 
