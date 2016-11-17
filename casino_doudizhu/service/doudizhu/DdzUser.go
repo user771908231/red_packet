@@ -5,6 +5,7 @@ import (
 	"casino_server/common/log"
 	"casino_server/common/Error"
 	"sync/atomic"
+	"github.com/name5566/leaf/gate"
 )
 
 var (
@@ -21,6 +22,7 @@ var (
 type DdzUser struct {
 	sync.Mutex
 	*PDdzUser
+	agent gate.Agent
 }
 
 //清楚session
@@ -44,6 +46,11 @@ func (u *DdzUser) SetStatus(s int32) {
 
 func (u *DdzUser) SetQiangDiZhuStatus(s int32) {
 	*u.QiangDiZhuStatus = s
+}
+
+//设置连接
+func (u *DdzUser) setAgent(a gate.Agent) {
+	u.agent = a
 }
 
 func (u *DdzUser) IsReady() bool {
@@ -98,7 +105,7 @@ func (u *DdzUser) DOPoutPokerPais(out *POutPokerPais) error {
 
 //得到玩家手牌的张数
 func (u *DdzUser) GetHandPaiCount() int32 {
-	return  int32(len(u.GameData.HandPokers))
+	return int32(len(u.GameData.HandPokers))
 }
 
 func (u *DdzUser) beginInit() error {
