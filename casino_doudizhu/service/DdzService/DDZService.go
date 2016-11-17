@@ -5,6 +5,7 @@ import (
 	"casino_doudizhu/service/doudizhu"
 	"errors"
 	"casino_server/common/Error"
+	"github.com/name5566/leaf/gate"
 )
 
 /*
@@ -12,6 +13,14 @@ import (
 	2,service作为逻辑入口
 
 */
+
+
+//创建房间
+func HandlerCreateDesk(userId uint32, a gate.Agent) {
+	room := doudizhu.GetFDdzRoom()
+	room.CreateDesk()
+}
+
 //进入房间的逻辑
 func HandlerEnterDesk(userId uint32, key string, deskType int32) error {
 	log.T("玩家[%v]进入斗地主的房间。", userId)
