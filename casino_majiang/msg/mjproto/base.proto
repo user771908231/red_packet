@@ -47,7 +47,7 @@ enum EProtoId {
     PID_GAME_DINGQUEEND = 39; //定缺结束的广播
     PID_GAME_GAMERECORD = 40; //查询战绩
     PID_GAME_ACKGAMERECORD = 41; //战绩回复
-    PID_GAME_ACKGAMERECORDEDN = 42;//换三张结束
+    PID_GAME_ACKGAMERECORDEDN = 42; //换三张结束
 }
 
 enum ErrorCode {
@@ -216,7 +216,7 @@ message PlayerCard {
     repeated CardInfo handCard = 1; // 手牌数组（自己是明的，其他玩家服务器返回暗值，避免外挂获取别的玩家手牌）
     repeated ComposeCard composeCard = 2; // 摆牌数组（碰、明杠、暗杠）
     repeated int32 outCard = 3; // 已出牌数组
-    optional int32 huCard = 4; // 胡的牌
+    repeated int32 huCard = 4; // 胡的牌
     optional uint32 UserId = 5; //
 
 }
