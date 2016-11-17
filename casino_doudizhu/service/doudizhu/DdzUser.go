@@ -4,11 +4,18 @@ import (
 	"sync"
 	"casino_server/common/log"
 	"casino_server/common/Error"
+	"sync/atomic"
 )
 
 var (
 	DDZUSER_STATUS_READY int32 = 2        //已经准备
 
+)
+
+var (
+	DDZUSER_QIANGDIZHU_STATUS_NULL int32 = 0 //没操作
+	DDZUSER_QIANGDIZHU_STATUS_QIANG int32 = 1 //抢地主
+	DDZUSER_QIANGDIZHU_STATUS_PASS int32 = 2 //不叫
 )
 
 type DdzUser struct {
@@ -35,6 +42,10 @@ func (u *DdzUser) SetStatus(s int32) {
 	*u.Status = s
 }
 
+func (u *DdzUser) SetQiangDiZhuStatus(s int32) {
+	*u.QiangDiZhuStatus = s
+}
+
 func (u *DdzUser) IsReady() bool {
 	return u.GetStatus() == DDZUSER_STATUS_READY
 }
@@ -43,7 +54,17 @@ func (u *DdzUser) IsNotReady() bool {
 	return !u.IsReady()
 }
 
-func (u *DdzUser) DelHandlPai(pais *PPokerPai) {
+//是否抢地主
+func (u *DdzUser) IsQiangDiZhu() bool {
+	return u.GetQiangDiZhuStatus() == DDZUSER_QIANGDIZHU_STATUS_QIANG
+}
+
+//是否不叫
+func (u *DdzUser) IsBuJiao() bool {
+	return u.GetQiangDiZhuStatus() == DDZUSER_QIANGDIZHU_STATUS_PASS
+}
+
+func (u *DdzUser) DelHandlPai(pais *PPokerPai) error {
 	index := -1
 	for i, pai := range u.GameData.HandPokers {
 		if pai != nil && pai.GetId() == pais.GetId() {
@@ -65,7 +86,7 @@ func (u *DdzUser) DelHandlPai(pais *PPokerPai) {
 //增加出牌
 func (u *DdzUser) DOPoutPokerPais(out *POutPokerPais) error {
 	//1，增加出的牌
-	u.OutPaiList = append(u.OutPaiList, out)
+	u.GameData.OutPaiList = append(u.GameData.OutPaiList, out)
 
 	//2，删除手牌
 	for _, p := range out.PokerPais {
@@ -77,6 +98,21 @@ func (u *DdzUser) DOPoutPokerPais(out *POutPokerPais) error {
 
 //得到玩家手牌的张数
 func (u *DdzUser) GetHandPaiCount() int32 {
-	return len(u.GameData.HandPokers)
+	return  int32(len(u.GameData.HandPokers))
 }
 
+func (u *DdzUser) beginInit() error {
+	return nil
+}
+
+func (u *DdzUser) AddNewBill(coin int64, winUser, loseUser uint32, des string) {
+	bean := NewPDdzBillBean()
+	*bean.Coin = coin
+	*bean.WinUser = winUser
+	*bean.LoseUser = loseUser
+	*bean.Desc = des
+	//增加账单
+	u.Bill.BillBean = append(u.Bill.BillBean, bean)
+	//增加输的钱
+	atomic.AddInt64(u.Bill.WinCoin, coin)
+}

@@ -95,6 +95,8 @@ message ProtoHeader {
 
 ///////////////////////////////////////////////////
 
+// 房间类型信息：包含房间类型和对应的局数、封顶、玩法等信息
+// 房间类型枚举
 //扑克花色
 enum PokerColor {
     HONGTAO = 1; //  红桃
@@ -105,21 +107,23 @@ enum PokerColor {
 
 
 //牌型
-enum CardType {
-    SINGLE         = 1; //单牌
-    PAIR           = 2; //对子
-    CONNECTORS     = 3; //顺子
-    CONNECT_PAIRS  = 4; //连对
-
-    THREE_CARDS    = 5; //三不带
-    THREE_WITH_ONE   = 6; //三带一
-    THREE_WITH_PAIR  = 7; //三带对
-    FOUR_WITH_TWO    = 8; //四带二
-    FOUR_WITH_2_PAIRS= 9; //四带2对
-
-    PLANE_CARDS    = 10; //飞机
-    BOMB_CARDS     = 11; //炸弹
-    ROCKET_CARDS   = 12; //王炸（火箭）
+enum DdzPaiType {
+    ERRORCARD = 0; //错误牌型
+    SINGLECARD = 1; //单牌
+    DOUBLECARD = 2; //对子
+    THREECARD = 3; //三不带
+    BOMBCARD = 4; //炸弹
+    THREEONECARD = 5; //三带1
+    THREETWOCARD = 6; //三带二
+    BOMBTWOCARD = 7; //四带两个单张
+    BOMBTWOOOCARD = 8; //四带两个对子
+    CONNECTCARD = 9; //链子
+    COMPANYCARD = 10; //连队
+    AIRCRAFTCARD = 11; //飞机不带牌
+    AIRCRAFTSINGLECARD = 12; //飞机带单牌
+    AIRCRAFTDOUBLECARD = 13; //飞机带对子
+    SUPERBOMB = 14; //   王炸
+    FOURWITHONEDOUBLE = 15; //四个带一对
 }
 
 // 轮到玩家操作时：可执行何种操作

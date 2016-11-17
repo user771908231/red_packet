@@ -5,6 +5,8 @@ import (
 	"casino_server/common/log"
 	"sync"
 	"casino_server/common/Error"
+	"fmt"
+	"sync/atomic"
 )
 
 //斗地主的desk
@@ -19,7 +21,7 @@ func (d *DdzDesk) Update2Redis() error {
 	bak := NewPDdzbak()
 	bak.Desk = d.PDdzDesk
 	for _, u := range d.Users {
-		bak.Users = append(d.Users, u)
+		bak.Users = append(bak.Users, u.PDdzUser)
 	}
 
 	//备份desk的数据
@@ -39,6 +41,26 @@ func (d *DdzDesk) GetUserByUserId(userId uint32) *DdzUser {
 	return nil
 }
 
+func (d *DdzDesk) AddCountQiangDiZhu() {
+	atomic.AddInt32(d.Tongji.CountQiangDiZhu, 1)
+}
+
+//设置低分
+func (d *DdzDesk) setBaseValue(value int64) {
+	*d.BaseValue = value
+}
+
+func (d *DdzDesk) setWinValue(value int64) {
+	*d.WinValue = value
+}
+
+func (d *DdzDesk) setQingDizhuValue(value int64) {
+	*d.QingDizhuValue = value
+}
+
+func (d *DdzDesk) addBombTongjiInfo(bomb *POutPokerPais) {
+	d.Tongji.Bombs = append(d.Tongji.Bombs, bomb)
+}
 
 //添加一个玩家
 func (d *DdzDesk) AddUser(userId uint32) error {
@@ -48,7 +70,7 @@ func (d *DdzDesk) AddUser(userId uint32) error {
 }
 
 func (d *DdzDesk) AddUserBean(user *DdzUser) error {
-	for i := 0; len(d.Users); i++ {
+	for i := 0; i < len(d.Users); i++ {
 		if d.Users[i] == nil {
 			d.Users[i] = user
 			return nil
@@ -91,11 +113,27 @@ func (d *DdzDesk) GetUserIndexByUserId(userId uint32) int {
 		}
 	}
 	return -1;
-
 }
 
 func (d *DdzDesk) SetActiveUser(userId uint32) {
 	*d.ActiveUser = userId
 }
 
+func (d *DdzDesk) SetDizhu(userId uint32) {
+	*d.Dizhu = userId
+}
+
+//判断是否是当前活动玩家
+func (d *DdzDesk) CheckActiveUser(userId uint32) error {
+	if d.GetActiveUser() == userId {
+		return nil
+	} else {
+		return Error.NewFailError(fmt.Sprintf("当前活动玩家是[%v]", d.GetActiveUser()))
+	}
+}
+
+//判断用户的身份是不是地主
+func (d *DdzDesk) IsDiZhuRole(user *DdzUser) bool {
+	return d.GetDizhu() == user.GetUserId()
+}
 

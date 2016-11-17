@@ -1,6 +1,6 @@
 syntax = "proto2";
 
-import public "base.proto";
+import public "ddz_base.proto";
 package ddzproto;
 option optimize_for = LITE_RUNTIME;
 

@@ -5,6 +5,7 @@ import (
 	"casino_doudizhu/service/doudizhu"
 	"errors"
 	"casino_server/common/Error"
+	"github.com/name5566/leaf/gate"
 )
 
 /*
@@ -12,6 +13,15 @@ import (
 	2,service作为逻辑入口
 
 */
+
+
+//创建房间
+func HandlerCreateDesk(userId uint32, a gate.Agent) {
+	room := doudizhu.GetFDdzRoom()
+	desk := room.CreateDesk(userId)
+	log.T("新创建的desk[%v]", desk)
+}
+
 //进入房间的逻辑
 func HandlerEnterDesk(userId uint32, key string, deskType int32) error {
 	log.T("玩家[%v]进入斗地主的房间。", userId)
@@ -56,6 +66,25 @@ func HandlerFDdzReady(user uint32) error {
 	return nil
 }
 
+//抢地主
+func HandlerQiangDiZhu(userId uint32) error {
+	desk := doudizhu.GetDdzDeskBySession(userId)
+	if desk == nil {
+		return Error.NewFailError("米有找到desk")
+	}
+
+	err := desk.QiangDiZhu(userId, 0)
+	if err != nil {
+		log.E("玩家[%v]抢地主失败,err[%v]", userId, err)
+		return Error.NewFailError("玩家抢地主出错")
+
+	}
+
+	return nil
+
+}
+
+
 //开始出牌
 func HandlerActOut(userId uint32) error {
 	desk := doudizhu.GetDdzDeskBySession(userId)
@@ -72,3 +101,9 @@ func HandlerActOut(userId uint32) error {
 	}
 	return nil
 }
+
+//pass的协议
+func HandlerActPass() error {
+	return nil
+}
+

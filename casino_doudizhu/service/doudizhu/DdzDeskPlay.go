@@ -17,7 +17,7 @@ func (d *DdzDesk) EnterUser(userId uint32) error {
 		olduser.SetOnline()
 		//todo 返回信息
 		olduser.UpdateSession()       //更新session 信息，这里可以更具需求来保存对应的属性...
-		return
+		return nil
 	}
 
 	//新进入
@@ -71,7 +71,7 @@ func (d *DdzDesk) AfterReady() error {
 //开始游戏
 func (d *DdzDesk) Begin() error {
 
-	//
+	//判断是否可以开始
 	err := d.IsTime2begin()
 	if err != nil {
 		log.E("开始斗地主的时候失败,不满足开始的条件err[%v]", err)
@@ -87,7 +87,11 @@ func (d *DdzDesk) Begin() error {
 	}
 
 	//开始抢地主
-
+	err = d.beginQiangDiZhu()
+	if err != nil {
+		log.E("开始斗地主的时候,beginInit()失败..err[%v]", err)
+		return err
+	}
 
 	return nil
 }
@@ -100,11 +104,50 @@ func (d *DdzDesk) IsTime2begin() error {
 
 //开始时候的初始化
 func (d *DdzDesk) BeginInit() error {
+	//desk.init
+
+
+	//userInit
+	for _, user := range d.Users {
+		if user != nil {
+			//初始化每个用户
+			user.beginInit()
+		}
+	}
 	return nil
 }
 
+//开始抢地主的逻辑
+func (d *DdzDesk) beginQiangDiZhu() error {
+	//发送开始请地主的通知
+	return nil
+}
 //一场结束
-func (d *DdzDesk) Lottery() {
+func (d *DdzDesk) Lottery(user *DdzUser) {
+	//开始结算....
+	//1,计算炸弹的个数，计算分数,这里需要判断user的身份是地主还是平民
+	if d.IsDiZhuRole(user) {
+		//地主赢了,增加账单
+		for _, loseUser := range d.Users {
+			if loseUser.GetUserId() != user.GetUserId() {
+				user.AddNewBill(d.GetWinValue(), user.GetUserId(), loseUser.GetUserId(), "地主赢了")
+				loseUser.AddNewBill(-d.GetWinValue(), user.GetUserId(), loseUser.GetUserId(), "平明输了")
+			}
+		}
+
+	} else {
+		//地主输了,增加账单
+		dizhuUser := d.GetUserByUserId(d.GetDizhu())
+		for _, winUser := range d.Users {
+			if winUser.GetUserId() != dizhuUser.GetUserId() {
+				user.AddNewBill(d.GetWinValue(), user.GetUserId(), winUser.GetUserId(), "平明赢了")
+				dizhuUser.AddNewBill(-d.GetWinValue(), user.GetUserId(), winUser.GetUserId(), "地主输了")
+			}
+		}
+	}
+
+	//2,发送结算的通知
+
 
 }
 
@@ -140,7 +183,7 @@ func (d *DdzDesk) CheckOutUser(userId uint32) error {
 }
 
 //打牌
-func (d *DdzDesk) ActOut(userId uint32, out POutPokerPais) error {
+func (d *DdzDesk) ActOut(userId uint32, out *POutPokerPais) error {
 
 	err := d.CheckOutUser(userId)
 	if err != nil {
@@ -165,13 +208,21 @@ func (d *DdzDesk) ActOut(userId uint32, out POutPokerPais) error {
 		log.E("玩家[%v]出牌的时候错误", userId)
 		return Error.NewError(-1, "玩家出牌的时候出错.")
 	}
+
+	//成功之后需要把炸弹的信息保存下来
+	if out.GetIsBomb() {
+		d.addBombTongjiInfo(out)
+		d.setWinValue(d.GetQingDizhuValue() * 2)
+	}
+
 	//返回成功的消息 todo  返回ack
+
 
 	//判断游戏是否结束
 	if user.GetHandPaiCount() == 0 {
 		//出牌的人 手牌为0，表示游戏结束
-		d.Lottery()
-		return
+		d.Lottery(user)
+		return nil
 	}
 
 	d.NextUser()
@@ -191,7 +242,7 @@ func (d *DdzDesk) NextUser() error {
 		return Error.NewError(-1, "轮到一下个玩家的时候出错.")
 	}
 
-	nextUser := d.Users[(index + 1) % d.UserCountLimit]
+	nextUser := d.Users[(index + 1) % int(d.GetUserCountLimit())]
 	if nextUser == nil {
 		log.E("轮到下一个玩家的时候出错,desk.activeUser[%v]", d.GetActiveUser())
 		return Error.NewError(-1, "轮到一下个玩家的时候出错.")
@@ -202,3 +253,119 @@ func (d *DdzDesk) NextUser() error {
 
 	return nil
 }
+
+//抢地主
+func (d *DdzDesk) QiangDiZhu(userId uint32, qiangType int32) error {
+
+	//验证活动玩家
+	err := d.CheckActiveUser(userId)
+	if err != nil {
+		return err
+	}
+
+	//验证用户是否为空
+	user := d.GetUserByUserId(userId)
+	if user == nil {
+		return Error.NewFailError("玩家没找到，抢地主失败")
+	}
+
+	//抢地主
+	if qiangType == 1 {
+		//开始抢地主的逻辑
+		d.SetDizhu(user.GetUserId())
+		d.AddCountQiangDiZhu()        //增加抢地主的次数
+		d.setQingDizhuValue(d.GetQingDizhuValue() * 2)//这里还需要计算低分
+
+		user.SetQiangDiZhuStatus(DDZUSER_QIANGDIZHU_STATUS_QIANG)
+		//表示地主都抢过来，又轮到第一家，抢地主的逻辑结束
+		if user.IsQiangDiZhu() && d.GetDizhuPaiUser() == user.GetUserId() {
+			//todo 抢地主结束的操作
+			return nil
+		}
+
+	} else if qiangType == 2 {
+		//不叫地主,直接轮到下一个人抢地主
+		user.SetQiangDiZhuStatus(DDZUSER_QIANGDIZHU_STATUS_PASS)
+	}
+
+
+	//查找下一家抢地主的人
+	index := d.GetUserIndexByUserId(user.GetUserId())
+	var nextUser *DdzUser
+	for i := index + 1; i < len(d.Users) + index; i++ {
+		u := d.Users[(i) / len(d.Users)]
+		if u != nil && !u.IsBuJiao() {
+			nextUser = u
+		}
+	}
+	//表示没有下一家可以抢地主
+	if nextUser == nil {
+		//todo 抢地主结束的操作
+		d.afterQiangDizhu()
+	} else {
+		//todo 给nextUser 发送抢地主的协议
+	}
+
+	return nil
+}
+
+//四川斗地主，需要更具四川的玩法来定制
+func (d *DdzDesk) QiangDiZhuSiChuan(userId uint32, qiangType int32) error {
+
+	//验证活动玩家
+	err := d.CheckActiveUser(userId)
+	if err != nil {
+		return err
+	}
+
+	//验证用户是否为空
+	user := d.GetUserByUserId(userId)
+	if user == nil {
+		return Error.NewFailError("玩家没找到，抢地主失败")
+	}
+
+	//抢地主
+	if qiangType == 1 {
+		//开始抢地主的逻辑
+		d.SetDizhu(user.GetUserId())
+		d.AddCountQiangDiZhu()        //增加抢地主的次数
+		d.setQingDizhuValue(d.GetQingDizhuValue() * 2)//这里还需要计算低分
+
+		user.SetQiangDiZhuStatus(DDZUSER_QIANGDIZHU_STATUS_QIANG)
+		//表示地主都抢过来，又轮到第一家，抢地主的逻辑结束
+		if user.IsQiangDiZhu() && d.GetDizhuPaiUser() == user.GetUserId() {
+			//todo 抢地主结束的操作
+			return nil
+		}
+
+	} else if qiangType == 2 {
+		//不叫地主,直接轮到下一个人抢地主
+		user.SetQiangDiZhuStatus(DDZUSER_QIANGDIZHU_STATUS_PASS)
+	}
+
+
+	//查找下一家抢地主的人
+	index := d.GetUserIndexByUserId(user.GetUserId())
+	var nextUser *DdzUser
+	for i := index + 1; i < len(d.Users) + index; i++ {
+		u := d.Users[(i) / len(d.Users)]
+		if u != nil && !u.IsBuJiao() {
+			nextUser = u
+		}
+	}
+	//表示没有下一家可以抢地主
+	if nextUser == nil {
+		//todo 抢地主结束的操作
+		d.afterQiangDizhu()
+	} else {
+		//todo 给nextUser 发送抢地主的协议
+	}
+
+	return nil
+}
+
+//地主开始出牌
+func (d *DdzDesk) afterQiangDizhu() {
+
+}
+
