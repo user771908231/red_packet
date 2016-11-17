@@ -5,8 +5,9 @@ import (
 	"casino_server/common/log"
 	"github.com/name5566/leaf/gate"
 	"casino_server/conf/intCons"
-	"casino_majiang/msg/protogo"
 	"casino_login/msg/protoInit"
+	"casino_login/service"
+	"casino_login/msg/protogo"
 )
 
 func handler(m interface{}, h interface{}) {
@@ -14,51 +15,43 @@ func handler(m interface{}, h interface{}) {
 }
 
 func init() {
-	handler(&mjproto.Game_QuickConn{}, handlerREQQuickConn)
+	handler(&loginproto.Game_QuickConn{}, handlerREQQuickConn)
 }
 
-func getReleaseTagByVersion(version int32) int32 {
-	return 0
 
-}
+//这里需要一个reload 配置文件的功能
 
 //处理登陆
 func handlerREQQuickConn(args []interface{}) {
-	m := args[0].(*mjproto.Game_QuickConn)
+	m := args[0].(*loginproto.Game_QuickConn)
 	a := args[1].(gate.Agent)
 	log.T("游戏登陆的时候发送的请求的协议内容login.handler.HandlerREQQuickConn()[%v]", m)
+
+	gameId := m.GetGameId()
+
 	//需要返回的结mahjong_desk.proto果
-
 	result := newProto.NewGame_AckQuickConn()
+	*result.ReleaseTag = service.GetReleaseTagByVersion(gameId, m.GetCurrVersion())//发布的版本
+	*result.IsMaintain = service.GetIsMaintain(gameId)
+	*result.CurrVersion = service.GetLatestClientVersion(gameId) ///处理客户端版本升级
+	*result.GameServer.Ip = service.GetGameServerIp(gameId)
+	*result.GameServer.Port = service.GetGameServerPort(gameId)
+	*result.GameServer.Status = service.GetGameServerStatus(gameId)
 
-	//设置releasTag
-	*result.ReleaseTag = getReleaseTagByVersion(m.GetCurrVersion())                   ///todo  需要把这个值加入到配置文件读取
+	*result.IsUpdate = 0        //默认可选升级
 
-	//处理客户端版本升级
-	LatestClientVersion := int32(0) //当前已发布客户端版本, TODO:放到配置文件中
-	result.IsUpdate = new(int32)
-	*result.IsUpdate = 0
-	if m.GetCurrVersion() < LatestClientVersion {
-		log.T("客户端需要升级, 版本为:%v", m.GetCurrVersion())
-		*result.IsUpdate = 0 //1=强制升级 0=可选升级
-		result.DownloadUrl = new(string)
-		*result.DownloadUrl = "http://d.tondeen.com/sjtexas.html" //TODO:放入配置文件中
+	if m.GetCurrVersion() < result.GetCurrVersion() {
+		*result.IsUpdate = service.GetIsUpdate(gameId)//1=强制升级 0=可选升级
+		*result.DownloadUrl = service.GetDownloadUrl(gameId) //
 	}
-	result.CurrVersion = new(int32)
-	*result.CurrVersion = LatestClientVersion
 
 	//服务器停服维护公告
-	result.IsMaintain = new(int32)
-	result.MaintainMsg = new(string)
-	*result.IsMaintain = 0 //TODO:从配置中读取停服维护公告
-	if *result.IsMaintain == 1 {
-		*result.MaintainMsg = "服务器正在例行维护中，请于今日5:00后再登录游戏!"
+	if result.GetIsMaintain() == 1 {
+		*result.MaintainMsg = service.GetMaintainMsg(gameId)
 	}
 
-	//如果得到的user ==nil 或者 用密码登陆的时候密码不正确
 	*result.Header.Code = intCons.ACK_RESULT_SUCC                           //返回结果
 	log.T("handlerREQQuickConn 协议返回的信息:[%v]", result)
 	a.WriteMsg(result)
-
 }
 

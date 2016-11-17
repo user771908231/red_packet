@@ -1,14 +1,12 @@
 package gate
 
 import (
+	"casino_login/msg"
+	"casino_login/msg/protogo"
+	"casino_login/login"
 )
 
 func init() {
-
-	//登陆相关
-
-	//room 相关
-
-	//desk 相关
+	msg.Processor.SetRouter(&loginproto.Game_QuickConn{}, login.ChanRPC)
 
 }
