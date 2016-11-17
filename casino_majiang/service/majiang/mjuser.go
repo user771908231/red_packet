@@ -477,7 +477,11 @@ func (u *MjUser) BillToString() string {
 	return result
 }
 
-
+func (u *MjUser) AddStatisticsCountBeiBaGang(round int32) {
+	roundBean := u.GetStatisticsRoundBean(round)
+	atomic.AddInt32(roundBean.CountBaGnag, 1)
+	
+}
 //统计杠的数量
 func (u *MjUser) StatisticsGangCount(round int32, gangType int32) error {
 
