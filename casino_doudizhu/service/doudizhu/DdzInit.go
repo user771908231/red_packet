@@ -42,3 +42,11 @@ func NewPPokerPai() *PPokerPai {
 	return pai
 }
 
+func NewPDdzBillBean() *PDdzBillBean {
+	b := new(PDdzBillBean)
+	b.Coin = new(int64)
+	b.WinUser = new(uint32)
+	b.LoseUser = new(uint32)
+	b.Desc = new(string)
+	return b
+}

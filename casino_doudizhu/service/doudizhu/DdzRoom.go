@@ -5,12 +5,11 @@ import (
 	"casino_server/utils/numUtils"
 	"casino_server/utils"
 	"casino_server/common/log"
-	"casino_doudizhu/service/lock"
 	"errors"
 )
 
 //初始化一个斗地主的房间实例
-var FDdzRoomIns DdzRoom = new(DdzRoom)
+var FDdzRoomIns *DdzRoom = new(DdzRoom)
 
 //斗地主的房间
 type  DdzRoom struct {
@@ -18,7 +17,7 @@ type  DdzRoom struct {
 	Desks []*DdzDesk
 }
 
-func (room *DdzRoom) CreateDesk() *DdzDesk {
+func (room *DdzRoom) CreateDesk(userId uint32) *DdzDesk {
 	//创建一个desk
 
 	//1,得到一个key
@@ -91,7 +90,6 @@ func (r *DdzRoom)DissolveDesk(desk *DdzDesk, sendMsg bool) error {
 	}
 
 	//删除锁
-	lock.DelDeskLock(desk.GetDeskId())
 	//删除reids
 	DelMjDeskRedis(desk)
 

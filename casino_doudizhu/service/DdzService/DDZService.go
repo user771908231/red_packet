@@ -5,6 +5,7 @@ import (
 	"casino_doudizhu/service/doudizhu"
 	"errors"
 	"casino_server/common/Error"
+	"github.com/name5566/leaf/gate"
 )
 
 /*
@@ -12,8 +13,27 @@ import (
 	2,service作为逻辑入口
 
 */
+
+
+//创建房间
+func HandlerCreateDesk(userId uint32, a gate.Agent) {
+	room := doudizhu.GetFDdzRoom()
+	desk := room.CreateDesk(userId)
+	if desk == nil {
+		log.E("创建房间失败...")
+		//todo return error ack
+		return
+	}
+
+	//自动进入 desk
+	err := desk.EnterUser(userId, a)
+	if err != nil {
+		log.E("用户进入房间失败...")
+	}
+}
+
 //进入房间的逻辑
-func HandlerEnterDesk(userId uint32, key string, deskType int32) error {
+func HandlerEnterDesk(userId uint32, key string, deskType int32, a gate.Agent) error {
 	log.T("玩家[%v]进入斗地主的房间。", userId)
 	//todo 目前只做朋友桌
 	room := doudizhu.GetFDdzRoom()
@@ -30,7 +50,7 @@ func HandlerEnterDesk(userId uint32, key string, deskType int32) error {
 	}
 
 	//进入房间
-	err := desk.EnterUser(userId)
+	err := desk.EnterUser(userId, a)
 	if err != nil {
 		log.E("玩家[%v]进入desk[%v]失败err[%v]", userId, desk.GetDeskId(), err)
 		return Error.NewError(-1, "玩家进入desk失败.")
@@ -56,6 +76,67 @@ func HandlerFDdzReady(user uint32) error {
 	return nil
 }
 
+//抢地主
+func HandlerQiangDiZhu(userId uint32) error {
+	desk := doudizhu.GetDdzDeskBySession(userId)
+	if desk == nil {
+		return Error.NewFailError("米有找到desk")
+	}
+
+	err := desk.QiangDiZhu(userId, 0)
+	if err != nil {
+		log.E("玩家[%v]抢地主失败,err[%v]", userId, err)
+		return Error.NewFailError("玩家抢地主出错")
+
+	}
+
+	return nil
+
+}
+
+//叫地主
+func HandlerJiaoDiZhu(userId uint32) error {
+	return nil
+}
+
+func HandlerShowHandPokers(userId uint32) error {
+	return nil
+}
+
+func HandlerMenuZhua(userId uint32) error {
+	return nil
+}
+
+func HandlerSeeCards(userId uint32) error {
+	return nil
+
+}
+
+func HandlePull(userId uint32) error {
+	return nil
+}
+
+func HandlerDissolveDesk(userId uint32) error {
+	return nil
+}
+
+func HandlerLeaveDesk(userId uint32) error {
+	return nil
+}
+
+func HandlerMessage() {
+
+}
+
+func HandlerGameRecord() {
+
+}
+
+func HandlerJiaBei(){
+
+}
+
+
 //开始出牌
 func HandlerActOut(userId uint32) error {
 	desk := doudizhu.GetDdzDeskBySession(userId)
@@ -72,3 +153,9 @@ func HandlerActOut(userId uint32) error {
 	}
 	return nil
 }
+
+//pass的协议
+func HandlerActPass(userId uint32) error {
+	return nil
+}
+

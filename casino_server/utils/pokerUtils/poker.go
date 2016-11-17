@@ -91,18 +91,18 @@ func ParseByIndex(index int32) (int32, string, int32, string, string) {
 }
 
 //随机一副扑克牌的index
-func Xipai(paiCount int) []int {
+func Xipai(paiCount int) []int32 {
 	//初始化一个顺序的牌的集合
-	pmap := make([]int, paiCount)
+	pmap := make([]int32, paiCount)
 	for i := 0; i < paiCount; i++ {
-		pmap[i] = i
+		pmap[i] = int32(i)
 	}
 	//打乱牌的集合
-	pResult := make([]int, paiCount)
+	pResult := make([]int32, paiCount)
 	for i := 0; i < paiCount; i++ {
-		rand := utils.Rand(0, (int32(paiCount - i)))
+		rand := utils.Rand(int32(0), int32(paiCount - i))
 		pResult[i] = pmap[rand]
-		pmap = append(pmap[:int(rand)], pmap[int(rand) + 1:]...)
+		pmap = append(pmap[:rand], pmap[rand + 1:]...)
 	}
 
 	log.T("洗牌之后,得到的随机的index数组[%v]", pResult)
