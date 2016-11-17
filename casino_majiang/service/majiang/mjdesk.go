@@ -502,24 +502,27 @@ func (d *MjDesk) begin() error {
 			log.E("发送开始换三张的广播的时候出错err[%v]", err)
 			return err
 		}
-	} else if d.IsSanRenLiangFang() {
-		//三人两房 模拟定"万"缺
-		users := d.GetUsers()
-		for i := 0; i < len(users); i++ {
-			d.DingQue(users[i].GetUserId(), W)
-		}
-		err = d.BeginStart()
-		if err != nil {
-			log.E("发送游戏开始的广播的时候出错err[%v]", err)
-			return err
-		}
 	} else {
-		//不用换三张 //直接法开始定缺的广播
-		err := d.beginDingQue()
-		if err != nil {
-			log.E("开始发送定缺广播的时候出错err[%v]", err)
-			return err
+		if d.IsSanRenLiangFang() {
+			//三人两房 模拟定"万"缺
+			users := d.GetUsers()
+			for i := 0; i < len(users); i++ {
+				d.DingQue(users[i].GetUserId(), W)
+			}
+			err = d.BeginStart()
+			if err != nil {
+				log.E("发送游戏开始的广播的时候出错err[%v]", err)
+				return err
+			}
+		}else {
+			//不用换三张 //不是三人两房 //直接法开始定缺的广播
+			err := d.beginDingQue()
+			if err != nil {
+				log.E("开始发送定缺广播的时候出错err[%v]", err)
+				return err
+			}
 		}
+
 	}
 
 	return nil
@@ -1701,7 +1704,7 @@ func (d *MjDesk)ActHu(userId uint32) error {
 	huUser.AddHuPaiInfo(hu)
 
 	//统计胡牌的次数
-	huUser.StatisticsHuCount(d.GetCurrPlayCount(), huUser.GetUserId(), hu.GetHuType())
+	//huUser.StatisticsHuCount(d.GetCurrPlayCount(), huUser.GetUserId(), hu.GetHuType())
 	//统计点炮的次数
 	if !isZimo {
 		outUser.StatisticsDianCount(outUserId, hu.GetHuType())
@@ -2007,8 +2010,9 @@ func (d *MjDesk) DoGangBill(info *GangPaiInfo) {
 				gangUser.AddBill(ou.GetUserId(), MJUSER_BILL_TYPE_YING_AN_GNAG, "用户暗杠，收入", score, gangPai)        //用户赢钱的账户
 				ou.AddBill(gangUser.GetUserId(), MJUSER_BILL_TYPE_SHU_AN_GNAG, "用户暗杠，输钱", -score, gangPai)        //用户输钱的账单
 
-				gangUser.AddStatisticsCountAnGang(d.GetCurrPlayCount()) //暗杠用户的统计信息
 				ou.AddStatisticsCountBeiAnGang(d.GetCurrPlayCount()) //被暗杠用户的统计信息
+			}else if ou != nil && ou.GetUserId() == gangUser.GetUserId() && ou.IsGaming() {
+				gangUser.AddStatisticsCountAnGang(d.GetCurrPlayCount()) //暗杠用户的统计信息
 			}
 		}
 
@@ -2030,9 +2034,10 @@ func (d *MjDesk) DoGangBill(info *GangPaiInfo) {
 				gangUser.AddBill(ou.GetUserId(), MJUSER_BILL_TYPE_YING_BA_GANG, "用户巴杠，收入", score, gangPai)        //用户赢钱的账户
 				ou.AddBill(gangUser.GetUserId(), MJUSER_BILL_TYPE_SHU_BA_GANG, "用户巴杠，输钱", -score, gangPai)        //用户输钱的账单
 
-				gangUser.AddStatisticsCountBaGang(d.GetCurrPlayCount()) //巴杠用户的统计信息
 				ou.AddStatisticsCountBeiBaGang(d.GetCurrPlayCount()) //被巴杠用户的统计信息
 
+			}else if ou != nil && ou.GetUserId() == gangUser.GetUserId() && ou.IsGaming() {
+				gangUser.AddStatisticsCountBaGang(d.GetCurrPlayCount()) //巴杠用户的统计信息
 			}
 		}
 	}
@@ -2060,7 +2065,11 @@ func (d *MjDesk)DoHuBill(hu *HuPaiInfo) {
 				//输钱的账单
 				shuUser.AddBill(huUser.GetUserId(), MJUSER_BILL_TYPE_SHU_ZIMO, "用户自摸，输钱", -hu.GetScore(), hu.Pai)
 
-				//huUser.AddStatisticsCount
+				//被自摸的用户没人统计一次
+				shuUser.AddStatisticsCountBeiZiMo(d.GetCurrPlayCount())
+			}else if shuUser != nil  && shuUser.IsGaming() && shuUser.GetUserId() == huUser.GetUserId() {
+				//自摸的用户只统计一次自摸
+				huUser.AddStatisticsCountZiMo(d.GetCurrPlayCount())
 			}
 		}
 	} else {
@@ -2073,6 +2082,10 @@ func (d *MjDesk)DoHuBill(hu *HuPaiInfo) {
 
 		//输钱的账单
 		shuUser.AddBill(huUser.GetUserId(), MJUSER_BILL_TYPE_SHU_DIANPAO, "用户点炮，输钱", -hu.GetScore(), hu.Pai)
+
+
+		huUser.AddStatisticsCountHu(d.GetCurrPlayCount()) //胡的用户统计信息
+		shuUser.AddStatisticsCountDianPao(d.GetCurrPlayCount()) //点炮的用户统计信息
 	}
 
 }
@@ -2116,50 +2129,39 @@ func (d *MjDesk) GetWinCoinInfo(user *MjUser) *mjproto.WinCoinInfo {
 
 //得到这个人的胡牌描述
 func (d *MjDesk) GetCardTitle4WinCoinInfo(user *MjUser) string {
-	//todo 统计单局信息
-
 	var huDes []string
 	shuBaGangStr := ""
 	shuAnGangStr := ""
 	shuDianPaoStr := ""
 	shuGangStr := ""
 	shuZimoStr := ""
-	var shuBaGangCount, shuAnGangCount, shuDianPaoCount, shuGangCount, shuZimoCount int
-	//获取输的账单信息
-	bills := user.GetBill().GetBills()
-	count := 1 //统计数大于count才显示
-	for _, bill := range bills  {
-		switch bill.GetType() {
-		case MJUSER_BILL_TYPE_SHU_BA_GANG :
-			shuBaGangCount++
-			if shuBaGangCount > count {
-				shuBaGangStr = fmt.Sprintf("被巴杠x%d", shuBaGangCount)
-			}
-		case MJUSER_BILL_TYPE_SHU_AN_GNAG :
-			shuAnGangCount++
-			if shuAnGangCount > count {
-				shuAnGangStr = fmt.Sprintf("被暗杠x%d", shuAnGangCount)
-			}
-		case MJUSER_BILL_TYPE_SHU_DIANPAO :
-			shuDianPaoCount++
-			if shuDianPaoCount > count {
-				shuDianPaoStr = fmt.Sprintf("点炮x%d", shuDianPaoCount)
-			}
-		case MJUSER_BILL_TYPE_SHU_GNAG :
-			shuGangCount++
-			if shuGangCount > count {
-				shuGangStr = fmt.Sprintf("点杠x%d", shuGangCount)
-			}
-		case MJUSER_BILL_TYPE_SHU_ZIMO :
-			shuZimoCount++
-			if shuZimoCount > count {
-				shuZimoStr =  fmt.Sprintf("被自摸x%d", shuZimoCount)
-			}
-		default:
-		}
+	var shuBaGangCount, shuAnGangCount, shuDianPaoCount, shuGangCount, shuZimoCount, count int32
+	//获取当局的统计信息
+	roundBean := user.GetStatisticsRoundBean(d.GetCurrPlayCount())
+	count = 1 //统计数大于count才显示
+
+	shuBaGangCount = roundBean.GetCountBeiBaGang()
+	shuAnGangCount = roundBean.GetCountBeiAnGang()
+	shuDianPaoCount = roundBean.GetCountDianPao()
+	shuGangCount = roundBean.GetCountDianGang()
+	shuZimoCount = roundBean.GetCountBeiZiMo()
+
+	switch {
+	case shuBaGangCount > count :
+		shuBaGangStr = fmt.Sprintf("被巴杠x%d", shuBaGangCount)
+	case shuAnGangCount > count :
+		shuAnGangStr = fmt.Sprintf("被暗杠x%d", shuAnGangCount)
+	case shuDianPaoCount > count :
+		shuDianPaoStr = fmt.Sprintf("点炮x%d", shuDianPaoCount)
+	case shuGangCount > count :
+		shuGangStr = fmt.Sprintf("点杠x%d", shuGangCount)
+	case shuZimoCount > count :
+		shuZimoStr =  fmt.Sprintf("被自摸x%d", shuZimoCount)
+	default:
+
 	}
-	//获取胡牌的信息
-	//todo 血流成河需要计算账单
+
+	//获取胡番的信息
 	if user.GameData.HuInfo != nil && len(user.GameData.HuInfo) > 0 {
 		huDes = append(huDes, user.GameData.HuInfo[0].GetHuDesc())
 	}

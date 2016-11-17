@@ -88,6 +88,9 @@ func NewMjUserStatisc() *MjUserStatisc {
 	ret.CountAnGang = new(int32)
 	ret.CountMingGang = new(int32)
 	ret.CountChaJiao = new(int32)
+	ret.CountBeiAnGang = new(int32)
+	ret.CountBeiZiMo = new(int32)
+	ret.CountBeiZiMo = new(int32)
 	return ret
 }
 
@@ -186,6 +189,9 @@ func NewStatiscRound() *StatiscRound {
 	ret.CountDianGang = new(int32)
 	ret.CountChaJiao = new(int32)
 	ret.CountBaGnag = new(int32)
+	ret.CountBeiAnGang = new(int32)
+	ret.CountBeiBaGang = new(int32)
+	ret.CountBeiZiMo = new(int32)
 	ret.Round = new(int32)
 	return ret
 }
