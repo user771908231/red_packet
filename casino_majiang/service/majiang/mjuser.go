@@ -101,7 +101,13 @@ func ( u *MjUser) GetPlayerInfo(showHand bool) *mjproto.PlayerInfo {
 	*info.UserId = u.GetUserId()
 	info.WxInfo = u.GetWxInfo()
 	*info.QuePai = u.GameData.HandPai.GetQueFlower()
+	*info.Sex = u.GetSex()
 	return info
+}
+
+func (u *MjUser) GetSex() int32 {
+	user := userService.GetUserById(u.GetUserId())
+	return user.GetSex()
 }
 
 func (u *MjUser) GetWxInfo() *mjproto.WeixinInfo {

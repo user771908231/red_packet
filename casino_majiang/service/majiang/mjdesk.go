@@ -472,6 +472,7 @@ func (d *MjDesk) AfterReady() error {
 
 
  */
+
 func (d *MjDesk) begin() error {
 	lock := lock.GetDeskLock(d.GetDeskId())
 	lock.Lock()
