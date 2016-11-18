@@ -172,7 +172,8 @@ func (u *MjUser) GetPlayerCard(showHand bool) *mjproto.PlayerCard {
 	//得到胡牌
 	for _, pai := range u.GameData.HandPai.GetHuPais() {
 		if pai != nil {
-			*playerCard.HuCard = pai.GetClientId()
+			//*playerCard.HuCard = pai.GetClientId()
+			playerCard.HuCard = append(playerCard.HuCard, pai.GetClientId())
 		}
 	}
 
