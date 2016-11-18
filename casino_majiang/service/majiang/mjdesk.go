@@ -2006,12 +2006,12 @@ func (d *MjDesk) DoGangBill(info *GangPaiInfo) {
 		score := d.GetBaseValue() * 2        //暗杠的分数
 		for _, ou := range d.GetUsers() {
 			//不为nil 并且不是本人，并且没有胡牌
-			if ou != nil && ou.GetUserId() != gangUser.GetUserId() && ou.IsGaming() {
+			if ou != nil && ou.GetUserId() != gangUser.GetUserId() && ou.IsGaming() && ou.IsNotHu() {
 				gangUser.AddBill(ou.GetUserId(), MJUSER_BILL_TYPE_YING_AN_GNAG, "用户暗杠，收入", score, gangPai)        //用户赢钱的账户
 				ou.AddBill(gangUser.GetUserId(), MJUSER_BILL_TYPE_SHU_AN_GNAG, "用户暗杠，输钱", -score, gangPai)        //用户输钱的账单
 
 				ou.AddStatisticsCountBeiAnGang(d.GetCurrPlayCount()) //被暗杠用户的统计信息
-			} else if ou != nil && ou.GetUserId() == gangUser.GetUserId() && ou.IsGaming() {
+			} else if ou != nil && ou.GetUserId() == gangUser.GetUserId() && ou.IsGaming() && ou.IsNotHu() {
 				gangUser.AddStatisticsCountAnGang(d.GetCurrPlayCount()) //暗杠用户的统计信息
 			}
 		}
@@ -2030,13 +2030,13 @@ func (d *MjDesk) DoGangBill(info *GangPaiInfo) {
 		//处理巴杠的账单
 		score := d.GetBaseValue()        //巴杠的分数
 		for _, ou := range d.GetUsers() {
-			if ou != nil && ou.GetUserId() != gangUser.GetUserId() && ou.IsGaming() {
+			if ou != nil && ou.GetUserId() != gangUser.GetUserId() && ou.IsGaming() && ou.IsNotHu() {
 				gangUser.AddBill(ou.GetUserId(), MJUSER_BILL_TYPE_YING_BA_GANG, "用户巴杠，收入", score, gangPai)        //用户赢钱的账户
 				ou.AddBill(gangUser.GetUserId(), MJUSER_BILL_TYPE_SHU_BA_GANG, "用户巴杠，输钱", -score, gangPai)        //用户输钱的账单
 
 				ou.AddStatisticsCountBeiBaGang(d.GetCurrPlayCount()) //被巴杠用户的统计信息
 
-			} else if ou != nil && ou.GetUserId() == gangUser.GetUserId() && ou.IsGaming() {
+			} else if ou != nil && ou.GetUserId() == gangUser.GetUserId() && ou.IsGaming() && ou.IsNotHu() {
 				gangUser.AddStatisticsCountBaGang(d.GetCurrPlayCount()) //巴杠用户的统计信息
 			}
 		}
@@ -2057,7 +2057,7 @@ func (d *MjDesk)DoHuBill(hu *HuPaiInfo) {
 	if isZimo {
 		//如果是自摸的话，三家都需要给钱
 		for _, shuUser := range d.GetUsers() {
-			if shuUser != nil  && shuUser.IsGaming() && shuUser.GetUserId() != huUser.GetUserId() {
+			if shuUser != nil  && shuUser.IsGaming() && shuUser.GetUserId() != huUser.GetUserId() && shuUser.IsNotHu() {
 
 				//赢钱的账单
 				huUser.AddBill(shuUser.GetUserId(), MJUSER_BILL_TYPE_YING_HU, "用户自摸，获得收入", hu.GetScore(), hu.Pai)
@@ -2067,7 +2067,7 @@ func (d *MjDesk)DoHuBill(hu *HuPaiInfo) {
 
 				//被自摸的用户没人统计一次
 				shuUser.AddStatisticsCountBeiZiMo(d.GetCurrPlayCount())
-			} else if shuUser != nil  && shuUser.IsGaming() && shuUser.GetUserId() == huUser.GetUserId() {
+			} else if shuUser != nil  && shuUser.IsGaming() && shuUser.GetUserId() == huUser.GetUserId() && shuUser.IsNotHu() {
 				//自摸的用户只统计一次自摸
 				huUser.AddStatisticsCountZiMo(d.GetCurrPlayCount())
 			}
@@ -2164,6 +2164,7 @@ func (d *MjDesk) GetCardTitle4WinCoinInfo(user *MjUser) string {
 	if user.GameData.HuInfo != nil && len(user.GameData.HuInfo) > 0 {
 		huDes = append(huDes, user.GameData.HuInfo[0].GetHuDesc())
 	}
+	log.T("用户[%v]GameData.HuInfo is [%v]", user.GetUserId(), user.GetGameData().GetHuInfo())
 	huDes = append(huDes, shuBaGangStr)
 	huDes = append(huDes, shuAnGangStr)
 	huDes = append(huDes, shuDianPaoStr)

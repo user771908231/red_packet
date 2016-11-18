@@ -91,7 +91,7 @@ func NewMjUserStatisc() *MjUserStatisc {
 	ret.CountChaJiao = new(int32)
 	ret.CountBeiAnGang = new(int32)
 	ret.CountBeiZiMo = new(int32)
-	ret.CountBeiZiMo = new(int32)
+	ret.CountBeiBaGang = new(int32)
 	return ret
 }
 
