@@ -135,6 +135,7 @@ func NewPlayerInfo() *mjProto.PlayerInfo {
 	info.NHuPai = new(int32)
 	info.NickName = new(string)
 	info.QuePai = new(int32)
+	info.Sex = new(int32)
 	return info
 }
 

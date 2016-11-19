@@ -42,9 +42,11 @@ var MJDESK_ACT_TYPE_MOPAI int32 = 1; ///摸牌
 var MJDESK_ACT_TYPE_DAPAI int32 = 2; //打牌
 var MJDESK_ACT_TYPE_WAIT_CHECK int32 = 3; //等待check
 
-
-var DINGQUE_SLEEP_DURATION time.Duration = time.Second * 5        //定缺的延迟
 var SHAIZI_SLEEP_DURATION time.Duration = time.Second * 4        //定缺的延迟
+var DINGQUE_SLEEP_DURATION time.Duration = time.Second * 0        //定缺的延迟
+var SLEEP_DURATION_EXCHANGE time.Duration = time.Second * 0        //定缺的延迟
+var SLEEP_DURATION_EXCHANGE_END time.Duration = time.Second * 0        //定缺的延迟
+
 
 
 //判断是不是朋友桌
@@ -738,7 +740,7 @@ func (d *MjDesk) BeginStart() error {
 
 //开始换三张
 func (d *MjDesk) beginExchange() error {
-	time.Sleep(time.Second * 3)
+	time.Sleep(SLEEP_DURATION_EXCHANGE)
 	data := newProto.NewGame_BroadcastBeginExchange()
 	d.BroadCastProto(data)
 	return nil
@@ -2260,7 +2262,7 @@ func (d *MjDesk) ExchangeEnd() error {
 		}
 	}
 
-	time.Sleep(time.Second * 5)
+	time.Sleep(SLEEP_DURATION_EXCHANGE_END)
 
 	//开始换牌
 	exchangeType := utils.Rand(0, 3)
@@ -2302,7 +2304,7 @@ func (d *MjDesk) ExchangeEnd() error {
 
 	//延时之后发送开始定缺的广播
 
-	time.Sleep(time.Second * 3)
+	time.Sleep(DINGQUE_SLEEP_DURATION)
 	//开始定缺
 	err := d.beginDingQue()
 	if err != nil {
