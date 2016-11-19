@@ -452,12 +452,21 @@ func (d *MjDesk) GetUserCount() int32 {
 }
 
 //玩家是否足够
-func (d *MjDesk) IsPlayerEnough() bool {
-	if d.GetUserCount() == 4 {
-		return true
-	} else {
-		return false;
+func (d *MjDesk) IsPlayerEnough() (isPlayerEnough bool) {
+	switch {
+	case d.IsSanRenLiangFang() && d.GetUserCount() == 3 : //是三人两房并且玩家数等于3
+		isPlayerEnough = true
+	case !d.IsSanRenLiangFang() && d.GetUserCount() == 4 : //不是三人两房并且玩家数等于4
+		isPlayerEnough = true
+	default:
+		isPlayerEnough = false
 	}
+	return isPlayerEnough
+	//if d.GetUserCount() == 4 {
+	//	return true
+	//} else {
+	//	return false;
+	//}
 }
 
 //用户准备之后的一些操作
