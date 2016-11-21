@@ -705,6 +705,13 @@ func getHuFan(handPai *MJHandPai, isZimo bool, is19 bool, extraAct HuPaiType, mj
 		}
 	}
 
+	//倒倒胡 所有番型均算平胡
+	if mjDesk.IsDaodaohu() {
+		log.T("getHuFan: 倒倒胡 平胡")
+		fan = FAN_PINGHU
+		fanXingStr = "平胡"
+	}
+
 	//TODO MJOption_JIANGOUDIAO
 	//if IsOpenRoomOption(roomInfo.PlayOptions.OthersCheckBox, MJOption_JINGOUDIAO) { //金钩钓
 	//	if IsJingGouDiao(handCounts) {
