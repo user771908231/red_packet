@@ -53,7 +53,10 @@ message PDdzDesk {
     optional int64 qingDizhuValue = 13; //关于统计的数据都在这
     optional int64 winValue = 14; //关于统计的数据都在这
     optional int32 ddzType = 15; //游戏类型
-
+    optional int32 RoomType = 16; //房间类型
+    optional int32 BoardsCount = 17;
+    optional int64 CapMax = 18;
+    optional bool IsJiaoFen = 19;
 }
 
 //游戏数据

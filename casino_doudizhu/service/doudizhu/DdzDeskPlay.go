@@ -4,6 +4,8 @@ import (
 	"casino_server/common/log"
 	"casino_server/common/Error"
 	"github.com/name5566/leaf/gate"
+	"casino_doudizhu/msg/funcsInit"
+	"casino_server/conf/intCons"
 )
 
 //这里主要存放 玩斗地主的一些多逻辑....其他的基本方法都放在DdzDesk中
@@ -19,6 +21,9 @@ func (d *DdzDesk) EnterUser(userId uint32, a gate.Agent) error {
 		olduser.SetOnline()
 		//todo 返回信息
 		olduser.UpdateSession()       //更新session 信息，这里可以更具需求来保存对应的属性...
+
+		ret := newProto.NewGame_AckEnterRoom()
+		a.WriteMsg(ret)
 		return nil
 	}
 
@@ -26,10 +31,15 @@ func (d *DdzDesk) EnterUser(userId uint32, a gate.Agent) error {
 	errAddNew := d.AddUser(userId)
 	if errAddNew != nil {
 		//进入失败 //返回失败的信息
+		ret := newProto.NewGame_AckEnterRoom()
+		*ret.Header.Code = intCons.ACK_RESULT_ERROR
+		*ret.Header.Error = "进入房间失败"
+		a.WriteMsg(ret)
 		return Error.NewError(-1, "进入房间失败")
 	} else {
-		//进入成功
-		//todo 返回进入房间成功的消息
+		//进入成功,返回进入成功的信息
+		ret := newProto.NewGame_AckEnterRoom()
+		a.WriteMsg(ret)
 		return nil
 	}
 
@@ -256,6 +266,51 @@ func (d *DdzDesk) NextUser() error {
 	return nil
 }
 
+//叫地主
+func (d *DdzDesk) JiaoDiZhu(userId uint32) error {
+	//验证活动玩家
+	err := d.CheckActiveUser(userId)
+	if err != nil {
+		return err
+	}
+
+	//验证用户是否为空
+	user := d.GetUserByUserId(userId)
+	if user == nil {
+		return Error.NewFailError("玩家没找到，抢地主失败")
+	}
+
+	user.SetQiangDiZhuStatus(DDZUSER_QIANGDIZHU_STATUS_PASS)
+
+	//查找下一家抢地主的人
+	index := d.GetUserIndexByUserId(user.GetUserId())
+	var nextUser *DdzUser
+	for i := index + 1; i < len(d.Users) + index; i++ {
+		u := d.Users[(i) / len(d.Users)]
+		if u != nil && !u.IsBuJiao() {
+			nextUser = u
+		}
+	}
+
+	//表示没有下一家可以抢地主
+	if nextUser == nil {
+		//todo 抢地主结束的操作
+		d.afterQiangDizhu()
+	} else {
+		//todo 给nextUser 发送抢地主的协议
+	}
+
+	return nil
+}
+
+//四川叫地主
+func (d *DdzDesk) JiaoDiZhuSiChuan(userId uint32) error {
+	return nil
+
+}
+
+
+
 //抢地主
 func (d *DdzDesk) QiangDiZhu(userId uint32, qiangType int32) error {
 
@@ -310,6 +365,7 @@ func (d *DdzDesk) QiangDiZhu(userId uint32, qiangType int32) error {
 
 	return nil
 }
+
 
 //四川斗地主，需要更具四川的玩法来定制
 func (d *DdzDesk) QiangDiZhuSiChuan(userId uint32, qiangType int32) error {
@@ -369,5 +425,13 @@ func (d *DdzDesk) QiangDiZhuSiChuan(userId uint32, qiangType int32) error {
 //地主开始出牌
 func (d *DdzDesk) afterQiangDizhu() {
 
+}
+
+//明牌
+func (d *DdzDesk) ShowHandPokers(userId uint32) error {
+	d.Lock()
+	defer d.Unlock()
+	//处理明牌的逻辑
+	return nil
 }
 
