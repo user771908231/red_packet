@@ -498,7 +498,7 @@ func (d *MjDesk) begin() error {
 	//2，初始化桌子的状态
 	d.beginInit()
 
-	//3，发13张牌
+	//3，根据playoptions 发cardsNum张牌
 	err = d.initCards()
 	if err != nil {
 		log.E("初始化牌的时候出错err[%v]", err)
@@ -545,12 +545,31 @@ func (d *MjDesk) IsSanRenLiangFang() bool {
 	return false
 }
 
+//判断是否是四人两房
 func (d *MjDesk) IsSiRenLiangFang() bool {
 	if mjproto.MJRoomType(d.GetMjRoomType()) == mjproto.MJRoomType_roomType_siRenLiangFang {
 		return true
 	}
 	return false
 }
+
+//判断是否是倒倒胡
+func (d *MjDesk) IsDaodaohu() bool {
+	if mjproto.MJRoomType(d.GetMjRoomType()) == mjproto.MJRoomType_roomType_daoDaoHu {
+		return true
+	}
+	return false
+}
+
+//判断是否是倒倒胡
+func (d *MjDesk) IsLiangRenLiangFang() bool {
+	if mjproto.MJRoomType(d.GetMjRoomType()) == mjproto.MJRoomType_roomType_ {
+		return true
+	}
+	return false
+}
+
+
 
 //是否需要换三张
 func (d *MjDesk) IsNeedExchange3zhang() bool {
@@ -571,6 +590,11 @@ func (d *MjDesk) IsNeedYaojiuJiangdui() bool {
 func (d *MjDesk) IsNeedMenqingZhongzhang() bool {
 	return d.IsOpenOption(mjproto.MJOption_MENQING_MID_CARD)
 }
+
+////是否需要金钩钓
+//func (d *MjDesk) IsNeedJinGouDiao() bool {
+//	return d.IsOpenOption(mjproto.MJOption_JINGOUDIAO)
+//}
 
 //是否需要自摸加底
 func (d *MjDesk) IsNeedZiMoJiaDi() bool {
@@ -646,16 +670,21 @@ func (d *MjDesk) initCards() error {
 		//如果是三人两房 or 四人两房 过滤掉万牌
 		d.AllMJPai = IgnoreFlower(d.AllMJPai, W)
 	}
-	//TODO 三人两房对玩家手牌的处理
+
 	//d.AllMJPai = XiPaiTestHu()
 	//给每个人初始化...
+	//cardsNum 发牌张数处理
+	cardsNum := int(d.GetCardsNum())
+	if cardsNum == 0 {
+		cardsNum = 13 //默认13张
+	}
 	for i, u := range d.Users {
 		if u != nil && u.IsReady() {
 			//log.T("开始给你玩家[%v]初始化手牌...", u.GetUserId())
-			ps := make([]*MJPai, 13)
-			copy(ps, d.AllMJPai[i * 13: (i + 1) * 13])                //这里这样做的目的是不能更改base的值
+			ps := make([]*MJPai, cardsNum)
+			copy(ps, d.AllMJPai[i * cardsNum: (i + 1) * cardsNum])                //这里这样做的目的是不能更改base的值
 			u.GameData.HandPai.Pais = ps
-			*d.MJPaiCursor = int32((i + 1) * 13) - 1;
+			*d.MJPaiCursor = int32((i + 1) * cardsNum) - 1;
 		}
 	}
 
