@@ -10,8 +10,8 @@ func NewHeader() *ddzproto.ProtoHeader {
 	return ret
 }
 
-func NewGame_AckLogin() *ddzproto.Game_AckLogin {
-	ret := &ddzproto.Game_AckLogin{}
+func NewGame_AckLogin() *ddzproto.DdzAckLogin {
+	ret := &ddzproto.DdzAckLogin{}
 	ret.Header = NewHeader()
 	ret.UserId = new(uint32)
 	ret.NickName = new(string)

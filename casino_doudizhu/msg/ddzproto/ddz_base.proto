@@ -217,7 +217,7 @@ enum DeskGameStatus {
 }
 
 
-message DeskGameInfo {
+message DdzDeskInfo {
     optional int32 GameStatus = 1; //游戏所处状态: 0:INIT 1:DINGQUE 2;EXCHANGE 3:PLAYING 4:FINISH
     optional RoomTypeInfo roomTypeInfo = 2; //房间类型信息，包括：房间类型、局数、封顶、玩法、牌张、结算、底
     optional int32 playerNum = 3; //玩家数量
