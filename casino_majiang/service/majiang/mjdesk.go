@@ -563,7 +563,7 @@ func (d *MjDesk) IsDaodaohu() bool {
 
 //判断是否是倒倒胡
 func (d *MjDesk) IsLiangRenLiangFang() bool {
-	if mjproto.MJRoomType(d.GetMjRoomType()) == mjproto.MJRoomType_roomType_ {
+	if mjproto.MJRoomType(d.GetMjRoomType()) == mjproto.MJRoomType_roomType_daoDaoHu {
 		return true
 	}
 	return false
