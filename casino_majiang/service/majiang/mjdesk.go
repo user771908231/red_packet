@@ -48,7 +48,6 @@ var SLEEP_DURATION_EXCHANGE time.Duration = time.Second * 0        //定缺的�
 var SLEEP_DURATION_EXCHANGE_END time.Duration = time.Second * 0        //定缺的延迟
 
 
-
 //判断是不是朋友桌
 func (d *MjDesk) IsFriend() bool {
 	return true
@@ -452,12 +451,21 @@ func (d *MjDesk) GetUserCount() int32 {
 }
 
 //玩家是否足够
-func (d *MjDesk) IsPlayerEnough() bool {
-	if d.GetUserCount() == 4 {
-		return true
-	} else {
-		return false;
+func (d *MjDesk) IsPlayerEnough() (isPlayerEnough bool) {
+	switch {
+	case d.IsSanRenLiangFang() && d.GetUserCount() == 3 : //是三人两房并且玩家数等于3
+		isPlayerEnough = true
+	case !d.IsSanRenLiangFang() && d.GetUserCount() == 4 : //不是三人两房并且玩家数等于4
+		isPlayerEnough = true
+	default:
+		isPlayerEnough = false
 	}
+	return isPlayerEnough
+	//if d.GetUserCount() == 4 {
+	//	return true
+	//} else {
+	//	return false;
+	//}
 }
 
 //用户准备之后的一些操作
@@ -2202,8 +2210,12 @@ func (d *MjDesk) IsBegin() bool {
 
 //剩余牌的数量
 func (d *MjDesk) GetRemainPaiCount() int32 {
-	//todo 几门牌? 这里的107需要通过有几门牌来确定...
-	return 107 - d.GetMJPaiCursor()
+	if d.IsSanRenLiangFang() {
+		return 80 - d.GetMJPaiCursor()
+	} else {
+		return 107 - d.GetMJPaiCursor()
+	}
+
 }
 
 func (d *MjDesk) GetByWho() {
