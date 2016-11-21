@@ -10,23 +10,23 @@ import (
 
 func init() {
 	msg.Processor.SetRouter(&bbproto.NullMsg{}, game.ChanRPC)        //空协议
-	msg.Processor.SetRouter(&ddzproto.Game_Login{}, login.ChanRPC)    //登录协议
+	msg.Processor.SetRouter(&ddzproto.DdzLogin{}, login.ChanRPC)    //登录协议
 
 	//游戏
-	msg.Processor.SetRouter(&ddzproto.Game_CreateRoom{}, game.ChanRPC)    //创建房间
-	msg.Processor.SetRouter(&ddzproto.Game_EnterRoom{}, game.ChanRPC)    //进入房间
-	msg.Processor.SetRouter(&ddzproto.Game_Ready{}, game.ChanRPC)    //准备
-	msg.Processor.SetRouter(&ddzproto.Game_JiaoDiZhu{}, game.ChanRPC)    //
-	msg.Processor.SetRouter(&ddzproto.Game_RobDiZhu{}, game.ChanRPC)    //
-	msg.Processor.SetRouter(&ddzproto.Game_Double{}, game.ChanRPC)    //
-	msg.Processor.SetRouter(&ddzproto.Game_ShowHandPokers{}, game.ChanRPC)    //
-	msg.Processor.SetRouter(&ddzproto.Game_MenuZhua{}, game.ChanRPC)    //
-	msg.Processor.SetRouter(&ddzproto.Game_SeeCards{}, game.ChanRPC)    //
-	msg.Processor.SetRouter(&ddzproto.Game_Pull{}, game.ChanRPC)    //
-	msg.Processor.SetRouter(&ddzproto.Game_OutCards{}, game.ChanRPC)    //
-	msg.Processor.SetRouter(&ddzproto.Game_ActGuo{}, game.ChanRPC)    //
-	msg.Processor.SetRouter(&ddzproto.Game_DissolveDesk{}, game.ChanRPC)    //
-	msg.Processor.SetRouter(&ddzproto.Game_LeaveDesk{}, game.ChanRPC)    //
-	msg.Processor.SetRouter(&ddzproto.Game_Message{}, game.ChanRPC)    //
-	msg.Processor.SetRouter(&ddzproto.Game_GameRecord{}, game.ChanRPC)    //
+	msg.Processor.SetRouter(&ddzproto.DdzCreateRoom{}, game.ChanRPC)    //创建房间
+	msg.Processor.SetRouter(&ddzproto.DdzEnterRoom{}, game.ChanRPC)    //进入房间
+	msg.Processor.SetRouter(&ddzproto.DdzReady{}, game.ChanRPC)    //准备
+	msg.Processor.SetRouter(&ddzproto.DdzJiaoDiZhu{}, game.ChanRPC)    //
+	msg.Processor.SetRouter(&ddzproto.DdzRobDiZhu{}, game.ChanRPC)    //
+	msg.Processor.SetRouter(&ddzproto.DdzDouble{}, game.ChanRPC)    //
+	msg.Processor.SetRouter(&ddzproto.DdzShowHandPokers{}, game.ChanRPC)    //
+	msg.Processor.SetRouter(&ddzproto.DdzMenuZhua{}, game.ChanRPC)    //
+	msg.Processor.SetRouter(&ddzproto.DdzSeeCards{}, game.ChanRPC)    //
+	msg.Processor.SetRouter(&ddzproto.DdzPull{}, game.ChanRPC)    //
+	msg.Processor.SetRouter(&ddzproto.DdzOutCards{}, game.ChanRPC)    //
+	msg.Processor.SetRouter(&ddzproto.DdzActGuo{}, game.ChanRPC)    //
+	msg.Processor.SetRouter(&ddzproto.DdzDissolveDesk{}, game.ChanRPC)    //
+	msg.Processor.SetRouter(&ddzproto.DdzLeaveDesk{}, game.ChanRPC)    //
+	msg.Processor.SetRouter(&ddzproto.DdzMessage{}, game.ChanRPC)    //
+	msg.Processor.SetRouter(&ddzproto.DdzGameRecord{}, game.ChanRPC)    //
 }

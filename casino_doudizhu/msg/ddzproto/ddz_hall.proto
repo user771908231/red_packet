@@ -4,7 +4,6 @@ import public "ddz_base.proto";
 package ddzproto;
 option optimize_for = LITE_RUNTIME;
 
-
 //服务器信息
 message ServerInfo {
     optional string ip = 1;
@@ -13,7 +12,7 @@ message ServerInfo {
 }
 
 // 接入服务器
-message game_QuickConn {
+message DdzQuickConn {
     optional ProtoHeader header = 1;
     optional string channelId = 2; //渠道号
     optional int32 gameId = 3; //游戏ID: 1德州、2麻将、3斗地主
@@ -22,21 +21,21 @@ message game_QuickConn {
     optional uint32 userId = 6; //用户Id
 }
 
-message game_AckQuickConn {
+message DdzAckQuickConn {
     optional ProtoHeader header = 1;
     optional ServerInfo gameServer = 2; //游戏服务器
-    optional int32  releaseTag = 3; //发布版本标志
-    optional int32  currVersion = 4; //服务器的当前最新版本号
-    optional int32  isUpdate = 5; //0=无需升级 1=可选升级 2=强制升级
+    optional int32 releaseTag = 3; //发布版本标志
+    optional int32 currVersion = 4; //服务器的当前最新版本号
+    optional int32 isUpdate = 5; //0=无需升级 1=可选升级 2=强制升级
     optional string downloadUrl = 6; //下载地址
     optional string versionInfo = 7; //版本升级描述信息
 
-    optional int32  isMaintain = 8; //是否停服维护 1=停服维护中
+    optional int32 isMaintain = 8; //是否停服维护 1=停服维护中
     optional string maintainMsg = 9; //维护提示消息
 }
 
 // 游戏登录请求
-message game_Login {
+message DdzLogin {
     optional ProtoHeader header = 1;
     optional uint32 userId = 2; // 用户id
     optional int32 protoVersion = 3; // 客户端 proto version
@@ -44,7 +43,7 @@ message game_Login {
 }
 
 // 游戏登录回复
-message game_AckLogin {
+message DdzAckLogin {
     optional ProtoHeader header = 1;
     optional uint32 userId = 2; //用户id
     optional string nickName = 3; //昵称
@@ -53,18 +52,18 @@ message game_AckLogin {
     optional int64 costRebuy = 6; // Rebuy消耗钻石数(锦标赛)
     optional bool championship = 7; // 是否是锦标赛
     optional int64 chip = 8; // 用户钻石余额
-    optional int32 mailCount = 9; // 用户邮件数量:>=0 (game_AckNotice中type=3对应的信息)
+    optional int32 mailCount = 9; // 用户邮件数量:>=0 (DdzAckNotice中type=3对应的信息)
     optional string notice = 10; // 滚动公告的内容
     optional int32 gameStatus = 11; // 0：未游戏  1：正在朋友桌  2：正在锦标赛
 }
 
-message game_Notice {
+message DdzNotice {
     optional ProtoHeader header = 1;
     optional int32 noticeType = 2; //公告的类型
 }
 
 // 公告的内容
-message game_AckNotice {
+message DdzAckNotice {
     optional ProtoHeader header = 1;
     optional int32 noticeType = 2; //公告的类型:1,滚动信息,2,充值信息,3,公告信息
     optional string noticeTitle = 3; //公告的标题
@@ -74,10 +73,8 @@ message game_AckNotice {
     repeated string fileds = 7; //公告的字段,目前子还是给充值的协议使用
 }
 
-
-
 //游戏战绩
-message game_GameRecord {
+message DdzGameRecord {
     optional ProtoHeader header = 1;
     optional int32 id = 2; //战绩id
     optional uint32 userId = 3; //用户id
@@ -98,29 +95,26 @@ message BeanGameRecord {
     repeated BeanUserRecord users = 5; //用户
 }
 //
-message game_AckGameRecord {
+message DdzAckGameRecord {
     optional ProtoHeader header = 1;
     optional uint32 userId = 2; //用户id
     repeated BeanGameRecord records = 3; //结果
 }
 
-
-
 // 反馈信息的协议
-message game_Feedback {
+message DdzFeedback {
     optional ProtoHeader header = 1;
     optional string message = 2; //用户提交的反馈内容
 }
 
-
 // 创建房间
-message game_CreateRoom {
+message DdzCreateRoom {
     optional ProtoHeader header = 1;
     optional RoomTypeInfo roomTypeInfo = 2; // 房间类型信息，包括：房间类型、局数、封顶、玩法、牌张、结算、底
 }
 
 // 创建房间回复的信息
-message game_AckCreateRoom {
+message DdzAckCreateRoom {
     optional ProtoHeader header = 1;
     optional int32 deskId = 2; // 用户id
     optional string password = 3; // 房间密码
@@ -129,8 +123,8 @@ message game_AckCreateRoom {
     optional RoomTypeInfo roomTypeInfo = 6; // 房间类型信息，包括：房间类型、局数、封顶、玩法、牌张、结算、底
 }
 
-// 客户端请求进入 room, 服务器返回game_SendGameInfo
-message game_EnterRoom {
+// 客户端请求进入 room, 服务器返回DdzSendGameInfo
+message DdzEnterRoom {
     optional ProtoHeader header = 1;
     optional int32 matchId = 2;
     optional int32 tableId = 3;
@@ -138,7 +132,7 @@ message game_EnterRoom {
     optional uint32 userId = 5; // 请求的userId
 }
 
-message game_AckEnterRoom {
+message DdzAckEnterRoom {
     optional ProtoHeader header = 1;
 }
 

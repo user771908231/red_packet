@@ -6,12 +6,12 @@ option optimize_for = LITE_RUNTIME;
 
 
 //房主解散房间(未开局)
-message game_DissolveDesk {
+message DdzDissolveDesk {
     optional ProtoHeader header = 1;
     optional uint32 userId = 2; // 解散房间的用户 id
 }
 //解散房间回复
-message game_AckDissolveDesk {
+message DdzAckDissolveDesk {
     optional ProtoHeader header = 1;
     optional uint32 userId = 2; // 解散房间的用户 id
     optional int32 deskId = 3; //房间Id
@@ -19,12 +19,12 @@ message game_AckDissolveDesk {
 }
 
 // 申请解散房间(游戏中)
-message game_ReqDissolveDesk {
+message DdzReqDissolveDesk {
     optional ProtoHeader    header = 1;
     optional uint32         userId = 2; // 申请解散房间的人
 }
 
-message game_AckReqDissolveDesk {
+message DdzAckReqDissolveDesk {
     optional ProtoHeader    header = 1;
     repeated uint32         userIdAgree = 2;    //已同意解散的人
     repeated uint32         userIdWait = 3;     //等待答复的人
@@ -33,24 +33,24 @@ message game_AckReqDissolveDesk {
 
 
 // 离开房间
-message game_LeaveDesk {
+message DdzLeaveDesk {
     optional ProtoHeader header = 1;
 }
 
 //离开房间的回复
-message game_AckLeaveDesk {
+message DdzAckLeaveDesk {
     optional ProtoHeader header = 1;
 }
 
 //准备游戏
-message game_Ready {
+message DdzReady {
     optional ProtoHeader header = 1;
     optional uint32 userId = 2; // 操作人
     optional bool isShowHandPokers = 3; // 明牌开始游戏（x5倍）
 }
 
 //准备游戏的结果
-message game_AckReady {
+message DdzAckReady {
     optional ProtoHeader header = 1;
     optional string msg = 2; //提示信息
     optional uint32 userId = 3; //广播推送时：表示谁已准备
@@ -58,7 +58,7 @@ message game_AckReady {
 
 
 //聊天的内容
-message game_Message {
+message DdzMessage {
     optional ProtoHeader header = 1;
     optional int32 msgType = 2; //消息的类型,1,快捷,2,表情,3,自定义
     optional int32 id = 3; //只有快捷和表情的时候有用
@@ -68,7 +68,7 @@ message game_Message {
 }
 
 //消息广播
-message game_SendMessage {
+message DdzSendMessage {
     optional ProtoHeader header = 1;
     optional int32 msgType = 2; //消息的类型,1,快捷,2,表情,3,自定义
     optional int32 id = 3; //只有快捷和表情的时候有用
@@ -103,13 +103,13 @@ message EndLotteryInfo {
 }
 
 // 本局结果(广播)
-message game_SendCurrentResult {
+message DdzSendCurrentResult {
     optional ProtoHeader header = 1;
     repeated WinCoinInfo winCoinInfo = 2; // 本局玩家的输赢明细
 }
 
 // 牌局结束(广播)
-message game_SendEndLottery {
+message DdzSendEndLottery {
     optional ProtoHeader header = 1;
     repeated EndLotteryInfo coinInfo = 2; //各人的汇总输赢明细
 }
