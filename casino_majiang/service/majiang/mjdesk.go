@@ -517,7 +517,7 @@ func (d *MjDesk) begin() error {
 		return nil
 	}
 
-	if d.IsSanRenLiangFang() {
+	if d.IsSanRenLiangFang() || d.IsSiRenLiangFang() {
 		err = d.BeginStart()
 		if err != nil {
 			log.E("发送游戏开始的广播的时候出错err[%v]", err)
@@ -540,6 +540,13 @@ func (d *MjDesk) begin() error {
 //判断是否是三人两房
 func (d *MjDesk) IsSanRenLiangFang() bool {
 	if mjproto.MJRoomType(d.GetMjRoomType()) == mjproto.MJRoomType_roomType_sanRenLiangFang {
+		return true
+	}
+	return false
+}
+
+func (d *MjDesk) IsSiRenLiangFang() bool {
+	if mjproto.MJRoomType(d.GetMjRoomType()) == mjproto.MJRoomType_roomType_siRenLiangFang {
 		return true
 	}
 	return false
@@ -635,8 +642,8 @@ func (d *MjDesk) initCards() error {
 	d.SetStatus(MJDESK_STATUS_FAPAI)        //发牌的阶段
 
 	d.AllMJPai = XiPai()
-	if d.IsSanRenLiangFang() {
-		//如果是三人两房 过滤掉万牌
+	if d.IsSanRenLiangFang() || d.IsSiRenLiangFang() {
+		//如果是三人两房 or 四人两房 过滤掉万牌
 		d.AllMJPai = IgnoreFlower(d.AllMJPai, W)
 	}
 	//TODO 三人两房对玩家手牌的处理
@@ -1339,9 +1346,9 @@ func (d *MjDesk) GetNextMoPaiUser() *MjUser {
 func (d *MjDesk) GetNextPai() *MJPai {
 	*d.MJPaiCursor ++
 	//目前暂时是108张牌...
-	if d.IsSanRenLiangFang() {
-
-	}
+	//if d.IsSanRenLiangFang() {
+	//
+	//}
 	if d.GetMJPaiCursor() >= 108 {
 		log.E("服务器错误:要找的牌的坐标[%v]已经超过整副麻将的坐标了... ", d.GetMJPaiCursor())
 		*d.MJPaiCursor --
@@ -2210,7 +2217,7 @@ func (d *MjDesk) IsBegin() bool {
 
 //剩余牌的数量
 func (d *MjDesk) GetRemainPaiCount() int32 {
-	if d.IsSanRenLiangFang() {
+	if d.IsSanRenLiangFang() || d.IsSiRenLiangFang() {
 		return 80 - d.GetMJPaiCursor()
 	} else {
 		return 107 - d.GetMJPaiCursor()
