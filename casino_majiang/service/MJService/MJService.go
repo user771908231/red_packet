@@ -405,7 +405,8 @@ func HandlerGame_ActHu(m *mjProto.Game_ActHu) {
 	//这里是否需要广播胡牌的广播...
 
 	//胡牌之后，需要判断游戏是否结束...
-	if desk.Time2Lottery() || desk.IsDaodaohu() { //倒倒胡 某一玩家胡牌即结束
+	if desk.Time2Lottery() || desk.IsDaodaohu() {
+		//倒倒胡 某一玩家胡牌即结束
 		desk.Lottery()
 		//因为可以开奖了，所以不操作后边的，直接返回
 		return

@@ -52,21 +52,6 @@ func (p *MJHandPai) IsContainQue(user *MjUser) bool {
 			return true
 		}
 	}
-
-	//if p.PengPais != nil {
-	//	for i := 0; i < len(p.PengPais); i++ {
-	//		if user.IsQuePai(p.PengPais[i]) {
-	//			return true
-	//		}
-	//	}
-	//}
-	//if p.GangPais != nil {
-	//	for i := 0; i < len(p.GangPais); i++ {
-	//		if user.IsQuePai(p.GangPais[i]) {
-	//			return true
-	//		}
-	//	}
-	//}
 	return false
 }
 
