@@ -95,7 +95,6 @@ func HandlerQiangDiZhu(userId uint32) error {
 		return Error.NewFailError("玩家抢地主出错")
 
 	}
-
 	return nil
 
 }
@@ -113,6 +112,22 @@ func HandlerJiaoDiZhu(userId uint32) error {
 		return err
 	}
 
+	return nil
+}
+
+//不叫地主
+func HandlerBuJiaoDiZhu(userId uint32) error {
+	//不叫地主
+	desk := doudizhu.GetDdzDeskBySession(userId)
+	if desk == nil {
+		return Error.NewFailError("没有找到desk")
+	}
+
+	err := desk.BuJiaoDiZhu(userId)
+	if err != nil {
+		log.E("玩家[%v]不叫地主的时候失败")
+		return err
+	}
 	return nil
 }
 
@@ -228,6 +243,12 @@ func HandlerActPass(userId uint32) error {
 	desk := doudizhu.GetDdzDeskBySession(userId)
 	if desk == nil {
 		return Error.NewFailError("没有找到desk")
+	}
+
+	err := desk.ActPass(userId)
+	if err != nil {
+		log.E("玩家[%v]过牌的时候失败", userId)
+		return err
 	}
 	return nil
 }
