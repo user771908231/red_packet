@@ -10,54 +10,54 @@ var Processor = protobuf.NewProcessor()
 
 func init() {
 	Processor.Register(&bbproto.NullMsg{})        //0连接服务器
-	Processor.Register(&ddzproto.Game_QuickConn{})        //1连接服务器
-	Processor.Register(&ddzproto.Game_AckQuickConn{})//2登录游戏
+	Processor.Register(&ddzproto.DdzQuickConn{})        //1连接服务器
+	Processor.Register(&ddzproto.DdzAckQuickConn{})//2登录游戏
 
-	Processor.Register(&ddzproto.Game_Login{})//3
-	Processor.Register(&ddzproto.Game_AckLogin{})//4
-	Processor.Register(&ddzproto.Game_CreateRoom{})//5
-	Processor.Register(&ddzproto.Game_AckCreateRoom{})//6
-	Processor.Register(&ddzproto.Game_EnterRoom{})//7
-	Processor.Register(&ddzproto.Game_AckEnterRoom{})//8
-	Processor.Register(&ddzproto.Game_SendGameInfo{})//9
-	Processor.Register(&ddzproto.Game_Ready{})//10
-	Processor.Register(&ddzproto.Game_AckReady{})//11
-	Processor.Register(&ddzproto.Game_Opening{})//12
-	Processor.Register(&ddzproto.Game_DealCards{})//13
-	Processor.Register(&ddzproto.Game_JiaoDiZhu{})//14	PID_JIAO_DIZHU = 14; //叫地主
-	Processor.Register(&ddzproto.Game_JiaoDiZhuAck{})//15	PID_JIAO_DIZHU_ACK = 15; //叫地主-ack
+	Processor.Register(&ddzproto.DdzLogin{})//3
+	Processor.Register(&ddzproto.DdzAckLogin{})//4
+	Processor.Register(&ddzproto.DdzCreateRoom{})//5
+	Processor.Register(&ddzproto.DdzAckCreateRoom{})//6
+	Processor.Register(&ddzproto.DdzEnterRoom{})//7
+	Processor.Register(&ddzproto.DdzAckEnterRoom{})//8
+	Processor.Register(&ddzproto.DdzSendGameInfo{})//9
+	Processor.Register(&ddzproto.DdzReady{})//10
+	Processor.Register(&ddzproto.DdzAckReady{})//11
+	Processor.Register(&ddzproto.DdzOpening{})//12
+	Processor.Register(&ddzproto.DdzDealCards{})//13
+	Processor.Register(&ddzproto.DdzJiaoDiZhu{})//14	PID_JIAO_DIZHU = 14; //叫地主
+	Processor.Register(&ddzproto.DdzJiaoDiZhuAck{})//15	PID_JIAO_DIZHU_ACK = 15; //叫地主-ack
 
 
 	//欢乐斗地主
-	Processor.Register(&ddzproto.Game_RobDiZhu{})//16	PID_ROB_DIZHU = 16; //抢地主
-	Processor.Register(&ddzproto.Game_RobDiZhuAck{})//17	PID_ROB_DIZHU_ACK = 17; //抢地主-ack
-	Processor.Register(&ddzproto.Game_Double{})//18
-	Processor.Register(&ddzproto.Game_DoubleAck{})//19
-	Processor.Register(&ddzproto.Game_ShowHandPokers{})//20	//明牌
-	Processor.Register(&ddzproto.Game_ShowHandPokersAck{})//21
+	Processor.Register(&ddzproto.DdzRobDiZhu{})//16	PID_ROB_DIZHU = 16; //抢地主
+	Processor.Register(&ddzproto.DdzRobDiZhuAck{})//17	PID_ROB_DIZHU_ACK = 17; //抢地主-ack
+	Processor.Register(&ddzproto.DdzDouble{})//18
+	Processor.Register(&ddzproto.DdzDoubleAck{})//19
+	Processor.Register(&ddzproto.DdzShowHandPokers{})//20	//明牌
+	Processor.Register(&ddzproto.DdzShowHandPokersAck{})//21
 
 	//四川斗地主
-	Processor.Register(&ddzproto.Game_MenuZhua{})//22
-	Processor.Register(&ddzproto.Game_MenuZhuaAck{})//23
-	Processor.Register(&ddzproto.Game_SeeCards{})//24
-	Processor.Register(&ddzproto.Game_SeeCardsAck{})//25
-	Processor.Register(&ddzproto.Game_Pull{})//26
-	Processor.Register(&ddzproto.Game_PullAck{})//27
-	Processor.Register(&ddzproto.Game_OutCards{})//28
-	Processor.Register(&ddzproto.Game_OutCardsAck{})//29
-	Processor.Register(&ddzproto.Game_ActGuo{})//30
-	Processor.Register(&ddzproto.Game_ActGuoAck{})//31
-	Processor.Register(&ddzproto.Game_StartPlay{})//32
-	Processor.Register(&ddzproto.Game_OverTurn{})//33
-	Processor.Register(&ddzproto.Game_SendCurrentResult{})//34 本局结束
-	Processor.Register(&ddzproto.Game_SendEndLottery{})//35牌局结束
-	Processor.Register(&ddzproto.Game_DissolveDesk{})//36
-	Processor.Register(&ddzproto.Game_AckDissolveDesk{})//37
+	Processor.Register(&ddzproto.DdzMenuZhua{})//22
+	Processor.Register(&ddzproto.DdzMenuZhuaAck{})//23
+	Processor.Register(&ddzproto.DdzSeeCards{})//24
+	Processor.Register(&ddzproto.DdzSeeCardsAck{})//25
+	Processor.Register(&ddzproto.DdzPull{})//26
+	Processor.Register(&ddzproto.DdzPullAck{})//27
+	Processor.Register(&ddzproto.DdzOutCards{})//28
+	Processor.Register(&ddzproto.DdzOutCardsAck{})//29
+	Processor.Register(&ddzproto.DdzActGuo{})//30
+	Processor.Register(&ddzproto.DdzActGuoAck{})//31
+	Processor.Register(&ddzproto.DdzStartPlay{})//32
+	Processor.Register(&ddzproto.DdzOverTurn{})//33
+	Processor.Register(&ddzproto.DdzSendCurrentResult{})//34 本局结束
+	Processor.Register(&ddzproto.DdzSendEndLottery{})//35牌局结束
+	Processor.Register(&ddzproto.DdzDissolveDesk{})//36
+	Processor.Register(&ddzproto.DdzAckDissolveDesk{})//37
 
-	Processor.Register(&ddzproto.Game_LeaveDesk{})//38
-	Processor.Register(&ddzproto.Game_AckLeaveDesk{})//39
-	Processor.Register(&ddzproto.Game_Message{})//40
-	Processor.Register(&ddzproto.Game_SendMessage{})//41
-	Processor.Register(&ddzproto.Game_GameRecord{})//42
-	Processor.Register(&ddzproto.Game_AckGameRecord{})//43
+	Processor.Register(&ddzproto.DdzLeaveDesk{})//38
+	Processor.Register(&ddzproto.DdzAckLeaveDesk{})//39
+	Processor.Register(&ddzproto.DdzMessage{})//40
+	Processor.Register(&ddzproto.DdzSendMessage{})//41
+	Processor.Register(&ddzproto.DdzGameRecord{})//42
+	Processor.Register(&ddzproto.DdzAckGameRecord{})//43
 }

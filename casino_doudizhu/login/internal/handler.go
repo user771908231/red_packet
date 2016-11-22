@@ -15,14 +15,14 @@ func handler(m interface{}, h interface{}) {
 }
 
 func init() {
-	handler(&ddzproto.Game_Login{}, handlerGame_Login)
+	handler(&ddzproto.DdzLogin{}, handlerGame_Login)
 }
 
 /**
 	登陆的协议...
  */
 func handlerGame_Login(args []interface{}) {
-	m := args[0].(*ddzproto.Game_Login)
+	m := args[0].(*ddzproto.DdzLogin)
 	a := args[1].(gate.Agent)
 
 	log.T("请求handlerGame_Login  m[%v]", m)
