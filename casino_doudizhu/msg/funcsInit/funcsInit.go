@@ -2,8 +2,6 @@ package newProto
 
 import (
 	"casino_doudizhu/msg/protogo"
-	"casino_login/msg/protoInit"
-	"casino_login/msg/protogo"
 )
 
 func NewDdzQuickConn() *ddzproto.DdzQuickConn {
@@ -133,6 +131,8 @@ func NewDdzOverTurn() *ddzproto.DdzOverTurn {
 //准备回复
 func NewDdzAckReady() *ddzproto.DdzAckReady {
 	ret := new(ddzproto.DdzAckReady)
+	ret.UserId = new(uint32)
+	ret.Msg = new(string)
 	return ret
 }
 

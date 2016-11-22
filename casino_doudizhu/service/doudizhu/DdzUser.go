@@ -38,6 +38,12 @@ func (u *DdzUser) SetOnline() error {
 
 func (u *DdzUser) UpdateSession() {
 	//更新session的信息
+	UpdateSession(u.GetUserId(), u.GetSessionGameStatus(), u.GetRoomId(), u.GetDeskId())
+}
+
+//得到游戏状态
+func (u *DdzUser) GetSessionGameStatus() int32 {
+	return 0
 }
 
 //设置庄太
