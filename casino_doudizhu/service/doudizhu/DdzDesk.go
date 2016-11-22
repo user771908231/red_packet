@@ -9,6 +9,7 @@ import (
 	"sync/atomic"
 	"github.com/golang/protobuf/proto"
 	"github.com/name5566/leaf/gate"
+	"casino_doudizhu/msg/protogo"
 )
 
 //斗地主的desk
@@ -177,3 +178,10 @@ func (d *DdzDesk) IsEnoughUser() bool {
 	}
 	return count == d.GetUserCountLimit()
 }
+
+//得到deskInfo
+func (d *DdzDesk) GetDdzDeskInfo() *ddzproto.DdzDeskInfo {
+	return nil
+}
+
+

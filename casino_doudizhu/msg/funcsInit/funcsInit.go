@@ -404,3 +404,9 @@ func NewDdzAckGameRecord() *ddzproto.DdzAckGameRecord {
 	ret.Header = NewHeader()
 	return ret
 }
+
+func NewDdzDeskInfo() *ddzproto.DdzDeskInfo {
+	ret := new(ddzproto.DdzDeskInfo)
+	
+
+}
