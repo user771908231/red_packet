@@ -925,11 +925,6 @@ func (d *MjDesk) DoCheckCase(gangUser *MjUser) error {
 
 }
 
-//得到麻将牌的总张数
-func (d *MjDesk) GetTotalMjPaiCount() int32 {
-	return 108; //暂时返回108张
-
-}
 
 
 /**
@@ -949,9 +944,20 @@ func (d *MjDesk) Time2Lottery() bool {
 	}
 
 
-	//2,当牌已经被抹完的时候，表示游戏结束
-	if d.GetMJPaiCursor() == (d.GetTotalMjPaiCount() - 1) {
-		return true;
+	//2，没有牌可以摸的时候，返回可以lottery了
+	if !d.HandPaiCanMo() {
+		return true
+	}
+
+
+
+	//如果是倒倒胡,并且有人胡牌了，那么直接返回胡牌
+	if d.IsDaodaohu() {
+		for _, user := range d.Users {
+			if user != nil && user.IsHu() {
+				return true
+			}
+		}
 	}
 
 	return false
@@ -970,6 +976,7 @@ func (d *MjDesk) GetGamingCount() int32 {
 
 // 一盘麻将结束....这里需要针对每个人结账...并且对desk和user的数据做清楚...
 func (d *MjDesk) Lottery() error {
+
 	//结账需要分两中情况
 	/**
 		1，只剩一个玩家没有胡牌的时候
@@ -977,12 +984,7 @@ func (d *MjDesk) Lottery() error {
 	 */
 
 	//判断是否可以胡牌
-	if !d.Time2Lottery() {
-		return errors.New("没有到lottery()的时间...")
-	}
-
 	log.T("现在开始处理lottery()的逻辑....")
-
 
 	//查花猪
 	d.ChaHuaZhu()
@@ -1332,16 +1334,11 @@ func (d *MjDesk) GetNextMoPaiUser() *MjUser {
 //得到下一张牌...
 func (d *MjDesk) GetNextPai() *MJPai {
 	*d.MJPaiCursor ++
-	//目前暂时是108张牌...
-	//if d.IsSanRenLiangFang() {
-	//
-	//}
-	if d.GetMJPaiCursor() >= 108 {
+	if d.GetMJPaiCursor() >= d.GetTotalMjPaiCount() {
 		log.E("服务器错误:要找的牌的坐标[%v]已经超过整副麻将的坐标了... ", d.GetMJPaiCursor())
 		*d.MJPaiCursor --
 		return nil
 	} else {
-
 		p := d.AllMJPai[d.GetMJPaiCursor()]
 		pai := NewMjpai()
 		*pai.Des = p.GetDes()
@@ -1355,6 +1352,14 @@ func (d *MjDesk) GetNextPai() *MJPai {
 //发送摸牌的广播
 //指定一个摸牌，如果没有指定，则系统通过游标来判断
 func (d *MjDesk) SendMopaiOverTurn(user *MjUser) error {
+
+	//首先判断是否可以lottery(),如果可以那么直接开奖
+	if d.Time2Lottery() {
+		d.Lottery()        //摸牌的时候判断可以lottery了
+		return nil
+	}
+
+	//开始摸牌的逻辑
 	if user == nil {
 		user = d.GetNextMoPaiUser()
 	}
@@ -1368,15 +1373,7 @@ func (d *MjDesk) SendMopaiOverTurn(user *MjUser) error {
 	d.SetActUserAndType(user.GetUserId(), MJDESK_ACT_TYPE_MOPAI)                //用户摸牌之后，设置当前活动的玩家
 
 	//发送给当事人时候的信息
-	nextPai := d.GetNextPai()
-	//这里需要判断，如果牌摸完了，需要判断游戏结束
-	if nextPai == nil {
-		d.Lottery()
-		return errors.New("牌摸完了，游戏结束...")
-	}
-
-	user.GameData.HandPai.InPai = nextPai
-
+	user.GameData.HandPai.InPai = d.GetNextPai()
 	overTrun := d.GetMoPaiOverTurn(user, false)        //用户摸牌的时候,发送一个用户摸牌的overturn
 	user.SendOverTurn(overTrun)
 	log.T("玩家[%v]当前的手牌是[%v]开始摸牌【%v】...", user.GetUserId(), user.GameData.HandPai.GetDes(), overTrun)
@@ -2382,9 +2379,6 @@ func (d *MjDesk) GetMoPaiOverTurn(user *MjUser, isOpen bool) *mjproto.Game_OverT
 
 	//
 	overTurn.JiaoInfos = d.GetJiaoInfos(user)
-
-	//time.Sleep(time.Second * 3)
-
 	return overTurn
 }
 
@@ -2402,6 +2396,8 @@ func (d *MjDesk) GetOverTurnByCaseBean(checkPai *MJPai, caseBean *CheckBean, act
 	return overTurn
 }
 
+
+//剩下的牌的数量
 func (d *MjDesk) GetLeftPaiCount(user *MjUser, mjPai *MJPai) int {
 	var count int = 0
 	displayPais := d.GetDisplayPais(user)

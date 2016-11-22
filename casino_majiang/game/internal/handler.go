@@ -119,7 +119,7 @@ func handlerGame_ActGuo(args []interface{}) {
 //胡
 func handlerGame_ActHu(args []interface{}) {
 	m := args[0].(*mjProto.Game_ActHu)
-	MJService.HandlerGame_ActHu(m)
+	MJService.HandlerGame_ActHu(m.GetUserId())
 }
 
 
