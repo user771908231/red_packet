@@ -37,7 +37,6 @@ func ( p *MJPai) LogDes() string {
 	return valueStr + GetFlow(p.GetFlower())
 }
 
-
 //用户牌是否包含缺牌
 func (p *MJHandPai) IsContainQue() bool {
 	//判断inPai

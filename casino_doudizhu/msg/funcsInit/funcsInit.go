@@ -60,3 +60,15 @@ func NewDdzAckReady() *ddzproto.DdzAckReady {
 	ret := new(ddzproto.DdzAckReady)
 	return ret
 }
+
+
+//发送消息
+func NewGameMessage() *ddzproto.DdzSendMessage {
+	ret := new(ddzproto.DdzSendMessage)
+	ret.Header = NewHeader()
+	ret.Id = new(int32)
+	ret.Msg = new(string)
+	ret.MsgType = new(int32)
+	ret.UserId = new(uint32)
+	return ret
+}

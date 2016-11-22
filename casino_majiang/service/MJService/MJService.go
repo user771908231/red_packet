@@ -353,6 +353,16 @@ func HandlerGame_ActGuo(m *mjProto.Game_ActGuo) {
 
 	}
 
+	//两人麻将 剩余四张牌时能胡则不能过
+	if desk.IsLiangRenLiangFang() || desk.IsLiangRenSanFang() {
+		canHu, _ := user.GetGameData().GetHandPai().GetCanHu()
+		if canHu && (desk.GetRemainPaiCount() <= 4) {
+			//能胡且剩余牌数小于等于4
+			log.E("玩家【%v】过牌失败，因为剩余牌数<=4 且 能胡牌", userId)
+			return
+		}
+	}
+
 	//添加一个过hu的info,下次init的时候，需要判断是否有这个guohu
 	user.AddGuoHuInfo(desk.CheckCase)
 
