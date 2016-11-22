@@ -25,3 +25,16 @@ func NewGame_AckLogin() *ddzproto.DdzAckLogin {
 	ret.GameStatus = new(int32)
 	return ret
 }
+
+//创建房间
+func NewGame_AckCreateRoom() *ddzproto.Game_AckCreateRoom {
+	ret := new(ddzproto.Game_AckCreateRoom)
+	return ret
+}
+
+//进入房间成功
+func NewGame_AckEnterRoom() *ddzproto.Game_AckEnterRoom {
+	ret := new(ddzproto.Game_AckEnterRoom)
+	ret.Header = NewHeader()
+	return ret
+}

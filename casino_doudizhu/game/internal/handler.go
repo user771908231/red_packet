@@ -37,7 +37,7 @@ func init() {
 func handlerCreateDesk(args []interface{}) {
 	m := args[0].(*ddzproto.DdzCreateRoom)
 	a := args[1].(gate.Agent)
-	DdzService.HandlerCreateDesk(m.GetHeader().GetUserId(), a)
+	DdzService.HandlerCreateDesk(m.GetHeader().GetUserId(),m.GetRoomTypeInfo(), a)
 }
 
 //进入房间
@@ -106,20 +106,22 @@ func handlerLeaveDesk(args []interface{}) {
 }
 
 func handlerMessage(args []interface{}) {
-	//m := args[0].(*ddzproto.Game_Message)
-	DdzService.HandlerMessage()
+	m := args[0].(*ddzproto.Game_Message)
+	DdzService.HandlerMessage(m.GetUserId())
 
 }
-func handlerGameRecord(args []interface{}) {
-	//m := args[0].(*ddzproto.Game_GameRecord)
-	DdzService.HandlerGameRecord()
 
+//查询战绩
+func handlerGameRecord(args []interface{}) {
+	m := args[0].(*ddzproto.Game_GameRecord)
+	a := args[1].(gate.Agent)
+	DdzService.HandlerGameRecord(m.GetUserId(), a)
 }
 
 //加倍
 func handlerJiaBei(args []interface{}) {
-	//m := args[0].(*ddzproto.Game_Double)
-	DdzService.HandlerJiaBei()
+	m := args[0].(*ddzproto.Game_Double)
+	DdzService.HandlerJiaBei(m.GetUserId())
 }
 
 //出牌

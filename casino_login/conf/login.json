@@ -14,7 +14,8 @@
   "DDZ_MaintainMsg": "测试斗地主的维护信息",
   "DDZ_ReleaseTag": 1,
   "DDZ_DownloadUrl": "http://d.tondeen.com/sjtexas.html",
+  "DDZ_LatestClientVersion": 1,
   "DDZ_IP": "192.168.199.120",
-  "DDZ_PORT": "3799",
+  "DDZ_PORT": 3799,
   "DDZ_STATUS": 1
 }

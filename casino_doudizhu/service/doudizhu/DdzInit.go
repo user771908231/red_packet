@@ -9,6 +9,21 @@ func NewPDdzbak() *PDdzbak {
 //Desk
 func NewPDdzDesk() *PDdzDesk {
 	ret := new(PDdzDesk)
+	ret.DeskId = new(int32)
+	ret.Key = new(string)
+	ret.UserCountLimit = new(int32)
+	ret.Owner = new(uint32)
+	ret.DizhuPaiUser = new(uint32)
+	ret.Dizhu = new(uint32)
+	ret.ActiveUser = new(uint32)
+	ret.BaseValue = new(int64)
+	ret.QingDizhuValue = new(int64)
+	ret.WinValue = new(int64)
+	ret.DdzType = new(int32)
+	ret.RoomType = new(int32)
+	ret.BoardsCount = new(int32)
+	ret.CapMax = new(int64)
+	ret.IsJiaoFen = new(bool)
 	return ret
 }
 
