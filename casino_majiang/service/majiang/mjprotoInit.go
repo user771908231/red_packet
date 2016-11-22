@@ -50,6 +50,8 @@ func NewMjDesk() *MjDesk {
 	ret.HuRadio = new(int32)
 	ret.NextBanker = new(uint32)
 	ret.NInitActionTime = new(int32)
+	ret.FangCountLimit = new(int32)
+	ret.UserCountLimit = new(int32)
 	return ret
 }
 

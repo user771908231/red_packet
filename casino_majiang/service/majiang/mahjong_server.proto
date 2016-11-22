@@ -111,6 +111,8 @@ message MjDesk {
     optional string EndTime = 30; //游戏结束时间
     optional uint32 nextBanker = 31; //下一句开始，谁是庄
     optional int32 NInitActionTime = 32; //
+    optional int32 userCountLimit = 33; //房间人数的限制
+    optional int32 fangCountLimit = 34; //麻将房数的限制
 }
 
 
