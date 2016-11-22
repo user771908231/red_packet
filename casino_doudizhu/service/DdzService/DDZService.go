@@ -9,6 +9,8 @@ import (
 	"casino_doudizhu/msg/protogo"
 	"casino_doudizhu/msg/funcsInit"
 	"casino_server/conf/intCons"
+	"casino_majiang/service/majiang"
+	"casino_server/msg/bbprotogo"
 )
 
 /*
@@ -195,13 +197,21 @@ func HandlerLeaveDesk(userId uint32) error {
 	return nil
 }
 
-func HandlerMessage(userId uint32) error {
+func HandlerMessage(m *ddzproto.DdzMessage) error {
+	log.T("请求发送信息[%v]", m)
+	userId := m.GetHeader().GetUserId()
 	desk := doudizhu.GetDdzDeskBySession(userId)
+
 	if desk == nil {
 		return Error.NewFailError("没有找到desk")
 	}
-	return nil
 
+	result := newProto.NewGameMessage()
+	*result.UserId = m.GetHeader().GetUserId()
+	*result.Id = m.GetId()
+	*result.Msg = m.GetMsg()
+	*result.MsgType = m.GetMsgType()
+	desk.BroadCastProtoExclusive(result, result.GetUserId())
 }
 
 //查询战绩
