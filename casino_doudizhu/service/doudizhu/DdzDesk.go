@@ -7,6 +7,7 @@ import (
 	"casino_server/common/Error"
 	"fmt"
 	"sync/atomic"
+	"github.com/golang/protobuf/proto"
 )
 
 //斗地主的desk
@@ -139,3 +140,23 @@ func (d *DdzDesk) IsDiZhuRole(user *DdzUser) bool {
 	return d.GetDizhu() == user.GetUserId()
 }
 
+//广播协议
+func (d *DdzDesk) BroadCastProto(p proto.Message) error {
+	for _, u := range d.Users {
+		//user不为空，并且user没有离开，没有短线的时候才能发送消息...
+		if u != nil && !u.GetIsBreak() && !u.GetIsLeave() {
+			u.WriteMsg(p)
+		}
+	}
+	return nil
+}
+
+// 广播 但是不好办 userId
+func (d *DdzDesk) BroadCastProtoExclusive(p proto.Message, userId uint32) error {
+	for _, u := range d.Users {
+		if u != nil && u.GetUserId() != userId {
+			u.WriteMsg(p)
+		}
+	}
+	return nil
+}

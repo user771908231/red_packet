@@ -121,7 +121,6 @@ func handlerLeaveDesk(args []interface{}) {
 func handlerMessage(args []interface{}) {
 	m := args[0].(*ddzproto.DdzMessage)
 	DdzService.HandlerMessage(m)
-
 }
 
 //查询战绩

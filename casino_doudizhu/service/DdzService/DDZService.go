@@ -9,8 +9,6 @@ import (
 	"casino_doudizhu/msg/protogo"
 	"casino_doudizhu/msg/funcsInit"
 	"casino_server/conf/intCons"
-	"casino_majiang/service/majiang"
-	"casino_server/msg/bbprotogo"
 )
 
 /*
@@ -197,13 +195,14 @@ func HandlerLeaveDesk(userId uint32) error {
 	return nil
 }
 
-func HandlerMessage(m *ddzproto.DdzMessage) error {
+func HandlerMessage(m *ddzproto.DdzMessage) {
 	log.T("请求发送信息[%v]", m)
 	userId := m.GetHeader().GetUserId()
 	desk := doudizhu.GetDdzDeskBySession(userId)
 
 	if desk == nil {
-		return Error.NewFailError("没有找到desk")
+		log.E("玩家[%v]聊天的时候没有找到desk", userId)
+		return
 	}
 
 	result := newProto.NewGameMessage()
