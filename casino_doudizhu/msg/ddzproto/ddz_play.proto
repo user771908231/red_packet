@@ -35,12 +35,15 @@ message DdzJiaoDiZhu {
     optional ProtoHeader header = 1;
     optional uint32 userId = 2; // 操作人
     optional int32 score = 3; // 分数（可选）：1，2，3分
+    optional bool jiao = 4; //true 叫地主 false 不叫地主
 }
 
 // 叫地主回复
 message DdzJiaoDiZhuAck {
     optional ProtoHeader header = 1;
     optional uint32 userId = 2; // 操作人 (广播给其它用户)
+    optional bool jiao = 3; //true 叫地主 ，false 不叫地主
+
 }
 
 // 抢地主
