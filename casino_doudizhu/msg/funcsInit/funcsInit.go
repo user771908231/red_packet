@@ -102,6 +102,11 @@ func NewGame_AckLogin() *ddzproto.DdzAckLogin {
 //创建房间
 func NewGame_AckCreateRoom() *ddzproto.DdzAckCreateRoom {
 	ret := new(ddzproto.DdzAckCreateRoom)
+	ret.CreateFee = new(int64)
+	ret.DeskId = new(int32)
+	ret.Header = NewHeader()
+	ret.Password = new(string)
+	ret.UserBalance = new(int64)
 	return ret
 }
 
@@ -124,6 +129,12 @@ func NewDdzActGuoAck() *ddzproto.DdzActGuoAck {
 //发送发牌
 func NewDdzOverTurn() *ddzproto.DdzOverTurn {
 	ret := new(ddzproto.DdzOverTurn)
+	ret.UserId = new(uint32)
+	ret.ActType = new(ddzproto.ActType)
+	ret.CanDouble = new(bool)
+	ret.CanOutCards = new(bool)
+	ret.PullOrPush = new(int32)
+	ret.Time = new(int32)
 	return ret
 }
 
@@ -158,7 +169,6 @@ func NewDdzEnterRoom() *ddzproto.DdzEnterRoom {
 	return ret
 }
 
-
 func NewDdzSendGameInfo() *ddzproto.DdzSendGameInfo {
 	ret := new(ddzproto.DdzSendGameInfo)
 	ret.Header = NewHeader()
@@ -181,3 +191,216 @@ func NewDdzOpening() *ddzproto.DdzOpening {
 	return ret
 }
 
+func NewDdzDealCards() *ddzproto.DdzDealCards {
+	ret := new(ddzproto.DdzDealCards)
+	ret.Header = NewHeader()
+	return ret
+}
+
+func NewDdzJiaoDiZhu() *ddzproto.DdzJiaoDiZhu {
+	ret := new(ddzproto.DdzJiaoDiZhu)
+	ret.Header = NewHeader()
+	ret.UserId = new(uint32)
+	ret.Jiao = new(bool)
+	ret.Score = new(int32)
+	return ret
+}
+
+func NewDdzJiaoDiZhuAck() *ddzproto.DdzJiaoDiZhuAck {
+	ret := new(ddzproto.DdzJiaoDiZhuAck)
+	ret.Jiao = new(bool)
+	ret.UserId = new(uint32)
+	ret.Header = NewHeader()
+	return ret
+}
+
+func NewDdzRobDiZhu() *ddzproto.DdzRobDiZhu {
+	ret := new(ddzproto.DdzRobDiZhu)
+	ret.Header = NewHeader()
+	ret.UserId = new(uint32)
+	return ret
+}
+
+func NewDdzRobDiZhuAck() *ddzproto.DdzRobDiZhuAck {
+	ret := new(ddzproto.DdzRobDiZhuAck)
+	ret.UserId = new(uint32)
+	ret.Header = NewHeader()
+	return ret
+}
+
+func NewDdzDouble() *ddzproto.DdzDouble {
+	ret := new(ddzproto.DdzDouble)
+	ret.Header = NewHeader()
+	ret.UserId = new(uint32)
+	ret.Double = new(int32)
+	return ret
+}
+
+func NewDdzDoubleAck() *ddzproto.DdzDoubleAck {
+	ret := new(ddzproto.DdzDoubleAck)
+	ret.Double = new(int32)
+	ret.UserId = new(uint32)
+	ret.Header = NewHeader()
+	return ret
+}
+
+func NewDdzShowHandPokers() *ddzproto.DdzShowHandPokers {
+	ret := new(ddzproto.DdzShowHandPokers)
+	ret.Header = NewHeader()
+	ret.UserId = new(uint32)
+	return ret
+}
+
+func NewDdzShowHandPokersAck() *ddzproto.DdzShowHandPokersAck {
+	ret := new(ddzproto.DdzShowHandPokersAck)
+	ret.Header = NewHeader()
+	ret.UserId = new(uint32)
+	return ret
+}
+
+func NewDdzMenuZhua() *ddzproto.DdzMenuZhua {
+	ret := new(ddzproto.DdzMenuZhua)
+	ret.UserId = new(uint32)
+	ret.Header = NewHeader()
+	return ret
+}
+
+func NewDdzMenuZhuaAck() *ddzproto.DdzMenuZhuaAck {
+	ret := new(ddzproto.DdzMenuZhuaAck)
+	ret.Header = NewHeader()
+	ret.UserId = new(uint32)
+	return ret
+}
+
+func NewDdzSeeCards() *ddzproto.DdzSeeCards {
+	ret := new(ddzproto.DdzSeeCards)
+	ret.UserId = new(uint32)
+	ret.Header = NewHeader()
+	return ret
+}
+
+func NewDdzSeeCardsAck() *ddzproto.DdzSeeCardsAck {
+	ret := new(ddzproto.DdzSeeCardsAck)
+	ret.Header = NewHeader()
+	ret.UserId = new(uint32)
+	return ret
+}
+
+func NewDdzPull() *ddzproto.DdzPull {
+	ret := new(ddzproto.DdzPull)
+	ret.UserId = new(uint32)
+	ret.Header = NewHeader()
+	ret.Act = new(int32)
+	return ret
+}
+
+func NewDdzPullAck() *ddzproto.DdzPullAck {
+	ret := new(ddzproto.DdzPullAck)
+	ret.Act = new(int32)
+	ret.Header = NewHeader()
+	return ret
+}
+
+func NewDdzOutCards() *ddzproto.DdzOutCards {
+	ret := new(ddzproto.DdzOutCards)
+	ret.Header = NewHeader()
+	return ret
+}
+
+func NewDdzOutCardsAck() *ddzproto.DdzOutCardsAck {
+	ret := new(ddzproto.DdzOutCardsAck)
+	ret.Header = NewHeader()
+	ret.UserId = new(uint32)
+	ret.CardType = new(ddzproto.DdzPaiType)
+	ret.RemainPokers = new(int32)
+	return ret
+}
+
+func NewDdzActGuo() *ddzproto.DdzActGuo {
+	ret := new(ddzproto.DdzActGuo)
+	ret.UserId = new(uint32)
+	ret.Header = NewHeader()
+	return ret
+}
+
+func NewDdzStartPlay() *ddzproto.DdzStartPlay {
+	ret := new(ddzproto.DdzStartPlay)
+	ret.Header = NewHeader()
+	ret.FootRate = new(int32)
+	return ret
+}
+
+func NewDdzSendCurrentResult() *ddzproto.DdzSendCurrentResult {
+	ret := new(ddzproto.DdzSendCurrentResult)
+	ret.Header = NewHeader()
+	return ret
+}
+
+func NewDdzSendEndLottery() *ddzproto.DdzSendEndLottery {
+	ret := new(ddzproto.DdzSendEndLottery)
+	ret.Header = NewHeader()
+	return ret
+}
+
+func NewDdzDissolveDesk() *ddzproto.DdzDissolveDesk {
+	ret := new(ddzproto.DdzDissolveDesk)
+	ret.Header = NewHeader()
+	ret.UserId = new(uint32)
+	return ret
+}
+
+func NewDdzAckDissolveDesk() *ddzproto.DdzAckDissolveDesk {
+	ret := new(ddzproto.DdzAckDissolveDesk)
+	ret.UserId = new(uint32)
+	ret.DeskId = new(int32)
+	ret.PassWord = new(string)
+	return ret
+}
+
+func NewDdzLeaveDesk() *ddzproto.DdzLeaveDesk {
+	ret := new(ddzproto.DdzLeaveDesk)
+	ret.Header = NewHeader()
+	return ret
+}
+
+func NewDdzAckLeaveDesk() *ddzproto.DdzAckLeaveDesk {
+	ret := new(ddzproto.DdzAckLeaveDesk)
+	ret.Header = NewHeader()
+	return ret
+}
+
+func NewDdzMessage() *ddzproto.DdzMessage {
+	ret := new(ddzproto.DdzMessage)
+	ret.Header = NewHeader()
+	ret.DeskId = new(int32)
+	ret.UserId = new(uint32)
+	ret.Id = new(int32)
+	ret.Msg = new(string)
+	ret.MsgType = new(int32)
+	return ret
+}
+
+func NewDdzSendMessage() *ddzproto.DdzSendMessage {
+	ret := new(ddzproto.DdzSendMessage)
+	ret.MsgType = new(int32)
+	ret.Msg = new(string)
+	ret.Id = new(int32)
+	ret.UserId = new(uint32)
+	ret.Header = NewHeader()
+	return ret
+}
+
+func NewDdzGameRecord() *ddzproto.DdzGameRecord {
+	ret := new(ddzproto.DdzGameRecord)
+	ret.Header = NewHeader()
+	ret.UserId = new(uint32)
+	ret.Id = new(int32)
+	return ret
+}
+
+func NewDdzAckGameRecord() *ddzproto.DdzAckGameRecord {
+	ret := new(ddzproto.DdzAckGameRecord)
+	ret.UserId = new(uint32)
+	ret.Header = NewHeader()
+	return ret
+}
