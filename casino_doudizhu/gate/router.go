@@ -4,12 +4,11 @@ import (
 	"casino_doudizhu/login"
 	"casino_doudizhu/msg"
 	"casino_doudizhu/game"
-	"casino_server/msg/bbprotogo"
 	"casino_doudizhu/msg/protogo"
 )
 
 func init() {
-	msg.Processor.SetRouter(&bbproto.NullMsg{}, game.ChanRPC)        //空协议
+	msg.Processor.SetRouter(&ddzproto.NullMsg{}, game.ChanRPC)        //空协议
 	msg.Processor.SetRouter(&ddzproto.DdzLogin{}, login.ChanRPC)    //登录协议
 
 	//游戏
