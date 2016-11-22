@@ -37,7 +37,6 @@ func ( p *MJPai) LogDes() string {
 	return valueStr + GetFlow(p.GetFlower())
 }
 
-
 func (p *MJHandPai) IsContainQue(user *MjUser) bool {
 	if p.InPai != nil {
 		if user.IsQuePai(p.InPai) {
@@ -67,7 +66,7 @@ func (p *MJHandPai) IsContainQue(user *MjUser) bool {
 }
 
 //是否可以胡牌
-func (p *MJHandPai) GetCanHu() (bool,bool) {
+func (p *MJHandPai) GetCanHu() (bool, bool) {
 	return CanHuPai(p)
 }
 

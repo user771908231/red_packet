@@ -455,7 +455,9 @@ func (d *MjDesk) IsPlayerEnough() (isPlayerEnough bool) {
 	switch {
 	case d.IsSanRenLiangFang() && d.GetUserCount() == 3 : //是三人两房并且玩家数等于3
 		isPlayerEnough = true
-	case !d.IsSanRenLiangFang() && d.GetUserCount() == 4 : //不是三人两房并且玩家数等于4
+	case d.IsLiangRenLiangFang() || d.IsLiangRenSanFang() && d.GetUserCount() == 2 : //是两人两房或者两人三房 并且玩家数等于2
+		isPlayerEnough = true
+	case !d.IsSanRenLiangFang() && !d.IsLiangRenSanFang() && d.IsLiangRenLiangFang() && d.GetUserCount() == 4 : //不是三人两房/两人两房/两人三房 并且玩家数等于4
 		isPlayerEnough = true
 	default:
 		isPlayerEnough = false
@@ -517,14 +519,13 @@ func (d *MjDesk) begin() error {
 		return nil
 	}
 
-	if d.IsSanRenLiangFang() || d.IsSiRenLiangFang() {
+	//如果是三人两房 or 四人两房 or 两人两房，游戏直接开始
+	if d.IsSanRenLiangFang() || d.IsSiRenLiangFang() || d.IsLiangRenLiangFang() {
 		err = d.BeginStart()
 		if err != nil {
 			log.E("发送游戏开始的广播的时候出错err[%v]", err)
 			return err
 		}
-
-		//如果是三人两房，游戏开始
 		return nil
 	}
 
@@ -561,9 +562,17 @@ func (d *MjDesk) IsDaodaohu() bool {
 	return false
 }
 
-//判断是否是倒倒胡
+//判断是否是两人两房
 func (d *MjDesk) IsLiangRenLiangFang() bool {
-	if mjproto.MJRoomType(d.GetMjRoomType()) == mjproto.MJRoomType_roomType_daoDaoHu {
+	if mjproto.MJRoomType(d.GetMjRoomType()) == mjproto.MJRoomType_roomType_liangRenLiangFang {
+		return true
+	}
+	return false
+}
+
+//判断是否是两人三房
+func (d *MjDesk) IsLiangRenSanFang() bool {
+	if mjproto.MJRoomType(d.GetMjRoomType()) == mjproto.MJRoomType_roomType_liangRenSanFang {
 		return true
 	}
 	return false
@@ -666,8 +675,8 @@ func (d *MjDesk) initCards() error {
 	d.SetStatus(MJDESK_STATUS_FAPAI)        //发牌的阶段
 
 	d.AllMJPai = XiPai()
-	if d.IsSanRenLiangFang() || d.IsSiRenLiangFang() {
-		//如果是三人两房 or 四人两房 过滤掉万牌
+	if d.IsSanRenLiangFang() || d.IsSiRenLiangFang() || d.IsLiangRenLiangFang() {
+		//如果是三人两房 or 四人两房 or 两人两房 过滤掉万牌
 		d.AllMJPai = IgnoreFlower(d.AllMJPai, W)
 	}
 
@@ -1637,6 +1646,7 @@ func (d *MjDesk)ActHu(userId uint32) error {
 		log.E("玩家[%v]有缺牌，不可以胡", userId)
 		return errors.New("有缺，不可以胡牌")
 	}
+
 	//判断是否可以胡牌，如果不能胡牌直接返回
 	canHu, is19 := huUser.GameData.HandPai.GetCanHu()
 	if !canHu {
@@ -1734,6 +1744,16 @@ func (d *MjDesk)ActHu(userId uint32) error {
 	log.T("接下来开始getHuScore(%v,%v,%v,%v)", huUser.GameData.HandPai, isZimo, extraAct, roomInfo)
 	fan, score, huCardStr := GetHuScore(huUser.GameData.HandPai, isZimo, is19, extraAct, roomInfo, d)
 	log.T("胡牌(getHuScore)之后的结果fan[%v],score[%v],huCardStr[%v]", fan, score, huCardStr)
+
+	//二人两房 平胡不能被点炮
+	if d.IsLiangRenLiangFang() && !isZimo {
+		//是两人两房 并且 不是自摸
+		if score <= 0 {
+			//得分为零
+			log.E("玩家[%v]不可以胡", userId)
+			return errors.New("二人两房 平胡不能被点炮...")
+		}
+	}
 
 	//胡牌之后的信息
 	hu := NewHuPaiInfo()
