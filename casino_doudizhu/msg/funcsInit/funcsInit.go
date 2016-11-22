@@ -27,14 +27,14 @@ func NewGame_AckLogin() *ddzproto.DdzAckLogin {
 }
 
 //创建房间
-func NewGame_AckCreateRoom() *ddzproto.Game_AckCreateRoom {
-	ret := new(ddzproto.Game_AckCreateRoom)
+func NewGame_AckCreateRoom() *ddzproto.DdzAckCreateRoom {
+	ret := new(ddzproto.DdzAckCreateRoom)
 	return ret
 }
 
 //进入房间成功
-func NewGame_AckEnterRoom() *ddzproto.Game_AckEnterRoom {
-	ret := new(ddzproto.Game_AckEnterRoom)
+func NewGame_AckEnterRoom() *ddzproto.DdzAckEnterRoom {
+	ret := new(ddzproto.DdzAckEnterRoom)
 	ret.Header = NewHeader()
 	return ret
 }

@@ -106,21 +106,21 @@ func handlerLeaveDesk(args []interface{}) {
 }
 
 func handlerMessage(args []interface{}) {
-	m := args[0].(*ddzproto.Game_Message)
+	m := args[0].(*ddzproto.DdzMessage)
 	DdzService.HandlerMessage(m.GetUserId())
 
 }
 
 //查询战绩
 func handlerGameRecord(args []interface{}) {
-	m := args[0].(*ddzproto.Game_GameRecord)
+	m := args[0].(*ddzproto.DdzGameRecord)
 	a := args[1].(gate.Agent)
 	DdzService.HandlerGameRecord(m.GetUserId(), a)
 }
 
 //加倍
 func handlerJiaBei(args []interface{}) {
-	m := args[0].(*ddzproto.Game_Double)
+	m := args[0].(*ddzproto.DdzDouble)
 	DdzService.HandlerJiaBei(m.GetUserId())
 }
 
