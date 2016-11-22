@@ -26,7 +26,7 @@ import (
 	3,创建成功之后
 
  */
-func HandlerGame_CreateRoom(m *mjProto.Game_CreateRoom, a gate.Agent) {
+func HandlerGame_CreateDesk(m *mjProto.Game_CreateRoom, a gate.Agent) {
 	log.T("收到请求，HandlerGame_CreateRoom(m[%v])", m)
 	//1,查询用户是否已经创建了房间...
 
@@ -380,14 +380,11 @@ func HandlerGame_ActGuo(m *mjProto.Game_ActGuo) {
 	1,如何区分 只自摸还是点炮...
 	2,点炮的时候需要注意区分  抢杠，杠上炮，普通点炮
  */
-func HandlerGame_ActHu(m *mjProto.Game_ActHu) {
-	log.T("收到胡牌请求，game_ActHu(m[%v])", m)
-
-	//需要返回的数据
-	userId := m.GetHeader().GetUserId()
+func HandlerGame_ActHu(userId uint32) {
+	log.T("收到胡牌请求，game_ActHu(userId [%v])", userId)
 
 	//区分自摸点炮:1,如果自己的手牌就已经糊了（或者如果自己自己的牌是14，11，8，5，2 张的时候），那么就自摸，如果需要加上判定牌，那就是点炮
-	desk := majiang.GetMjDeskBySession(m.GetHeader().GetUserId()) //通过userId 的session 得到对应的desk
+	desk := majiang.GetMjDeskBySession(userId) //通过userId 的session 得到对应的desk
 	if desk == nil {
 		//这里属于服务器错误... 是否需要给客户端返回信息？
 		log.E("没有找到对应的desk ..")
@@ -405,7 +402,8 @@ func HandlerGame_ActHu(m *mjProto.Game_ActHu) {
 	//这里是否需要广播胡牌的广播...
 
 	//胡牌之后，需要判断游戏是否结束...
-	if desk.Time2Lottery() || desk.IsDaodaohu() { //倒倒胡 某一玩家胡牌即结束
+	if desk.Time2Lottery() {
+		//倒倒胡 某一玩家胡牌即结束
 		desk.Lottery()
 		//因为可以开奖了，所以不操作后边的，直接返回
 		return
