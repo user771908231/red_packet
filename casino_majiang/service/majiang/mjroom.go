@@ -75,6 +75,7 @@ func (r *MjRoom) CreateDesk(m *mjproto.Game_CreateRoom) *MjDesk {
 	*desk.Owner = userId        //设置房主
 	*desk.CreateFee = createFee
 	*desk.MjRoomType = int32(m.GetRoomTypeInfo().GetMjRoomType())        // 房间类型，如：血战到底、三人两房、四人两房、德阳麻将、倒倒胡、血流成河
+	desk.InitUserCountAndFangCountByType()        //初始化人数和房数
 	*desk.BoardsCout = m.GetRoomTypeInfo().GetBoardsCout()        //局数，如：4局（房卡 × 2）、8局（房卡 × 3）
 	*desk.CapMax = m.GetRoomTypeInfo().GetCapMax()
 	*desk.CardsNum = m.GetRoomTypeInfo().GetCardsNum()
@@ -82,10 +83,8 @@ func (r *MjRoom) CreateDesk(m *mjproto.Game_CreateRoom) *MjDesk {
 	*desk.BaseValue = m.GetRoomTypeInfo().GetBaseValue()
 	*desk.ZiMoRadio = m.GetRoomTypeInfo().GetPlayOptions().GetZiMoRadio()
 	desk.OthersCheckBox = m.GetRoomTypeInfo().GetPlayOptions().GetOthersCheckBox()
-	//log.T("创建房间的时候，取到的othersCheckBox[%v]", desk.OthersCheckBox)
 	*desk.HuRadio = m.GetRoomTypeInfo().GetPlayOptions().GetHuRadio()
 	*desk.DianGangHuaRadio = m.GetRoomTypeInfo().GetPlayOptions().GetDianGangHuaRadio()
-	//*desk.DeskMJPai	//暂时没有使用，桌面上的牌
 	*desk.MJPaiCursor = 0
 	*desk.TotalPlayCount = m.RoomTypeInfo.GetBoardsCout()
 	*desk.CurrPlayCount = 0
@@ -106,9 +105,6 @@ func (r *MjRoom) CreateDesk(m *mjproto.Game_CreateRoom) *MjDesk {
 }
 
 func (r *MjRoom) RandRoomKey() string {
-
-	//return "666666"
-
 	a := utils.Rand(100000, 1000000)
 	roomKey, _ := numUtils.Int2String(a)
 	//1,判断roomKey是否已经存在

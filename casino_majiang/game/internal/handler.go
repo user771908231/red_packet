@@ -15,7 +15,7 @@ func handler(m interface{}, h interface{}) {
 
 func init() {
 	handler(&bbproto.NullMsg{}, handlerNull)
-	handler(&mjProto.Game_CreateRoom{}, handlerGame_CreateRoom)
+	handler(&mjProto.Game_CreateRoom{}, handlerGame_CreateDesk)
 	handler(&mjProto.Game_EnterRoom{}, handlerGame_EnterRoom)
 	handler(&mjProto.Game_DissolveDesk{}, handlerDissolveDesk)
 	handler(&mjProto.Game_Ready{}, handlerGame_Ready)
@@ -49,10 +49,10 @@ func handlerNull(args []interface{}) {
 }
 
 //处理创建房间
-func handlerGame_CreateRoom(args []interface{}) {
+func handlerGame_CreateDesk(args []interface{}) {
 	m := args[0].(*mjProto.Game_CreateRoom)
 	a := args[1].(gate.Agent)
-	MJService.HandlerGame_CreateRoom(m, a)
+	MJService.HandlerGame_CreateDesk(m, a)
 }
 
 //处理进入房间

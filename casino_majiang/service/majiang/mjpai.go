@@ -39,16 +39,17 @@ func ( p *MJPai) LogDes() string {
 
 
 //用户牌是否包含缺牌
-func (p *MJHandPai) IsContainQue(user *MjUser) bool {
-
+func (p *MJHandPai) IsContainQue() bool {
+	//判断inPai
 	if p.InPai != nil {
-		if user.IsQuePai(p.InPai) {
+		if p.GetQueFlower() == p.InPai.GetFlower() {
 			return true
 		}
 	}
 
+	//判断手牌是否缺牌
 	for i := 0; i < len(p.Pais); i++ {
-		if user.IsQuePai(p.Pais[i]) {
+		if p.GetQueFlower() == p.Pais[i].GetFlower() {
 			return true
 		}
 	}
@@ -57,10 +58,19 @@ func (p *MJHandPai) IsContainQue(user *MjUser) bool {
 
 //是否可以胡牌
 func (p *MJHandPai) GetCanHu() (bool, bool) {
+	//判断是否包含缺，如果有缺不能胡牌
+	if p.IsContainQue() {
+		return false, false
+	}
 	return CanHuPai(p)
 }
 
 func (p *MJHandPai) GetCanPeng(pai *MJPai) bool {
+	//判断是否是缺牌
+	if pai.GetFlower() == p.GetQueFlower() {
+		return false
+	}
+
 	return CanPengPai(pai, p)
 }
 

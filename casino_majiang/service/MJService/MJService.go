@@ -26,7 +26,7 @@ import (
 	3,创建成功之后
 
  */
-func HandlerGame_CreateRoom(m *mjProto.Game_CreateRoom, a gate.Agent) {
+func HandlerGame_CreateDesk(m *mjProto.Game_CreateRoom, a gate.Agent) {
 	log.T("收到请求，HandlerGame_CreateRoom(m[%v])", m)
 	//1,查询用户是否已经创建了房间...
 
