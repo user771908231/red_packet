@@ -11,6 +11,7 @@ import (
 //这里主要存放 玩斗地主的一些多逻辑....其他的基本方法都放在DdzDesk中
 
 func (d *DdzDesk) EnterUser(userId uint32, a gate.Agent) error {
+	log.T("玩家[%v]开始进入房间[%v]", userId, d.GetDeskId())
 	//判断是否是重复进入
 	olduser := d.GetUserByUserId(userId)
 	if olduser != nil {
@@ -18,16 +19,15 @@ func (d *DdzDesk) EnterUser(userId uint32, a gate.Agent) error {
 		//这里需要判断是否是短线重连
 		olduser.SetOnline()
 		olduser.UpdateSession()       //更新session 信息，这里可以更具需求来保存对应的属性...
-
-		//todo 返回信息 需要组装数据
 		ret := newProto.NewGame_AckEnterRoom()
 		a.WriteMsg(ret)
 		return nil
 	}
 
 	//新进入
-	errAddNew := d.AddUser(userId)
+	errAddNew := d.AddUser(userId, a)
 	if errAddNew != nil {
+		log.T("玩家[%v]进入房间[%v]失败", userId, d.GetDeskId())
 		//进入失败 //返回失败的信息
 		ret := newProto.NewGame_AckEnterRoom()
 		*ret.Header.Code = intCons.ACK_RESULT_ERROR
@@ -36,8 +36,11 @@ func (d *DdzDesk) EnterUser(userId uint32, a gate.Agent) error {
 		return Error.NewError(-1, "进入房间失败")
 	} else {
 		//进入成功,返回进入成功的信息
+		log.T("玩家[%v]进入房间[%v]成功", userId, d.GetDeskId())
 		ret := newProto.NewGame_AckEnterRoom()
 		a.WriteMsg(ret)
+
+		newProto.NewDdzAckLeaveDesk()
 		return nil
 	}
 
@@ -57,11 +60,11 @@ func (d *DdzDesk) Ready(userId uint32) error {
 
 	//设置状态为准备的状态...
 	user.SetStatus(DDZUSER_STATUS_READY)
-
-	//发送准备的回复 todo ack
 	ack := newProto.NewDdzAckReady()
-	//组装数据
-	user.WriteMsg(ack)
+	*ack.UserId = userId
+
+	//广播ack
+	d.BroadCastProto(ack)
 
 	//准备之后的处理
 	d.AfterReady()
@@ -74,7 +77,7 @@ func (d *DdzDesk) Ready(userId uint32) error {
 //都准备好了之后，开始叫地主
 func (d *DdzDesk) AfterReady() error {
 	//如果都准备好了，那么可以开始抢地主或者发牌了..
-	if d.IsAllReady() {
+	if d.IsAllReady() && d.IsEnoughUser() {
 		//开始处理准备之后的事情...
 		user := d.GetUserByUserId(d.GetDizhuPaiUser())
 		if user != nil {
@@ -119,7 +122,6 @@ func (d *DdzDesk) Begin() error {
 
 func (d *DdzDesk) IsTime2begin() error {
 	return nil
-
 }
 
 

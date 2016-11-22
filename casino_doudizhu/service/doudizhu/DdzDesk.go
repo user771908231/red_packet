@@ -8,6 +8,8 @@ import (
 	"fmt"
 	"sync/atomic"
 	"github.com/golang/protobuf/proto"
+	"github.com/name5566/leaf/gate"
+	"casino_doudizhu/msg/protogo"
 )
 
 //斗地主的desk
@@ -66,9 +68,15 @@ func (d *DdzDesk) addBombTongjiInfo(bomb *POutPokerPais) {
 }
 
 //添加一个玩家
-func (d *DdzDesk) AddUser(userId uint32) error {
+func (d *DdzDesk) AddUser(userId uint32, a gate.Agent) error {
 	user := NewDdzUser()
+	*user.UserId = userId
+	user.agent = a
+	*user.DeskId = d.GetDeskId()
+	*user.RoomId = d.GetRoomId()
+	user.UpdateSession()
 	err := d.AddUserBean(user)
+
 	return err
 }
 
@@ -160,3 +168,20 @@ func (d *DdzDesk) BroadCastProtoExclusive(p proto.Message, userId uint32) error 
 	}
 	return nil
 }
+
+func (d *DdzDesk) IsEnoughUser() bool {
+	var count int32 = 0
+	for _, user := range d.Users {
+		if user != nil {
+			count++
+		}
+	}
+	return count == d.GetUserCountLimit()
+}
+
+//得到deskInfo
+func (d *DdzDesk) GetDdzDeskInfo() *ddzproto.DdzDeskInfo {
+	return nil
+}
+
+

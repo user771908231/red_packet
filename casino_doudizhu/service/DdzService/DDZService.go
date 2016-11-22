@@ -20,6 +20,7 @@ import (
 
 //创建房间
 func HandlerCreateDesk(userId uint32, roominfo *ddzproto.RoomTypeInfo, a gate.Agent) {
+	log.T("玩家[%v]创建房间roomInfo[%v]", userId, roominfo)
 	room := doudizhu.GetFDdzRoom()
 	desk := room.CreateDesk(userId, roominfo)
 	if desk == nil {
@@ -66,14 +67,14 @@ func HandlerEnterDesk(userId uint32, key string, deskType int32, a gate.Agent) e
 }
 
 //准备游戏
-func HandlerFDdzReady(user uint32) error {
-	desk := doudizhu.GetDdzDeskBySession(user)
+func HandlerFDdzReady(userId uint32) error {
+	desk := doudizhu.GetDdzDeskBySession(userId)
 	if desk == nil {
-		log.E("玩家[%v]准备失败，没有找到对应的desk..")
+		log.E("玩家[%v]准备失败，没有找到对应的desk..", userId)
 		return Error.NewError(-1, "没有找到玩家所在的desk")
 	}
 
-	err := desk.Ready(user)
+	err := desk.Ready(userId)
 	if err != nil {
 		log.E("玩家[%v]准备游戏的时候失败...")
 		return Error.NewError(-1, "玩家准备游戏的时候失败...")

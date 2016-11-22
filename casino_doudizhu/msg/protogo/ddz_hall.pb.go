@@ -23,6 +23,8 @@ var _ = math.Inf
 
 // Ignoring public import of PlayerInfo from ddz_base.proto
 
+// Ignoring public import of NullMsg from ddz_base.proto
+
 // Ignoring public import of DdzDeskInfo from ddz_base.proto
 
 // Ignoring public import of EProtoId from ddz_base.proto

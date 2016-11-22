@@ -46,7 +46,7 @@ enum EProtoId {
     PID_OUT_CARDS_ACK       = 29;     //出牌-ack
     PID_ACT_GUO             = 30;     //过
     PID_ACT_GUO_ACK         = 31;     //过-ack
-    
+
 ////////////////////////////////////////////
     PID_START_PLAY          = 32; //开始打牌阶段
 
@@ -76,7 +76,7 @@ enum ErrorCode {
     //-101   -200	游戏异常
     EC_CREATE_DESK_DIAMOND_NOTENOUGH = -101; // 创建房间的时候余额不足
     EC_CREATE_DESK_USER_NOTFOUND = -102; // 创建房间的时候未知用户
-    
+
     EC_INTO_DESK_NOTFOUND = -103; // 进入房间时:没有找到房间
     EC_INTO_DESK_ISFULL = -104; // 进入房间时:房间人数已满
 
@@ -128,9 +128,9 @@ enum DdzPaiType {
 
 // 轮到玩家操作时：可执行何种操作
 enum ActType {
-    T_NORMAL_ACT    = 1; // 普通出牌 
-    T_JIAO_DIZHU     = 2; // 叫地主 
-    T_ROB_DIZHU      = 3; // 抢地主 
+    T_NORMAL_ACT    = 1; // 普通出牌
+    T_JIAO_DIZHU     = 2; // 叫地主
+    T_ROB_DIZHU      = 3; // 抢地主
     T_DOUBLE         = 4; // 加倍
     T_MEN_ZHUA       = 5; // 闷抓/看牌
     T_PULL_PUSH      = 6; // 拉/倒
@@ -150,8 +150,8 @@ enum DDZGameStatus {
 enum PlayerGameStatus {
     S_INIT           = 0; // 初始状态
     S_DEALCARDS      = 1; // 发牌中
-    S_JIAO_DIZHU     = 2; // 叫地主 
-    S_ROB_DIZHU      = 3; // 抢地主 
+    S_JIAO_DIZHU     = 2; // 叫地主
+    S_ROB_DIZHU      = 3; // 抢地主
     S_DOUBLE         = 4; // 加倍
     S_NO_DOUBLE      = 5; // 不加倍
     S_PULL           = 6; // 拉
@@ -216,6 +216,9 @@ enum DeskGameStatus {
     FINISH      = 4; //已经结束
 }
 
+message NullMsg{
+    optional ProtoHeader header = 1;
+}
 
 message DdzDeskInfo {
     optional int32 GameStatus = 1; //游戏所处状态: 0:INIT 1:DINGQUE 2;EXCHANGE 3:PLAYING 4:FINISH
@@ -223,15 +226,15 @@ message DdzDeskInfo {
     optional int32 playerNum = 3; //玩家数量
     optional uint32 activeUserId = 4; //当前谁操作，决定：中间的指针应该指向谁，哪个玩家当前是可操作状态
     optional int32 actionTime = 5; // 玩家当前操作时间
-    
+
     optional int32 nInitActionTime = 7; // 初始操作时间
     optional int64 initRoomCoin = 9; // 房间的初始带入金额
     optional int32 currPlayCount = 10; // 朋友桌: 当前第几局
     optional int32 totalPlayCount = 11; // 朋友桌: 总共几局
     optional string roomNumber = 12; // 房间号
-    
+
     optional uint32 diZhuUserId = 14; //地主
-    
+
     repeated Poker  footPokers = 15; // 底牌（3张）
     optional int32  footRate = 16;   // 底牌倍率
 

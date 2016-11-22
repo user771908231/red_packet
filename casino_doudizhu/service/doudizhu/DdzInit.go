@@ -38,12 +38,20 @@ func NewDdzDesk() *DdzDesk {
 	desk := new(DdzDesk)
 	desk.PDdzDesk = NewPDdzDesk()
 	desk.UserCountLimit = new(int32)
+	desk.RoomId = new(int32)
 	return desk
 }
 
 func NewDdzUser() *DdzUser {
 	user := new(DdzUser)
 	user.PDdzUser = NewPDdzUser()
+	user.UserId = new(uint32)
+	user.DeskId = new(int32)
+	user.RoomId = new(int32)
+	user.Status = new(int32)
+	user.IsBreak = new(bool)
+	user.IsLeave = new(bool)
+	user.QiangDiZhuStatus = new(int32)
 	return user
 }
 
@@ -64,4 +72,13 @@ func NewPDdzBillBean() *PDdzBillBean {
 	b.LoseUser = new(uint32)
 	b.Desc = new(string)
 	return b
+}
+
+func NewPDdzSession() *PDdzSession {
+	ret := new(PDdzSession)
+	ret.UserId = new(uint32)
+	ret.DeskId = new(int32)
+	ret.RoomId = new(int32)
+	ret.GameStatus = new(int32)
+	return ret
 }

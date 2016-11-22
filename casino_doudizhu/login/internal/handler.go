@@ -35,6 +35,7 @@ func handlerGame_Login(args []interface{}) {
 		user := userService.GetUserById(userId)
 		if user == nil {
 			//登陆失败
+			log.E("没有找到玩家[%v]的信息，login失败", userId)
 			ack := newProto.NewGame_AckLogin()
 			*ack.Header.Code = intCons.ACK_RESULT_ERROR
 			a.WriteMsg(ack)

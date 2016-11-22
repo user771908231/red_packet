@@ -75,7 +75,7 @@ func InitMongoDb() error {
 	defer c.Close()
 
 	//麻将桌 自增
-	err = c.EnsureCounter(MJ_DBNAM, DBT_MJ_DESK, DB_ENSURECOUNTER_KEY)
+	err = c.EnsureCounter(MJ_DBNAM, DBT_DDZ_DESK, DB_ENSURECOUNTER_KEY)
 	if err != nil {
 		return err
 	}

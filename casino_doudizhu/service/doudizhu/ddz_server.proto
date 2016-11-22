@@ -57,6 +57,7 @@ message PDdzDesk {
     optional int32 BoardsCount = 17;
     optional int64 CapMax = 18;
     optional bool IsJiaoFen = 19;
+    optional int32 roomId = 20;
 }
 
 //游戏数据
@@ -92,12 +93,13 @@ message PDdzUser {
     optional bool isLeave = 5; //是否掉线
     optional int32 qiangDiZhuStatus = 7; //抢地主的状态
     optional PDdzBill bill = 8; // 斗地主的账单
-
+    optional int32 deskId = 9; //deskId
+    optional int32 roomId = 10; //roomId
 }
 
 //room
 message PDdzRoom {
-
+    optional int32 roomId = 1;
 }
 
 //备份专用...

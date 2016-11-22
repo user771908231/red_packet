@@ -142,6 +142,8 @@ func NewDdzOverTurn() *ddzproto.DdzOverTurn {
 //准备回复
 func NewDdzAckReady() *ddzproto.DdzAckReady {
 	ret := new(ddzproto.DdzAckReady)
+	ret.UserId = new(uint32)
+	ret.Msg = new(string)
 	return ret
 }
 
@@ -401,4 +403,10 @@ func NewDdzAckGameRecord() *ddzproto.DdzAckGameRecord {
 	ret.UserId = new(uint32)
 	ret.Header = NewHeader()
 	return ret
+}
+
+func NewDdzDeskInfo() *ddzproto.DdzDeskInfo {
+	ret := new(ddzproto.DdzDeskInfo)
+	
+
 }

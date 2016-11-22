@@ -7,6 +7,8 @@ import (
 	"casino_server/common/log"
 	"errors"
 	"casino_doudizhu/msg/protogo"
+	"casino_server/utils/db"
+	"casino_doudizhu/conf/config"
 )
 
 //初始化一个斗地主的房间实例
@@ -16,6 +18,7 @@ var FDdzRoomIns *DdzRoom = new(DdzRoom)
 type  DdzRoom struct {
 	sync.Mutex
 	Desks []*DdzDesk
+	*PDdzRoom
 }
 
 //更具规则创建房间...
@@ -35,6 +38,8 @@ func (room *DdzRoom) CreateDesk(userId uint32, roominfo *ddzproto.RoomTypeInfo) 
 	*desk.CapMax = roominfo.GetCapMax()
 	*desk.IsJiaoFen = roominfo.GetIsJiaoFen()
 	*desk.RoomType = int32(roominfo.GetRoomType())
+	*desk.DeskId, _ = db.GetNextSeq(config.DBT_DDZ_DESK)
+	*desk.RoomId = room.GetRoomId()
 
 	err := room.AddDeskBean(desk)
 	if err != nil {
@@ -134,7 +139,13 @@ func GetFDdzRoom() *DdzRoom {
 	return FDdzRoomIns
 }
 
+//返回desk
 func (r *DdzRoom)GetDeskByDeskId(deskId int32) *DdzDesk {
+	for _, desk := range r.Desks {
+		if desk.GetDeskId() == deskId {
+			return desk
+		}
+	}
 	return nil
 }
 
