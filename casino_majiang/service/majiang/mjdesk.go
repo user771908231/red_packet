@@ -323,7 +323,6 @@ func (d *MjDesk) IsAllReady() bool {
 	return true
 }
 
-
 //用户准备之后的一些操作
 func (d *MjDesk) AfterReady() error {
 	//如果所有人都准备了，那么开始游戏
@@ -373,14 +372,13 @@ func (d *MjDesk) begin() error {
 		return nil
 	}
 
-	if d.IsSanRenLiangFang() || d.IsSiRenLiangFang() {
+	//如果是三人两房 or 四人两房 or 两人两房，游戏直接开始
+	if d.IsSanRenLiangFang() || d.IsSiRenLiangFang() || d.IsLiangRenLiangFang() {
 		err = d.BeginStart()
 		if err != nil {
 			log.E("发送游戏开始的广播的时候出错err[%v]", err)
 			return err
 		}
-
-		//如果是三人两房，游戏开始
 		return nil
 	}
 
@@ -393,10 +391,13 @@ func (d *MjDesk) begin() error {
 	return nil
 }
 
-////是否需要金钩钓
-//func (d *MjDesk) IsNeedJinGouDiao() bool {
-//	return d.IsOpenOption(mjproto.MJOption_JINGOUDIAO)
-//}
+//判断是否是两人三房
+func (d *MjDesk) IsLiangRenSanFang() bool {
+	if mjproto.MJRoomType(d.GetMjRoomType()) == mjproto.MJRoomType_roomType_liangRenSanFang {
+		return true
+	}
+	return false
+}
 
 //是否需要自摸加底
 func (d *MjDesk) IsNeedZiMoJiaDi() bool {
@@ -468,8 +469,8 @@ func (d *MjDesk) initCards() error {
 	d.SetStatus(MJDESK_STATUS_FAPAI)        //发牌的阶段
 
 	d.AllMJPai = XiPai()
-	if d.IsSanRenLiangFang() || d.IsSiRenLiangFang() {
-		//如果是三人两房 or 四人两房 过滤掉万牌
+	if d.IsSanRenLiangFang() || d.IsSiRenLiangFang() || d.IsLiangRenLiangFang() {
+		//如果是三人两房 or 四人两房 or 两人两房 过滤掉万牌
 		d.AllMJPai = IgnoreFlower(d.AllMJPai, W)
 	}
 
@@ -1438,6 +1439,16 @@ func (d *MjDesk)ActHu(userId uint32) error {
 	log.T("接下来开始getHuScore(%v,%v,%v,%v)", huUser.GameData.HandPai, isZimo, extraAct, roomInfo)
 	fan, score, huCardStr := GetHuScore(huUser.GameData.HandPai, isZimo, is19, extraAct, roomInfo, d)
 	log.T("胡牌(getHuScore)之后的结果fan[%v],score[%v],huCardStr[%v]", fan, score, huCardStr)
+
+	//二人两房 平胡不能被点炮
+	if d.IsLiangRenLiangFang() && !isZimo {
+		//是两人两房 并且 不是自摸
+		if score <= 0 {
+			//得分为零
+			log.E("玩家[%v]不可以胡", userId)
+			return errors.New("二人两房 平胡不能被点炮...")
+		}
+	}
 
 	//胡牌之后的信息
 	hu := NewHuPaiInfo()

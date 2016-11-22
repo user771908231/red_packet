@@ -195,13 +195,22 @@ func HandlerLeaveDesk(userId uint32) error {
 	return nil
 }
 
-func HandlerMessage(userId uint32) error {
+func HandlerMessage(m *ddzproto.DdzMessage) {
+	log.T("请求发送信息[%v]", m)
+	userId := m.GetHeader().GetUserId()
 	desk := doudizhu.GetDdzDeskBySession(userId)
-	if desk == nil {
-		return Error.NewFailError("没有找到desk")
-	}
-	return nil
 
+	if desk == nil {
+		log.E("玩家[%v]聊天的时候没有找到desk", userId)
+		return
+	}
+
+	result := newProto.NewGameMessage()
+	*result.UserId = m.GetHeader().GetUserId()
+	*result.Id = m.GetId()
+	*result.Msg = m.GetMsg()
+	*result.MsgType = m.GetMsgType()
+	desk.BroadCastProtoExclusive(result, result.GetUserId())
 }
 
 //查询战绩
