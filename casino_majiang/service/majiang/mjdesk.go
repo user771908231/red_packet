@@ -59,16 +59,8 @@ return  reconnect,error
  */
 func (d *MjDesk) addNewUserFriend(userId uint32, a gate.Agent) (bool, error) {
 
-	// 设置agent
+	//1设置agent
 	AgentService.SetAgent(userId, a)
-
-	//1,是否是重新进入
-	//user := d.GetUserByUserId(userId)
-	//if user != nil {
-	//	//是断线重连
-	//	*user.IsBreak = false;
-	//	return nil
-	//}
 
 	//2,是否是离开之后重新进入房间
 	userLeave := d.GetUserByUserId(userId)
@@ -192,6 +184,7 @@ func (d *MjDesk) getLeaveUserByUserId(userId uint32) *MjUser {
 
 //根据房间类型初始化房间玩家数
 func (d *MjDesk) InitUsers(mjRoomType mjproto.MJRoomType) {
+
 	switch mjRoomType {
 	case mjproto.MJRoomType_roomType_sanRenLiangFang :
 		d.Users = make([]*MjUser, 3)
@@ -900,35 +893,8 @@ func (d *MjDesk) InitCheckCase(p *MJPai, outUser *MjUser) error {
 	return nil
 }
 
-//判断是否可以initCheckCas
-
-////暂时不用？？ 摸牌之后
-//func (d *MjDesk) InitMoPaiCheckCase(p *MJPai, moPaiUser *MjUser) error {
-//
-//	//初始化参数
-//	moPaiUser.GameData.HandPai.InPai = p
-//
-//	//判断可能性
-//	checkCase := NewCheckCase()
-//	*checkCase.UserIdOut = moPaiUser.GetUserId()
-//	*checkCase.CheckStatus = CHECK_CASE_STATUS_CHECKING        //正在判定
-//	checkCase.CheckMJPai = p
-//
-//	checkCase.PreOutGangInfo = moPaiUser.GetPreMoGangInfo()
-//	checkCase.CheckB = append(checkCase.CheckB, moPaiUser.GetCheckBean(p))
-//	if checkCase.CheckB == nil || len(checkCase.CheckB) > 0 {
-//		d.CheckCase = checkCase
-//	} else {
-//		d.CheckCase = nil
-//	}
-//
-//	return nil
-//}
-
-
 //执行判断事件
 /**
-
 	这里仅仅是用于判断打牌之后别人的碰杠胡
 
  */
@@ -1121,14 +1087,6 @@ func (d *MjDesk) GetJiaoInfos(user *MjUser) []*mjproto.JiaoInfo {
 		//碰牌 无inPai的情况
 		userPais = append(userPais, userHandPai.InPai)
 	}
-
-
-	//type JiaoInfo struct {
-	//	OutCard          *CardInfo      `protobuf:"bytes,1,opt,name=outCard" json:"outCard,omitempty"`
-	//	PaiInfos         []*JiaoPaiInfo `protobuf:"bytes,2,rep,name=paiInfos" json:"paiInfos,omitempty"`
-	//	XXX_unrecognized []byte         `json:"-"`
-	//}
-
 
 	handPai := NewMJHandPai()
 	var canHu, is19 bool
@@ -1644,14 +1602,6 @@ func (d *MjDesk)ActHu(userId uint32) error {
 		return errors.New("不可以胡牌...")
 	}
 
-	/**
-	HuPaiType_H_QiangGang         HuPaiType = 11 todo
-	HuPaiType_H_HaiDiLao          HuPaiType = 12 todo
-	HuPaiType_H_HaiDiPao          HuPaiType = 13 todo
-	HuPaiType_H_HaidiGangShangHua HuPaiType = 14 todo
-	HuPaiType_H_HaidiGangShangPao HuPaiType = 15 todo
-	 */
-
 	//得到胡牌的信息
 	var isZimo bool = false //是否是自摸
 	var isGangShangHua bool = false //是否是杠上花
@@ -1660,7 +1610,7 @@ func (d *MjDesk)ActHu(userId uint32) error {
 	var isHaidiGangshangpao bool = false //是否是海底杠上炮
 	var isHaiDiLao bool = false //是否是海底捞
 
-	var isLastPai bool = false //是否是最后一张牌
+	var isLastPai bool = !d.HandPaiCanMo() //是否是最后一张牌
 	var isPreMoGang bool = false //之前是否有摸杠
 
 	var extraAct mjproto.HuPaiType = 0        //杠上花，
@@ -1670,13 +1620,8 @@ func (d *MjDesk)ActHu(userId uint32) error {
 
 	hupai := huUser.GameData.HandPai.InPai
 
-	if d.GetNextPai() == nil {
-		//海底捞 胡的时候桌面没牌了
-		isLastPai = true
-	}
 	if checkCase == nil {
-		//自摸
-		isZimo = true
+		isZimo = true                //自摸
 		outUserId = userId
 	} else {
 		outUserId = checkCase.GetUserIdOut()
@@ -1773,6 +1718,12 @@ func (d *MjDesk)ActHu(userId uint32) error {
 	d.SendAckActHu(hu)
 	return nil
 }
+
+//是否还有牌
+func (d *MjDesk) HandPaiCanMo() bool {
+	return true;
+}
+
 
 //处理抢杠的逻辑
 /**
