@@ -6,6 +6,9 @@ import (
 	"errors"
 	"casino_server/common/Error"
 	"github.com/name5566/leaf/gate"
+	"casino_doudizhu/msg/protogo"
+	"casino_doudizhu/msg/funcsInit"
+	"casino_server/conf/intCons"
 )
 
 /*
@@ -16,12 +19,15 @@ import (
 
 
 //创建房间
-func HandlerCreateDesk(userId uint32, a gate.Agent) {
+func HandlerCreateDesk(userId uint32, roominfo *ddzproto.RoomTypeInfo, a gate.Agent) {
 	room := doudizhu.GetFDdzRoom()
-	desk := room.CreateDesk(userId)
+	desk := room.CreateDesk(userId, roominfo)
 	if desk == nil {
 		log.E("创建房间失败...")
-		//todo return error ack
+		ret := newProto.NewGame_AckCreateRoom()
+		*ret.Header.Code = intCons.ACK_RESULT_ERROR
+		*ret.Header.Error = "创建房间失败"
+		a.WriteMsg(ret)
 		return
 	}
 
@@ -80,7 +86,7 @@ func HandlerFDdzReady(user uint32) error {
 func HandlerQiangDiZhu(userId uint32) error {
 	desk := doudizhu.GetDdzDeskBySession(userId)
 	if desk == nil {
-		return Error.NewFailError("米有找到desk")
+		return Error.NewFailError("没有找到desk")
 	}
 
 	err := desk.QiangDiZhu(userId, 0)
@@ -89,51 +95,129 @@ func HandlerQiangDiZhu(userId uint32) error {
 		return Error.NewFailError("玩家抢地主出错")
 
 	}
-
 	return nil
 
 }
 
 //叫地主
 func HandlerJiaoDiZhu(userId uint32) error {
+	desk := doudizhu.GetDdzDeskBySession(userId)
+	if desk == nil {
+		return Error.NewFailError("没有找到desk")
+	}
+
+	err := desk.JiaoDiZhu(userId)
+	if err != nil {
+		log.E("叫地主失败")
+		return err
+	}
+
 	return nil
 }
 
+//不叫地主
+func HandlerBuJiaoDiZhu(userId uint32) error {
+	//不叫地主
+	desk := doudizhu.GetDdzDeskBySession(userId)
+	if desk == nil {
+		return Error.NewFailError("没有找到desk")
+	}
+
+	err := desk.BuJiaoDiZhu(userId)
+	if err != nil {
+		log.E("玩家[%v]不叫地主的时候失败")
+		return err
+	}
+	return nil
+}
+
+//明牌的逻辑
+/**
+	1，明牌只在欢乐斗地主中出现
+	2，明牌会把低分翻倍
+ */
 func HandlerShowHandPokers(userId uint32) error {
+	desk := doudizhu.GetDdzDeskBySession(userId)
+	if desk == nil {
+		return Error.NewFailError("没有找到desk")
+	}
+
+	err := desk.ShowHandPokers(userId)
+	if err != nil {
+		return err
+	}
 	return nil
 }
 
+//闷抓
+/**
+	1， 一般出现在四川斗地主中
+
+ */
 func HandlerMenuZhua(userId uint32) error {
+	desk := doudizhu.GetDdzDeskBySession(userId)
+	if desk == nil {
+		return Error.NewFailError("没有找到desk")
+	}
 	return nil
 }
 
 func HandlerSeeCards(userId uint32) error {
+	desk := doudizhu.GetDdzDeskBySession(userId)
+	if desk == nil {
+		return Error.NewFailError("没有找到desk")
+	}
 	return nil
 
 }
 
 func HandlePull(userId uint32) error {
+	desk := doudizhu.GetDdzDeskBySession(userId)
+	if desk == nil {
+		return Error.NewFailError("没有找到desk")
+	}
 	return nil
 }
 
 func HandlerDissolveDesk(userId uint32) error {
+	desk := doudizhu.GetDdzDeskBySession(userId)
+	if desk == nil {
+		return Error.NewFailError("没有找到desk")
+	}
 	return nil
 }
 
 func HandlerLeaveDesk(userId uint32) error {
+	desk := doudizhu.GetDdzDeskBySession(userId)
+	if desk == nil {
+		return Error.NewFailError("没有找到desk")
+	}
 	return nil
 }
 
-func HandlerMessage() {
+func HandlerMessage(userId uint32) error {
+	desk := doudizhu.GetDdzDeskBySession(userId)
+	if desk == nil {
+		return Error.NewFailError("没有找到desk")
+	}
+	return nil
 
 }
 
-func HandlerGameRecord() {
+//查询战绩
+func HandlerGameRecord(userId uint32, a gate.Agent) error {
 
+	//
+	//返回战绩
+	return nil
 }
 
-func HandlerJiaBei(){
-
+func HandlerJiaBei(userId uint32) error {
+	desk := doudizhu.GetDdzDeskBySession(userId)
+	if desk == nil {
+		return Error.NewFailError("没有找到desk")
+	}
+	return nil
 }
 
 
@@ -156,6 +240,16 @@ func HandlerActOut(userId uint32) error {
 
 //pass的协议
 func HandlerActPass(userId uint32) error {
+	desk := doudizhu.GetDdzDeskBySession(userId)
+	if desk == nil {
+		return Error.NewFailError("没有找到desk")
+	}
+
+	err := desk.ActPass(userId)
+	if err != nil {
+		log.E("玩家[%v]过牌的时候失败", userId)
+		return err
+	}
 	return nil
 }
 

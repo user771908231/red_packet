@@ -6,6 +6,7 @@ import (
 	"casino_server/utils"
 	"casino_server/common/log"
 	"errors"
+	"casino_doudizhu/msg/protogo"
 )
 
 //初始化一个斗地主的房间实例
@@ -17,7 +18,8 @@ type  DdzRoom struct {
 	Desks []*DdzDesk
 }
 
-func (room *DdzRoom) CreateDesk(userId uint32) *DdzDesk {
+//更具规则创建房间...
+func (room *DdzRoom) CreateDesk(userId uint32, roominfo *ddzproto.RoomTypeInfo) *DdzDesk {
 	//创建一个desk
 
 	//1,得到一个key
@@ -28,6 +30,11 @@ func (room *DdzRoom) CreateDesk(userId uint32) *DdzDesk {
 	*desk.Key = key
 	*desk.UserCountLimit = 3
 	desk.Users = make([]*DdzUser, desk.GetUserCountLimit())
+	*desk.BaseValue = roominfo.GetBaseValue()
+	*desk.BoardsCount = roominfo.GetBoardsCount()
+	*desk.CapMax = roominfo.GetCapMax()
+	*desk.IsJiaoFen = roominfo.GetIsJiaoFen()
+	*desk.RoomType = int32(roominfo.GetRoomType())
 
 	err := room.AddDeskBean(desk)
 	if err != nil {
@@ -144,7 +151,7 @@ func (r *DdzRoom) GetDeskByKey(key string) *DdzDesk {
 //room添加房间
 func (r *DdzRoom) AddDeskBean(desk *DdzDesk) error {
 	r.Desks = append(r.Desks, desk)
-	desk.Update2Redis()        //更新桌子的信息到redis中去
+	//desk.Update2Redis()        //更新桌子的信息到redis中去
 	return nil        //这里的返回值不用判断...
 }
 

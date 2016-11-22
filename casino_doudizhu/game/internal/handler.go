@@ -13,7 +13,6 @@ func handler(m interface{}, h interface{}) {
 }
 
 func init() {
-
 	handler(&ddzproto.DdzCreateRoom{}, handlerCreateDesk)    //创建房间
 	handler(&ddzproto.DdzEnterRoom{}, HandlerEnterRoom)    //进入房间
 	handler(&ddzproto.DdzReady{}, handlerReady)    //准备
@@ -37,7 +36,7 @@ func init() {
 func handlerCreateDesk(args []interface{}) {
 	m := args[0].(*ddzproto.DdzCreateRoom)
 	a := args[1].(gate.Agent)
-	DdzService.HandlerCreateDesk(m.GetHeader().GetUserId(), a)
+	DdzService.HandlerCreateDesk(m.GetHeader().GetUserId(), m.GetRoomTypeInfo(), a)
 }
 
 //进入房间
@@ -56,9 +55,16 @@ func handlerReady(args []interface{}) {
 	DdzService.HandlerFDdzReady(m.GetUserId())
 }
 
+//叫地主的协议
 func handlerJiaoDiZhu(args []interface{}) {
 	m := args[0].(*ddzproto.DdzJiaoDiZhu)
-	DdzService.HandlerJiaoDiZhu(m.GetUserId())
+	if m.GetJiao() {
+		//叫地主
+		DdzService.HandlerJiaoDiZhu(m.GetUserId())
+	} else {
+		//不叫地主
+		DdzService.HandlerBuJiaoDiZhu(m.GetUserId())
+	}
 }
 
 //明牌
@@ -90,36 +96,45 @@ func handlerQiangDiZhu(args []interface{}) {
 
 }
 
+//过牌，不出牌
 func handlerActGuo(args []interface{}) {
 	m := args[0].(*ddzproto.DdzActGuo)
 	DdzService.HandlerActPass(m.GetUserId())
 }
 
+
+//解散房间
 func handlerDissolveDesk(args []interface{}) {
 	m := args[0].(*ddzproto.DdzDissolveDesk)
 	DdzService.HandlerDissolveDesk(m.GetUserId())
 }
 
+
+//离开房间
 func handlerLeaveDesk(args []interface{}) {
 	m := args[0].(*ddzproto.DdzLeaveDesk)
 	DdzService.HandlerLeaveDesk(m.GetHeader().GetUserId())
 }
 
+
+//发送信息
 func handlerMessage(args []interface{}) {
-	//m := args[0].(*ddzproto.Game_Message)
-	DdzService.HandlerMessage()
+	m := args[0].(*ddzproto.DdzMessage)
+	DdzService.HandlerMessage(m.GetUserId())
 
 }
-func handlerGameRecord(args []interface{}) {
-	//m := args[0].(*ddzproto.Game_GameRecord)
-	DdzService.HandlerGameRecord()
 
+//查询战绩
+func handlerGameRecord(args []interface{}) {
+	m := args[0].(*ddzproto.DdzGameRecord)
+	a := args[1].(gate.Agent)
+	DdzService.HandlerGameRecord(m.GetUserId(), a)
 }
 
 //加倍
 func handlerJiaBei(args []interface{}) {
-	//m := args[0].(*ddzproto.Game_Double)
-	DdzService.HandlerJiaBei()
+	m := args[0].(*ddzproto.DdzDouble)
+	DdzService.HandlerJiaBei(m.GetUserId())
 }
 
 //出牌
