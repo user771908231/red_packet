@@ -1,7 +1,7 @@
 {
   "LogLevel": "debug",
   "LogPath": "",
-  "WSAddr": "192.168.199.120:3798",
+  "WSAddr": "192.168.199.120:3796",
   "MaxConnNum": 20000,
   "MongoIp": "192.168.199.120",
   "MongoPort": 51668,
