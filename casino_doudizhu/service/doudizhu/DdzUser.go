@@ -6,6 +6,7 @@ import (
 	"casino_server/common/Error"
 	"sync/atomic"
 	"github.com/name5566/leaf/gate"
+	"github.com/golang/protobuf/proto"
 )
 
 var (
@@ -122,4 +123,14 @@ func (u *DdzUser) AddNewBill(coin int64, winUser, loseUser uint32, des string) {
 	u.Bill.BillBean = append(u.Bill.BillBean, bean)
 	//增加输的钱
 	atomic.AddInt64(u.Bill.WinCoin, coin)
+}
+
+//游戏中的玩家放信息
+func (u *DdzUser) WriteMsg(msg proto.Message) {
+	agent := u.agent
+	if agent == nil {
+		log.E("玩家[%v]发送信息失败", u.GetUserId())
+	} else {
+		agent.WriteMsg(msg)
+	}
 }
