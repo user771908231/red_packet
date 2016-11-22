@@ -60,9 +60,8 @@ func (d *DdzDesk) Ready(userId uint32) error {
 
 	//发送准备的回复 todo ack
 	ack := newProto.NewDdzAckReady()
-	//组装数据
+	*ack.UserId = userId
 	user.WriteMsg(ack)
-
 	//准备之后的处理
 	d.AfterReady()
 
