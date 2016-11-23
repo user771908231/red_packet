@@ -127,25 +127,25 @@ func (d *DdzDesk) GetUserIndexByUserId(userId uint32) int {
 }
 
 func (d *DdzDesk) SetActiveUser(userId uint32) {
-	*d.ActiveUser = userId
+	*d.ActiveUserId = userId
 }
 
 func (d *DdzDesk) SetDizhu(userId uint32) {
-	*d.Dizhu = userId
+	*d.DiZhuUserId = userId
 }
 
 //判断是否是当前活动玩家
 func (d *DdzDesk) CheckActiveUser(userId uint32) error {
-	if d.GetActiveUser() == userId {
+	if d.GetActiveUserId() == userId {
 		return nil
 	} else {
-		return Error.NewFailError(fmt.Sprintf("当前活动玩家是[%v]", d.GetActiveUser()))
+		return Error.NewFailError(fmt.Sprintf("当前活动玩家是[%v]", d.GetActiveUserId()))
 	}
 }
 
 //判断用户的身份是不是地主
 func (d *DdzDesk) IsDiZhuRole(user *DdzUser) bool {
-	return d.GetDizhu() == user.GetUserId()
+	return d.GetDiZhuUserId() == user.GetUserId()
 }
 
 //广播协议
@@ -185,18 +185,18 @@ func (d *DdzDesk) GetDdzDeskInfo() *ddzproto.DdzDeskInfo {
 	//*deskInfo.ActionTime = d.GetActionTime() //当前操作时间
 	//*deskInfo.NInitActionTime = d.GetInitActionTime() //初始操作时间
 
-	*deskInfo.ActiveUserId = d.GetActiveUser() //当前操作人
+	*deskInfo.ActiveUserId = d.GetActiveUserId() //当前操作人
 	*deskInfo.CurrPlayCount = d.GetCurrPlayCount() //todo desk的游戏局数
-	*deskInfo.DiZhuUserId = d.GetDizhu() //地主id
-	deskInfo.FootPokers = d.GetDiPokerPai() //底牌 todo change type []*PPokerPai to []*Poker
+	*deskInfo.DiZhuUserId = d.GetDiZhuUserId() //地主id
+	//deskInfo.FootPokers = d.GetDiPokerPai() //底牌 todo change type []*PPokerPai to []*Poker
 	*deskInfo.FootRate = d.GetFootRate() //todo
 	*deskInfo.GameStatus = d.GetGameStatus() //todo
 	*deskInfo.InitRoomCoin = d.GetInitRoomCoin() //todo
 	*deskInfo.PlayerNum = d.GetPlayerNum() //todo
-	*deskInfo.RoomNumber = d.GetRoomId()
-	deskInfo.RoomTypeInfo = d.GetRoomType()
-	deskInfo.PlayRate = d.GetPlayRate() //todo
-	deskInfo.TotalPlayCount = d.GetTotalPlayCount() //todo
+	*deskInfo.RoomNumber = d.GetKey()
+	//deskInfo.RoomTypeInfo = d.GetRoomType()
+	*deskInfo.PlayRate = d.GetPlayRate() //todo
+	*deskInfo.TotalPlayCount = d.GetTotalPlayCount() //todo
 	return deskInfo
 }
 
