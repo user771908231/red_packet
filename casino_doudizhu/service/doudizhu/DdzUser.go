@@ -194,10 +194,18 @@ func (u *DdzUser) GetGameStatus() int32 {
 }
 
 func (u *DdzUser) GetPlayerPokers() []*ddzproto.Poker {
-	return nil
+	var list []*ddzproto.Poker
+	for _, p := range u.GameData.HandPokers {
+		if p != nil {
+			list = append(list, p.GetClientPoker())
+		}
+	}
+	return list
 }
 
+//返回玩家的游戏装套
 func (u *DdzUser) GetPlayerGameStatus() *ddzproto.PlayerGameStatus {
+
 	return nil
 }
 
