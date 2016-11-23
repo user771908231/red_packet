@@ -105,6 +105,7 @@ message PDdzUser {
     optional PDdzBill bill = 9; // 斗地主的账单
     optional int32 deskId = 10; //deskId
     optional int32 roomId = 11; //roomId
+    optional int64 coin = 12; //
 
 }
 

@@ -7,6 +7,8 @@ import (
 	"sync/atomic"
 	"github.com/name5566/leaf/gate"
 	"github.com/golang/protobuf/proto"
+	"casino_doudizhu/msg/protogo"
+	"casino_doudizhu/msg/funcsInit"
 )
 
 var (
@@ -169,4 +171,52 @@ func (u *DdzUser) WriteMsg(msg proto.Message) {
 	} else {
 		agent.WriteMsg(msg)
 	}
+}
+
+func (u *DdzUser) GetNickName() string {
+	return ""
+}
+
+func (u *DdzUser) GetSex() int32 {
+	return 0
+}
+
+func (u *DdzUser) GetBReady() int32 {
+	return 0
+}
+
+func (u *DdzUser) GetWxInfo() *ddzproto.WeixinInfo {
+	return nil
+}
+
+func (u *DdzUser) GetGameStatus() int32 {
+	return 0
+}
+
+func (u *DdzUser) GetPlayerPokers() []*ddzproto.Poker {
+	return nil
+}
+
+func (u *DdzUser) GetPlayerGameStatus() *ddzproto.PlayerGameStatus {
+	return nil
+}
+
+func (u *DdzUser) GetOnlineStatus() int32 {
+	return 0
+}
+
+func ( u *DdzUser) GetPlayerInfo(desk *DdzDesk) *ddzproto.PlayerInfo {
+	info := newProto.NewPlayerInfo()
+	*info.IsDiZhu = desk.GetDiZhuUserId() == u.GetUserId()        //是否是地主
+	info.PlayerPokers = u.GetPlayerPokers()        //玩家的扑克牌
+	*info.Coin = u.GetCoin()        //玩家的coin
+	*info.NickName = u.GetNickName()        //玩家的nickName
+	*info.Sex = u.GetSex()        //玩家的性别
+	*info.UserId = u.GetUserId()        //玩家的id
+	*info.IsOwner = desk.GetOwner() == u.GetUserId()        //是否是房主
+	*info.BReady = u.GetBReady()        //是否准备
+	info.Status = u.GetPlayerGameStatus()        //游戏状态
+	info.WxInfo = u.GetWxInfo()        //微信信息
+	*info.OnlineStatus = u.GetOnlineStatus() //在线的状态
+	return info
 }

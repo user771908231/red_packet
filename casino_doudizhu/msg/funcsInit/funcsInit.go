@@ -421,3 +421,16 @@ func NewDdzDeskInfo() *ddzproto.DdzDeskInfo {
 	ret.PlayRate = new(int32)
 	return ret
 }
+
+func NewPlayerInfo() *ddzproto.PlayerInfo {
+	ret := new(ddzproto.PlayerInfo)
+	ret.IsDiZhu = new(bool)
+	ret.Coin = new(int64)
+	ret.NickName = new(string)
+	ret.Sex = new(int32)
+	ret.UserId = new(uint32)
+	ret.IsOwner = new(bool)
+	ret.BReady = new(int32)
+	ret.OnlineStatus = new(int32)
+	return ret
+}

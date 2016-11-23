@@ -59,4 +59,5 @@ func init() {
 	Processor.Register(&ddzproto.DdzSendMessage{})//41
 	Processor.Register(&ddzproto.DdzGameRecord{})//42
 	Processor.Register(&ddzproto.DdzAckGameRecord{})//43
+
 }

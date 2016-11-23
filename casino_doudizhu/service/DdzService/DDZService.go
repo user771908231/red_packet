@@ -54,12 +54,12 @@ func HandlerEnterDesk(userId uint32, key string, deskType int32, a gate.Agent) e
 	}
 
 	//进入房间,失败返回失败的信息，成功放回成功的信息
-	err := desk.EnterUser(userId, a)
+	err, isReconnect := desk.EnterUser(userId, a)
 	if err != nil {
 		log.E("玩家[%v]进入desk[%v]失败err[%v]", userId, desk.GetDeskId(), err)
 		return Error.NewError(-1, "玩家进入desk失败.")
 	} else {
-		desk.SendGameDeskInfo()        //发送deskGameInfo
+		desk.SendGameDeskInfo(userId, isReconnect)        //发送deskGameInfo
 	}
 
 	return nil

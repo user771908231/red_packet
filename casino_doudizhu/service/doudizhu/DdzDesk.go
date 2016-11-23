@@ -217,6 +217,27 @@ func (d *DdzDesk) GetDdzDeskInfo() *ddzproto.DdzDeskInfo {
 	return deskInfo
 }
 
+func (d *DdzDesk) GetDdzSendGameInfo(SenderUserId uint32, isReconnect int32) *ddzproto.DdzSendGameInfo {
+	ret := newProto.NewDdzSendGameInfo()
+	ret.PlayerInfo = d.GetPlayerInfo()
+	ret.DdzDeskInfo = d.GetDdzDeskInfo()
+	*ret.SenderUserId = SenderUserId
+	*ret.IsReconnect = isReconnect
+	return ret
+}
+
+func (d *DdzDesk) GetPlayerInfo() []*ddzproto.PlayerInfo {
+	var infos []*ddzproto.PlayerInfo
+	for _, u := range d.Users {
+		if u != nil {
+			infos = append(infos, u.GetPlayerInfo(d))
+		}
+	}
+
+	//返回用户信息
+	return infos
+}
+
 //是否是四川斗地主
 func (d *DdzDesk) IsSiChuanDouDiZhu() bool {
 	//todo
@@ -271,8 +292,8 @@ func (d *DdzDesk) SendChuPaiOverTurn(userId uint32) error {
 }
 
 //发送房间的信息
-func (d *DdzDesk) SendGameDeskInfo() error {
-	info := d.GetDdzDeskInfo()
+func (d *DdzDesk) SendGameDeskInfo(sendUserId uint32, isReconnect int32) error {
+	info := d.GetDdzSendGameInfo(sendUserId, isReconnect)
 	d.BroadCastProto(info)
 	return nil
 }

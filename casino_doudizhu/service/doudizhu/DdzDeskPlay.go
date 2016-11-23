@@ -16,7 +16,7 @@ import (
 	3欢乐，四川等逻辑经分开在两个文件
  */
 
-func (d *DdzDesk) EnterUser(userId uint32, a gate.Agent) error {
+func (d *DdzDesk) EnterUser(userId uint32, a gate.Agent) (error, int32) {
 	log.T("玩家[%v]开始进入房间[%v]", userId, d.GetDeskId())
 	//判断是否是重复进入
 	olduser := d.GetUserByUserId(userId)
@@ -27,7 +27,7 @@ func (d *DdzDesk) EnterUser(userId uint32, a gate.Agent) error {
 		olduser.UpdateSession()       //更新session 信息，这里可以更具需求来保存对应的属性...
 		ret := newProto.NewGame_AckEnterRoom()
 		a.WriteMsg(ret)
-		return nil
+		return nil, 1
 	}
 
 	//新进入
@@ -39,16 +39,16 @@ func (d *DdzDesk) EnterUser(userId uint32, a gate.Agent) error {
 		*ret.Header.Code = intCons.ACK_RESULT_ERROR
 		*ret.Header.Error = "进入房间失败"
 		a.WriteMsg(ret)
-		return Error.NewError(-1, "进入房间失败")
+		return Error.NewError(-1, "进入房间失败"), 0
 	} else {
 		//进入成功,返回进入成功的信息
 		log.T("玩家[%v]进入房间[%v]成功", userId, d.GetDeskId())
 		ret := newProto.NewGame_AckEnterRoom()
 		a.WriteMsg(ret)
-		return nil
+		return nil, 0
 	}
 
-	return nil
+	return nil, 0
 }
 
 //开始准备
