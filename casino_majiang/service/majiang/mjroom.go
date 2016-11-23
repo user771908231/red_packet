@@ -163,16 +163,16 @@ func (r *MjRoom) GetDeskByDeskId(id int32) *MjDesk {
 
 //进入房间
 //进入的时候，需要判断牌房间的类型...
-func (r *MjRoom) EnterRoom(key string, userId uint32, a gate.Agent) (*MjDesk, bool, error) {
+func (r *MjRoom) EnterRoom(key string, userId uint32, a gate.Agent) (*MjDesk, mjproto.RECONNECT_TYPE, error) {
 
 	var desk *MjDesk
-	var reconnect bool = false
+	var reconnect mjproto.RECONNECT_TYPE = mjproto.RECONNECT_TYPE_NORMAL
 	//如果是朋友桌,需要通过房间好来找到desk
 	if r.IsFriend() {
 		desk = r.GetDeskByPassword(key)
 		if desk == nil {
 			log.T("通过key[%v]没有找到对应的desk", key)
-			return nil, false, Error.NewError(intCons.ACK_RESULT_FAIL, "房间号输入错误")
+			return nil, mjproto.RECONNECT_TYPE_NORMAL, Error.NewError(intCons.ACK_RESULT_FAIL, "房间号输入错误")
 		} else {
 			var addErr error
 			reconnect, addErr = desk.addNewUserFriend(userId, a)
