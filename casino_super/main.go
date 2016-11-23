@@ -23,6 +23,7 @@ func main() {
 	**	expect domain name: api.dongdian.com/
 	**/
 
+
 	//user resource
 	m.Combo("/users").
 		Get(userHandler.getAll). //get all

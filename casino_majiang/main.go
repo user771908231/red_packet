@@ -28,7 +28,7 @@ func main() {
 	//后台管理
 	go func() {
 		//log.T("web start...")
-		webserver.InitCms()
+		webserver.Run()
 	}()
 
 	leaf.Run(
