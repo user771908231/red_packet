@@ -6,7 +6,10 @@ import (
 	"casino_server/common/log"
 	"sort"
 	"casino_doudizhu/msg/protogo"
+	"casino_doudizhu/msg/funcsInit"
+	"casino_server/service/room"
 )
+
 
 //返回一张牌
 func InitPaiByIndex(index int32) *PPokerPai {
@@ -22,6 +25,15 @@ func InitPaiByIndex(index int32) *PPokerPai {
 }
 
 func Flower2int(f string) int32 {
+	if f == "diamond" {
+		return pokerUtils.FLOWER_DIAMOND
+	} else if f == "club" {
+		return pokerUtils.FLOWER_CLUB
+	} else if f == "heart" {
+		return pokerUtils.FLOWER_HEART
+	} else if f == "spade" {
+		return pokerUtils.FLOWER_SPADE
+	}
 	return 0
 }
 
@@ -316,4 +328,24 @@ func (out *POutPokerPais)  GT(outb *POutPokerPais) (bool, error) {
 //得到牌
 func GetOutPais() *POutPokerPais {
 	return nil
+}
+
+func ( p *PPokerPai) GetClientPoker() *ddzproto.Poker {
+	ret := newProto.NewPoker()
+	*ret.Value = p.GetId()
+	*ret.Suit = p.GetSuit()
+	*ret.Num = p.GetValue()
+	return nil
+}
+
+func (p *PPokerPai) GetSuit() ddzproto.PokerColor {
+	if p.GetFlower() == pokerUtils.FLOWER_DIAMOND {
+		return ddzproto.PokerColor_FANGKUAI
+	} else if p.GetFlower() == pokerUtils.FLOWER_CLUB {
+		return ddzproto.PokerColor_MEIHUA
+	} else if p.GetFlower() == pokerUtils.FLOWER_HEART {
+		return ddzproto.PokerColor_HONGTAO
+	} else if p.GetFlower() == pokerUtils.FLOWER_SPADE {
+		return ddzproto.PokerColor_HEITAO
+	}
 }
