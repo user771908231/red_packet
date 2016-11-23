@@ -407,6 +407,5 @@ func NewDdzAckGameRecord() *ddzproto.DdzAckGameRecord {
 
 func NewDdzDeskInfo() *ddzproto.DdzDeskInfo {
 	ret := new(ddzproto.DdzDeskInfo)
-	
-
+	return ret
 }

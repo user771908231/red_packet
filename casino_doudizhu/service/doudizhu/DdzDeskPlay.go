@@ -160,7 +160,7 @@ func (d *DdzDesk) Lottery(user *DdzUser) {
 
 	} else {
 		//地主输了,增加账单
-		dizhuUser := d.GetUserByUserId(d.GetDizhu())
+		dizhuUser := d.GetUserByUserId(d.GetDiZhuUserId())
 		for _, winUser := range d.Users {
 			if winUser.GetUserId() != dizhuUser.GetUserId() {
 				user.AddNewBill(d.GetWinValue(), user.GetUserId(), winUser.GetUserId(), "平明赢了")
@@ -198,7 +198,7 @@ func (d *DdzDesk) InitCards() {
 
 //判断出牌的用户是否合法
 func (d *DdzDesk) CheckOutUser(userId uint32) error {
-	if d.GetActiveUser() == userId {
+	if d.GetActiveUserId() == userId {
 		return nil
 	} else {
 		return Error.NewError(-1, "activeUser 不正确...")
@@ -275,15 +275,15 @@ func (d *DdzDesk) ActPass(userId uint32) error {
 
 //轮到下一个人出牌
 func (d *DdzDesk) NextUser() error {
-	index := d.GetUserIndexByUserId(d.GetActiveUser())
+	index := d.GetUserIndexByUserId(d.GetActiveUserId())
 	if index < 0 {
-		log.E("轮到下一个玩家的时候出错,desk.activeUser[%v]", d.GetActiveUser())
+		log.E("轮到下一个玩家的时候出错,desk.activeUser[%v]", d.GetActiveUserId())
 		return Error.NewError(-1, "轮到一下个玩家的时候出错.")
 	}
 
 	nextUser := d.Users[(index + 1) % int(d.GetUserCountLimit())]
 	if nextUser == nil {
-		log.E("轮到下一个玩家的时候出错,desk.activeUser[%v]", d.GetActiveUser())
+		log.E("轮到下一个玩家的时候出错,desk.activeUser[%v]", d.GetActiveUserId())
 		return Error.NewError(-1, "轮到一下个玩家的时候出错.")
 	} else {
 		d.SetActiveUser(nextUser.GetUserId())
