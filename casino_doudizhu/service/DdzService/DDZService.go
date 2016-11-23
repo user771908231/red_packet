@@ -33,10 +33,7 @@ func HandlerCreateDesk(userId uint32, roominfo *ddzproto.RoomTypeInfo, a gate.Ag
 	}
 
 	//自动进入 desk
-	err := desk.EnterUser(userId, a)
-	if err != nil {
-		log.E("用户进入房间失败...")
-	}
+	go HandlerEnterDesk(userId, desk.GetKey(), desk.GetRoomType(), a)
 }
 
 //进入房间的逻辑
@@ -56,11 +53,13 @@ func HandlerEnterDesk(userId uint32, key string, deskType int32, a gate.Agent) e
 		return errors.New("进入房间失败,没有找到合适的desk")
 	}
 
-	//进入房间
+	//进入房间,失败返回失败的信息，成功放回成功的信息
 	err := desk.EnterUser(userId, a)
 	if err != nil {
 		log.E("玩家[%v]进入desk[%v]失败err[%v]", userId, desk.GetDeskId(), err)
 		return Error.NewError(-1, "玩家进入desk失败.")
+	} else {
+		desk.SendGameDeskInfo()        //发送deskGameInfo
 	}
 
 	return nil
@@ -79,7 +78,6 @@ func HandlerFDdzReady(userId uint32) error {
 		log.E("玩家[%v]准备游戏的时候失败...")
 		return Error.NewError(-1, "玩家准备游戏的时候失败...")
 	}
-
 	return nil
 }
 

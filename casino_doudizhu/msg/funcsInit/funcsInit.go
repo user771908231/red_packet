@@ -407,5 +407,17 @@ func NewDdzAckGameRecord() *ddzproto.DdzAckGameRecord {
 
 func NewDdzDeskInfo() *ddzproto.DdzDeskInfo {
 	ret := new(ddzproto.DdzDeskInfo)
+	ret.GameStatus = new(int32)
+	ret.PlayerNum = new(int32)
+	ret.ActiveUserId = new(uint32)
+	ret.ActionTime = new(int32)
+	ret.NInitActionTime = new(int32)
+	ret.InitRoomCoin = new(int64)
+	ret.CurrPlayCount = new(int32)
+	ret.TotalPlayCount = new(int32)
+	ret.RoomNumber = new(string)
+	ret.DiZhuUserId = new(uint32)
+	ret.FootRate = new(int32)
+	ret.PlayRate = new(int32)
 	return ret
 }

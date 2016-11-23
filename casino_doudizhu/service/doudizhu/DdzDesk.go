@@ -197,7 +197,8 @@ func (d *DdzDesk) IsEnoughUser() bool {
 
 //得到deskInfo
 func (d *DdzDesk) GetDdzDeskInfo() *ddzproto.DdzDeskInfo {
-	deskInfo := new(ddzproto.DdzDeskInfo)
+	deskInfo := newProto.NewDdzDeskInfo()
+
 	//*deskInfo.ActionTime = d.GetActionTime() //当前操作时间
 	//*deskInfo.NInitActionTime = d.GetInitActionTime() //初始操作时间
 
@@ -260,14 +261,20 @@ func (d *DdzDesk) SendChuPaiOverTurn(userId uint32) error {
 	//轮到谁出牌时发送的overTurn
 	//设置activeUser
 	d.SetActiveUser(userId)
-	
+
 	overTurn := newProto.NewDdzOverTurn()
 	*overTurn.UserId = userId
 	*overTurn.ActType = ddzproto.ActType_T_NORMAL_ACT        //普通出牌
 	d.BroadCastProto(overTurn)
 
 	return nil
+}
 
+//发送房间的信息
+func (d *DdzDesk) SendGameDeskInfo() error {
+	info := d.GetDdzDeskInfo()
+	d.BroadCastProto(info)
+	return nil
 }
 
 

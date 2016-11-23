@@ -45,8 +45,6 @@ func (d *DdzDesk) EnterUser(userId uint32, a gate.Agent) error {
 		log.T("玩家[%v]进入房间[%v]成功", userId, d.GetDeskId())
 		ret := newProto.NewGame_AckEnterRoom()
 		a.WriteMsg(ret)
-
-		newProto.NewDdzAckLeaveDesk()
 		return nil
 	}
 
