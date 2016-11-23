@@ -10,6 +10,7 @@ import (
 	"github.com/golang/protobuf/proto"
 	"github.com/name5566/leaf/gate"
 	"casino_doudizhu/msg/protogo"
+	"casino_doudizhu/msg/funcsInit"
 )
 
 //斗地主的desk
@@ -102,6 +103,19 @@ func (d *DdzDesk) IsAllReady() bool {
 	return true
 }
 
+
+
+//都确认了是否加倍
+func (d *DdzDesk) IsAllActJiaBei() bool {
+	for _, user := range d.Users {
+		if user != nil && user.IsJiaBeiNoAct() {
+			return false
+		}
+	}
+
+	return true
+}
+
 func (d *DdzDesk) CheckOutPai(out *POutPokerPais) error {
 	right, err := out.GT(d.OutPai)
 	if err != nil {
@@ -137,8 +151,10 @@ func (d *DdzDesk) SetDizhu(userId uint32) {
 //判断是否是当前活动玩家
 func (d *DdzDesk) CheckActiveUser(userId uint32) error {
 	if d.GetActiveUserId() == userId {
+		log.E("服务器错误，当前desk的activeuser 为空...")
 		return nil
 	} else {
+		log.E("服务器错误：desk的当前操作玩家[%v]和请求的userid[%v]不一致", d.GetActiveUserId(), userId)
 		return Error.NewFailError(fmt.Sprintf("当前活动玩家是[%v]", d.GetActiveUserId()))
 	}
 }
@@ -199,5 +215,60 @@ func (d *DdzDesk) GetDdzDeskInfo() *ddzproto.DdzDeskInfo {
 	*deskInfo.TotalPlayCount = d.GetTotalPlayCount() //todo
 	return deskInfo
 }
+
+//是否是四川斗地主
+func (d *DdzDesk) IsSiChuanDouDiZhu() bool {
+	//todo
+	return false
+}
+
+func (d *DdzDesk) IsHuanLeDoudDiZhu() bool {
+	//todo
+	return true
+}
+
+func (d *DdzDesk) IsJingDianDouDiZhu() bool {
+	//todo
+	return true
+}
+
+func (d *DdzDesk) IsHadDiZhuUser() bool {
+	return d.GetDiZhuUserId() != 0
+}
+
+//更具条件得到下一个玩家
+func (d *DdzDesk) GetNextUserByPros(preUserId uint32, check func(nu *DdzUser) bool) *DdzUser {
+	//查找下一家抢地主的人
+	index := d.GetUserIndexByUserId(preUserId)
+	if index < 0 {
+		log.E("服务器错误，没有找到玩家[%v]的index...", preUserId)
+		return nil
+	}
+	var nextUser *DdzUser
+	for i := index + 1; i < len(d.Users) + index; i++ {
+		u := d.Users[(i) / len(d.Users)]
+		if check(u) {
+			nextUser = u
+			break
+		}
+	}
+	return nextUser
+}
+
+func (d *DdzDesk) SendChuPaiOverTurn(userId uint32) error {
+
+	//轮到谁出牌时发送的overTurn
+	//设置activeUser
+	d.SetActiveUser(userId)
+	
+	overTurn := newProto.NewDdzOverTurn()
+	*overTurn.UserId = userId
+	*overTurn.ActType = ddzproto.ActType_T_NORMAL_ACT        //普通出牌
+	d.BroadCastProto(overTurn)
+
+	return nil
+
+}
+
 
 

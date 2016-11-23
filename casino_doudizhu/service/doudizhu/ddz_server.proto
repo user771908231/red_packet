@@ -58,8 +58,8 @@ message PDdzDesk {
     optional int64 CapMax = 18;
     optional bool IsJiaoFen = 19;
     optional int32 roomId = 20; //房间id
-    optional int32  footRate = 21;   // 底牌倍率
-    optional int32  playRate = 22;   // 当前倍数（抢地主、炸弹、春天等产生的倍数）
+    optional int32 footRate = 21; // 底牌倍率
+    optional int32 playRate = 22; // 当前倍数（抢地主、炸弹、春天等产生的倍数）
     optional int32 GameStatus = 23; //游戏所处状态: 0:INIT 1:DINGQUE 2;EXCHANGE 3:PLAYING 4:FINISH
     optional int64 initRoomCoin = 24; // 房间的初始带入金额
     optional int32 currPlayCount = 25; // 朋友桌: 当前第几局
@@ -101,9 +101,11 @@ message PDdzUser {
     optional bool isBreak = 4; //是否掉线
     optional bool isLeave = 5; //是否掉线
     optional int32 qiangDiZhuStatus = 7; //抢地主的状态
-    optional PDdzBill bill = 8; // 斗地主的账单
-    optional int32 deskId = 9; //deskId
-    optional int32 roomId = 10; //roomId
+    optional int32 jiabeiStatus = 8; //加倍的状态
+    optional PDdzBill bill = 9; // 斗地主的账单
+    optional int32 deskId = 10; //deskId
+    optional int32 roomId = 11; //roomId
+
 }
 
 //room

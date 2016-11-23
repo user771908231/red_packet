@@ -15,9 +15,16 @@ var (
 )
 
 var (
-	DDZUSER_QIANGDIZHU_STATUS_NULL int32 = 0 //没操作
-	DDZUSER_QIANGDIZHU_STATUS_QIANG int32 = 1 //抢地主
-	DDZUSER_QIANGDIZHU_STATUS_PASS int32 = 2 //不叫
+	DDZUSER_QIANGDIZHU_STATUS_NOACT int32 = 0 //没操作
+	DDZUSER_QIANGDIZHU_STATUS_JIAO int32 = 1 //抢地主
+	DDZUSER_QIANGDIZHU_STATUS_QIANG int32 = 2 //抢地主
+	DDZUSER_QIANGDIZHU_STATUS_PASS int32 = 3 //不叫
+)
+
+var (
+	DDZUSER_JIABEI_STATUS_NOACT int32 = 0 //没操作
+	DDZUSER_JIABEI_STATUS_JIABEI int32 = 1 //抢地主
+	DDZUSER_JIABEI_STATUS_BUJIABEI int32 = 2 //抢地主
 )
 
 type DdzUser struct {
@@ -69,13 +76,36 @@ func (u *DdzUser) IsNotReady() bool {
 }
 
 //是否抢地主
-func (u *DdzUser) IsQiangDiZhu() bool {
+func (u *DdzUser) IsQiangDiZhuQiang() bool {
 	return u.GetQiangDiZhuStatus() == DDZUSER_QIANGDIZHU_STATUS_QIANG
 }
 
 //是否不叫
-func (u *DdzUser) IsBuJiao() bool {
+func (u *DdzUser) IsQiangDiZhuBuJiao() bool {
 	return u.GetQiangDiZhuStatus() == DDZUSER_QIANGDIZHU_STATUS_PASS
+}
+
+//抢注的时候还没有操作
+func (u *DdzUser) IsQiangDiZhuNoAct() bool {
+	return u.GetQiangDiZhuStatus() == DDZUSER_QIANGDIZHU_STATUS_NOACT
+}
+
+//没有加倍操作
+func (u *DdzUser) IsJiaBeiNoAct() bool {
+	return u.GetJiabeiStatus() == DDZUSER_JIABEI_STATUS_NOACT
+
+}
+
+//加倍
+func (u *DdzUser) IsJiaBeiJiaBei() bool {
+	return u.GetJiabeiStatus() == DDZUSER_JIABEI_STATUS_JIABEI
+
+}
+
+//不加倍
+func (u *DdzUser) IsJiaBeiBuJiaBei() bool {
+	return u.GetJiabeiStatus() == DDZUSER_JIABEI_STATUS_BUJIABEI
+
 }
 
 func (u *DdzUser) DelHandlPai(pais *PPokerPai) error {

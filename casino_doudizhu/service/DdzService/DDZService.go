@@ -90,11 +90,16 @@ func HandlerQiangDiZhu(userId uint32) error {
 		return Error.NewFailError("没有找到desk")
 	}
 
-	err := desk.QiangDiZhu(userId, 0)
+	//开始抢地主
+	var err error
+	if desk.IsHuanLeDoudDiZhu() {
+		err = desk.HLQiangDiZhu(userId)
+	}
+
+	//抢地主失败
 	if err != nil {
 		log.E("玩家[%v]抢地主失败,err[%v]", userId, err)
 		return Error.NewFailError("玩家抢地主出错")
-
 	}
 	return nil
 
@@ -107,7 +112,15 @@ func HandlerJiaoDiZhu(userId uint32) error {
 		return Error.NewFailError("没有找到desk")
 	}
 
-	err := desk.JiaoDiZhu(userId)
+	//开始叫地主
+	var err error
+	if desk.IsHuanLeDoudDiZhu() {
+		err = desk.HLJiaoDiZhu(userId)
+	} else if desk.IsSiChuanDouDiZhu() {
+		err = desk.SCJiaoDiZhu(userId)
+	}
+
+	//判断叫地主是否成功
 	if err != nil {
 		log.E("叫地主失败")
 		return err
@@ -124,7 +137,14 @@ func HandlerBuJiaoDiZhu(userId uint32) error {
 		return Error.NewFailError("没有找到desk")
 	}
 
-	err := desk.BuJiaoDiZhu(userId)
+	var err error
+
+	//开始不叫地主
+	if desk.IsHuanLeDoudDiZhu() {
+		err = desk.HLBuJiaoDiZhu(userId)
+	}
+
+	//判断叫地主是否成功
 	if err != nil {
 		log.E("玩家[%v]不叫地主的时候失败")
 		return err
@@ -227,6 +247,17 @@ func HandlerJiaBei(userId uint32) error {
 	if desk == nil {
 		return Error.NewFailError("没有找到desk")
 	}
+	//目前只有欢乐斗地主才有加倍的逻辑
+	var err error
+	if desk.IsHuanLeDoudDiZhu() {
+		err = desk.ActJiaBei(userId)
+	}
+	//判断结果
+	if err != nil {
+		log.E("玩家[%v]加倍失败..err[%v]", userId, err)
+		return err
+	}
+
 	return nil
 }
 
