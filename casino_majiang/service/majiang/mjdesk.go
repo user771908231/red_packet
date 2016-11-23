@@ -57,7 +57,7 @@ func (d *MjDesk) IsFriend() bool {
 /**
 return  reconnect,error
  */
-func (d *MjDesk) addNewUserFriend(userId uint32, a gate.Agent) (bool, error) {
+func (d *MjDesk) addNewUserFriend(userId uint32, a gate.Agent) (mjproto.RECONNECT_TYPE, error) {
 
 	//1设置agent
 	AgentService.SetAgent(userId, a)
@@ -68,7 +68,7 @@ func (d *MjDesk) addNewUserFriend(userId uint32, a gate.Agent) (bool, error) {
 		log.T("玩家[%v]断线重连....", userId)
 		*userLeave.IsBreak = false
 		*userLeave.IsLeave = false
-		return true, nil
+		return mjproto.RECONNECT_TYPE_RECONNECT, nil
 	}
 
 	//3,加入一个新用户
@@ -87,10 +87,10 @@ func (d *MjDesk) addNewUserFriend(userId uint32, a gate.Agent) (bool, error) {
 	err := d.addUser(newUser)
 	if err != nil {
 		log.E("用户[%v]加入房间[%v]失败,errMsg[%v]", userId, err)
-		return false, Error.NewFailError(Error.GetErrorMsg(err))
+		return mjproto.RECONNECT_TYPE_NORMAL, Error.NewFailError(Error.GetErrorMsg(err))
 	} else {
 		//加入房间成功
-		return false, nil
+		return mjproto.RECONNECT_TYPE_NORMAL, nil
 	}
 }
 
@@ -283,11 +283,12 @@ func (d *MjDesk) GetPlayerNum() int32 {
 }
 
 // 发送gameInfo的信息
-func (d *MjDesk) GetGame_SendGameInfo(receiveUserId uint32) *mjproto.Game_SendGameInfo {
+func (d *MjDesk) GetGame_SendGameInfo(receiveUserId uint32, isReconnect mjproto.RECONNECT_TYPE) *mjproto.Game_SendGameInfo {
 	gameInfo := newProto.NewGame_SendGameInfo()
 	gameInfo.DeskGameInfo = d.GetDeskGameInfo()
 	*gameInfo.SenderUserId = receiveUserId
 	gameInfo.PlayerInfo = d.GetPlayerInfo(receiveUserId)
+	*gameInfo.IsReconnect = isReconnect
 	return gameInfo
 }
 

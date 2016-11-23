@@ -99,6 +99,7 @@ func NewGame_SendGameInfo() *mjProto.Game_SendGameInfo {
 	ret := &mjProto.Game_SendGameInfo{}
 	ret.Header = NewHeader()
 	ret.SenderUserId = new(uint32)
+	ret.IsReconnect = new(mjProto.RECONNECT_TYPE)
 	return ret
 }
 
