@@ -181,7 +181,23 @@ func (d *DdzDesk) IsEnoughUser() bool {
 
 //得到deskInfo
 func (d *DdzDesk) GetDdzDeskInfo() *ddzproto.DdzDeskInfo {
-	return nil
+	deskInfo := new(ddzproto.DdzDeskInfo)
+	//*deskInfo.ActionTime = d.GetActionTime() //当前操作时间
+	//*deskInfo.NInitActionTime = d.GetInitActionTime() //初始操作时间
+
+	*deskInfo.ActiveUserId = d.GetActiveUser() //当前操作人
+	*deskInfo.CurrPlayCount = d.GetCurrPlayCount() //todo desk的游戏局数
+	*deskInfo.DiZhuUserId = d.GetDizhu() //地主id
+	deskInfo.FootPokers = d.GetDiPokerPai() //底牌 todo change type []*PPokerPai to []*Poker
+	*deskInfo.FootRate = d.GetFootRate() //todo
+	*deskInfo.GameStatus = d.GetGameStatus() //todo
+	*deskInfo.InitRoomCoin = d.GetInitRoomCoin() //todo
+	*deskInfo.PlayerNum = d.GetPlayerNum() //todo
+	*deskInfo.RoomNumber = d.GetRoomId()
+	deskInfo.RoomTypeInfo = d.GetRoomType()
+	deskInfo.PlayRate = d.GetPlayRate() //todo
+	deskInfo.TotalPlayCount = d.GetTotalPlayCount() //todo
+	return deskInfo
 }
 
 

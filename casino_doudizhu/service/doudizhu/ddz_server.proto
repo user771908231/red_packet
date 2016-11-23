@@ -46,8 +46,8 @@ message PDdzDesk {
     optional POutPokerPais outPai = 6; //当前出的牌
     optional uint32 owner = 7; //人数限制
     optional uint32 dizhuPaiUser = 8; //发的地主牌
-    optional uint32 dizhu = 9;
-    optional uint32 activeUser = 10; //当前轮到谁
+    optional uint32 diZhuUserId = 9; //地主id
+    optional uint32 activeUserId = 10; //当前轮到谁
     optional PDdzDeskTongJi tongji = 11; //关于统计的数据都在这
     optional int64 baseValue = 12; //关于统计的数据都在这
     optional int64 qingDizhuValue = 13; //关于统计的数据都在这
@@ -57,7 +57,16 @@ message PDdzDesk {
     optional int32 BoardsCount = 17;
     optional int64 CapMax = 18;
     optional bool IsJiaoFen = 19;
-    optional int32 roomId = 20;
+    optional int32 roomId = 20; //房间id
+    optional int32  footRate = 21;   // 底牌倍率
+    optional int32  playRate = 22;   // 当前倍数（抢地主、炸弹、春天等产生的倍数）
+    optional int32 GameStatus = 23; //游戏所处状态: 0:INIT 1:DINGQUE 2;EXCHANGE 3:PLAYING 4:FINISH
+    optional int64 initRoomCoin = 24; // 房间的初始带入金额
+    optional int32 currPlayCount = 25; // 朋友桌: 当前第几局
+    optional int32 totalPlayCount = 26; // 朋友桌: 总共几局
+    optional int32 playerNum = 27; //玩家数量
+
+
 }
 
 //游戏数据
