@@ -27,42 +27,38 @@
             <thead>
             <tr>
                 <th>＃</th>
-                <th>房间id</th>
-                <th>房间密码</th>
-                <th>房主</th>
-                <th>activeUser</th>
-                <th>getActUser</th>
-                <th>desk.status</th>
-                <th>血流成河</th>
-                <th>换三张</th>
-                <th>总局数</th>
-                <th>当前局数</th>
-                <th>庄家</th>
-                <th>游标</th>
-                <!--th>麻将...</th-->
-                <th>判定牌</th>
+                <th>用户Id</th>
+                <th>nickname</th>
+                <th>status</th>
+                <th>是否定缺</th>
+                <th>isBreak</th>
+                <th>isLeave</th>
+                <th>空缺的花色</th>
+                <th>手牌</th>
+                <th>碰牌</th>
+                <th>杠牌</th>
+                <th>胡牌</th>
+                <th>inpai</th>
+                <th>bill</th>
             </tr>
             </thead>
             <tbody>
-            {{range $key, $desk := .desks}}
-            {{if ne $desk nil}}
+            {{range $key, $user := .users}}
             <tr>
                 <td>{{$key}}</td>
-                <td><a href="/mjdesk-users/{{$desk.GetDeskId}}">{{$desk.GetDeskId}}</a></td>
-                <td>{{$desk.GetPassword}}</td>
-                <td>{{$desk.GetOwner}}</td>
-                <td>{{$desk.GetActiveUser}}</td>
-                <td>{{$desk.GetActUser}}</td>
-                <td>{{$desk.GetStatus}}</td>
-                <td>{{$desk.IsXueLiuChengHe}}</td>
-                <td>{{$desk.IsNeedExchange3zhang}}</td>
-                <td>{{$desk.GetTotalPlayCount}}</td>
-                <td>{{$desk.GetCurrPlayCount}}</td>
-                <td>{{$desk.GetBanker}}</td>
-                <td>{{$desk.GetMJPaiCursor}}</td>
-                <td>{{$desk.CheckCase}}</td>
+                <td>{{$user.GetUserId}}</td>
+                <td>{{$user.GetNickName}}</td>
+                <td>{{$user.GetStatus}}</td>
+                <td>{{$user.GetDingQue}}</td>
+                <td>{{$user.IsBreak}}</td>
+                <td>{{$user.GetIsLeave}}</td>
+                <td>{{$user.GetIsLeave}}</td>
+                <td>{{$user.GetUserPaiInfo}}</td>
+                <td>{{$user.GetUserPengPaiInfo}}</td>
+                <td>{{$user.GetUserGnagPaiInfo}}</td>
+                <td>{{$user.GetUserHuPaiInfo}}</td>
+                <td>{{$user.BillToString}}</td>
             </tr>
-            {{end}}
             {{end}}
             </tbody>
         </table>

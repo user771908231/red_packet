@@ -18,7 +18,7 @@ func Run() {
 	m.Get("/mjdesk-users/:id", mjDeskHandler.GetUsers)
 
 	m.NotFound(func() string {
-		return "/mjdesk, /mjdesk-users/"
+		return "not found 233..."
 	})
 
 	//launch server

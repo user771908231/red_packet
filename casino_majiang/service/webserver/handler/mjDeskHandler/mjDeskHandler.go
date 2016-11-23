@@ -4,12 +4,6 @@ import (
 	"gopkg.in/macaron.v1"
 	"casino_majiang/service/majiang"
 	"casino_server/utils/numUtils"
-	//"net/http"
-	//"fmt"
-	//"casino_server/common/log"
-	//"net/http"
-	//"fmt"
-	//"casino_server/service/room"
 )
 
 func Get(ctx *macaron.Context) {
@@ -20,17 +14,22 @@ func Get(ctx *macaron.Context) {
 	//渲染数据
 	ctx.Data["desks"] = majiang.FMJRoomIns.Desks
 	//输出到模板
-	ctx.HTML(200, "mjdesk/mjdesk") // 200 为响应码
+	ctx.HTML(200, "mjdesk/desks") // 200 为响应码
 }
 
 func GetUsers(ctx *macaron.Context) {
 	//取得数据
-	//deskId := ctx.Params("id")
+	id := ctx.Params("id")
 	//room.GetDeskByIdAndMatchId()
 	//渲染数据
-	ctx.Data["desks"] = majiang.FMJRoomIns.Desks
+	deskId := int32(numUtils.String2Int(id))
+	if deskId == 0 {
+		ctx.Redirect("/")
+	}
+	desk := majiang.GetFMJRoom().GetDeskByDeskId(deskId)
+	ctx.Data["users"] = desk.GetUsers()
 	//输出到模板
-	ctx.HTML(200, "mjdesk/mjdesk") // 200 为响应码
+	ctx.HTML(200, "mjdesk/users") // 200 为响应码
 }
 
 //

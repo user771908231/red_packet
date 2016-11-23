@@ -12,6 +12,7 @@ import (
 	"sync/atomic"
 	"errors"
 	"fmt"
+	"casino_server/utils/numUtils"
 )
 
 var MJUSER_STATUS_INTOROOM int32 = 1; ///刚进入游戏
@@ -839,4 +840,65 @@ func (u *MjUser) IsQuePai(mjPai *MJPai) bool {
 		return true
 	}
 	return false
+}
+
+func (u *MjUser) GetUserPaiInfo() string {
+	if u.GameData == nil || u.GameData.HandPai == nil {
+		return "用户还没有牌"
+	} else {
+		return u.GameData.HandPai.GetDes()
+	}
+}
+
+func (u *MjUser) GetUserPengPaiInfo() string {
+	if u.GameData == nil || u.GameData.HandPai == nil {
+		return "用户还没有牌"
+	}
+
+	s := ""
+	for _, p := range u.GameData.HandPai.PengPais {
+		ii, _ := numUtils.Int2String(int32(p.GetIndex()))
+		s = s + ii + "-" + p.LogDes() + "\t "
+	}
+
+	return s
+
+}
+
+func (u *MjUser) GetUserGnagPaiInfo() string {
+	if u.GameData == nil || u.GameData.HandPai == nil {
+		return "用户还没有牌"
+	}
+
+	s := ""
+	for _, p := range u.GameData.HandPai.GangPais {
+		ii, _ := numUtils.Int2String(int32(p.GetIndex()))
+		s = s + ii + "-" + p.LogDes() + "\t "
+	}
+
+	return s
+
+}
+
+func (u *MjUser) GetUserHuPaiInfo() string {
+	if u.GameData == nil || u.GameData.HandPai == nil {
+		return "用户还没有牌"
+	}
+
+	s := ""
+	for _, p := range u.GameData.HandPai.HuPais {
+		ii, _ := numUtils.Int2String(int32(p.GetIndex()))
+		s = s + ii + "-" + p.LogDes() + "\t "
+	}
+
+	return s
+
+}
+func (u *MjUser) GetUserInPaiInfo() string {
+	if u.GameData == nil || u.GameData.HandPai == nil {
+		return "用户还没有牌"
+	}
+
+	return u.GameData.HandPai.InPai.LogDes()
+
 }
