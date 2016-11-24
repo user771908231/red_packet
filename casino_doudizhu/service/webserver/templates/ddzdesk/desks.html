@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+
+<html>
+{{template "header" .}}
+<body>
+
+<div class="container-fluid">
+    <br>
+    <!--form class="form-inline" role="form">
+        <div class="form-group">
+            <div class="input-group">
+                <div class="input-group-addon">用户ID</div>
+                <input type="text" class="form-control" placeholder="" name="userId">
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="input-group">
+                <div class="input-group-addon">用户昵称</div>
+                <input class="form-control" type="text" name="userName">
+            </div>
+        </div>
+        <button type="submit" class="btn btn-default">搜索</button>
+    </form-->
+    <br>
+    <div class="table-responsive">
+        <table class="table table-hover table-bordered">
+            <thead>
+            <tr>
+                <th>＃</th>
+                <th>房间id</th>
+                <th>房间密码</th>
+                <th>房主</th>
+                <th>当前活动玩家ID</th>
+                <th>桌子状态</th>
+                <th>总局数</th>
+                <th>当前局数</th>
+                <th>地主ID</th>
+            </tr>
+            </thead>
+            <tbody>
+            {{range $key, $desk := .desks}}
+            <tr>
+                <td>{{$key}}</td>
+                <td><a href="/ddzdesk-users/{{$desk.GetDeskId}}" target="_blank">{{$desk.GetDeskId}}</a></td>
+                <td>{{$desk.GetPassword}}</td>
+                <td>{{$desk.GetOwner}}</td>
+                <td>{{$desk.GetActiveUser}}</td>
+                <td>{{$desk.GetTransferredStatus}}</td>
+
+                <td>{{$desk.GetTotalPlayCount}}</td>
+                <td>{{$desk.GetCurrPlayCount}}</td>
+                <td>{{$desk.GetDiZhuUserId}}</td>
+            </tr>
+            {{end}}
+            </tbody>
+        </table>
+    </div>
+    <div class="col-md-3"></div>
+    <div class="col-md-3"></div>
+    <div class="col-md-3"></div>
+    <div class="col-md-3">
+        <nav>
+            <ul class="pagination">
+                <li><a href="#">&laquo;</a></li>
+                <li><a href="#">1</a></li>
+                <li><a href="#">2</a></li>
+                <li><a href="#">3</a></li>
+                <li><a href="#">4</a></li>
+                <li><a href="#">5</a></li>
+                <li><a href="#">&raquo;</a></li>
+            </ul>
+        </nav>
+    </div>
+</div>
+</body>
+</html>
+
+
+<!-- 设置当前页面才有的状态 -->
+<script>
+    $("#nav-li-golang").addClass("active")
+</script>
+

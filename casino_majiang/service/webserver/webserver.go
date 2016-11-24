@@ -2,11 +2,14 @@ package webserver
 
 import (
 	"gopkg.in/macaron.v1"
-	"casino_doudizhu/service/webserver/handler/ddzDeskHandler"
+	"casino_majiang/service/webserver/handler/mjDeskHandler"
 )
 
-func InitCms() {
+type Validate struct {
+	code           string
+}
 
+func Run() {
 	m := macaron.Classic()
 	m.Use(macaron.Renderer())        //使用模板
 
@@ -15,13 +18,13 @@ func InitCms() {
 		Directory: "service/webserver/templates",
 	}))
 	//routers
-	m.Get("ddzdesk", ddzDeskHandler.Get) //get
-	m.Get("ddzdesk-users/:id", ddzDeskHandler.GetUsers)
+	m.Get("mjdesk", mjDeskHandler.Get) //get
+	m.Get("mjdesk-users/:id", mjDeskHandler.GetUsers)
 
 	m.NotFound(func() string {
 		return "not found 233..."
 	})
 
 	//launch server
-	m.Run("0.0.0.0", 40001)
+	m.Run()
 }

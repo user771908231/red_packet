@@ -32,7 +32,7 @@ func TestGetScore(t *testing.T) {
 	//tCanHuPai()
 
 	//测试平胡
-	//tPinghu()
+	tPinghu()
 	//////
 	//////测试对对胡
 	//tDuiDuihu()
@@ -66,7 +66,7 @@ func TestGetScore(t *testing.T) {
 	//tQinglongqidui()
 
 	//测试包含缺牌能否胡
-	tIsContainQue()
+	//tIsContainQue()
 
 }
 
@@ -246,9 +246,8 @@ func tCanHuPai() {
 }
 
 func tPinghu() {
-	isZimo := true
-	var hupaiType mjproto.HuPaiType = 1;
-	rfan, rscore, rhuCardStr := majiang.GetHuScore(getPinghu(), isZimo,false, hupaiType, *getRoomInfo(), nil)
+	//isZimo := true
+	rfan, rscore, rhuCardStr := majiang.GetHuScore(getPinghu(), getIsZimo() ,false, getHuPaiType(), *getRoomInfo(), getMjDesk())
 	if rfan != majiang.FAN_PINGHU {
 		log.Debug("error: 平胡")
 	}
@@ -390,7 +389,27 @@ func tQinglongqidui() {
 	log.Debug("青龙七对: 番数[%v],得分[%v],描述[%v]", rfan, rscore, rhuCardStr)
 }
 
+func getMjDesk() *majiang.MjDesk {
+	desk := majiang.NewMjDesk()
+	othersCheckBox := []int32{
+		int32(mjproto.MJOption_ZIMO_JIA_FAN),
+	}
+	desk.OthersCheckBox = othersCheckBox
 
+	*desk.MjRoomType = int32(getMjRoomType())
+	return desk
+
+}
+
+func getHuPaiType() mjproto.HuPaiType {
+	var hupaiType mjproto.HuPaiType
+	 hupaiType = mjproto.HuPaiType_H_TianHu //天胡
+	return hupaiType
+}
+
+func getIsZimo() bool {
+	return true
+}
 
 //返回一个特性的roomTypeInfo 方便测试..
 func getRoomInfo() *mjproto.RoomTypeInfo {
@@ -416,7 +435,7 @@ func getMjRoomType() mjproto.MJRoomType {
 	    roomType_xueLiuChengHe = 5; // 血流成河
 	}
 	 */
-	return mjproto.MJRoomType(0)
+	return mjproto.MJRoomType_roomType_daoDaoHu
 
 }
 
@@ -586,4 +605,3 @@ func getQinglongqidui() *majiang.MJHandPai {
 	paisDes		:= []string{"T_1", "T_1", "T_2", "T_2", "T_3", "T_3", "T_4", "T_4", "T_5", "T_5", "T_7", "T_7", "T_7"} //11T 22T 44T 777T
 	return getMjHandPai(inPaiDes, nil, nil, paisDes)
 }
-

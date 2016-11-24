@@ -766,6 +766,7 @@ func (d *MjDesk) Time2Lottery() bool {
 	}
 
 
+	log.T("HandPaiCanMo[%v]", d.HandPaiCanMo())
 	//2，没有牌可以摸的时候，返回可以lottery了
 	if !d.HandPaiCanMo() {
 		return true
@@ -1078,6 +1079,7 @@ func (d *MjDesk) AfterLottery() error {
 
 func (d *MjDesk) End() bool {
 	//判断结束的条件,目前只有局数能判断
+	log.T("CurrPlayCount[%v], TotalPlayCount[%v]", d.GetCurrPlayCount(), d.GetTotalPlayCount())
 	if d.GetCurrPlayCount() < d.GetTotalPlayCount() {
 		//表示游戏还没有结束。。。.
 		return false;
@@ -1185,6 +1187,7 @@ func (d *MjDesk) SendMopaiOverTurn(user *MjUser) error {
 
 	//发送给当事人时候的信息
 	user.GameData.HandPai.InPai = d.GetNextPai()
+
 	overTrun := d.GetMoPaiOverTurn(user, false)        //用户摸牌的时候,发送一个用户摸牌的overturn
 	user.SendOverTurn(overTrun)
 	log.T("玩家[%v]当前的手牌是[%v]开始摸牌【%v】...", user.GetUserId(), user.GameData.HandPai.GetDes(), overTrun)
@@ -1500,7 +1503,11 @@ func (d *MjDesk)ActHu(userId uint32) error {
 
 //是否还有牌
 func (d *MjDesk) HandPaiCanMo() bool {
-	return true;
+	if d.GetRemainPaiCount() == 0 {
+		return false
+	}else {
+		return true
+	}
 }
 
 
@@ -1976,6 +1983,8 @@ func (d *MjDesk) IsBegin() bool {
 
 //剩余牌的数量
 func (d *MjDesk) GetRemainPaiCount() int32 {
+	remainCount := d.GetTotalMjPaiCount() - d.GetMJPaiCursor() - 1
+	log.T("GetRemainPaiCount[%v], GetTotalMjPaiCount[%v], GetMJPaiCursor[%v]", remainCount, d.GetTotalMjPaiCount(), d.GetMJPaiCursor())
 	return d.GetTotalMjPaiCount() - d.GetMJPaiCursor() - 1
 }
 
@@ -2228,4 +2237,45 @@ func (d *MjDesk) GetDisplayPais(user *MjUser) []*MJPai {
 	displayPais = append(displayPais, userHandPai.InPai)
 	displayPais = append(displayPais, userHandPai.Pais...)
 	return displayPais
+}
+
+func (d *MjDesk) GetTransferredStatus() string {
+	ret := ""
+	switch d.GetStatus() {
+	case MJDESK_STATUS_CREATED:
+		ret = "创建成功"
+	case MJDESK_STATUS_DINGQUE:
+		ret = "开始定缺"
+	case MJDESK_STATUS_END:
+		ret = "单局结束"
+	case MJDESK_STATUS_EXCHANGE:
+		ret = "开始换牌"
+	case MJDESK_STATUS_FAPAI:
+		ret = "开始发牌"
+	case MJDESK_STATUS_LOTTERY:
+		ret = "开始结算"
+	case MJDESK_STATUS_ONINIT:
+		ret = "开始初始化数据"
+	case MJDESK_STATUS_READY:
+		ret = "开始准备"
+	case MJDESK_STATUS_RUNNING:
+		ret = "定缺后开始打牌"
+	default:
+
+	}
+	return ret
+}
+
+func (d *MjDesk) GetDeskMJInfo() string {
+	if d == nil || d.AllMJPai == nil {
+		return "暂时没有初始化麻将"
+	}
+	s := ""
+	for i, p := range d.AllMJPai {
+		is, _ := numUtils.Int2String(int32(i))
+
+		ii, _ := numUtils.Int2String(int32(p.GetIndex()))
+		s = s + " (" + is + "-" + ii + "-" + p.LogDes() + ")"
+	}
+	return s
 }

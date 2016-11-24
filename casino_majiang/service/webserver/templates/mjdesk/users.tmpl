@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+
+<html>
+{{template "header" .}}
+<body>
+
+<div class="container-fluid">
+    <div class="table-responsive panel panel-default">
+        <br>
+        <div class="panel-heading">麻将桌{{.desk.GetDeskId}}当前的牌,游标为{{.desk.GetMJPaiCursor}}</div>
+        <div class="panel-body">
+            <p>{{.desk.GetDeskMJInfo}}</p>
+        </div>
+        <table class="table table-hover table-bordered">
+            <thead>
+            <tr>
+                <th>＃</th>
+                <th>玩家Id</th>
+                <th>nickname</th>
+                <th>玩家状态</th>
+                <th>是否定缺</th>
+                <th>网络状态</th>
+                <th>是否离开</th>
+                <th>缺</th>
+                <th>手牌</th>
+                <th>碰牌</th>
+                <th>杠牌</th>
+                <th>胡牌</th>
+                <th>inpai</th>
+                <th>bill</th>
+            </tr>
+            </thead>
+            <tbody>
+            {{range $key, $user := .users}}
+            <tr>
+                <td>{{$key}}</td>
+                <td>{{$user.GetUserId}}</td>
+                <td>{{$user.GetNickName}}</td>
+                <td>{{$user.GetTransferredStatus}}</td>
+
+                {{if $user.GetDingQue }}
+                <td>已定缺</td>
+                {{else}}
+                <td>未定缺</td>
+                {{end}}
+
+                {{if $user.GetIsBreak }}
+                <td>掉线...</td>
+                {{else}}
+                <td>在线...</td>
+                {{end}}
+
+                {{if $user.GetIsLeave }}
+                <td>已离开</td>
+                {{else}}
+                <td>未离开</td>
+                {{end}}
+
+                {{if eq $user.GameData.HandPai.GetQueFlower 1 }}
+                <td>万</td>
+                {{else if eq $user.GameData.HandPai.GetQueFlower 2 }}
+                <td>索</td>
+                {{else if eq $user.GameData.HandPai.GetQueFlower 3 }}
+                <td>筒</td>
+                {{else}}
+                <td></td>
+                {{end}}
+
+                <td>{{$user.GetUserPaiInfo}}</td>
+                <td>{{$user.GetUserPengPaiInfo}}</td>
+                <td>{{$user.GetUserGnagPaiInfo}}</td>
+                <td>{{$user.GetUserHuPaiInfo}}</td>
+                <td>{{$user.GetUserInPaiInfo}}</td>
+                <td>{{$user.BillToString}}</td>
+            </tr>
+            {{end}}
+            </tbody>
+        </table>
+    </div>
+    <div class="col-md-3"></div>
+    <div class="col-md-3"></div>
+    <div class="col-md-3"></div>
+    <div class="col-md-3">
+        <nav>
+            <ul class="pagination">
+                <li><a href="#">&laquo;</a></li>
+                <li><a href="#">1</a></li>
+                <li><a href="#">2</a></li>
+                <li><a href="#">3</a></li>
+                <li><a href="#">4</a></li>
+                <li><a href="#">5</a></li>
+                <li><a href="#">&raquo;</a></li>
+            </ul>
+        </nav>
+    </div>
+</div>
+</body>
+</html>
+
+
+<!-- 设置当前页面才有的状态 -->
+<script>
+    $("#nav-li-golang").addClass("active")
+</script>
+
