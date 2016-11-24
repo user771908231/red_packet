@@ -15,7 +15,7 @@ func InitCms() {
 		Directory: "service/webserver/templates",
 	}))
 	//routers
-	m.Get("ddzdesk", ddzDeskHandler.Get) //get
+	m.Get("ddzdesks", ddzDeskHandler.Get) //get
 	m.Get("ddzdesk-users/:id", ddzDeskHandler.GetUsers)
 
 	m.NotFound(func() string {
