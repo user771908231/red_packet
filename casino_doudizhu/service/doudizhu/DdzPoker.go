@@ -356,3 +356,24 @@ func (p *PPokerPai) GetSuit() ddzproto.PokerColor {
 		return ddzproto.PokerColor_REDJOKER
 	}
 }
+
+func (p *PPokerPai) GetLogDes() string {
+	suit := ""
+	switch p.() {
+	case ddzproto.PokerColor_FANGKUAI:
+		suit = "方块"
+	case ddzproto.PokerColor_BLACKBIGJOKER:
+		suit = "小王"
+	case ddzproto.PokerColor_HEITAO:
+		suit = "黑桃"
+	case ddzproto.PokerColor_HONGTAO:
+		suit = "红桃"
+	case ddzproto.PokerColor_REDJOKER:
+		suit = "大王"
+	case ddzproto.PokerColor_MEIHUA:
+		suit = "梅花"
+	default:
+	}
+	suit += p.GetName()
+	return suit
+}
