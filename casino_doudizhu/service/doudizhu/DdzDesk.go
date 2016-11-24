@@ -317,3 +317,4 @@ func (d *DdzDesk) EveryUserDoSomething(dos func(user *DdzUser) error) error {
 	return nil
 }
 
+
