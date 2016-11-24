@@ -52,6 +52,7 @@ func NewDdzUser() *DdzUser {
 	user.IsBreak = new(bool)
 	user.IsLeave = new(bool)
 	user.QiangDiZhuStatus = new(int32)
+	user.JiabeiStatus = new(int32)
 	return user
 }
 

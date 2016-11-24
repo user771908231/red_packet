@@ -196,8 +196,8 @@ func (d *DdzDesk) DoEnd() {
 
 func (d *DdzDesk) CommonBeginInit() error {
 	//desk.init
-	//随机一个 第一个叫地主的人
-	*d.DizhuPaiUser = d.Users[utils.Rand(0, 3)].GetUserId()
+	*d.DizhuPaiUser = d.Users[utils.Rand(0, 3)].GetUserId()        //随机一个 第一个叫地主的人
+	d.SetActiveUser(0)        //设置当前激活的玩家为0
 
 	//userInit
 	for _, user := range d.Users {

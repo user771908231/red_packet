@@ -14,11 +14,6 @@ import (
 )
 
 var (
-	DDZUSER_STATUS_READY int32 = 2        //已经准备
-
-)
-
-var (
 	DDZUSER_QIANGDIZHU_STATUS_NOACT int32 = 0 //没操作
 	DDZUSER_QIANGDIZHU_STATUS_JIAO int32 = 1 //叫地主
 	DDZUSER_QIANGDIZHU_STATUS_BUJIAO int32 = 2 //叫地主
@@ -30,6 +25,16 @@ var (
 	DDZUSER_JIABEI_STATUS_NOACT int32 = 0 //没操作
 	DDZUSER_JIABEI_STATUS_JIABEI int32 = 1 //加倍
 	DDZUSER_JIABEI_STATUS_BUJIABEI int32 = 2 //不加倍
+)
+
+var (
+	DDZUSER_STATUS_DEFAULT int32 = 0        //准备
+	DDZUSER_STATUS_READY int32 = 1        //准备
+	DDZUSER_STATUS_JIAODIZHU int32 = 2        //叫地主
+	DDZUSER_STATUS_JIABEI int32 = 3        //加倍
+	DDZUSER_STATUS_GAMING int32 = 4        //游戏中
+	DDZUSER_SATTUS_LOTTERY int32 = 5        //
+	DDZUSER_STATUS_END int32 = 6                //
 )
 
 type DdzUser struct {
@@ -66,6 +71,11 @@ func (u *DdzUser) SetStatus(s int32) {
 func (u *DdzUser) SetQiangDiZhuStatus(s int32) {
 	*u.QiangDiZhuStatus = s
 }
+
+func (u *DdzUser) SetJiaBeiStatus(s int32) {
+	*u.JiabeiStatus = s
+}
+
 
 //设置连接
 func (u *DdzUser) setAgent(a gate.Agent) {
@@ -151,6 +161,11 @@ func (u *DdzUser) GetHandPaiCount() int32 {
 }
 
 func (u *DdzUser) beginInit() error {
+	u.Bill = nil
+	u.GameData = NewPGameData()
+	u.SetJiaBeiStatus(DDZUSER_JIABEI_STATUS_NOACT)
+	u.SetQiangDiZhuStatus(DDZUSER_QIANGDIZHU_STATUS_NOACT)
+	u.SetStatus(DDZUSER_STATUS_DEFAULT)
 	return nil
 }
 
