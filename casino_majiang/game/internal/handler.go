@@ -3,7 +3,6 @@ package internal
 import (
 	"reflect"
 	"casino_server/common/log"
-	"casino_server/msg/bbprotogo"
 	"github.com/name5566/leaf/gate"
 	mjProto "casino_majiang/msg/protogo"
 	"casino_majiang/service/MJService"
@@ -14,7 +13,7 @@ func handler(m interface{}, h interface{}) {
 }
 
 func init() {
-	handler(&bbproto.NullMsg{}, handlerNull)
+	handler(&mjProto.Heartbeat{}, handlerNull)
 	handler(&mjProto.Game_CreateRoom{}, handlerGame_CreateDesk)
 	handler(&mjProto.Game_EnterRoom{}, handlerGame_EnterRoom)
 	handler(&mjProto.Game_DissolveDesk{}, handlerDissolveDesk)
@@ -42,8 +41,8 @@ func init() {
 }
 
 func handlerNull(args []interface{}) {
-	log.T("进入到 game.handlerNull()")
-	m := args[0].(*bbproto.NullMsg)
+	log.T("进入到 game.Heartbeat()")
+	m := args[0].(*mjProto.Heartbeat)
 	a := args[1].(gate.Agent)
 	a.WriteMsg(m)
 }

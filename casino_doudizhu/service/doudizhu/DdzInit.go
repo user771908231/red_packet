@@ -82,3 +82,8 @@ func NewPDdzSession() *PDdzSession {
 	ret.GameStatus = new(int32)
 	return ret
 }
+
+func NewPGameData() *PGameData {
+	ret := new(PGameData)
+	return ret
+}

@@ -12,6 +12,8 @@ var (
 	FLOWER_CLUB int32 = 2        //美化
 	FLOWER_HEART int32 = 3        //红桃
 	FLOWER_SPADE int32 = 4        //黑桃
+	FLOWER_REDJOKER int32 = 5        //王
+	FLOWER_BLACKJOKER int32 = 6        //王
 )
 
 var PokerMap map[int32]string
@@ -73,9 +75,8 @@ func init() {
 	PokerMap[49] = "POKER_spade_11_J"
 	PokerMap[50] = "POKER_spade_12_Q"
 	PokerMap[51] = "POKER_spade_13_K"
-
-	PokerMap[53] = "POKER_RED_JOKER"
-	PokerMap[54] = "POKER_BLACK_JOKER"
+	PokerMap[53] = "POKER_blackjoker_15_JOKER"
+	PokerMap[54] = "POKER_redjoker_16_JOKER"
 }
 
 

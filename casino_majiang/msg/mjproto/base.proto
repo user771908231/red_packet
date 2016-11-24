@@ -74,6 +74,10 @@ message ProtoHeader {
     optional string error = 4; // result error description
 }
 
+message Heartbeat {
+    optional ProtoHeader header = 1;
+}
+
 // 微信信息
 message WeixinInfo {
     optional string openId = 1; // 微信授权用户唯一id
