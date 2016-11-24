@@ -75,8 +75,8 @@ func init() {
 	PokerMap[49] = "POKER_spade_11_J"
 	PokerMap[50] = "POKER_spade_12_Q"
 	PokerMap[51] = "POKER_spade_13_K"
-	PokerMap[53] = "POKER_blackjoker_15_JOKER"
-	PokerMap[54] = "POKER_redjoker_16_JOKER"
+	PokerMap[52] = "POKER_blackjoker_15_JOKER"
+	PokerMap[53] = "POKER_redjoker_16_JOKER"
 }
 
 
@@ -92,6 +92,7 @@ Name             *string
 func ParseByIndex(index int32) (int32, string, int32, string, string) {
 	var rmapdes string = PokerMap[index]
 	sarry := strings.Split(rmapdes, "_")
+	log.T("解析牌:%v", sarry)
 	var pvalue int32 = int32(numUtils.String2Int(sarry[2]))
 	var pname string = sarry[3]
 	var pflower string = sarry[1]
