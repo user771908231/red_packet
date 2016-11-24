@@ -257,13 +257,16 @@ func (d *MjDesk) GetClientGameStatus() int32 {
 	return int32(gameStatus)
 }
 //返回玩家的数目
-func (d *MjDesk) GetPlayerInfo(receiveUserId uint32) []*mjproto.PlayerInfo {
+/**
+	needInpai ： 是否需要把inpai去得到
+ */
+func (d *MjDesk) GetPlayerInfo(receiveUserId uint32, needInpai bool) []*mjproto.PlayerInfo {
 	var players []*mjproto.PlayerInfo
 	for _, user := range d.Users {
 		if user != nil {
 			showHand := (user.GetUserId() == receiveUserId)                //是否需要显示手牌
 			isOwner := ( d.GetOwner() == user.GetUserId())                //判断是否是房主
-			info := user.GetPlayerInfo(showHand)
+			info := user.GetPlayerInfo(showHand, needInpai)
 			*info.IsOwner = isOwner
 			players = append(players, info)
 		}
@@ -284,12 +287,21 @@ func (d *MjDesk) GetPlayerNum() int32 {
 
 // 发送gameInfo的信息
 func (d *MjDesk) GetGame_SendGameInfo(receiveUserId uint32, isReconnect mjproto.RECONNECT_TYPE) *mjproto.Game_SendGameInfo {
+
+	//如果是短线重连，并且玩家还没有换三张，或者处于定缺的状态，那么需要发送庄家的inpai
+	needInpai := false
+	recUser := d.GetUserByUserId(receiveUserId)
+	if isReconnect == mjproto.RECONNECT_TYPE_RECONNECT && ( d.IsExchange() || ( d.IsDingQue() && recUser.IsNotDingQue() )) {
+		needInpai = true
+	}
+
 	gameInfo := newProto.NewGame_SendGameInfo()
 	gameInfo.DeskGameInfo = d.GetDeskGameInfo()
 	*gameInfo.SenderUserId = receiveUserId
-	gameInfo.PlayerInfo = d.GetPlayerInfo(receiveUserId)
+	gameInfo.PlayerInfo = d.GetPlayerInfo(receiveUserId, needInpai)
 	*gameInfo.IsReconnect = isReconnect
 	return gameInfo
+
 }
 
 
@@ -521,14 +533,14 @@ func (d *MjDesk) GetDealCards(user *MjUser) *mjproto.Game_DealCards {
 		if u != nil {
 			if u.GetUserId() == user.GetUserId() {
 				//表示是自己，可以看到手牌
-				pc := u.GetPlayerCard(true)
+				pc := u.GetPlayerCard(true, false)
 				if d.GetBanker() == u.GetUserId() {
 					pc.HandCard = append(pc.HandCard, u.GameData.HandPai.InPai.GetCardInfo())
 				}
 
 				dealCards.PlayerCard = append(dealCards.PlayerCard, pc)
 			} else {
-				pc := u.GetPlayerCard(false)                                //表示不是自己，不能看到手牌
+				pc := u.GetPlayerCard(false, false)                                //表示不是自己，不能看到手牌
 
 				if d.GetBanker() == u.GetUserId() {
 					pc.HandCard = append(pc.HandCard, NewBackPai())
@@ -1883,7 +1895,7 @@ func (d *MjDesk) GetWinCoinInfo(user *MjUser) *mjproto.WinCoinInfo {
 	*win.Coin = user.GetCoin()        // 输赢以后，当前筹码是多少
 	*win.CardTitle = d.GetCardTitle4WinCoinInfo(user)// 赢牌牌型信息( 如:"点炮x2 明杠x2 根x2 自摸 3番" )
 	log.T("用户[%v]的CardTitle is [%v]", user.GetUserId(), *win.CardTitle)
-	win.Cards = user.GetPlayerCard(true) //牌信息,true 表示要显示牌的信息...
+	win.Cards = user.GetPlayerCard(true, false) //牌信息,true 表示要显示牌的信息...
 	*win.IsDealer = user.GetIsBanker()      //是否是庄家
 	//*win.HuCount = user.Statisc.GetCountHu()        //本局胡的次数(血流成河会多次胡)
 	*win.HuCount = user.GetStatisticsRoundBean(d.GetCurrPlayCount()).GetCountHu() //本局胡的次数(血流成河会多次胡)

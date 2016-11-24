@@ -88,7 +88,7 @@ func (u *MjUser) IsNotDingQue() bool {
 }
 
 //返回一个用户信息
-func ( u *MjUser) GetPlayerInfo(showHand bool) *mjproto.PlayerInfo {
+func ( u *MjUser) GetPlayerInfo(showHand bool, needInpai bool) *mjproto.PlayerInfo {
 	info := newProto.NewPlayerInfo()
 	*info.NHuPai = u.GetNHuPai()
 	*info.BDingQue = u.GetBDingQue()
@@ -96,7 +96,7 @@ func ( u *MjUser) GetPlayerInfo(showHand bool) *mjproto.PlayerInfo {
 	*info.BReady = u.getBReady()
 	*info.Coin = u.GetCoin()
 	*info.IsBanker = u.GetIsBanker()
-	info.PlayerCard = u.GetPlayerCard(showHand)
+	info.PlayerCard = u.GetPlayerCard(showHand, needInpai)
 	*info.NickName = u.GetNickName()
 	*info.UserId = u.GetUserId()
 	info.WxInfo = u.GetWxInfo()
@@ -121,9 +121,18 @@ func (u *MjUser) GetWxInfo() *mjproto.WeixinInfo {
 
 //得到手牌
 //showHand 是否显示手牌
-func (u *MjUser) GetPlayerCard(showHand bool) *mjproto.PlayerCard {
+func (u *MjUser) GetPlayerCard(showHand bool, needInpai bool) *mjproto.PlayerCard {
 	playerCard := newProto.NewPlayerCard()
 	*playerCard.UserId = u.GetUserId()
+
+	//得到inpai
+	if needInpai {
+		if showHand {
+			playerCard.HandCard = append(playerCard.HandCard, u.GameData.HandPai.InPai.GetCardInfo())
+		} else {
+			playerCard.HandCard = append(playerCard.HandCard, u.GameData.HandPai.InPai.GetBackPai())
+		}
+	}
 
 	//得到手牌
 	for _, pai := range u.GameData.HandPai.GetPais() {
@@ -164,16 +173,6 @@ func (u *MjUser) GetPlayerCard(showHand bool) *mjproto.PlayerCard {
 			playerCard.ComposeCard = append(playerCard.ComposeCard, com)
 		}
 	}
-
-	//得到杠牌
-	//for i, pai := range u.GameData.HandPai.GetGangPais() {
-	//	if pai != nil && i % 4 == 0 {
-	//		com := newProto.NewComposeCard()
-	//		*com.Value = pai.GetClientId()
-	//		*com.Type = 2       // 这里代表的是杠牌
-	//		playerCard.ComposeCard = append(playerCard.ComposeCard, com)
-	//	}
-	//}
 
 	//得到胡牌
 	for _, pai := range u.GameData.HandPai.GetHuPais() {
