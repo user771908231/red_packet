@@ -101,17 +101,16 @@ func HandlerGame_EnterRoom(userId uint32, key string, a gate.Agent) {
 		a.SetUserData(s)
 	}
 
-	gameinfo := desk.GetGame_SendGameInfo(userId, reconnect)
-	log.T("用户[%v]进入房间,reconnect[%v]之后，返回的数据gameInfo[%v]", userId, reconnect, gameinfo)
-	desk.BroadCastProto(gameinfo)
-
+	//发送桌子的信息
+	desk.SendGameInfo(userId, reconnect)
 
 	//如果是重新进入房间，需要发送重近之后的处理
 	if reconnect == mjProto.RECONNECT_TYPE_RECONNECT {
-		time.Sleep(time.Second * 5)
+		time.Sleep(time.Second * 3)
 		desk.SendReconnectOverTurn(userId)
 	}
 }
+
 
 //解散房间
 func HandlerDissolveDesk(owner uint32) error {

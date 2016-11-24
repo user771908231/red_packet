@@ -75,8 +75,8 @@ func init() {
 	PokerMap[49] = "POKER_spade_11_J"
 	PokerMap[50] = "POKER_spade_12_Q"
 	PokerMap[51] = "POKER_spade_13_K"
-	PokerMap[53] = "POKER_blackjoker_15_JOKER"
-	PokerMap[54] = "POKER_redjoker_16_JOKER"
+	PokerMap[52] = "POKER_blackjoker_15_JOKER"
+	PokerMap[53] = "POKER_redjoker_16_JOKER"
 }
 
 
