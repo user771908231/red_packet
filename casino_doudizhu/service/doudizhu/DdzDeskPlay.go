@@ -7,6 +7,7 @@ import (
 	"casino_doudizhu/msg/funcsInit"
 	"casino_server/conf/intCons"
 	"casino_doudizhu/msg/protogo"
+	"time"
 )
 
 //这里主要存放 玩斗地主的一些多逻辑....其他的基本方法都放在DdzDesk中
@@ -15,6 +16,10 @@ import (
 	2，主要的地主逻辑
 	3欢乐，四川等逻辑经分开在两个文件
  */
+
+var (
+	DEALCARDS_DRUATION time.Duration = time.Second * 3        //发牌之后延时3秒
+)
 
 func (d *DdzDesk) EnterUser(userId uint32, a gate.Agent) (error, int32) {
 	log.T("玩家[%v]开始进入房间[%v]", userId, d.GetDeskId())
@@ -112,6 +117,7 @@ func (d *DdzDesk) BeginCommon() error {
 
 	//给玩家发牌
 	d.CommonInitCards()
+	time.Sleep(DEALCARDS_DRUATION)
 
 	return nil
 }
@@ -204,7 +210,7 @@ func (d *DdzDesk) CommonInitCards() {
 	//为每个人分配牌
 	for i, user := range d.Users {
 		user.GameData.HandPokers = make([]*PPokerPai, 17)        //这里的17暂时写死...
-		copy(user.GameData.HandPokers, d.AllPokerPai[(i - 1) * 17:i * 17])
+		copy(user.GameData.HandPokers, d.AllPokerPai[i * 17:(i + 1) * 17])
 	}
 
 	//底牌

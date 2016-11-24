@@ -92,7 +92,6 @@ Name             *string
 func ParseByIndex(index int32) (int32, string, int32, string, string) {
 	var rmapdes string = PokerMap[index]
 	sarry := strings.Split(rmapdes, "_")
-	log.T("解析牌:%v", sarry)
 	var pvalue int32 = int32(numUtils.String2Int(sarry[2]))
 	var pname string = sarry[3]
 	var pflower string = sarry[1]
