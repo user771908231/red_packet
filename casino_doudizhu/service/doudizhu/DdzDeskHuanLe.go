@@ -49,7 +49,7 @@ func (d *DdzDesk) HLJiaoDiZhu(userId uint32) error {
 
 	//查找下一个没有操作过的人来抢地主
 	nextUser := d.GetNextUserByPros(userId, func(u *DdzUser) bool {
-		return u != nil && !u.IsQiangDiZhuNoAct()
+		return u != nil && u.IsQiangDiZhuNoAct()
 	})
 
 	//表示没有下一家可以抢地主
@@ -89,22 +89,24 @@ func (d *DdzDesk) HLQiangDiZhu(userId uint32, qiang bool) error {
 	}
 
 
+	//广播抢地主
+	ack := newProto.NewDdzRobDiZhuAck()
+	*ack.UserId = userId
+	*ack.Rob = qiang
+	d.BroadCastProto(ack)
+
+
 	//表示地主都抢过来，又轮到第一家，抢地主的逻辑结束
 	if user.IsQiangDiZhuQiang() && d.GetDizhuPaiUser() == user.GetUserId() {
 		d.HLAfterQiangDizhu()        //欢乐斗地主，抢地主之后，如果已经抢完了，那么抢地主之后的逻辑
 		return nil
 	}
 
-
 	//查找下一家抢地主的人
-	index := d.GetUserIndexByUserId(user.GetUserId())
-	var nextUser *DdzUser
-	for i := index + 1; i < len(d.Users) + index; i++ {
-		u := d.Users[(i) / len(d.Users)]
-		if u != nil && u.IsQiangDiZhuNoAct() {
-			nextUser = u
-		}
-	}
+	nextUser := d.GetNextUserByPros(user.GetUserId(), func(u *DdzUser) bool {
+		return u != nil && u.IsQiangDiZhuNoAct()
+	})
+
 	//表示没有下一家可以抢地主
 	if nextUser == nil {
 		d.HLAfterQiangDizhu()        //欢乐斗地主，已经没有合适的人抢地主的时候，进行抢地主之后的逻辑
