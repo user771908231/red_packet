@@ -359,7 +359,7 @@ func (p *PPokerPai) GetSuit() ddzproto.PokerColor {
 
 func (p *PPokerPai) GetLogDes() string {
 	suit := ""
-	switch p.() {
+	switch p.GetSuit() {
 	case ddzproto.PokerColor_FANGKUAI:
 		suit = "方块"
 	case ddzproto.PokerColor_BLACKBIGJOKER:
