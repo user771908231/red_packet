@@ -7,7 +7,6 @@ import (
 	"sort"
 	"casino_doudizhu/msg/protogo"
 	"casino_doudizhu/msg/funcsInit"
-	"casino_server/service/room"
 )
 
 
@@ -33,6 +32,10 @@ func Flower2int(f string) int32 {
 		return pokerUtils.FLOWER_HEART
 	} else if f == "spade" {
 		return pokerUtils.FLOWER_SPADE
+	} else if f == "redjoker" {
+		return pokerUtils.FLOWER_REDJOKER
+	} else if f == "blackjoker" {
+		return pokerUtils.FLOWER_BLACKJOKER
 	}
 	return 0
 }
@@ -347,5 +350,9 @@ func (p *PPokerPai) GetSuit() ddzproto.PokerColor {
 		return ddzproto.PokerColor_HONGTAO
 	} else if p.GetFlower() == pokerUtils.FLOWER_SPADE {
 		return ddzproto.PokerColor_HEITAO
+	} else if p.GetFlower() == pokerUtils.FLOWER_BLACKJOKER {
+		return ddzproto.PokerColor_BLACKBIGJOKER
+	} else {
+		return ddzproto.PokerColor_REDJOKER
 	}
 }

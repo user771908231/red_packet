@@ -5,6 +5,7 @@ enum EProtoId {
 
     ////////////////////////////////////
     //
+    PID_HEARTBEAT = 0; //心跳
     PID_QUICK_CONN = 1; //连接服务器
     PID_QUICK_CONN_ACK = 2; //
     PID_GAME_LOGIN = 3; //登录游戏
@@ -102,6 +103,8 @@ enum PokerColor {
     FANGKUAI = 2; // 方块
     HEITAO = 3; //  黑桃
     MEIHUA = 4; //梅花
+    REDJOKER = 5; //小王
+    BLACKBIGJOKER = 6; //大王
 }
 
 //牌型
@@ -213,7 +216,7 @@ enum DeskGameStatus {
     FINISH = 4; //已经结束
 }
 
-message NullMsg {
+message Heartbeat {
     optional ProtoHeader header = 1;
 }
 
