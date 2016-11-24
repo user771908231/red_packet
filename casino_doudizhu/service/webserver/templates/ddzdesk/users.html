@@ -19,6 +19,8 @@
                 <th>玩家Id</th>
                 <th>nickname</th>
                 <th>玩家状态</th>
+                <th>加倍</th>
+                <th>抢地主</th>
                 <th>网络状态</th>
                 <th>是否离开</th>
                 <th>手牌</th>
@@ -32,6 +34,9 @@
                 <td>{{$user.GetUserId}}</td>
                 <td>{{$user.GetNickName}}</td>
                 <td>{{$user.GetStatus}}</td>
+
+                <td>{{$user.GetJiabeiStatus}}</td>
+                <td>{{$user.GetQiangDiZhuStatus}}</td>
 
                 {{if $user.GetIsBreak }}
                 <td>掉线...</td>
