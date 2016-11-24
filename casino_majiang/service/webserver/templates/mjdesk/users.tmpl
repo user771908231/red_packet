@@ -5,35 +5,23 @@
 <body>
 
 <div class="container-fluid">
-    <br>
-    <!--form class="form-inline" role="form">
-        <div class="form-group">
-            <div class="input-group">
-                <div class="input-group-addon">用户ID</div>
-                <input type="text" class="form-control" placeholder="" name="userId">
-            </div>
+    <div class="table-responsive panel panel-default">
+        <br>
+        <div class="panel-heading">麻将桌{{.desk.GetDeskId}}当前的牌,游标为{{.desk.GetMJPaiCursor}}</div>
+        <div class="panel-body">
+            <p>{{.desk.GetDeskMJInfo}}</p>
         </div>
-        <div class="form-group">
-            <div class="input-group">
-                <div class="input-group-addon">用户昵称</div>
-                <input class="form-control" type="text" name="userName">
-            </div>
-        </div>
-        <button type="submit" class="btn btn-default">搜索</button>
-    </form-->
-    <br>
-    <div class="table-responsive">
         <table class="table table-hover table-bordered">
             <thead>
             <tr>
                 <th>＃</th>
-                <th>用户Id</th>
+                <th>玩家Id</th>
                 <th>nickname</th>
-                <th>status</th>
+                <th>玩家状态</th>
                 <th>是否定缺</th>
-                <th>isBreak</th>
-                <th>isLeave</th>
-                <th>空缺的花色</th>
+                <th>网络状态</th>
+                <th>是否离开</th>
+                <th>缺</th>
                 <th>手牌</th>
                 <th>碰牌</th>
                 <th>杠牌</th>
@@ -48,15 +36,41 @@
                 <td>{{$key}}</td>
                 <td>{{$user.GetUserId}}</td>
                 <td>{{$user.GetNickName}}</td>
-                <td>{{$user.GetStatus}}</td>
-                <td>{{$user.GetDingQue}}</td>
-                <td>{{$user.IsBreak}}</td>
-                <td>{{$user.GetIsLeave}}</td>
-                <td>{{$user.GetIsLeave}}</td>
+                <td>{{$user.GetTransferredStatus}}</td>
+
+                {{if $user.GetDingQue }}
+                <td>已定缺</td>
+                {{else}}
+                <td>未定缺</td>
+                {{end}}
+
+                {{if $user.GetIsBreak }}
+                <td>掉线...</td>
+                {{else}}
+                <td>在线...</td>
+                {{end}}
+
+                {{if $user.GetIsLeave }}
+                <td>已离开</td>
+                {{else}}
+                <td>未离开</td>
+                {{end}}
+
+                {{if eq $user.GameData.HandPai.GetQueFlower 1 }}
+                <td>万</td>
+                {{else if eq $user.GameData.HandPai.GetQueFlower 2 }}
+                <td>索</td>
+                {{else if eq $user.GameData.HandPai.GetQueFlower 3 }}
+                <td>筒</td>
+                {{else}}
+                <td></td>
+                {{end}}
+
                 <td>{{$user.GetUserPaiInfo}}</td>
                 <td>{{$user.GetUserPengPaiInfo}}</td>
                 <td>{{$user.GetUserGnagPaiInfo}}</td>
                 <td>{{$user.GetUserHuPaiInfo}}</td>
+                <td>{{$user.GetUserInPaiInfo}}</td>
                 <td>{{$user.BillToString}}</td>
             </tr>
             {{end}}

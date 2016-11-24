@@ -902,3 +902,23 @@ func (u *MjUser) GetUserInPaiInfo() string {
 	return u.GameData.HandPai.InPai.LogDes()
 
 }
+
+func (u *MjUser) GetTransferredStatus() string {
+	ret := ""
+	switch u.GetStatus() {
+	case MJUSER_STATUS_DINGQUE:
+		ret = "已定缺"
+	case MJUSER_STATUS_GAMING:
+		ret = "游戏中"
+	case MJUSER_STATUS_HUPAI:
+		ret = "已胡牌"
+	case MJUSER_STATUS_INTOROOM:
+		ret = "已进入房间"
+	case MJUSER_STATUS_READY:
+		ret = "已准备"
+	case MJUSER_STATUS_SEATED:
+		ret = ""
+	default:
+	}
+	return ret
+}

@@ -2226,3 +2226,44 @@ func (d *MjDesk) GetDisplayPais(user *MjUser) []*MJPai {
 	displayPais = append(displayPais, userHandPai.Pais...)
 	return displayPais
 }
+
+func (d *MjDesk) GetTransferredStatus() string {
+	ret := ""
+	switch d.GetStatus() {
+	case MJDESK_STATUS_CREATED:
+		ret = "创建成功"
+	case MJDESK_STATUS_DINGQUE:
+		ret = "开始定缺"
+	case MJDESK_STATUS_END:
+		ret = "单局结束"
+	case MJDESK_STATUS_EXCHANGE:
+		ret = "开始换牌"
+	case MJDESK_STATUS_FAPAI:
+		ret = "开始发牌"
+	case MJDESK_STATUS_LOTTERY:
+		ret = "开始结算"
+	case MJDESK_STATUS_ONINIT:
+		ret = "开始初始化数据"
+	case MJDESK_STATUS_READY:
+		ret = "开始准备"
+	case MJDESK_STATUS_RUNNING:
+		ret = "定缺后开始打牌"
+	default:
+
+	}
+	return ret
+}
+
+func (d *MjDesk) GetDeskMJInfo() string {
+	if d == nil || d.AllMJPai == nil {
+		return "暂时没有初始化麻将"
+	}
+	s := ""
+	for i, p := range d.AllMJPai {
+		is, _ := numUtils.Int2String(int32(i))
+
+		ii, _ := numUtils.Int2String(int32(p.GetIndex()))
+		s = s + " (" + is + "-" + ii + "-" + p.LogDes() + ")"
+	}
+	return s
+}
