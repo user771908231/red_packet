@@ -114,8 +114,10 @@ func (d *DdzDesk) Begin() error {
 func (d *DdzDesk) BeginCommon() error {
 
 	//通用的一些初始化方法
+	log.T("d.CommonBeginInit()")
 	d.CommonBeginInit()
 
+	log.T("d.CommonInitCards()")
 	//给玩家发牌
 	d.CommonInitCards()
 	time.Sleep(DEALCARDS_DRUATION)
@@ -342,9 +344,9 @@ func (d *DdzDesk) afterQiangDizhu() {
 
 //欢乐斗地主抢完地主之后的操作
 func (d *DdzDesk) HLAfterQiangDizhu() {
+	log.T("抢地主结束，现在开始 加倍的逻辑....")
 
 	//首先是判断是否有人当地主,如果没有人当地主，那么洗牌开始下一局
-	//todo 是否需要发送没有人当地主的广播
 	if d.GetDiZhuUserId() == 0 {
 		d.Begin()        ///重新开始
 		return
