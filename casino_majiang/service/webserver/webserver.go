@@ -25,11 +25,6 @@ func Run() {
 		return "not found 233..."
 	})
 
-	//m.Post("/contact/submit", binding.Bind(Validate{}), func(validate Validate) string {
-	//	return fmt.Sprintf("Name: %s\nEmail: %s\nMessage: %s\nMailing Address: %v",
-	//		contact.Name, contact.Email, contact.Message, contact.MailingAddress)
-	//})
-
 	//launch server
 	m.Run()
 }
