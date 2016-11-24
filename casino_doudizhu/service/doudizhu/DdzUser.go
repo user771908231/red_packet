@@ -10,6 +10,7 @@ import (
 	"casino_doudizhu/msg/protogo"
 	"casino_doudizhu/msg/funcsInit"
 	"casino_server/service/userService"
+	"sort"
 )
 
 var (
@@ -243,7 +244,10 @@ func ( u *DdzUser) GetPlayerInfo(desk *DdzDesk) *ddzproto.PlayerInfo {
 func (u *DdzUser) GetTransferredHandPokerPais() string {
 	ret := ""
 	suit := ""
-	for _, p := range u.GameData.HandPokers {
+	handPokers := DdzPokerOutList{}
+	handPokers = u.GameData.HandPokers
+	sort.Sort(handPokers)
+	for _, p := range handPokers {
 		suit = p.GetLogDes()
 		if suit != "" {
 			ret = ret + suit + "\t "
@@ -257,7 +261,10 @@ func (u *DdzUser) GetTransferredOutPokerPais() string {
 	suit := ""
 	for _, outList := range u.GameData.GetOutPaiList() {
 		if outList != nil {
-			for _, p := range outList.GetPokerPais() {
+			outLists := DdzPokerOutList{}
+			outLists = outList.GetPokerPais()
+			sort.Sort(outLists)
+			for _, p := range outLists {
 				suit = p.GetLogDes()
 				if suit != "" {
 					ret = ret + suit + "\t "
