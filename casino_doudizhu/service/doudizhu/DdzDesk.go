@@ -152,7 +152,6 @@ func (d *DdzDesk) SetDizhu(userId uint32) {
 //判断是否是当前活动玩家
 func (d *DdzDesk) CheckActiveUser(userId uint32) error {
 	if d.GetActiveUserId() == userId {
-		log.E("服务器错误，当前desk的activeuser 为空...")
 		return nil
 	} else {
 		log.E("服务器错误：desk的当前操作玩家[%v]和请求的userid[%v]不一致", d.GetActiveUserId(), userId)
@@ -278,6 +277,8 @@ func (d *DdzDesk) GetNextUserByPros(preUserId uint32, check func(nu *DdzUser) bo
 	return nextUser
 }
 
+
+//todo 需要做超时的处理
 func (d *DdzDesk) SendChuPaiOverTurn(userId uint32) error {
 
 	//轮到谁出牌时发送的overTurn

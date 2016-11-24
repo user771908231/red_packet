@@ -50,11 +50,15 @@ message DdzJiaoDiZhuAck {
 message DdzRobDiZhu {
     optional ProtoHeader header = 1;
     optional uint32 userId = 2; // 操作人
+    optional bool rob = 3; // 抢还是不抢
+
 }
 
 message DdzRobDiZhuAck {
     optional ProtoHeader header = 1;
     optional uint32 userId = 2; // 操作人 (广播给其它用户)
+    optional bool rob = 3; // 抢还是不抢
+
 }
 
 // 加倍

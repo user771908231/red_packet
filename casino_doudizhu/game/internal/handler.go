@@ -100,7 +100,7 @@ func handlePull(args []interface{}) {
 //抢地主
 func handlerQiangDiZhu(args []interface{}) {
 	m := args[0].(*ddzproto.DdzRobDiZhu)
-	DdzService.HandlerQiangDiZhu(m.GetUserId())
+	DdzService.HandlerQiangDiZhu(m.GetUserId(),m.GetRob())
 
 }
 

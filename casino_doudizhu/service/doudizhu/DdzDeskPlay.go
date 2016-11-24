@@ -8,6 +8,7 @@ import (
 	"casino_server/conf/intCons"
 	"casino_doudizhu/msg/protogo"
 	"time"
+	"casino_server/utils"
 )
 
 //这里主要存放 玩斗地主的一些多逻辑....其他的基本方法都放在DdzDesk中
@@ -113,8 +114,10 @@ func (d *DdzDesk) Begin() error {
 func (d *DdzDesk) BeginCommon() error {
 
 	//通用的一些初始化方法
+	log.T("d.CommonBeginInit()")
 	d.CommonBeginInit()
 
+	log.T("d.CommonInitCards()")
 	//给玩家发牌
 	d.CommonInitCards()
 	time.Sleep(DEALCARDS_DRUATION)
@@ -129,6 +132,7 @@ func (d *DdzDesk) IsTime2begin() error {
 
 //开始抢地主的逻辑 目前只有欢乐斗地主才会使用
 func (d *DdzDesk) sendQiangDiZhuOverTurn(userId uint32) error {
+	d.SetActiveUser(userId)
 	//发送开始抢地主的广播...
 	overTurn := newProto.NewDdzOverTurn()
 	*overTurn.ActType = ddzproto.ActType_T_ROB_DIZHU
@@ -141,6 +145,8 @@ func (d *DdzDesk) sendQiangDiZhuOverTurn(userId uint32) error {
 
 // 开始叫地主
 func (d *DdzDesk) sendJiaoDiZhuOverTurn(userId uint32) error {
+	d.SetActiveUser(userId)        //设置为当前玩家
+
 	//开始叫地主
 	overTurn := newProto.NewDdzOverTurn()
 	*overTurn.ActType = ddzproto.ActType_T_JIAO_DIZHU      //类型是开始叫地主
@@ -190,6 +196,8 @@ func (d *DdzDesk) DoEnd() {
 
 func (d *DdzDesk) CommonBeginInit() error {
 	//desk.init
+	//随机一个 第一个叫地主的人
+	*d.DizhuPaiUser = d.Users[utils.Rand(0, 3)].GetUserId()
 
 	//userInit
 	for _, user := range d.Users {
@@ -271,7 +279,6 @@ func (d *DdzDesk) ActOut(userId uint32, out *POutPokerPais) error {
 
 	//返回成功的消息 todo  返回ack
 
-
 	//判断游戏是否结束
 	if user.GetHandPaiCount() == 0 {
 		//出牌的人 手牌为0，表示游戏结束
@@ -317,14 +324,11 @@ func (d *DdzDesk) NextUser() error {
 		log.E("轮到下一个玩家的时候出错,desk.activeUser[%v]", d.GetActiveUserId())
 		return Error.NewError(-1, "轮到一下个玩家的时候出错.")
 	} else {
-		d.SetActiveUser(nextUser.GetUserId())
-		//todo 发送下一个人开始出牌的广播
-		overTurn := newProto.NewDdzOverTurn()
-		nextUser.WriteMsg(overTurn)        //暂时没有做超市的处理
+		d.SendChuPaiOverTurn(nextUser.GetUserId())
 	}
-
 	return nil
 }
+
 
 
 //四川斗地主，需要更具四川的玩法来定制
@@ -340,9 +344,9 @@ func (d *DdzDesk) afterQiangDizhu() {
 
 //欢乐斗地主抢完地主之后的操作
 func (d *DdzDesk) HLAfterQiangDizhu() {
+	log.T("抢地主结束，现在开始 加倍的逻辑....")
 
 	//首先是判断是否有人当地主,如果没有人当地主，那么洗牌开始下一局
-	//todo 是否需要发送没有人当地主的广播
 	if d.GetDiZhuUserId() == 0 {
 		d.Begin()        ///重新开始
 		return
