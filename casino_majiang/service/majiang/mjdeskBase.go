@@ -3,6 +3,7 @@ package majiang
 import (
 	"casino_majiang/msg/protogo"
 	"casino_server/common/Error"
+	"casino_server/common/log"
 )
 
 ///获取用户已知亮出台面的牌 包括自己手牌、自己和其他玩家碰杠牌、其他玩家outPais
@@ -223,6 +224,12 @@ func (d *MjDesk) IsNeedMenqingZhongzhang() bool {
 //判断是否是血流成河
 func (d *MjDesk) IsXueLiuChengHe() bool {
 	return d.GetMjRoomType() == int32(mjproto.MJRoomType_roomType_xueLiuChengHe)
+}
+
+func (d *MjDesk) SendGameInfo(userId uint32, reconnect mjproto.RECONNECT_TYPE) {
+	gameinfo := d.GetGame_SendGameInfo(userId, reconnect)
+	log.T("用户[%v]进入房间,reconnect[%v]之后，返回的数据gameInfo[%v]", userId, reconnect, gameinfo)
+	d.BroadCastProto(gameinfo)
 }
 
 

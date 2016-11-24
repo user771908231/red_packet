@@ -338,7 +338,7 @@ func ( p *PPokerPai) GetClientPoker() *ddzproto.Poker {
 	*ret.Value = p.GetId()
 	*ret.Suit = p.GetSuit()
 	*ret.Num = p.GetValue()
-	return nil
+	return ret
 }
 
 func (p *PPokerPai) GetSuit() ddzproto.PokerColor {
