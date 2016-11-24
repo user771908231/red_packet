@@ -49,12 +49,13 @@ func (d *DdzDesk) HLJiaoDiZhu(userId uint32) error {
 
 	//查找下一个没有操作过的人来抢地主
 	nextUser := d.GetNextUserByPros(userId, func(u *DdzUser) bool {
+		log.T("[%v]叫地主之后，寻找下一个人u[%v]:%v", userId, u.GetUserId(), u.IsQiangDiZhuNoAct())
 		return u != nil && u.IsQiangDiZhuNoAct()
 	})
 
 	//表示没有下一家可以抢地主
 	if nextUser == nil {
-		d.HLAfterQiangDizhu()        //换掉了斗地主，叫地主
+		d.HLAfterQiangDizhu()        //欢乐斗地主，叫地主
 	} else {
 		d.sendQiangDiZhuOverTurn(nextUser.GetUserId())        //欢乐斗地主，叫地主之后开始抢地主
 	}
