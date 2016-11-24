@@ -441,3 +441,4 @@ func NewPoker() *ddzproto.Poker {
 	p.Value = new(int32)
 	return p
 }
+

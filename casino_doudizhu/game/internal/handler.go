@@ -14,7 +14,7 @@ func handler(m interface{}, h interface{}) {
 }
 
 func init() {
-	handler(&ddzproto.NullMsg{}, handlerNullMsg)
+	handler(&ddzproto.Heartbeat{}, handlerNullMsg)
 	handler(&ddzproto.DdzCreateRoom{}, handlerCreateDesk)    //创建房间
 	handler(&ddzproto.DdzEnterRoom{}, HandlerEnterRoom)    //进入房间
 	handler(&ddzproto.DdzReady{}, handlerReady)    //准备
@@ -34,7 +34,7 @@ func init() {
 }
 
 func handlerNullMsg(args []interface{}) {
-	m := args[0].(*ddzproto.NullMsg)
+	m := args[0].(*ddzproto.Heartbeat)
 	a := args[1].(gate.Agent)
 	*m.Header.Code = intCons.ACK_RESULT_SUCC
 	a.WriteMsg(m)

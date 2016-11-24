@@ -9,6 +9,7 @@ import (
 	"github.com/golang/protobuf/proto"
 	"casino_doudizhu/msg/protogo"
 	"casino_doudizhu/msg/funcsInit"
+	"casino_server/service/userService"
 )
 
 var (
@@ -182,10 +183,20 @@ func (u *DdzUser) GetSex() int32 {
 }
 
 func (u *DdzUser) GetBReady() int32 {
-	return 0
+	if u.IsReady() {
+		return 1
+	} else {
+		return 0
+	}
 }
 
 func (u *DdzUser) GetWxInfo() *ddzproto.WeixinInfo {
+	user := userService.GetUserById(u.GetUserId())
+	wx := newProto.NewWeixinInfo()
+	*wx.City = user.GetCity()
+	*wx.HeadUrl = user.GetHeadUrl()
+	*wx.NickName = user.GetNickName()
+	*wx.OpenId = user.GetOpenId()
 	return nil
 }
 

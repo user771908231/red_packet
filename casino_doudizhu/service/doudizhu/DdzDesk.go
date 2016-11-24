@@ -71,6 +71,7 @@ func (d *DdzDesk) addBombTongjiInfo(bomb *POutPokerPais) {
 //添加一个玩家
 func (d *DdzDesk) AddUser(userId uint32, a gate.Agent) error {
 	user := NewDdzUser()
+	user.GameData = NewPGameData()
 	*user.UserId = userId
 	user.agent = a
 	*user.DeskId = d.GetDeskId()
@@ -298,5 +299,20 @@ func (d *DdzDesk) SendGameDeskInfo(sendUserId uint32, isReconnect int32) error {
 	return nil
 }
 
-
+//每个人都做一件事
+/*
+	1,user != nil
+	2,func(user)
+*/
+func (d *DdzDesk) EveryUserDoSomething(dos func(user *DdzUser) error) error {
+	for _, u := range d.Users {
+		if u != nil {
+			err := dos(u)
+			if err != nil {
+				log.E("玩家dos的时候出错err[%v]", err)
+			}
+		}
+	}
+	return nil
+}
 

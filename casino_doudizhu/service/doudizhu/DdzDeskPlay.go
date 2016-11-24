@@ -106,15 +106,13 @@ func (d *DdzDesk) Begin() error {
 }
 
 func (d *DdzDesk) BeginCommon() error {
-	//desk.init
 
-	//userInit
-	for _, user := range d.Users {
-		if user != nil {
-			//初始化每个用户
-			user.beginInit()
-		}
-	}
+	//通用的一些初始化方法
+	d.CommonBeginInit()
+
+	//给玩家发牌
+	d.CommonInitCards()
+
 	return nil
 }
 
@@ -184,8 +182,22 @@ func (d *DdzDesk) DoEnd() {
 
 }
 
+func (d *DdzDesk) CommonBeginInit() error {
+	//desk.init
+
+	//userInit
+	for _, user := range d.Users {
+		if user != nil {
+			//初始化每个用户
+			user.beginInit()
+		}
+	}
+
+	return nil
+}
+
 //初始化每个人的牌
-func (d *DdzDesk) InitCards() {
+func (d *DdzDesk) CommonInitCards() {
 	//获得一副洗好的牌
 	d.AllPokerPai = XiPai()                //获得洗好的一副扑克牌
 
@@ -199,6 +211,14 @@ func (d *DdzDesk) InitCards() {
 	d.DiPokerPai = make([]*PPokerPai, 3)
 	copy(d.DiPokerPai, d.AllPokerPai[54 - 3:54])
 
+	//开始发牌
+	d.EveryUserDoSomething(func(user *DdzUser) error {
+		//开始发牌
+		cardsInfo := newProto.NewDdzDealCards()
+		cardsInfo.PlayerPokers = user.GetPlayerPokers()
+		user.WriteMsg(cardsInfo)        //给用户发送牌的信息
+		return nil
+	})
 }
 
 //判断出牌的用户是否合法

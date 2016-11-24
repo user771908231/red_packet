@@ -8,7 +8,7 @@ import (
 var Processor = protobuf.NewProcessor()
 
 func init() {
-	Processor.Register(&ddzproto.NullMsg{})        //0连接服务器
+	Processor.Register(&ddzproto.Heartbeat{})        //0连接服务器
 	Processor.Register(&ddzproto.DdzQuickConn{})        //1连接服务器
 	Processor.Register(&ddzproto.DdzAckQuickConn{})//2登录游戏
 

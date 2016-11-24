@@ -8,7 +8,7 @@ import (
 )
 
 func init() {
-	msg.Processor.SetRouter(&ddzproto.NullMsg{}, game.ChanRPC)        //空协议
+	msg.Processor.SetRouter(&ddzproto.Heartbeat{}, game.ChanRPC)        //空协议
 	msg.Processor.SetRouter(&ddzproto.DdzLogin{}, login.ChanRPC)    //登录协议
 
 	//游戏
