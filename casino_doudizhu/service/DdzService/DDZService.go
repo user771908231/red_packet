@@ -82,7 +82,7 @@ func HandlerFDdzReady(userId uint32) error {
 }
 
 //抢地主
-func HandlerQiangDiZhu(userId uint32) error {
+func HandlerQiangDiZhu(userId uint32, qiang bool) error {
 	desk := doudizhu.GetDdzDeskBySession(userId)
 	if desk == nil {
 		return Error.NewFailError("没有找到desk")
@@ -91,7 +91,7 @@ func HandlerQiangDiZhu(userId uint32) error {
 	//开始抢地主
 	var err error
 	if desk.IsHuanLeDoudDiZhu() {
-		err = desk.HLQiangDiZhu(userId)
+		err = desk.HLQiangDiZhu(userId,qiang)
 	}
 
 	//抢地主失败
@@ -100,7 +100,6 @@ func HandlerQiangDiZhu(userId uint32) error {
 		return Error.NewFailError("玩家抢地主出错")
 	}
 	return nil
-
 }
 
 //叫地主
@@ -144,7 +143,7 @@ func HandlerBuJiaoDiZhu(userId uint32) error {
 
 	//判断叫地主是否成功
 	if err != nil {
-		log.E("玩家[%v]不叫地主的时候失败")
+		log.E("玩家[%v]不叫地主的时候失败", userId)
 		return err
 	}
 	return nil

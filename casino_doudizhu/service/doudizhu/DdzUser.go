@@ -19,9 +19,10 @@ var (
 
 var (
 	DDZUSER_QIANGDIZHU_STATUS_NOACT int32 = 0 //没操作
-	DDZUSER_QIANGDIZHU_STATUS_JIAO int32 = 1 //抢地主
-	DDZUSER_QIANGDIZHU_STATUS_QIANG int32 = 2 //抢地主
-	DDZUSER_QIANGDIZHU_STATUS_PASS int32 = 3 //不叫
+	DDZUSER_QIANGDIZHU_STATUS_JIAO int32 = 1 //叫地主
+	DDZUSER_QIANGDIZHU_STATUS_BUJIAO int32 = 2 //叫地主
+	DDZUSER_QIANGDIZHU_STATUS_QIANG int32 = 3 //抢地主
+	DDZUSER_QIANGDIZHU_STATUS_BUQIANG int32 = 4 //不叫
 )
 
 var (
@@ -85,7 +86,7 @@ func (u *DdzUser) IsQiangDiZhuQiang() bool {
 
 //是否不叫
 func (u *DdzUser) IsQiangDiZhuBuJiao() bool {
-	return u.GetQiangDiZhuStatus() == DDZUSER_QIANGDIZHU_STATUS_PASS
+	return u.GetQiangDiZhuStatus() == DDZUSER_QIANGDIZHU_STATUS_BUJIAO
 }
 
 //抢注的时候还没有操作

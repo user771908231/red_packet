@@ -39,17 +39,18 @@ func (d *DdzDesk) HLJiaoDiZhu(userId uint32) error {
 		return Error.NewFailError("玩家没找到，抢地主失败")
 	}
 
+	//k碍事叫地主
 	user.SetQiangDiZhuStatus(DDZUSER_QIANGDIZHU_STATUS_JIAO)        //设置用户已经叫地主
+	//叫地主成功，广播信息
+	ack := newProto.NewDdzJiaoDiZhuAck()
+	*ack.UserId = userId
+	*ack.Jiao = true
+	d.BroadCastProto(ack)
 
-	//查找下一家抢地主的人
-	index := d.GetUserIndexByUserId(user.GetUserId())
-	var nextUser *DdzUser
-	for i := index + 1; i < len(d.Users) + index; i++ {
-		u := d.Users[(i) / len(d.Users)]
-		if u != nil && !u.IsQiangDiZhuBuJiao() {
-			nextUser = u
-		}
-	}
+	//查找下一个没有操作过的人来抢地主
+	nextUser := d.GetNextUserByPros(userId, func(u *DdzUser) bool {
+		return u != nil && !u.IsQiangDiZhuNoAct()
+	})
 
 	//表示没有下一家可以抢地主
 	if nextUser == nil {
@@ -63,7 +64,7 @@ func (d *DdzDesk) HLJiaoDiZhu(userId uint32) error {
 
 
 //欢乐斗地主，抢地主
-func (d *DdzDesk) HLQiangDiZhu(userId uint32) error {
+func (d *DdzDesk) HLQiangDiZhu(userId uint32, qiang bool) error {
 
 	//验证活动玩家
 	err := d.CheckActiveUser(userId)
@@ -76,12 +77,17 @@ func (d *DdzDesk) HLQiangDiZhu(userId uint32) error {
 	if user == nil {
 		return Error.NewFailError("玩家没找到，抢地主失败")
 	}
+	//抢地主和
+	if qiang {
+		//开始抢地主的逻辑
+		d.SetDizhu(user.GetUserId())
+		d.AddCountQiangDiZhu()        //增加抢地主的次数
+		d.setQingDizhuValue(d.GetQingDizhuValue() * 2)//这里还需要计算低分
+		user.SetQiangDiZhuStatus(DDZUSER_QIANGDIZHU_STATUS_QIANG)
+	} else {
+		user.SetQiangDiZhuStatus(DDZUSER_QIANGDIZHU_STATUS_BUQIANG)
+	}
 
-	//开始抢地主的逻辑
-	d.SetDizhu(user.GetUserId())
-	d.AddCountQiangDiZhu()        //增加抢地主的次数
-	d.setQingDizhuValue(d.GetQingDizhuValue() * 2)//这里还需要计算低分
-	user.SetQiangDiZhuStatus(DDZUSER_QIANGDIZHU_STATUS_QIANG)
 
 	//表示地主都抢过来，又轮到第一家，抢地主的逻辑结束
 	if user.IsQiangDiZhuQiang() && d.GetDizhuPaiUser() == user.GetUserId() {
@@ -125,16 +131,7 @@ func (d *DdzDesk) HLBuJiaoDiZhu(userId uint32) error {
 	}
 
 	//设置用户为不叫地主
-	user.SetQiangDiZhuStatus(DDZUSER_QIANGDIZHU_STATUS_PASS)
-
-	//查找下一家抢地主的人
-	//index := d.GetUserIndexByUserId(user.GetUserId())
-	//for i := index + 1; i < len(d.Users) + index; i++ {
-	//	u := d.Users[(i) / len(d.Users)]
-	//	if u != nil && !u.IsQiangDiZhuBuJiao() {
-	//		nextUser = u
-	//	}
-	//}
+	user.SetQiangDiZhuStatus(DDZUSER_QIANGDIZHU_STATUS_BUJIAO)
 
 	//得到下一个可以抢地主的人
 	var nextUser = d.GetNextUserByPros(user.GetUserId(), func(u *DdzUser) bool {
@@ -174,7 +171,6 @@ func (d *DdzDesk) ActJiaBei(userId uint32) error {
 	*ack.UserId = userId
 	*ack.Double = 0
 	d.BroadCastProto(ack)
-
 
 	//下一个人加倍
 	nextUser := d.GetNextUserByPros(userId, func(u *DdzUser) bool {
