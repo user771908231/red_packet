@@ -5,8 +5,9 @@
 <body>
 
 <div class="container-fluid">
+    <br>
+    <br>
     <div class="table-responsive panel panel-default">
-        <br>
         <div class="panel-heading">斗地主{{.desk.GetDeskId}}</div>
         <!--<div class="panel-body">-->
             <!--<p>...</p>-->
@@ -20,6 +21,8 @@
                 <th>玩家状态</th>
                 <th>网络状态</th>
                 <th>是否离开</th>
+                <th>手牌</th>
+                <th>打出的牌</th>
             </tr>
             </thead>
             <tbody>
@@ -41,6 +44,9 @@
                 {{else}}
                 <td>未离开</td>
                 {{end}}
+
+                <td>{{$user.GetTransferredHandPokerPais}}</td>
+                <td>{{$user.GetTransferredOutPokerPais}}</td>
             </tr>
             {{end}}
             </tbody>

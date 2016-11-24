@@ -10,6 +10,7 @@ import (
 	"casino_doudizhu/msg/protogo"
 	"casino_doudizhu/msg/funcsInit"
 	"casino_server/service/userService"
+	"strings"
 )
 
 var (
@@ -238,4 +239,32 @@ func ( u *DdzUser) GetPlayerInfo(desk *DdzDesk) *ddzproto.PlayerInfo {
 	info.WxInfo = u.GetWxInfo()        //微信信息
 	*info.OnlineStatus = u.GetOnlineStatus() //在线的状态
 	return info
+}
+
+func (u *DdzUser) GetTransferredHandPokerPais() string {
+	ret := ""
+	suit := ""
+	for _, p := range u.GameData.HandPokers {
+		suit = p.GetLogDes()
+		if suit != "" {
+			ret = ret + suit + "\t "
+		}
+	}
+	return ret
+}
+
+func (u *DdzUser) GetTransferredOutPokerPais() string {
+	ret := ""
+	suit := ""
+	for _, outList := range u.GameData.GetOutPaiList() {
+		if outList != nil {
+			for _, p := range outList.GetPokerPais() {
+				suit = p.GetLogDes()
+				if suit != "" {
+					ret = ret + suit + "\t "
+				}
+			}
+		}
+	}
+	return ret
 }
