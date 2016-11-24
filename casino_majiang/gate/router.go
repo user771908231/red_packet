@@ -4,12 +4,11 @@ import (
 	"casino_majiang/msg"
 	"casino_majiang/game"
 	"casino_majiang/msg/protogo"
-	"casino_server/msg/bbprotogo"
 	"casino_majiang/login"
 )
 
 func init() {
-	msg.Processor.SetRouter(&bbproto.NullMsg{}, game.ChanRPC)
+	msg.Processor.SetRouter(&mjproto.Heartbeat{}, game.ChanRPC)
 	msg.Processor.SetRouter(&mjproto.Game_QuickConn{}, login.ChanRPC)
 	msg.Processor.SetRouter(&mjproto.Game_CreateRoom{}, game.ChanRPC)        //创建房间
 	msg.Processor.SetRouter(&mjproto.Game_EnterRoom{}, game.ChanRPC)                //进入房间

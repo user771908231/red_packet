@@ -2,14 +2,13 @@ package msg
 
 import (
 	"github.com/name5566/leaf/network/protobuf"
-	casinoProto "casino_server/msg/bbprotogo"
 	majiangProto "casino_majiang/msg/protogo"
 )
 
 var Processor = protobuf.NewProcessor()
 
 func init() {
-	Processor.Register(&casinoProto.NullMsg{})                      //0
+	Processor.Register(&majiangProto.Heartbeat{})                      //0
 	Processor.Register(&majiangProto.Game_QuickConn{})             	//1 接入服务器
 	Processor.Register(&majiangProto.Game_AckQuickConn{})          	//2
 	Processor.Register(&majiangProto.Game_Login{})             		//3 登录游戏

@@ -15,6 +15,8 @@ var _ = math.Inf
 
 // Ignoring public import of ProtoHeader from base.proto
 
+// Ignoring public import of Heartbeat from base.proto
+
 // Ignoring public import of WeixinInfo from base.proto
 
 // Ignoring public import of CardInfo from base.proto
