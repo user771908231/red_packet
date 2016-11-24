@@ -18,7 +18,7 @@ func Run() {
 		Directory: "service/webserver/templates",
 	}))
 	//routers
-	m.Get("mjdesk", mjDeskHandler.Get) //get
+	m.Get("mjdesks", mjDeskHandler.Get) //get
 	m.Get("mjdesk-users/:id", mjDeskHandler.GetUsers)
 
 	m.NotFound(func() string {
