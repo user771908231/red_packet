@@ -321,3 +321,13 @@ func (d *DdzDesk) EveryUserDoSomething(dos func(user *DdzUser) error) error {
 }
 
 
+//客户端显示底牌
+func (d *DdzDesk) GetDiPaiClientPokers() []*ddzproto.Poker {
+	var ret []*ddzproto.Poker
+	for _, p := range d.GetDiPokerPai() {
+		if p != nil {
+			ret = append(ret, p.GetClientPoker())
+		}
+	}
+	return ret
+}

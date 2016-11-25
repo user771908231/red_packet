@@ -352,6 +352,14 @@ func (d *DdzDesk) HLAfterQiangDizhu() {
 		return
 	}
 
+	//显示底牌
+	showDiPai := newProto.NewDdzStartPlay()
+	showDiPai.FootPokers = d.GetDiPaiClientPokers()
+	*showDiPai.FootRate = d.GetFootRate()
+	d.BroadCastProto(showDiPai)
+
+	//是否需要延时
+
 	//有地主的情况,抢地主完成之后开会加倍不加倍的操作
 	overTurn := newProto.NewDdzOverTurn()
 	*overTurn.ActType = ddzproto.ActType_T_DOUBLE        ///加倍不加倍
