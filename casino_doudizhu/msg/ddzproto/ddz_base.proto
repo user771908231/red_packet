@@ -172,8 +172,7 @@ enum DDZRoomType {
 message Poker {
     optional PokerColor suit = 1; //花色: 1=黑桃 2=红桃 3=梅花 4=方块
     optional int32 num = 2; //牌值: 2-10，J、Q、K、A、小王、大王
-
-    optional int32 value = 3; //54张牌：1-54; 0=牌背
+    optional int32 id = 3; //54张牌：1-54; 0=牌背
 }
 
 // 微信信息
