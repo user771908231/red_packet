@@ -32,8 +32,9 @@ func GetUsers(ctx *macaron.Context) {
 	}
 	desk := doudizhu.GetFDdzRoom().GetDeskByDeskId(deskId)
 
-	if desk== nil || desk.Users == nil {
+	if desk == nil || desk.Users == nil {
 		ctx.Redirect("/")
+		return
 	}
 
 	renderUser := []*doudizhu.DdzUser{}

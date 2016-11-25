@@ -163,13 +163,19 @@ func (d *DdzDesk) HLBuJiaoDiZhu(userId uint32) error {
 }
 
 //欢乐斗地主开始加倍的逻辑
-func (d *DdzDesk) ActJiaBei(userId uint32) error {
+func (d *DdzDesk) ActJiaBei(userId uint32, jia bool) error {
 	//判断activeUser
 	err := d.CheckActiveUser(userId)
 	if err != nil {
 		return err
 	}
 	//低分加倍的逻辑
+
+	if jia {
+		//处理加倍
+	} else {
+		//处理不加倍
+	}
 
 	//需要返回加倍的ack
 	ack := newProto.NewDdzDoubleAck()
@@ -184,10 +190,10 @@ func (d *DdzDesk) ActJiaBei(userId uint32) error {
 
 	if nextUser != nil {
 		//发送加倍的overTurn
+		d.sendJiaBeiOverTurn(nextUser.GetUserId())
 	} else {
 		//加倍已经完成了，开始游戏
-
-
+		d.AfterJiaBei()
 	}
 	return nil
 }

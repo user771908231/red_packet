@@ -328,6 +328,7 @@ func NewDdzStartPlay() *ddzproto.DdzStartPlay {
 	ret := new(ddzproto.DdzStartPlay)
 	ret.Header = NewHeader()
 	ret.FootRate = new(int32)
+	ret.Dizhu = new(uint32)
 	return ret
 }
 
