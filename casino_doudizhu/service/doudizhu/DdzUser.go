@@ -2,15 +2,15 @@ package doudizhu
 
 import (
 	"sync"
-	"casino_server/common/log"
-	"casino_server/common/Error"
 	"sync/atomic"
 	"github.com/name5566/leaf/gate"
 	"github.com/golang/protobuf/proto"
 	"casino_doudizhu/msg/protogo"
 	"casino_doudizhu/msg/funcsInit"
-	"casino_server/service/userService"
 	"sort"
+	"casino_common/common/log"
+	"casino_common/common/Error"
+	"casino_common/common/userService"
 )
 
 var (

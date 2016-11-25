@@ -1,14 +1,14 @@
 package doudizhu
 
 import (
-	"casino_server/common/log"
-	"casino_server/common/Error"
 	"github.com/name5566/leaf/gate"
 	"casino_doudizhu/msg/funcsInit"
-	"casino_server/conf/intCons"
 	"casino_doudizhu/msg/protogo"
 	"time"
-	"casino_server/utils"
+	"casino_common/common/log"
+	"casino_common/common/Error"
+	"casino_common/common/consts"
+	"casino_common/utils/rand"
 )
 
 //这里主要存放 玩斗地主的一些多逻辑....其他的基本方法都放在DdzDesk中
@@ -42,7 +42,7 @@ func (d *DdzDesk) EnterUser(userId uint32, a gate.Agent) (error, int32) {
 		log.T("玩家[%v]进入房间[%v]失败", userId, d.GetDeskId())
 		//进入失败 //返回失败的信息
 		ret := newProto.NewGame_AckEnterRoom()
-		*ret.Header.Code = intCons.ACK_RESULT_ERROR
+		*ret.Header.Code = consts.ACK_RESULT_ERROR
 		*ret.Header.Error = "进入房间失败"
 		a.WriteMsg(ret)
 		return Error.NewError(-1, "进入房间失败"), 0
@@ -196,7 +196,7 @@ func (d *DdzDesk) DoEnd() {
 
 func (d *DdzDesk) CommonBeginInit() error {
 	//desk.init
-	*d.DizhuPaiUser = d.Users[utils.Rand(0, 3)].GetUserId()        //随机一个 第一个叫地主的人
+	*d.DizhuPaiUser = d.Users[rand.Rand(0, 3)].GetUserId()        //随机一个 第一个叫地主的人
 	d.SetActiveUser(0)        //设置当前激活的玩家为0
 
 	//userInit

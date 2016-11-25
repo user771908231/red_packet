@@ -2,13 +2,13 @@ package doudizhu
 
 import (
 	"sync"
-	"casino_server/utils/numUtils"
-	"casino_server/utils"
-	"casino_server/common/log"
 	"errors"
 	"casino_doudizhu/msg/protogo"
-	"casino_server/utils/db"
 	"casino_doudizhu/conf/config"
+	"casino_common/utils/db"
+	"casino_common/common/log"
+	"casino_common/utils/rand"
+	"casino_common/utils/numUtils"
 )
 
 //初始化一个斗地主的房间实例
@@ -53,7 +53,7 @@ func (room *DdzRoom) CreateDesk(userId uint32, roominfo *ddzproto.RoomTypeInfo) 
 
 //得到一个roomKey
 func (r *DdzRoom) NewRoomKey() string {
-	a := utils.Rand(100000, 1000000)
+	a := rand.Rand(100000, 1000000)
 	roomKey, _ := numUtils.Int2String(a)
 	//1,判断roomKey是否已经存在
 	if r.IsRoomKeyExist(roomKey) {
