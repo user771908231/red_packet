@@ -148,23 +148,40 @@ message StatiscRound {
     optional int32 CountBeiBaGang = 13; //被巴杠
     optional int32 CountBeiAnGang = 14; //被暗杠
     optional int32 CountBeiZiMo = 15; //被自摸
+
+    optional int32 CountChaDaJiao = 16; //查大叫
+    optional int32 CountBeiChaJiao = 17; //被查叫
+
+    optional int32 CountChaHuaZhu = 18; //查花猪
+    optional int32 CountBeiChaHuaZhu = 19; //被查花猪
 }
 
 message MjUserStatisc {
-    optional int64 WinCoin = 1; //输赢的金额
-    optional int32 CountHu = 2; //胡牌的次数
-    optional int32 CountZiMo = 3; //自摸的次数
-    optional int32 CountDianPao = 4; //点炮的次数
-    optional int32 CountAnGang = 5; //暗杠的次数
-    optional int32 CountMingGang = 6; //明杠的次数
-    optional int32 CountDianGang = 7; //点杠的次数
-    optional int32 CountChaJiao = 8; //
-    repeated StatiscRound roundBean = 9; //
+    repeated StatiscRound roundBean = 1; //
+    optional int64 WinCoin = 2; //输赢的金额
+    optional int32 CountHu = 3; //胡牌的次数
 
-    optional int32 CountBaGang = 10; //巴杠
-    optional int32 CountBeiBaGang = 11; //被巴杠
-    optional int32 CountBeiAnGang = 12; //被暗杠
-    optional int32 CountBeiZiMo = 13; //被自摸
+    optional int32 CountZiMo = 4; //自摸的次数
+    optional int32 CountBeiZiMo = 5; //被自摸
+
+    optional int32 CountDianPao = 6; //点炮的次数
+
+    optional int32 CountAnGang = 7; //暗杠的次数
+    optional int32 CountBeiAnGang = 8; //被暗杠
+
+    optional int32 CountMingGang = 9; //明杠的次数
+    optional int32 CountDianGang = 10; //点杠的次数
+
+    optional int32 CountBaGang = 11; //巴杠
+    optional int32 CountBeiBaGang = 12; //被巴杠
+
+    optional int32 CountChaDaJiao = 13; //查大叫
+    optional int32 CountBeiChaJiao = 14; //被查叫
+
+    optional int32 CountChaHuaZhu = 15; //查花猪
+    optional int32 CountBeiChaHuaZhu = 16; //被查花猪
+
+
 } //手里的一副牌
 
 message MjUser {

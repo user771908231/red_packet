@@ -37,6 +37,12 @@ var MJUSER_BILL_TYPE_SHU_ZIMO int32 = 8 //自摸输钱
 
 var MJUSER_BILL_TYPE_SHU_DIANPAO int32 = 9 //点炮输钱
 
+var MJUSER_BILL_TYPE_SHU_DAJIAO int32 = 10 //被查叫输钱
+var MJUSER_BILL_TYPE_YING_DAJIAO int32 = 11 //查大叫赢钱
+
+var MJUSER_BILL_TYPE_SHU_CHAHUAZHU int32 = 12 //被查花猪输钱
+var MJUSER_BILL_TYPE_YING_CHAHUAZHU int32 = 13 //查花猪赢钱
+
 
 //麻将玩家
 
@@ -615,6 +621,59 @@ func (u *MjUser) AddStatisticsCountZiMo(round int32) error {
 	return nil
 }
 
+//增加用户查大叫的统计记录
+func (u *MjUser) AddStatisticsCountChaDaJiao(round int32) error {
+	roundBean := u.GetStatisticsRoundBean(round)
+	if roundBean == nil {
+		log.E("统计的时候出错...")
+		return errors.New("没有找到统计的roundBean，无法统计")
+	}
+	atomic.AddInt32(roundBean.CountChaDaJiao, 1) //单局
+
+	atomic.AddInt32(u.Statisc.CountChaDaJiao, 1) //汇总
+	return nil
+}
+
+//增加用户被查叫的统计记录
+func (u *MjUser) AddStatisticsCountBeiChaJiao(round int32) error {
+	roundBean := u.GetStatisticsRoundBean(round)
+	if roundBean == nil {
+		log.E("统计的时候出错...")
+		return errors.New("没有找到统计的roundBean，无法统计")
+	}
+	atomic.AddInt32(roundBean.CountBeiChaJiao, 1) //单局
+
+	atomic.AddInt32(u.Statisc.CountBeiChaJiao, 1) //汇总
+	return nil
+}
+
+//增加用户查花猪的统计记录
+func (u *MjUser) AddStatisticsCountChaHuaZhu(round int32) error {
+	roundBean := u.GetStatisticsRoundBean(round)
+	if roundBean == nil {
+		log.E("统计的时候出错...")
+		return errors.New("没有找到统计的roundBean，无法统计")
+	}
+	atomic.AddInt32(roundBean.CountChaDaJiao, 1) //单局
+
+	atomic.AddInt32(u.Statisc.CountChaDaJiao, 1) //汇总
+	return nil
+}
+
+//增加用户被查花猪的统计记录
+func (u *MjUser) AddStatisticsCountBeiChaHuaZhu(round int32) error {
+	roundBean := u.GetStatisticsRoundBean(round)
+	if roundBean == nil {
+		log.E("统计的时候出错...")
+		return errors.New("没有找到统计的roundBean，无法统计")
+	}
+	atomic.AddInt32(roundBean.CountBeiChaHuaZhu, 1) //单局
+
+	atomic.AddInt32(u.Statisc.CountBeiChaHuaZhu, 1) //汇总
+	return nil
+}
+
+
 //统计杠的数量
 //func (u *MjUser) StatisticsGangCount(round int32, gangType int32) error {
 //
@@ -750,8 +809,8 @@ func (u *MjUser) IsNotHuaZhu() bool {
 }
 
 
-//判断用户是不是没有叫
-func (u *MjUser) ChaJiao() bool {
+//判断用户是不是没有叫 有叫为true
+func (u *MjUser) IsYouJiao() bool {
 	//
 	//u.GameData.HandPai.GetCanHu()
 	for i := 0; i < 108; i++ {
