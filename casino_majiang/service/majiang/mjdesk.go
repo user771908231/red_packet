@@ -971,7 +971,7 @@ func (d *MjDesk) GetJiaoInfos(user *MjUser) []*mjproto.JiaoInfo {
 				jiaoPaiInfo := NewJiaoPaiInfo()
 
 				//计算番数得分胡牌类型
-				fan, _, _ := GetHuScore(handPai, false, is19, 0, *d.GetRoomTypeInfo(), d)
+				fan, _, _, _ := GetHuScore(handPai, false, is19, 0, *d.GetRoomTypeInfo(), d)
 				//log.T("胡的番数%v", fan)
 				//可胡牌的信息
 				jiaoPaiInfo.HuCard = mjPai.GetCardInfo()
@@ -1411,7 +1411,7 @@ func (d *MjDesk)ActHu(userId uint32) error {
 	var isHaiDiLao bool = false //是否是海底捞
 	var isLastPai bool = !d.HandPaiCanMo() //是否是最后一张牌
 	var isPreMoGang bool = false //之前是否有摸杠
-	var extraAct mjproto.HuPaiType = 0        //杠上花，
+	var extraAct mjproto.HuType = 0        //杠上花，
 	var outUserId uint32
 	var roomInfo mjproto.RoomTypeInfo = *d.GetRoomTypeInfo()  //roomType  桌子的规则
 	var outUser *MjUser
@@ -1432,19 +1432,19 @@ func (d *MjDesk)ActHu(userId uint32) error {
 	switch {
 	case isZimo && isPreMoGang && !isLastPai : // 杠上花
 		isGangShangHua = true  //杠上花
-		extraAct = mjproto.HuPaiType_H_GangShangHua
+		extraAct = mjproto.HuType_H_GangShangHua
 	case !isZimo && isPreMoGang && !isLastPai : //杠上炮
 		isGangShangPao = true//杠上炮
-		extraAct = mjproto.HuPaiType_H_GangShangPao
+		extraAct = mjproto.HuType_H_GangShangPao
 	case !isZimo && isPreMoGang && isLastPai ://海底杠上炮
 		isHaidiGangshangpao = true
-		extraAct = mjproto.HuPaiType_H_HaidiGangShangPao
+		extraAct = mjproto.HuType_H_HaidiGangShangPao
 	case isZimo && isPreMoGang && isLastPai ://海底杠上花
 		isHaidiGangshanghua = true
-		extraAct = mjproto.HuPaiType_H_HaidiGangShangHua
+		extraAct = mjproto.HuType_H_HaidiGangShangHua
 	case isZimo && !isPreMoGang && isLastPai ://海底捞
 		isHaiDiLao = true
-		extraAct = mjproto.HuPaiType_H_HaiDiLao
+		extraAct = mjproto.HuType_H_HaiDiLao
 	default:
 		extraAct = 0
 	}
@@ -1453,7 +1453,7 @@ func (d *MjDesk)ActHu(userId uint32) error {
 
 	log.T("点炮的人[%v],胡牌的人[%v],杠上花[%v],杠上炮[%v],海底杠上花[%v],海底杠上炮[%v],海底捞[%v] ", userId, outUserId, isGangShangHua, isGangShangPao, isHaidiGangshanghua, isHaidiGangshangpao, isHaiDiLao)
 	log.T("接下来开始getHuScore(%v,%v,%v,%v)", huUser.GameData.HandPai, isZimo, extraAct, roomInfo)
-	fan, score, huCardStr := GetHuScore(huUser.GameData.HandPai, isZimo, is19, extraAct, roomInfo, d)
+	fan, score, huCardStr, paiType := GetHuScore(huUser.GameData.HandPai, isZimo, is19, extraAct, roomInfo, d)
 	log.T("胡牌(getHuScore)之后的结果fan[%v],score[%v],huCardStr[%v]", fan, score, huCardStr)
 
 	//二人两房 平胡不能被点炮
@@ -1474,6 +1474,7 @@ func (d *MjDesk)ActHu(userId uint32) error {
 	*hu.HuType = int32(extraAct)        ////杠上炮 杠上花 抢杠 海底捞 海底炮 天胡 地胡
 	*hu.HuDesc = strings.Join(huCardStr, " ");
 	*hu.Fan = fan
+	*hu.PaiType = int32(paiType)
 	*hu.Score = score        //只是胡牌的分数，不是赢了多少钱
 	hu.Pai = huUser.GameData.HandPai.InPai
 

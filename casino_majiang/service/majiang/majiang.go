@@ -543,7 +543,7 @@ func CanHuPai(handPai *MJHandPai) (bool, bool) {
 	return canHu, isAll19
 }
 
-func GetHuScore(handPai *MJHandPai, isZimo bool, is19 bool, extraAct HuPaiType, roomInfo RoomTypeInfo, mjDesk *MjDesk) (fan int32, score int64, huCardStr[] string) {
+func GetHuScore(handPai *MJHandPai, isZimo bool, is19 bool, extraAct HuType, roomInfo RoomTypeInfo, mjDesk *MjDesk) (fan int32, score int64, huCardStr[] string, paiType PaiType) {
 
 	log.T("pai: %v", handPai.GetDes(), handPai.InPai.LogDes())
 
@@ -551,7 +551,7 @@ func GetHuScore(handPai *MJHandPai, isZimo bool, is19 bool, extraAct HuPaiType, 
 	score = int64(*roomInfo.BaseValue)
 
 	//取得番数
-	huFan, huCardStr := getHuFan(handPai, isZimo, is19, extraAct, mjDesk)
+	huFan, huCardStr, paiType := getHuFan(handPai, isZimo, is19, extraAct, mjDesk)
 
 	for i := int32(0); i < huFan; i++ {
 		score *= 2
@@ -566,7 +566,7 @@ func GetHuScore(handPai *MJHandPai, isZimo bool, is19 bool, extraAct HuPaiType, 
 		}
 	}
 
-	return huFan, score, huCardStr
+	return huFan, score, huCardStr, paiType
 }
 
 //计算带几个"勾"
@@ -604,10 +604,8 @@ func getGou(handPai *MJHandPai, handCounts[] int) (gou int32) {
 // 返回胡牌番数
 // extraAct:指定HuPaiType.H_GangShangHua(杠上花/炮,海底等)
 //
-func getHuFan(handPai *MJHandPai, isZimo bool, is19 bool, extraAct HuPaiType, mjDesk *MjDesk) (fan int32, huCardStr[] string) {
+func getHuFan(handPai *MJHandPai, isZimo bool, is19 bool, extraAct HuType, mjDesk *MjDesk) (fan int32, huCardStr[] string, paiType PaiType) {
 	fan = int32(0)
-
-	//huFanType :=
 
 	fanXingStr := ""
 	jiaFanStr := ""
@@ -650,11 +648,13 @@ func getHuFan(handPai *MJHandPai, isZimo bool, is19 bool, extraAct HuPaiType, mj
 			//清龙七对
 			log.T("是清龙七对")
 			fan = FAN_QINGLONGQIDUI
+			paiType = PaiType_H_QingLongQiDui
 			fanXingStr = "清龙七对"
 		} else {
 			//龙七对
 			log.T("是龙七对")
 			fan = FAN_LONGQIDUI
+			paiType = PaiType_H_LongQiDui
 			fanXingStr = "龙七对"
 		}
 	case IsQiDui(handPai.Pais, handCounts): //case 清七对 将七对 七对
@@ -664,6 +664,7 @@ func getHuFan(handPai *MJHandPai, isZimo bool, is19 bool, extraAct HuPaiType, mj
 			//清七对
 			log.T("是清七对")
 			fan = FAN_QINGQIDUI
+			paiType = PaiType_H_QingQiDui
 			fanXingStr = "清七对"
 		} else {
 			//七对
@@ -677,18 +678,21 @@ func getHuFan(handPai *MJHandPai, isZimo bool, is19 bool, extraAct HuPaiType, mj
 			//清对
 			log.T("是清对")
 			fan = FAN_QINGDUI
+			paiType = PaiType_H_DuiDuiHu
 			fanXingStr = "清对"
 		} else if mjDesk.IsNeedYaojiuJiangdui() {
 			//将对选项开启
 			log.T("是将对")
 			if IsJiangDui(handPai) {
 				fan = FAN_DADUIZI
+				paiType = PaiType_H_JiangDui
 				fanXingStr = "将对"
 			}
 		} else {
 			//大对子
 			log.T("是大对子")
 			fan = FAN_DADUIZI
+			paiType = PaiType_H_DuiDuiHu
 			fanXingStr = "大对子"
 		}
 	default: //default 清一色 平胡
@@ -696,11 +700,13 @@ func getHuFan(handPai *MJHandPai, isZimo bool, is19 bool, extraAct HuPaiType, mj
 			//平胡清一色
 			log.T("是清一色")
 			fan = FAN_QINGYISE
+			paiType = PaiType_H_QingYiSe
 			fanXingStr = "清一色"
 		} else {
 			//平胡
 			log.T("是平胡")
 			fan = FAN_PINGHU
+			paiType = PaiType_H_PingHu
 			fanXingStr = "平胡"
 		}
 	}
@@ -726,6 +732,7 @@ func getHuFan(handPai *MJHandPai, isZimo bool, is19 bool, extraAct HuPaiType, mj
 		if is19 && IsPengGang19(handPai) {
 			//手牌带幺九 且 碰杠牌带幺九
 			fan += FAN_DAIYAOJIU
+			paiType = PaiType_H_DaiYaoJiu
 			jiaFanStr = "带幺九"
 		}
 	}
@@ -734,10 +741,12 @@ func getHuFan(handPai *MJHandPai, isZimo bool, is19 bool, extraAct HuPaiType, mj
 		//门清中张选项开启
 		if IsMenqing(handPai) {
 			fan += FAN_MENQ_ZHONGZ
+			paiType = PaiType_H_MenQing
 			jiaFanStr = "门清"
 		}
 		if IsZhongzhang(handPai, handCounts) {
 			fan += FAN_MENQ_ZHONGZ
+			paiType = PaiType_H_ZhongZhang
 			jiaFanStr = "中张"
 		}
 	}
@@ -759,47 +768,47 @@ func getHuFan(handPai *MJHandPai, isZimo bool, is19 bool, extraAct HuPaiType, mj
 
 	}
 
-	switch HuPaiType(extraAct) {
+	switch HuType(extraAct) {
 
 	//天地胡为牌型番数，非加番
-	case HuPaiType_H_TianHu :
+	case HuType_H_TianHu :
 		if isTianDiHuFlag {
 			//天地胡选项开启
 			fan = FAN_TIAN_DI_HU
 			fanXingStr = "天胡"
 		}
-	case HuPaiType_H_DiHu :
+	case HuType_H_DiHu :
 		if isTianDiHuFlag {
 			//天地胡选项开启
 			fan = FAN_TIAN_DI_HU
 			fanXingStr = "地胡"
 		}
 
-	case HuPaiType_H_GangShangHua:
+	case HuType_H_GangShangHua:
 		fan += FAN_GANGSHANGHUA
 		jiaFanStr = fmt.Sprintf("杠上花(+%d番)", FAN_GANGSHANGHUA)
 
-	case HuPaiType_H_GangShangPao:
+	case HuType_H_GangShangPao:
 		fan += FAN_GANGSHANGPAO
 		jiaFanStr = fmt.Sprintf("杠上炮(+%d番)", FAN_GANGSHANGPAO)
 
-	case HuPaiType_H_HaiDiLao:
+	case HuType_H_HaiDiLao:
 		fan += FAN_HD_HUA
 		jiaFanStr = fmt.Sprintf("海底花(+%d番)", FAN_HD_HUA)
 
-	case HuPaiType_H_HaiDiPao:
+	case HuType_H_HaiDiPao:
 		fan += FAN_HD_PAO
 		jiaFanStr = fmt.Sprintf("海底炮(+%d番)", FAN_HD_PAO)
 
-	case HuPaiType_H_QiangGang:
+	case HuType_H_QiangGang:
 		fan += FAN_QIANGGANG
 		jiaFanStr = fmt.Sprintf("抢杠(+%d番)", FAN_QIANGGANG)
 
-	case HuPaiType_H_HaidiGangShangHua:
+	case HuType_H_HaidiGangShangHua:
 		fan += FAN_HD_GANGSHANGHUA
 		jiaFanStr = fmt.Sprintf("海底杠上花(+%d番)", FAN_HD_GANGSHANGHUA)
 
-	case HuPaiType_H_HaidiGangShangPao:
+	case HuType_H_HaidiGangShangPao:
 		fan += FAN_HD_GANGSHANGPAO
 		jiaFanStr = fmt.Sprintf("海底杠上炮(+%d番)", FAN_HD_GANGSHANGPAO)
 	default:
@@ -832,7 +841,7 @@ func getHuFan(handPai *MJHandPai, isZimo bool, is19 bool, extraAct HuPaiType, mj
 	huCardStr = append(huCardStr, jiaFanStr)
 	huCardStr = append(huCardStr, fengdingStr)
 
-	return fan, huCardStr
+	return fan, huCardStr, paiType
 }
 
 
