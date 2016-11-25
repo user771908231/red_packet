@@ -24,7 +24,7 @@ message HuPaiInfo {
     optional uint32 getUserId = 2; //得胡的人
     optional int32 byWho = 3; //0=自己胡  1=下家 2=对家 3=上家 4=三家
     optional int32 huType = 4; //杠上炮 杠上花 抢杠 海底捞 海底炮 天胡 地胡
-    optional int32 cardType = 5; //胡的牌型:清一色...
+    optional int32 paiType = 5; //胡的牌型:清一色...
     optional string huDesc = 6; //如:"自摸(清一色) 中张 3番"
     optional MJPai pai = 7; //胡的哪张牌
     optional int32 fan = 8; //胡的番数
