@@ -1,9 +1,9 @@
 package doudizhu
 
 import (
-	"casino_server/common/log"
-	"casino_server/common/Error"
 	"casino_doudizhu/msg/funcsInit"
+	"casino_common/common/log"
+	"casino_common/common/Error"
 )
 
 //欢乐斗地主

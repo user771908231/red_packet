@@ -1,14 +1,14 @@
 package DdzService
 
 import (
-	"casino_server/common/log"
 	"casino_doudizhu/service/doudizhu"
 	"errors"
-	"casino_server/common/Error"
 	"github.com/name5566/leaf/gate"
 	"casino_doudizhu/msg/protogo"
 	"casino_doudizhu/msg/funcsInit"
-	"casino_server/conf/intCons"
+	"casino_common/common/log"
+	"casino_common/common/consts"
+	"casino_common/common/Error"
 )
 
 /*
@@ -26,7 +26,7 @@ func HandlerCreateDesk(userId uint32, roominfo *ddzproto.RoomTypeInfo, a gate.Ag
 	if desk == nil {
 		log.E("创建房间失败...")
 		ret := newProto.NewGame_AckCreateRoom()
-		*ret.Header.Code = intCons.ACK_RESULT_ERROR
+		*ret.Header.Code = consts.ACK_RESULT_ERROR
 		*ret.Header.Error = "创建房间失败"
 		a.WriteMsg(ret)
 		return

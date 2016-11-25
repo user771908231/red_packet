@@ -2,15 +2,15 @@ package doudizhu
 
 import (
 	"errors"
-	"casino_server/common/log"
 	"sync"
-	"casino_server/common/Error"
 	"fmt"
 	"sync/atomic"
 	"github.com/golang/protobuf/proto"
 	"github.com/name5566/leaf/gate"
 	"casino_doudizhu/msg/protogo"
 	"casino_doudizhu/msg/funcsInit"
+	"casino_common/common/log"
+	"casino_common/common/Error"
 )
 
 //斗地主的desk

@@ -1,10 +1,10 @@
 package doudizhu
 
 import (
-	"casino_server/common/log"
-	"casino_server/utils/numUtils"
 	"strings"
-	"casino_server/utils/redisUtils"
+	"casino_common/common/log"
+	"casino_common/utils/redisUtils"
+	"casino_common/utils/numUtils"
 )
 
 func GetSession(userId uint32) *PDdzSession {

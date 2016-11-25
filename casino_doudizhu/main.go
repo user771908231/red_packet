@@ -10,17 +10,27 @@ import (
 	"casino_common/common/sys"
 	"casino_doudizhu/conf"
 	"casino_doudizhu/conf/config"
+	"os"
 )
 
 func init() {
 	//初始化系统
-	sys.SysInit(conf.Server.RedisAddr,
+	err := sys.SysInit(
+		conf.Server.RedisAddr,
+		"test",
 		"dodizhu",
 		conf.Server.MongoIp,
 		conf.Server.MongoPort,
 		config.MJ_DBNAM,
 		config.DB_ENSURECOUNTER_KEY,
-		[]string{config.DBT_DDZ_DESK, config.DBT_T_TH_GAMENUMBER_SEQ})
+		[]string{
+			config.DBT_DDZ_DESK,
+			config.DBT_T_TH_GAMENUMBER_SEQ})
+	//判断初始化是否成功
+	if err != nil {
+		os.Exit(1)        //推出系统
+	}
+
 	time.Sleep(time.Second * 3)        //初始化3秒之后启动程序
 }
 
