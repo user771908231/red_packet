@@ -39,7 +39,14 @@ func NewDdzDesk() *DdzDesk {
 	desk.PDdzDesk = NewPDdzDesk()
 	desk.UserCountLimit = new(int32)
 	desk.RoomId = new(int32)
+	desk.Tongji = NewPDdzDeskTongJi()
 	return desk
+}
+
+func NewPDdzDeskTongJi() *PDdzDeskTongJi {
+	pDdzDeskTongJi := new(PDdzDeskTongJi)
+	pDdzDeskTongJi.CountQiangDiZhu = new(int32)
+	return pDdzDeskTongJi
 }
 
 func NewDdzUser() *DdzUser {
