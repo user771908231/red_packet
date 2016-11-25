@@ -6,8 +6,8 @@ import "casino_common/utils/rand"
 func Xipai(indexStart int, paiCount int) []int32 {
 	//初始化一个顺序的牌的集合
 	pmap := make([]int32, paiCount)
-	for i := indexStart; i < (paiCount + indexStart); i++ {
-		pmap[i] = int32(i)
+	for i := 0; i < paiCount; i++ {
+		pmap[i] = int32(i + indexStart)
 	}
 
 	//打乱牌的集合
