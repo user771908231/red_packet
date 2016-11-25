@@ -8,46 +8,15 @@ import (
 	"os"
 	"strconv"
 	"casino_server/utils/redis"
+	"casino_server/conf/casinoConf"
 	"casino_server/utils/db"
-	"runtime"
-	"time"
-	"math/rand"
-	"casino_doudizhu/conf"
+	"casino_server/conf"
 )
+
 
 
 // 服务器初始化
 func InitConfig(reloadFlg bool) (e Error.Error) {
-
-	initCPUNum()
-
-	initLogger(reloadFlg)
-
-	//初始化redis连接配置
-	InitRedis()
-
-	//初始化mongoDb
-	err := InitMongoDb()
-	if err != nil {
-		fmt.Println("初始化mongo的时候失败...")
-		panic(err)
-	}
-
-	initRandSeed()
-
-	fmt.Println("6，初始化结束...")
-	return Error.OK()
-
-}
-
-func initCPUNum() {
-	fmt.Println("\n1，初始化GOMAXPROCS")
-	runtime.GOMAXPROCS(runtime.NumCPU())
-}
-
-func initLogger(reloadFlg bool) {
-	fmt.Println("2，初始化logger")
-
 	//初始化日志处理
 	if reloadFlg {
 		reloadLogger()
@@ -55,6 +24,18 @@ func initLogger(reloadFlg bool) {
 		InitLogger()
 		log.T("initlogger...")
 	}
+
+	//初始化redis连接配置
+	fmt.Println("InitRedis...")
+	InitRedis()
+
+	//初始化mongoDb
+	fmt.Println("InitMongoDb...")
+	errInitMongoDb := InitMongoDb()
+	if errInitMongoDb != nil {
+		panic(errInitMongoDb)
+	}
+	return Error.OK()
 }
 /**
 初始化数据库
@@ -63,7 +44,6 @@ func initLogger(reloadFlg bool) {
 
  */
 func InitMongoDb() error {
-	fmt.Println("4，初始化mongo...")
 	//初始化地址...
 	db.Oninit(conf.Server.MongoIp, conf.Server.MongoPort)
 	//0,活的数据库连接
@@ -74,25 +54,11 @@ func InitMongoDb() error {
 	}
 	defer c.Close()
 
-	//麻将桌 自增
-	err = c.EnsureCounter(MJ_DBNAM, DBT_DDZ_DESK, DB_ENSURECOUNTER_KEY)
-	if err != nil {
-		return err
-	}
-
-	//游戏编号的虚列号
-	err = c.EnsureCounter(MJ_DBNAM, DBT_T_TH_GAMENUMBER_SEQ, DB_ENSURECOUNTER_KEY)
-	if err != nil {
-		return err
-	}
-
 	return nil
 }
 
-func InitRedis() error {
-	fmt.Println("3，初始化redis...")
+func InitRedis() {
 	data.InitRedis(conf.Server.RedisAddr)
-	return nil
 }
 
 func InitLogger() {
@@ -210,10 +176,4 @@ func reloadLogger() {
 		logDebug = true
 	}
 	log.SetDebug(logDebug)
-}
-
-func initRandSeed() {
-	fmt.Println("5，初始化随机数种子")
-	s := time.Now().UTC().UnixNano()
-	rand.Seed(s)
 }
