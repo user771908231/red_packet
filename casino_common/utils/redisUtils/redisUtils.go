@@ -1,17 +1,16 @@
 package redisUtils
 
 import (
-	"casino_server/conf/casinoConf"
-	"casino_server/utils/redis"
 	"github.com/golang/protobuf/proto"
-	"casino_server/common/log"
+	"casino_common/utils/redis"
+	"casino_common/common/log"
 )
 
 
 //在需要的地方,需要自己关闭连接
 func GetConn() data.Data {
 	conn := data.Data{}
-	conn.Open(casinoConf.REDIS_DB_NAME)
+	conn.Open()
 	return conn
 }
 

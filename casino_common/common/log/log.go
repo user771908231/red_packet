@@ -220,7 +220,7 @@ func E(format string, v ...interface{}) {
 	_, file, line, _ := runtime.Caller(1) //calldepth=3
 	if logLevel <= ERROR {
 		errorLogStrChan <- fmt.Sprintf("%v:%v]", shortFileName(file), line) + fmt.Sprintf("\033[1;4;31m[ERROR] "+format+" \033[0m ", v...)
-		//traceLogStrChan <- fmt.Sprintf("%v:%v]", shortFileName(file), line) + fmt.Sprintf("\033[1;4;31m[ERROR] "+format+" \033[0m ", v...)
+		traceLogStrChan <- fmt.Sprintf("%v:%v]", shortFileName(file), line) + fmt.Sprintf("\033[1;4;31m[ERROR] "+format+" \033[0m ", v...)
 	}
 }
 

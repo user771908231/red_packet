@@ -1,21 +1,23 @@
 package data
 
 import (
-	"casino_server/common/cfg"
-	"casino_server/common/log"
 	"github.com/garyburd/redigo/redis"
 	"time"
 	"github.com/golang/protobuf/proto"
+	"casino_common/common/cfg"
+	"casino_common/common/log"
 )
 
 var (
 	Redis_svr string
+	Redis_name string
 )
 
-func InitRedis(redisAddr string) {
+func InitRedis(redisAddr, redisName string) {
 	config := cfg.Get()
 
 	Redis_svr = redisAddr
+	Redis_name = redisName
 	if len(config["redis_svr"]) != 0 {
 		Redis_svr = config["redis_svr"]
 	}
@@ -34,12 +36,12 @@ type Data struct {
 	conn redis.Conn
 }
 
-func (t *Data) Open(table string) error {
+func (t *Data) Open() error {
 	var err error
 	t.conn, err = redis.DialTimeout("tcp", Redis_svr, 3 * time.Second, 10 * time.Second, 10 * time.Second) //timeout=10s
 
 	if err != nil {
-		log.Error("ERR: redis Open(table:%v) ret err:%v t.conn:%v", table, err, t.conn)
+		log.Error("ERR: redis Open(table:%v) ret err:%v t.conn:%v", Redis_name, err, t.conn)
 		return err
 	}
 

@@ -1,8 +1,8 @@
 package Error
 
 import (
-	"casino_server/common/log"
 	"runtime"
+	"casino_common/common/log"
 )
 
 func PrintPanicStack() {
