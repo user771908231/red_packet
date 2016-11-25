@@ -132,6 +132,7 @@ func (d *DdzDesk) CheckOutPai(out *POutPokerPais) error {
 
 }
 
+//得到user的index
 func (d *DdzDesk) GetUserIndexByUserId(userId uint32) int {
 	for i, user := range d.Users {
 		if user != nil && user.GetUserId() == userId {
@@ -268,7 +269,9 @@ func (d *DdzDesk) GetNextUserByPros(preUserId uint32, check func(nu *DdzUser) bo
 	}
 	var nextUser *DdzUser
 	for i := index + 1; i < len(d.Users) + index; i++ {
-		u := d.Users[(i) / len(d.Users)]
+		tempIndex := i % len(d.Users)
+		u := d.Users[tempIndex]
+		//log.T("开始循环tempIndex[%v],i[%v],lenusers(%v)的玩家id[%v]", tempIndex, i, len(d.Users), u.GetUserId())
 		if check(u) {
 			nextUser = u
 			break
