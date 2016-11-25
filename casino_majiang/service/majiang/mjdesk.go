@@ -866,7 +866,7 @@ func (d *MjDesk) ChaHuaZhu() error {
 //todo 花猪的情况比较少见，所以可以先不用实现..
 func (d *MjDesk) DoHuaZhu(huazhu *MjUser) error {
 	log.T("开始处理花猪[%v]", huazhu.GetUserId())
-	score := d.GetBaseValue() * FAN_TOP
+	score := d.GetBaseValue() * int64(FAN_TOP)
 	for _, user := range d.GetUsers() {
 		if user != nil && user.IsNotHuaZhu() {
 			//判断不是花猪，可以赢钱...
@@ -1013,21 +1013,21 @@ func (d *MjDesk) GetJiaoMaxFan(u *MjUser) int32 {
 	jiaoInfos := d.GetJiaoInfos(u)
 
 	if jiaoInfos == nil {
-		return
+		return 0
 	}
 	for _, jiaoInfo := range jiaoInfos {
 		paiInfos := jiaoInfo.PaiInfos
 		if paiInfos != nil {
 			for _, paiInfo := range paiInfos {
 				fan := paiInfo.Fan
-				if maxFan < fan {
+				if int32(maxFan) < *fan {
 					//如果最大番小于当前可叫的番数
-					maxFan = fan
+					maxFan = int(*fan)
 				}
 			}
 		}
 	}
-	return maxFan
+	return int32(maxFan)
 }
 
 //用户没有叫的处理了
@@ -1038,7 +1038,7 @@ func (d *MjDesk) DoDaJiao(u *MjUser) {
 	for _, user := range d.GetUsers() {
 		//获得听牌的最大番数
 		fan := d.GetJiaoMaxFan(user)
-		score := d.GetBaseValue() * fan
+		score := d.GetBaseValue() * int64(fan)
 
 		//如果looper不是被查大叫的玩家 且 该looper有听牌 且 该looper没有胡 为该玩家增加赢钱的bill
 		if (user.GetUserId() != u.GetUserId()) && user.IsYouJiao() && user.IsNotHu() {
@@ -1967,7 +1967,10 @@ func (d *MjDesk) GetCardTitle4WinCoinInfo(user *MjUser) string {
 	shuDianPaoStr := ""
 	shuGangStr := ""
 	shuZimoStr := ""
+	shuBeiChaJiaoStr := ""
+	shuBeiChaHuaZhuStr := ""
 	var shuBaGangCount, shuAnGangCount, shuDianPaoCount, shuGangCount, shuZimoCount, count int32
+	var shuBeiChaHuaZhuCount, shuBeiChaJiaoCount int32
 	//获取当局的统计信息
 	roundBean := user.GetStatisticsRoundBean(d.GetCurrPlayCount())
 	count = 0 //统计数大于count才显示
@@ -1977,6 +1980,8 @@ func (d *MjDesk) GetCardTitle4WinCoinInfo(user *MjUser) string {
 	shuDianPaoCount = roundBean.GetCountDianPao()
 	shuGangCount = roundBean.GetCountDianGang()
 	shuZimoCount = roundBean.GetCountBeiZiMo()
+	shuBeiChaHuaZhuCount = roundBean.GetCountBeiChaHuaZhu()
+	shuBeiChaJiaoCount = roundBean.GetCountBeiChaJiao()
 
 	switch {
 	case shuBaGangCount > count :
@@ -1989,6 +1994,10 @@ func (d *MjDesk) GetCardTitle4WinCoinInfo(user *MjUser) string {
 		shuGangStr = fmt.Sprintf("点杠x%d", shuGangCount)
 	case shuZimoCount > count :
 		shuZimoStr = fmt.Sprintf("被自摸x%d", shuZimoCount)
+	case shuBeiChaHuaZhuCount > count :
+		shuBeiChaHuaZhuStr = fmt.Sprintf("被查花猪x%d", shuBeiChaHuaZhuCount)
+	case shuBeiChaJiaoCount > count :
+		shuBeiChaJiaoStr = fmt.Sprintf("被查叫x%d", shuBeiChaJiaoCount)
 	default:
 
 	}
@@ -2003,6 +2012,8 @@ func (d *MjDesk) GetCardTitle4WinCoinInfo(user *MjUser) string {
 	huDes = append(huDes, shuDianPaoStr)
 	huDes = append(huDes, shuGangStr)
 	huDes = append(huDes, shuZimoStr)
+	huDes = append(huDes, shuBeiChaHuaZhuStr)
+	huDes = append(huDes, shuBeiChaJiaoStr)
 	return strings.Join(huDes, " ")
 }
 
@@ -2012,7 +2023,7 @@ func (d *MjDesk)GetEndLotteryInfo(user *MjUser) *mjproto.EndLotteryInfo {
 	*end.UserId = user.GetUserId()
 	*end.BigWin = false             //是否是大赢家...
 	*end.CountAnGang = user.Statisc.GetCountAnGang()            //暗杠的次数
-	*end.CountChaJiao = user.Statisc.GetCountChaJiao()          //查叫的次数..
+	*end.CountChaJiao = user.Statisc.GetCountChaDaJiao()          //查叫的次数..
 	*end.CountDianGang = user.Statisc.GetCountDianGang()          // 点杠的次数
 	*end.CountDianPao = user.Statisc.GetCountDianPao()          //点炮的次数
 	*end.CountHu = user.Statisc.GetCountHu()//胡牌的次数
