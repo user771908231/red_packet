@@ -10,8 +10,8 @@ import (
 	"casino_common/common/db"
 )
 
-func SysInit(redisAddr string, logName string, mongoIp string, mongoPort int, mongoName string, mongoSeqKey string, mongoSeqTables []string) error {
-	InitRedis(redisAddr)
+func SysInit(redisAddr string, redisName string, logName string, mongoIp string, mongoPort int, mongoName string, mongoSeqKey string, mongoSeqTables []string) error {
+	InitRedis(redisAddr, redisName)
 	initRandSeed()
 	runtime.GOMAXPROCS(runtime.NumCPU())
 	log.InitLogger(logName)        //初始化日志处理
@@ -20,9 +20,9 @@ func SysInit(redisAddr string, logName string, mongoIp string, mongoPort int, mo
 }
 
 //
-func InitRedis(addr string) error {
+func InitRedis(addr, name string) error {
 	fmt.Println("3，初始化redis...")
-	data.InitRedis(addr)
+	data.InitRedis(addr, name)
 	return nil
 }
 

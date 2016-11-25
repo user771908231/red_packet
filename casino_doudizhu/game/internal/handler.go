@@ -5,7 +5,7 @@ import (
 	"casino_doudizhu/msg/protogo"
 	"github.com/name5566/leaf/gate"
 	"casino_doudizhu/service/DdzService"
-	"casino_server/conf/intCons"
+	"casino_common/common/consts"
 )
 
 func handler(m interface{}, h interface{}) {
@@ -36,7 +36,7 @@ func init() {
 func handlerNullMsg(args []interface{}) {
 	m := args[0].(*ddzproto.Heartbeat)
 	a := args[1].(gate.Agent)
-	*m.Header.Code = intCons.ACK_RESULT_SUCC
+	*m.Header.Code = consts.ACK_RESULT_SUCC
 	a.WriteMsg(m)
 }
 
@@ -100,7 +100,7 @@ func handlePull(args []interface{}) {
 //抢地主
 func handlerQiangDiZhu(args []interface{}) {
 	m := args[0].(*ddzproto.DdzRobDiZhu)
-	DdzService.HandlerQiangDiZhu(m.GetUserId(),m.GetRob())
+	DdzService.HandlerQiangDiZhu(m.GetUserId(), m.GetRob())
 
 }
 

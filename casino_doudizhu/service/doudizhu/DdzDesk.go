@@ -2,15 +2,15 @@ package doudizhu
 
 import (
 	"errors"
-	"casino_server/common/log"
 	"sync"
-	"casino_server/common/Error"
 	"fmt"
 	"sync/atomic"
 	"github.com/golang/protobuf/proto"
 	"github.com/name5566/leaf/gate"
 	"casino_doudizhu/msg/protogo"
 	"casino_doudizhu/msg/funcsInit"
+	"casino_common/common/log"
+	"casino_common/common/Error"
 )
 
 //斗地主的desk
@@ -132,6 +132,7 @@ func (d *DdzDesk) CheckOutPai(out *POutPokerPais) error {
 
 }
 
+//得到user的index
 func (d *DdzDesk) GetUserIndexByUserId(userId uint32) int {
 	for i, user := range d.Users {
 		if user != nil && user.GetUserId() == userId {
@@ -268,7 +269,9 @@ func (d *DdzDesk) GetNextUserByPros(preUserId uint32, check func(nu *DdzUser) bo
 	}
 	var nextUser *DdzUser
 	for i := index + 1; i < len(d.Users) + index; i++ {
-		u := d.Users[(i) / len(d.Users)]
+		tempIndex := i % len(d.Users)
+		u := d.Users[tempIndex]
+		//log.T("开始循环tempIndex[%v],i[%v],lenusers(%v)的玩家id[%v]", tempIndex, i, len(d.Users), u.GetUserId())
 		if check(u) {
 			nextUser = u
 			break
@@ -318,3 +321,13 @@ func (d *DdzDesk) EveryUserDoSomething(dos func(user *DdzUser) error) error {
 }
 
 
+//客户端显示底牌
+func (d *DdzDesk) GetDiPaiClientPokers() []*ddzproto.Poker {
+	var ret []*ddzproto.Poker
+	for _, p := range d.GetDiPokerPai() {
+		if p != nil {
+			ret = append(ret, p.GetClientPoker())
+		}
+	}
+	return ret
+}

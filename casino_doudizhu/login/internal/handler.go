@@ -2,12 +2,12 @@ package internal
 
 import (
 	"reflect"
-	"casino_server/common/log"
 	"github.com/name5566/leaf/gate"
-	"casino_server/conf/intCons"
-	"casino_server/service/userService"
 	"casino_doudizhu/msg/protogo"
 	"casino_doudizhu/msg/funcsInit"
+	"casino_common/common/log"
+	"casino_common/common/consts"
+	"casino_common/common/userService"
 )
 
 func handler(m interface{}, h interface{}) {
@@ -26,6 +26,7 @@ func handlerGame_Login(args []interface{}) {
 	a := args[1].(gate.Agent)
 
 	log.T("请求handlerGame_Login  m[%v]", m)
+
 	weixin := m.GetWxInfo()
 
 	//不是初次登录
@@ -37,12 +38,12 @@ func handlerGame_Login(args []interface{}) {
 			//登陆失败
 			log.E("没有找到玩家[%v]的信息，login失败", userId)
 			ack := newProto.NewGame_AckLogin()
-			*ack.Header.Code = intCons.ACK_RESULT_ERROR
+			*ack.Header.Code = consts.ACK_RESULT_ERROR
 			a.WriteMsg(ack)
 		} else {
 			//返回登陆成功的结果
 			ack := newProto.NewGame_AckLogin()
-			*ack.Header.Code = intCons.ACK_RESULT_SUCC
+			*ack.Header.Code = consts.ACK_RESULT_SUCC
 			*ack.UserId = user.GetId()
 			*ack.NickName = user.GetNickName()
 			*ack.Chip = user.GetDiamond()
@@ -57,7 +58,7 @@ func handlerGame_Login(args []interface{}) {
 		//表示数据库中不存在次用户，新增加一个人后返回
 		if weixin.GetOpenId() == "" || weixin.GetHeadUrl() == "" || weixin.GetNickName() == "" {
 			ack := newProto.NewGame_AckLogin()
-			*ack.Header.Code = intCons.ACK_RESULT_ERROR
+			*ack.Header.Code = consts.ACK_RESULT_ERROR
 			a.WriteMsg(ack)
 			return
 		}
@@ -66,7 +67,7 @@ func handlerGame_Login(args []interface{}) {
 		user, _ = userService.NewUserAndSave(weixin.GetOpenId(), weixin.GetNickName(), weixin.GetHeadUrl(), weixin.GetSex(), weixin.GetCity())
 		if user == nil {
 			ack := newProto.NewGame_AckLogin()
-			*ack.Header.Code = intCons.ACK_RESULT_ERROR
+			*ack.Header.Code = consts.ACK_RESULT_ERROR
 			a.WriteMsg(ack)
 			return
 		}
@@ -74,7 +75,7 @@ func handlerGame_Login(args []interface{}) {
 
 	//返回登陆成功的结果
 	ack := newProto.NewGame_AckLogin()
-	*ack.Header.Code = intCons.ACK_RESULT_SUCC
+	*ack.Header.Code = consts.ACK_RESULT_SUCC
 	*ack.UserId = user.GetId()
 	*ack.NickName = user.GetNickName()
 	*ack.Chip = user.GetDiamond()

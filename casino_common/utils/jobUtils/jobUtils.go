@@ -2,7 +2,7 @@ package jobUtils
 
 import (
 	"time"
-	"casino_server/common/Error"
+	"casino_common/common/Error"
 )
 
 //定义一个异步任务

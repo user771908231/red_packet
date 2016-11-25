@@ -6,8 +6,8 @@ package Error
 
 import (
 	"fmt"
-	"casino_server/conf/intCons"
 	"runtime/debug"
+	"casino_common/common/consts"
 )
 
 //func New(errCode int, errStr string) Error {
@@ -50,7 +50,7 @@ func NewError(errCode int32, errStr string) error {
 }
 
 func NewFailError(msg string) error {
-	return &Error{intCons.ACK_RESULT_FAIL, msg}
+	return &Error{consts.ACK_RESULT_ERROR, msg}
 
 }
 
@@ -112,7 +112,7 @@ func GetErrorCode(e error) (ret int32) {
 	defer func() {
 		if r := recover(); r != nil {
 			fmt.Println("[W]", r)
-			ret = intCons.ACK_RESULT_ERROR
+			ret = consts.ACK_RESULT_ERROR
 		}
 	}()
 	ee := e.(*Error)

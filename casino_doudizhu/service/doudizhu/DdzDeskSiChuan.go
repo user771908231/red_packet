@@ -1,6 +1,7 @@
 package doudizhu
 
-import "casino_server/common/Error"
+import "casino_common/common/Error"
+
 
 //四川斗地主的逻辑都在这个文件里面
 
