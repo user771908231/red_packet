@@ -47,7 +47,9 @@ var _ = math.Inf
 
 // Ignoring public import of ComposeCardType from base.proto
 
-// Ignoring public import of HuPaiType from base.proto
+// Ignoring public import of HuType from base.proto
+
+// Ignoring public import of PaiType from base.proto
 
 // Ignoring public import of MJUserGameStatus from base.proto
 
