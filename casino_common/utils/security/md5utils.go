@@ -4,7 +4,6 @@ import (
 	"crypto/md5"
 	"fmt"
 	"errors"
-	"casino_server/common/log"
 )
 
 //byte[] SECRET_KEY = new byte[] { 0x93, 0x46, 0x78, 0x20 };
@@ -44,22 +43,15 @@ func CheckTcpData(data []byte)([]byte,error){
 	sign := data[len(data)-4:]
 	cmd5 := Md5(md5data)
 
-	//log.T("校验数据全%v",data)
-	//log.T("校验数据信息部分%v",md5data)
-	//log.T("校验数据全sign %v",sign)
-	//log.T("cmd5 %v",cmd5)
-	//
 	result := true
 	for i:= 0;i<len(sign) ;i++ {
 		if sign[i] != cmd5[i] {
-			log.Debug("sign[%v],cmd5[%v]",sign[i],cmd5[i])
 			result = false
 			break
 		}
 	}
 
 	if !result {
-		log.Error("校验失败的数据%v",data)
 		return nil,errors.New("数据校验失败")
 	}
 

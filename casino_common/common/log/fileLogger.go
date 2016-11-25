@@ -11,7 +11,7 @@ import (
 	"sync"
 	"time"
 	"strconv"
-	"casino_server/common/cfg"
+	"casino_common/common/cfg"
 )
 
 const DATEFORMAT = "2006-01-02"

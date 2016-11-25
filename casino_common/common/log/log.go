@@ -9,8 +9,8 @@ import (
 )
 
 import (
-	"casino_server/common/cfg"
 	"misc/timer"
+	"casino_common/common/cfg"
 )
 
 const (

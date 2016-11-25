@@ -3,25 +3,26 @@
 package db
 
 import (
-	"casino_server/conf/casinoConf"
 	"github.com/name5566/leaf/db/mongodb"
 	"gopkg.in/mgo.v2/bson"
-	"casino_server/mode"
 	"gopkg.in/mgo.v2"
 	"github.com/name5566/leaf/log"
-	"reflect"
+	"casino_common/common/model"
 )
 
 var mongoConfig struct {
-	ip   string
-	port int
+	ip                   string
+	port                 int
+	dbname               string
+	DB_ENSURECOUNTER_KEY string
 }
 
-func Oninit(ip string, port int) {
+func Oninit(ip string, port int, dbname string, key string) {
 	log.Debug("初始化mongoDb的地址  ip[%v],port[%v]", ip, port)
 	mongoConfig.ip = ip
 	mongoConfig.port = port
-
+	mongoConfig.dbname = dbname
+	mongoConfig.DB_ENSURECOUNTER_KEY = key
 }
 
 //活的链接
@@ -32,7 +33,6 @@ func GetMongoConn() (*mongodb.DialContext, error) {
 
 //保存数据
 func InsertMgoData(dbt string, data interface{}) error {
-	log.Debug("insert数据到数据库type[%v],content[%v]", reflect.TypeOf(data).String(), data)
 	//得到连接
 	c, err := GetMongoConn()
 	if err != nil {
@@ -44,13 +44,13 @@ func InsertMgoData(dbt string, data interface{}) error {
 	s := c.Ref()
 	defer c.UnRef(s)
 
-	error := s.DB(casinoConf.DB_NAME).C(dbt).Insert(data)
+	error := s.DB(mongoConfig.dbname).C(dbt).Insert(data)
 	return error
 
 }
 
 //更新数据通过_id来更新
-func UpdateMgoData(dbt string, data mode.BaseMode) error {
+func UpdateMgoData(dbt string, data model.BaseMode) error {
 	c, err := GetMongoConn()
 	if err != nil {
 		return err
@@ -61,7 +61,7 @@ func UpdateMgoData(dbt string, data mode.BaseMode) error {
 	s := c.Ref()
 	defer c.UnRef(s)
 
-	error := s.DB(casinoConf.DB_NAME).C(dbt).Update(bson.M{"_id": data.GetMid()}, data)
+	error := s.DB(mongoConfig.dbname).C(dbt).Update(bson.M{"_id": data.GetMid()}, data)
 	return error
 }
 
@@ -78,7 +78,7 @@ func GetNextSeq(dbt string) (int32, error) {
 	//获取session
 	s := c.Ref()
 	defer c.UnRef(s)
-	id, _ := c.NextSeq(casinoConf.DB_NAME, dbt, casinoConf.DB_ENSURECOUNTER_KEY)
+	id, _ := c.NextSeq(mongoConfig.dbname, dbt, mongoConfig.DB_ENSURECOUNTER_KEY)
 	return int32(id), nil
 }
 
@@ -93,5 +93,5 @@ func Query(f func(*mgo.Database)) {
 	//获取session
 	s := c.Ref()
 	defer c.UnRef(s)
-	f(s.DB(casinoConf.DB_NAME))
+	f(s.DB(mongoConfig.dbname))
 }

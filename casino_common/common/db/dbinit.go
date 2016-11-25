@@ -8,7 +8,7 @@ import (
 func InitMongoDb(mongoIp string, mongoPort int, DBNAME string, DB_ENSURECOUNTER_KEY string, seqTableName []string) error {
 	fmt.Println("4，初始化mongo...")
 	//初始化地址...
-	db.Oninit(mongoIp, mongoPort)
+	db.Oninit(mongoIp, mongoPort, DBNAME, DB_ENSURECOUNTER_KEY)
 	//0,活的数据库连接
 	c, err := db.GetMongoConn()
 	if err != nil {
