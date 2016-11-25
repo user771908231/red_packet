@@ -225,6 +225,7 @@ func NewDdzRobDiZhuAck() *ddzproto.DdzRobDiZhuAck {
 	ret := new(ddzproto.DdzRobDiZhuAck)
 	ret.UserId = new(uint32)
 	ret.Header = NewHeader()
+	ret.Rob = new(bool)
 	return ret
 }
 
