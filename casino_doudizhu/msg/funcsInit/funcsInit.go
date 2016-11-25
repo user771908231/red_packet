@@ -439,7 +439,7 @@ func NewPlayerInfo() *ddzproto.PlayerInfo {
 func NewPoker() *ddzproto.Poker {
 	p := new(ddzproto.Poker)
 	p.Num = new(int32)
-	p.Value = new(int32)
+	p.Id = new(int32)
 	p.Suit = new(ddzproto.PokerColor)
 	return p
 }
