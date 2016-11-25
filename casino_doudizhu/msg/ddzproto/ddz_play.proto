@@ -135,6 +135,7 @@ message DdzOutCardsAck {
     optional uint32 userId = 2; //出牌的人(广播)
     optional DdzPaiType cardType = 3; //打出的牌型
     optional int32 remainPokers = 4; //手牌还剩多少张
+    repeated Poker outCards = 5; //打出的牌
 }
 
 // 过牌

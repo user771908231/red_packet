@@ -401,6 +401,10 @@ func (out *POutPokerPais)  GT(outb *POutPokerPais) (bool, error) {
 
 }
 
+func (out *POutPokerPais) GetClientPokers() []*ddzproto.Poker {
+	return ServerPoker2ClienPoker(out.PokerPais)
+}
+
 //得到牌
 func GetOutPais() *POutPokerPais {
 	return nil
@@ -449,4 +453,17 @@ func (p *PPokerPai) GetLogDes() string {
 	}
 	suit += p.GetName()
 	return suit
+}
+
+//把服务端的牌转化成客户端需要的牌
+func ServerPoker2ClienPoker(sps []*PPokerPai) []*ddzproto.Poker {
+	if sps == nil || len(sps) == 0 {
+		return nil
+	}
+
+	var ret []*ddzproto.Poker
+	for _, p := range sps {
+		ret = append(ret, p.GetClientPoker())
+	}
+	return ret
 }

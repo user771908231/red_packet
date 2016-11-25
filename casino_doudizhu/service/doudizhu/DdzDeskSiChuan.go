@@ -37,3 +37,8 @@ func (d *DdzDesk) SCJiaoDiZhu(userId uint32) error {
 	return nil
 }
 
+//四川斗地主，需要更具四川的玩法来定制
+func (d *DdzDesk) QiangDiZhuSiChuan(userId uint32, qiangType int32) error {
+
+	return nil
+}

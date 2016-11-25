@@ -161,6 +161,7 @@ func (d *DdzDesk) sendJiaoDiZhuOverTurn(userId uint32) error {
 
 //发送加倍
 func (d *DdzDesk) sendJiaBeiOverTurn(userId uint32) error {
+	d.SetActiveUser(userId)        //设置当前活动的玩家
 	overTurn := newProto.NewDdzOverTurn()
 	*overTurn.ActType = ddzproto.ActType_T_DOUBLE        ///加倍不加倍
 	*overTurn.UserId = userId
@@ -285,7 +286,14 @@ func (d *DdzDesk) ActOut(userId uint32, out *POutPokerPais) error {
 		d.setWinValue(d.GetQingDizhuValue() * 2)
 	}
 
-	//返回成功的消息 todo  返回ack
+	//返回成功的消息,广播用户出的牌
+	ack := newProto.NewDdzOutCardsAck()
+	*ack.UserId = user.GetUserId()
+	*ack.CardType = ddzproto.DdzPaiType(out.GetType())
+	*ack.RemainPokers = user.GetHandPaiCount()
+	ack.OutCards = out.GetClientPokers()
+	d.BroadCastProto(ack)
+
 
 	//判断游戏是否结束
 	if user.GetHandPaiCount() == 0 {
@@ -294,7 +302,7 @@ func (d *DdzDesk) ActOut(userId uint32, out *POutPokerPais) error {
 		return nil
 	}
 
-	d.NextUser()
+	d.NextUserChuPai()        //出牌之后，下一个人出牌
 	return nil
 }
 
@@ -315,12 +323,12 @@ func (d *DdzDesk) ActPass(userId uint32) error {
 	user.WriteMsg(ack)
 
 	//轮到下一个玩家
-	d.NextUser()
+	d.NextUserChuPai()        //玩家过牌，下一个人出牌
 	return nil
 }
 
 //轮到下一个人出牌
-func (d *DdzDesk) NextUser() error {
+func (d *DdzDesk) NextUserChuPai() error {
 	index := d.GetUserIndexByUserId(d.GetActiveUserId())
 	if index < 0 {
 		log.E("轮到下一个玩家的时候出错,desk.activeUser[%v]", d.GetActiveUserId())
@@ -339,11 +347,7 @@ func (d *DdzDesk) NextUser() error {
 
 
 
-//四川斗地主，需要更具四川的玩法来定制
-func (d *DdzDesk) QiangDiZhuSiChuan(userId uint32, qiangType int32) error {
 
-	return nil
-}
 
 //抢完地主之后的操作
 func (d *DdzDesk) afterQiangDizhu() {
