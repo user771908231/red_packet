@@ -15,7 +15,7 @@ import (
 
 func init() {
 	//初始化系统
-	e := config.InitConfig(false)
+	e := config.InitConfig()
 	if e.IsError() {
 		//log.Error("config init failed.", e)
 		os.Exit(-1)
