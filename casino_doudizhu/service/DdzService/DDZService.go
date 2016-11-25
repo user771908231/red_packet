@@ -242,7 +242,7 @@ func HandlerGameRecord(userId uint32, a gate.Agent) error {
 	return nil
 }
 
-func HandlerJiaBei(userId uint32) error {
+func HandlerJiaBei(userId uint32, jia bool) error {
 	desk := doudizhu.GetDdzDeskBySession(userId)
 	if desk == nil {
 		return Error.NewFailError("没有找到desk")
@@ -250,7 +250,7 @@ func HandlerJiaBei(userId uint32) error {
 	//目前只有欢乐斗地主才有加倍的逻辑
 	var err error
 	if desk.IsHuanLeDoudDiZhu() {
-		err = desk.ActJiaBei(userId)
+		err = desk.ActJiaBei(userId, jia)
 	}
 	//判断结果
 	if err != nil {

@@ -159,6 +159,14 @@ func (d *DdzDesk) sendJiaoDiZhuOverTurn(userId uint32) error {
 	return nil
 }
 
+//发送加倍
+func (d *DdzDesk) sendJiaBeiOverTurn(userId uint32) error {
+	overTurn := newProto.NewDdzOverTurn()
+	*overTurn.ActType = ddzproto.ActType_T_DOUBLE        ///加倍不加倍
+	*overTurn.UserId = userId
+	d.BroadCastProto(overTurn)
+	return nil
+}
 
 //一场结束
 func (d *DdzDesk) Lottery(user *DdzUser) {
@@ -356,18 +364,11 @@ func (d *DdzDesk) HLAfterQiangDizhu() {
 	showDiPai := newProto.NewDdzStartPlay()
 	showDiPai.FootPokers = d.GetDiPaiClientPokers()
 	*showDiPai.FootRate = d.GetFootRate()
+	*showDiPai.Dizhu = d.GetDiZhuUserId()
 	d.BroadCastProto(showDiPai)
 
-	//是否需要延时
-
 	//有地主的情况,抢地主完成之后开会加倍不加倍的操作
-	overTurn := newProto.NewDdzOverTurn()
-	*overTurn.ActType = ddzproto.ActType_T_DOUBLE        ///加倍不加倍
-	*overTurn.UserId = d.GetDiZhuUserId()
-
-	//发送加倍的广播
-	d.BroadCastProto(overTurn)
-
+	d.sendJiaBeiOverTurn(d.GetDiZhuUserId())        //发送加倍的广播
 }
 
 
