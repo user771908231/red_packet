@@ -29,7 +29,7 @@ func init() {
 	PokerMap[10] = "POKER_spade_12_Q"
 	PokerMap[11] = "POKER_spade_13_K"
 	PokerMap[12] = "POKER_spade_14_A"
-	PokerMap[13] = "POKER_spade_2_2"
+	PokerMap[13] = "POKER_spade_15_2"
 
 	PokerMap [14] = "POKER_heart_3_3"
 	PokerMap[15] = "POKER_heart_4_4"
@@ -43,7 +43,7 @@ func init() {
 	PokerMap[23] = "POKER_heart_12_Q"
 	PokerMap[24] = "POKER_heart_13_K"
 	PokerMap[25] = "POKER_heart_14_A"
-	PokerMap[26] = "POKER_heart_2_2"
+	PokerMap[26] = "POKER_heart_15_2"
 
 	PokerMap[27] = "POKER_club_3_3"
 	PokerMap[28] = "POKER_club_4_4"
@@ -57,7 +57,7 @@ func init() {
 	PokerMap[36] = "POKER_club_12_Q"
 	PokerMap[37] = "POKER_club_13_K"
 	PokerMap[38] = "POKER_club_14_A"
-	PokerMap[39] = "POKER_club_2_2"
+	PokerMap[39] = "POKER_club_15_2"
 
 	PokerMap[40] = "POKER_diamond_3_3"
 	PokerMap[41] = "POKER_diamond_4_4"
@@ -71,10 +71,10 @@ func init() {
 	PokerMap[49] = "POKER_diamond_12_Q"
 	PokerMap[50] = "POKER_diamond_13_K"
 	PokerMap[51] = "POKER_diamond_14_A"
-	PokerMap[52] = "POKER_diamond_2_2"
+	PokerMap[52] = "POKER_diamond_15_2"
 
-	PokerMap[53] = "POKER_blackjoker_15_JOKER"
-	PokerMap[54] = "POKER_redjoker_16_JOKER"
+	PokerMap[53] = "POKER_blackjoker_16_JOKER"
+	PokerMap[54] = "POKER_redjoker_17_JOKER"
 }
 
 //返回值
