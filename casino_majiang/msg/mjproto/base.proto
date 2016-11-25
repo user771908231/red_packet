@@ -165,39 +165,44 @@ enum ComposeCardType {
 }
 
 //胡牌的类型
-enum HuPaiType {
+enum HuType {
+    //附加番数(特定操作)
+    H_TianHu = 1; //5番:天胡 庄家起牌后胡牌
+    H_DiHu = 2; //5番:地胡 第一回合中,没有任何玩家操作,非庄家自摸
+    H_GangShangHua = 3; //+1番 杠上花
+    H_GangShangPao = 4; //+1番 杠上炮
+    H_QiangGang = 5; //+1番 抢杠
+    H_HaiDiLao = 6; //+1番 海底捞
+    H_HaiDiPao = 7; //+1番 海底炮
+    H_HaidiGangShangHua = 8; //+2番 海底杠上花
+    H_HaidiGangShangPao = 9; //+2番 海底杠上炮
+
+    //
+    H_JinGouDiao = 10; //+1番 金钩钓
+
+    //可选附加玩法
+    H_ZiMoJiaFan = 11; //+1番 自摸加番
+    H_ZiMoJiaDi = 12; //+底 自摸加底
+}
+
+enum PaiType {
     H_DuiDuiHu = 1; //1番:对对胡
     H_QingYiSe = 2; //2番:清一色
     H_QiDui = 3; //2番:七对
     H_DaiYaoJiu = 4; //2番:带幺九
     H_LongQiDui = 5; //3番:龙七对
     H_JiangDui = 6; //3番:将对(2、5、8组成的对对胡)
-
-    //附加番数(特定操作)
-    H_TianHu = 7; //5番:天胡 庄家起牌后胡牌
-    H_DiHu = 8; //5番:地胡 第一回合中,没有任何玩家操作,非庄家自摸
-    H_GangShangHua = 9; //+1番 杠上花
-    H_GangShangPao = 10; //+1番 杠上炮
-    H_QiangGang = 11; //+1番 抢杠
-    H_HaiDiLao = 12; //+1番 海底捞
-    H_HaiDiPao = 13; //+1番 海底炮
-    H_HaidiGangShangHua = 14; //+2番 海底杠上花
-    H_HaidiGangShangPao = 15; //+2番 海底杠上炮
-
-    //
-    H_JinGouDiao = 16; //+1番 金钩钓
-
-    //可选附加玩法
-    H_ZiMoJiaFan = 17; //+1番 自摸加番
-    H_ZiMoJiaDi = 18; //+底 自摸加底
-
-    H_MenQing = 19; //+1番 门清
-    H_ZhongZhang = 20; //+1番 中张(胡牌时不含1,9)
+    H_MenQing = 7; //+1番 门清
+    H_ZhongZhang = 8; //+1番 中张(胡牌时不含1,9)
 
     //(内江麻将)
-    H_KaErTiao = 21; //+1番 卡二条
+    H_KaErTiao = 9; //+1番 卡二条
     //(德阳麻将)
-    H_JiaXin5 = 22; //+1番 夹心五
+    H_JiaXin5 = 10; //+1番 夹心五
+
+    H_QingLongQiDui = 11; //青龙七对
+    H_QingQiDui = 12; //清七对
+    H_PingHu = 13; //平胡
 }
 
 
