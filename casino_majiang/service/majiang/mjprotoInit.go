@@ -158,7 +158,7 @@ func NewCheckBean() *CheckBean {
 func NewHuPaiInfo() *HuPaiInfo {
 	ret := &HuPaiInfo{}
 	ret.ByWho = new(int32)
-	ret.CardType = new(int32)
+	ret.PaiType = new(int32)
 	ret.Fan = new(int32)
 	ret.Score = new(int64)
 	ret.HuType = new(int32)
