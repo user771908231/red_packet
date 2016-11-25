@@ -60,6 +60,9 @@ func HandlerEnterDesk(userId uint32, key string, deskType int32, a gate.Agent) e
 		return Error.NewError(-1, "玩家进入desk失败.")
 	} else {
 		desk.SendGameDeskInfo(userId, isReconnect)        //发送deskGameInfo
+
+		log.T("玩家[%v]进入房间之后，desk的玩家[%v]:", userId, desk.Users)
+
 	}
 
 	return nil
@@ -91,7 +94,7 @@ func HandlerQiangDiZhu(userId uint32, qiang bool) error {
 	//开始抢地主
 	var err error
 	if desk.IsHuanLeDoudDiZhu() {
-		err = desk.HLQiangDiZhu(userId,qiang)
+		err = desk.HLQiangDiZhu(userId, qiang)
 	}
 
 	//抢地主失败

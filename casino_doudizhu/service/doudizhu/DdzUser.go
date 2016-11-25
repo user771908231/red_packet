@@ -100,6 +100,10 @@ func (u *DdzUser) IsQiangDiZhuBuJiao() bool {
 	return u.GetQiangDiZhuStatus() == DDZUSER_QIANGDIZHU_STATUS_BUJIAO
 }
 
+func (u *DdzUser) IsQiangDiZhuJiao() bool {
+	return u.GetQiangDiZhuStatus() == DDZUSER_QIANGDIZHU_STATUS_JIAO
+}
+
 //抢注的时候还没有操作
 func (u *DdzUser) IsQiangDiZhuNoAct() bool {
 	return u.GetQiangDiZhuStatus() == DDZUSER_QIANGDIZHU_STATUS_NOACT

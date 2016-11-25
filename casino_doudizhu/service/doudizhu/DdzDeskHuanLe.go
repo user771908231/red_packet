@@ -78,6 +78,9 @@ func (d *DdzDesk) HLQiangDiZhu(userId uint32, qiang bool) error {
 	if user == nil {
 		return Error.NewFailError("玩家没找到，抢地主失败")
 	}
+
+	//如果之前已经叫过地主了，那么游戏结束
+	end := user.IsQiangDiZhuJiao()
 	//抢地主和
 	if qiang {
 		//开始抢地主的逻辑
@@ -89,23 +92,22 @@ func (d *DdzDesk) HLQiangDiZhu(userId uint32, qiang bool) error {
 		user.SetQiangDiZhuStatus(DDZUSER_QIANGDIZHU_STATUS_BUQIANG)
 	}
 
-
 	//广播抢地主
 	ack := newProto.NewDdzRobDiZhuAck()
 	*ack.UserId = userId
 	*ack.Rob = qiang
 	d.BroadCastProto(ack)
 
-
-	//表示地主都抢过来，又轮到第一家，抢地主的逻辑结束
-	if user.IsQiangDiZhuQiang() && d.GetDizhuPaiUser() == user.GetUserId() {
+	//结束
+	if end {
 		d.HLAfterQiangDizhu()        //欢乐斗地主，抢地主之后，如果已经抢完了，那么抢地主之后的逻辑
 		return nil
 	}
 
+
 	//查找下一家抢地主的人
 	nextUser := d.GetNextUserByPros(user.GetUserId(), func(u *DdzUser) bool {
-		return u != nil && u.IsQiangDiZhuNoAct()
+		return u != nil && (u.IsQiangDiZhuNoAct() || u.IsQiangDiZhuJiao())
 	})
 
 	//表示没有下一家可以抢地主

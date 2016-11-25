@@ -7,12 +7,89 @@ import (
 	"sort"
 	"casino_doudizhu/msg/protogo"
 	"casino_doudizhu/msg/funcsInit"
+	"strings"
+	"casino_server/utils/numUtils"
+	"casino_common/utils/chessUtils"
 )
 
+var PokerMap map[int32]string
+
+func init() {
+	PokerMap = make(map[int32]string, 54)
+	PokerMap[0] = ""
+	PokerMap[1] = "POKER_spade_3_3"
+	PokerMap[2] = "POKER_spade_4_4"
+	PokerMap[3] = "POKER_spade_5_5"
+	PokerMap[4] = "POKER_spade_6_6"
+	PokerMap[5] = "POKER_spade_7_7"
+	PokerMap[6] = "POKER_spade_8_8"
+	PokerMap[7] = "POKER_spade_9_9"
+	PokerMap[8] = "POKER_spade_10_10"
+	PokerMap[9] = "POKER_spade_11_J"
+	PokerMap[10] = "POKER_spade_12_Q"
+	PokerMap[11] = "POKER_spade_13_K"
+	PokerMap[12] = "POKER_spade_14_A"
+	PokerMap[13] = "POKER_spade_2_2"
+
+	PokerMap [14] = "POKER_heart_3_3"
+	PokerMap[15] = "POKER_heart_4_4"
+	PokerMap[16] = "POKER_heart_5_5"
+	PokerMap[17] = "POKER_heart_6_6"
+	PokerMap[18] = "POKER_heart_7_7"
+	PokerMap[19] = "POKER_heart_8_8"
+	PokerMap[20] = "POKER_heart_9_9"
+	PokerMap[21] = "POKER_heart_10_10"
+	PokerMap[22] = "POKER_heart_11_J"
+	PokerMap[23] = "POKER_heart_12_Q"
+	PokerMap[24] = "POKER_heart_13_K"
+	PokerMap[25] = "POKER_heart_14_A"
+	PokerMap[26] = "POKER_heart_2_2"
+
+	PokerMap[27] = "POKER_club_3_3"
+	PokerMap[28] = "POKER_club_4_4"
+	PokerMap[29] = "POKER_club_5_5"
+	PokerMap[30] = "POKER_club_6_6"
+	PokerMap[31] = "POKER_club_7_7"
+	PokerMap[32] = "POKER_club_8_8"
+	PokerMap[33] = "POKER_club_9_9"
+	PokerMap[34] = "POKER_club_10_10"
+	PokerMap[35] = "POKER_club_11_J	"
+	PokerMap[36] = "POKER_club_12_Q"
+	PokerMap[37] = "POKER_club_13_K"
+	PokerMap[38] = "POKER_club_14_A"
+	PokerMap[39] = "POKER_club_2_2"
+
+	PokerMap[40] = "POKER_diamond_3_3"
+	PokerMap[41] = "POKER_diamond_4_4"
+	PokerMap[42] = "POKER_diamond_5_5"
+	PokerMap[43] = "POKER_diamond_6_6"
+	PokerMap[44] = "POKER_diamond_7_7"
+	PokerMap[45] = "POKER_diamond_8_8"
+	PokerMap[46] = "POKER_diamond_9_9"
+	PokerMap[47] = "POKER_diamond_10_10"
+	PokerMap[48] = "POKER_diamond_11_J"
+	PokerMap[49] = "POKER_diamond_12_Q"
+	PokerMap[50] = "POKER_diamond_13_K"
+	PokerMap[51] = "POKER_diamond_14_A"
+	PokerMap[52] = "POKER_diamond_2_2"
+
+	PokerMap[53] = "POKER_blackjoker_15_JOKER"
+	PokerMap[54] = "POKER_redjoker_16_JOKER"
+}
+
+//返回值
+func parseByIndex(index int32) (int32, string, int32, string, string) {
+	var rmapdes string = PokerMap[index]
+	sarry := strings.Split(rmapdes, "_")
+	var pvalue int32 = int32(numUtils.String2Int(sarry[2]))
+	var pname string = sarry[3]
+	var pflower string = sarry[1]
+	return index, rmapdes, pvalue, pflower, pname
+}
 
 //返回一张牌
 func InitPaiByIndex(index int32) *PPokerPai {
-	_, rmapdes, pvalue, pflower, pname := pokerUtils.ParseByIndex(index)
+	_, rmapdes, pvalue, pflower, pname := parseByIndex(index)
 	//返回一张需要的牌
 	pokerPai := NewPPokerPai()
 	*pokerPai.Id = index
@@ -43,10 +120,9 @@ func Flower2int(f string) int32 {
 //喜好衣服扑克牌
 func XiPai() []*PPokerPai {
 	//得到随机的牌的index...
-	randIndex := pokerUtils.Xipai(54)
+	randIndex := chessUtils.Xipai(1, 54)
 
-	//通过index 得到牌
-
+	//通过index 得到牌的值
 	var pokerPais []*PPokerPai
 	for _, i := range randIndex {
 		pai := InitPaiByIndex(i)
@@ -56,9 +132,6 @@ func XiPai() []*PPokerPai {
 	//返回得到的牌...
 	return pokerPais
 }
-
-
-
 
 //为POutPokerPais 增加方法
 
@@ -335,7 +408,7 @@ func GetOutPais() *POutPokerPais {
 
 func ( p *PPokerPai) GetClientPoker() *ddzproto.Poker {
 	ret := newProto.NewPoker()
-	*ret.Value = p.GetId()
+	*ret.Id = p.GetId()
 	*ret.Suit = p.GetSuit()
 	*ret.Num = p.GetValue()
 	return ret
