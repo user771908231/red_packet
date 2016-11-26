@@ -389,3 +389,13 @@ func NewGame_BroadcastBeginExchange() *mjProto.Game_BroadcastBeginExchange {
 	ret := &mjProto.Game_BroadcastBeginExchange{}
 	return ret
 }
+
+func NewGame_AckNotice() *mjProto.Game_AckNotice {
+	ret := new(mjProto.Game_AckNotice)
+	ret.Id = new(int32)
+	ret.NoticeContent = new(string)
+	ret.NoticeMemo = new(string)
+	ret.NoticeTitle = new(string)
+	ret.NoticeType = new(int32)
+	return ret
+}
