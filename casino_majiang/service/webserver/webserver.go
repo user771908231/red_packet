@@ -6,16 +6,17 @@ import (
 )
 
 type Validate struct {
-	code           string
+	code string
 }
 
 func Run() {
+	macaron.Env = macaron.PROD        //设置环境变量
 	m := macaron.Classic()
 	m.Use(macaron.Renderer())        //使用模板
 
 	m.Use(macaron.Renderer(macaron.RenderOptions{
 		// 模板文件目录，默认为 "templates"
-		Directory: "service/webserver/templates",
+		Directory: "templates/majiang",
 	}))
 	//routers
 	m.Get("mjdesks", mjDeskHandler.Get) //get
