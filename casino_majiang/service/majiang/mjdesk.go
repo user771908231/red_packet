@@ -465,6 +465,7 @@ func (d *MjDesk) beginInit() error {
 	//发送游戏开始的协议...
 	log.T("发送游戏开始的协议..")
 	open := newProto.NewGame_Opening()
+	*open.CurrPlayCount = d.GetCurrPlayCount()
 	d.BroadCastProto(open)
 	time.Sleep(SHAIZI_SLEEP_DURATION)
 	return nil
