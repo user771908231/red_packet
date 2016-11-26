@@ -27,4 +27,7 @@ func init() {
 	msg.Processor.SetRouter(&mjproto.Game_DissolveDesk{}, game.ChanRPC)        //解散房间
 	msg.Processor.SetRouter(&mjproto.Game_GameRecord{}, game.ChanRPC)                //游戏战绩
 	msg.Processor.SetRouter(&mjproto.Game_Message{}, game.ChanRPC)                //发送聊天信息
+
+	//麻将的通知信息
+	msg.Processor.SetRouter(&mjproto.Game_Notice{}, game.ChanRPC)        //麻将信息
 }

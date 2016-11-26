@@ -53,4 +53,7 @@ func init() {
 	Processor.Register(&majiangProto.Game_GameRecord{})			//40 查询战绩
 	Processor.Register(&majiangProto.Game_AckGameRecord{})			//41 战绩回复
 	Processor.Register(&majiangProto.Game_ExchangeCardsEnd{})		//42 换三张 结束之后的广播
+	Processor.Register(&majiangProto.Game_Notice{})				//43通知信息
+	Processor.Register(&majiangProto.Game_AckNotice{})			//44通知信息回复
+
 }
