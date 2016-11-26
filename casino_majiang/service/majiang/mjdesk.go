@@ -765,7 +765,6 @@ func (d *MjDesk) Time2Lottery() bool {
 		return true
 	}
 
-
 	log.T("HandPaiCanMo[%v]", d.HandPaiCanMo())
 	//2，没有牌可以摸的时候，返回可以lottery了
 	if !d.HandPaiCanMo() {
@@ -863,10 +862,10 @@ func (d *MjDesk) ChaHuaZhu() error {
 
 
 //花猪玩家需要给每一个非花猪8倍分
-//todo 花猪的情况比较少见，所以可以先不用实现..
 func (d *MjDesk) DoHuaZhu(huazhu *MjUser) error {
 	log.T("开始处理花猪[%v]", huazhu.GetUserId())
-	score := d.GetBaseValue() * int64(FAN_TOP)
+	fanTop := d.GetRoomTypeInfo().GetCapMax()
+	score := d.GetBaseValue() * fanTop
 	for _, user := range d.GetUsers() {
 		if user != nil && user.IsNotHuaZhu() {
 			//判断不是花猪，可以赢钱...
@@ -1554,7 +1553,7 @@ func (d *MjDesk)ActHu(userId uint32) error {
 func (d *MjDesk) HandPaiCanMo() bool {
 	if d.GetRemainPaiCount() == 0 {
 		return false
-	}else {
+	} else {
 		return true
 	}
 }
@@ -2336,6 +2335,9 @@ func (d *MjDesk) GetDeskMJInfo() string {
 
 		ii, _ := numUtils.Int2String(int32(p.GetIndex()))
 		s = s + " (" + is + "-" + ii + "-" + p.LogDes() + ")"
+		if (i + 1) % 27 == 0 {
+			s = s + " \n "
+		}
 	}
 	return s
 }
