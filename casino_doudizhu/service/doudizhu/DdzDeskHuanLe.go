@@ -169,12 +169,13 @@ func (d *DdzDesk) ActJiaBei(userId uint32, jia bool) error {
 	if err != nil {
 		return err
 	}
-	//低分加倍的逻辑
 
+	//低分加倍的逻辑
+	user := d.GetUserByUserId(userId)
 	if jia {
-		//处理加倍
+		user.SetJiaBeiStatus(DDZUSER_JIABEI_STATUS_JIABEI)                //处理加倍
 	} else {
-		//处理不加倍
+		user.SetJiaBeiStatus(DDZUSER_JIABEI_STATUS_BUJIABEI)//处理不加倍
 	}
 
 	//需要返回加倍的ack
