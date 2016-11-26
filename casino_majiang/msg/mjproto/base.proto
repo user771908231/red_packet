@@ -48,6 +48,8 @@ enum EProtoId {
     PID_GAME_GAMERECORD = 40; //查询战绩
     PID_GAME_ACKGAMERECORD = 41; //战绩回复
     PID_GAME_ACKGAMERECORDEDN = 42; //换三张结束
+    PID_GAME_NOTICE = 43; //请求通知
+    PID_GAME_ACKNOTICE = 44;//通知回复
 }
 
 enum ErrorCode {

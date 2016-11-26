@@ -35,8 +35,10 @@ func init() {
 	handler(&mjProto.Game_GameRecord{}, handlerGame_GameRecord)
 
 	//聊天
-
 	handler(&mjProto.Game_Message{}, handlerGame_Message)
+
+	//通知信息
+	handler(&mjProto.Game_Notice{}, HandlerNotice)
 
 }
 
@@ -134,4 +136,12 @@ func handlerGame_GameRecord(args []interface{}) {
 func handlerGame_Message(args []interface{}) {
 	m := args[0].(*mjProto.Game_Message)
 	MJService.HandlerGame_Message(m)
+}
+
+//通知信息
+func HandlerNotice(args []interface{}) {
+
+	//todo  回复 	mjProto.Game_AckNotice{}
+
+
 }
