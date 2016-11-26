@@ -465,6 +465,7 @@ func (d *MjDesk) beginInit() error {
 	//发送游戏开始的协议...
 	log.T("发送游戏开始的协议..")
 	open := newProto.NewGame_Opening()
+	*open.CurrPlayCount = d.GetCurrPlayCount()
 	d.BroadCastProto(open)
 	time.Sleep(SHAIZI_SLEEP_DURATION)
 	return nil
@@ -601,6 +602,7 @@ func (d *MjDesk) BeginStart() error {
 //开始换三张
 func (d *MjDesk) beginExchange() error {
 	time.Sleep(SLEEP_DURATION_EXCHANGE)
+	d.SetStatus(MJDESK_STATUS_EXCHANGE)
 	data := newProto.NewGame_BroadcastBeginExchange()
 	d.BroadCastProto(data)
 	return nil

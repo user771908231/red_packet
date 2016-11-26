@@ -21,6 +21,8 @@ var Server struct {
 	CurVersion              int32  //curVersion的配置
 	BaseDownloadUrl         string //默认下载地址
 
+
+				       //-----------------------斗地主的信息
 	DDZ_CurVersion          int32  //斗地主的当前版本
 	DDZ_IsUpdate            int32  //斗地主是否需要强制升级
 	DDZ_IsMaintain          int32  //斗地主是否在维护中
@@ -31,6 +33,18 @@ var Server struct {
 	DDZ_IP                  string
 	DDZ_PORT                int32
 	DDZ_STATUS              int32
+
+				       //------------------------麻将的信息
+	MJ_CurVersion           int32
+	MJ_IsUpdate             int32
+	MJ_IsMaintain           int32
+	MJ_MaintainMsg          string
+	MJ_ReleaseTag           int32
+	MJ_DownloadUrl          string
+	MJ_LatestClientVersion  int32
+	MJ_IP                   string
+	MJ_PORT                 int32
+	MJ_STATUS               int32
 }
 
 func init() {

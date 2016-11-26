@@ -186,6 +186,7 @@ func NewGame_DealCards() *mjProto.Game_DealCards {
 func NewGame_Opening() *mjProto.Game_Opening {
 	ret := &mjProto.Game_Opening{}
 	ret.Header = NewHeader()
+	ret.CurrPlayCount = new(int32)
 	return ret
 }
 

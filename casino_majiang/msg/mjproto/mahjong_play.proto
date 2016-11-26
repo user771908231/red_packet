@@ -10,6 +10,7 @@ option optimize_for = LITE_RUNTIME;
 // 开局（接收服务端消息）
 message game_Opening {
     optional ProtoHeader header = 1;
+    optional int32 CurrPlayCount = 2;   //当前玩到第几局
 }
 
 // 发牌
