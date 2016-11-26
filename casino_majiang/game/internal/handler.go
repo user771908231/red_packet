@@ -6,6 +6,8 @@ import (
 	"github.com/name5566/leaf/gate"
 	mjProto "casino_majiang/msg/protogo"
 	"casino_majiang/service/MJService"
+	"casino_server/service/noticeServer"
+	"casino_majiang/msg/funcsInit"
 )
 
 func handler(m interface{}, h interface{}) {
@@ -140,8 +142,15 @@ func handlerGame_Message(args []interface{}) {
 
 //通知信息
 func HandlerNotice(args []interface{}) {
+	m := args[0].(*mjProto.Game_Notice)
+	a := args[1].(gate.Agent)
+	bback := noticeServer.GetNoticeByType(m.GetNoticeType())
+	ack := newProto.NewGame_AckNotice()
+	*ack.NoticeType = bback.GetNoticeType()
+	*ack.NoticeTitle = bback.GetNoticeTitle()
+	*ack.NoticeMemo = bback.GetNoticeMemo()
+	*ack.NoticeContent = bback.GetNoticeContent()
+	ack.Fileds = bback.Fileds
 
-	//todo  回复 	mjProto.Game_AckNotice{}
-
-
+	a.WriteMsg(ack)
 }
