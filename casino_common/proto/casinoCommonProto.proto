@@ -17,3 +17,13 @@ message User {
     optional string city = 14; //
     optional int32 sex = 15;
 }
+
+message TNotice {
+    optional int32 id = 1; //公告的id
+    optional int32 noticeType = 2; //公告的类型
+    optional string noticeTitle = 3; //公告的标题
+    optional string noticeContent = 4; //公告的内容
+    optional string noticeMemo = 5; //公告的备注
+    repeated string fileds = 6; //   公告内容
+}
+
