@@ -7,7 +7,7 @@ import (
 	"casino_majiang/service/MJService"
 	"casino_majiang/msg/funcsInit"
 	"casino_common/common/log"
-	"casino_server/service/noticeServer"
+	"casino_common/common/noticeServer"
 )
 
 func handler(m interface{}, h interface{}) {

@@ -10,13 +10,24 @@ import (
 	"os"
 	"casino_majiang/conf/config"
 	"casino_majiang/service/webserver"
+	"casino_common/common/sys"
 )
 
 func init() {
+	//redisAddr string, redisName string, logName string, mongoIp string, mongoPort int, mongoName string, mongoSeqKey string, mongoSeqTables []string
+	e := sys.SysInit(
+		conf.Server.RedisAddr,
+		"test",
+		"majaing",
+		conf.Server.MongoIp,
+		conf.Server.MongoPort,
+		config.MJ_DBNAM,
+		config.DB_ENSURECOUNTER_KEY,
+		[]string{
+			config.DBT_MJ_DESK,
+			config.DBT_T_TH_GAMENUMBER_SEQ})
 	//初始化系统
-	e := config.InitConfig(false)
-	if e.IsError() {
-		//log.Error("config init failed.", e)
+	if e != nil {
 		os.Exit(-1)
 	}
 }
@@ -27,7 +38,6 @@ func main() {
 
 	//后台管理
 	go func() {
-		//log.T("web start...")
 		webserver.Run()
 	}()
 
