@@ -3,15 +3,15 @@ package MJService
 import (
 	mjProto "casino_majiang/msg/protogo"
 	"github.com/name5566/leaf/gate"
-	"casino_server/common/log"
 	"casino_majiang/msg/funcsInit"
 	"casino_majiang/service/majiang"
-	"casino_server/conf/intCons"
-	"casino_server/service/userService"
 	"time"
 	"errors"
 	"casino_majiang/gamedata/dao"
-	"casino_server/common/Error"
+	"casino_common/common/log"
+	"casino_common/common/userService"
+	"casino_common/common/Error"
+	"casino_common/common/consts"
 )
 
 
@@ -36,7 +36,7 @@ func HandlerGame_CreateDesk(m *mjProto.Game_CreateRoom, a gate.Agent) {
 
 	if desk == nil {
 		result := newProto.NewGame_AckCreateRoom()
-		*result.Header.Code = intCons.ACK_RESULT_ERROR
+		*result.Header.Code = consts.ACK_RESULT_ERROR
 		log.Error("用户[%v]创建房间失败...")
 		a.WriteMsg(result)
 
@@ -46,7 +46,7 @@ func HandlerGame_CreateDesk(m *mjProto.Game_CreateRoom, a gate.Agent) {
 
 		log.T("用户[%v]创建房间成功，roomKey[%v]", desk.GetOwner(), desk.GetPassword())
 		result := newProto.NewGame_AckCreateRoom()
-		*result.Header.Code = intCons.ACK_RESULT_SUCC
+		*result.Header.Code = consts.ACK_RESULT_SUCC
 		*result.Password = desk.GetPassword()
 		*result.DeskId = desk.GetDeskId()
 		*result.CreateFee = desk.GetCreateFee()
@@ -76,7 +76,7 @@ func HandlerGame_EnterRoom(userId uint32, key string, a gate.Agent) {
 		//没有找到room，进入房间失败
 		log.T("用户[%v]进入房间失败，没有找到对应的room", userId)
 		ack := newProto.NewGame_AckEnterRoom()
-		*ack.Header.Code = intCons.ACK_RESULT_ERROR
+		*ack.Header.Code = consts.ACK_RESULT_ERROR
 		*ack.Header.Error = "房间号输入错误"
 		a.WriteMsg(ack)
 		return
@@ -88,7 +88,7 @@ func HandlerGame_EnterRoom(userId uint32, key string, a gate.Agent) {
 		//进入房间失败
 		log.E("用户[%v]进入房间,key[%v]失败err[%v]", userId, key, err)
 		ack := newProto.NewGame_AckEnterRoom()
-		*ack.Header.Code = intCons.ACK_RESULT_ERROR
+		*ack.Header.Code = consts.ACK_RESULT_ERROR
 		*ack.Header.Error = Error.GetErrorMsg(err)
 		a.WriteMsg(ack)
 		return
@@ -144,7 +144,7 @@ func HandlerGame_Ready(m *mjProto.Game_Ready, a gate.Agent) {
 		// 准备失败
 		log.E("用户[%v]准备失败.因为没有找到对应的desk", userId)
 		result := newProto.NewGame_AckReady()
-		*result.Header.Code = intCons.ACK_RESULT_ERROR
+		*result.Header.Code = consts.ACK_RESULT_ERROR
 		*result.Header.Error = "准备失败"
 		a.WriteMsg(result)
 		return
@@ -155,7 +155,7 @@ func HandlerGame_Ready(m *mjProto.Game_Ready, a gate.Agent) {
 		// 准备失败
 		log.E("用户[%v]准备失败.desk[%v]不再准备的状态...", userId, desk.GetDeskId())
 		result := newProto.NewGame_AckReady()
-		*result.Header.Code = intCons.ACK_RESULT_ERROR
+		*result.Header.Code = consts.ACK_RESULT_ERROR
 		*result.Header.Error = "准备失败"
 		a.WriteMsg(result)
 		return
@@ -166,13 +166,13 @@ func HandlerGame_Ready(m *mjProto.Game_Ready, a gate.Agent) {
 	if err != nil {
 		//准备失败
 		result := newProto.NewGame_AckReady()
-		*result.Header.Code = intCons.ACK_RESULT_ERROR
+		*result.Header.Code = consts.ACK_RESULT_ERROR
 		*result.Header.Error = "准备失败"
 		a.WriteMsg(result)
 	} else {
 		//准备成功,发送准备成功的广播
 		result := newProto.NewGame_AckReady()
-		*result.Header.Code = intCons.ACK_RESULT_SUCC
+		*result.Header.Code = consts.ACK_RESULT_SUCC
 		*result.Header.Error = "准备成功"
 		*result.UserId = userId
 		log.T("广播user[%v]在desk[%v]准备成功的广播..string(%v)", userId, desk.GetDeskId(), result.String())

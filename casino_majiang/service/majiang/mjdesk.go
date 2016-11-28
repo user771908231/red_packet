@@ -6,21 +6,21 @@ import (
 	"casino_majiang/msg/protogo"
 	"casino_majiang/msg/funcsInit"
 	"github.com/name5566/leaf/gate"
-	"casino_server/common/log"
 	"casino_majiang/service/AgentService"
-	"casino_server/conf/intCons"
 	"time"
 	"casino_majiang/conf/config"
-	"casino_server/utils/db"
 	"strings"
 	"sync/atomic"
 	"casino_majiang/gamedata/model"
-	"casino_server/utils/numUtils"
-	"casino_server/utils/timeUtils"
 	"casino_majiang/service/lock"
-	"casino_server/utils"
-	"casino_server/common/Error"
 	"fmt"
+	"casino_common/common/log"
+	"casino_common/utils/db"
+	"casino_common/utils/timeUtils"
+	"casino_common/common/Error"
+	"casino_common/utils/numUtils"
+	"casino_common/common/consts"
+	"casino_common/utils/rand"
 )
 
 //状态表示的是当前状态.
@@ -1333,7 +1333,7 @@ func (d *MjDesk) ActPeng(userId uint32) error {
 	//5,发送碰牌的广播
 	ack := newProto.NewGame_AckActPeng()
 	ack.JiaoInfos = d.GetJiaoInfos(user)
-	*ack.Header.Code = intCons.ACK_RESULT_SUCC
+	*ack.Header.Code = consts.ACK_RESULT_SUCC
 	*ack.UserIdOut = d.CheckCase.GetUserIdOut()
 	*ack.UserIdIn = user.GetUserId()
 	//组装牌的信息
@@ -1373,7 +1373,7 @@ func (d *MjDesk)ActOut(userId uint32, paiKey int32) error {
 	//判断是否轮到当前玩家打牌了...
 	if !d.CheckActive(userId) {
 		result := newProto.NewGame_AckSendOutCard()
-		*result.Header.Code = intCons.ACK_RESULT_ERROR
+		*result.Header.Code = consts.ACK_RESULT_ERROR
 		*result.Header.Error = "不是打牌的状态"
 		outUser.WriteMsg(result)
 		return errors.New("没有轮到当前玩家....")
@@ -2084,7 +2084,7 @@ func (d *MjDesk) DoExchange(userId uint32, exchangeNum int32, cards []*mjproto.C
 
 	//返回结果
 	result := newProto.NewGame_AckExchangeCards()
-	*result.Header.Code = intCons.ACK_RESULT_SUCC
+	*result.Header.Code = consts.ACK_RESULT_SUCC
 	*result.UserId = user.GetUserId()
 	d.BroadCastProto(result)
 
@@ -2110,7 +2110,7 @@ func (d *MjDesk) ExchangeEnd() error {
 	time.Sleep(SLEEP_DURATION_EXCHANGE_END)
 
 	//开始换牌
-	exchangeType := utils.Rand(0, 3)
+	exchangeType := rand.Rand(0, 3)
 	if exchangeType == int32(mjproto.ExchangeType_EXCHANGE_TYPE_DUIJIA) {
 		exchangeCards(d.Users[0], d.Users[2])
 		exchangeCards(d.Users[1], d.Users[3])
@@ -2133,7 +2133,7 @@ func (d *MjDesk) ExchangeEnd() error {
 	//最后三张表示是已经换了的牌
 	for _, user := range d.GetUsers() {
 		result := newProto.NewGame_ExchangeCardsEnd()
-		*result.Header.Code = intCons.ACK_RESULT_SUCC
+		*result.Header.Code = consts.ACK_RESULT_SUCC
 		*result.Header.UserId = user.GetUserId()
 		*result.ExchangeType = exchangeType
 		paiCount := len(user.GameData.HandPai.Pais)

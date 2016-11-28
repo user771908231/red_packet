@@ -2,12 +2,12 @@ package internal
 
 import (
 	"reflect"
-	"casino_server/common/log"
 	"github.com/name5566/leaf/gate"
 	mjProto "casino_majiang/msg/protogo"
 	"casino_majiang/service/MJService"
-	"casino_server/service/noticeServer"
 	"casino_majiang/msg/funcsInit"
+	"casino_common/common/log"
+	"casino_server/service/noticeServer"
 )
 
 func handler(m interface{}, h interface{}) {

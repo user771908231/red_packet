@@ -2,8 +2,8 @@ package majiang
 
 import (
 	"casino_majiang/msg/protogo"
-	"casino_server/common/Error"
-	"casino_server/common/log"
+	"casino_common/common/Error"
+	"casino_common/common/log"
 )
 
 ///获取用户已知亮出台面的牌 包括自己手牌、自己和其他玩家碰杠牌、其他玩家outPais

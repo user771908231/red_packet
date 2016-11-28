@@ -1,18 +1,18 @@
 package config
 
 import (
-	"casino_server/common/Error"
-	"casino_server/common/cfg"
-	"casino_server/common/log"
 	"fmt"
 	"os"
 	"strconv"
-	"casino_server/utils/redis"
-	"casino_server/utils/db"
 	"runtime"
 	"time"
 	"math/rand"
 	"casino_majiang/conf"
+	"casino_common/common/Error"
+	"casino_common/common/log"
+	"casino_common/utils/db"
+	"casino_common/utils/redis"
+	"casino_common/common/cfg"
 )
 
 

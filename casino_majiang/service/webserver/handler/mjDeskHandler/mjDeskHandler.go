@@ -3,7 +3,7 @@ package mjDeskHandler
 import (
 	"gopkg.in/macaron.v1"
 	"casino_majiang/service/majiang"
-	"casino_server/utils/numUtils"
+	"casino_common/utils/numUtils"
 )
 
 func Get(ctx *macaron.Context) {

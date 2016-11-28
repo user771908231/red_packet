@@ -5,14 +5,14 @@ import (
 	"casino_majiang/service/AgentService"
 	"casino_majiang/msg/protogo"
 	"casino_majiang/msg/funcsInit"
-	"casino_server/common/log"
-	"casino_server/utils/jobUtils"
 	"time"
-	"casino_server/service/userService"
 	"sync/atomic"
 	"errors"
 	"fmt"
-	"casino_server/utils/numUtils"
+	"casino_common/common/log"
+	"casino_common/common/userService"
+	"casino_common/utils/jobUtils"
+	"casino_common/utils/numUtils"
 )
 
 var MJUSER_STATUS_INTOROOM int32 = 1; ///刚进入游戏
