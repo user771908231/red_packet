@@ -8,8 +8,8 @@ import (
 	"strings"
 	"casino_common/utils/chessUtils"
 	"casino_common/common/log"
-	"casino_server/utils/pokerUtils"
 	"casino_common/utils/numUtils"
+	"casino_common/utils/pokerUtils"
 )
 
 var PokerMap map[int32]string
@@ -102,17 +102,17 @@ func InitPaiByIndex(index int32) *PPokerPai {
 
 func Flower2int(f string) int32 {
 	if f == "diamond" {
-		return pokerUtils.FLOWER_DIAMOND
+		return pokerUtil.FLOWER_DIAMOND
 	} else if f == "club" {
-		return pokerUtils.FLOWER_CLUB
+		return pokerUtil.FLOWER_CLUB
 	} else if f == "heart" {
-		return pokerUtils.FLOWER_HEART
+		return pokerUtil.FLOWER_HEART
 	} else if f == "spade" {
-		return pokerUtils.FLOWER_SPADE
+		return pokerUtil.FLOWER_SPADE
 	} else if f == "redjoker" {
-		return pokerUtils.FLOWER_REDJOKER
+		return pokerUtil.FLOWER_REDJOKER
 	} else if f == "blackjoker" {
-		return pokerUtils.FLOWER_BLACKJOKER
+		return pokerUtil.FLOWER_BLACKJOKER
 	}
 	return 0
 }
@@ -192,7 +192,7 @@ func (out *POutPokerPais) sortPais() error {
 //初始化类型
 func (out *POutPokerPais) initTypeAndKeyValue() error {
 	//统计数据
-	counts := make([]int32, 15)
+	counts := make([]int32, 17)
 	for _, pai := range out.PokerPais {
 		counts[pai.GetValue()]++
 	}
@@ -406,8 +406,13 @@ func (out *POutPokerPais) GetClientPokers() []*ddzproto.Poker {
 }
 
 //得到牌
-func GetOutPais() *POutPokerPais {
-	return nil
+func GetOutPais(outcards []*ddzproto.Poker) *POutPokerPais {
+	ret := NewPOutPokerPais()
+	for _, c := range outcards {
+		ret.PokerPais = append(ret.PokerPais, InitPaiByIndex(c.GetId()))
+	}
+	ret.init()
+	return ret
 }
 
 func ( p *PPokerPai) GetClientPoker() *ddzproto.Poker {
@@ -419,15 +424,15 @@ func ( p *PPokerPai) GetClientPoker() *ddzproto.Poker {
 }
 
 func (p *PPokerPai) GetSuit() ddzproto.PokerColor {
-	if p.GetFlower() == pokerUtils.FLOWER_DIAMOND {
+	if p.GetFlower() == pokerUtil.FLOWER_DIAMOND {
 		return ddzproto.PokerColor_FANGKUAI
-	} else if p.GetFlower() == pokerUtils.FLOWER_CLUB {
+	} else if p.GetFlower() == pokerUtil.FLOWER_CLUB {
 		return ddzproto.PokerColor_MEIHUA
-	} else if p.GetFlower() == pokerUtils.FLOWER_HEART {
+	} else if p.GetFlower() == pokerUtil.FLOWER_HEART {
 		return ddzproto.PokerColor_HONGTAO
-	} else if p.GetFlower() == pokerUtils.FLOWER_SPADE {
+	} else if p.GetFlower() == pokerUtil.FLOWER_SPADE {
 		return ddzproto.PokerColor_HEITAO
-	} else if p.GetFlower() == pokerUtils.FLOWER_BLACKJOKER {
+	} else if p.GetFlower() == pokerUtil.FLOWER_BLACKJOKER {
 		return ddzproto.PokerColor_BLACKBIGJOKER
 	} else {
 		return ddzproto.PokerColor_REDJOKER

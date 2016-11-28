@@ -286,6 +286,9 @@ func (d *DdzDesk) ActOut(userId uint32, out *POutPokerPais) error {
 		d.setWinValue(d.GetQingDizhuValue() * 2)
 	}
 
+	//initChechOut
+	d.OutPai = out        //给desk赋值
+
 	//返回成功的消息,广播用户出的牌
 	ack := newProto.NewDdzOutCardsAck()
 	*ack.UserId = user.GetUserId()
@@ -381,6 +384,30 @@ func (d *DdzDesk) ShowHandPokers(userId uint32) error {
 	d.Lock()
 	defer d.Unlock()
 	//处理明牌的逻辑
+	return nil
+}
+
+//离开房间的协议
+/**
+	用户离开房间之后，需要设置用户的状态为离开的状态
+ */
+func (d *DdzDesk) LeaveDesk(userId uint32) error {
+
+	//查找user是否存在
+	user := d.GetUserByUserId(userId)
+	if user == nil {
+		log.E("没有找到用户，用户离开失败...")
+		return Error.NewFailError("没有找到用户")
+	}
+
+	//检测user的状态，已经里开的不用离开
+
+	//
+	*user.IsLeave = true        //设置用户离开...下句开始之前需要删除掉此用户
+
+	ack := newProto.NewDdzAckLeaveDesk()
+	user.WriteMsg(ack)        //todo 这里是需要广播还是单独回复?	//暂时没有做
+
 	return nil
 }
 

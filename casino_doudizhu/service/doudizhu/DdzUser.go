@@ -150,12 +150,10 @@ func (u *DdzUser) DelHandlPai(pais *PPokerPai) error {
 func (u *DdzUser) DOPoutPokerPais(out *POutPokerPais) error {
 	//1，增加出的牌
 	u.GameData.OutPaiList = append(u.GameData.OutPaiList, out)
-
 	//2，删除手牌
 	for _, p := range out.PokerPais {
 		u.DelHandlPai(p)
 	}
-
 	return nil
 }
 

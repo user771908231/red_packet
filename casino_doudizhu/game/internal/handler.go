@@ -6,6 +6,7 @@ import (
 	"github.com/name5566/leaf/gate"
 	"casino_doudizhu/service/DdzService"
 	"casino_common/common/consts"
+	"casino_doudizhu/msg/funcsInit"
 )
 
 func handler(m interface{}, h interface{}) {
@@ -36,6 +37,7 @@ func init() {
 func handlerNullMsg(args []interface{}) {
 	m := args[0].(*ddzproto.Heartbeat)
 	a := args[1].(gate.Agent)
+	m.Header = newProto.NewHeader()
 	*m.Header.Code = consts.ACK_RESULT_SUCC
 	a.WriteMsg(m)
 }
@@ -147,7 +149,7 @@ func handlerJiaBei(args []interface{}) {
 //出牌
 func handlerChuPai(args []interface{}) {
 	m := args[0].(*ddzproto.DdzOutCards)
-	DdzService.HandlerActOut(m.GetHeader().GetUserId())
+	DdzService.HandlerActOut(m.GetHeader().GetUserId(),m.OutCards)
 }
 
 
