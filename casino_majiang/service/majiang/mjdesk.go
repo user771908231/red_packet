@@ -916,7 +916,13 @@ func (d *MjDesk) GetJiaoInfos(user *MjUser) []*mjproto.JiaoInfo {
 
 	//获取用户手牌 包括inPai
 	var userPais []*MJPai
-	userHandPai := *user.GetGameData().HandPai
+	userHandPai := NewMJHandPai()
+	if user != nil && user.GetGameData() != nil && user.GetGameData().GetHandPai() != nil {
+		*userHandPai = user.GetGameData().HandPai
+	}else {
+		return nil
+	}
+
 	userPais = append(userPais, userHandPai.Pais...)
 	if userHandPai.InPai != nil {
 		//碰牌 无inPai的情况
