@@ -1,11 +1,11 @@
 package majiang
 
 import (
-	"casino_server/utils/redisUtils"
-	"casino_server/common/log"
-	"casino_server/utils/numUtils"
 	"strings"
 	"sync"
+	"casino_common/utils/numUtils"
+	"casino_common/utils/redisUtils"
+	"casino_common/common/log"
 )
 
 var REDIS_KEY_MJ_DESK = "redis_key_mj_desk"

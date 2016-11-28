@@ -4,9 +4,9 @@ import (
 	"testing"
 	"casino_majiang/service/majiang"
 	"fmt"
-	"casino_server/utils/numUtils"
-	"casino_server/common/log"
 	"time"
+	"casino_common/common/log"
+	"casino_common/utils/numUtils"
 )
 
 func Test(t *testing.T) {

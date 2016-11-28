@@ -2,12 +2,12 @@ package internal
 
 import (
 	"reflect"
-	"casino_server/common/log"
 	"casino_majiang/msg/protogo"
 	"github.com/name5566/leaf/gate"
-	"casino_server/conf/intCons"
 	"casino_majiang/msg/funcsInit"
-	"casino_server/service/userService"
+	"casino_common/common/log"
+	"casino_common/common/consts"
+	"casino_common/common/userService"
 )
 
 func handler(m interface{}, h interface{}) {
@@ -58,7 +58,7 @@ func handlerREQQuickConn(args []interface{}) {
 	}
 
 	//如果得到的user ==nil 或者 用密码登陆的时候密码不正确
-	*result.Header.Code = intCons.ACK_RESULT_SUCC                           //返回结果
+	*result.Header.Code = consts.ACK_RESULT_SUCC                           //返回结果
 	log.T("handlerREQQuickConn 协议返回的信息:[%v]", result)
 	a.WriteMsg(result)
 
@@ -83,12 +83,12 @@ func handlerGame_Login(args []interface{}) {
 		if user == nil {
 			//登陆失败
 			ack := newProto.NewGame_AckLogin()
-			*ack.Header.Code = intCons.ACK_RESULT_ERROR
+			*ack.Header.Code = consts.ACK_RESULT_ERROR
 			a.WriteMsg(ack)
 		} else {
 			//返回登陆成功的结果
 			ack := newProto.NewGame_AckLogin()
-			*ack.Header.Code = intCons.ACK_RESULT_SUCC
+			*ack.Header.Code = consts.ACK_RESULT_SUCC
 			*ack.UserId = user.GetId()
 			*ack.NickName = user.GetNickName()
 			*ack.Chip = user.GetDiamond()
@@ -103,7 +103,7 @@ func handlerGame_Login(args []interface{}) {
 		//表示数据库中不存在次用户，新增加一个人后返回
 		if weixin.GetOpenId() == "" || weixin.GetHeadUrl() == "" || weixin.GetNickName() == "" {
 			ack := newProto.NewGame_AckLogin()
-			*ack.Header.Code = intCons.ACK_RESULT_ERROR
+			*ack.Header.Code = consts.ACK_RESULT_ERROR
 			a.WriteMsg(ack)
 			return
 		}
@@ -112,7 +112,7 @@ func handlerGame_Login(args []interface{}) {
 		user, _ = userService.NewUserAndSave(weixin.GetOpenId(), weixin.GetNickName(), weixin.GetHeadUrl(), weixin.GetSex(), weixin.GetCity())
 		if user == nil {
 			ack := newProto.NewGame_AckLogin()
-			*ack.Header.Code = intCons.ACK_RESULT_ERROR
+			*ack.Header.Code = consts.ACK_RESULT_ERROR
 			a.WriteMsg(ack)
 			return
 		}
@@ -120,7 +120,7 @@ func handlerGame_Login(args []interface{}) {
 
 	//返回登陆成功的结果
 	ack := newProto.NewGame_AckLogin()
-	*ack.Header.Code = intCons.ACK_RESULT_SUCC
+	*ack.Header.Code = consts.ACK_RESULT_SUCC
 	*ack.UserId = user.GetId()
 	*ack.NickName = user.GetNickName()
 	*ack.Chip = user.GetDiamond()

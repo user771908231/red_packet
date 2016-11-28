@@ -4,7 +4,7 @@ import (
 	"time"
 	"casino_majiang/msg/protogo"
 	"casino_majiang/msg/funcsInit"
-	"casino_server/utils/timeUtils"
+	"casino_common/utils/timeUtils"
 )
 
 type MjRecordBean struct {

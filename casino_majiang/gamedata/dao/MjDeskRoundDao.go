@@ -2,12 +2,12 @@ package dao
 
 import (
 	"casino_majiang/gamedata/model"
-	"casino_server/utils/db"
 	"gopkg.in/mgo.v2"
 	"casino_majiang/conf/config"
 	"gopkg.in/mgo.v2/bson"
-	"casino_server/utils/numUtils"
-	"casino_server/common/log"
+	"casino_common/utils/numUtils"
+	"casino_common/utils/db"
+	"casino_common/common/log"
 )
 
 

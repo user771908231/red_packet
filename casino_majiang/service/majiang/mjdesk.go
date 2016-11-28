@@ -6,21 +6,21 @@ import (
 	"casino_majiang/msg/protogo"
 	"casino_majiang/msg/funcsInit"
 	"github.com/name5566/leaf/gate"
-	"casino_server/common/log"
 	"casino_majiang/service/AgentService"
-	"casino_server/conf/intCons"
 	"time"
 	"casino_majiang/conf/config"
-	"casino_server/utils/db"
 	"strings"
 	"sync/atomic"
 	"casino_majiang/gamedata/model"
-	"casino_server/utils/numUtils"
-	"casino_server/utils/timeUtils"
 	"casino_majiang/service/lock"
-	"casino_server/utils"
-	"casino_server/common/Error"
 	"fmt"
+	"casino_common/common/log"
+	"casino_common/utils/db"
+	"casino_common/utils/timeUtils"
+	"casino_common/common/Error"
+	"casino_common/utils/numUtils"
+	"casino_common/common/consts"
+	"casino_common/utils/rand"
 )
 
 //状态表示的是当前状态.
@@ -366,7 +366,7 @@ func (d *MjDesk) begin() error {
 	//1，检查是否可以开始游戏
 	err := d.time2begin()
 	if err != nil {
-		//log.T("无法开始游戏:err[%v]", err)
+		log.T("无法开始游戏:err[%v]", err)
 		return err
 	}
 
@@ -393,7 +393,7 @@ func (d *MjDesk) begin() error {
 	}
 
 	//如果是三人两房 or 四人两房 or 两人两房，游戏直接开始
-	if d.IsSanRenLiangFang() || d.IsSiRenLiangFang() || d.IsLiangRenLiangFang() {
+	if d.IsLiangFang() {
 		err = d.BeginStart()
 		if err != nil {
 			log.E("发送游戏开始的广播的时候出错err[%v]", err)
@@ -409,14 +409,6 @@ func (d *MjDesk) begin() error {
 	}
 
 	return nil
-}
-
-//判断是否是两人三房
-func (d *MjDesk) IsLiangRenSanFang() bool {
-	if mjproto.MJRoomType(d.GetMjRoomType()) == mjproto.MJRoomType_roomType_liangRenSanFang {
-		return true
-	}
-	return false
 }
 
 //是否需要自摸加底
@@ -490,7 +482,7 @@ func (d *MjDesk) initCards() error {
 	d.SetStatus(MJDESK_STATUS_FAPAI)        //发牌的阶段
 
 	d.AllMJPai = XiPai()
-	if d.IsSanRenLiangFang() || d.IsSiRenLiangFang() || d.IsLiangRenLiangFang() {
+	if d.IsLiangFang() {
 		//如果是三人两房 or 四人两房 or 两人两房 过滤掉万牌
 		d.AllMJPai = IgnoreFlower(d.AllMJPai, W)
 	}
@@ -1340,7 +1332,7 @@ func (d *MjDesk) ActPeng(userId uint32) error {
 	//5,发送碰牌的广播
 	ack := newProto.NewGame_AckActPeng()
 	ack.JiaoInfos = d.GetJiaoInfos(user)
-	*ack.Header.Code = intCons.ACK_RESULT_SUCC
+	*ack.Header.Code = consts.ACK_RESULT_SUCC
 	*ack.UserIdOut = d.CheckCase.GetUserIdOut()
 	*ack.UserIdIn = user.GetUserId()
 	//组装牌的信息
@@ -1380,7 +1372,7 @@ func (d *MjDesk)ActOut(userId uint32, paiKey int32) error {
 	//判断是否轮到当前玩家打牌了...
 	if !d.CheckActive(userId) {
 		result := newProto.NewGame_AckSendOutCard()
-		*result.Header.Code = intCons.ACK_RESULT_ERROR
+		*result.Header.Code = consts.ACK_RESULT_ERROR
 		*result.Header.Error = "不是打牌的状态"
 		outUser.WriteMsg(result)
 		return errors.New("没有轮到当前玩家....")
@@ -2091,7 +2083,7 @@ func (d *MjDesk) DoExchange(userId uint32, exchangeNum int32, cards []*mjproto.C
 
 	//返回结果
 	result := newProto.NewGame_AckExchangeCards()
-	*result.Header.Code = intCons.ACK_RESULT_SUCC
+	*result.Header.Code = consts.ACK_RESULT_SUCC
 	*result.UserId = user.GetUserId()
 	d.BroadCastProto(result)
 
@@ -2117,7 +2109,7 @@ func (d *MjDesk) ExchangeEnd() error {
 	time.Sleep(SLEEP_DURATION_EXCHANGE_END)
 
 	//开始换牌
-	exchangeType := utils.Rand(0, 3)
+	exchangeType := rand.Rand(0, 3)
 	if exchangeType == int32(mjproto.ExchangeType_EXCHANGE_TYPE_DUIJIA) {
 		exchangeCards(d.Users[0], d.Users[2])
 		exchangeCards(d.Users[1], d.Users[3])
@@ -2140,7 +2132,7 @@ func (d *MjDesk) ExchangeEnd() error {
 	//最后三张表示是已经换了的牌
 	for _, user := range d.GetUsers() {
 		result := newProto.NewGame_ExchangeCardsEnd()
-		*result.Header.Code = intCons.ACK_RESULT_SUCC
+		*result.Header.Code = consts.ACK_RESULT_SUCC
 		*result.Header.UserId = user.GetUserId()
 		*result.ExchangeType = exchangeType
 		paiCount := len(user.GameData.HandPai.Pais)

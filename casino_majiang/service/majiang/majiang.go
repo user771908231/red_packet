@@ -2,12 +2,12 @@ package majiang
 
 import (
 	"strings"
-	"casino_server/utils/numUtils"
-	"casino_server/utils"
 	. "casino_majiang/msg/protogo"
-	"casino_server/common/log"
 	"errors"
 	"fmt"
+	"casino_common/common/log"
+	"casino_common/utils/numUtils"
+	"casino_common/utils/rand"
 )
 
 //得到一副牌...
@@ -1165,7 +1165,7 @@ func XiPai() []*MJPai {
 	pResult := make([]int, MJPAI_COUNT)
 
 	for i := 0; i < MJPAI_COUNT; i++ {
-		rand := utils.Rand(0, (int32(MJPAI_COUNT - i)))
+		rand := rand.Rand(0, (int32(MJPAI_COUNT - i)))
 		//log.T("得到的rand[%v]", rand)
 		pResult[i] = pmap[rand]
 		pmap = append(pmap[:int(rand)], pmap[int(rand) + 1:]...)

@@ -2,9 +2,9 @@ package majiang
 
 import (
 	"strings"
-	"casino_server/utils/redisUtils"
-	"casino_server/utils/numUtils"
-	"casino_server/common/log"
+	"casino_common/utils/numUtils"
+	"casino_common/utils/redisUtils"
+	"casino_common/common/log"
 )
 // session相关的...
 

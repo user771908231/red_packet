@@ -2,8 +2,8 @@ package internal
 
 import (
 	"github.com/name5566/leaf/gate"
-	"casino_server/common/log"
 	"casino_majiang/service/majiang"
+	"casino_common/common/log"
 )
 
 func init() {

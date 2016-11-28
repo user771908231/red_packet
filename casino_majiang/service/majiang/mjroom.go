@@ -1,19 +1,19 @@
 package majiang
 
 import (
-	"casino_server/utils"
-	"casino_server/utils/numUtils"
 	"casino_majiang/msg/protogo"
 	"errors"
 	"github.com/name5566/leaf/gate"
 	"casino_majiang/service/lock"
-	"casino_server/utils/db"
 	"casino_majiang/conf/config"
-	"casino_server/service/userService"
-	"casino_server/common/log"
 	"casino_majiang/msg/funcsInit"
-	"casino_server/common/Error"
-	"casino_server/conf/intCons"
+	"casino_common/utils/numUtils"
+	"casino_common/common/Error"
+	"casino_common/common/consts"
+	"casino_common/utils/rand"
+	"casino_common/common/log"
+	"casino_common/common/userService"
+	"casino_common/utils/db"
 )
 
 
@@ -105,7 +105,7 @@ func (r *MjRoom) CreateDesk(m *mjproto.Game_CreateRoom) *MjDesk {
 }
 
 func (r *MjRoom) RandRoomKey() string {
-	a := utils.Rand(100000, 1000000)
+	a := rand.Rand(100000, 1000000)
 	roomKey, _ := numUtils.Int2String(a)
 	//1,判断roomKey是否已经存在
 	if r.IsRoomKeyExist(roomKey) {
@@ -172,7 +172,7 @@ func (r *MjRoom) EnterRoom(key string, userId uint32, a gate.Agent) (*MjDesk, mj
 		desk = r.GetDeskByPassword(key)
 		if desk == nil {
 			log.T("通过key[%v]没有找到对应的desk", key)
-			return nil, mjproto.RECONNECT_TYPE_NORMAL, Error.NewError(intCons.ACK_RESULT_FAIL, "房间号输入错误")
+			return nil, mjproto.RECONNECT_TYPE_NORMAL, Error.NewError(consts.ACK_RESULT_FAIL, "房间号输入错误")
 		} else {
 			var addErr error
 			reconnect, addErr = desk.addNewUserFriend(userId, a)

@@ -4,9 +4,9 @@ import (
 	"casino_majiang/msg/protogo"
 	"casino_majiang/msg/funcsInit"
 	"errors"
-	"casino_server/common/log"
-	"casino_server/utils/numUtils"
 	"sort"
+	"casino_common/common/log"
+	"casino_common/utils/numUtils"
 )
 
 //1=明杠、2=巴杠、3=暗杠
