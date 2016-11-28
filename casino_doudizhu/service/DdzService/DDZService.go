@@ -201,18 +201,25 @@ func HandlePull(userId uint32) error {
 }
 
 func HandlerDissolveDesk(userId uint32) error {
+
 	desk := doudizhu.GetDdzDeskBySession(userId)
 	if desk == nil {
 		return Error.NewFailError("没有找到desk")
 	}
+	//得到朋友桌的房间
+	room := doudizhu.GetFDdzRoom()
+	room.DissolveDesk(desk, false)
+
 	return nil
 }
 
+//用户离开房间
 func HandlerLeaveDesk(userId uint32) error {
 	desk := doudizhu.GetDdzDeskBySession(userId)
 	if desk == nil {
 		return Error.NewFailError("没有找到desk")
 	}
+	desk.LeaveDesk(userId)
 	return nil
 }
 
@@ -263,14 +270,14 @@ func HandlerJiaBei(userId uint32, jia bool) error {
 
 
 //开始出牌
-func HandlerActOut(userId uint32) error {
+func HandlerActOut(userId uint32, outcards []*ddzproto.Poker) error {
 	desk := doudizhu.GetDdzDeskBySession(userId)
 	if desk == nil {
 		return Error.NewError(-1, "没有找到desk")
 	}
 
 	//获取到outpai
-	outpai := doudizhu.GetOutPais()
+	outpai := doudizhu.GetOutPais(outcards)
 	//开始出牌
 	err := desk.ActOut(userId, outpai)
 	if err != nil {

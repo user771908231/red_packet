@@ -73,6 +73,21 @@ func NewPPokerPai() *PPokerPai {
 	return pai
 }
 
+func NewPOutPokerPais() *POutPokerPais {
+	ret := new(POutPokerPais)
+	ret.KeyValue = new(int32)
+	ret.Type = new(int32)
+	ret.IsBomb = new(bool)
+
+	ret.CountYizhang = new(int32)
+	ret.CountDuizi = new(int32)
+	ret.CountSanzhang = new(int32)
+	ret.CountSizhang = new(int32)
+
+	ret.UserId = new(uint32)
+	return ret
+}
+
 func NewPDdzBillBean() *PDdzBillBean {
 	b := new(PDdzBillBean)
 	b.Coin = new(int64)
