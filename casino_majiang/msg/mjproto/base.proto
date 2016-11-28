@@ -142,6 +142,7 @@ enum MJRoomType {
     roomType_xueLiuChengHe = 5; // 血流成河
     roomType_liangRenLiangFang = 6; //两人两房
     roomType_liangRenSanFang = 7; //两人三房
+    roomType_sanRenSanFang = 8; // 三人三房
 }
 
 //麻将花色
