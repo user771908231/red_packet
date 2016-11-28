@@ -386,7 +386,7 @@ func (d *MjDesk) begin() error {
 	}
 
 	//如果是三人两房 or 四人两房 or 两人两房，游戏直接开始
-	if d.IsSanRenLiangFang() || d.IsSiRenLiangFang() || d.IsLiangRenLiangFang() {
+	if d.IsLiangFang() {
 		err = d.BeginStart()
 		if err != nil {
 			log.E("发送游戏开始的广播的时候出错err[%v]", err)
@@ -402,14 +402,6 @@ func (d *MjDesk) begin() error {
 	}
 
 	return nil
-}
-
-//判断是否是两人三房
-func (d *MjDesk) IsLiangRenSanFang() bool {
-	if mjproto.MJRoomType(d.GetMjRoomType()) == mjproto.MJRoomType_roomType_liangRenSanFang {
-		return true
-	}
-	return false
 }
 
 //是否需要自摸加底
@@ -483,7 +475,7 @@ func (d *MjDesk) initCards() error {
 	d.SetStatus(MJDESK_STATUS_FAPAI)        //发牌的阶段
 
 	d.AllMJPai = XiPai()
-	if d.IsSanRenLiangFang() || d.IsSiRenLiangFang() || d.IsLiangRenLiangFang() {
+	if d.IsLiangFang() {
 		//如果是三人两房 or 四人两房 or 两人两房 过滤掉万牌
 		d.AllMJPai = IgnoreFlower(d.AllMJPai, W)
 	}

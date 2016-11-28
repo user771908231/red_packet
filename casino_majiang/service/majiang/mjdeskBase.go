@@ -143,9 +143,11 @@ func (d *MjDesk) GetUserCount() int32 {
 //玩家是否足够
 func (d *MjDesk) IsPlayerEnough() (isPlayerEnough bool) {
 	switch {
-	case d.IsSanRenLiangFang() && d.GetUserCount() == 3 : //是三人两房并且玩家数等于3
+	case d.IsSanRen() && d.GetUserCount() == 3 : //是三人游戏并且玩家数等于3
 		isPlayerEnough = true
-	case !d.IsSanRenLiangFang() && d.GetUserCount() == 4 : //不是三人两房并且玩家数等于4
+	case d.IsSiRen() && d.GetUserCount() == 4 : //是四人游戏并且玩家数等于4
+		isPlayerEnough = true
+	case d.IsLiangRen() && d.GetUserCount() == 2 : //是两人游戏且玩家数等于2
 		isPlayerEnough = true
 	default:
 		isPlayerEnough = false
@@ -159,12 +161,41 @@ func (d *MjDesk) IsSanRenLiangFang() bool {
 	return mjproto.MJRoomType(d.GetMjRoomType()) == mjproto.MJRoomType_roomType_sanRenLiangFang
 }
 
+//判断是否是三人三房
+func (d *MjDesk) IsSanRenSanFang() bool {
+	//todo 协议添加
+	return mjproto.MJRoomType(d.GetMjRoomType()) == mjproto.MJRoomType_roomType_sanRenLiangFang
+}
+
+
+
 //判断是否是四人两房
 func (d *MjDesk) IsSiRenLiangFang() bool {
 	if mjproto.MJRoomType(d.GetMjRoomType()) == mjproto.MJRoomType_roomType_siRenLiangFang {
 		return true
 	}
 	return false
+}
+
+//判断是否是四人游戏
+func (d *MjDesk) IsSiRen() bool {
+	return d.IsSiRenLiangFang() || d.IsXueLiuChengHe() || d.IsXueZhanDaoDi() || d.IsDaodaohu()
+}
+
+//判断是否是三人游戏
+func (d *MjDesk) IsSanRen() bool {
+	return d.IsSanRenLiangFang() || d.IsSanRenSanFang()
+}
+
+//判断是否是两人游戏
+func (d *MjDesk) IsLiangRen() bool {
+	return d.IsLiangRenLiangFang() || d.IsLiangRenSanFang()
+}
+
+//判断是否是两房游戏
+func (d *MjDesk) IsLiangFang() bool {
+	d.IsLiangRenLiangFang()
+	return d.IsSanRenLiangFang() || d.IsSiRenLiangFang() || d.IsLiangRenLiangFang()
 }
 
 //判断是否是倒倒胡
@@ -175,9 +206,17 @@ func (d *MjDesk) IsDaodaohu() bool {
 	return false
 }
 
-//判断是否是倒倒胡
+//判断是否是两人两房
 func (d *MjDesk) IsLiangRenLiangFang() bool {
-	if mjproto.MJRoomType(d.GetMjRoomType()) == mjproto.MJRoomType_roomType_daoDaoHu {
+	if mjproto.MJRoomType(d.GetMjRoomType()) == mjproto.MJRoomType_roomType_liangRenLiangFang {
+		return true
+	}
+	return false
+}
+
+//判断是否是两人三房
+func (d *MjDesk) IsLiangRenSanFang() bool {
+	if mjproto.MJRoomType(d.GetMjRoomType()) == mjproto.MJRoomType_roomType_liangRenSanFang {
 		return true
 	}
 	return false
