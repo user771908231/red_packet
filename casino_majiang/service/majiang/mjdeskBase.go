@@ -163,8 +163,7 @@ func (d *MjDesk) IsSanRenLiangFang() bool {
 
 //判断是否是三人三房
 func (d *MjDesk) IsSanRenSanFang() bool {
-	//todo 协议添加
-	return mjproto.MJRoomType(d.GetMjRoomType()) == mjproto.MJRoomType_roomType_sanRenLiangFang
+	return mjproto.MJRoomType(d.GetMjRoomType()) == mjproto.MJRoomType_roomType_sanRenSanFang
 }
 
 
