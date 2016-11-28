@@ -226,6 +226,11 @@ func (d *MjDesk) IsXueLiuChengHe() bool {
 	return d.GetMjRoomType() == int32(mjproto.MJRoomType_roomType_xueLiuChengHe)
 }
 
+//判断是否是血战到底
+func (d *MjDesk) IsXueZhanDaoDi() bool {
+	return d.GetMjRoomType() == int32(mjproto.MJRoomType_roomType_xueZhanDaoDi)
+}
+
 func (d *MjDesk) SendGameInfo(userId uint32, reconnect mjproto.RECONNECT_TYPE) {
 	gameinfo := d.GetGame_SendGameInfo(userId, reconnect)
 	log.T("用户[%v]进入房间,reconnect[%v]之后，返回的数据gameInfo[%v]", userId, reconnect, gameinfo)
