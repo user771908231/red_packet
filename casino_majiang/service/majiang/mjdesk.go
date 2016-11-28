@@ -774,8 +774,8 @@ func (d *MjDesk) Time2Lottery() bool {
 
 
 
-	//如果是倒倒胡,并且有人胡牌了，那么直接返回胡牌
-	if d.IsDaodaohu() {
+	//如果是倒倒胡 or 两人麻将 ,并且有人胡牌了，那么就开奖结束本局
+	if d.IsDaodaohu() || d.IsLiangRen() {
 		for _, user := range d.Users {
 			if user != nil && user.IsHu() {
 				return true
@@ -2289,14 +2289,21 @@ func (d *MjDesk) GetHiddenPais(user *MjUser) []*MJPai {
 //获取用户已知亮出台面的牌 包括自己手牌、自己和其他玩家碰杠牌、其他玩家outPais
 func (d *MjDesk) GetDisplayPais(user *MjUser) []*MJPai {
 	//获取所有玩家的亮出台面的牌 outPais + pengPais + gangPais
-	users := d.GetUsers()
-	displayPais := []*MJPai{}
-	for i := 0; i < len(users); i++ {
-		displayPais = append(displayPais, users[i].GetGameData().GetHandPai().OutPais...) //打出去的牌
 
-		userHandPai := users[i].GetGameData().GetHandPai()
-		displayPais = append(displayPais, userHandPai.GangPais...) //杠的牌
-		displayPais = append(displayPais, userHandPai.PengPais...) //碰的牌
+	displayPais := []*MJPai{}
+	for _, user := range d.GetUsers() {
+		userHandPai := user.GetGameData().GetHandPai()
+
+		switch {
+		case userHandPai.GetGangPais() != nil:
+			displayPais = append(displayPais, userHandPai.GangPais...) //杠的牌
+		case userHandPai.GetPengPais() != nil:
+			displayPais = append(displayPais, userHandPai.PengPais...) //碰的牌
+		case userHandPai.GetOutPais() != nil:
+			displayPais = append(displayPais, userHandPai.OutPais...) //打出去的牌
+		default:
+
+		}
 	}
 
 	//在亮出台面的牌中加入用户自己的手牌
