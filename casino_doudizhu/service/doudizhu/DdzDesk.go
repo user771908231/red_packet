@@ -118,18 +118,30 @@ func (d *DdzDesk) IsAllActJiaBei() bool {
 }
 
 func (d *DdzDesk) CheckOutPai(out *POutPokerPais) error {
+	//如果上一家出的牌是空,表示没有人出牌
+	if d.OutPai == nil {
+		log.T("玩家是地主，并且第一次出牌[%v]", out)
+		return nil
+	}
+
+	if d.OutPai.GetUserId() == out.GetUserId() {
+		//其他两家都不要，继续出牌
+		log.T("其他玩家都不要，玩家[%v]继续出牌", out.GetUserId())
+		return nil
+	}
+
+	//判断大小
 	right, err := out.GT(d.OutPai)
 	if err != nil {
 		log.E("出牌的时候，判断牌型的时候失败...")
 		return Error.NewError(-1, "比较失败,出牌失败...")
 	}
 
-	if right {
-		return nil
-	} else {
+	if !right {
 		return Error.NewError(-1, "出的牌比别人的牌小，没有办法出牌")
 	}
 
+	return nil
 }
 
 //得到user的index

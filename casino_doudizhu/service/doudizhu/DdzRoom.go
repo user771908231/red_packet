@@ -9,6 +9,7 @@ import (
 	"casino_common/common/log"
 	"casino_common/utils/rand"
 	"casino_common/utils/numUtils"
+	"casino_doudizhu/msg/funcsInit"
 )
 
 //初始化一个斗地主的房间实例
@@ -80,11 +81,11 @@ func (r *DdzRoom) IsRoomKeyExist(roomkey string) bool {
 }
 
 
-
 // room 解散房间...
 func (r *DdzRoom)DissolveDesk(desk *DdzDesk, sendMsg bool) error {
 	//清楚数据,1,session相关。2,
 	log.T("开始解散desk[%v]...", desk)
+
 	log.T("开始解散desk[%v]user的session数据...", desk.GetDeskId())
 	for _, user := range desk.Users {
 		if user != nil {
@@ -93,7 +94,6 @@ func (r *DdzRoom)DissolveDesk(desk *DdzDesk, sendMsg bool) error {
 	}
 
 	log.T("开始删除desk[%v]...", desk.GetDeskId())
-
 	//发送解散房间的广播
 	rmErr := r.RmDesk(desk)
 	if rmErr != nil {
@@ -104,11 +104,15 @@ func (r *DdzRoom)DissolveDesk(desk *DdzDesk, sendMsg bool) error {
 	//删除锁
 	//删除reids
 	DelMjDeskRedis(desk)
-
 	//删除房间
 	log.T("删除desk[%v]之后，发送删除的广播...", desk.GetDeskId())
 	if sendMsg {
 		//发送解散房间的广播
+		ack := newProto.NewDdzAckDissolveDesk()
+		*ack.PassWord = desk.GetKey()
+		*ack.UserId = desk.GetOwner()
+		*ack.DeskId = desk.GetDeskId()
+		desk.BroadCastProto(ack)
 	}
 
 	return nil
