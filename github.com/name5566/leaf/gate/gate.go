@@ -104,14 +104,18 @@ func (a *agent) Run() {
 			}
 
 			//data2 := data
-
 			msg, err := a.gate.Processor.Unmarshal(data2)
 			if err != nil {
 				log.Debug("unmarshal message error: %v", err)
 				break
 			}
 
-			log.Debug("解析出来的数据type[%v],m[%v]", reflect.TypeOf(msg).String(), msg)
+			//打印接收到的信息
+			typeString := reflect.TypeOf(msg).String()
+			if !strings.Contains(typeString, "Heartbeat") {
+				log.Debug("解析出来的数据type[%v],m[%v]", reflect.TypeOf(msg).String(), msg)
+			}
+
 			err = a.gate.Processor.Route(msg, a)
 			if err != nil {
 				log.Debug("route message error: %v", err)

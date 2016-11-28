@@ -291,7 +291,14 @@ func (d *MjDesk) GetGame_SendGameInfo(receiveUserId uint32, isReconnect mjproto.
 	//如果是短线重连，并且玩家还没有换三张，或者处于定缺的状态，那么需要发送庄家的inpai
 	needInpai := false
 	recUser := d.GetUserByUserId(receiveUserId)
-	if isReconnect == mjproto.RECONNECT_TYPE_RECONNECT && ( d.IsExchange() || ( d.IsDingQue() && recUser.IsNotDingQue() )) {
+	/**
+		1,当前阶段处于定缺的阶段
+		2，用户是庄稼的情况
+		3，此时需要发送 inpai
+	 */
+	if isReconnect == mjproto.RECONNECT_TYPE_RECONNECT &&
+		( d.IsExchange() || ( d.IsDingQue() && recUser.IsNotDingQue() )) &&
+		d.GetBanker() == receiveUserId {
 		needInpai = true
 	}
 
