@@ -852,7 +852,6 @@ func (d *MjDesk) GetUserIds() string {
 func (d *MjDesk) ChaHuaZhu() error {
 	for _, u := range d.GetUsers() {
 		if u != nil && u.IsNotHu() {
-			//开对用户查花猪
 			if u.IsHuaZhu() {
 				log.T("玩家[%v]是花猪", u.GetUserId())
 				d.DoHuaZhu(u)
@@ -863,19 +862,23 @@ func (d *MjDesk) ChaHuaZhu() error {
 }
 
 
-//花猪玩家需要给每一个非花猪8倍分
-//todo 花猪的情况比较少见，所以可以先不用实现..
+//花猪玩家需要给封顶分数
 func (d *MjDesk) DoHuaZhu(huazhu *MjUser) error {
 	log.T("开始处理花猪[%v]", huazhu.GetUserId())
-	score := d.GetBaseValue() * int64(FAN_TOP)
+	fanTop := d.GetRoomTypeInfo().GetCapMax()
+	score := d.GetBaseValue() * fanTop
 	for _, user := range d.GetUsers() {
+		if !d.IsXueLiuChengHe() && user.IsHu() {
+			//如果不是血流成河且用户已胡 则不能查u的花猪
+			continue
+		}
 		if user != nil && user.IsNotHuaZhu() {
 			//判断不是花猪，可以赢钱...
 			user.AddBill(huazhu.GetUserId(), MJUSER_BILL_TYPE_YING_CHAHUAZHU, "用户查花猪，赢钱", score, nil)
 			user.AddStatisticsCountChaHuaZhu(d.GetCurrPlayCount())
 
 			huazhu.AddBill(user.GetUserId(), MJUSER_BILL_TYPE_SHU_CHAHUAZHU, "用户查花猪，输钱", -score, nil)
-			huazhu.AddStatisticsCountChaHuaZhu(d.GetCurrPlayCount())
+			huazhu.AddStatisticsCountBeiChaHuaZhu(d.GetCurrPlayCount())
 		}
 
 	}
@@ -891,12 +894,12 @@ func (d *MjDesk) DoHuaZhu(huazhu *MjUser) error {
 	查用户有没有叫
  */
 func (d *MjDesk) ChaDaJiao() error {
+	//循环判断谁可以被查叫
 	for _, u := range d.GetUsers() {
 		if u != nil && u.IsNotHu() && u.IsNotHuaZhu() {
-			//没有胡 且 不是花猪
-			//开始查花猪
+			//用户没有胡 且 不是花猪 可以被查
 			if !u.IsYouJiao() {
-				log.T("玩家[%v]没叫", u.GetUserId())
+				//log.T("玩家[%v]没叫", u.GetUserId())
 				d.DoDaJiao(u)
 			}
 		}
@@ -1033,10 +1036,17 @@ func (d *MjDesk) GetJiaoMaxFan(u *MjUser) int32 {
 
 //用户没有叫的处理了
 func (d *MjDesk) DoDaJiao(u *MjUser) {
-	log.T("开始处理玩家[%v]没叫,开始处理查大叫...", u.GetUserId())
+	//判断谁可以查u的大叫
 	//没听牌的玩家(花猪除外)赔给听牌的玩家 按听牌的最大番型给
+	//log.T("开始处理玩家[%v]没叫,开始处理查大叫...", u.GetUserId())
 
 	for _, user := range d.GetUsers() {
+
+		if !d.IsXueLiuChengHe() && user.IsHu() {
+			//如果不是血流成河且用户已胡 则不能查u的大叫
+			continue
+		}
+
 		//获得听牌的最大番数
 		fan := d.GetJiaoMaxFan(user)
 		score := d.GetBaseValue() * int64(fan)
@@ -1840,12 +1850,12 @@ func (d *MjDesk) DoGangBill(info *GangPaiInfo) {
 		score := d.GetBaseValue() * 2        //暗杠的分数
 		for _, ou := range d.GetUsers() {
 			//不为nil 并且不是本人，并且没有胡牌
-			if ou != nil && ou.GetUserId() != gangUser.GetUserId() && ou.IsGaming() && ou.IsNotHu() {
+			if ou != nil && (ou.GetUserId() != gangUser.GetUserId()) && ou.IsGaming() && ou.IsNotHu() {
 				gangUser.AddBill(ou.GetUserId(), MJUSER_BILL_TYPE_YING_AN_GNAG, "用户暗杠，收入", score, gangPai)        //用户赢钱的账户
 				ou.AddBill(gangUser.GetUserId(), MJUSER_BILL_TYPE_SHU_AN_GNAG, "用户暗杠，输钱", -score, gangPai)        //用户输钱的账单
 
 				ou.AddStatisticsCountBeiAnGang(d.GetCurrPlayCount()) //被暗杠用户的统计信息
-			} else if ou != nil && ou.GetUserId() == gangUser.GetUserId() && ou.IsGaming() && ou.IsNotHu() {
+			} else if ou != nil && (ou.GetUserId() == gangUser.GetUserId()) && ou.IsGaming() && ou.IsNotHu() {
 				gangUser.AddStatisticsCountAnGang(d.GetCurrPlayCount()) //暗杠用户的统计信息
 			}
 		}
@@ -1864,13 +1874,14 @@ func (d *MjDesk) DoGangBill(info *GangPaiInfo) {
 		//处理巴杠的账单
 		score := d.GetBaseValue()        //巴杠的分数
 		for _, ou := range d.GetUsers() {
-			if ou != nil && ou.GetUserId() != gangUser.GetUserId() && ou.IsGaming() && ou.IsNotHu() {
+			if ou != nil && (ou.GetUserId() != gangUser.GetUserId()) && ou.IsGaming() && ou.IsNotHu() {
+				//账单多次添加
 				gangUser.AddBill(ou.GetUserId(), MJUSER_BILL_TYPE_YING_BA_GANG, "用户巴杠，收入", score, gangPai)        //用户赢钱的账户
 				ou.AddBill(gangUser.GetUserId(), MJUSER_BILL_TYPE_SHU_BA_GANG, "用户巴杠，输钱", -score, gangPai)        //用户输钱的账单
 
 				ou.AddStatisticsCountBeiBaGang(d.GetCurrPlayCount()) //被巴杠用户的统计信息
 
-			} else if ou != nil && ou.GetUserId() == gangUser.GetUserId() && ou.IsGaming() && ou.IsNotHu() {
+			} else if ou != nil && (ou.GetUserId() == gangUser.GetUserId()) && ou.IsGaming() && ou.IsNotHu() {
 				gangUser.AddStatisticsCountBaGang(d.GetCurrPlayCount()) //巴杠用户的统计信息
 			}
 		}
@@ -1963,13 +1974,7 @@ func (d *MjDesk) GetWinCoinInfo(user *MjUser) *mjproto.WinCoinInfo {
 //得到这个人的胡牌描述
 func (d *MjDesk) GetCardTitle4WinCoinInfo(user *MjUser) string {
 	var huDes []string
-	shuBaGangStr := ""
-	shuAnGangStr := ""
-	shuDianPaoStr := ""
-	shuGangStr := ""
-	shuZimoStr := ""
-	shuBeiChaJiaoStr := ""
-	shuBeiChaHuaZhuStr := ""
+
 	var shuBaGangCount, shuAnGangCount, shuDianPaoCount, shuGangCount, shuZimoCount, count int32
 	var shuBeiChaHuaZhuCount, shuBeiChaJiaoCount int32
 	//获取当局的统计信息
@@ -1986,19 +1991,26 @@ func (d *MjDesk) GetCardTitle4WinCoinInfo(user *MjUser) string {
 
 	switch {
 	case shuBaGangCount > count :
-		shuBaGangStr = fmt.Sprintf("被巴杠x%d", shuBaGangCount)
+		huDes = append(huDes, fmt.Sprintf("被巴杠x%d", shuBaGangCount))
+
 	case shuAnGangCount > count :
-		shuAnGangStr = fmt.Sprintf("被暗杠x%d", shuAnGangCount)
+		huDes = append(huDes, fmt.Sprintf("被暗杠x%d", shuAnGangCount))
+
 	case shuDianPaoCount > count :
-		shuDianPaoStr = fmt.Sprintf("点炮x%d", shuDianPaoCount)
+		huDes = append(huDes, fmt.Sprintf("点炮x%d", shuDianPaoCount))
+
 	case shuGangCount > count :
-		shuGangStr = fmt.Sprintf("点杠x%d", shuGangCount)
+		huDes = append(huDes, fmt.Sprintf("点杠x%d", shuGangCount))
+
 	case shuZimoCount > count :
-		shuZimoStr = fmt.Sprintf("被自摸x%d", shuZimoCount)
+		huDes = append(huDes, fmt.Sprintf("被自摸x%d", shuZimoCount))
+
 	case shuBeiChaHuaZhuCount > count :
-		shuBeiChaHuaZhuStr = fmt.Sprintf("被查花猪x%d", shuBeiChaHuaZhuCount)
+		huDes = append(huDes, fmt.Sprintf("被查花猪x%d", shuBeiChaHuaZhuCount))
+
 	case shuBeiChaJiaoCount > count :
-		shuBeiChaJiaoStr = fmt.Sprintf("被查叫x%d", shuBeiChaJiaoCount)
+		huDes = append(huDes, fmt.Sprintf("被查叫x%d", shuBeiChaJiaoCount))
+
 	default:
 
 	}
@@ -2008,14 +2020,9 @@ func (d *MjDesk) GetCardTitle4WinCoinInfo(user *MjUser) string {
 		huDes = append(huDes, user.GameData.HuInfo[0].GetHuDesc())
 	}
 	log.T("用户[%v]GameData.HuInfo is [%v]", user.GetUserId(), user.GetGameData().GetHuInfo())
-	huDes = append(huDes, shuBaGangStr)
-	huDes = append(huDes, shuAnGangStr)
-	huDes = append(huDes, shuDianPaoStr)
-	huDes = append(huDes, shuGangStr)
-	huDes = append(huDes, shuZimoStr)
-	huDes = append(huDes, shuBeiChaHuaZhuStr)
-	huDes = append(huDes, shuBeiChaJiaoStr)
-	return strings.Join(huDes, " ")
+	s := strings.Join(huDes, " ")
+	log.T("用户[%v] Des is [%v]", user.GetUserId(), s)
+	return s
 }
 
 //得到EndLotteryInfo结果...
@@ -2337,6 +2344,9 @@ func (d *MjDesk) GetDeskMJInfo() string {
 
 		ii, _ := numUtils.Int2String(int32(p.GetIndex()))
 		s = s + " (" + is + "-" + ii + "-" + p.LogDes() + ")"
+		if (i + 1) % 27 == 0 {
+			s = s + " \n "
+		}
 	}
 	return s
 }

@@ -66,8 +66,6 @@ var FAN_QIANGGANG int32 = 1 //抢杠
 var FAN_HD_GANGSHANGHUA int32 = 1 //海底杠上花
 var FAN_HD_GANGSHANGPAO int32 = 2 //海底杠上炮
 
-var FAN_TOP int32 = 5 //顶番
-
 //初始化麻将牌
 func init() {
 	mjpaiMap = make(map[int]string, 108)
@@ -827,9 +825,10 @@ func getHuFan(handPai *MJHandPai, isZimo bool, is19 bool, extraAct HuType, mjDes
 		}
 	}
 
-	//顶番
-	if fan > FAN_TOP {
-		fan = FAN_TOP
+	//封顶
+	fanTop := mjDesk.GetRoomTypeInfo().GetCapMax()
+	if fan > int32(fanTop) {
+		fan = int32(fanTop)
 		fengdingStr = "封顶"
 	}
 
@@ -1145,7 +1144,8 @@ func IgnoreFlower(pais []*MJPai, flower int32) []*MJPai {
 	newPais := []*MJPai{}
 	for i := 0; i < len(pais); i++ {
 		//log.T("IgnoreFlower: pais[%v] is %v, flower is [%v]", i, pais[i].GetDes(), pais[i].GetFlower())
-		if pais[i].GetFlower() != flower { //不是需要过滤的花色 append
+		if pais[i].GetFlower() != flower {
+			//不是需要过滤的花色 append
 			newPais = append(newPais, pais[i])
 		}
 	}
