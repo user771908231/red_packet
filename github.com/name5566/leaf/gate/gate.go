@@ -7,6 +7,7 @@ import (
 	"reflect"
 	"time"
 	"casino_server/utils/security"
+	"strings"
 )
 
 type Gate struct {
@@ -130,7 +131,11 @@ func (a *agent) OnClose() {
 }
 
 func (a *agent) WriteMsg(msg interface{}) {
-	log.Debug("agent发送的信息 type[%v],\t\t content[%v]", reflect.TypeOf(msg).String(), msg)
+	typeString := reflect.TypeOf(msg).String()
+	if !strings.Contains(typeString, "Heartbeat") {
+		log.Debug("agent发送的信息 type[%v],\t\t content[%v]", typeString, msg)
+	}
+
 	if a.gate.Processor != nil {
 		data, err := a.gate.Processor.Marshal(msg)
 		if err != nil {
