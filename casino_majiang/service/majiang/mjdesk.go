@@ -359,7 +359,7 @@ func (d *MjDesk) begin() error {
 	//1，检查是否可以开始游戏
 	err := d.time2begin()
 	if err != nil {
-		//log.T("无法开始游戏:err[%v]", err)
+		log.T("无法开始游戏:err[%v]", err)
 		return err
 	}
 
