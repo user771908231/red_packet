@@ -228,8 +228,8 @@ message PlayerCard {
 
     repeated CardInfo handCard = 1; // 手牌数组（自己是明的，其他玩家服务器返回暗值，避免外挂获取别的玩家手牌）
     repeated ComposeCard composeCard = 2; // 摆牌数组（碰、明杠、暗杠）
-    repeated int32 outCard = 3; // 已出牌数组
-    repeated int32 huCard = 4; // 胡的牌
+    repeated CardInfo outCard = 3; // 已出牌数组
+    repeated CardInfo huCard = 4; // 胡的牌
     optional uint32 UserId = 5; //
 
 }
