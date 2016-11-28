@@ -184,8 +184,7 @@ func (u *MjUser) GetPlayerCard(showHand bool, needInpai bool) *mjproto.PlayerCar
 	//得到胡牌
 	for _, pai := range u.GameData.HandPai.GetHuPais() {
 		if pai != nil {
-			//*playerCard.HuCard = pai.GetClientId()
-			playerCard.HuCard = append(playerCard.HuCard, pai.GetClientId())
+			playerCard.HuCard = append(playerCard.HuCard, pai.GetCardInfo())
 		}
 	}
 
@@ -193,7 +192,7 @@ func (u *MjUser) GetPlayerCard(showHand bool, needInpai bool) *mjproto.PlayerCar
 	//打出去的牌
 	for _, pai := range u.GameData.HandPai.GetOutPais() {
 		if pai != nil {
-			playerCard.OutCard = append(playerCard.OutCard, pai.GetClientId())
+			playerCard.OutCard = append(playerCard.OutCard, pai.GetCardInfo())
 		}
 	}
 
