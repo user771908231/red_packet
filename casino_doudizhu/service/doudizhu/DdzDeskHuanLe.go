@@ -137,6 +137,11 @@ func (d *DdzDesk) HLBuJiaoDiZhu(userId uint32) error {
 
 	//设置用户为不叫地主
 	user.SetQiangDiZhuStatus(DDZUSER_QIANGDIZHU_STATUS_BUJIAO)
+	//广播抢地主
+	ack := newProto.NewDdzJiaoDiZhuAck()
+	*ack.UserId = userId
+	*ack.Jiao = false
+	d.BroadCastProto(ack)
 
 	//得到下一个可以抢地主的人
 	var nextUser = d.GetNextUserByPros(user.GetUserId(), func(u *DdzUser) bool {

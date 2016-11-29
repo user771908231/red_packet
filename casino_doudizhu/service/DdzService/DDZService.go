@@ -277,7 +277,7 @@ func HandlerActOut(userId uint32, outcards []*ddzproto.Poker) error {
 	}
 
 	//获取到outpai
-	outpai := doudizhu.GetOutPais(outcards)
+	outpai := doudizhu.GetOutPais(outcards, userId)
 	//开始出牌
 	err := desk.ActOut(userId, outpai)
 	if err != nil {
