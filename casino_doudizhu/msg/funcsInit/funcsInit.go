@@ -344,6 +344,19 @@ func NewDdzSendEndLottery() *ddzproto.DdzSendEndLottery {
 	return ret
 }
 
+func NewEndLotteryInfo() *ddzproto.EndLotteryInfo {
+	ret := new(ddzproto.EndLotteryInfo)
+	ret.UserId = new(uint32)
+	ret.NickName = new(string)
+	ret.BigWin = new(bool)
+	ret.WinCoin = new(int64)
+	ret.MaxWinCoin = new(int32)
+	ret.CountBomb = new(int32)
+	ret.CountWin = new(int32)
+	ret.CountLose = new(int32)
+	return ret
+}
+
 func NewDdzDissolveDesk() *ddzproto.DdzDissolveDesk {
 	ret := new(ddzproto.DdzDissolveDesk)
 	ret.Header = NewHeader()
@@ -443,5 +456,18 @@ func NewPoker() *ddzproto.Poker {
 	p.Id = new(int32)
 	p.Suit = new(ddzproto.PokerColor)
 	return p
+}
+
+func NewWinCoinInfo() *ddzproto.WinCoinInfo {
+	ret := new(ddzproto.WinCoinInfo)
+	ret.BaseValue = new(int32)
+	ret.Coin = new(int64)
+	ret.Description = new(string)
+	ret.IsDiZhu = new(bool)
+	ret.NickName = new(string)
+	ret.Rate = new(int32)
+	ret.UserId = new(uint32)
+	ret.WinCoin = new(int64)
+	return ret
 }
 

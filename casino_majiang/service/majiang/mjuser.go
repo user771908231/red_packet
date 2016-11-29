@@ -94,6 +94,18 @@ func (u *MjUser) IsNotDingQue() bool {
 	return !u.IsDingQue()
 }
 
+//是否换三张
+func (u *MjUser) IsExchange() bool {
+	return u.GetExchanged()
+}
+
+//是否已经换三张
+func (u *MjUser) IsNotExchange() bool {
+	return !u.IsExchange()
+}
+
+
+
 //返回一个用户信息
 func ( u *MjUser) GetPlayerInfo(showHand bool, needInpai bool) *mjproto.PlayerInfo {
 	info := newProto.NewPlayerInfo()

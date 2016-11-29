@@ -70,6 +70,7 @@ func (d *DdzDesk) addBombTongjiInfo(bomb *POutPokerPais) {
 
 //添加一个玩家
 func (d *DdzDesk) AddUser(userId uint32, a gate.Agent) error {
+	//初始化玩家
 	user := NewDdzUser()
 	user.GameData = NewPGameData()
 	*user.UserId = userId
@@ -77,8 +78,10 @@ func (d *DdzDesk) AddUser(userId uint32, a gate.Agent) error {
 	*user.DeskId = d.GetDeskId()
 	*user.RoomId = d.GetRoomId()
 	user.UpdateSession()
-	err := d.AddUserBean(user)
+	user.Statistics = NewPDdzUserStatistics()
 
+	//增加玩家
+	err := d.AddUserBean(user)
 	return err
 }
 
