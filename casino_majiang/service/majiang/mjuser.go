@@ -390,6 +390,7 @@ func (u *MjUser) BeginInit(round int32, banker uint32) error {
 	u.GameData = NewPlayerGameData()        //初始化一个空的麻将牌
 	*u.DingQue = false
 	*u.Exchanged = false
+	u.SetStatus(MJUSER_STATUS_SEATED)
 	if u.GetUserId() == banker {
 		*u.IsBanker = true
 	} else {
@@ -826,6 +827,9 @@ func (u *MjUser) IsYouJiao() bool {
 	//u.GameData.HandPai.GetCanHu()
 	for i := 0; i < 108; i++ {
 		pai := InitMjPaiByIndex(i)
+		log.T("user[%v] GetGameData:%v", u.GetUserId() ,u.GetGameData())
+		log.T("user[%v] GetHandPai:%v", u.GetUserId(), u.GetGameData().GetHandPai())
+		log.T("user[%v] GetQueFlower:%v", u, u.GetGameData().GetHandPai().GetQueFlower())
 		if pai.GetFlower() == u.GameData.HandPai.GetQueFlower() {
 			continue
 		}

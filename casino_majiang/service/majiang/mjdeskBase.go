@@ -50,8 +50,24 @@ func (d *MjDesk) getLeaveUserByUserId(userId uint32) *MjUser {
 func (d *MjDesk) InitUsers(mjRoomType mjproto.MJRoomType) {
 
 	switch mjRoomType {
-	case mjproto.MJRoomType_roomType_sanRenLiangFang :
+	case mjproto.MJRoomType_roomType_liangRenLiangFang,
+		mjproto.MJRoomType_roomType_liangRenSanFang :
+		//log.T("两人")
+		d.Users = make([]*MjUser, 2)
+
+	case mjproto.MJRoomType_roomType_sanRenSanFang,
+		mjproto.MJRoomType_roomType_sanRenLiangFang:
+		//log.T("三人")
 		d.Users = make([]*MjUser, 3)
+
+	case mjproto.MJRoomType_roomType_xueZhanDaoDi,
+		mjproto.MJRoomType_roomType_daoDaoHu,
+		mjproto.MJRoomType_roomType_deYangMaJiang,
+		mjproto.MJRoomType_roomType_xueLiuChengHe,
+		mjproto.MJRoomType_roomType_siRenLiangFang :
+		//log.T("四人")
+		d.Users = make([]*MjUser, 4)
+
 	default :
 		d.Users = make([]*MjUser, 4)
 	}
@@ -59,6 +75,11 @@ func (d *MjDesk) InitUsers(mjRoomType mjproto.MJRoomType) {
 
 //新增加一个玩家
 func (d *MjDesk) addUser(user *MjUser) error {
+	//根据房间类型判断人数是否已满
+	if d.IsPlayerEnough() {
+		return Error.NewFailError("房间已满，加入桌子失败")
+	}
+
 	//找到座位
 	seatIndex := -1
 	for i, u := range d.Users {
@@ -155,6 +176,16 @@ func (d *MjDesk) IsPlayerEnough() (isPlayerEnough bool) {
 	return isPlayerEnough
 }
 
+//判断是否是血流成河
+func (d *MjDesk) IsXueLiuChengHe() bool {
+	return d.GetMjRoomType() == int32(mjproto.MJRoomType_roomType_xueLiuChengHe)
+}
+
+//判断是否是血战到底
+func (d *MjDesk) IsXueZhanDaoDi() bool {
+	return d.GetMjRoomType() == int32(mjproto.MJRoomType_roomType_xueZhanDaoDi)
+}
+
 
 //判断是否是三人两房
 func (d *MjDesk) IsSanRenLiangFang() bool {
@@ -163,18 +194,14 @@ func (d *MjDesk) IsSanRenLiangFang() bool {
 
 //判断是否是三人三房
 func (d *MjDesk) IsSanRenSanFang() bool {
-	//todo 协议添加
-	return mjproto.MJRoomType(d.GetMjRoomType()) == mjproto.MJRoomType_roomType_sanRenLiangFang
+	return mjproto.MJRoomType(d.GetMjRoomType()) == mjproto.MJRoomType_roomType_sanRenSanFang
 }
 
 
 
 //判断是否是四人两房
 func (d *MjDesk) IsSiRenLiangFang() bool {
-	if mjproto.MJRoomType(d.GetMjRoomType()) == mjproto.MJRoomType_roomType_siRenLiangFang {
-		return true
-	}
-	return false
+	return mjproto.MJRoomType(d.GetMjRoomType()) == mjproto.MJRoomType_roomType_siRenLiangFang
 }
 
 //判断是否是四人游戏
@@ -194,7 +221,6 @@ func (d *MjDesk) IsLiangRen() bool {
 
 //判断是否是两房游戏
 func (d *MjDesk) IsLiangFang() bool {
-	d.IsLiangRenLiangFang()
 	return d.IsSanRenLiangFang() || d.IsSiRenLiangFang() || d.IsLiangRenLiangFang()
 }
 
@@ -258,16 +284,6 @@ func (d *MjDesk) IsNeedYaojiuJiangdui() bool {
 //是否需要门清中张
 func (d *MjDesk) IsNeedMenqingZhongzhang() bool {
 	return d.IsOpenOption(mjproto.MJOption_MENQING_MID_CARD)
-}
-
-//判断是否是血流成河
-func (d *MjDesk) IsXueLiuChengHe() bool {
-	return d.GetMjRoomType() == int32(mjproto.MJRoomType_roomType_xueLiuChengHe)
-}
-
-//判断是否是血战到底
-func (d *MjDesk) IsXueZhanDaoDi() bool {
-	return d.GetMjRoomType() == int32(mjproto.MJRoomType_roomType_xueZhanDaoDi)
 }
 
 func (d *MjDesk) SendGameInfo(userId uint32, reconnect mjproto.RECONNECT_TYPE) {

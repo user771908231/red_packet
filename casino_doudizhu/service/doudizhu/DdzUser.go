@@ -308,3 +308,58 @@ func (u *DdzUser) StatisticAddLose() {
 func (u *DdzUser) StatisticAddWin() {
 	atomic.AddInt32(u.Statistics.CountWin, 1)
 }
+
+
+func (u *DdzUser) GetTransferredStatus() string {
+	ret := ""
+	switch u.GetStatus() {
+	case DDZUSER_STATUS_JIABEI:
+		ret = "加倍"
+	case DDZUSER_STATUS_END:
+		ret = "已结束"
+	case DDZUSER_STATUS_DEFAULT:
+		ret = "默认"
+	case DDZUSER_STATUS_GAMING:
+		ret = "游戏中"
+	case DDZUSER_STATUS_JIAODIZHU:
+		ret = "叫地主"
+	case DDZUSER_STATUS_READY:
+		ret = "准备"
+	case DDZUSER_SATTUS_LOTTERY:
+		ret = "开奖"
+	default:
+	}
+	return ret
+}
+
+func (u *DdzUser) GetTransferredJiaBeiStatus() string {
+	ret := ""
+	switch u.GetJiabeiStatus() {
+	case DDZUSER_JIABEI_STATUS_BUJIABEI:
+		ret = "不加倍"
+	case DDZUSER_JIABEI_STATUS_JIABEI:
+		ret = "加倍"
+	case DDZUSER_JIABEI_STATUS_NOACT:
+		ret = "未设置"
+	default:
+	}
+	return ret
+}
+
+func (u *DdzUser) GetTransferredQiangDiZhuStatus() string {
+	ret := ""
+	switch u.GetQiangDiZhuStatus() {
+	case DDZUSER_QIANGDIZHU_STATUS_BUJIAO:
+		ret = "不叫"
+	case DDZUSER_QIANGDIZHU_STATUS_BUQIANG:
+		ret = "不抢"
+	case DDZUSER_QIANGDIZHU_STATUS_JIAO:
+		ret = "叫地主"
+	case DDZUSER_QIANGDIZHU_STATUS_NOACT:
+		ret = "未设置"
+	case DDZUSER_QIANGDIZHU_STATUS_QIANG:
+		ret = "抢地主"
+	default:
+	}
+	return ret
+}
