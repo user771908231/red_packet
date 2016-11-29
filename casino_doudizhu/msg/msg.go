@@ -3,12 +3,13 @@ package msg
 import (
 	"github.com/name5566/leaf/network/protobuf"
 	"casino_doudizhu/msg/protogo"
+	"casino_common/proto"
 )
 
 var Processor = protobuf.NewProcessor()
 
 func init() {
-	Processor.Register(&ddzproto.Heartbeat{})        //0连接服务器
+	Processor.Register(&casinoCommonProto.Heartbeat{})        //0连接服务器 使用公共库的东西
 	Processor.Register(&ddzproto.DdzQuickConn{})        //1连接服务器
 	Processor.Register(&ddzproto.DdzAckQuickConn{})//2登录游戏
 

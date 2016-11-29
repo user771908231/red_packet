@@ -1,5 +1,18 @@
 package casinoCommonProto;
 
+// ProtoHeader 需要在每个 Message 中作为第一个字段
+message ProtoHeader {
+    optional string version = 1; // 版本号
+    optional uint32 userId = 2; // 用户 id
+    optional int32 code = 3; // result code
+    optional string error = 4; // result error description
+}
+
+//这里都是通用过的一些协议
+message Heartbeat {
+    optional ProtoHeader header = 1;
+}
+
 message User {
     optional string mid = 1; //mongdo Mid
     optional string pwd = 2; //最后一次签到的时间

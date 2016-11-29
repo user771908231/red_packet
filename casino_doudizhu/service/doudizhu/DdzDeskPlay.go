@@ -119,7 +119,11 @@ func (d *DdzDesk) BeginCommon() error {
 
 	log.T("d.CommonInitCards()")
 	//给玩家发牌
-	d.CommonInitCards()
+	err := d.CommonInitCards()
+	if err != nil {
+		log.E("CommonInitCards 的时候出错,err[%v]", err)
+		return err
+	}
 	time.Sleep(DEALCARDS_DRUATION)
 
 	return nil
@@ -165,6 +169,7 @@ func (d *DdzDesk) sendJiaBeiOverTurn(userId uint32) error {
 	overTurn := newProto.NewDdzOverTurn()
 	*overTurn.ActType = ddzproto.ActType_T_DOUBLE        ///加倍不加倍
 	*overTurn.UserId = userId
+	*overTurn.CanDouble = d.CanJiaBei(userId)        //判断游戏类型，金币数目 是否可以加倍...
 	d.BroadCastProto(overTurn)
 	return nil
 }
@@ -194,12 +199,38 @@ func (d *DdzDesk) Lottery(user *DdzUser) {
 	}
 
 	//2,发送结算的通知
+	ack := newProto.NewDdzSendCurrentResult()
+	d.BroadCastProto(ack)
 
+
+	//3,判断是否是全局结束
+	if d.end() {
+		d.DoEnd()
+	} else {
+		//开始下一局
+		go d.Begin()
+	}
 
 }
 
+//这里需要更具不同的条件来判断游戏是否结束
+func (d *DdzDesk) end() bool {
+	//判断是否是朋友桌
+	//如果是朋友桌,且局数和当前玩的局数都一样，那么朋友桌的逻辑结束
+	if d.GetTotalPlayCount() == d.GetCurrPlayCount() {
+		return true
+	}
+	return false
+}
+
+
+
 //牌局结束
 func (d *DdzDesk) DoEnd() {
+	//朋友桌桌结束
+	//发送整局结束的协议
+	ack := newProto.NewDdzSendEndLottery()
+	d.BroadCastProto(ack)
 
 }
 
@@ -220,9 +251,12 @@ func (d *DdzDesk) CommonBeginInit() error {
 }
 
 //初始化每个人的牌
-func (d *DdzDesk) CommonInitCards() {
+func (d *DdzDesk) CommonInitCards() error {
 	//获得一副洗好的牌
 	d.AllPokerPai = XiPai()                //获得洗好的一副扑克牌
+	if d.AllPokerPai == nil {
+		return Error.NewFailError("洗牌的时候出错..")
+	}
 
 	//为每个人分配牌
 	for i, user := range d.Users {
@@ -242,6 +276,9 @@ func (d *DdzDesk) CommonInitCards() {
 		user.WriteMsg(cardsInfo)        //给用户发送牌的信息
 		return nil
 	})
+
+	return nil
+
 }
 
 //判断出牌的用户是否合法
@@ -323,6 +360,7 @@ func (d *DdzDesk) ActPass(userId uint32) error {
 
 	//返回成功的消息 todo  返回ack
 	ack := newProto.NewDdzActGuoAck()
+	*ack.UserId = userId
 	user.WriteMsg(ack)
 
 	//轮到下一个玩家

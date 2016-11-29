@@ -336,3 +336,8 @@ func (d *DdzDesk) EveryUserDoSomething(dos func(user *DdzUser) error) error {
 func (d *DdzDesk) GetDiPaiClientPokers() []*ddzproto.Poker {
 	return ServerPoker2ClienPoker(d.GetDiPokerPai())
 }
+
+func (d *DdzDesk) CanJiaBei(userId uint32) bool {
+	return true
+
+}

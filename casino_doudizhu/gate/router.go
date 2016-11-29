@@ -5,10 +5,11 @@ import (
 	"casino_doudizhu/msg"
 	"casino_doudizhu/game"
 	"casino_doudizhu/msg/protogo"
+	"casino_common/proto"
 )
 
 func init() {
-	msg.Processor.SetRouter(&ddzproto.Heartbeat{}, game.ChanRPC)        //空协议
+	msg.Processor.SetRouter(&casinoCommonProto.Heartbeat{}, game.ChanRPC)        //空协议
 	msg.Processor.SetRouter(&ddzproto.DdzLogin{}, login.ChanRPC)    //登录协议
 
 	//游戏
