@@ -5,8 +5,8 @@ import (
 	"casino_doudizhu/msg/protogo"
 	"github.com/name5566/leaf/gate"
 	"casino_doudizhu/service/DdzService"
-	"casino_common/common/consts"
-	"casino_doudizhu/msg/funcsInit"
+	"casino_common/proto"
+	"casino_common/common/handlers"
 )
 
 func handler(m interface{}, h interface{}) {
@@ -15,7 +15,7 @@ func handler(m interface{}, h interface{}) {
 }
 
 func init() {
-	handler(&ddzproto.Heartbeat{}, handlerNullMsg)
+	handler(&casinoCommonProto.Heartbeat{}, handlers.HandlerHeartBeat)
 	handler(&ddzproto.DdzCreateRoom{}, handlerCreateDesk)    //创建房间
 	handler(&ddzproto.DdzEnterRoom{}, HandlerEnterRoom)    //进入房间
 	handler(&ddzproto.DdzReady{}, handlerReady)    //准备
@@ -32,14 +32,6 @@ func init() {
 	handler(&ddzproto.DdzLeaveDesk{}, handlerLeaveDesk)    //
 	handler(&ddzproto.DdzMessage{}, handlerMessage)    //
 	handler(&ddzproto.DdzGameRecord{}, handlerGameRecord)    //
-}
-
-func handlerNullMsg(args []interface{}) {
-	m := args[0].(*ddzproto.Heartbeat)
-	a := args[1].(gate.Agent)
-	m.Header = newProto.NewHeader()
-	*m.Header.Code = consts.ACK_RESULT_SUCC
-	a.WriteMsg(m)
 }
 
 //创建房间
@@ -149,7 +141,7 @@ func handlerJiaBei(args []interface{}) {
 //出牌
 func handlerChuPai(args []interface{}) {
 	m := args[0].(*ddzproto.DdzOutCards)
-	DdzService.HandlerActOut(m.GetHeader().GetUserId(),m.OutCards)
+	DdzService.HandlerActOut(m.GetHeader().GetUserId(), m.OutCards)
 }
 
 

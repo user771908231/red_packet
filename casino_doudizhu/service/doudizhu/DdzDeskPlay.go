@@ -119,7 +119,11 @@ func (d *DdzDesk) BeginCommon() error {
 
 	log.T("d.CommonInitCards()")
 	//给玩家发牌
-	d.CommonInitCards()
+	err := d.CommonInitCards()
+	if err != nil {
+		log.E("CommonInitCards 的时候出错,err[%v]", err)
+		return err
+	}
 	time.Sleep(DEALCARDS_DRUATION)
 
 	return nil
@@ -165,6 +169,7 @@ func (d *DdzDesk) sendJiaBeiOverTurn(userId uint32) error {
 	overTurn := newProto.NewDdzOverTurn()
 	*overTurn.ActType = ddzproto.ActType_T_DOUBLE        ///加倍不加倍
 	*overTurn.UserId = userId
+	*overTurn.CanDouble = d.CanJiaBei(userId)        //判断游戏类型，金币数目 是否可以加倍...
 	d.BroadCastProto(overTurn)
 	return nil
 }
@@ -220,9 +225,12 @@ func (d *DdzDesk) CommonBeginInit() error {
 }
 
 //初始化每个人的牌
-func (d *DdzDesk) CommonInitCards() {
+func (d *DdzDesk) CommonInitCards() error {
 	//获得一副洗好的牌
 	d.AllPokerPai = XiPai()                //获得洗好的一副扑克牌
+	if d.AllPokerPai == nil {
+		return Error.NewFailError("洗牌的时候出错..")
+	}
 
 	//为每个人分配牌
 	for i, user := range d.Users {
@@ -242,6 +250,9 @@ func (d *DdzDesk) CommonInitCards() {
 		user.WriteMsg(cardsInfo)        //给用户发送牌的信息
 		return nil
 	})
+
+	return nil
+
 }
 
 //判断出牌的用户是否合法

@@ -89,6 +89,11 @@ func parseByIndex(index int32) (int32, string, int32, string, string) {
 
 //返回一张牌
 func InitPaiByIndex(index int32) *PPokerPai {
+	if index < 0 || index > 54 {
+		log.E("非法的牌id，解析出错", index)
+		return nil
+	}
+
 	_, rmapdes, pvalue, pflower, pname := parseByIndex(index)
 	//返回一张需要的牌
 	pokerPai := NewPPokerPai()
@@ -126,6 +131,10 @@ func XiPai() []*PPokerPai {
 	var pokerPais []*PPokerPai
 	for _, i := range randIndex {
 		pai := InitPaiByIndex(i)
+		if pai == nil {
+			//中断...初始化牌的时候出错..
+			return nil
+		}
 		pokerPais = append(pokerPais, pai)
 	}
 
@@ -406,11 +415,12 @@ func (out *POutPokerPais) GetClientPokers() []*ddzproto.Poker {
 }
 
 //得到牌
-func GetOutPais(outcards []*ddzproto.Poker) *POutPokerPais {
+func GetOutPais(outcards []*ddzproto.Poker, userId uint32) *POutPokerPais {
 	ret := NewPOutPokerPais()
 	for _, c := range outcards {
 		ret.PokerPais = append(ret.PokerPais, InitPaiByIndex(c.GetId()))
 	}
+	*ret.UserId = userId
 	ret.init()
 	return ret
 }
