@@ -32,6 +32,12 @@ func NewPDdzUser() *PDdzUser {
 	return ret
 }
 
+func NewPDdzUserStatistics() *PDdzUserStatistics {
+	ret := new(PDdzUserStatistics)
+	ret.CountLose = new(int32)
+	ret.CountWin = new(int32)
+	return ret
+}
 
 //New一个Desk
 func NewDdzDesk() *DdzDesk {
