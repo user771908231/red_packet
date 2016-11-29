@@ -199,6 +199,8 @@ func (d *DdzDesk) Lottery(user *DdzUser) {
 	}
 
 	//2,发送结算的通知
+	ack := newProto.NewDdzSendCurrentResult()
+	d.BroadCastProto(ack)
 
 
 	//3,判断是否是全局结束
@@ -227,6 +229,8 @@ func (d *DdzDesk) end() bool {
 func (d *DdzDesk) DoEnd() {
 	//朋友桌桌结束
 	//发送整局结束的协议
+	ack := newProto.NewDdzSendEndLottery()
+	d.BroadCastProto(ack)
 
 }
 
