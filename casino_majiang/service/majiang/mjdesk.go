@@ -69,6 +69,7 @@ func (d *MjDesk) addNewUserFriend(userId uint32, a gate.Agent) (mjproto.RECONNEC
 		*userLeave.IsBreak = false
 		*userLeave.IsLeave = false
 		return mjproto.RECONNECT_TYPE_RECONNECT, nil
+		
 	}
 
 	//3,加入一个新用户
