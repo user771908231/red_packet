@@ -390,6 +390,7 @@ func (u *MjUser) BeginInit(round int32, banker uint32) error {
 	u.GameData = NewPlayerGameData()        //初始化一个空的麻将牌
 	*u.DingQue = false
 	*u.Exchanged = false
+	u.SetStatus(MJUSER_STATUS_SEATED)
 	if u.GetUserId() == banker {
 		*u.IsBanker = true
 	} else {

@@ -21,6 +21,7 @@ import (
 	"casino_common/utils/numUtils"
 	"casino_common/common/consts"
 	"casino_common/utils/rand"
+	"os/user"
 )
 
 //状态表示的是当前状态.
@@ -851,6 +852,11 @@ func (d *MjDesk) GetUserIds() string {
  */
 func (d *MjDesk) ChaHuaZhu() error {
 	for _, u := range d.GetUsers() {
+		if !d.IsXueLiuChengHe() && u.IsHu() {
+			//如果不是血流成河且用户已胡 则不能查u的花猪
+			log.T("不查[%v]的花猪", u.GetUserId())
+			continue
+		}
 		if u != nil && u.IsNotHu() {
 			if u.IsHuaZhu() {
 				log.T("玩家[%v]是花猪", u.GetUserId())
@@ -867,14 +873,8 @@ func (d *MjDesk) DoHuaZhu(huazhu *MjUser) error {
 	log.T("开始处理花猪[%v]", huazhu.GetUserId())
 	fanTop := d.GetRoomTypeInfo().GetCapMax()
 	score := d.GetBaseValue() * fanTop
-	log.T("DoHuaZhu users is [%v]", d.GetUsers())
 	for _, user := range d.GetUsers() {
-		if !d.IsXueLiuChengHe() && user.IsHu() {
-			//如果不是血流成河且用户已胡 则不能查u的花猪
-			log.T("DoHuaZhu: 不查[%v]的花猪", user.GetUserId())
-			continue
-		}
-		if user != nil && user.IsNotHuaZhu() {
+		if user != nil && user.IsNotHuaZhu() { //不是花猪的用户都可以收钱
 			//判断不是花猪，可以赢钱...
 			log.T("DoHuaZhu: 查[%v]的花猪", user.GetUserId())
 			user.AddBill(huazhu.GetUserId(), MJUSER_BILL_TYPE_YING_CHAHUAZHU, "用户查花猪，赢钱", score, nil)
@@ -883,7 +883,6 @@ func (d *MjDesk) DoHuaZhu(huazhu *MjUser) error {
 			huazhu.AddBill(user.GetUserId(), MJUSER_BILL_TYPE_SHU_CHAHUAZHU, "用户查花猪，输钱", -score, nil)
 			huazhu.AddStatisticsCountBeiChaHuaZhu(d.GetCurrPlayCount())
 		}
-		log.T("DoHuaZhu: looper[%v] isNotHuaZhu[%v]", user.GetUserId(), user.IsNotHuaZhu(), )
 	}
 
 	return nil
