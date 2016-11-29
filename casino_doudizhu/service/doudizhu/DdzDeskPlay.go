@@ -178,30 +178,10 @@ func (d *DdzDesk) sendJiaBeiOverTurn(userId uint32) error {
 func (d *DdzDesk) Lottery(user *DdzUser) {
 	//开始结算....
 	//1,计算炸弹的个数，计算分数,这里需要判断user的身份是地主还是平民
-	if d.IsDiZhuRole(user) {
-		//地主赢了,增加账单
-		for _, loseUser := range d.Users {
-			if loseUser.GetUserId() != user.GetUserId() {
-				user.AddNewBill(d.GetWinValue(), user.GetUserId(), loseUser.GetUserId(), "地主赢了")
-				loseUser.AddNewBill(-d.GetWinValue(), user.GetUserId(), loseUser.GetUserId(), "平明输了")
-			}
-		}
-
-	} else {
-		//地主输了,增加账单
-		dizhuUser := d.GetUserByUserId(d.GetDiZhuUserId())
-		for _, winUser := range d.Users {
-			if winUser.GetUserId() != dizhuUser.GetUserId() {
-				user.AddNewBill(d.GetWinValue(), user.GetUserId(), winUser.GetUserId(), "平明赢了")
-				dizhuUser.AddNewBill(-d.GetWinValue(), user.GetUserId(), winUser.GetUserId(), "地主输了")
-			}
-		}
-	}
+	d.DoBill(user)
 
 	//2,发送结算的通知
-	ack := newProto.NewDdzSendCurrentResult()
-	d.BroadCastProto(ack)
-
+	d.SendCurrentResult()
 
 	//3,判断是否是全局结束
 	if d.end() {
@@ -212,6 +192,78 @@ func (d *DdzDesk) Lottery(user *DdzUser) {
 	}
 
 }
+
+//发送lotteryInfo的信息
+func (d *DdzDesk) SendCurrentResult() {
+	ack := newProto.NewDdzSendCurrentResult()
+	//组装lotteryInfo
+	d.EveryUserDoSomething(func(u *DdzUser) error {
+		if u != nil {
+			winCoin := d.GetUserWinCoinInfo(u)
+			//check wincoin
+			ack.WinCoinInfo = append(ack.WinCoinInfo, winCoin)
+		}
+		return nil
+	})
+
+	//开始发送lottery的广播
+	d.BroadCastProto(ack)
+}
+
+func (d *DdzDesk) GetUserWinCoinInfo(u *DdzUser) *ddzproto.WinCoinInfo {
+	info := newProto.NewWinCoinInfo()
+	*info.WinCoin = u.GetBill().GetWinCoin()
+	*info.UserId = u.GetUserId()
+	*info.Rate = d.GetPlayRate()
+	*info.IsDiZhu = u.GetUserId() == d.GetDiZhuUserId()
+	*info.Coin = u.GetCoin()
+	*info.NickName = u.GetNickName()
+	*info.BaseValue = int32(d.GetBaseValue())
+	return info
+}
+
+func (d *DdzDesk) GetUserEndWinCoinInfo(u *DdzUser) *ddzproto.EndLotteryInfo {
+	ret := newProto.NewEndLotteryInfo()
+	*ret.UserId = u.GetUserId()
+	*ret.NickName = u.GetNickName()
+	*ret.WinCoin = u.GetBill().GetWinCoin()
+	*ret.MaxWinCoin = u.GetMaxWinCoin()        //
+	*ret.BigWin = false
+	*ret.CountBomb = int32(len(u.Statistics.BomBean))      //统计来做
+	*ret.CountWin = u.Statistics.GetCountWin()
+	*ret.CountLose = u.Statistics.GetCountLose()
+	return ret
+}
+
+//结束之后计算账单
+func (d *DdzDesk) DoBill(user *DdzUser) {
+	if d.IsDiZhuRole(user) {
+
+		//地主赢了,增加账单和统计信息
+		user.StatisticAddWin()
+		for _, loseUser := range d.Users {
+			if loseUser.GetUserId() != user.GetUserId() {
+				user.AddNewBill(d.GetWinValue(), user.GetUserId(), loseUser.GetUserId(), "地主赢了")
+				loseUser.AddNewBill(-d.GetWinValue(), user.GetUserId(), loseUser.GetUserId(), "贫民输了")
+				loseUser.StatisticAddLose()
+			}
+		}
+
+	} else {
+		//地主输了,增加账单
+		dizhuUser := d.GetUserByUserId(d.GetDiZhuUserId())
+		dizhuUser.StatisticAddLose()
+		for _, winUser := range d.Users {
+			if winUser.GetUserId() != dizhuUser.GetUserId() {
+				dizhuUser.AddNewBill(-d.GetWinValue(), winUser.GetUserId(), dizhuUser.GetUserId(), "地主输了")
+				winUser.AddNewBill(d.GetWinValue(), winUser.GetUserId(), dizhuUser.GetUserId(), "贫民赢了")
+				winUser.StatisticAddWin()
+			}
+		}
+	}
+}
+
+
 
 //这里需要更具不同的条件来判断游戏是否结束
 func (d *DdzDesk) end() bool {
@@ -227,9 +279,29 @@ func (d *DdzDesk) end() bool {
 
 //牌局结束
 func (d *DdzDesk) DoEnd() {
-	//朋友桌桌结束
 	//发送整局结束的协议
+	var bigWinCoin int64 = 0
+	var bigWinUserId uint32 = 0
 	ack := newProto.NewDdzSendEndLottery()
+	d.EveryUserDoSomething(func(user *DdzUser) error {
+		if user != nil {
+			endWinCoinInfo := d.GetUserEndWinCoinInfo(user)
+			if endWinCoinInfo.GetWinCoin() > bigWinCoin {
+				bigWinCoin = endWinCoinInfo.GetWinCoin()
+				bigWinUserId = endWinCoinInfo.GetUserId()
+			}
+			ack.CoinInfo = append(ack.CoinInfo, endWinCoinInfo)
+		}
+		return nil
+
+	})
+	//处理bigWin  循环ack来处理
+	for _, info := range ack.GetCoinInfo() {
+		if info != nil && info.GetUserId() == bigWinUserId {
+			*info.BigWin = true
+		}
+	}
+
 	d.BroadCastProto(ack)
 
 }
@@ -321,6 +393,7 @@ func (d *DdzDesk) ActOut(userId uint32, out *POutPokerPais) error {
 	if out.GetIsBomb() {
 		d.addBombTongjiInfo(out)
 		d.setWinValue(d.GetQingDizhuValue() * 2)
+		user.StatisticAddBomb(out)   //统计炸的次数
 	}
 
 	//initChechOut

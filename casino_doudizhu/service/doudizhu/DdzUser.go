@@ -292,3 +292,19 @@ func (u *DdzUser) GetTransferredOutPokerPais() string {
 	}
 	return ret
 }
+
+func (u *DdzUser) GetMaxWinCoin() int32 {
+	return 0
+}
+
+func (u *DdzUser) StatisticAddBomb(out *POutPokerPais) {
+	u.Statistics.BomBean = append(u.Statistics.BomBean, out)
+}
+
+func (u *DdzUser) StatisticAddLose() {
+	atomic.AddInt32(u.Statistics.CountLose, 1)
+}
+
+func (u *DdzUser) StatisticAddWin() {
+	atomic.AddInt32(u.Statistics.CountWin, 1)
+}

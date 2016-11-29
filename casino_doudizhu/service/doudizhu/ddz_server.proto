@@ -93,6 +93,13 @@ message PDdzBill {
 
 }
 
+
+message PDdzUserStatistics {
+    repeated POutPokerPais bomBean = 1; //统计来做
+    optional int32 CountWin = 2;
+    optional int32 CountLose = 3;
+}
+
 //user
 message PDdzUser {
     optional uint32 userId = 1;
@@ -106,6 +113,8 @@ message PDdzUser {
     optional int32 deskId = 10; //deskId
     optional int32 roomId = 11; //roomId
     optional int64 coin = 12; //
+    optional PDdzUserStatistics statistics = 13;
+
 
 }
 

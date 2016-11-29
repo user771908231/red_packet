@@ -8,6 +8,7 @@ import (
 	"casino_login/msg/protoInit"
 	"casino_login/service"
 	"casino_login/msg/protogo"
+	"fmt"
 )
 
 func handler(m interface{}, h interface{}) {
@@ -25,7 +26,8 @@ func init() {
 func handlerREQQuickConn(args []interface{}) {
 	m := args[0].(*loginproto.Game_QuickConn)
 	a := args[1].(gate.Agent)
-	log.T("游戏登陆的时候发送的请求的协议内容login.handler.HandlerREQQuickConn()[%v]", m)
+	log.T("游戏登陆的时候发送的请求的协议内容login.handler.HandlerREQQuickConn()[%v],remotAddr[%v]", m, a.RemoteAddr())
+	fmt.Println("游戏登陆的时候发送的请求的协议内容login.handler.HandlerREQQuickConn()[%v],remotAddr[%v]", m, a.RemoteAddr())
 
 	gameId := m.GetGameId()
 

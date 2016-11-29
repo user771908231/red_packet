@@ -68,7 +68,7 @@ func HandlerGame_CreateDesk(m *mjProto.Game_CreateRoom, a gate.Agent) {
 3，进入失败【只】返回AckEnterRoom
  */
 func HandlerGame_EnterRoom(userId uint32, key string, a gate.Agent) {
-	log.T("收到请求，HandlerGame_EnterRoom(userId[%v],key[%v])", userId, key)
+	log.T("收到请求，HandlerGame_EnterRoom(userId[%v],key[%v]),remoteAddr[%v]", userId, key, a.RemoteAddr())
 
 	//1,找到合适的room
 	room := majiang.GetFMJRoom()
