@@ -76,7 +76,7 @@ func (d *MjDesk) addNewUserFriend(userId uint32, a gate.Agent) (mjproto.RECONNEC
 	*newUser.UserId = userId
 	*newUser.DeskId = d.GetDeskId()
 	*newUser.RoomId = d.GetRoomId()
-	*newUser.Coin = d.GetBaseValue()
+	*newUser.Coin = 0
 	*newUser.IsBreak = false
 	*newUser.IsLeave = false
 	*newUser.IsBanker = false
@@ -866,6 +866,7 @@ func (d *MjDesk) DoHuaZhu(huazhu *MjUser) error {
 	log.T("开始处理花猪[%v]", huazhu.GetUserId())
 	fanTop := d.GetRoomTypeInfo().GetCapMax()
 	score := d.GetBaseValue() * fanTop
+	log.T("DoHuaZhu users is [%v]", d.GetUsers())
 	for _, user := range d.GetUsers() {
 		if !d.IsXueLiuChengHe() && user.IsHu() {
 			//如果不是血流成河且用户已胡 则不能查u的花猪
@@ -1984,41 +1985,55 @@ func (d *MjDesk) GetWinCoinInfo(user *MjUser) *mjproto.WinCoinInfo {
 func (d *MjDesk) GetCardTitle4WinCoinInfo(user *MjUser) string {
 	var huDes []string
 
-	var shuBaGangCount, shuAnGangCount, shuDianPaoCount, shuGangCount, shuZimoCount, count int32
-	var shuBeiChaHuaZhuCount, shuBeiChaJiaoCount int32
+	var beiBaGangCount, beiAnGangCount, dianPaoCount, dianGangCount, beiZimoCount, count int32
+	var baGangCount, anGangCount, zimoCount int32
+	var beiChaHuaZhuCount, beiChaJiaoCount int32
 	//获取当局的统计信息
 	roundBean := user.GetStatisticsRoundBean(d.GetCurrPlayCount())
 	count = 0 //统计数大于count才显示
 
-	shuBaGangCount = roundBean.GetCountBeiBaGang()
-	shuAnGangCount = roundBean.GetCountBeiAnGang()
-	shuDianPaoCount = roundBean.GetCountDianPao()
-	shuGangCount = roundBean.GetCountDianGang()
-	shuZimoCount = roundBean.GetCountBeiZiMo()
-	shuBeiChaHuaZhuCount = roundBean.GetCountBeiChaHuaZhu()
-	shuBeiChaJiaoCount = roundBean.GetCountBeiChaJiao()
+	baGangCount = roundBean.GetCountBaGnag() //巴杠
+	beiBaGangCount = roundBean.GetCountBeiBaGang() //被巴杠
+	anGangCount = roundBean.GetCountAnGang() //暗杠
+	beiAnGangCount = roundBean.GetCountBeiAnGang() //被暗杠
+	dianPaoCount = roundBean.GetCountDianPao() //点炮
+	dianGangCount = roundBean.GetCountDianGang() //点杠
+	beiZimoCount = roundBean.GetCountBeiZiMo() //被自摸
+	zimoCount = roundBean.GetCountZiMo() //自摸
+	beiChaHuaZhuCount = roundBean.GetCountBeiChaHuaZhu() //被查花猪
+	beiChaJiaoCount = roundBean.GetCountBeiChaJiao() //被查叫
+
 
 	switch {
-	case shuBaGangCount > count :
-		huDes = append(huDes, fmt.Sprintf("被巴杠x%d", shuBaGangCount))
+	case zimoCount > count :
+		huDes = append(huDes, fmt.Sprintf("自摸x%d", zimoCount))
 
-	case shuAnGangCount > count :
-		huDes = append(huDes, fmt.Sprintf("被暗杠x%d", shuAnGangCount))
+	case baGangCount > count :
+		huDes = append(huDes, fmt.Sprintf("巴杠x%d", baGangCount))
 
-	case shuDianPaoCount > count :
-		huDes = append(huDes, fmt.Sprintf("点炮x%d", shuDianPaoCount))
+	case anGangCount > count :
+		huDes = append(huDes, fmt.Sprintf("暗杠x%d", anGangCount))
 
-	case shuGangCount > count :
-		huDes = append(huDes, fmt.Sprintf("点杠x%d", shuGangCount))
+	case beiBaGangCount > count :
+		huDes = append(huDes, fmt.Sprintf("被巴杠x%d", beiBaGangCount))
 
-	case shuZimoCount > count :
-		huDes = append(huDes, fmt.Sprintf("被自摸x%d", shuZimoCount))
+	case beiAnGangCount > count :
+		huDes = append(huDes, fmt.Sprintf("被暗杠x%d", beiAnGangCount))
 
-	case shuBeiChaHuaZhuCount > count :
-		huDes = append(huDes, fmt.Sprintf("被查花猪x%d", shuBeiChaHuaZhuCount))
+	case dianPaoCount > count :
+		huDes = append(huDes, fmt.Sprintf("点炮x%d", dianPaoCount))
 
-	case shuBeiChaJiaoCount > count :
-		huDes = append(huDes, fmt.Sprintf("被查叫x%d", shuBeiChaJiaoCount))
+	case dianGangCount > count :
+		huDes = append(huDes, fmt.Sprintf("点杠x%d", dianGangCount))
+
+	case beiZimoCount > count :
+		huDes = append(huDes, fmt.Sprintf("被自摸x%d", beiZimoCount))
+
+	case beiChaHuaZhuCount > count :
+		huDes = append(huDes, fmt.Sprintf("被查花猪x%d", beiChaHuaZhuCount))
+
+	case beiChaJiaoCount > count :
+		huDes = append(huDes, fmt.Sprintf("被查叫x%d", beiChaJiaoCount))
 
 	default:
 
@@ -2111,6 +2126,7 @@ func (d *MjDesk) ExchangeEnd() error {
 
 	//首先
 	for _, user := range d.GetUsers() {
+		log.T("user[%v] GetExchanged[%v]", user.GetUserId(), user.GetExchanged())
 		if user == nil || !user.GetExchanged() {
 			return errors.New("还有人没有请求换三张")
 		}
@@ -2151,6 +2167,7 @@ func (d *MjDesk) ExchangeEnd() error {
 			c := rp.GetCardInfo()
 			result.ExchangeInCards = append(result.ExchangeInCards, c)
 		}
+		log.T("user[%v] ExchangeEnd", user.GetUserId())
 		//给用户发送换牌之后的信息
 		user.WriteMsg(result)
 	}

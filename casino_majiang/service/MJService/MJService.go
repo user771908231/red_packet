@@ -353,7 +353,7 @@ func HandlerGame_ActGuo(m *mjProto.Game_ActGuo) {
 	}
 
 	//两人麻将 剩余四张牌时能胡则不能过
-	if desk.IsLiangRenLiangFang() || desk.IsLiangRenSanFang() {
+	if desk.IsLiangRen() {
 		canHu, _ := user.GetGameData().GetHandPai().GetCanHu()
 		if canHu && (desk.GetRemainPaiCount() <= 4) {
 			//能胡且剩余牌数小于等于4
