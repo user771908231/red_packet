@@ -59,6 +59,11 @@ func (d *MjDesk) InitUsers(mjRoomType mjproto.MJRoomType) {
 
 //新增加一个玩家
 func (d *MjDesk) addUser(user *MjUser) error {
+	//根据房间类型判断人数是否已满
+	if d.IsPlayerEnough() {
+		return Error.NewFailError("房间已满，加入桌子失败")
+	}
+
 	//找到座位
 	seatIndex := -1
 	for i, u := range d.Users {

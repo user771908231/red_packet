@@ -869,17 +869,19 @@ func (d *MjDesk) DoHuaZhu(huazhu *MjUser) error {
 	for _, user := range d.GetUsers() {
 		if !d.IsXueLiuChengHe() && user.IsHu() {
 			//如果不是血流成河且用户已胡 则不能查u的花猪
+			log.T("DoHuaZhu: 不查[%v]的花猪", user.GetUserId())
 			continue
 		}
 		if user != nil && user.IsNotHuaZhu() {
 			//判断不是花猪，可以赢钱...
+			log.T("DoHuaZhu: 查[%v]的花猪", user.GetUserId())
 			user.AddBill(huazhu.GetUserId(), MJUSER_BILL_TYPE_YING_CHAHUAZHU, "用户查花猪，赢钱", score, nil)
 			user.AddStatisticsCountChaHuaZhu(d.GetCurrPlayCount())
 
 			huazhu.AddBill(user.GetUserId(), MJUSER_BILL_TYPE_SHU_CHAHUAZHU, "用户查花猪，输钱", -score, nil)
 			huazhu.AddStatisticsCountBeiChaHuaZhu(d.GetCurrPlayCount())
 		}
-
+		log.T("DoHuaZhu: looper[%v] isNotHuaZhu[%v]", user.GetUserId(), user.IsNotHuaZhu(), )
 	}
 
 	return nil
@@ -918,7 +920,7 @@ func (d *MjDesk) GetJiaoInfos(user *MjUser) []*mjproto.JiaoInfo {
 	var userPais []*MJPai
 	userHandPai := NewMJHandPai()
 	if user != nil && user.GetGameData() != nil && user.GetGameData().GetHandPai() != nil {
-		*userHandPai = user.GetGameData().HandPai
+		*userHandPai = *user.GetGameData().HandPai
 	}else {
 		return nil
 	}
@@ -1135,7 +1137,9 @@ func (d *MjDesk) AfterLottery() error {
 
 	//设置用户为没有准备
 	for _, user := range d.GetUsers() {
-		user.AfterLottery()
+		if user != nil {
+			user.AfterLottery()
+		}
 	}
 	return nil
 
