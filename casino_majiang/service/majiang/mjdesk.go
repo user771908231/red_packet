@@ -109,7 +109,7 @@ func (d *MjDesk) SendReconnectOverTurn(userId uint32) error {
 	if d.IsPreparing() && user.IsNotReady() {
 		//给玩家发送开始准备的消息...
 		log.T("sendReconnectOverTurn，给user[%v]发送准备的消息....", userId)
-	} else if d.IsExchange() {
+	} else if d.IsExchange() && user.IsNotExchange() {
 		//给玩家发送换牌的消息...
 		log.T("sendReconnectOverTurn，给user[%v]发送换牌的消息....", userId)
 
