@@ -165,3 +165,7 @@ func (a *agent) UserData() interface{} {
 func (a *agent) SetUserData(data interface{}) {
 	a.userData = data
 }
+
+func (a *agent) RemoteAddr() interface{} {
+	return a.conn.RemoteAddr()
+}
