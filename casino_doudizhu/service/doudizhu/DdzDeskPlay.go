@@ -201,10 +201,32 @@ func (d *DdzDesk) Lottery(user *DdzUser) {
 	//2,发送结算的通知
 
 
+	//3,判断是否是全局结束
+	if d.end() {
+		d.DoEnd()
+	} else {
+		//开始下一局
+		go d.Begin()
+	}
+
 }
+
+//这里需要更具不同的条件来判断游戏是否结束
+func (d *DdzDesk) end() bool {
+	//判断是否是朋友桌
+	//如果是朋友桌,且局数和当前玩的局数都一样，那么朋友桌的逻辑结束
+	if d.GetTotalPlayCount() == d.GetCurrPlayCount() {
+		return true
+	}
+	return false
+}
+
+
 
 //牌局结束
 func (d *DdzDesk) DoEnd() {
+	//朋友桌桌结束
+	//发送整局结束的协议
 
 }
 
@@ -334,6 +356,7 @@ func (d *DdzDesk) ActPass(userId uint32) error {
 
 	//返回成功的消息 todo  返回ack
 	ack := newProto.NewDdzActGuoAck()
+	*ack.UserId = userId
 	user.WriteMsg(ack)
 
 	//轮到下一个玩家

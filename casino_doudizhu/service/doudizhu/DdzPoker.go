@@ -162,7 +162,7 @@ func (out *POutPokerPais) init() error {
 type DdzPokerOutList []*PPokerPai;
 
 func (list DdzPokerOutList) Less(i, j  int) bool {
-	if list[i].GetValue() < list[j].GetValue() {
+	if list[i].GetValue() <= list[j].GetValue() {
 		return true
 	} else {
 		return false
