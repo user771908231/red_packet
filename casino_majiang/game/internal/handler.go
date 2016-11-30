@@ -6,7 +6,6 @@ import (
 	mjProto "casino_majiang/msg/protogo"
 	"casino_majiang/service/MJService"
 	"casino_majiang/msg/funcsInit"
-	"casino_common/common/log"
 	"casino_common/common/noticeServer"
 )
 
@@ -45,7 +44,7 @@ func init() {
 }
 
 func handlerNull(args []interface{}) {
-	log.T("进入到 game.Heartbeat()")
+	//log.T("进入到 game.Heartbeat()")
 	m := args[0].(*mjProto.Heartbeat)
 	a := args[1].(gate.Agent)
 	a.WriteMsg(m)
@@ -145,6 +144,10 @@ func HandlerNotice(args []interface{}) {
 	m := args[0].(*mjProto.Game_Notice)
 	a := args[1].(gate.Agent)
 	bback := noticeServer.GetNoticeByType(m.GetNoticeType())
+	//todo
+	if bback == nil {
+		return
+	}
 	ack := newProto.NewGame_AckNotice()
 	*ack.NoticeType = bback.GetNoticeType()
 	*ack.NoticeTitle = bback.GetNoticeTitle()

@@ -21,6 +21,7 @@ import (
 	"casino_common/utils/numUtils"
 	"casino_common/common/consts"
 	"casino_common/utils/rand"
+	"os/user"
 )
 
 //状态表示的是当前状态.
@@ -77,7 +78,7 @@ func (d *MjDesk) addNewUserFriend(userId uint32, a gate.Agent) (mjproto.RECONNEC
 	*newUser.UserId = userId
 	*newUser.DeskId = d.GetDeskId()
 	*newUser.RoomId = d.GetRoomId()
-	*newUser.Coin = d.GetBaseValue()
+	*newUser.Coin = 0
 	*newUser.IsBreak = false
 	*newUser.IsLeave = false
 	*newUser.IsBanker = false
@@ -775,8 +776,8 @@ func (d *MjDesk) Time2Lottery() bool {
 
 
 
-	//如果是倒倒胡,并且有人胡牌了，那么直接返回胡牌
-	if d.IsDaodaohu() {
+	//如果是倒倒胡 or 两人麻将 ,并且有人胡牌了，那么就开奖结束本局
+	if d.IsDaodaohu() || d.IsLiangRen() {
 		for _, user := range d.Users {
 			if user != nil && user.IsHu() {
 				return true
@@ -851,6 +852,11 @@ func (d *MjDesk) GetUserIds() string {
  */
 func (d *MjDesk) ChaHuaZhu() error {
 	for _, u := range d.GetUsers() {
+		if !d.IsXueLiuChengHe() && u.IsHu() {
+			//如果不是血流成河且用户已胡 则不能查u的花猪
+			log.T("不查[%v]的花猪", u.GetUserId())
+			continue
+		}
 		if u != nil && u.IsNotHu() {
 			if u.IsHuaZhu() {
 				log.T("玩家[%v]是花猪", u.GetUserId())
@@ -868,19 +874,15 @@ func (d *MjDesk) DoHuaZhu(huazhu *MjUser) error {
 	fanTop := d.GetRoomTypeInfo().GetCapMax()
 	score := d.GetBaseValue() * fanTop
 	for _, user := range d.GetUsers() {
-		if !d.IsXueLiuChengHe() && user.IsHu() {
-			//如果不是血流成河且用户已胡 则不能查u的花猪
-			continue
-		}
-		if user != nil && user.IsNotHuaZhu() {
+		if user != nil && user.IsNotHuaZhu() { //不是花猪的用户都可以收钱
 			//判断不是花猪，可以赢钱...
+			log.T("DoHuaZhu: 查[%v]的花猪", user.GetUserId())
 			user.AddBill(huazhu.GetUserId(), MJUSER_BILL_TYPE_YING_CHAHUAZHU, "用户查花猪，赢钱", score, nil)
 			user.AddStatisticsCountChaHuaZhu(d.GetCurrPlayCount())
 
 			huazhu.AddBill(user.GetUserId(), MJUSER_BILL_TYPE_SHU_CHAHUAZHU, "用户查花猪，输钱", -score, nil)
 			huazhu.AddStatisticsCountBeiChaHuaZhu(d.GetCurrPlayCount())
 		}
-
 	}
 
 	return nil
@@ -917,7 +919,13 @@ func (d *MjDesk) GetJiaoInfos(user *MjUser) []*mjproto.JiaoInfo {
 
 	//获取用户手牌 包括inPai
 	var userPais []*MJPai
-	userHandPai := *user.GetGameData().HandPai
+	userHandPai := NewMJHandPai()
+	if user != nil && user.GetGameData() != nil && user.GetGameData().GetHandPai() != nil {
+		*userHandPai = *user.GetGameData().HandPai
+	}else {
+		return nil
+	}
+
 	userPais = append(userPais, userHandPai.Pais...)
 	if userHandPai.InPai != nil {
 		//碰牌 无inPai的情况
@@ -1130,7 +1138,9 @@ func (d *MjDesk) AfterLottery() error {
 
 	//设置用户为没有准备
 	for _, user := range d.GetUsers() {
-		user.AfterLottery()
+		if user != nil {
+			user.AfterLottery()
+		}
 	}
 	return nil
 
@@ -1985,41 +1995,55 @@ func (d *MjDesk) GetWinCoinInfo(user *MjUser) *mjproto.WinCoinInfo {
 func (d *MjDesk) GetCardTitle4WinCoinInfo(user *MjUser) string {
 	var huDes []string
 
-	var shuBaGangCount, shuAnGangCount, shuDianPaoCount, shuGangCount, shuZimoCount, count int32
-	var shuBeiChaHuaZhuCount, shuBeiChaJiaoCount int32
+	var beiBaGangCount, beiAnGangCount, dianPaoCount, dianGangCount, beiZimoCount, count int32
+	var baGangCount, anGangCount, zimoCount int32
+	var beiChaHuaZhuCount, beiChaJiaoCount int32
 	//获取当局的统计信息
 	roundBean := user.GetStatisticsRoundBean(d.GetCurrPlayCount())
 	count = 0 //统计数大于count才显示
 
-	shuBaGangCount = roundBean.GetCountBeiBaGang()
-	shuAnGangCount = roundBean.GetCountBeiAnGang()
-	shuDianPaoCount = roundBean.GetCountDianPao()
-	shuGangCount = roundBean.GetCountDianGang()
-	shuZimoCount = roundBean.GetCountBeiZiMo()
-	shuBeiChaHuaZhuCount = roundBean.GetCountBeiChaHuaZhu()
-	shuBeiChaJiaoCount = roundBean.GetCountBeiChaJiao()
+	baGangCount = roundBean.GetCountBaGnag() //巴杠
+	beiBaGangCount = roundBean.GetCountBeiBaGang() //被巴杠
+	anGangCount = roundBean.GetCountAnGang() //暗杠
+	beiAnGangCount = roundBean.GetCountBeiAnGang() //被暗杠
+	dianPaoCount = roundBean.GetCountDianPao() //点炮
+	dianGangCount = roundBean.GetCountDianGang() //点杠
+	beiZimoCount = roundBean.GetCountBeiZiMo() //被自摸
+	zimoCount = roundBean.GetCountZiMo() //自摸
+	beiChaHuaZhuCount = roundBean.GetCountBeiChaHuaZhu() //被查花猪
+	beiChaJiaoCount = roundBean.GetCountBeiChaJiao() //被查叫
+
 
 	switch {
-	case shuBaGangCount > count :
-		huDes = append(huDes, fmt.Sprintf("被巴杠x%d", shuBaGangCount))
+	case zimoCount > count :
+		huDes = append(huDes, fmt.Sprintf("自摸x%d", zimoCount))
 
-	case shuAnGangCount > count :
-		huDes = append(huDes, fmt.Sprintf("被暗杠x%d", shuAnGangCount))
+	case baGangCount > count :
+		huDes = append(huDes, fmt.Sprintf("巴杠x%d", baGangCount))
 
-	case shuDianPaoCount > count :
-		huDes = append(huDes, fmt.Sprintf("点炮x%d", shuDianPaoCount))
+	case anGangCount > count :
+		huDes = append(huDes, fmt.Sprintf("暗杠x%d", anGangCount))
 
-	case shuGangCount > count :
-		huDes = append(huDes, fmt.Sprintf("点杠x%d", shuGangCount))
+	case beiBaGangCount > count :
+		huDes = append(huDes, fmt.Sprintf("被巴杠x%d", beiBaGangCount))
 
-	case shuZimoCount > count :
-		huDes = append(huDes, fmt.Sprintf("被自摸x%d", shuZimoCount))
+	case beiAnGangCount > count :
+		huDes = append(huDes, fmt.Sprintf("被暗杠x%d", beiAnGangCount))
 
-	case shuBeiChaHuaZhuCount > count :
-		huDes = append(huDes, fmt.Sprintf("被查花猪x%d", shuBeiChaHuaZhuCount))
+	case dianPaoCount > count :
+		huDes = append(huDes, fmt.Sprintf("点炮x%d", dianPaoCount))
 
-	case shuBeiChaJiaoCount > count :
-		huDes = append(huDes, fmt.Sprintf("被查叫x%d", shuBeiChaJiaoCount))
+	case dianGangCount > count :
+		huDes = append(huDes, fmt.Sprintf("点杠x%d", dianGangCount))
+
+	case beiZimoCount > count :
+		huDes = append(huDes, fmt.Sprintf("被自摸x%d", beiZimoCount))
+
+	case beiChaHuaZhuCount > count :
+		huDes = append(huDes, fmt.Sprintf("被查花猪x%d", beiChaHuaZhuCount))
+
+	case beiChaJiaoCount > count :
+		huDes = append(huDes, fmt.Sprintf("被查叫x%d", beiChaJiaoCount))
 
 	default:
 
@@ -2112,6 +2136,7 @@ func (d *MjDesk) ExchangeEnd() error {
 
 	//首先
 	for _, user := range d.GetUsers() {
+		log.T("user[%v] GetExchanged[%v]", user.GetUserId(), user.GetExchanged())
 		if user == nil || !user.GetExchanged() {
 			return errors.New("还有人没有请求换三张")
 		}
@@ -2152,6 +2177,7 @@ func (d *MjDesk) ExchangeEnd() error {
 			c := rp.GetCardInfo()
 			result.ExchangeInCards = append(result.ExchangeInCards, c)
 		}
+		log.T("user[%v] ExchangeEnd", user.GetUserId())
 		//给用户发送换牌之后的信息
 		user.WriteMsg(result)
 	}
@@ -2300,14 +2326,21 @@ func (d *MjDesk) GetHiddenPais(user *MjUser) []*MJPai {
 //获取用户已知亮出台面的牌 包括自己手牌、自己和其他玩家碰杠牌、其他玩家outPais
 func (d *MjDesk) GetDisplayPais(user *MjUser) []*MJPai {
 	//获取所有玩家的亮出台面的牌 outPais + pengPais + gangPais
-	users := d.GetUsers()
-	displayPais := []*MJPai{}
-	for i := 0; i < len(users); i++ {
-		displayPais = append(displayPais, users[i].GetGameData().GetHandPai().OutPais...) //打出去的牌
 
-		userHandPai := users[i].GetGameData().GetHandPai()
-		displayPais = append(displayPais, userHandPai.GangPais...) //杠的牌
-		displayPais = append(displayPais, userHandPai.PengPais...) //碰的牌
+	displayPais := []*MJPai{}
+	for _, user := range d.GetUsers() {
+		userHandPai := user.GetGameData().GetHandPai()
+
+		switch {
+		case userHandPai.GetGangPais() != nil:
+			displayPais = append(displayPais, userHandPai.GangPais...) //杠的牌
+		case userHandPai.GetPengPais() != nil:
+			displayPais = append(displayPais, userHandPai.PengPais...) //碰的牌
+		case userHandPai.GetOutPais() != nil:
+			displayPais = append(displayPais, userHandPai.OutPais...) //打出去的牌
+		default:
+
+		}
 	}
 
 	//在亮出台面的牌中加入用户自己的手牌
