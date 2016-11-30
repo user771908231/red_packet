@@ -2114,11 +2114,28 @@ func (d *MjDesk) DoExchange(userId uint32, exchangeNum int32, cards []*mjproto.C
 		return errors.New("换三张失败...s")
 	}
 
+	//如果是庄，需要处理inpai
+	if user.GetIsBanker() {
+		log.T("庄，换三张，需要单独处理inPai")
+		user.GameData.HandPai.Pais = append(user.GameData.HandPai.Pais, user.GameData.HandPai.InPai)
+		user.GameData.HandPai.InPai = nil        //暂时设置inPai是nil
+	}
+
+	//删除需要定缺的牌
 	for _, card := range cards {
 		pai := InitMjPaiByIndex(int(card.GetId()))
-		user.ExchangeCards = append(user.ExchangeCards, pai)        //增加需要换的牌
+		user.GameData.ExchangeCards = append(user.GameData.ExchangeCards, pai)        //增加需要换的牌
 		user.GameData.HandPai.DelHandlPai(card.GetId())        //删除手牌
 	}
+
+	//回复inpai
+	if user.GetIsBanker() {
+		//再来回复inPai
+		temP := user.GameData.HandPai.Pais[0]
+		user.GameData.HandPai.InPai = temP
+		user.GameData.HandPai.DelHandlPai(temP.GetIndex())
+	}
+
 	//设置已经换了
 	*user.Exchanged = true
 
@@ -2130,7 +2147,6 @@ func (d *MjDesk) DoExchange(userId uint32, exchangeNum int32, cards []*mjproto.C
 
 	//之后判断
 	go d.ExchangeEnd()
-
 	return nil
 }
 
@@ -2152,8 +2168,8 @@ func (d *MjDesk) ExchangeEnd() error {
 
 	//开始换牌
 	exchangeType := rand.Rand(0, 3)
-	//todo 
-	exchangeType = int32(1)
+	//todo 需要删除的代码
+	//exchangeType = int32(1)
 	if exchangeType == int32(mjproto.ExchangeType_EXCHANGE_TYPE_DUIJIA) {
 		exchangeCards(d.Users[0], d.Users[2])
 		exchangeCards(d.Users[1], d.Users[3])
@@ -2206,11 +2222,7 @@ func (d *MjDesk) ExchangeEnd() error {
 
 func exchangeCards(u1 *MjUser, u2 *MjUser) {
 	//换三张的账户
-	count := 3
-	cars := make([]*MJPai, count)
-	copy(cars, u2.ExchangeCards)        //copy ，防止出错
-	u1.GameData.HandPai.Pais = append(u1.GameData.HandPai.Pais, cars...)
-
+	u1.GameData.HandPai.Pais = append(u1.GameData.HandPai.Pais, u2.GameData.ExchangeCards...)
 }
 
 //判断是否开启房间的某个选
@@ -2221,7 +2233,6 @@ func (d *MjDesk) IsOpenOption(option mjproto.MJOption) bool {
 		}
 	}
 	return false
-
 }
 
 //可以把overturn放在一个地方,目前都是摸牌的时候在用

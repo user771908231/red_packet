@@ -58,6 +58,7 @@ message PlayerGameData {
     repeated GangPaiInfo gangTransfer = 6; //呼叫转移
     optional int32 totalScore = 7; //牌局结果得分
     repeated GuoHuInfo guoHuInfo = 8; //关于过湖的信息
+    repeated MJPai ExchangeCards = 9; //需要换的牌
 }
 
 //需要确认的时间
@@ -201,7 +202,6 @@ message MjUser {
     optional Bill bill = 14; //用户的账单
     optional MjUserStatisc statisc = 15; //证据游戏的统计...
     optional int64 WaitTime = 16; //用户等待的时间
-    repeated MJPai ExchangeCards = 17; //需要换的牌
 }
 
 //用户的session
