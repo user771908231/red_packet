@@ -2168,8 +2168,8 @@ func (d *MjDesk) ExchangeEnd() error {
 
 	//开始换牌
 	exchangeType := rand.Rand(0, 3)
-	//todo 
-	exchangeType = int32(1)
+	//todo 需要删除的代码
+	//exchangeType = int32(1)
 	if exchangeType == int32(mjproto.ExchangeType_EXCHANGE_TYPE_DUIJIA) {
 		exchangeCards(d.Users[0], d.Users[2])
 		exchangeCards(d.Users[1], d.Users[3])
