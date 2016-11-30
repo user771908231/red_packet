@@ -21,7 +21,6 @@ import (
 	"casino_common/utils/numUtils"
 	"casino_common/common/consts"
 	"casino_common/utils/rand"
-	"os/user"
 )
 
 //状态表示的是当前状态.
