@@ -373,7 +373,7 @@ func (d *DdzDesk) ActOut(userId uint32, out *POutPokerPais) error {
 	//判断牌是否合法
 	err = d.CheckOutPai(out)
 	if err != nil {
-		log.E("玩家[%v]出牌[%v]失败,desk.outpai[%v]", userId, out, d.OutPai)
+		log.E("玩家[%v]出牌[%v]失败,desk.outpai[%v],err[%v]", userId, out, d.OutPai, err)
 		return Error.NewError(-1, "出牌失败，牌型有误")
 	}
 

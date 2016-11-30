@@ -281,7 +281,8 @@ func HandlerActOut(userId uint32, outcards []*ddzproto.Poker) error {
 	//开始出牌
 	err := desk.ActOut(userId, outpai)
 	if err != nil {
-		log.E("出牌的时候失败...")
+		log.E("出牌的时候失败...err[%v]", err)
+		return err
 	}
 	return nil
 }

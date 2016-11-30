@@ -2,6 +2,7 @@ package main
 
 import (
 	"github.com/name5566/leaf"
+	lconf "github.com/name5566/leaf/conf"
 	"casino_doudizhu/service/webserver"
 	"casino_doudizhu/game"
 	"casino_doudizhu/gate"
@@ -18,6 +19,7 @@ func init() {
 	err := sys.SysInit(
 		conf.Server.RedisAddr,
 		"test",
+		conf.Server.LogPath,
 		"dodizhu",
 		conf.Server.MongoIp,
 		conf.Server.MongoPort,
@@ -35,6 +37,10 @@ func init() {
 }
 
 func main() {
+	//leaf 的日志路径
+	lconf.LogLevel = conf.Server.LogLevel
+	lconf.LogPath = conf.Server.LogPath
+
 	//后台管理
 	go func() {
 		webserver.InitCms()
