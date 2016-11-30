@@ -874,7 +874,8 @@ func (d *MjDesk) DoHuaZhu(huazhu *MjUser) error {
 	fanTop := d.GetRoomTypeInfo().GetCapMax()
 	score := d.GetBaseValue() * fanTop
 	for _, user := range d.GetUsers() {
-		if user != nil && user.IsNotHuaZhu() { //不是花猪的用户都可以收钱
+		if user != nil && user.IsNotHuaZhu() {
+			//不是花猪的用户都可以收钱
 			//判断不是花猪，可以赢钱...
 			log.T("DoHuaZhu: 查[%v]的花猪", user.GetUserId())
 			user.AddBill(huazhu.GetUserId(), MJUSER_BILL_TYPE_YING_CHAHUAZHU, "用户查花猪，赢钱", score, nil)
@@ -922,7 +923,7 @@ func (d *MjDesk) GetJiaoInfos(user *MjUser) []*mjproto.JiaoInfo {
 	userHandPai := NewMJHandPai()
 	if user != nil && user.GetGameData() != nil && user.GetGameData().GetHandPai() != nil {
 		*userHandPai = *user.GetGameData().HandPai
-	}else {
+	} else {
 		return nil
 	}
 
@@ -2389,9 +2390,7 @@ func (d *MjDesk) GetDeskMJInfo() string {
 	s := ""
 	for i, p := range d.AllMJPai {
 		is, _ := numUtils.Int2String(int32(i))
-
-		ii, _ := numUtils.Int2String(int32(p.GetIndex()))
-		s = s + " (" + is + "-" + ii + "-" + p.LogDes() + ")"
+		s = s + " (" + is + "-" + p.LogDes() + ")"
 		if (i + 1) % 27 == 0 {
 
 		}
