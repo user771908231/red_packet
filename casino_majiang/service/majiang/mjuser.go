@@ -829,7 +829,7 @@ func (u *MjUser) IsYouJiao() bool {
 	//u.GameData.HandPai.GetCanHu()
 	for i := 0; i < 108; i++ {
 		pai := InitMjPaiByIndex(i)
-		log.T("user[%v] GetGameData:%v", u.GetUserId() ,u.GetGameData())
+		log.T("user[%v] GetGameData:%v", u.GetUserId(), u.GetGameData())
 		log.T("user[%v] GetHandPai:%v", u.GetUserId(), u.GetGameData().GetHandPai())
 		log.T("user[%v] GetQueFlower:%v", u, u.GetGameData().GetHandPai().GetQueFlower())
 		if pai.GetFlower() == u.GameData.HandPai.GetQueFlower() {

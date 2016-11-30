@@ -34,7 +34,8 @@ func (p *MJPai) GetClientId() int32 {
 
 func ( p *MJPai) LogDes() string {
 	valueStr, _ := numUtils.Int2String(p.GetValue())
-	return valueStr + GetFlow(p.GetFlower())
+	idStr, _ := numUtils.Int2String(p.GetIndex())
+	return idStr + "-" + valueStr + GetFlow(p.GetFlower())
 }
 
 //用户牌是否包含缺牌
