@@ -979,12 +979,12 @@ func (u *MjUser) GetUserInPaiInfo() string {
 }
 
 func (u *MjUser) GetExchangedCardsInfo() string {
-	if u == nil || u.ExchangeCards == nil {
+	if u == nil || u.GameData.ExchangeCards == nil {
 		return "没有换的牌"
 	}
 
 	s := ""
-	for _, p := range u.ExchangeCards {
+	for _, p := range u.GameData.ExchangeCards {
 		s = s + p.LogDes() + "\t "
 	}
 
