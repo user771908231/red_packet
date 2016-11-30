@@ -70,11 +70,11 @@ func (r *MjRoom) CreateDesk(m *mjproto.Game_CreateRoom) *MjDesk {
 	*desk.DeskId, _ = db.GetNextSeq(config.DBT_MJ_DESK)
 	*desk.RoomId = r.GetRoomId()
 	desk.SetStatus(MJDESK_STATUS_CREATED)        //设置为刚刚创建的状态
+	*desk.MjRoomType = int32(m.GetRoomTypeInfo().GetMjRoomType())        // 房间类型，如：血战到底、三人两房、四人两房、德阳麻将、倒倒胡、血流成河
 	desk.InitUsers(m.GetRoomTypeInfo().GetMjRoomType()) //根据房间类型初始化房间玩家数
 	*desk.Password = r.RandRoomKey()
 	*desk.Owner = userId        //设置房主
 	*desk.CreateFee = createFee
-	*desk.MjRoomType = int32(m.GetRoomTypeInfo().GetMjRoomType())        // 房间类型，如：血战到底、三人两房、四人两房、德阳麻将、倒倒胡、血流成河
 	desk.InitUserCountAndFangCountByType()        //初始化人数和房数
 	*desk.BoardsCout = m.GetRoomTypeInfo().GetBoardsCout()        //局数，如：4局（房卡 × 2）、8局（房卡 × 3）
 	*desk.CapMax = m.GetRoomTypeInfo().GetCapMax()

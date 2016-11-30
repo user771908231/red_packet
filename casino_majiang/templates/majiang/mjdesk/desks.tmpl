@@ -28,12 +28,12 @@
             <tr>
                 <th>＃</th>
                 <th>房间id</th>
-                <th>房间密码</th>
+                <th>房间号</th>
                 <th>房主</th>
                 <th>指针指向的玩家ID</th>
                 <th>当前操作活动的玩家ID</th>
                 <th>桌子状态</th>
-                <th>血流成河</th>
+                <th>房间类型</th>
                 <th>换三张</th>
                 <th>总局数</th>
                 <th>当前局数</th>
@@ -54,11 +54,7 @@
                 <td>{{$desk.GetActUser}}</td>
                 <td>{{$desk.GetTransferredStatus}}</td>
 
-                {{if $desk.IsXueLiuChengHe }}
-                <td>是</td>
-                {{else}}
-                <td>否</td>
-                {{end}}
+                <td>{{$desk.GetTransferredRoomType}}</td>
 
                 {{if $desk.IsNeedExchange3zhang }}
                 <td>是</td>
