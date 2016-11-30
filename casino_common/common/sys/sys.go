@@ -10,11 +10,11 @@ import (
 	"casino_common/common/db"
 )
 
-func SysInit(redisAddr string, redisName string, logName string, mongoIp string, mongoPort int, mongoName string, mongoSeqKey string, mongoSeqTables []string) error {
+func SysInit(redisAddr string, redisName string, logPath string, logName string, mongoIp string, mongoPort int, mongoName string, mongoSeqKey string, mongoSeqTables []string) error {
 	InitRedis(redisAddr, redisName)
 	initRandSeed()
 	runtime.GOMAXPROCS(runtime.NumCPU())
-	log.InitLogger(logName)        //初始化日志处理
+	log.InitLogger(logPath, logName)        //初始化日志处理
 	db.InitMongoDb(mongoIp, mongoPort, mongoName, mongoSeqKey, mongoSeqTables)
 	return nil
 }
