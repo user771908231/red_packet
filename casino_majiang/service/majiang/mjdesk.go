@@ -661,7 +661,7 @@ func (d *MjDesk) DingQue(userId uint32, color int32) error {
 	//回复定缺成功的消息
 	ack := newProto.NewGame_DingQue()
 	*ack.Header.UserId = userId
-	*ack.Color = -1
+	*ack.Color = color
 	*ack.UserId = userId
 	log.T("回复定缺的协议ack[%v]", ack)
 	d.BroadCastProto(ack)        //发送定缺成功的广播
@@ -2168,6 +2168,8 @@ func (d *MjDesk) ExchangeEnd() error {
 
 	//开始换牌
 	exchangeType := rand.Rand(0, 3)
+	//todo 
+	exchangeType = int32(1)
 	if exchangeType == int32(mjproto.ExchangeType_EXCHANGE_TYPE_DUIJIA) {
 		exchangeCards(d.Users[0], d.Users[2])
 		exchangeCards(d.Users[1], d.Users[3])
@@ -2317,27 +2319,6 @@ func (d *MjDesk) GetLeftPaiCount(user *MjUser, mjPai *MJPai) int {
 	}
 	//log.T("leftPai is %v Count is : %v", mjPai.GetDes(), count)
 	return count
-}
-
-//获取用户未知的牌 即未出现在台面上的牌
-func (d *MjDesk) GetHiddenPais(user *MjUser) []*MJPai {
-	//获取已知亮出台面的牌
-	displayPais := d.GetDisplayPais(user)
-	displayPaiCounts := GettPaiStats(displayPais)
-
-	//获取一副完整的牌
-	totalPais := XiPai()
-	totalPaiCounts := GettPaiStats(totalPais)
-
-	for i := 0; i < len(displayPaiCounts); i++ {
-		totalPaiCounts[i] -= displayPaiCounts[i]
-		if totalPaiCounts[i] < 0 {
-			//最低为零
-			totalPaiCounts[i] = 0
-		}
-	}
-
-	return GetPaisByCounts(totalPaiCounts)
 }
 
 //获取用户已知亮出台面的牌 包括自己手牌、自己和其他玩家碰杠牌、其他玩家outPais
