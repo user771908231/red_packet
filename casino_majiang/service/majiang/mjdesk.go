@@ -464,6 +464,7 @@ func (d *MjDesk) beginInit() error {
 	}
 	//发送游戏开始的协议...
 	log.T("发送游戏开始的协议..")
+	log.T("当前桌子共[%v]把，现在是第[%v]把游戏开始", d.GetTotalPlayCount(), d.GetCurrPlayCount())
 	open := newProto.NewGame_Opening()
 	*open.CurrPlayCount = d.GetCurrPlayCount()
 	d.BroadCastProto(open)
