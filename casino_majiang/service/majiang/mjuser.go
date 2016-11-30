@@ -417,12 +417,14 @@ func (u *MjUser) AfterLottery() error {
 //得到用户的昵称
 func (u *MjUser) GetNickName() string {
 	user := userService.GetUserById(u.GetUserId())
-	if user == nil {
+
+	name := user.GetNickName()
+
+	if name == "" {
 		str, _ := numUtils.Uint2String(u.GetUserId())
 		return str
-	} else {
-		return user.GetNickName()
 	}
+	return name
 }
 
 func (u *MjUser) AddBillAmount(amount int64) {
@@ -966,6 +968,7 @@ func (u *MjUser) GetUserHuPaiInfo() string {
 	return s
 
 }
+
 func (u *MjUser) GetUserInPaiInfo() string {
 	if u.GameData == nil || u.GameData.HandPai == nil {
 		return "用户还没有牌"
@@ -974,6 +977,20 @@ func (u *MjUser) GetUserInPaiInfo() string {
 	return u.GameData.HandPai.InPai.LogDes()
 
 }
+
+func (u *MjUser) GetExchangedCardsInfo() string {
+	if u == nil || u.ExchangeCards == nil {
+		return "没有换的牌"
+	}
+
+	s := ""
+	for _, p := range u.ExchangeCards {
+		s = s + p.LogDes() + "\t "
+	}
+
+	return s
+}
+
 
 func (u *MjUser) GetTransferredStatus() string {
 	ret := ""
