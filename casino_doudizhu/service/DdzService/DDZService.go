@@ -249,7 +249,7 @@ func HandlerGameRecord(userId uint32, a gate.Agent) error {
 	return nil
 }
 
-func HandlerJiaBei(userId uint32, jia bool) error {
+func HandlerJiaBei(userId uint32, jia ddzproto.DdzDoubleType) error {
 	desk := doudizhu.GetDdzDeskBySession(userId)
 	if desk == nil {
 		return Error.NewFailError("没有找到desk")

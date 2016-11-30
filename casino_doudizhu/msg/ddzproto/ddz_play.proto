@@ -61,17 +61,23 @@ message DdzRobDiZhuAck {
 
 }
 
+
+enum DdzDoubleType {
+    JIA = 1;
+    BUJIA = 2;
+}
+
 // 加倍
 message DdzDouble {
     optional ProtoHeader header = 1;
     optional uint32 userId = 2; // 操作人
-    optional int32 double = 3; // 1=加倍, 2=不加倍
+    optional DdzDoubleType double = 3; // 1=加倍, 2=不加倍
 }
 
 message DdzDoubleAck {
     optional ProtoHeader header = 1;
     optional uint32 userId = 2; // 操作人 (广播给其它用户)
-    optional int32 double = 3; // 1=加倍, 2=不加倍
+    optional DdzDoubleType double = 3; // 1=加倍, 2=不加倍
 }
 
 // 叫地主结束，开始游戏 (广播)

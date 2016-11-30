@@ -135,7 +135,7 @@ func handlerGameRecord(args []interface{}) {
 //加倍
 func handlerJiaBei(args []interface{}) {
 	m := args[0].(*ddzproto.DdzDouble)
-	DdzService.HandlerJiaBei(m.GetUserId(), m.GetDouble() == 1)        //double ==1 表示加倍，==2 表示不加倍
+	DdzService.HandlerJiaBei(m.GetUserId(), m.GetDouble())        //double ==1 表示加倍，==2 表示不加倍
 }
 
 //出牌

@@ -233,13 +233,13 @@ func NewDdzDouble() *ddzproto.DdzDouble {
 	ret := new(ddzproto.DdzDouble)
 	ret.Header = NewHeader()
 	ret.UserId = new(uint32)
-	ret.Double = new(int32)
+	ret.Double = new(ddzproto.DdzDoubleType)
 	return ret
 }
 
 func NewDdzDoubleAck() *ddzproto.DdzDoubleAck {
 	ret := new(ddzproto.DdzDoubleAck)
-	ret.Double = new(int32)
+	ret.Double = new(ddzproto.DdzDoubleType)
 	ret.UserId = new(uint32)
 	ret.Header = NewHeader()
 	return ret

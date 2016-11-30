@@ -4,6 +4,7 @@ import (
 	"casino_doudizhu/msg/funcsInit"
 	"casino_common/common/log"
 	"casino_common/common/Error"
+	"casino_doudizhu/msg/protogo"
 )
 
 //欢乐斗地主
@@ -168,7 +169,7 @@ func (d *DdzDesk) HLBuJiaoDiZhu(userId uint32) error {
 }
 
 //欢乐斗地主开始加倍的逻辑
-func (d *DdzDesk) ActJiaBei(userId uint32, jia bool) error {
+func (d *DdzDesk) ActJiaBei(userId uint32, jia ddzproto.DdzDoubleType) error {
 	//判断activeUser
 	err := d.CheckActiveUser(userId)
 	if err != nil {
@@ -177,7 +178,7 @@ func (d *DdzDesk) ActJiaBei(userId uint32, jia bool) error {
 
 	//低分加倍的逻辑
 	user := d.GetUserByUserId(userId)
-	if jia {
+	if jia == ddzproto.DdzDoubleType_JIA {
 		user.SetJiaBeiStatus(DDZUSER_JIABEI_STATUS_JIABEI)                //处理加倍
 	} else {
 		user.SetJiaBeiStatus(DDZUSER_JIABEI_STATUS_BUJIABEI)//处理不加倍
@@ -186,7 +187,7 @@ func (d *DdzDesk) ActJiaBei(userId uint32, jia bool) error {
 	//需要返回加倍的ack
 	ack := newProto.NewDdzDoubleAck()
 	*ack.UserId = userId
-	*ack.Double = 0
+	*ack.Double = jia
 	d.BroadCastProto(ack)
 
 	//下一个人加倍
