@@ -81,6 +81,7 @@ func init() {
 func parseByIndex(index int32) (int32, string, int32, string, string) {
 	var rmapdes string = PokerMap[index]
 	sarry := strings.Split(rmapdes, "_")
+	log.T("通过index[%v]解析出来的sarry[%v]", index, sarry)
 	var pvalue int32 = int32(numUtils.String2Int(sarry[2]))
 	var pname string = sarry[3]
 	var pflower string = sarry[1]
@@ -162,7 +163,7 @@ func (out *POutPokerPais) init() error {
 type DdzPokerOutList []*PPokerPai;
 
 func (list DdzPokerOutList) Less(i, j  int) bool {
-	if list[i].GetValue() <= list[j].GetValue() {
+	if list[i].GetValue() < list[j].GetValue() {
 		return true
 	} else {
 		return false
@@ -397,7 +398,7 @@ func (out *POutPokerPais) initTypeAndKeyValue() error {
 //比较两幅牌的大小
 func (out *POutPokerPais)  GT(outb *POutPokerPais) (bool, error) {
 	if out.GetType() == outb.GetType() {
-		return out.GetKeyValue() < outb.GetKeyValue(), nil
+		return out.GetKeyValue() > outb.GetKeyValue(), nil
 	} else {
 		//比较类型不同的情况
 		if out.GetIsBomb() || outb.GetIsBomb() {
@@ -450,7 +451,7 @@ func (p *PPokerPai) GetSuit() ddzproto.PokerColor {
 }
 
 func (p *PPokerPai) GetLogDes() string {
-	suit := ""
+	suit, _ := numUtils.Int2String(p.GetId())
 	switch p.GetSuit() {
 	case ddzproto.PokerColor_FANGKUAI:
 		suit = "方块"

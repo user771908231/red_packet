@@ -70,7 +70,7 @@ func (d *MjDesk) addNewUserFriend(userId uint32, a gate.Agent) (mjproto.RECONNEC
 		*userLeave.IsBreak = false
 		*userLeave.IsLeave = false
 		return mjproto.RECONNECT_TYPE_RECONNECT, nil
-		
+
 	}
 
 	//3,加入一个新用户
@@ -1372,7 +1372,7 @@ func (d *MjDesk) CheckActive(userId uint32) bool {
 
 //用户打一张牌出来
 func (d *MjDesk)ActOut(userId uint32, paiKey int32) error {
-	log.T("开始处理用户[%v]打牌[%v]的逻辑", userId, paiKey)
+	log.T("开始处理用户[%v]打牌[%v]的逻辑,desk.status[%v]", userId, paiKey, d.GetStatus())
 
 	outUser := d.GetUserByUserId(userId)
 	if outUser == nil {
@@ -1384,10 +1384,20 @@ func (d *MjDesk)ActOut(userId uint32, paiKey int32) error {
 	if !d.CheckActive(userId) {
 		result := newProto.NewGame_AckSendOutCard()
 		*result.Header.Code = consts.ACK_RESULT_ERROR
-		*result.Header.Error = "不是打牌的状态"
+		*result.Header.Error = "没有轮到玩家出牌"
 		outUser.WriteMsg(result)
 		return errors.New("没有轮到当前玩家....")
 	}
+
+	//判断是不是在游戏中的状态
+	if d.IsNotGaming() {
+		result := newProto.NewGame_AckSendOutCard()
+		*result.Header.Code = consts.ACK_RESULT_ERROR
+		*result.Header.Error = "还没有开始打牌"
+		outUser.WriteMsg(result)
+		return errors.New("没有轮到当前玩家....")
+	}
+
 
 	//得到参数
 	outPai := InitMjPaiByIndex(int(paiKey))
