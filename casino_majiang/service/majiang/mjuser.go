@@ -932,8 +932,7 @@ func (u *MjUser) GetUserPengPaiInfo() string {
 
 	s := ""
 	for _, p := range u.GameData.HandPai.PengPais {
-		ii, _ := numUtils.Int2String(int32(p.GetIndex()))
-		s = s + ii + "-" + p.LogDes() + "\t "
+		s = s + p.LogDes() + "\t "
 	}
 
 	return s
@@ -947,8 +946,7 @@ func (u *MjUser) GetUserGnagPaiInfo() string {
 
 	s := ""
 	for _, p := range u.GameData.HandPai.GangPais {
-		ii, _ := numUtils.Int2String(int32(p.GetIndex()))
-		s = s + ii + "-" + p.LogDes() + "\t "
+		s = s + p.LogDes() + "\t "
 	}
 
 	return s
@@ -962,8 +960,7 @@ func (u *MjUser) GetUserHuPaiInfo() string {
 
 	s := ""
 	for _, p := range u.GameData.HandPai.HuPais {
-		ii, _ := numUtils.Int2String(int32(p.GetIndex()))
-		s = s + ii + "-" + p.LogDes() + "\t "
+		s = s + p.LogDes() + "\t "
 	}
 
 	return s
