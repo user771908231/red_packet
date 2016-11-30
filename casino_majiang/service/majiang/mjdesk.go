@@ -21,7 +21,6 @@ import (
 	"casino_common/utils/numUtils"
 	"casino_common/common/consts"
 	"casino_common/utils/rand"
-	"os/user"
 )
 
 //状态表示的是当前状态.
@@ -465,6 +464,7 @@ func (d *MjDesk) beginInit() error {
 	}
 	//发送游戏开始的协议...
 	log.T("发送游戏开始的协议..")
+	log.T("当前桌子共[%v]把，现在是第[%v]把游戏开始", d.GetTotalPlayCount(), d.GetCurrPlayCount())
 	open := newProto.NewGame_Opening()
 	*open.CurrPlayCount = d.GetCurrPlayCount()
 	d.BroadCastProto(open)
@@ -485,7 +485,7 @@ func (d *MjDesk) initCards() error {
 
 	d.AllMJPai = XiPai()
 	if d.IsLiangFang() {
-		//如果是三人两房 or 四人两房 or 两人两房 过滤掉万牌
+		//如果是两房 过滤掉万牌
 		d.AllMJPai = IgnoreFlower(d.AllMJPai, W)
 	}
 
@@ -1996,12 +1996,13 @@ func (d *MjDesk) GetCardTitle4WinCoinInfo(user *MjUser) string {
 	var huDes []string
 
 	var beiBaGangCount, beiAnGangCount, dianPaoCount, dianGangCount, beiZimoCount, count int32
-	var baGangCount, anGangCount, zimoCount int32
+	var baGangCount, anGangCount, zimoCount, mingGangCount int32
 	var beiChaHuaZhuCount, beiChaJiaoCount int32
 	//获取当局的统计信息
 	roundBean := user.GetStatisticsRoundBean(d.GetCurrPlayCount())
 	count = 0 //统计数大于count才显示
 
+	mingGangCount = roundBean.GetCountMingGang() //明杠
 	baGangCount = roundBean.GetCountBaGnag() //巴杠
 	beiBaGangCount = roundBean.GetCountBeiBaGang() //被巴杠
 	anGangCount = roundBean.GetCountAnGang() //暗杠
@@ -2015,8 +2016,12 @@ func (d *MjDesk) GetCardTitle4WinCoinInfo(user *MjUser) string {
 
 
 	switch {
+
 	case zimoCount > count :
 		huDes = append(huDes, fmt.Sprintf("自摸x%d", zimoCount))
+
+	case mingGangCount > count :
+		huDes = append(huDes, fmt.Sprintf("明杠x%d", mingGangCount))
 
 	case baGangCount > count :
 		huDes = append(huDes, fmt.Sprintf("巴杠x%d", baGangCount))
@@ -2388,8 +2393,35 @@ func (d *MjDesk) GetDeskMJInfo() string {
 		ii, _ := numUtils.Int2String(int32(p.GetIndex()))
 		s = s + " (" + is + "-" + ii + "-" + p.LogDes() + ")"
 		if (i + 1) % 27 == 0 {
-			s = s + " \n "
+
 		}
 	}
 	return s
+}
+
+func (d *MjDesk) GetTransferredRoomType() string {
+	ret := ""
+	switch mjproto.MJRoomType(d.GetMjRoomType()) {
+	case mjproto.MJRoomType_roomType_xueZhanDaoDi:
+		ret = "血战到底"
+	case mjproto.MJRoomType_roomType_sanRenLiangFang:
+		ret = "三人两房"
+	case mjproto.MJRoomType_roomType_siRenLiangFang:
+		ret = "四人两房"
+	case mjproto.MJRoomType_roomType_deYangMaJiang:
+		ret = "德阳麻将"
+	case mjproto.MJRoomType_roomType_daoDaoHu:
+		ret = "倒倒胡"
+	case mjproto.MJRoomType_roomType_xueLiuChengHe:
+		ret = "血流成河"
+	case mjproto.MJRoomType_roomType_liangRenLiangFang:
+		ret = "两人两房"
+	case mjproto.MJRoomType_roomType_liangRenSanFang:
+		ret = "两人三房"
+	case mjproto.MJRoomType_roomType_sanRenSanFang:
+		ret = "三人三房"
+	default:
+
+	}
+	return ret
 }
