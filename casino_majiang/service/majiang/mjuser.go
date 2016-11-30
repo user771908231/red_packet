@@ -968,6 +968,7 @@ func (u *MjUser) GetUserHuPaiInfo() string {
 	return s
 
 }
+
 func (u *MjUser) GetUserInPaiInfo() string {
 	if u.GameData == nil || u.GameData.HandPai == nil {
 		return "用户还没有牌"
@@ -976,6 +977,20 @@ func (u *MjUser) GetUserInPaiInfo() string {
 	return u.GameData.HandPai.InPai.LogDes()
 
 }
+
+func (u *MjUser) GetExchangedCardsInfo() string {
+	if u == nil || u.ExchangeCards == nil {
+		return "没有换的牌"
+	}
+
+	s := ""
+	for _, p := range u.ExchangeCards {
+		s = s + p.LogDes() + "\t "
+	}
+
+	return s
+}
+
 
 func (u *MjUser) GetTransferredStatus() string {
 	ret := ""

@@ -661,7 +661,7 @@ func (d *MjDesk) DingQue(userId uint32, color int32) error {
 	//回复定缺成功的消息
 	ack := newProto.NewGame_DingQue()
 	*ack.Header.UserId = userId
-	*ack.Color = -1
+	*ack.Color = color
 	*ack.UserId = userId
 	log.T("回复定缺的协议ack[%v]", ack)
 	d.BroadCastProto(ack)        //发送定缺成功的广播
@@ -2152,6 +2152,7 @@ func (d *MjDesk) ExchangeEnd() error {
 
 	//开始换牌
 	exchangeType := rand.Rand(0, 3)
+	exchangeType = int32(1)
 	if exchangeType == int32(mjproto.ExchangeType_EXCHANGE_TYPE_DUIJIA) {
 		exchangeCards(d.Users[0], d.Users[2])
 		exchangeCards(d.Users[1], d.Users[3])

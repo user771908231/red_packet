@@ -26,6 +26,7 @@
                 <th>网络状态</th>
                 <th>是否离开</th>
                 <th>缺</th>
+                <th>换牌</th>
                 <th>手牌</th>
                 <th>碰牌</th>
                 <th>杠牌</th>
@@ -69,6 +70,8 @@
                 {{else}}
                 <td></td>
                 {{end}}
+
+                <td>{{$user.GetExchangedCardsInfo}}</td>
 
                 <td>{{$user.GetUserPaiInfo}}</td>
                 <td>{{$user.GetUserPengPaiInfo}}</td>
