@@ -390,7 +390,6 @@ func (u *MjUser) BeginInit(round int32, banker uint32) error {
 	u.GameData = NewPlayerGameData()        //初始化一个空的麻将牌
 	*u.DingQue = false
 	*u.Exchanged = false
-	u.SetStatus(MJUSER_STATUS_SEATED)
 	if u.GetUserId() == banker {
 		*u.IsBanker = true
 	} else {
@@ -411,6 +410,7 @@ func (u *MjUser) BeginInit(round int32, banker uint32) error {
 
 //lottery之后，设置user为没有准备
 func (u *MjUser) AfterLottery() error {
+	u.SetStatus(MJUSER_STATUS_SEATED)
 	*u.Ready = false        //设置为没有准备的状态...
 	return nil
 }
@@ -418,7 +418,8 @@ func (u *MjUser) AfterLottery() error {
 func (u *MjUser) GetNickName() string {
 	user := userService.GetUserById(u.GetUserId())
 	if user == nil {
-		return "玩家不存在"
+		str, _ := numUtils.Uint2String(u.GetUserId())
+		return str
 	} else {
 		return user.GetNickName()
 	}
@@ -485,22 +486,23 @@ func (u *MjUser)ClearAgentGameData() {
 	UpdateSession(u.GetUserId(), MJUSER_SESSION_GAMESTATUS_NOGAME, 0, 0, "")
 }
 
-func (u *MjUser) BillToString() string {
-	result := ""
+func (u *MjUser) WinAmount2String() string {
+	ret := ""
 	if u.Bill != nil {
-		s1 := "玩家[%v]总共输赢[%v],下边是细节:\n"
-		s1 = fmt.Sprintf(s1, u.GetUserId(), u.Bill.GetWinAmount())
-		result += s1
-		for _, bb := range u.Bill.GetBills() {
-			if bb != nil {
-				s2 := "玩家[%v] 关联玩家[%v],牌[%v],分数[%v],类型[%v],描述[%v]\n"
-				s2 = fmt.Sprintf(s2, bb.GetUserId(), bb.GetOutUserId(), bb.GetPai().LogDes(), bb.GetAmount(), bb.GetType(), bb.GetDes())
-				result += s2
-			}
-		}
-
+		s := "玩家[%v]总共输赢[%v],下边是细节:"
+		s = fmt.Sprintf(s, u.GetUserId(), u.Bill.GetWinAmount())
+		ret += s
 	}
-	return result
+	return ret
+}
+
+func (u *MjUser) Bill2String(bb *BillBean) string {
+	ret := ""
+	if bb != nil {
+		ret = "玩家[%v] 关联玩家[%v],牌[%v],分数[%v],类型[%v],描述[%v]"
+		ret = fmt.Sprintf(ret, bb.GetUserId(), bb.GetOutUserId(), bb.GetPai().LogDes(), bb.GetAmount(), bb.GetType(), bb.GetDes())
+	}
+	return ret
 }
 
 //增加用户被巴杠的统计记录
@@ -990,7 +992,7 @@ func (u *MjUser) GetTransferredStatus() string {
 	case MJUSER_STATUS_READY:
 		ret = "已准备"
 	case MJUSER_STATUS_SEATED:
-		ret = ""
+		ret = "已坐下"
 	default:
 	}
 	return ret

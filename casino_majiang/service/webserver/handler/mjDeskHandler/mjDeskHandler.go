@@ -39,6 +39,7 @@ func GetUsers(ctx *macaron.Context) {
 			renderUser = append(renderUser, user)
 		}
 	}
+
 	ctx.Data["users"] = renderUser
 	ctx.Data["desk"] = desk
 	//输出到模板
