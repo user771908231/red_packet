@@ -417,12 +417,14 @@ func (u *MjUser) AfterLottery() error {
 //得到用户的昵称
 func (u *MjUser) GetNickName() string {
 	user := userService.GetUserById(u.GetUserId())
-	if user == nil {
+
+	name := user.GetNickName()
+
+	if name == "" {
 		str, _ := numUtils.Uint2String(u.GetUserId())
 		return str
-	} else {
-		return user.GetNickName()
 	}
+	return name
 }
 
 func (u *MjUser) AddBillAmount(amount int64) {
@@ -829,7 +831,7 @@ func (u *MjUser) IsYouJiao() bool {
 	//u.GameData.HandPai.GetCanHu()
 	for i := 0; i < 108; i++ {
 		pai := InitMjPaiByIndex(i)
-		log.T("user[%v] GetGameData:%v", u.GetUserId() ,u.GetGameData())
+		log.T("user[%v] GetGameData:%v", u.GetUserId(), u.GetGameData())
 		log.T("user[%v] GetHandPai:%v", u.GetUserId(), u.GetGameData().GetHandPai())
 		log.T("user[%v] GetQueFlower:%v", u, u.GetGameData().GetHandPai().GetQueFlower())
 		if pai.GetFlower() == u.GameData.HandPai.GetQueFlower() {

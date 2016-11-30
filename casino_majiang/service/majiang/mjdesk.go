@@ -2307,27 +2307,6 @@ func (d *MjDesk) GetLeftPaiCount(user *MjUser, mjPai *MJPai) int {
 	return count
 }
 
-//获取用户未知的牌 即未出现在台面上的牌
-func (d *MjDesk) GetHiddenPais(user *MjUser) []*MJPai {
-	//获取已知亮出台面的牌
-	displayPais := d.GetDisplayPais(user)
-	displayPaiCounts := GettPaiStats(displayPais)
-
-	//获取一副完整的牌
-	totalPais := XiPai()
-	totalPaiCounts := GettPaiStats(totalPais)
-
-	for i := 0; i < len(displayPaiCounts); i++ {
-		totalPaiCounts[i] -= displayPaiCounts[i]
-		if totalPaiCounts[i] < 0 {
-			//最低为零
-			totalPaiCounts[i] = 0
-		}
-	}
-
-	return GetPaisByCounts(totalPaiCounts)
-}
-
 //获取用户已知亮出台面的牌 包括自己手牌、自己和其他玩家碰杠牌、其他玩家outPais
 func (d *MjDesk) GetDisplayPais(user *MjUser) []*MJPai {
 	//获取所有玩家的亮出台面的牌 outPais + pengPais + gangPais
