@@ -141,6 +141,7 @@ func (d *DdzDesk) CheckOutPai(out *POutPokerPais) error {
 	}
 
 	if !right {
+		log.E("出的牌比上家的牌小，没有办法出牌")
 		return Error.NewError(-1, "出的牌比别人的牌小，没有办法出牌")
 	}
 

@@ -7,6 +7,7 @@ import (
 	"casino_majiang/msg/funcsInit"
 	"github.com/name5566/leaf/log"
 	"time"
+	"fmt"
 )
 
 /**
@@ -79,7 +80,7 @@ func IsQuePai(mjPai *majiang.MJPai) bool {
 	if majiang.W == mjPai.GetFlower() {
 		return true
 	}
-	return  false
+	return false
 }
 
 func IsContainQue(p *majiang.MJHandPai) bool {
@@ -247,17 +248,23 @@ func tCanHuPai() {
 
 func tPinghu() {
 	//isZimo := true
-	rfan, rscore, rhuCardStr := majiang.GetHuScore(getPinghu(), getIsZimo() ,false, getHuPaiType(), *getRoomInfo(), getMjDesk())
+	ca, cb := majiang.CanHuPai(getPinghu())
+	fmt.Println(ca, cb)
+
+	desk := getMjDesk()
+
+	rfan, rscore, rhuCardStr, _ := majiang.GetHuScore(getPinghu(), false, false, getHuPaiType(), *getRoomInfo(), desk)
 	if rfan != majiang.FAN_PINGHU {
 		log.Debug("error: 平胡")
 	}
 	log.Debug("平胡: 番数[%v],得分[%v],描述[%v]", rfan, rscore, rhuCardStr)
+
 }
 
 func tDuiDuihu() {
 	isZimo := true
-	var hupaiType mjproto.HuPaiType = 1;
-	rfan, rscore, rhuCardStr := majiang.GetHuScore(getDuiduihu(), isZimo,false, hupaiType, *getRoomInfo(), nil)
+	var hupaiType mjproto.HuType = 1;
+	rfan, rscore, rhuCardStr, _ := majiang.GetHuScore(getDuiduihu(), isZimo, false, hupaiType, *getRoomInfo(), nil)
 	if rfan != majiang.FAN_DADUIZI {
 		log.Debug("error: 对对胡")
 	}
@@ -266,8 +273,8 @@ func tDuiDuihu() {
 
 func tQingyise() {
 	isZimo := true
-	var hupaiType mjproto.HuPaiType = 1;
-	rfan, rscore, rhuCardStr := majiang.GetHuScore(getQingyise(), isZimo,false, hupaiType, *getRoomInfo(), nil)
+	var hupaiType mjproto.HuType = 1;
+	rfan, rscore, rhuCardStr, _ := majiang.GetHuScore(getQingyise(), isZimo, false, hupaiType, *getRoomInfo(), nil)
 	if rfan != majiang.FAN_QINGYISE {
 		log.Debug("error: 清一色")
 	}
@@ -311,8 +318,8 @@ func tDaiyaojiu() {
 
 func tQidui() {
 	isZimo := true
-	var hupaiType mjproto.HuPaiType = 1;
-	rfan, rscore, rhuCardStr := majiang.GetHuScore(getQidui(), isZimo,false, hupaiType, *getRoomInfo(), nil)
+	var hupaiType mjproto.HuType = 1;
+	rfan, rscore, rhuCardStr, _ := majiang.GetHuScore(getQidui(), isZimo, false, hupaiType, *getRoomInfo(), nil)
 	if rfan != majiang.FAN_QIDUI {
 		log.Debug("error: 七对")
 	}
@@ -321,8 +328,8 @@ func tQidui() {
 
 func tQingdui() {
 	isZimo := true
-	var hupaiType mjproto.HuPaiType = 1;
-	rfan, rscore, rhuCardStr := majiang.GetHuScore(getQingdui(), isZimo,false, hupaiType, *getRoomInfo(), nil)
+	var hupaiType mjproto.HuType = 1;
+	rfan, rscore, rhuCardStr, _ := majiang.GetHuScore(getQingdui(), isZimo, false, hupaiType, *getRoomInfo(), nil)
 	if rfan != majiang.FAN_QINGDUI {
 		log.Debug("error: 清对")
 	}
@@ -341,8 +348,8 @@ func tQingdui() {
 
 func tJiangdui() {
 	isZimo := true
-	var hupaiType mjproto.HuPaiType = 1;
-	rfan, rscore, rhuCardStr := majiang.GetHuScore(getJiangdui(), isZimo,false, hupaiType, *getRoomInfo(), nil)
+	var hupaiType mjproto.HuType = 1;
+	rfan, rscore, rhuCardStr, _ := majiang.GetHuScore(getJiangdui(), isZimo, false, hupaiType, *getRoomInfo(), nil)
 	if rfan != majiang.FAN_JIANGDUI {
 		log.Debug("error: 将对")
 	}
@@ -351,8 +358,8 @@ func tJiangdui() {
 
 func tLongqidui() {
 	isZimo := true
-	var hupaiType mjproto.HuPaiType = 1;
-	rfan, rscore, rhuCardStr := majiang.GetHuScore(getLongqidui(), isZimo,false, hupaiType, *getRoomInfo(), nil)
+	var hupaiType mjproto.HuType = 1;
+	rfan, rscore, rhuCardStr, _ := majiang.GetHuScore(getLongqidui(), isZimo, false, hupaiType, *getRoomInfo(), nil)
 	if rfan != majiang.FAN_LONGQIDUI {
 		log.Debug("error: 龙七对")
 	}
@@ -361,8 +368,8 @@ func tLongqidui() {
 
 func tQingqidui() {
 	isZimo := true
-	var hupaiType mjproto.HuPaiType = 1;
-	rfan, rscore, rhuCardStr := majiang.GetHuScore(getQingqidui(), isZimo,false, hupaiType, *getRoomInfo(), nil)
+	var hupaiType mjproto.HuType = 1;
+	rfan, rscore, rhuCardStr, _ := majiang.GetHuScore(getQingqidui(), isZimo, false, hupaiType, *getRoomInfo(), nil)
 	if rfan != majiang.FAN_QINGQIDUI {
 		log.Debug("error: 清七对")
 	}
@@ -371,8 +378,8 @@ func tQingqidui() {
 
 func tQingyaojiu() {
 	isZimo := true
-	var hupaiType mjproto.HuPaiType = 1;
-	rfan, rscore, rhuCardStr := majiang.GetHuScore(getQingyaojiu(), isZimo,false, hupaiType, *getRoomInfo(), nil)
+	var hupaiType mjproto.HuType = 1;
+	rfan, rscore, rhuCardStr, _ := majiang.GetHuScore(getQingyaojiu(), isZimo, false, hupaiType, *getRoomInfo(), nil)
 	if rfan != majiang.FAN_QINGYAOJIU {
 		log.Debug("error: 清幺九")
 	}
@@ -381,8 +388,8 @@ func tQingyaojiu() {
 
 func tQinglongqidui() {
 	isZimo := true
-	var hupaiType mjproto.HuPaiType = 1;
-	rfan, rscore, rhuCardStr := majiang.GetHuScore(getQinglongqidui(), isZimo,false, hupaiType, *getRoomInfo(), nil)
+	var hupaiType mjproto.HuType = 1;
+	rfan, rscore, rhuCardStr, _ := majiang.GetHuScore(getQinglongqidui(), isZimo, false, hupaiType, *getRoomInfo(), nil)
 	if rfan != majiang.FAN_QINGLONGQIDUI {
 		log.Debug("error: tQinglongqidui")
 	}
@@ -401,9 +408,9 @@ func getMjDesk() *majiang.MjDesk {
 
 }
 
-func getHuPaiType() mjproto.HuPaiType {
-	var hupaiType mjproto.HuPaiType
-	 hupaiType = mjproto.HuPaiType_H_TianHu //天胡
+func getHuPaiType() mjproto.HuType {
+	var hupaiType mjproto.HuType
+	hupaiType = mjproto.HuType_H_TianHu //天胡
 	return hupaiType
 }
 
@@ -491,52 +498,57 @@ func getMjHandPai(inPaiDes string, pengPaisDes []string, gangPaisDes []string, p
 }
 
 func getNoHu() *majiang.MJHandPai {
-	inPaiDes	:= "T_4"
-	paisDes		:= []string{"S_6", "S_7", "S_8", "T_7", "T_7", "T_9", "T_4", "T_4", "T_4"}
-	pengPaisDes	:= []string{"T_1", "T_1", "T_1"}
-	gangPaisDes	:= []string{"T_3", "T_3", "T_3", "T_3"}
+	inPaiDes := "T_4"
+	paisDes := []string{"S_6", "S_7", "S_8", "T_7", "T_7", "T_9", "T_4", "T_4", "T_4"}
+	pengPaisDes := []string{"T_1", "T_1", "T_1"}
+	gangPaisDes := []string{"T_3", "T_3", "T_3", "T_3"}
 
 	return getMjHandPai(inPaiDes, pengPaisDes, gangPaisDes, paisDes)
 }
 
 //平胡 1番
 func getPinghu() *majiang.MJHandPai {
-	inPaiDes	:= "T_2"
+	inPaiDes := "W_9"
 	//paisDes		:= []string{"S_6", "S_7", "S_8", "T_7", "T_8", "T_9", "T_4", "T_4", "T_4", "T_2"}
-	paisDes		:= []string{"S_6", "S_7", "S_8", "T_7", "T_7", "T_9", "W_4", "W_4", "W_4", "T_2"}
-	pengPaisDes	:= []string{"T_1", "T_1", "T_1"}
-	gangPaisDes	:= []string{"T_3", "T_3", "T_3", "T_3"}
+	//paisDes := []string{"S_6", "S_7", "S_8", "T_7", "T_7", "T_9", "W_4", "W_4", "W_4", "T_2"}
+	paisDes := []string{"W_7", "W_7", "W_8", "W_8", "W_9", "T_6", "T_6"}
+
+	pengPaisDes := []string{"T_1", "T_1", "T_1"}
+	gangPaisDes := []string{"T_3", "T_3", "T_3", "T_3"}
 
 	return getMjHandPai(inPaiDes, pengPaisDes, gangPaisDes, paisDes)
 
 }
 
 //对对胡 2番
-func getDuiduihu() *majiang.MJHandPai {
-	inPaiDes	:= "T_4" //4T
-	paisDes		:= []string{"S_6", "S_6", "S_6", "T_7", "T_7", "T_7", "T_4"} //666S 777T 4T
-	pengPaisDes	:= []string{"T_2", "T_2", "T_2"} //111T 222T
-	gangPaidsDes	:= []string{"T_1", "T_1", "T_1", "T_1"}
+func
+getDuiduihu() *majiang.MJHandPai {
+	inPaiDes := "T_4" //4T
+	paisDes := []string{"S_6", "S_6", "S_6", "T_7", "T_7", "T_7", "T_4"} //666S 777T 4T
+	pengPaisDes := []string{"T_2", "T_2", "T_2"} //111T 222T
+	gangPaidsDes := []string{"T_1", "T_1", "T_1", "T_1"}
 	return getMjHandPai(inPaiDes, pengPaisDes, gangPaidsDes, paisDes)
 }
 
 //清一色 3番
-func getQingyise() *majiang.MJHandPai {
-	inPaiDes	:= "T_9" //4T
-	paisDes		:= []string{"T_2", "T_3", "T_4", "T_5", "T_6", "T_7", "T_4", "T_4", "T_9", "T_9"} //123T 456T 4T
-	gangPaisDes	:= []string{"T_1", "T_1", "T_1", "T_1"}
+func
+getQingyise() *majiang.MJHandPai {
+	inPaiDes := "T_9" //4T
+	paisDes := []string{"T_2", "T_3", "T_4", "T_5", "T_6", "T_7", "T_4", "T_4", "T_9", "T_9"} //123T 456T 4T
+	gangPaisDes := []string{"T_1", "T_1", "T_1", "T_1"}
 	return getMjHandPai(inPaiDes, nil, gangPaisDes, paisDes)
 }
 
 //带幺九 3番
-func getDaiyaojiu() *majiang.MJHandPai {
+func
+getDaiyaojiu() *majiang.MJHandPai {
 	//inPaiDes	:= "S_1" //1S
 	//paisDes		:= []string{"S_1", "S_2", "S_3", "S_9", "S_9", "S_9", "S_1"} //123S 999S 1S
 	//pengPaisDes	:= []string{"T_1", "T_1", "T_1", "T_9", "T_9", "T_9"} //111T 999T
 
-	inPaiDes	:= "S_1" //1S
-	paisDes		:= []string{"S_1", "S_1", "S_2", "S_2", "S_2", "S_3", "S_3", "S_3"}
-	pengPaisDes	:= []string{"T_1", "T_1", "T_1", "T_9", "T_9", "T_9"}
+	inPaiDes := "S_1" //1S
+	paisDes := []string{"S_1", "S_1", "S_2", "S_2", "S_2", "S_3", "S_3", "S_3"}
+	pengPaisDes := []string{"T_1", "T_1", "T_1", "T_9", "T_9", "T_9"}
 
 	//inPaiDes	:= "S_1" //1S
 	//paisDes		:= []string{"S_1", "S_2", "S_3", "S_8", "S_8", "S_8", "S_1"} //123S 999S 1S
@@ -546,9 +558,10 @@ func getDaiyaojiu() *majiang.MJHandPai {
 }
 
 //七对 3番
-func getQidui() *majiang.MJHandPai {
-	inPaiDes	:= "S_6" //6S
-	paisDes		:= []string{"S_1", "S_1", "S_2", "S_2", "S_4", "S_4", "T_9", "T_9", "T_7", "T_7", "S_7", "S_7", "S_6"} //11S 22S 44S 99T 77T 6S
+func
+getQidui() *majiang.MJHandPai {
+	inPaiDes := "S_6" //6S
+	paisDes := []string{"S_1", "S_1", "S_2", "S_2", "S_4", "S_4", "T_9", "T_9", "T_7", "T_7", "S_7", "S_7", "S_6"} //11S 22S 44S 99T 77T 6S
 	return getMjHandPai(inPaiDes, nil, nil, paisDes)
 }
 
@@ -560,48 +573,54 @@ func getQidui() *majiang.MJHandPai {
 //}
 
 //清对 4番
-func getQingdui() *majiang.MJHandPai {
-	inPaiDes	:= "T_9" //9T
-	paisDes		:= []string{"T_5", "T_5", "T_5", "T_7", "T_7", "T_7", "T_9"} //555T 777T 9T
-	pengPaisDes	:= []string{"T_1", "T_1", "T_1", "T_3", "T_3", "T_3"} //111T 333T
+func
+getQingdui() *majiang.MJHandPai {
+	inPaiDes := "T_9" //9T
+	paisDes := []string{"T_5", "T_5", "T_5", "T_7", "T_7", "T_7", "T_9"} //555T 777T 9T
+	pengPaisDes := []string{"T_1", "T_1", "T_1", "T_3", "T_3", "T_3"} //111T 333T
 	return getMjHandPai(inPaiDes, pengPaisDes, nil, paisDes)
 }
 
 //将对 4番
-func getJiangdui() *majiang.MJHandPai {
-	inPaiDes	:= "S_2" //2S
-	paisDes		:= []string{"S_5", "S_5", "S_5", "S_8", "S_8", "S_8", "S_2"} //555S 888S 2S
-	pengPaisDes	:= []string{"T_2", "T_2", "T_2", "T_5", "T_5", "T_5"} //222T 555T
-	gangPaisDes	:= []string{"T_8", "T_8", "T_8", "T_8"}
+func
+getJiangdui() *majiang.MJHandPai {
+	inPaiDes := "S_2" //2S
+	paisDes := []string{"S_5", "S_5", "S_5", "S_8", "S_8", "S_8", "S_2"} //555S 888S 2S
+	pengPaisDes := []string{"T_2", "T_2", "T_2", "T_5", "T_5", "T_5"} //222T 555T
+	gangPaisDes := []string{"T_8", "T_8", "T_8", "T_8"}
 	return getMjHandPai(inPaiDes, pengPaisDes, gangPaisDes, paisDes)
 }
 
 //龙七对 5番
-func getLongqidui() *majiang.MJHandPai {
-	inPaiDes	:= "T_7" //7T
-	paisDes		:= []string{"S_1", "S_1", "S_2", "S_2", "S_4", "S_4", "T_9", "T_9", "T_6", "T_6", "T_7", "T_7", "T_7"} //11S 22S 44S 99T 777T
+func
+getLongqidui() *majiang.MJHandPai {
+	inPaiDes := "T_7" //7T
+	paisDes := []string{"S_1", "S_1", "S_2", "S_2", "S_4", "S_4", "T_9", "T_9", "T_6", "T_6", "T_7", "T_7", "T_7"} //11S 22S 44S 99T 777T
 	return getMjHandPai(inPaiDes, nil, nil, paisDes)
 }
 
 //清七对 5番
-func getQingqidui() *majiang.MJHandPai {
-	inPaiDes	:= "S_7" //7S
-	paisDes		:= []string{"S_1", "S_1", "S_2", "S_2", "S_3", "S_3", "S_5", "S_5", "S_6", "S_6", "S_9", "S_9", "S_7"} //11S 22S 55S 66S 7S
+func
+getQingqidui() *majiang.MJHandPai {
+	inPaiDes := "S_7" //7S
+	paisDes := []string{"S_1", "S_1", "S_2", "S_2", "S_3", "S_3", "S_5", "S_5", "S_6", "S_6", "S_9", "S_9", "S_7"} //11S 22S 55S 66S 7S
 	return getMjHandPai(inPaiDes, nil, nil, paisDes)
 }
 
 
 //清幺九 5番
-func getQingyaojiu() *majiang.MJHandPai {
-	inPaiDes	:= "S_4" //4S
-	paisDes	:= []string{"S_1", "S_2", "S_3", "S_1", "S_2", "S_3", "S_1", "S_2", "S_3", "S_4"} //123S 123S 123S 4S
-	pengPaisDes	:= []string{"S_9", "S_9", "S_9"} //999S
+func
+getQingyaojiu() *majiang.MJHandPai {
+	inPaiDes := "S_4" //4S
+	paisDes := []string{"S_1", "S_2", "S_3", "S_1", "S_2", "S_3", "S_1", "S_2", "S_3", "S_4"} //123S 123S 123S 4S
+	pengPaisDes := []string{"S_9", "S_9", "S_9"} //999S
 	return getMjHandPai(inPaiDes, pengPaisDes, nil, paisDes)
 }
 
 //清龙七对 6番
-func getQinglongqidui() *majiang.MJHandPai {
-	inPaiDes	:= "T_7" //7T
-	paisDes		:= []string{"T_1", "T_1", "T_2", "T_2", "T_3", "T_3", "T_4", "T_4", "T_5", "T_5", "T_7", "T_7", "T_7"} //11T 22T 44T 777T
+func
+getQinglongqidui() *majiang.MJHandPai {
+	inPaiDes := "T_7" //7T
+	paisDes := []string{"T_1", "T_1", "T_2", "T_2", "T_3", "T_3", "T_4", "T_4", "T_5", "T_5", "T_7", "T_7", "T_7"} //11T 22T 44T 777T
 	return getMjHandPai(inPaiDes, nil, nil, paisDes)
 }

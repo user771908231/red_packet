@@ -18,6 +18,7 @@ func init() {
 	e := sys.SysInit(
 		conf.Server.RedisAddr,
 		"test",
+		conf.Server.LogPath,
 		"majaing",
 		conf.Server.MongoIp,
 		conf.Server.MongoPort,
