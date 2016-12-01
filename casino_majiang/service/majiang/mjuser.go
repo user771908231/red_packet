@@ -681,10 +681,11 @@ func (u *MjUser) AddStatisticsCountBeiBaGang(round int32) error {
 		return Error.NewFailError("没有找到统计的roundBean，无法统计")
 	}
 
-	log.T("用户[%v] 被巴杠+1, 共被巴杠[%v]", u.GetUserId(), roundBean.GetCountBeiBaGang())
 	atomic.AddInt32(roundBean.CountBeiBaGang, 1) //单局
 
 	atomic.AddInt32(u.Statisc.CountBeiBaGang, 1) //汇总
+
+	log.T("用户[%v] 被巴杠+1, 当局被巴杠[%v]次, 汇总被巴杠[%v]次", u.GetUserId(), roundBean.GetCountBeiBaGang(), u.Statisc.GetCountBeiBaGang())
 	return nil
 }
 
@@ -696,10 +697,11 @@ func (u *MjUser) AddStatisticsCountBaGang(round int32) error {
 		return Error.NewFailError("没有找到统计的roundBean，无法统计")
 	}
 
-	log.T("用户[%v] 巴杠+1, 共巴杠[%v]", u.GetUserId(), roundBean.GetCountBaGnag())
 	atomic.AddInt32(roundBean.CountBaGnag, 1) //单局
 
 	atomic.AddInt32(u.Statisc.CountBaGang, 1) //汇总
+
+	log.T("用户[%v] 巴杠+1, 当局巴杠[%v]次, 汇总巴杠[%v]次", u.GetUserId(), roundBean.GetCountBaGnag(), u.Statisc.GetCountBaGang())
 	return nil
 }
 
@@ -711,10 +713,11 @@ func (u *MjUser) AddStatisticsCountBeiAnGang(round int32) error {
 		return Error.NewFailError("没有找到统计的roundBean，无法统计")
 	}
 
-	log.T("用户[%v] 被暗杠+1, 共被暗杠[%v]", u.GetUserId(), roundBean.GetCountBeiAnGang())
 	atomic.AddInt32(roundBean.CountBeiAnGang, 1) //单局
 
 	atomic.AddInt32(u.Statisc.CountBeiAnGang, 1) //汇总
+
+	log.T("用户[%v] 被暗杠+1, 当局被暗杠[%v]次, 汇总被暗杠[%v]次", u.GetUserId(), roundBean.GetCountBeiAnGang(), u.Statisc.GetCountBeiAnGang())
 	return nil
 }
 
@@ -726,10 +729,11 @@ func (u *MjUser) AddStatisticsCountAnGang(round int32) error {
 		return Error.NewFailError("没有找到统计的roundBean，无法统计")
 	}
 
-	log.T("用户[%v] 暗杠+1, 共暗杠[%v]", u.GetUserId(), roundBean.GetCountAnGang())
 	atomic.AddInt32(roundBean.CountAnGang, 1) //单局
 
 	atomic.AddInt32(u.Statisc.CountAnGang, 1) //汇总
+
+	log.T("用户[%v] 暗杠+1, 当局暗杠[%v]次, 汇总暗杠[%v]次", u.GetUserId(), roundBean.GetCountAnGang(), u.Statisc.GetCountAnGang())
 	return nil
 }
 
@@ -741,10 +745,11 @@ func (u *MjUser) AddStatisticsCountMingGang(round int32) error {
 		return Error.NewFailError("没有找到统计的roundBean，无法统计")
 	}
 
-	log.T("用户[%v] 明杠+1, 共明杠[%v]", u.GetUserId(), roundBean.GetCountMingGang())
 	atomic.AddInt32(roundBean.CountMingGang, 1) //单局
 
 	atomic.AddInt32(u.Statisc.CountMingGang, 1) //汇总
+
+	log.T("用户[%v] 明杠+1, 当局明杠[%v]次, 汇总明杠[%v]次", u.GetUserId(), roundBean.GetCountMingGang(), u.Statisc.GetCountMingGang())
 	return nil
 }
 
@@ -756,10 +761,11 @@ func (u *MjUser) AddStatisticsCountDianGang(round int32) error {
 		return Error.NewFailError("没有找到统计的roundBean，无法统计")
 	}
 
-	log.T("用户[%v] 点杠+1, 共点杠[%v]", u.GetUserId(), roundBean.GetCountDianGang())
 	atomic.AddInt32(roundBean.CountDianGang, 1) //单局
 
 	atomic.AddInt32(u.Statisc.CountDianGang, 1) //汇总
+
+	log.T("用户[%v] 点杠+1, 当局点杠[%v]次, 汇总点杠[%v]次", u.GetUserId(), roundBean.GetCountDianGang(), u.Statisc.GetCountDianGang())
 	return nil
 }
 
@@ -771,10 +777,11 @@ func (u *MjUser) AddStatisticsCountHu(round int32) error {
 		return Error.NewFailError("没有找到统计的roundBean，无法统计")
 	}
 
-	log.T("用户[%v] 胡+1, 共胡[%v]", u.GetUserId(), roundBean.GetCountHu())
 	atomic.AddInt32(roundBean.CountHu, 1) //单局
 
 	atomic.AddInt32(u.Statisc.CountHu, 1) //汇总
+
+	log.T("用户[%v] 胡+1, 当局胡[%v]次, 汇总胡[%v]次", u.GetUserId(), roundBean.GetCountHu(), u.Statisc.GetCountHu())
 	return nil
 }
 
@@ -786,10 +793,11 @@ func (u *MjUser) AddStatisticsCountDianPao(round int32) error {
 		return Error.NewFailError("没有找到统计的roundBean，无法统计")
 	}
 
-	log.T("用户[%v] 点炮+1, 共点炮[%v]", u.GetUserId(), roundBean.GetCountDianPao())
 	atomic.AddInt32(roundBean.CountDianPao, 1) //单局
 
 	atomic.AddInt32(u.Statisc.CountDianPao, 1) //汇总
+
+	log.T("用户[%v] 点炮+1, 当局点炮[%v]次, 汇总点炮[%v]次", u.GetUserId(), roundBean.GetCountDianPao(), u.Statisc.GetCountDianPao())
 	return nil
 }
 
@@ -801,10 +809,11 @@ func (u *MjUser) AddStatisticsCountBeiZiMo(round int32) error {
 		return Error.NewFailError("没有找到统计的roundBean，无法统计")
 	}
 
-	log.T("用户[%v] 被自摸+1, 共被自摸[%v]", u.GetUserId(), roundBean.GetCountBeiZiMo())
 	atomic.AddInt32(roundBean.CountBeiZiMo, 1) //单局
 
 	atomic.AddInt32(u.Statisc.CountBeiZiMo, 1) //汇总
+
+	log.T("用户[%v] 被自摸+1, 当局被自摸[%v]次, 汇总被自摸[%v]次", u.GetUserId(), roundBean.GetCountBeiZiMo(), u.Statisc.GetCountBeiZiMo())
 	return nil
 }
 
@@ -816,10 +825,11 @@ func (u *MjUser) AddStatisticsCountZiMo(round int32) error {
 		return Error.NewFailError("没有找到统计的roundBean，无法统计")
 	}
 
-	log.T("用户[%v] 自摸+1, 共自摸[%v]", u.GetUserId(), roundBean.GetCountZiMo())
 	atomic.AddInt32(roundBean.CountZiMo, 1) //单局
 
 	atomic.AddInt32(u.Statisc.CountZiMo, 1) //汇总
+
+	log.T("用户[%v] 自摸+1, 当局自摸[%v]次, 汇总自摸[%v]次", u.GetUserId(), roundBean.GetCountZiMo(), u.Statisc.GetCountZiMo())
 	return nil
 }
 
@@ -831,10 +841,11 @@ func (u *MjUser) AddStatisticsCountChaDaJiao(round int32) error {
 		return Error.NewFailError("没有找到统计的roundBean，无法统计")
 	}
 
-	log.T("用户[%v] 查大叫+1, 共查大叫[%v]", u.GetUserId(), roundBean.GetCountChaDaJiao())
 	atomic.AddInt32(roundBean.CountChaDaJiao, 1) //单局
 
 	atomic.AddInt32(u.Statisc.CountChaDaJiao, 1) //汇总
+
+	log.T("用户[%v] 查大叫+1, 当局查大叫[%v]次, 汇总查大叫[%v]次", u.GetUserId(), roundBean.GetCountChaDaJiao(), u.Statisc.GetCountChaDaJiao())
 	return nil
 }
 
@@ -846,10 +857,11 @@ func (u *MjUser) AddStatisticsCountBeiChaJiao(round int32) error {
 		return Error.NewFailError("没有找到统计的roundBean，无法统计")
 	}
 
-	log.T("用户[%v] 被查叫+1, 共被查叫[%v]", u.GetUserId(), roundBean.GetCountBeiChaJiao())
 	atomic.AddInt32(roundBean.CountBeiChaJiao, 1) //单局
 
 	atomic.AddInt32(u.Statisc.CountBeiChaJiao, 1) //汇总
+
+	log.T("用户[%v] 被查大叫+1, 当局被查叫[%v]次, 汇总被查叫[%v]次", u.GetUserId(), roundBean.GetCountBeiChaJiao(), u.Statisc.GetCountBeiChaJiao())
 	return nil
 }
 
@@ -861,10 +873,11 @@ func (u *MjUser) AddStatisticsCountChaHuaZhu(round int32) error {
 		return Error.NewFailError("没有找到统计的roundBean，无法统计")
 	}
 
-	log.T("用户[%v] 查花猪+1, 共查花猪[%v]", u.GetUserId(), roundBean.GetCountChaHuaZhu())
 	atomic.AddInt32(roundBean.CountChaHuaZhu, 1) //单局
 
 	atomic.AddInt32(u.Statisc.CountChaHuaZhu, 1) //汇总
+
+	log.T("用户[%v] 查花猪+1, 当局查花猪[%v]次, 汇总查花猪[%v]次", u.GetUserId(), roundBean.GetCountChaHuaZhu(), u.Statisc.GetCountChaHuaZhu())
 	return nil
 }
 
@@ -876,10 +889,11 @@ func (u *MjUser) AddStatisticsCountBeiChaHuaZhu(round int32) error {
 		return Error.NewFailError("没有找到统计的roundBean，无法统计")
 	}
 
-	log.T("用户[%v] 被查花猪+1, 共被查花猪[%v]", u.GetUserId(), roundBean.GetCountBeiChaHuaZhu())
 	atomic.AddInt32(roundBean.CountBeiChaHuaZhu, 1) //单局
 
 	atomic.AddInt32(u.Statisc.CountBeiChaHuaZhu, 1) //汇总
+
+	log.T("用户[%v] 被查花猪+1, 当局被查花猪[%v]次, 汇总被查花猪[%v]次", u.GetUserId(), roundBean.GetCountBeiChaHuaZhu(), u.Statisc.GetCountBeiChaHuaZhu())
 	return nil
 }
 
