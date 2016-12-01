@@ -337,7 +337,6 @@ func (d *MjDesk)updateRedis() error {
 	}
 }
 
-
 func (d *MjDesk) GetUserIds() string {
 	ids := ""
 	for _, user := range d.GetUsers() {
@@ -407,7 +406,6 @@ func (d *MjDesk) GetDisplayPais(user *MjUser) []*MJPai {
 	displayPais = append(displayPais, userHandPai.Pais...)
 	return displayPais
 }
-
 
 func (d *MjDesk) GetTransferredStatus() string {
 	ret := ""
@@ -532,12 +530,19 @@ func (d *MjDesk) GetClientGameStatus() int32 {
 /**
 	needInpai ： 是否需要把inpai去得到
  */
-func (d *MjDesk) GetPlayerInfo(receiveUserId uint32, needInpai bool) []*mjproto.PlayerInfo {
+func (d *MjDesk) GetPlayerInfo(receiveUserId uint32, isDingQue bool) []*mjproto.PlayerInfo {
 	var players []*mjproto.PlayerInfo
 	for _, user := range d.Users {
 		if user != nil {
 			showHand := (user.GetUserId() == receiveUserId)                //是否需要显示手牌
 			isOwner := ( d.GetOwner() == user.GetUserId())                //判断是否是房主
+
+			//定缺的状态，并且用户是 用户是庄，那么就显示inpai
+			needInpai := false
+			if isDingQue && user.GetUserId() == d.GetBanker() {
+				needInpai = true
+
+			}
 			info := user.GetPlayerInfo(showHand, needInpai)
 			*info.IsOwner = isOwner
 			players = append(players, info)
@@ -561,7 +566,7 @@ func (d *MjDesk) GetPlayerNum() int32 {
 func (d *MjDesk) GetGame_SendGameInfo(receiveUserId uint32, isReconnect mjproto.RECONNECT_TYPE) *mjproto.Game_SendGameInfo {
 
 	//如果是短线重连，并且玩家还没有换三张，或者处于定缺的状态，那么需要发送庄家的inpai
-	needInpai := false
+	isDingQue := false
 	recUser := d.GetUserByUserId(receiveUserId)
 	/**
 		1,当前阶段处于定缺的阶段
@@ -569,15 +574,14 @@ func (d *MjDesk) GetGame_SendGameInfo(receiveUserId uint32, isReconnect mjproto.
 		3，此时需要发送 inpai
 	 */
 	if isReconnect == mjproto.RECONNECT_TYPE_RECONNECT &&
-		( d.IsExchange() || ( d.IsDingQue() && recUser.IsNotDingQue() )) &&
-		d.GetBanker() == receiveUserId {
-		needInpai = true
+		( d.IsExchange() || ( d.IsDingQue() && recUser.IsNotDingQue() )) {
+		isDingQue = true
 	}
 
 	gameInfo := newProto.NewGame_SendGameInfo()
 	gameInfo.DeskGameInfo = d.GetDeskGameInfo()
 	*gameInfo.SenderUserId = receiveUserId
-	gameInfo.PlayerInfo = d.GetPlayerInfo(receiveUserId, needInpai)
+	gameInfo.PlayerInfo = d.GetPlayerInfo(receiveUserId, isDingQue)
 	*gameInfo.IsReconnect = isReconnect
 	return gameInfo
 
