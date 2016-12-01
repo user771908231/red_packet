@@ -90,7 +90,30 @@ func (d *DdzDesk) HLQiangDiZhu(userId uint32, qiang bool) error {
 		d.setQingDizhuValue(d.GetQingDizhuValue() * 2)//这里还需要计算低分
 		user.SetQiangDiZhuStatus(DDZUSER_QIANGDIZHU_STATUS_QIANG)
 	} else {
+		//不抢地主
 		user.SetQiangDiZhuStatus(DDZUSER_QIANGDIZHU_STATUS_BUQIANG)
+
+		//如果没有没操作过的人，并且抢或者叫的人是1
+		countYao := 0
+		countBuYao := 0
+		d.EveryUserDoSomething(func(u *DdzUser) error {
+			if u != nil {
+				if u.IsQiangDiZhuQiang() || u.IsQiangDiZhuJiao() {
+					//抢或者叫的人数
+					countYao ++
+				} else if u.IsQiangDiZhuBuJiao() || u.IsQiangDiZhuBuQiang() {
+					//不抢或者不叫的人数
+					countBuYao ++
+				}
+			}
+
+			return nil
+		})
+
+		//如果要的人是1个，不要的人是两个，那么叫地主的流程结束
+		if countYao == 1 && countBuYao == 2 {
+			end = true
+		}
 	}
 
 	//广播抢地主

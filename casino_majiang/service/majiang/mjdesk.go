@@ -10,7 +10,6 @@ import (
 	"time"
 	"casino_majiang/conf/config"
 	"strings"
-	"sync/atomic"
 	"casino_majiang/gamedata/model"
 	"casino_majiang/service/lock"
 	"fmt"
@@ -18,7 +17,6 @@ import (
 	"casino_common/utils/db"
 	"casino_common/utils/timeUtils"
 	"casino_common/common/Error"
-	"casino_common/utils/numUtils"
 	"casino_common/common/consts"
 	"casino_common/utils/rand"
 )
@@ -221,97 +219,6 @@ func (d *MjDesk) GetDeskGameInfo() *mjproto.DeskGameInfo {
 }
 
 
-/**
-
-MJDESK_STATUS_CREATED = 1 //刚刚创建
-MJDESK_STATUS_READY = 2//正在准备
-MJDESK_STATUS_ONINIT = 3//准备完成之后，desk初始化数据
-MJDESK_STATUS_EXCHANGE = 4//desk初始化完成之后，告诉玩家可以开始换牌
-MJDESK_STATUS_DINGQUE = 5//换牌结束之后，告诉玩家可以开始定缺
-MJDESK_STATUS_RUNNING = 6 //定缺之后，开始打牌
-MJDESK_STATUS_LOTTERY = 7 //结算
-MJDESK_STATUS_END = 8//一局结束
- */
-
-func (d *MjDesk) GetClientGameStatus() int32 {
-	var gameStatus mjproto.DeskGameStatus = mjproto.DeskGameStatus_INIT//默认状态
-	switch d.GetStatus() {
-	case MJDESK_STATUS_CREATED:
-		gameStatus = mjproto.DeskGameStatus_INIT
-	case MJDESK_STATUS_READY:
-		gameStatus = mjproto.DeskGameStatus_INIT
-	case MJDESK_STATUS_ONINIT:
-		gameStatus = mjproto.DeskGameStatus_INIT
-	case MJDESK_STATUS_FAPAI:
-		gameStatus = mjproto.DeskGameStatus_FAPAI
-	case MJDESK_STATUS_EXCHANGE:
-		gameStatus = mjproto.DeskGameStatus_EXCHANGE
-	case MJDESK_STATUS_DINGQUE:
-		gameStatus = mjproto.DeskGameStatus_DINGQUE
-	case MJDESK_STATUS_RUNNING:
-		gameStatus = mjproto.DeskGameStatus_PLAYING
-	case MJDESK_STATUS_LOTTERY:
-		gameStatus = mjproto.DeskGameStatus_FINISH
-	case MJDESK_STATUS_END:
-		gameStatus = mjproto.DeskGameStatus_FINISH
-	}
-	return int32(gameStatus)
-}
-//返回玩家的数目
-/**
-	needInpai ： 是否需要把inpai去得到
- */
-func (d *MjDesk) GetPlayerInfo(receiveUserId uint32, needInpai bool) []*mjproto.PlayerInfo {
-	var players []*mjproto.PlayerInfo
-	for _, user := range d.Users {
-		if user != nil {
-			showHand := (user.GetUserId() == receiveUserId)                //是否需要显示手牌
-			isOwner := ( d.GetOwner() == user.GetUserId())                //判断是否是房主
-			info := user.GetPlayerInfo(showHand, needInpai)
-			*info.IsOwner = isOwner
-			players = append(players, info)
-		}
-	}
-	return players
-}
-
-//玩家的人数
-func (d *MjDesk) GetPlayerNum() int32 {
-	var count int32 = 0
-	for _, user := range d.Users {
-		if user != nil {
-			count ++
-		}
-	}
-	return count
-}
-
-// 发送gameInfo的信息
-func (d *MjDesk) GetGame_SendGameInfo(receiveUserId uint32, isReconnect mjproto.RECONNECT_TYPE) *mjproto.Game_SendGameInfo {
-
-	//如果是短线重连，并且玩家还没有换三张，或者处于定缺的状态，那么需要发送庄家的inpai
-	needInpai := false
-	recUser := d.GetUserByUserId(receiveUserId)
-	/**
-		1,当前阶段处于定缺的阶段
-		2，用户是庄稼的情况
-		3，此时需要发送 inpai
-	 */
-	if isReconnect == mjproto.RECONNECT_TYPE_RECONNECT &&
-		( d.IsExchange() || ( d.IsDingQue() && recUser.IsNotDingQue() )) &&
-		d.GetBanker() == receiveUserId {
-		needInpai = true
-	}
-
-	gameInfo := newProto.NewGame_SendGameInfo()
-	gameInfo.DeskGameInfo = d.GetDeskGameInfo()
-	*gameInfo.SenderUserId = receiveUserId
-	gameInfo.PlayerInfo = d.GetPlayerInfo(receiveUserId, needInpai)
-	*gameInfo.IsReconnect = isReconnect
-	return gameInfo
-
-}
-
 
 //用户准备
 func (d *MjDesk) Ready(userId  uint32) error {
@@ -447,8 +354,10 @@ func (d *MjDesk) time2begin() error {
 func (d *MjDesk) beginInit() error {
 	//初始化桌子的信息
 	//1,初始化庄的信息,如果目前没有庄，则设置房主为庄,如果有庄，则不用管，每局游戏借宿的时候，会设置下一局的庄
-	if d.GetBanker() == 0 {
-		*d.Banker = d.GetOwner()
+	if d.GetNextBanker() != 0 {
+		d.SetBanker(d.GetNextBanker())
+	} else {
+		d.SetBanker(d.GetOwner())
 	}
 
 	d.AddCurrPlayCount()        //场次数目加一
@@ -463,18 +372,11 @@ func (d *MjDesk) beginInit() error {
 		}
 	}
 	//发送游戏开始的协议...
-	log.T("发送游戏开始的协议..")
-	log.T("当前桌子共[%v]把，现在是第[%v]把游戏开始", d.GetTotalPlayCount(), d.GetCurrPlayCount())
-	open := newProto.NewGame_Opening()
-	*open.CurrPlayCount = d.GetCurrPlayCount()
-	d.BroadCastProto(open)
+	d.SendNewGame_Opening()
 	time.Sleep(SHAIZI_SLEEP_DURATION)
 	return nil
 }
 
-func (d *MjDesk) AddCurrPlayCount() {
-	atomic.AddInt32(d.CurrPlayCount, 1)
-}
 
 /**
 	初始化牌相关的信息
@@ -558,20 +460,6 @@ func (d *MjDesk) GetDealCards(user *MjUser) *mjproto.Game_DealCards {
 	return dealCards
 }
 
-func (d *MjDesk) SetStatus(status int32) {
-	*d.Status = status
-}
-
-//设置当前用户的status
-func (d *MjDesk) UpdateUserStatus(status int32) {
-	for _, user := range d.GetUsers() {
-		if user != nil {
-			user.SetStatus(status)
-		}
-	}
-
-}
-
 
 
 //游戏正式开始，庄家打牌的广播
@@ -623,21 +511,6 @@ func (d *MjDesk) beginDingQue() error {
 	time.Sleep(DINGQUE_SLEEP_DURATION)
 	d.BroadCastProto(beginQue)
 	return nil
-}
-
-//把桌子的数据保存到redis中
-/**
-	需要调用的地方
-	1,新增加一个桌子的时候
-	2,
- */
-func (d *MjDesk)updateRedis() error {
-	err := UpdateMjDeskRedis(d)        //保存数据到redis
-	if err != nil {
-		return err
-	} else {
-		return nil
-	}
 }
 
 //个人开始定缺
@@ -833,18 +706,6 @@ func (d *MjDesk) Lottery() error {
 	return nil
 }
 
-func (d *MjDesk) GetUserIds() string {
-	ids := ""
-	for _, user := range d.GetUsers() {
-		if user != nil {
-			idStr, _ := numUtils.Uint2String(user.GetUserId())
-			ids = ids + "," + idStr
-		}
-
-	}
-	return ids
-
-}
 
 //查花猪
 /**
@@ -1128,6 +989,16 @@ func (d *MjDesk) SendLotteryData() error {
 	log.T("desk(%v),gameNumber(%v)SendLotteryData(),处理完毕", d.GetDeskId(), d.GetGameNumber())
 
 	return nil
+}
+
+//发送game_opening 的协议
+func (d *MjDesk) SendNewGame_Opening() {
+	log.T("发送游戏开始的协议..")
+	log.T("当前桌子共[%v]把，现在是第[%v]把游戏开始", d.GetTotalPlayCount(), d.GetCurrPlayCount())
+
+	open := newProto.NewGame_Opening()
+	*open.CurrPlayCount = d.GetCurrPlayCount()
+	d.BroadCastProto(open)
 }
 
 func (d *MjDesk) AfterLottery() error {
@@ -1644,14 +1515,6 @@ func (d *MjDesk) DoAfterDianPao(hu *HuPaiInfo) {
 
 }
 
-//判断下一个庄是否已经确定
-func (d *MjDesk) IsNextBankerExist() bool {
-	if d.GetNextBanker() > 0 {
-		return true
-	} else {
-		return false
-	}
-}
 
 
 
@@ -1690,10 +1553,6 @@ func (d *MjDesk)InitNextBanker(hu *HuPaiInfo) {
 	} else {
 		d.SetNextBanker(hu.GetGetUserId())
 	}
-}
-
-func (d *MjDesk) SetNextBanker(userId uint32) {
-	*d.NextBanker = userId
 }
 
 func (d *MjDesk) SendAckActHu(hu *HuPaiInfo) {
@@ -2168,8 +2027,6 @@ func (d *MjDesk) ExchangeEnd() error {
 
 	//开始换牌
 	exchangeType := rand.Rand(0, 3)
-	//todo 需要删除的代码
-	//exchangeType = int32(1)
 	if exchangeType == int32(mjproto.ExchangeType_EXCHANGE_TYPE_DUIJIA) {
 		exchangeCards(d.Users[0], d.Users[2])
 		exchangeCards(d.Users[1], d.Users[3])
@@ -2223,16 +2080,6 @@ func (d *MjDesk) ExchangeEnd() error {
 func exchangeCards(u1 *MjUser, u2 *MjUser) {
 	//换三张的账户
 	u1.GameData.HandPai.Pais = append(u1.GameData.HandPai.Pais, u2.GameData.ExchangeCards...)
-}
-
-//判断是否开启房间的某个选
-func (d *MjDesk) IsOpenOption(option mjproto.MJOption) bool {
-	for _, opt := range d.GetOthersCheckBox() {
-		if opt == int32(option) {
-			return true
-		}
-	}
-	return false
 }
 
 //可以把overturn放在一个地方,目前都是摸牌的时候在用
@@ -2300,119 +2147,3 @@ func (d *MjDesk) GetOverTurnByCaseBean(checkPai *MJPai, caseBean *CheckBean, act
 	return overTurn
 }
 
-
-//剩下的牌的数量
-func (d *MjDesk) GetLeftPaiCount(user *MjUser, mjPai *MJPai) int {
-	var count int = 0
-	displayPais := d.GetDisplayPais(user)
-	//for i := 0; i < len(displayPais); i++ {
-	//	log.T("用户%v已知的牌是:%v", user.GetUserId(), displayPais[i].GetDes())
-	//}
-	for i := 0; i < len(displayPais); i++ {
-		if (displayPais[i].GetValue() == mjPai.GetValue()) && (displayPais[i].GetFlower() == mjPai.GetFlower()) {
-			count++
-		}
-	}
-	count = 4 - count
-	if count < 0 {
-		count = 0
-	}
-	//log.T("leftPai is %v Count is : %v", mjPai.GetDes(), count)
-	return count
-}
-
-//获取用户已知亮出台面的牌 包括自己手牌、自己和其他玩家碰杠牌、其他玩家outPais
-func (d *MjDesk) GetDisplayPais(user *MjUser) []*MJPai {
-	//获取所有玩家的亮出台面的牌 outPais + pengPais + gangPais
-
-	displayPais := []*MJPai{}
-	for _, user := range d.GetUsers() {
-		userHandPai := user.GetGameData().GetHandPai()
-
-		switch {
-		case userHandPai.GetGangPais() != nil:
-			displayPais = append(displayPais, userHandPai.GangPais...) //杠的牌
-		case userHandPai.GetPengPais() != nil:
-			displayPais = append(displayPais, userHandPai.PengPais...) //碰的牌
-		case userHandPai.GetOutPais() != nil:
-			displayPais = append(displayPais, userHandPai.OutPais...) //打出去的牌
-		default:
-
-		}
-	}
-
-	//在亮出台面的牌中加入用户自己的手牌
-	userHandPai := user.GetGameData().GetHandPai()
-	displayPais = append(displayPais, userHandPai.InPai)
-	displayPais = append(displayPais, userHandPai.Pais...)
-	return displayPais
-}
-
-func (d *MjDesk) GetTransferredStatus() string {
-	ret := ""
-	switch d.GetStatus() {
-	case MJDESK_STATUS_CREATED:
-		ret = "创建成功"
-	case MJDESK_STATUS_DINGQUE:
-		ret = "开始定缺"
-	case MJDESK_STATUS_END:
-		ret = "单局结束"
-	case MJDESK_STATUS_EXCHANGE:
-		ret = "开始换牌"
-	case MJDESK_STATUS_FAPAI:
-		ret = "开始发牌"
-	case MJDESK_STATUS_LOTTERY:
-		ret = "开始结算"
-	case MJDESK_STATUS_ONINIT:
-		ret = "开始初始化数据"
-	case MJDESK_STATUS_READY:
-		ret = "开始准备"
-	case MJDESK_STATUS_RUNNING:
-		ret = "定缺后开始打牌"
-	default:
-
-	}
-	return ret
-}
-
-func (d *MjDesk) GetDeskMJInfo() string {
-	if d == nil || d.AllMJPai == nil {
-		return "暂时没有初始化麻将"
-	}
-	s := ""
-	for i, p := range d.AllMJPai {
-		is, _ := numUtils.Int2String(int32(i))
-		s = s + " (" + is + "-" + p.LogDes() + ")"
-		if (i + 1) % 27 == 0 {
-
-		}
-	}
-	return s
-}
-
-func (d *MjDesk) GetTransferredRoomType() string {
-	ret := ""
-	switch mjproto.MJRoomType(d.GetMjRoomType()) {
-	case mjproto.MJRoomType_roomType_xueZhanDaoDi:
-		ret = "血战到底"
-	case mjproto.MJRoomType_roomType_sanRenLiangFang:
-		ret = "三人两房"
-	case mjproto.MJRoomType_roomType_siRenLiangFang:
-		ret = "四人两房"
-	case mjproto.MJRoomType_roomType_deYangMaJiang:
-		ret = "德阳麻将"
-	case mjproto.MJRoomType_roomType_daoDaoHu:
-		ret = "倒倒胡"
-	case mjproto.MJRoomType_roomType_xueLiuChengHe:
-		ret = "血流成河"
-	case mjproto.MJRoomType_roomType_liangRenLiangFang:
-		ret = "两人两房"
-	case mjproto.MJRoomType_roomType_liangRenSanFang:
-		ret = "两人三房"
-	case mjproto.MJRoomType_roomType_sanRenSanFang:
-		ret = "三人三房"
-	default:
-
-	}
-	return ret
-}
