@@ -1,5 +1,0 @@
-#!/bin/bash
-protoc --proto_path=.  --go_out=./ *.proto
-
-
-#--proto_path=PATH
