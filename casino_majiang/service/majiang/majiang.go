@@ -742,7 +742,7 @@ func getHuFan(handPai *MJHandPai, isZimo bool, is19 bool, extraAct HuType, mjDes
 			paiType = PaiType_H_MenQing
 			jiaFanStr = "门清"
 		}
-		if IsZhongzhang(handPai, handCounts) {
+		if IsZhongzhang(handPai) {
 			fan += FAN_MENQ_ZHONGZ
 			paiType = PaiType_H_ZhongZhang
 			jiaFanStr = "中张"
@@ -1075,8 +1075,28 @@ func IsMenqing(handPai *MJHandPai) bool {
 }
 
 //中张 没有1、9
-func IsZhongzhang(handPai *MJHandPai, handCounts []int) bool {
+func IsZhongzhang(handPai *MJHandPai) bool {
 	//
+	pais := []*MJPai{}
+	if handPai.Pais != nil {
+		pais = append(pais, handPai.Pais...)
+	}
+	if handPai.InPai != nil {
+		pais = append(pais, handPai.InPai)
+	}
+
+	if handPai.GangPais != nil {
+		pais = append(pais, handPai.PengPais...)
+	}
+
+	if handPai.PengPais != nil {
+		pais = append(pais, handPai.GangPais...)
+	}
+
+	handCounts := GettPaiStats(pais) //计算手牌的每张牌数量
+
+
+
 	for i := 0; i < len(handCounts); i++ {
 		switch (i + 1) % 9 {
 		case 1, 0 : //牌值为1、9
