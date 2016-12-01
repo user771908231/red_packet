@@ -9,10 +9,13 @@
 <body>
 
 <div class="container-fluid">
+    <br>
     <div class="table-responsive panel panel-default">
-        <br>
-        <div class="panel-heading">麻将桌{{.desk.GetPassword}}当前的牌,游标为{{.desk.GetMJPaiCursor}}</div>
+        <div class="panel-heading">
+            <p>{{.desk.GetPassword}}号房 ( {{.desk.GetCurrPlayCount}} / {{.desk.GetTotalPlayCount}} )</p>
+        </div>
         <div class="panel-body">
+            <p>当前的牌,游标为{{.desk.GetMJPaiCursor}}</p>
             <p>{{.desk.GetDeskMJInfo}}</p>
         </div>
         <table class="table table-hover table-bordered">
@@ -32,7 +35,8 @@
                 <th>杠牌</th>
                 <th>胡牌</th>
                 <th>inpai</th>
-                <th>bill</th>
+                <th>统计信息</th>
+                <th>账单</th>
             </tr>
             </thead>
             <tbody>
@@ -74,10 +78,17 @@
                 <td>{{$user.GetExchangedCardsInfo}}</td>
 
                 <td>{{$user.GetUserPaiInfo}}</td>
+
                 <td>{{$user.GetUserPengPaiInfo}}</td>
+
                 <td>{{$user.GetUserGnagPaiInfo}}</td>
+
                 <td>{{$user.GetUserHuPaiInfo}}</td>
+
                 <td>{{$user.GetUserInPaiInfo}}</td>
+
+                <td>{{$user|$.desk.GetCardTitle4WinCoinInfo}}</td>
+
 
                 <td>
                     <p>{{$user.WinAmount2String}}</p>
