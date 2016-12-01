@@ -1,5 +1,0 @@
-#!/bin/sh
-cd ../protogo
-rm -rf *.pb.go
-cd ../mjproto
-protoc --go_out=../protogo *.proto
