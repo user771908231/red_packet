@@ -95,6 +95,11 @@ func (u *DdzUser) IsQiangDiZhuQiang() bool {
 	return u.GetQiangDiZhuStatus() == DDZUSER_QIANGDIZHU_STATUS_QIANG
 }
 
+func (u *DdzUser) IsQiangDiZhuBuQiang() bool {
+	return u.GetQiangDiZhuStatus() == DDZUSER_QIANGDIZHU_STATUS_BUQIANG
+}
+
+
 //是否不叫
 func (u *DdzUser) IsQiangDiZhuBuJiao() bool {
 	return u.GetQiangDiZhuStatus() == DDZUSER_QIANGDIZHU_STATUS_BUJIAO
@@ -308,7 +313,6 @@ func (u *DdzUser) StatisticAddLose() {
 func (u *DdzUser) StatisticAddWin() {
 	atomic.AddInt32(u.Statistics.CountWin, 1)
 }
-
 
 func (u *DdzUser) GetTransferredStatus() string {
 	ret := ""
