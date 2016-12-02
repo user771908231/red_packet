@@ -3,6 +3,7 @@ package gate
 import (
 	"github.com/name5566/leaf/chanrpc"
 	"github.com/name5566/leaf/log"
+	clog "casino_common/common/log"
 	"github.com/name5566/leaf/network"
 	"reflect"
 	"time"
@@ -113,7 +114,8 @@ func (a *agent) Run() {
 			//打印接收到的信息
 			typeString := reflect.TypeOf(msg).String()
 			if !strings.Contains(typeString, "Heartbeat") {
-				log.Debug("解析出来的数据type[%v],m[%v]", reflect.TypeOf(msg).String(), msg)
+				//log.Debug("解析出来的数据type[%v],m[%v]", reflect.TypeOf(msg).String(), msg)
+				clog.T("解析出来的数据type[%v],m[%v]", reflect.TypeOf(msg).String(), msg)
 			}
 
 			err = a.gate.Processor.Route(msg, a)
@@ -137,7 +139,7 @@ func (a *agent) OnClose() {
 func (a *agent) WriteMsg(msg interface{}) {
 	typeString := reflect.TypeOf(msg).String()
 	if !strings.Contains(typeString, "Heartbeat") {
-		log.Debug("agent发送的信息 type[%v],\t\t content[%v]", typeString, msg)
+		clog.T("agent发送的信息 type[%v],\t\t content[%v]", typeString, msg)
 	}
 
 	if a.gate.Processor != nil {
