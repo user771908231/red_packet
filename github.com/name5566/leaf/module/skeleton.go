@@ -6,6 +6,7 @@ import (
 	"github.com/name5566/leaf/go"
 	"github.com/name5566/leaf/log"
 	"github.com/name5566/leaf/timer"
+	clog "casino_common/common/log"
 	"time"
 )
 
@@ -50,6 +51,7 @@ func (s *Skeleton) Run(closeSig chan bool) {
 			err := s.server.Exec(ci)
 			if err != nil {
 				log.Error("%v", err)
+				clog.E("%v",err)
 			}
 		case ci := <-s.commandServer.ChanCall:
 			err := s.commandServer.Exec(ci)
