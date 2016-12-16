@@ -7,62 +7,66 @@ import (
 	"time"
 )
 
-type ReqLog struct {
-	Code      string `form:"code" binding:"Required;Include(casino)"` //验证码casino
-	DeskId    string `form:"deskid" binding:"Required"` //桌子id
-	UserId    string `form:"userid" binding:"Required"` //用户id
-	Level     string `form:"level" binding:"Required"` //日志级别
-	Data      string `form:"data" binding:"Required"` //日志内容
+type LogData struct {
+	DeskId    string `json:"deskid" binding:"Required"` //桌子id
+	UserId    string `json:"userid" binding:"Required"` //用户id
+	Level     string `json:"level" binding:"Required"` //日志级别
+	Data      string `json:"data" binding:"Required"` //日志内容
 	createdAt int64 //创建时间
+}
+
+type ReqLog struct {
+	Code      string `json:"code" binding:"Required;Include(casino)"` //验证码casino
+	Logs      []LogData `json:"logs" binding:"Required"` //数组
 }
 
 var TABLE string = "t_log"
 
-func (l ReqLog) GetReadTime() string {
-	
-}
+//func (l ReqLog) GetReadTime() string {
+//
+//}
 
-func FindLogsByKV(key string, v interface{}) []ReqLog {
-	reqLogs := []ReqLog{}
+func FindLogsByKV(key string, v interface{}) []LogData {
+	logData := []LogData{}
 	db.Query(func(d *mgo.Database) {
-		d.C(TABLE).Find(bson.M{key: v}).All(&reqLogs)
+		d.C(TABLE).Find(bson.M{key: v}).All(&logData)
 	})
-	if len(reqLogs) > 0 {
-		return reqLogs
+	if len(logData) > 0 {
+		return logData
 	} else {
 		return nil
 	}
 }
 
-func FindLogsByMap(m bson.M) []ReqLog {
-	reqLogs := []ReqLog{}
+func FindLogsByMap(m bson.M) []LogData {
+	logData := []LogData{}
 	db.Query(func(d *mgo.Database) {
-		d.C(TABLE).Find(m).All(&reqLogs)
+		d.C(TABLE).Find(m).All(&logData)
 	})
-	if len(reqLogs) > 0 {
-		return reqLogs
+	if len(logData) > 0 {
+		return logData
 	} else {
 		return nil
 	}
 }
 
 //通过level 查找一个log
-func FindLogsByLevel(level string) []ReqLog {
+func FindLogsByLevel(level string) []LogData {
 	return FindLogsByKV("level", level)
 }
 
 //通过desk id查找一个log
-func FindLogsByDeskId(deskId string) []ReqLog {
+func FindLogsByDeskId(deskId string) []LogData {
 	return FindLogsByKV("deskid", deskId)
 }
 
 //通过user id查找一个log
-func FindLogsByUserId(userId string) []ReqLog {
+func FindLogsByUserId(userId string) []LogData {
 	return FindLogsByKV("userid", userId)
 }
 
 //
-func SaveLog2Mgo(reqLog ReqLog) error {
-	reqLog.createdAt = time.Now().UnixNano()
-	return db.InsertMgoData(TABLE, reqLog)
+func SaveLog2Mgo(logData LogData) error {
+	logData.createdAt = time.Now().UnixNano()
+	return db.InsertMgoData(TABLE, logData)
 }

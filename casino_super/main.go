@@ -13,7 +13,8 @@ func main() {
 	m.Use(macaron.Renderer())        //使用模板
 
 	//log upload interface
-	m.Post("log", binding.Bind(logDao.ReqLog{}), logHandler.Post)
+	m.Post("log", binding.Json(logDao.ReqLog{}), logHandler.Post)
+
 	//m.Post("log", logHandler.Post)
 
 	m.Get("logs", logHandler.Get)
@@ -23,4 +24,6 @@ func main() {
 	})
 	//launch server
 	m.Run()
+
+
 }

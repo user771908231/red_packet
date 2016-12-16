@@ -12,8 +12,8 @@ import (
 type SearchParams struct {
 	UserId string
 	DeskId string
-	Level string
-	Data string
+	Level  string
+	Data   string
 }
 
 func init() {
@@ -21,12 +21,21 @@ func init() {
 }
 
 func Post(reqLog logDao.ReqLog, ctx *macaron.Context, logger *log.Logger) {
-	logger.Print(fmt.Sprintf("开始保存 d.id[%v] u.id[%v] level[%v] data[%v]", reqLog.DeskId, reqLog.UserId, reqLog.Level, reqLog.Data))
-	error := logDao.SaveLog2Mgo(reqLog)
-	if error != nil {
-		logger.Print("保存失败 错误信息[%v]", error)
+	if reqLog.Logs == nil || len(reqLog.Logs) <= 0 {
 		return
 	}
+
+	for _, logData := range reqLog.Logs {
+
+		logger.Print(fmt.Sprintf("开始保存 d.id[%v] u.id[%v] level[%v] data[%v]", logData.DeskId, logData.UserId, logData.Level, logData.Data))
+		error := logDao.SaveLog2Mgo(logData)
+
+		if error != nil {
+			logger.Print("保存失败 错误信息[%v]", error)
+			return
+		}
+	}
+
 }
 
 func Get(ctx *macaron.Context, logger *log.Logger) {
