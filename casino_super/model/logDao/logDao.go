@@ -70,3 +70,11 @@ func SaveLog2Mgo(logData LogData) error {
 	logData.createdAt = time.Now().UnixNano()
 	return db.InsertMgoData(TABLE, logData)
 }
+
+//
+func DeleteAllLogs2Mgo() error {
+	db.Query(func(d *mgo.Database) {
+		d.C(TABLE).RemoveAll(bson.M{})
+	})
+	return nil
+}

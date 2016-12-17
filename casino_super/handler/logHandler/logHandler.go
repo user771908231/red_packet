@@ -16,6 +16,15 @@ type SearchParams struct {
 	Data   string
 }
 
+type CodeValidate struct {
+	Code      string `json:"code" binding:"Required;Include(casino)"` //验证码casino
+}
+
+type CallBack struct {
+	Successed bool
+	Msg       string
+}
+
 func init() {
 	db.Oninit("127.0.0.1", 51668, "test", "id")
 }
@@ -25,8 +34,11 @@ func Post(reqLog logDao.ReqLog, ctx *macaron.Context, logger *log.Logger) {
 		return
 	}
 
-	for _, logData := range reqLog.Logs {
-
+	for i, logData := range reqLog.Logs {
+		if logData.Data == "" || logData.DeskId == "" || logData.Level == "" || logData.UserId == "" {
+			logger.Print(fmt.Sprintf("第[%v]条数据为空, 已跳过", i))
+			continue
+		}
 		logger.Print(fmt.Sprintf("开始保存 d.id[%v] u.id[%v] level[%v] data[%v]", logData.DeskId, logData.UserId, logData.Level, logData.Data))
 		error := logDao.SaveLog2Mgo(logData)
 
@@ -68,7 +80,24 @@ func Get(ctx *macaron.Context, logger *log.Logger) {
 	}
 	ctx.Data["searchParams"] = searchParams
 	//logger.Print("u.id[%v] d.id[%v] level[%v] data[%v]", searchParams.UserId, searchParams.DeskId, searchParams.Level, searchParams.Data)
-	logs := logDao.FindLogsByMap(m)
-	ctx.Data["logs"] = logs
+
+
+	if userId == "" && deskId == "" && data == "" && level == "" {
+		ctx.Data["logs"] = []logDao.LogData{}
+	}else {
+		logs := logDao.FindLogsByMap(m)
+		ctx.Data["logs"] = logs
+	}
+
 	ctx.HTML(200, "log/logs") // 200 为响应码
+}
+
+func Delete(code CodeValidate, ctx *macaron.Context, logger *log.Logger) {
+	logger.Print(fmt.Sprintf("[%v]请求清空数据库", ctx.RemoteAddr()))
+	logDao.DeleteAllLogs2Mgo()
+	callBack := CallBack{
+		Successed : true,
+		Msg : "",
+	}
+	ctx.JSON(200, callBack)
 }

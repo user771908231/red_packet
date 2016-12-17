@@ -15,7 +15,7 @@ func main() {
 	//log upload interface
 	m.Post("log", binding.Json(logDao.ReqLog{}), logHandler.Post)
 
-	//m.Post("log", logHandler.Post)
+	m.Delete("logs", binding.Json(logHandler.CodeValidate{}), logHandler.Delete)
 
 	m.Get("logs", logHandler.Get)
 
