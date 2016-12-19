@@ -2,7 +2,9 @@ package main
 
 import (
 	"gopkg.in/macaron.v1"
-	"casino_super/handler/userHandler"
+	"casino_super/handler/logHandler"
+	"github.com/go-macaron/binding"
+	"casino_super/model/logDao"
 )
 
 //
@@ -10,29 +12,18 @@ func main() {
 	m := macaron.Classic()
 	m.Use(macaron.Renderer())        //使用模板
 
-	//m.Get("/recharge", userHandler.Recharge)
-	//m.Post("/rechargePost", userHandler.RechargePost)
+	//log upload interface
+	m.Post("log", binding.Json(logDao.ReqLog{}), logHandler.Post)
 
-	// view handler
-	//m.Get("/views/userList", viewHandler.getUserList)
-	m.Get("/", viewHandler.getUserList)
+	m.Delete("logs", binding.Json(logHandler.CodeValidate{}), logHandler.Delete)
 
+	m.Get("logs", logHandler.Get)
 
-	/**
-	**	RESTful APIs
-	**	expect domain name: api.dongdian.com/
-	**/
-
-
-	//user resource
-	m.Combo("/users").
-		Get(userHandler.getAll). //get all
-		Post(userHandler.post).
-		Put(userHandler.put).
-		Delete(userHandler.delete) //soft delete
-	m.Get("/users/:id", userHandler.getOneById) //add get one
-	m.Get("/users/:id", userHandler.getOneById) //add get one
-
+	m.NotFound(func() string {
+		return "not found 233..."
+	})
 	//launch server
 	m.Run()
+
+
 }
