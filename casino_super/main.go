@@ -23,7 +23,7 @@ func main() {
 		return "not found 233..."
 	})
 	//launch server
-	m.Run()
+	m.Run("0.0.0.0", 8080)
 
 
 }
