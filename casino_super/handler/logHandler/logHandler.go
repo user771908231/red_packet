@@ -72,6 +72,10 @@ func Get(ctx *macaron.Context, logger *log.Logger) {
 		m["level"] = level
 	}
 
+	//todo 分页
+	//limit := ctx.Query("limit")
+	//skip := ctx.Query("skip")
+
 	searchParams := SearchParams{
 		UserId:userId,
 		DeskId:deskId,
