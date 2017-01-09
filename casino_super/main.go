@@ -5,8 +5,36 @@ import (
 	"casino_super/handler/logHandler"
 	"github.com/go-macaron/binding"
 	"casino_super/model/logDao"
+	"casino_common/common/sys"
+	"os"
+	"casino_super/conf"
+	"casino_super/conf/config"
+	"time"
 )
 
+
+func init() {
+	//初始化系统
+	err := sys.SysInit(
+		conf.Server.ProdMod,
+		conf.Server.RedisAddr,
+		"test",
+		conf.Server.LogPath,
+		"dodizhu",
+		conf.Server.MongoIp,
+		conf.Server.MongoPort,
+		config.SUPER_DBNAM,
+		config.DB_ENSURECOUNTER_KEY,
+		[]string{
+			config.DBT_SUPER_LOGS,
+			config.DBT_T_TH_GAMENUMBER_SEQ})
+	//判断初始化是否成功
+	if err != nil {
+		os.Exit(-1)        //推出系统
+	}
+
+	time.Sleep(time.Second * 3)        //初始化3秒之后启动程序
+}
 //
 func main() {
 	m := macaron.Classic()
@@ -23,7 +51,7 @@ func main() {
 		return "not found 233..."
 	})
 	//launch server
-	m.Run("0.0.0.0", 9090)
+	m.Run(conf.Server.HttpIp, conf.Server.HttpPort)
 
 
 }
