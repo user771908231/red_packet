@@ -1,0 +1,20 @@
+[
+  {
+    "RoomId": 1,
+    "RoomType":2,
+    "RoomLevel":1,
+    "RoomTitle":"平民场",
+    "BaseValue":100,
+    "MaxValue":2000,
+    "XuepinBaseValue":5000
+  },
+  {
+    "RoomId": 2,
+    "RoomType":2,
+    "RoomLevel":2,
+    "RoomTitle":"小资场",
+    "BaseValue":1000,
+    "MaxValue":20000,
+    "XuepinBaseValue":50000
+  }
+]
