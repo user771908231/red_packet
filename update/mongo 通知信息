@@ -1,7 +1,40 @@
 0,redi中key:
 	public_notice_key_*
 
+	##删除所有redis:
+	redis-cli KEYS "public_notice_key_*"|xargs redis-cli DEL
+
 1.所有的通知信息都在这里
+##删除所有的通知信息
+db.t_th_notice.remove({})
+
+##插入所有通知信息
+db.t_th_notice.insert({
+	"id" : 1, 
+	"noticetype" : 1, 
+	"noticetitle" : "神经游戏,邀约好友玩牌的利器",
+	"noticecontent" : "神经游戏, 邀约好友切磋牌技娱乐, 切不可赌博! 若有疑问, 请联系客服微信shenjingyouxi",
+	"noticememo" : "", 
+	"noticefileds" : [ ] 
+})
+
+db.t_th_notice.insert({
+	"_id" : ObjectId("57aae42b2e7eeff0be9514ab"), 
+	"id" : 2, "noticetype" : 2,
+	"noticetitle" : "神经游戏,邀约好友玩牌的利器", 
+	"noticecontent" : "创建房间后,点击微信邀请,发送邀请链接给好友,好友安装App后可一键点击分享的房号进入房间. 赶快去试试吧", 
+	"noticememo" : "", 
+	"noticefileds" : [ "购买钻石请联系微信", "shenjingyouxi", "代理加盟请联系微信", "shenjingyouxi", "投诉建议请联系客服QQ", "3298896830" ] 
+})
+
+
+db.t_th_notice.insert({
+	"id" : 3, "noticetype" : 3, 
+	"noticetitle" : "神经游戏,邀约好友玩牌的利器",
+	"noticecontent" : "创建房间后,点击微信邀请,发送邀请链接给好友,好友安装App后可一键点击分享的房号进入房间. 赶快去试试吧", 
+	"noticememo" : "",
+	"noticefileds" : [ ]
+})
 
 db.t_th_notice.insert({
 	"id" : 4, 
@@ -12,3 +45,4 @@ db.t_th_notice.insert({
 	"noticememo" : null, 
 	"fileds" : [],
 })
+
