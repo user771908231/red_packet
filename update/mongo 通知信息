@@ -1,0 +1,14 @@
+0,redi中key:
+	public_notice_key_*
+
+1.所有的通知信息都在这里
+
+db.t_th_notice.insert({
+	"id" : 4, 
+	"noticetype" : 4, 
+	"noticetitle" : 
+	"活动公告", 
+	"noticecontent" : "神经游戏诚招各地代理！申请代理门槛极低，利润丰厚，轻松月入万元。欢迎联系洽谈！", 
+	"noticememo" : null, 
+	"fileds" : [],
+})
