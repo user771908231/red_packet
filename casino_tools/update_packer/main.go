@@ -15,6 +15,8 @@ import (
 	"fmt"
 	"crypto/md5"
 	"io"
+	"encoding/json"
+	"strconv"
 )
 
 const (
@@ -22,10 +24,24 @@ const (
 	BUILD_NATIVE_PATH = "/Users/kory/Documents/Dev/cocos2d-x-3.12/casino/DDZ/build_native/"
 	ROOT_PATH = BUILD_NATIVE_PATH + "jsb-default/"
 	OUTPUT_PATH = BUILD_NATIVE_PATH + "hotupdate/"
+
+	FILEID_LIST_JSON = OUTPUT_PATH+"/FileIdList.json"
+
 	//ASSET_HOST = "http://d.tondeen.com/hotupdate/"
 	ASSET_HOST = "http://d.tondeen.com/testhot/"
 	CLIENT_APPID = "1"
 )
+
+
+var (
+	gFileIdMap = make( map[string] string)
+
+)
+
+type FileIdInfo struct {
+	FileId           int32
+	FilePath         string
+}
 
 func isDir(filename string) bool {
 	fileInfo, err := os.Stat(filename)
@@ -33,6 +49,11 @@ func isDir(filename string) bool {
 		return false
 	}
 	return fileInfo.IsDir()
+}
+
+func isFileExist(filename string) bool {
+	_, err := os.Stat(filename)
+	return err == nil || os.IsExist(err)
 }
 
 func getMd5(fileName string ) (result string, err error) {
@@ -93,7 +114,7 @@ func GetDirs(dirPth string) (files []string, err error) {
 
 func innerZipdir(path string, wholeDir string, w *zip.Writer) {
 
-	log.Printf("===== innerZipdir >> path:%v  wholeDir: %v\n", path, wholeDir)
+	//log.Printf("===== innerZipdir >> path:%v  wholeDir: %v\n", path, wholeDir)
 
 	// 打开文件夹
 	dir, err := os.Open(path)
@@ -112,7 +133,7 @@ func innerZipdir(path string, wholeDir string, w *zip.Writer) {
 	for _, fi := range fis {
 		// 递归
 		if fi.IsDir() {
-			log.Printf("call innerZipdir >>> wholeDir:%v srcFile=%v nextWhole:%v\n", wholeDir, dir.Name() + "/" + fi.Name(), wholeDir+"/"+fi.Name() )
+			//log.Printf("call innerZipdir >>> wholeDir:%v srcFile=%v nextWhole:%v\n", wholeDir, dir.Name() + "/" + fi.Name(), wholeDir+"/"+fi.Name() )
 			innerZipdir(dir.Name() + "/" + fi.Name(), wholeDir+"/"+fi.Name(), w)
 			continue
 		}
@@ -156,8 +177,8 @@ func zipFiles(srcFiles []string, basePath string, dstZip string) {
 
 	w:=zip.NewWriter(fw)
 
-	for i, srcFile := range srcFiles {
-		log.Printf("[%d] zipFiles >>> srcFile: %v base(srcFile):%v\n", i, srcFile, filepath.Base(srcFile))
+	for _, srcFile := range srcFiles {
+		//log.Printf("[%d] zipFiles >>> srcFile: %v base(srcFile):%v\n", i, srcFile, filepath.Base(srcFile))
 
 		if isDir(srcFile) { // 目录
 			realBasePath := basePath
@@ -282,8 +303,8 @@ func makeInfoFile(assets []*ddproto.AssetInfo, saveFile string, assetVer int32, 
 	data.InitRedis(redisHost, "test")
 	redisUtils.SetObj("AssetsInfo"+CLIENT_APPID, pkgData)
 
-	data.InitRedis("192.168.199.120:6379", "test")
-	redisUtils.SetObj("AssetsInfo"+CLIENT_APPID, pkgData)
+	//data.InitRedis("192.168.199.120:6379", "test")
+	//redisUtils.SetObj("AssetsInfo"+CLIENT_APPID, pkgData)
 
 	return true
 }
@@ -293,7 +314,8 @@ func loadAssetInfoFromFile( saveFile string ) (assetInfo *ddproto.HotupdateAckAs
 
 	fr, err := os.Open(saveFile)
 	if err != nil {
-		panic(err)
+		log.Printf("Cannot open '%v', err:%v", saveFile, err)
+		return nil
 	}
 	defer fr.Close()
 	fileData, err := ioutil.ReadAll(fr)
@@ -320,7 +342,7 @@ func printAssetInfoFile(saveFile string ) {
 	for i, asset := range assetInfo.Assets {
 		text += fmt.Sprintf("\t--[%d] asset >>> fid:%v fPath:%v fver:%v size:%v md5:%v gameId:%v isCode:%v compress:%v\n",
 			i,  *asset.FileId, *asset.FilePath,
-			*asset.FileVer, *asset.FileSize, *asset.Md5, *asset.GameId, *asset.IsCode, *asset.IsCompress)
+			*asset.FileVer, *asset.FileSize, *asset.Md5, *asset.GameId, *asset.IsCode, asset.IsCompress)
 	}
 
 	log.Printf(text)
@@ -336,18 +358,42 @@ func printAssetInfoFile(saveFile string ) {
 	log.Printf("=========================\n")
 }
 
-func getFileVer(asset *ddproto.AssetInfo) (fileVer *int32) {
+func getFileVer(newAsset *ddproto.AssetInfo, oldAssetInfo *ddproto.HotupdateAckAssetsInfo) (fileVer *int32) {
 	fileVer = new(int32)
 	*fileVer = 1
 
+	if oldAssetInfo == nil {
+		return fileVer
+	}
+
 	//TODO: 到assetInfo.dat中找到asset.FileId对应的oldAsset.FileVer
-	//*fileVer = oldAsset.FileVer + 1
+	for _, asset := range oldAssetInfo.GetAssets() {
+		if ( *asset.FileId == *newAsset.FileId ) {
+			if ( *asset.FilePath == *newAsset.FilePath ) {
+				if ( *asset.Md5 == *newAsset.Md5 ) {
+					//md5一致, 直接返回旧文件的FileVer
+					*fileVer = *asset.FileVer
+					log.Printf("fid:%v[%v] md5未变,直接返回fileVer:%v", *asset.FileId, *asset.FilePath, *fileVer)
+				} else {
+					//新文件md5变了, 版本号+1
+					*fileVer = *asset.FileVer + 1
+					log.Printf("fid:%v[%v] > new fid:%v[%v]新文件md5变了,版本号+1=%v  md5:%v -> %v\n",
+						*asset.FileId, *asset.FilePath, *newAsset.FileId, *newAsset.FilePath, *fileVer, *asset.Md5, *newAsset.Md5)
+				}
+			} else {
+				*fileVer = *asset.FileVer
+				log.Printf("非法数据: fileId相同但filePath不同: fid:%v old:%v new:%v\n", *asset.FileId, *asset.FilePath, *newAsset.FilePath )
+				//panic(nil)
+			}
+			break
+		}
+	}
 
 	return fileVer
 }
 
 //将多个散列文件打成1个zip包
-func packSomeFiles(files[]string, module, outputPath,filePath,basePath string,  fid *int32 ) (assets *ddproto.AssetInfo, err error) {
+func packSomeFiles(origAssetInfo *ddproto.HotupdateAckAssetsInfo, files[]string, module, outputPath,filePath,basePath string,  fid *int32 ) (assets *ddproto.AssetInfo, err error) {
 	destFile := ""
 	if filePath == "" {
 		filePath = module + "/others.zip"
@@ -399,26 +445,26 @@ func packSomeFiles(files[]string, module, outputPath,filePath,basePath string,  
 		isCode = true
 	}
 
-	*fid = *fid + 1
-	fileId := int32( *fid )
+	//*fid = *fid + 1
+	fileId := int32( getFileId(fid, &filePath) )
 
 	asset := new( ddproto.AssetInfo )
 	asset.FilePath = &filePath
-	asset.FileId = &fileId //文件id
+	asset.FileId =  &fileId //文件id
 	asset.FileSize = &fileSize
 	asset.IsCode = &isCode
 	asset.Md5 = &md5str
 	asset.GameId = &gameId
-	asset.IsCompress = new(bool)
-	*asset.IsCompress = true
-	asset.FileVer = getFileVer( asset )  //文件版本
+	//asset.IsCompress = new(bool)
+	//*asset.IsCompress = true
+	asset.FileVer = getFileVer(  asset, origAssetInfo )  //文件版本
 
-	log.Printf("===生成one asset >>> fid[%d]: %v\n", fileId, asset)
+	log.Printf("===生成one asset >>> fid[%d]: %v\n", *asset.FileId, asset)
 
 	return asset, nil
 }
 
-func packOneAsset(resPath, module, outputPath, filePath string, fid int32 ) (assets *ddproto.AssetInfo, err error) {
+func packOneAsset(origAssetInfo *ddproto.HotupdateAckAssetsInfo,  resPath, module, outputPath, filePath string, fid *int32 ) (assets *ddproto.AssetInfo, err error) {
 	srcPath := ROOT_PATH
 
 	destFile := outputPath + filePath
@@ -478,7 +524,7 @@ func packOneAsset(resPath, module, outputPath, filePath string, fid int32 ) (ass
 		isCode = true
 	}
 
-	fileId := int32( fid )
+	fileId := getFileId(fid, &filePath)
 
 	asset := new( ddproto.AssetInfo )
 	asset.FilePath = &filePath
@@ -487,17 +533,21 @@ func packOneAsset(resPath, module, outputPath, filePath string, fid int32 ) (ass
 	asset.IsCode = &isCode
 	asset.Md5 = &md5str
 	asset.GameId = &gameId
-	asset.IsCompress = new(bool)
-	*asset.IsCompress = true
-	asset.FileVer = getFileVer( asset )  //文件版本
+	//asset.IsCompress = new(bool)
+	//*asset.IsCompress = true
+	asset.FileVer = getFileVer( asset, origAssetInfo )  //文件版本
 
-	log.Println("===生成one asset >>> fid[%d]: %v", fileId, asset)
+	log.Printf("===生成one asset >>> fid[%d]: %v\n", *asset.FileId, asset)
 
 	return asset, nil
 }
 
 func packResources(importpath string, outputPath string,  isRelease, isOnlySource bool) (assets []*ddproto.AssetInfo, err error ) {
 	resPath := ROOT_PATH + "/res/raw-assets/resources/"
+
+	//读取上一次生成的资源信息
+	origAssetInfo := loadAssetInfoFromFile( OUTPUT_PATH + "/AssetsInfo.dat" )
+
 
 	//资源目录
 	var dirs []string
@@ -539,11 +589,11 @@ func packResources(importpath string, outputPath string,  isRelease, isOnlySourc
 				currFile := resPath + module + "/" + subdir
 				if isDir( currFile ) {
 					//fileId := int32(idx + subidx)
-					fileId ++
+					//fileId ++
 					log.Printf("\t---sub[%v] make sub module: fid:%v >>> %v/%v \n", subidx, fileId, module, subdir)
 
 					filePath := module + "/" + subdir + ".zip"
-					asset, err := packOneAsset(resPath + module + "/"+subdir+"/", module, realOutputPath, filePath, fileId)
+					asset, err := packOneAsset(origAssetInfo, resPath + module + "/"+subdir+"/", module, realOutputPath, filePath, &fileId)
 					if err == nil {
 						assets = append(assets, asset)
 					}
@@ -556,7 +606,7 @@ func packResources(importpath string, outputPath string,  isRelease, isOnlySourc
 				//打包散列的文件
 				filePath := ""
 				basePath := ""
-				asset, err := packSomeFiles( singleFiles, module, realOutputPath, filePath, basePath, &fileId )
+				asset, err := packSomeFiles(origAssetInfo, singleFiles, module, realOutputPath, filePath, basePath, &fileId )
 				if err == nil {
 					assets = append( assets, asset)
 				}
@@ -564,10 +614,10 @@ func packResources(importpath string, outputPath string,  isRelease, isOnlySourc
 
 		} else { // 一级目录的单个文件( 是src )
 			if strings.Contains(module, "src/project") { //module=="src/project.jsc"
-				fileId ++
+				//fileId ++
 				realOutputPath := outputPath
 				log.Printf("单个文件打包: module=%v  fileId:%\n",  module, fileId)
-				asset, err := packOneAsset(ROOT_PATH, module, realOutputPath, "", fileId)
+				asset, err := packOneAsset(origAssetInfo, ROOT_PATH, module, realOutputPath, "", &fileId)
 				if err == nil {
 					assets = append( assets, asset)
 				}
@@ -618,16 +668,16 @@ func packResources(importpath string, outputPath string,  isRelease, isOnlySourc
 	module := "import"
 	realOutputPath := outputPath
 
-	log.Printf("=== pathsMap : === \n")
+	log.Printf("=== import pathsMap : === \n")
 	for key, files := range pathsMap {
-		log.Printf("prefix: %v >> ", key)
-		for i, file:= range files {
-			log.Printf("\t [%v]: file:%v", i, file)
-		}
+		log.Printf("import prefix: %v >> ", key)
+		//for i, file:= range files {
+		//	log.Printf("\t [%v]: file:%v", i, file)
+		//}
 
 		filePath := "res/import/" + key + ".zip"
 		basePath := "import"
-		asset, err := packSomeFiles( files, module, realOutputPath, filePath, basePath, &fileId )
+		asset, err := packSomeFiles(origAssetInfo, files, module, realOutputPath, filePath, basePath, &fileId )
 		if err == nil {
 			assets = append( assets, asset)
 		}
@@ -708,6 +758,90 @@ func compareAssetInfo() {
 
 }
 
+func saveFileIdList(assets []*ddproto.AssetInfo) bool {
+	if isFileExist( FILEID_LIST_JSON ) {
+		log.Printf("%v fileId文件已存在. ", FILEID_LIST_JSON)
+		return false
+	}
+
+	gFileIdMap = make( map[string] string)
+	for _, asset := range assets {
+		//fileIdMap[*asset.FilePath] = *asset.FileId
+		gFileIdMap[*asset.FilePath] = fmt.Sprintf("%d", *asset.FileId)
+	}
+
+	data, err := json.Marshal( gFileIdMap )
+	if err != nil {
+		log.Printf("json.Marshal err:%v\n",  err)
+		return false
+	}
+
+	err = ioutil.WriteFile(FILEID_LIST_JSON, []byte( data ), 0666)
+	if err != nil {
+		log.Printf("write文件失败:%v savefile:%v", err, FILEID_LIST_JSON)
+		panic(err)
+	}
+
+	log.Printf("=====保存文件Id信息完成( FileIdList.json )=====\n")
+
+	return true
+}
+
+func getFileId(globalFid *int32, filePath *string) (fileId int32) {
+
+	if len(gFileIdMap)==0 && isFileExist( FILEID_LIST_JSON ) {
+		fr, err := os.Open( FILEID_LIST_JSON )
+		if err != nil {
+			log.Printf("Cannot open '%v', err:%v", FILEID_LIST_JSON, err)
+			*globalFid = *globalFid + 1
+			return *globalFid
+		}
+		defer fr.Close()
+		fileData, err := ioutil.ReadAll(fr)
+		if err!= nil {
+			log.Printf("read file err:%v",err)
+			*globalFid = *globalFid + 1
+			return *globalFid
+		}
+
+
+		log.Printf("读取FileId文件成功:%v!", FILEID_LIST_JSON)
+
+		//var fileIdMap = make( map[string] int32)
+		err = json.Unmarshal( fileData, &gFileIdMap )
+		if err != nil {
+			log.Printf("===getFileId >> unmarshal err:%v",err)
+			*globalFid = *globalFid + 1
+			return *globalFid
+		}
+
+		maxFid := int32(0)
+		for _, fid := range gFileIdMap {
+			fileId, _ := strconv.ParseInt(fid, 10, 64)
+			if int32(fileId) > maxFid {
+				maxFid = int32(fileId)
+			}
+		}
+		*globalFid = maxFid
+		log.Printf("将globalFid设为maxFid: %v \n", maxFid)
+	}
+
+	fid, exists := gFileIdMap[ *filePath ]
+	if exists {
+		log.Printf("===getFileId >> 已找到文件[%v]匹配的fileId: %v\n", *filePath, fid)
+		fileId, _ := strconv.ParseInt(fid, 10, 64)
+		//fileId = fid
+		return int32(fileId)
+	} else {
+		log.Printf("===【警告】:getFileId >> 未找到文件[%v]匹配的fileId, 取用globalId+1: %v\n", *filePath, *globalFid+1)
+		*globalFid = *globalFid + 1
+		return *globalFid
+	}
+
+	*globalFid = *globalFid + 1
+	return *globalFid
+}
+
 func main() {
 	//compareAssetInfo()
 	//return
@@ -734,6 +868,10 @@ func main() {
 	//全局资源版本号
 	lastestAssetsVer := int32(1)
 	makeInfoFile(assets, saveFile, lastestAssetsVer, redisHost)
+
+
+	//保存文件Id
+	saveFileIdList(assets)
 
 
 	printAssetInfoFile( saveFile )
