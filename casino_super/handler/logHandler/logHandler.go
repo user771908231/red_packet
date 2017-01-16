@@ -7,6 +7,7 @@ import (
 	"casino_super/model/logDao"
 	"gopkg.in/mgo.v2/bson"
 	"fmt"
+	"time"
 )
 
 type SearchParams struct {
@@ -25,11 +26,14 @@ type CallBack struct {
 	Msg       string
 }
 
+var limiter = time.Tick(time.Millisecond * 300) //请求的频率控制 300毫秒
+
 func init() {
 	db.Oninit("127.0.0.1", 51668, "test", "id")
 }
 
 func Post(reqLog logDao.ReqLog, ctx *macaron.Context, logger *log.Logger) {
+	<-limiter
 	if reqLog.Logs == nil || len(reqLog.Logs) <= 0 {
 		return
 	}
