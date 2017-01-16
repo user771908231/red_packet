@@ -17,7 +17,7 @@ type SearchParams struct {
 }
 
 type CodeValidate struct {
-	Code      string `json:"code" binding:"Required;Include(casino)"` //验证码casino
+	Code string `json:"code" binding:"Required;Include(casino)"` //验证码casino
 }
 
 type CallBack struct {
@@ -88,7 +88,7 @@ func Get(ctx *macaron.Context, logger *log.Logger) {
 
 	if userId == "" && deskId == "" && data == "" && level == "" {
 		ctx.Data["logs"] = []logDao.LogData{}
-	}else {
+	} else {
 		logs := logDao.FindLogsByMap(m)
 		ctx.Data["logs"] = logs
 	}

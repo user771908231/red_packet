@@ -5,14 +5,15 @@ import (
 	"gopkg.in/mgo.v2/bson"
 	"casino_common/utils/db"
 	"time"
+	"casino_common/utils/timeUtils"
 )
 
 type LogData struct {
 	DeskId    string `json:"deskid" binding:"Required"` //桌子id
 	UserId    string `json:"userid" binding:"Required"` //用户id
-	Level     string `json:"level" binding:"Required"` //日志级别
-	Data      string `json:"data" binding:"Required"` //日志内容
-	createdAt int64 //创建时间
+	Level     string `json:"level" binding:"Required"`  //日志级别
+	Data      string `json:"data" binding:"Required"`   //日志内容
+	CreatedAt string                                    //创建时间
 }
 
 type ReqLog struct {
@@ -29,7 +30,7 @@ var TABLE string = "t_log"
 func FindLogsByKV(key string, v interface{}) []LogData {
 	logData := []LogData{}
 	db.Query(func(d *mgo.Database) {
-		d.C(TABLE).Find(bson.M{key: v}).All(&logData)
+		d.C(TABLE).Find(bson.M{key: v}).Sort("createdAt").All(&logData)
 	})
 	if len(logData) > 0 {
 		return logData
@@ -41,7 +42,7 @@ func FindLogsByKV(key string, v interface{}) []LogData {
 func FindLogsByMap(m bson.M) []LogData {
 	logData := []LogData{}
 	db.Query(func(d *mgo.Database) {
-		d.C(TABLE).Find(m).All(&logData)
+		d.C(TABLE).Find(m).Sort("createdAt").All(&logData)
 	})
 	if len(logData) > 0 {
 		return logData
@@ -67,7 +68,7 @@ func FindLogsByUserId(userId string) []LogData {
 
 //
 func SaveLog2Mgo(logData LogData) error {
-	logData.createdAt = time.Now().UnixNano()
+	logData.CreatedAt = timeUtils.Format(time.Now())
 	return db.InsertMgoData(TABLE, logData)
 }
 
