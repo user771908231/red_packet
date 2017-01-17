@@ -6,6 +6,7 @@ import (
 	"casino_common/utils/db"
 	"time"
 	"casino_common/utils/timeUtils"
+	"errors"
 )
 
 type LogData struct {
@@ -39,16 +40,29 @@ func FindLogsByKV(key string, v interface{}) []LogData {
 	}
 }
 
-func FindLogsByMap(m bson.M) []LogData {
+func FindLogsByMap(m bson.M, skip, limit int) []LogData {
 	logData := []LogData{}
 	db.Query(func(d *mgo.Database) {
-		d.C(TABLE).Find(m).Sort("createdAt").All(&logData)
+		//d.C(TABLE).Find(m).Sort("createdAt").All(&logData)
+		d.C(TABLE).Find(m).Sort("createdAt").Skip(skip).Limit(limit).All(&logData)
 	})
 	if len(logData) > 0 {
 		return logData
 	} else {
 		return nil
 	}
+}
+
+func FindLogsByMapCount(m bson.M) (int, error) {
+	err := errors.New("")
+	c := 0
+	db.Query(func(d *mgo.Database) {
+		c, err = d.C(TABLE).Find(m).Sort("createdAt").Count()
+	})
+	if err != nil {
+		return -1, err
+	}
+	return c, nil
 }
 
 //通过level 查找一个log
