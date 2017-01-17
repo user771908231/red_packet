@@ -42,11 +42,14 @@ func main() {
 	m := macaron.Classic()
 	m.Use(macaron.Renderer())        //使用模板
 
+	m.Use(macaron.Static("public/assets"))
+
 	//log upload interface
 	m.Post("log", binding.Json(logDao.ReqLog{}), logHandler.Post)
 
 	m.Delete("logs", binding.Json(logHandler.CodeValidate{}), logHandler.Delete)
 
+	m.Get("logs/:page", logHandler.Get)
 	m.Get("logs", logHandler.Get)
 
 	m.NotFound(func() string {
