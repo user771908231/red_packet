@@ -137,10 +137,10 @@ func (a *agent) OnClose() {
 }
 
 func (a *agent) WriteMsg(msg interface{}) {
-	typeString := reflect.TypeOf(msg).String()
-	if !strings.Contains(typeString, "Heartbeat") {
-		clog.T("agent发送的信息 type[%v],\t\t content[%v]", typeString, msg)
-	}
+	//typeString := reflect.TypeOf(msg).String()
+	//if !strings.Contains(typeString, "Heartbeat") {
+	//	clog.T("agent发送的信息 type[%v],\t\t content[%v]", typeString, msg)
+	//}
 
 	if a.gate.Processor != nil {
 		data, err := a.gate.Processor.Marshal(msg)
