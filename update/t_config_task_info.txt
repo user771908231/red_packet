@@ -1,4 +1,4 @@
-db.t_task_info.insert(
+db.t_config_task_info.insert(
 {
     "_id" : ObjectId("5879ebd9a513c0bbc83c0f3c"),
     "taskid" : 1,
@@ -16,7 +16,7 @@ db.t_task_info.insert(
     ]
 }
 )
-db.t_task_info.insert(
+db.t_config_task_info.insert(
 {
     "_id" : ObjectId("5879ebdaa513c0bbc83c0f41"),
     "taskid" : 2,
@@ -34,7 +34,7 @@ db.t_task_info.insert(
     ]
 }
 )
-db.t_task_info.insert(
+db.t_config_task_info.insert(
 {
     "_id" : ObjectId("5879ebdaa513c0bbc83c0f46"),
     "taskid" : 3,
@@ -52,7 +52,7 @@ db.t_task_info.insert(
     ]
 }
 )
-db.t_task_info.insert(
+db.t_config_task_info.insert(
 {
     "_id" : ObjectId("5879ebdaa513c0bbc83c0f4b"),
     "taskid" : 4,
@@ -70,7 +70,7 @@ db.t_task_info.insert(
     ]
 }
 )
-db.t_task_info.insert(
+db.t_config_task_info.insert(
 {
     "_id" : ObjectId("5879ebdaa513c0bbc83c0f50"),
     "taskid" : 5,
@@ -88,7 +88,7 @@ db.t_task_info.insert(
     ]
 }
 )
-db.t_task_info.insert(
+db.t_config_task_info.insert(
 {
     "_id" : ObjectId("5879ebdaa513c0bbc83c0f55"),
     "taskid" : 6,
