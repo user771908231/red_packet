@@ -8,7 +8,7 @@ import (
 	"reflect"
 	"time"
 	"casino_common/utils/security"
-	"strings"
+	//"strings"
 )
 
 type Gate struct {
@@ -19,13 +19,13 @@ type Gate struct {
 	AgentChanRPC    *chanrpc.Server
 
 	// websocket
-	WSAddr          string
-	HTTPTimeout     time.Duration
+	WSAddr      string
+	HTTPTimeout time.Duration
 
 	// tcp
-	TCPAddr         string
-	LenMsgLen       int
-	LittleEndian    bool
+	TCPAddr      string
+	LenMsgLen    int
+	LittleEndian bool
 }
 
 func (gate *Gate) Run(closeSig chan bool) {
@@ -112,11 +112,11 @@ func (a *agent) Run() {
 			}
 
 			//打印接收到的信息
-			typeString := reflect.TypeOf(msg).String()
-			if !strings.Contains(typeString, "Heartbeat") {
-				//log.Debug("解析出来的数据type[%v],m[%v]", reflect.TypeOf(msg).String(), msg)
-				clog.T("解析出来的数据type[%v],m[%v]", reflect.TypeOf(msg).String(), msg)
-			}
+			//typeString := reflect.TypeOf(msg).String()
+			//if !strings.Contains(typeString, "Heartbeat") {
+			//log.Debug("解析出来的数据type[%v],m[%v]", reflect.TypeOf(msg).String(), msg)
+			clog.T("解析出来的数据type[%v],m[%v]", reflect.TypeOf(msg).String(), msg)
+			//}
 
 			err = a.gate.Processor.Route(msg, a)
 			if err != nil {
