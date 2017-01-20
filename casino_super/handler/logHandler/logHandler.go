@@ -44,20 +44,9 @@ func Post(reqLog logDao.ReqLog, ctx *macaron.Context) {
 		return
 	}
 
-	successedCount := 0
-	for i, logData := range reqLog.Logs {
-		if logData.Data == "" || logData.DeskId == "" || logData.Level == "" || logData.UserId == "" {
-			log.T(fmt.Sprintf("第[%v]条数据为空, 已跳过", i))
-			continue
-		}
-		log.T(fmt.Sprintf("开始保存 d.id[%v] u.id[%v] level[%v] data[%v]", logData.DeskId, logData.UserId, logData.Level, logData.Data))
-		error := logDao.SaveLog2Mgo(logData)
-		if error != nil {
-			log.T("保存失败 错误信息[%v]", error)
-		}
-		successedCount++
-	}
-	log.T("处理完成 [%v]请求上传共[%v]条数据, 已成功插入[%v]条数据", ctx.Req.RemoteAddr, len(reqLog.Logs), successedCount)
+	count := logDao.SaveLogs2Mgo(reqLog.Logs)
+
+	log.T("处理完成 [%v]请求上传共[%v]条数据, 已成功插入[%v]条数据", ctx.Req.RemoteAddr, len(reqLog.Logs), count)
 	return
 }
 
