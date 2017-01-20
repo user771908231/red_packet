@@ -57,7 +57,7 @@ func FindLogsByMapCount(m bson.M) (int, error) {
 	err := errors.New("")
 	c := 0
 	db.Query(func(d *mgo.Database) {
-		c, err = d.C(TABLE).Find(m).Sort("createdAt").Count()
+		c, err = d.C(TABLE).Find(m).Count()
 	})
 	if err != nil {
 		return -1, err
