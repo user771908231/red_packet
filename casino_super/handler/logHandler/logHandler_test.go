@@ -14,3 +14,4 @@ func TestPaginator(t *testing.T) {
 	println(fmt.Sprintf("lastpage %v", maps["lastpage"]))
 	println(fmt.Sprintf("currpage %v", maps["currpage"]))
 }
+
