@@ -26,7 +26,7 @@ const (
 	ROOT_PATH = BUILD_NATIVE_PATH + "jsb-default/"
 	OUTPUT_PATH = BUILD_NATIVE_PATH + "hotupdate/"
 
-	FILEID_LIST_JSON = OUTPUT_PATH+"/FileIdList.json"
+	FILEID_LIST_JSON = OUTPUT_PATH+"FileIdList.json"
 
 	ASSET_HOST = "http://d.tondeen.com/hotupdate/"
 	TEST_ASSET_HOST = "http://d.tondeen.com/testhot/"
@@ -264,8 +264,9 @@ func zipDir(srcPath, basePath, dstZip string) {
 	defer w.Close()
 }
 
-func makeInfoFile(assets []*ddproto.AssetInfo, assetHost, saveFile string, assetVer int32, redisHost string) (result bool) {
-	pkgData := new(ddproto.HotupdateAckAssetsInfo) //这里是全量的资源，不需要返回全量的，只需要返回变化的就行了...
+func makeInfoFile(isUpdateAppAsset bool, assets []*ddproto.AssetInfo, assetHost,
+saveFile string, assetVer int32, redisHost string) (pkgData *ddproto.HotupdateAckAssetsInfo) {
+	pkgData = new(ddproto.HotupdateAckAssetsInfo) //这里是全量的资源，不需要返回全量的，只需要返回变化的就行了...
 	pkgData.AssetHost = proto.String(assetHost)
 
 	pkgData.Assets = assets
@@ -280,14 +281,14 @@ func makeInfoFile(assets []*ddproto.AssetInfo, assetHost, saveFile string, asset
 	filedata, err := proto.Marshal( pkgData )
 	if err != nil {
 		log.Println("error:", err)
-		return false
+		return nil
 	}
 
 
-	if isFileExist(saveFile) {
-		//备份文件
-		os.Rename(saveFile, saveFile+".bak-"+time.Now().Format("2006-01-02 15:04:05"))
-	}
+	//if isFileExist(saveFile) {
+	//	//备份文件
+	//	os.Rename(saveFile, saveFile+".bak-"+time.Now().Format("2006-01-02 15:04:05"))
+	//}
 
 	//写入文件
 	err = ioutil.WriteFile(saveFile, filedata, 0666)
@@ -298,21 +299,20 @@ func makeInfoFile(assets []*ddproto.AssetInfo, assetHost, saveFile string, asset
 
 	log.Println("=====AssetsInfo成功保存至文件:%v", saveFile)
 
-	//同时保存一份至App资源目录
-	err = ioutil.WriteFile(APP_ASSET_FILE, filedata, 0666)
-	if err != nil {
-		log.Printf("write文件失败:%v savefile:%V", err, APP_ASSET_FILE)
-		panic(err)
+	if ( isUpdateAppAsset ) {
+		//同时保存一份至App资源目录
+		err = ioutil.WriteFile(APP_ASSET_FILE, filedata, 0666)
+		if err != nil {
+			log.Printf("write文件失败:%v savefile:%V", err, APP_ASSET_FILE)
+			panic(err)
+		}
+		log.Printf("=== 已更新 App/Resource/AssetsInfo.dat ====\n")
+	} else {
+		log.Printf("===isUpdateAppAsset=false >> 无需更新 App/Resource/HotUpdate/AssetsInfo.dat\n")
 	}
 
-	//写入redis
-	data.InitRedis(redisHost, "test")
-	redisUtils.SetObj("AssetsInfo"+CLIENT_APPID, pkgData)
 
-	//data.InitRedis("192.168.199.120:6379", "test")
-	//redisUtils.SetObj("AssetsInfo"+CLIENT_APPID, pkgData)
-
-	return true
+	return pkgData
 }
 
 func loadAssetInfoFromFile( saveFile string ) (assetInfo *ddproto.HotupdateAckAssetsInfo) {
@@ -339,16 +339,16 @@ func loadAssetInfoFromFile( saveFile string ) (assetInfo *ddproto.HotupdateAckAs
 	return assetInfo
 }
 
-func printAssetInfoFile(saveFile string ) {
+func printAssetInfoFile(saveFile, logSaveFileId string ) string {
 	assetInfo := loadAssetInfoFromFile( saveFile )
 
-	text := ""
+	text := "" + logSaveFileId
 	text += fmt.Sprintf("\n=========================\nassetInfo.dat读取文件后打印: \n\t [ assetInfo: %v ]\n \t[ 资源文件数:%v]\t[版本号:%v]\n",
 	*assetInfo.AssetHost, len(assetInfo.Assets), *assetInfo.LastestAssetsVersion)
 	for i, asset := range assetInfo.Assets {
-		text += fmt.Sprintf("\t--[%d] asset >>> fid:%v fPath:%v fver:%v size:%v md5:%v gameId:%v isCode:%v compress:%v\n",
+		text += fmt.Sprintf("\t--[%d] asset >>> fid:%v fPath:%v fver:%v size:%v md5:%v gameId:%v isCode:%v\n",
 			i,  *asset.FileId, *asset.FilePath,
-			*asset.FileVer, *asset.FileSize, *asset.Md5, *asset.GameId, *asset.IsCode, asset.IsCompress)
+			*asset.FileVer, *asset.FileSize, *asset.Md5, *asset.GameId, *asset.IsCode)
 	}
 
 	log.Printf(text)
@@ -361,7 +361,9 @@ func printAssetInfoFile(saveFile string ) {
 		panic(err)
 	}
 
-	log.Printf("=========================\n")
+	log.Printf("============print.txt保存完毕=============\n")
+
+	return text
 }
 
 func getFileVer(newAsset *ddproto.AssetInfo, oldAssetInfo *ddproto.HotupdateAckAssetsInfo) (fileVer *int32) {
@@ -408,7 +410,7 @@ func packSomeFiles(origAssetInfo *ddproto.HotupdateAckAssetsInfo, files[]string,
 
 	destFile = outputPath + filePath
 
-	log.Printf(" ==== packSomeFiles >>>> files count:%v module:%v fid:%v filePath:%v, destFile:%v", len(files), module, fid, filePath, destFile )
+	log.Printf(" ==== packSomeFiles >>>> files count:%v module:%v fid:%v filePath:%v, destFile:%v", len(files), module, *fid, filePath, destFile )
 
 	//创建所需目录
 	err = os.MkdirAll(filepath.Dir(destFile), 0777)
@@ -425,8 +427,16 @@ func packSomeFiles(origAssetInfo *ddproto.HotupdateAckAssetsInfo, files[]string,
 	}
 	fileSize = int32(fileInfo.Size())
 
+
+	//纠正历史问题
+	if filepath.Base(destFile) == "gameOverWindow.zip" {
+		log.Printf("重命名: gameOverWindow.zip -> GameOverWindow.zip\n")
+		os.Rename(destFile,  filepath.Dir(destFile) + "GameOverWindow.zip" )
+	}
+
 	//计算文件md5
 	md5str, _ := getMd5( destFile )
+
 
 	isCode := false
 
@@ -555,22 +565,37 @@ func packResources(importpath string, outputPath string,  isRelease, isOnlySourc
 	//读取上一次生成的资源信息
 	origAssetInfo := loadAssetInfoFromFile( OUTPUT_PATH + "/AssetsInfo.dat" )
 
+	var srcFiles []string
+	if isRelease {
+		srcFiles = append(srcFiles, ROOT_PATH+"src/project.jsc")
+		srcFiles = append(srcFiles, ROOT_PATH+"src/settings.jsc")
+	} else {
+		srcFiles = append(srcFiles, ROOT_PATH+"src/project.dev.js")
+		srcFiles = append(srcFiles, ROOT_PATH+"src/settings.js")
+	}
+
+	fileId := int32(0)
+
+	//先打包src源码
+	basePath := "src"
+	filePath := "src.zip"
+	asset, err := packSomeFiles(origAssetInfo, srcFiles, "src", outputPath, filePath, basePath, &fileId )
+	if err == nil {
+		assets = append( assets, asset)
+	}
+
+	if isOnlySource {
+		return assets, nil
+	}
 
 	//资源目录
 	var dirs []string
-
-	if isRelease {
-		dirs = append(dirs, "src/project.jsc")
-	} else {
-		dirs = append(dirs, "src/project.dev.js")
-	}
 
 	if isOnlySource == false {
 		resdirs, _ := GetDirs( resPath )
 		dirs = append(dirs, resdirs...)
 	}
 
-	fileId := int32(0)
 	idx := 0
 	for _, module := range dirs {
 		if( strings.Contains(module, ".") && !strings.Contains(module, "src") ) {
@@ -730,6 +755,19 @@ func setAssetsFileToRedis(assetFile, clientAppId, redisHost string ) {
 	} else {
 		log.Printf("===== 写入redis成功! (key:%v) =====\n", "AssetsInfo"+clientAppId)
 	}
+
+	/////////////////
+	//打印数据
+	text := ""
+	text += fmt.Sprintf("\n=========================\nassetInfo.dat读取文件后打印: \n\t [ assetInfo: %v ]\n \t[ 资源文件数:%v]\t[版本号:%v]\n",
+		*assetInfo.AssetHost, len(assetInfo.Assets), *assetInfo.LastestAssetsVersion)
+	for i, asset := range assetInfo.Assets {
+		text += fmt.Sprintf("\t--[%d] asset >>> fid:%v fPath:%v fver:%v size:%v md5:%v gameId:%v isCode:%v compress:%v\n",
+			i,  *asset.FileId, *asset.FilePath,
+			*asset.FileVer, *asset.FileSize, *asset.Md5, *asset.GameId, *asset.IsCode, asset.IsCompress)
+	}
+
+	log.Printf(text)
 }
 
 func compareAssetInfo() {
@@ -769,36 +807,75 @@ func compareAssetInfo() {
 
 }
 
-func saveFileIdList() bool {
-	if isFileExist( FILEID_LIST_JSON ) {
-		log.Printf("%v fileId文件已存在. ", FILEID_LIST_JSON)
-		return false
-	}
+func saveFileIdList() (result bool, logstr string) {
+	//if isFileExist( FILEID_LIST_JSON ) {
+	//	log.Printf("%v fileId文件已存在. ", FILEID_LIST_JSON)
+	//	return false
+	//}
+	logstr += fmt.Sprintf("==========检查是否有新增fileId=========\n")
 
-	//从文件读取
-	assetInfo := loadAssetInfoFromFile( OUTPUT_PATH + "/AssetsInfo.dat" )
+	outputFileidList := FILEID_LIST_JSON+".new"
+	var gFileIdMap map[string] string
 
-	gFileIdMap = make( map[string] string)
-	for _, asset := range assetInfo.Assets {
-		//fileIdMap[*asset.FilePath] = *asset.FileId
-		gFileIdMap[*asset.FilePath] = fmt.Sprintf("%d", *asset.FileId)
-	}
+	//读取新的assets文件
+	newAssetInfo := loadAssetInfoFromFile( OUTPUT_PATH + "AssetsInfo.dat" + ".new" )
 
-	data, err := json.Marshal( gFileIdMap )
+	//读取旧的FileidList文件
+	fr, err := os.Open( FILEID_LIST_JSON )
 	if err != nil {
-		log.Printf("json.Marshal err:%v\n",  err)
-		return false
+		logstr += fmt.Sprintf("Cannot open '%v', err:%v", FILEID_LIST_JSON, err)
+		panic(err)
 	}
-
-	err = ioutil.WriteFile(FILEID_LIST_JSON, []byte( data ), 0666)
+	defer fr.Close()
+	fileData, err := ioutil.ReadAll(fr)
+	if err!= nil {
+		logstr += fmt.Sprintf("read file err:%v",err)
+		panic(err)
+	}
+	err = json.Unmarshal( fileData, &gFileIdMap )
 	if err != nil {
-		log.Printf("write文件失败:%v savefile:%v", err, FILEID_LIST_JSON)
+		logstr += fmt.Sprintf("json.Unmarshal err:%v\n",  err)
 		panic(err)
 	}
 
-	log.Printf("=====保存文件Id信息完成( FileIdList.json )=====\n")
+	//比较得出差异的fileId,添加进去
+	for _, newasset := range newAssetInfo.Assets {
+		_, ok := gFileIdMap[*newasset.FilePath]
+		if !ok {
+			logstr += fmt.Sprintf("====<<差异[新增]fileId:%v path:%v\n", *newasset.FileId, *newasset.FilePath)
+			gFileIdMap[*newasset.FilePath] = fmt.Sprintf("%d", *newasset.FileId)
+		}
+	}
+	//打印已删除的fileId
+	for filePath, fileId := range gFileIdMap {
+		isExists := false
+		for _, newasset := range newAssetInfo.Assets {
+			if filePath == *newasset.FilePath {
+				isExists = true
+				break
+			}
+		}
+		if !isExists {
+			logstr += fmt.Sprintf("====>>差异[已删除]fileId:%v path:%v\n", fileId, filePath)
+		}
+	}
 
-	return true
+	//序列化为json保存
+	data, err := json.Marshal( gFileIdMap )
+	if err != nil {
+		log.Printf("json.Marshal err:%v\n",  err)
+		panic(err)
+	}
+
+	err = ioutil.WriteFile(outputFileidList, []byte( data ), 0666)
+	if err != nil {
+		log.Printf("write文件失败:%v savefile:%v", err, outputFileidList)
+		panic(err)
+	}
+
+	logstr += fmt.Sprintf("=====保存文件Id信息完成( FileIdList.json.new )=====\n")
+
+	return true, logstr
 }
 
 func getFileId(globalFid *int32, filePath *string) (fileId int32) {
@@ -859,36 +936,51 @@ func getFileId(globalFid *int32, filePath *string) (fileId int32) {
 func main() {
 	//compareAssetInfo()
 	//return
+	saveFile := OUTPUT_PATH + "/AssetsInfo.dat.new"
 
-	//更新redis数据
-	//redisHost = "127.0.0.1:6379"
-	//saveFile = "./AssetsInfo.dat"
-	//setAssetsFileToRedis( saveFile, redisHost, CLIENT_APPID)
+	////更新redis数据
+	//setAssetsFileToRedis( saveFile, CLIENT_APPID, "127.0.0.1:6379")
 	//return
 
-	saveFile := OUTPUT_PATH + "/AssetsInfo.dat"
-	redisHost := "127.0.0.1:6379"
 
+	if true {
 
-	isRelease := true
-	isOnlySource := false
+		redisHost := "127.0.0.1:6379"
 
-	assets, err := packResources("", OUTPUT_PATH, isRelease, isOnlySource)
-	if err != nil {
-		return
+		isRelease := false		 	//调试 or Release
+		isOnlySource := false      //是否只生产源码
+		isUpdateAppAsset := false  //是否更新App内置信息:/Resource/HotUpdate/AssetsInfo.dat
+
+		assets, err := packResources("", OUTPUT_PATH, isRelease, isOnlySource)
+		if err != nil {
+			return
+		}
+
+		//var assets []*ddproto.AssetInfo
+		//全局资源版本号
+		lastestAssetsVer := int32( 3 ) //2017.01.24
+		//makeInfoFile(assets, ASSET_HOST, saveFile, lastestAssetsVer, redisHost)
+		pkgData := makeInfoFile(isUpdateAppAsset, assets, TEST_ASSET_HOST, saveFile, lastestAssetsVer, redisHost)
+
+		if( pkgData != nil ) {
+			////写入redis
+			//log.Printf("将打印saveFile:%s\n")
+			//data.InitRedis(redisHost, "test")
+			//redisUtils.SetObj("AssetsInfo"+CLIENT_APPID, pkgData)
+		}
+
 	}
 
-	//var assets []*ddproto.AssetInfo
-	//全局资源版本号
-	lastestAssetsVer := int32(1)
-	makeInfoFile(assets, ASSET_HOST, saveFile, lastestAssetsVer, redisHost)
-	//makeInfoFile(assets, TEST_ASSET_HOST, saveFile, lastestAssetsVer, redisHost)
+	//从文件AssetsInfo.dat.new生成FileId
+	_, logSaveFileId := saveFileIdList()
+	logSaveFileId += "========= 生成时间: " + time.Now().Format("2006-01-02 15:04:05") + " ==========\n" +logSaveFileId
+
+	log.Printf( logSaveFileId )
+
+	log.Printf("将打印saveFile:%s\n", saveFile)
 
 
-	//从文件AssetsInfo.dat生成FileId
-	//saveFileIdList()
 
-
-	printAssetInfoFile( saveFile )
+	printAssetInfoFile( saveFile, logSaveFileId )
 }
 
