@@ -77,18 +77,22 @@ func TestFindLogsByMap(t *testing.T) {
 	m := bson.M{}
 	//regString := "123"
 	//m["data"] = bson.M{
-	//	"$not" : bson.M{
-	//		"$regex" : regString,
+	//	"$not" : bson.RegEx{
+	//		regString,
+	//		"i",
 	//	},
 	//}
-	timeBegin := timeUtils.StringYYYYMMDD2time("2017-01-21")
+	//m["data"] = bson.M{
+	//	"$regex" : regString,
+	//}
+	timeBegin := timeUtils.StringYYYYMMDD2time("2017-01-23")
 	timeEnd := timeBegin.AddDate(0, 0, 1)
 	timeBeginS := timeUtils.Format(timeBegin)
 	timeEndS := timeUtils.Format(timeEnd)
 	println(fmt.Sprintf("begin %v end %v", timeBeginS, timeEndS))
-	m["createdt"] = bson.M{
-		"$gte" : timeBeginS,
-		//"$lt" : timeEndS,
+	m["createdatt"] = bson.M{
+		"$gte" : timeBegin,
+		"$lt" : timeEnd,
 	}
 
 	logs := FindLogsByMap(m, 0, 100)

@@ -75,7 +75,10 @@ func Get(ctx *macaron.Context) {
 	dataFilter := ctx.Query("dataFilter")
 	if dataFilter != "" {
 		m["data"] = bson.M{
-			"$regex" : dataFilter,
+			"$not" : bson.RegEx{
+				dataFilter,
+				"i",
+			},
 		}
 	}
 
@@ -91,8 +94,8 @@ func Get(ctx *macaron.Context) {
 		timeBeginS := timeUtils.FormatYYYYMMDD(timeBegin)
 		timeEndS := timeUtils.FormatYYYYMMDD(timeEnd)
 		println(fmt.Sprintf("begin %v end %v", timeBeginS, timeEndS))
-		m["createdt"] = bson.M{
-			"$gt" : timeBeginS,
+		m["createdat"] = bson.M{
+			"$gte" : timeBeginS,
 			"$lt" : timeEndS,
 		}
 	}
