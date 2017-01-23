@@ -944,12 +944,11 @@ func main() {
 
 
 	if true {
-
+		isOnlySource := false      //是否只生产源码
 		redisHost := "127.0.0.1:6379"
 
-		isRelease := false		 	//调试 or Release
-		isOnlySource := false      //是否只生产源码
-		isUpdateAppAsset := false  //是否更新App内置信息:/Resource/HotUpdate/AssetsInfo.dat
+		isRelease := true		 	//调试 or Release
+		isUpdateAppAsset := true  //是否更新App内置信息:/Resource/HotUpdate/AssetsInfo.dat
 
 		assets, err := packResources("", OUTPUT_PATH, isRelease, isOnlySource)
 		if err != nil {
@@ -959,8 +958,8 @@ func main() {
 		//var assets []*ddproto.AssetInfo
 		//全局资源版本号
 		lastestAssetsVer := int32( 3 ) //2017.01.24
-		//makeInfoFile(assets, ASSET_HOST, saveFile, lastestAssetsVer, redisHost)
-		pkgData := makeInfoFile(isUpdateAppAsset, assets, TEST_ASSET_HOST, saveFile, lastestAssetsVer, redisHost)
+		pkgData := makeInfoFile(isUpdateAppAsset, assets, ASSET_HOST, saveFile, lastestAssetsVer, redisHost)
+		//pkgData := makeInfoFile(isUpdateAppAsset, assets, TEST_ASSET_HOST, saveFile, lastestAssetsVer, redisHost)
 
 		if( pkgData != nil ) {
 			////写入redis
