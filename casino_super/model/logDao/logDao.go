@@ -6,6 +6,7 @@ import (
 	"casino_common/utils/db"
 	"casino_common/utils/timeUtils"
 	"time"
+	"errors"
 )
 
 type LogData struct {
@@ -40,6 +41,16 @@ func FindLogsByKV(key string, v interface{}) []LogData {
 	}
 }
 
+//查询条数
+func FindLogsByMapCount(m bson.M) (int, error) {
+	err := errors.New("")
+	c := 0
+	db.Query(func(d *mgo.Database) {
+		c, err = d.C(TABLE).Find(m).Count()
+	})
+	return c, err
+}
+
 //分页查询
 func FindLogsByMap(m bson.M, skip, limit int) []LogData {
 	logData := []LogData{}
@@ -52,6 +63,13 @@ func FindLogsByMap(m bson.M, skip, limit int) []LogData {
 		return nil
 	}
 }
+
+//单条插入的方法
+func SaveLog2Mgo(logData LogData) error {
+	logData.CreatedAt = timeUtils.Format(time.Now())
+	return db.InsertMgoData(TABLE, logData)
+}
+
 
 
 //批量插入的方法

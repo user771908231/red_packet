@@ -10,14 +10,16 @@ import (
 	"strconv"
 	"math"
 	"casino_common/common/log"
+	"casino_common/utils/timeUtils"
 )
 
 type SearchParams struct {
-	UserId    string
-	DeskId    string
-	Level     string
-	Data      string
-	CreatedAt string
+	UserId     string
+	DeskId     string
+	Level      string
+	DataSearch string
+	DataFilter string
+	CreatedAt  string
 }
 
 type CodeValidate struct {
@@ -63,30 +65,51 @@ func Get(ctx *macaron.Context) {
 		m["deskid"] = deskId
 	}
 
-	data := ctx.Query("data")
-	if data != "" {
-		m["data"] = data
+	dataSearch := ctx.Query("dataSearch")
+	if dataSearch != "" {
+		m["data"] = bson.M{
+			"$regex" : dataSearch,
+		}
+	}
+
+	dataFilter := ctx.Query("dataFilter")
+	if dataFilter != "" {
+		m["data"] = bson.M{
+			"$not" : bson.RegEx{
+				dataFilter,
+				"i",
+			},
+		}
 	}
 
 	level := ctx.Query("level")
 	if level != "" {
-		m["level"] = level
+		m["level"] = bson.M{"$gte" : level}
 	}
 
 	createdAt := ctx.Query("createdAt")
 	if createdAt != "" {
-		m["createdAt"] = createdAt
+		timeBegin := timeUtils.StringYYYYMMDD2time(createdAt)
+		timeEnd := timeBegin.AddDate(0, 0, 1)
+		timeBeginS := timeUtils.FormatYYYYMMDD(timeBegin)
+		timeEndS := timeUtils.FormatYYYYMMDD(timeEnd)
+		println(fmt.Sprintf("begin %v end %v", timeBeginS, timeEndS))
+		m["createdat"] = bson.M{
+			"$gte" : timeBeginS,
+			"$lt" : timeEndS,
+		}
 	}
 
 	searchParams := SearchParams{
 		UserId:userId,
 		DeskId:deskId,
-		Data:data,
+		DataSearch:dataSearch,
+		DataFilter:dataFilter,
 		Level:level,
 		CreatedAt:createdAt,
 	}
 	ctx.Data["searchParams"] = searchParams
-	log.T("查询条件 userId[%v] deskId[%v] level[%v] data[%v] createAt[%v]", searchParams.UserId, searchParams.DeskId, searchParams.Level, searchParams.Data, searchParams.CreatedAt)
+	log.T("查询条件 userId[%v] deskId[%v] level[%v] dataSearch[%v] dataFilter[%v] createAt[%v]", searchParams.UserId, searchParams.DeskId, searchParams.Level, searchParams.DataSearch, searchParams.DataFilter, searchParams.CreatedAt)
 
 
 	//分页控件
@@ -111,11 +134,11 @@ func Get(ctx *macaron.Context) {
 	//	ctx.Data["logs"] = []logDao.LogData{}
 	//} else {}
 
-	log.T("开始查找, 查找条件userId[%v] deskId[%v] data[%v] level[%v] createAt[%v]", userId, deskId, data, level, createdAt)
+	log.T("开始查找, 查找条件userId[%v] deskId[%v] dataSearch[%v] dataFilter[%v] level[%v] createAt[%v]", userId, deskId, dataSearch, dataFilter, level, createdAt)
 	logs := logDao.FindLogsByMap(m, int(skip), int(limitInt64))
 	ctx.Data["logs"] = logs
 
-	count := len(logs) //总数
+	count, err := logDao.FindLogsByMapCount(m) //总数
 	log.T(fmt.Sprintf("已找到[%v]条记录", count))
 
 	paginator := Paginator(int(pageInt64), int(limitInt64), int64(count))
@@ -124,11 +147,11 @@ func Get(ctx *macaron.Context) {
 	//单页不显示分页控件
 	if count <= int(limitInt64) {
 		ctx.Data["paginator"] = nil
-	}else {
+	} else {
 		ctx.Data["paginator"] = paginator
 	}
 
-	ctx.Data["params"] = "?userId=" + userId + "&deskId=" + deskId + "&level=" + level + "&data=" + data + "&createdAt=" + createdAt + "&limit=" + limit
+	ctx.Data["params"] = "?userId=" + userId + "&deskId=" + deskId + "&level=" + level + "&data=" + dataSearch + "&dataFilter=" + dataFilter + "&createdAt=" + createdAt + "&limit=" + limit
 
 	ctx.HTML(200, "log/logs") // 200 为响应码
 }
@@ -161,10 +184,10 @@ func Paginator(page, prepage int, nums int64) map[string]interface{} {
 	}
 	var pages []int
 	switch {
-	case page >= totalpages-5 && totalpages > 5: //最后5页
+	case page >= totalpages - 5 && totalpages > 5: //最后5页
 		start := totalpages - 5 + 1
 		firstpage = page - 1
-		lastpage = int(math.Min(float64(totalpages), float64(page+1)))
+		lastpage = int(math.Min(float64(totalpages), float64(page + 1)))
 		pages = make([]int, 5)
 		for i, _ := range pages {
 			pages[i] = start + i
@@ -183,7 +206,7 @@ func Paginator(page, prepage int, nums int64) map[string]interface{} {
 		for i, _ := range pages {
 			pages[i] = i + 1
 		}
-		firstpage = int(math.Max(float64(1), float64(page-1)))
+		firstpage = int(math.Max(float64(1), float64(page - 1)))
 		lastpage = page + 1
 	//fmt.Println(pages)
 	}
