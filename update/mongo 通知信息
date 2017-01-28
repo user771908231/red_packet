@@ -46,3 +46,70 @@ db.t_th_notice.insert({
 	"fileds" : [],
 })
 
+
+##插入转盘奖励物品列表
+db.t_draw_lottery.insert({
+	"sort" : 1,
+	"type" : 3,
+	"name" : "10",
+	"number" : 10,
+	"percent" : 10,
+	"version" : 1,
+})
+db.t_draw_lottery.insert({
+	"sort" : 2,
+	"type" : 6,
+	"name" : "10",
+	"number" : 10,
+	"percent" : 15,
+	"version" : 1,
+})
+db.t_draw_lottery.insert({
+	"sort" : 3,
+	"type" : 5,
+	"name" : "0.2",
+	"number" : 1,
+	"percent" : 15,
+	"version" : 1,
+})
+db.t_draw_lottery.insert({
+	"sort" : 4,
+	"type" : 4,
+	"name" : "500",
+	"number" : 500,
+	"percent" : 24.50,
+	"version" : 1,
+})
+db.t_draw_lottery.insert({
+	"sort" : 5,
+	"type" : 1,
+	"name" : "1",
+	"number" : 1,
+	"percent" : 10,
+	"version" : 1,
+})
+db.t_draw_lottery.insert({
+	"sort" : 6,
+	"type" : 5,
+	"name" : "1",
+	"number" : 1,
+	"percent" : 0.5,
+	"version" : 1,
+})
+db.t_draw_lottery.insert({
+	"sort" : 7,
+	"type" : 4,
+	"name" : "1000",
+	"number" : 1000,
+	"percent" : 20,
+	"version" : 1,
+})
+db.t_draw_lottery.insert({
+	"sort" : 8,
+	"type" : 4,
+	"name" : "5000",
+	"number" : 5000,
+	"percent" : 5,
+	"version" : 1,
+})
+

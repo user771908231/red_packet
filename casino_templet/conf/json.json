@@ -1,0 +1,9 @@
+{
+  "LogLevel": "debug",
+  "LogPath": "/Users/saplmm/gopath/casino/src/casino_templet/log",
+  "WSAddr": "192.168.199.120:8880",
+  "MaxConnNum": 20000,
+  "MongoIp": "192.168.199.120",
+  "MongoPort": 27017,
+  "RedisAddr": "127.0.0.1:6379"
+}
