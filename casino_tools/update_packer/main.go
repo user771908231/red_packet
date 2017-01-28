@@ -24,11 +24,11 @@ const (
 	APP_ASSET_FILE="/Users/kory/Documents/Dev/cocos2d-x-3.12/casino/DDZ/assets/resources/HotUpdate/AssetsInfo.dat"
 	BUILD_NATIVE_PATH = "/Users/kory/Documents/Dev/cocos2d-x-3.12/casino/DDZ/build_native/"
 	ROOT_PATH = BUILD_NATIVE_PATH + "jsb-default/"
-	OUTPUT_PATH = BUILD_NATIVE_PATH + "hotupdate/"
+	OUTPUT_PATH = "/Users/kory/Documents/Dev/workspace/Git/GameUpdate/SjddzUpdate/"
 
 	FILEID_LIST_JSON = OUTPUT_PATH+"FileIdList.json"
 
-	ASSET_HOST = "http://d.tondeen.com/hotupdate/"
+	ASSET_HOST = "http://test2.tondeen.com/hotupdate/"
 	TEST_ASSET_HOST = "http://d.tondeen.com/testhot/"
 	CLIENT_APPID = "1"
 )
@@ -354,6 +354,7 @@ func printAssetInfoFile(saveFile, logSaveFileId string ) string {
 	log.Printf(text)
 
 	//写入文件
+
 	printFile := filepath.Dir(saveFile)+"/print.txt"
 	err := ioutil.WriteFile(printFile, []byte(text), 0666)
 	if err != nil {
@@ -577,7 +578,7 @@ func packResources(importpath string, outputPath string,  isRelease, isOnlySourc
 	fileId := int32(0)
 
 	//先打包src源码
-	basePath := "src"
+	basePath := "src/"
 	filePath := "src.zip"
 	asset, err := packSomeFiles(origAssetInfo, srcFiles, "src", outputPath, filePath, basePath, &fileId )
 	if err == nil {
@@ -934,10 +935,10 @@ func getFileId(globalFid *int32, filePath *string) (fileId int32) {
 }
 
 func main() {
-	//compareAssetInfo()
-	//return
 	saveFile := OUTPUT_PATH + "/AssetsInfo.dat.new"
 
+	//printAssetInfoFile( "/Users/kory/Documents/Dev/cocos2d-x-3.12/casino/DDZ/assets/resources/HotUpdate/AssetsInfo.dat", "" )
+	//return
 	////更新redis数据
 	//setAssetsFileToRedis( saveFile, CLIENT_APPID, "127.0.0.1:6379")
 	//return
