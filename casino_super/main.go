@@ -2,15 +2,14 @@ package main
 
 import (
 	"gopkg.in/macaron.v1"
-	"casino_super/handler/logHandler"
-	"github.com/go-macaron/binding"
-	"casino_super/model/logDao"
 	"casino_common/common/sys"
 	"os"
 	"casino_super/conf"
 	"casino_super/conf/config"
 	"time"
 	"casino_common/proto/ddproto"
+	"casino_super/routers"
+	"casino_super/modules"
 )
 
 
@@ -37,26 +36,26 @@ func init() {
 
 	time.Sleep(time.Second * 3)        //初始化3秒之后启动程序
 }
-//
+
 func main() {
-	m := macaron.Classic()
-	m.Use(macaron.Renderer())        //使用模板
+	m := macaron.New()
+	//注册模板
+	m.Use(macaron.Renderer(macaron.RenderOptions{Directory: "templates"}))
+	//注册静态目录
+	m.Use(macaron.Static("public"))
 
-	m.Use(macaron.Static("public/assets"))
-
-	//log upload interface
-	m.Post("log", binding.Json(logDao.ReqLog{}), logHandler.Post)
-
-	m.Delete("logs", binding.Json(logHandler.CodeValidate{}), logHandler.Delete)
-
-	m.Get("logs/:page", logHandler.Get)
-	m.Get("logs", logHandler.Get)
-
-	m.NotFound(func() string {
-		return "not found 233..."
+	//注册Alert模块
+	m.Use(func(ctx *macaron.Context) {
+		ctx.Map(modules.Alert{Contex:ctx})
 	})
-	//launch server
-	m.Run(conf.Server.HttpIp, conf.Server.HttpPort)
 
+	//注册路由
+	routers.Regist(m)
+
+	m.NotFound(func(alert modules.Alert) {
+		alert.Error("对不起未找到该页面！", "/admin", 3)
+	})
+
+	m.Run(conf.Server.HttpIp, conf.Server.HttpPort)
 
 }
