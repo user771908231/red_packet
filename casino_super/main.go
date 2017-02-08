@@ -29,7 +29,9 @@ func init() {
 		config.DB_ENSURECOUNTER_KEY,
 		[]string{
 			config.DBT_SUPER_LOGS,
-			config.DBT_T_TH_GAMENUMBER_SEQ})
+			config.DBT_T_TH_GAMENUMBER_SEQ,
+			config.DB_USER_SEQ,
+		})
 	//判断初始化是否成功
 	if err != nil {
 		os.Exit(-1)        //推出系统

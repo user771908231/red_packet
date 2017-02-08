@@ -19,9 +19,14 @@ func Regist(m *macaron.Macaron) {
 
 	//后台
 	m.Group("/admin", func() {
-		m.Get("/", admin.IndexHandler)
-		m.Get("/sign", admin.SignHandler)
-	})
+		//需要登录
+		m.Group("", func() {
+			m.Get("/", admin.IndexHandler)
+			m.Get("/sign", admin.SignHandler)
+		},admin.NeedLogin)
+		m.Get("/login", admin.LoginHandler)
+		m.Post("/login", binding.Bind(admin.LoginForm{}), admin.LoginPostHandler)
+	}, admin.ShowPanel)
 
 	//首页
 	m.Get("/", func(ctx *modules.Context) {
