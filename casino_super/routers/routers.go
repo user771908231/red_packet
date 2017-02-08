@@ -20,10 +20,11 @@ func Regist(m *macaron.Macaron) {
 	//后台
 	m.Group("/admin", func() {
 		m.Get("/", admin.IndexHandler)
+		m.Get("/sign", admin.SignHandler)
 	})
 
 	//首页
-	m.Get("/", func(alert modules.Alert) {
-		alert.Success("即将跳转至后台！", "/admin", 3)
+	m.Get("/", func(ctx *modules.Context) {
+		ctx.Success("即将跳转至后台！", "/admin", 3)
 	})
 }

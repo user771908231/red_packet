@@ -10,6 +10,7 @@ import (
 	"casino_common/proto/ddproto"
 	"casino_super/routers"
 	"casino_super/modules"
+	"github.com/go-macaron/session"
 )
 
 
@@ -43,17 +44,19 @@ func main() {
 	m.Use(macaron.Renderer(macaron.RenderOptions{Directory: "templates"}))
 	//注册静态目录
 	m.Use(macaron.Static("public"))
+	//注册Session
+	m.Use(session.Sessioner())
 
-	//注册Alert模块
-	m.Use(func(ctx *macaron.Context) {
-		ctx.Map(modules.Alert{Contex:ctx})
+	//注册Context
+	m.Use(func(ctx *macaron.Context, session session.Store) {
+		ctx.Map(&modules.Context{ctx,session})
 	})
 
 	//注册路由
 	routers.Regist(m)
 
-	m.NotFound(func(alert modules.Alert) {
-		alert.Error("对不起未找到该页面！", "/admin", 3)
+	m.NotFound(func(ctx *modules.Context) {
+		ctx.Error("对不起未找到该页面！", "/admin", 3)
 	})
 
 	m.Run(conf.Server.HttpIp, conf.Server.HttpPort)
