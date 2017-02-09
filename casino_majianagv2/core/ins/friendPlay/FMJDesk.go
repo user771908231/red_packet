@@ -14,7 +14,7 @@ type FMJDesk struct {
 //创建一个朋友桌的desk
 func NewFMJDesk(config data.SkeletonMJConfig) api.MjDesk {
 	return &FMJDesk{
-		SkeletonMJDesk:skeleton.NewSkeletonMJDesk(config),
+		SkeletonMJDesk: skeleton.NewSkeletonMJDesk(config),
 	}
 }
 
