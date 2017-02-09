@@ -1,4 +1,4 @@
-package friendPlay
+package coinPlay
 
 import (
 	"casino_majianagv2/core/ins/skeleton"
@@ -8,34 +8,42 @@ import (
 )
 
 //朋友桌麻将的desk
-type FMJDesk struct {
+type CMJDesk struct {
 	*skeleton.SkeletonMJDesk
 }
 
 //创建一个朋友桌的desk
-func NewFMJDesk(config data.SkeletonMJConfig) api.MjDesk {
-
+func NewCMJDesk(config data.SkeletonMJConfig) api.MjDesk {
+	//判断创建条件：房卡，
 	//desk 骨架
-	desk := &FMJDesk{
+	desk := &CMJDesk{
 		SkeletonMJDesk: skeleton.NewSkeletonMJDesk(config),
 	}
-
 	desk.HuParser = huParserIns.NewChengDuHuParser()
 	return desk
 }
 
 //离开房间
-func (d *FMJDesk) Leave(userId uint32) error {
+func (d *CMJDesk) Leave(userId uint32) error {
 	return nil
 }
 
-func (d *FMJDesk) Ready(userId uint32) error {
+//准备
+func (d *CMJDesk) Ready(userId uint32) error {
+	d.Lock()
+	defer d.Unlock()
 	d.SkeletonMJDesk.Ready(userId)
-	//如果人数还是不够，就需要在计划增加机器人
+	d.initEnterTimer() //房间进入一个人之后开始计划添加机器人
 	d.begin()
 	return nil
 }
 
-func (d *FMJDesk) begin() {
+//todo
+func (d *CMJDesk) initEnterTimer() {
+
+}
+
+//todo
+func (d *CMJDesk) begin() {
 
 }

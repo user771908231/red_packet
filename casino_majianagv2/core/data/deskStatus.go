@@ -4,7 +4,12 @@ package data
 type MjDeskStatus struct {
 }
 
-//todo 
+//todo
 func (s *MjDeskStatus) IsNotGaming() bool {
+	return false
+}
+
+//todo
+func (s *MjDeskStatus) IsNotPreparing() bool {
 	return false
 }
