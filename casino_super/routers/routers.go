@@ -7,6 +7,7 @@ import (
 	"casino_super/model/logDao"
 	"casino_super/handler/logHandler"
 	"casino_super/modules"
+	"casino_super/handler/admin/manage"
 )
 
 //注册路由
@@ -22,10 +23,24 @@ func Regist(m *macaron.Macaron) {
 		//需要登录
 		m.Group("", func() {
 			m.Get("/", admin.IndexHandler)
+			m.Get("/main", admin.MainHandler)
 			m.Get("/sign", admin.SignHandler)
 		},admin.NeedLogin)
 		m.Get("/login", admin.LoginHandler)
-		m.Post("/login", binding.Bind(admin.LoginForm{}), admin.LoginPostHandler)
+		m.Get("/logout", admin.LogoutHandler)
+		m.Post("/login", admin.NeedCaptcha, binding.Bind(admin.LoginForm{}), admin.LoginPostHandler)
+
+		//管理页
+		m.Group("/manage", func() {
+			//用户相关
+			m.Group("/user", func() {
+				//所有用户
+				m.Get("/", func(ctx *modules.Context) {ctx.HTML(200, "admin/manage/user/index")})
+				m.Get("/list", manage.UserListHandler)
+				m.Get("/del/:id", manage.DelUserHandler)
+				m.Get("/update/:id", manage.UpdateUserHandler)
+			})
+		}, admin.NeedLogin)
 	}, admin.ShowPanel)
 
 	//首页

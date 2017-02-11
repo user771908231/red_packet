@@ -24,10 +24,13 @@
     <p class="error">{{.Error}}</p>
     {{end}}
     <p class="detail"></p>
+    {{if gt .Time 0}}
     <p class="jump">
         页面自动 <a id="href" href="{{.JumpUrl}}">跳转</a> 等待时间： <b id="wait">{{.Time}}</b>
     </p>
+    {{end}}
 </div>
+{{if gt .Time 0}}
 <script type="text/javascript">
     (function(){
         var wait = document.getElementById('wait'),href = document.getElementById('href').href;
@@ -40,5 +43,6 @@
         }, 1000);
     })();
 </script>
+{{end}}
 </body>
 </html>

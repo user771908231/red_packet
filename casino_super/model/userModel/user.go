@@ -4,13 +4,12 @@ import (
 	"casino_common/utils/db"
 	"errors"
 	"crypto/md5"
-	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
 	"casino_super/conf/config"
 	"encoding/hex"
 )
 
-const ADMIN_TABLE_NAME string = "t_admin"
+const ADMIN_TABLE_NAME string = "t_super_admin"
 
 type User struct {
 	Id uint32
@@ -22,11 +21,9 @@ type User struct {
 func GetUserById(id uint32) *User {
 	var err error = nil
 	user_row := new(User)
-	db.Query(func(d *mgo.Database) {
-		err = d.C(ADMIN_TABLE_NAME).Find(bson.M{
-			"id": id,
-		}).One(user_row)
-	})
+	err = db.C(ADMIN_TABLE_NAME).Find(bson.M{
+		"id": id,
+	}, user_row)
 	if err != nil {
 		return user_row
 	}
@@ -40,12 +37,10 @@ func Login(user_name string, passwd string) *User {
 	h := md5.New()
 	h.Write([]byte(passwd))
 	passwd = hex.EncodeToString(h.Sum(nil))
-	db.Query(func(d *mgo.Database) {
-		err = d.C(ADMIN_TABLE_NAME).Find(bson.M{
-			"nickname": user_name,
-			"passwd": passwd,
-		}).One(user_row)
-	})
+	err = db.C(ADMIN_TABLE_NAME).Find(bson.M{
+		"nickname": user_name,
+		"passwd": passwd,
+	}, user_row)
 	if err != nil {
 		return nil
 	}
@@ -62,19 +57,12 @@ func (user *User)Insert() error {
 	h := md5.New()
 	h.Write([]byte(user.PassWd))
 	user.PassWd = hex.EncodeToString(h.Sum(nil))
-	db.Query(func(d *mgo.Database) {
-		err = d.C(ADMIN_TABLE_NAME).Insert(user)
-	})
+	err = db.C(ADMIN_TABLE_NAME).Insert(user)
 	return err
 }
 
 //编辑用户资料
 func (user *User)Save() error {
-	var err error = nil
-	db.Query(func(d *mgo.Database) {
-		err = d.C(ADMIN_TABLE_NAME).Update(bson.M{
-			"id": user.Id,
-		},user)
-	})
+	err := db.C(ADMIN_TABLE_NAME).Update(bson.M{"id":user.Id}, user)
 	return err
 }
