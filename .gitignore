@@ -5,5 +5,7 @@ conf/login.json
 conf/majiang.json
 conf/server.json
 conf/zjh.json
+conf/super.json
 casino_super.iml
 casino_zjh.tgz
+casino_super/log/
