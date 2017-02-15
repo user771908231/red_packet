@@ -44,7 +44,6 @@ func NewClient(appId, mchId, apiKey string, httpClient *http.Client) *Client {
 // PostXML 是微信支付通用请求方法.
 //  err == nil 表示协议状态为 SUCCESS(return_code==SUCCESS).
 func (clt *Client) PostXML(url string, req map[string]string) (resp map[string]string, err error) {
-	fmt.Printf("调用postXml url[%v]  req[%v]\n", url, req)
 	bodyBuf := textBufferPool.Get().(*bytes.Buffer)
 	bodyBuf.Reset()
 	defer textBufferPool.Put(bodyBuf)
@@ -54,13 +53,10 @@ func (clt *Client) PostXML(url string, req map[string]string) (resp map[string]s
 	}
 	api.DebugPrintPostXMLRequest(url, bodyBuf.Bytes())
 
-	fmt.Printf("调用postXml,开始clt.httpClient.Post，EncodeXMLFromMap。bodyBuf: %v \n", bodyBuf)
 	httpResp, err := clt.httpClient.Post(url, "text/xml; charset=utf-8", bodyBuf)
 	if err != nil {
 		return
 	}
-
-	fmt.Printf("调用postXml,clt.httpClient.Post 结束\n")
 	defer httpResp.Body.Close()
 
 	if httpResp.StatusCode != http.StatusOK {
@@ -72,14 +68,10 @@ func (clt *Client) PostXML(url string, req map[string]string) (resp map[string]s
 		return
 	}
 
-	fmt.Printf("调用postXml decoeXmlHttpRes %v\n", resp)
-
 	// 判断协议状态
 	returnCode, ok := resp["return_code"]
 	if !ok {
 		err = ErrNotFoundReturnCode
-		fmt.Printf("没有找到return_code 返回...:%v \n", returnCode)
-
 		return
 	}
 	if returnCode != ReturnCodeSuccess {
@@ -90,19 +82,13 @@ func (clt *Client) PostXML(url string, req map[string]string) (resp map[string]s
 		return
 	}
 
-	fmt.Printf("开始验证appid %v\n", resp)
-
 	// 安全考虑, 做下验证 appid 和 mch_id
 	appId, ok := resp["appid"]
-	fmt.Printf("开始验证appid %v\n", appId)
 	if ok && appId != clt.appId {
 		err = fmt.Errorf("appid mismatch, have: %s, want: %s", appId, clt.appId)
 		return
 	}
-
 	mchId, ok := resp["mch_id"]
-	fmt.Printf("开始验证mchId %v\n", mchId)
-
 	if ok && mchId != clt.mchId {
 		err = fmt.Errorf("mch_id mismatch, have: %s, want: %s", mchId, clt.mchId)
 		return
@@ -110,10 +96,8 @@ func (clt *Client) PostXML(url string, req map[string]string) (resp map[string]s
 
 	// 验证签名
 	signature1, ok := resp["sign"]
-	fmt.Printf("开始验证sign %v\n", signature1)
-
 	if !ok {
-		err = ErrNotFoundSign // TODO 恢复这个注释, 待腾讯返回 sign 参数的时候
+		// err = ErrNotFoundSign // TODO 恢复这个注释, 待腾讯返回 sign 参数的时候
 		return
 	}
 	signature2 := Sign(resp, clt.apiKey, nil)
@@ -121,8 +105,5 @@ func (clt *Client) PostXML(url string, req map[string]string) (resp map[string]s
 		err = fmt.Errorf("sign mismatch,\nhave: %s,\nwant: %s", signature1, signature2)
 		return
 	}
-
-	fmt.Printf("调用postXml 结束\n")
-
 	return
 }

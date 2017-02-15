@@ -1,8 +1,9 @@
 package core
 
 import (
-	timex "github.com/chanxuehong/time"
 	"time"
+
+	timex "github.com/chanxuehong/time"
 )
 
 // FormatTime 将参数 t 格式化成 北京时间yyyyMMddHHmmss
