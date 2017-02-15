@@ -1,0 +1,346 @@
+{{template "manage_header" }}
+
+<form id="form_list" class="layui-form" method="get" action="/admin/manage/user/list">
+    <div class="layui-form-item">
+        <input type="text" style="width: 200px;float: left" name="keyword" placeholder="用户名或id" autocomplete="off" class="layui-input">
+        <input type="hidden" name="page" value="1">
+        <button style="float: left; position:relative;" class="layui-btn" lay-submit>搜索</button>
+    </div>
+</form>
+
+<!--搜索表单-->
+<table class="layui-table">
+    <thead>
+    <tr>
+        <th>id</th>
+        <th>昵称</th>
+        <th>性别</th>
+        <th>头像</th>
+        <th>金币</th>
+        <th>钻石</th>
+        <th>房卡</th>
+        <th>OpenId</th>
+        <th>UnionId</th>
+        <th>机器人</th>
+        <th>操作</th>
+    </tr>
+    </thead>
+    <tbody id="view_list">
+    </tbody>
+</table>
+
+<div align="center">
+    <div id="view-page"></div>
+</div>
+
+<!--模板：用户列表-->
+<script id="tpl_list" type="text/html">
+    <{# layui.each(d.data.list, function(index,item){ }>
+    <tr id="user-<{ item.id }>">
+        <td><{ item.id }></td>
+        <td><{ item.nickName }></td>
+        <td><{ item.sex }></td>
+        <td><img width="40px" src="<{ item.headUrl }>" alt="无"/></td>
+        <td><{ item.coin }></td>
+        <td><{ item.Diamond }></td>
+        <td><{ item.RoomCard || 0 }></td>
+        <td><{ item.openId }></td>
+        <td><{ item.UnionId }></td>
+        <td><{ item.robotType }></td>
+        <td>
+            <a href="" data-index="<{ index }>" class="list_edit_btn layui-btn layui-btn-primary layui-btn-small" title="编辑"><i class="layui-icon">&#xe642;</i></a>
+            <a href="" data-index="<{ index }>" class="list_recharge_btn layui-btn layui-btn-primary layui-btn-small" title="充值"><i class="layui-icon">&#xe61f;</i></a>
+            <a href="del/<{ item.id }>" data-user="user-<{ item.id }>" class="list_del_btn layui-btn layui-btn-primary layui-btn-small" title="删除"><i class="layui-icon">&#xe640;</i></a>
+        </td>
+    </tr>
+    <{# }); }>
+</script>
+
+<!--模板：编辑用户-->
+<script id="tpl_edit" data-width="360px" data-title="编辑用户" type="text/html">
+    <form id="form_edit" method="post" action="/admin/manage/user/update">、
+        <input type="hidden" name="id" value="<{ d.id }>">
+        <div class="layui-form-item">
+            <label class="layui-form-label">用户名：</label>
+            <div class="layui-input-inline">
+                <input type="text" name="nickName" value="<{ d.nickName }>" lay-verify="phone" autocomplete="off" class="layui-input">
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">头像：</label>
+            <div class="layui-input-inline">
+                <input type="text" name="headUrl" value="<{ d.headUrl }>" lay-verify="phone" autocomplete="off" class="layui-input">
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <div class="layui-inline">
+                <label class="layui-form-label">金币：</label>
+                <div class="layui-input-inline">
+                    <input type="number" name="coin" value="<{ d.coin || 0 }>" lay-verify="number" autocomplete="off" class="layui-input">
+                </div>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <div class="layui-inline">
+                <label class="layui-form-label">钻石：</label>
+                <div class="layui-input-inline">
+                    <input type="number" name="Diamond" value="<{ d.Diamond || 0 }>" lay-verify="number" autocomplete="off" class="layui-input">
+                </div>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <div class="layui-inline">
+                <label class="layui-form-label">房卡：</label>
+                <div class="layui-input-inline">
+                    <input type="number" name="RoomCard" value="<{ d.RoomCard || 0 }>" lay-verify="number" autocomplete="off" class="layui-input">
+                </div>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <div class="layui-inline">
+                <label class="layui-form-label">OpenId：</label>
+                <div class="layui-input-inline">
+                    <input type="text" name="OpenId" value="<{ d.OpenId }>" autocomplete="off" class="layui-input">
+                </div>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <div class="layui-inline">
+                <label class="layui-form-label">UnionId：</label>
+                <div class="layui-input-inline">
+                    <input type="text" name="UnionId" value="<{ d.UnionId }>" autocomplete="off" class="layui-input">
+                </div>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <div class="layui-inline">
+                <label class="layui-form-label">性别：</label>
+                <div class="layui-input-inline">
+                    <input type="text" name="sex" value="<{ d.sex }>" autocomplete="off" class="layui-input">
+                </div>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <div class="layui-inline">
+                <label class="layui-form-label">机器人：</label>
+                <div class="layui-input-inline">
+                    <input type="text" name="robotType" value="<{ d.robotType }>" autocomplete="off" class="layui-input">
+                </div>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <div class="layui-input-block">
+                <input type="submit" value="立即提交" class="layui-btn"/>
+                <input type="reset" value="重置" class="layui-btn layui-btn-primary"/>
+            </div>
+        </div>
+    </form>
+</script>
+
+<!--模板：用户充值-->
+<script id="tpl_recharge" data-width="360px" data-title="用户充值" type="text/html">
+    <form id="form_recharge" method="post" action="/admin/manage/user/recharge">
+        <input type="hidden" name="Id" value="<{ d.id }>">
+        <div class="layui-form-item">
+            <label class="layui-form-label">用户：</label>
+            <div class="layui-input-inline">
+                <div class="layui-form-label"><{ d.nickName }></div>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <div class="layui-inline">
+                <label class="layui-form-label">金币：</label>
+                <div class="layui-input-inline">
+                    <input type="number" name="Coin" value="0" lay-verify="number" autocomplete="off" class="layui-input">
+                </div>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <div class="layui-inline">
+                <label class="layui-form-label">钻石：</label>
+                <div class="layui-input-inline">
+                    <input type="number" name="Diamond" value="0" lay-verify="number" autocomplete="off" class="layui-input">
+                </div>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <div class="layui-inline">
+                <label class="layui-form-label">房卡：</label>
+                <div class="layui-input-inline">
+                    <input type="number" name="RoomCard" value="0" lay-verify="number" autocomplete="off" class="layui-input">
+                </div>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <div class="layui-input-block">
+                <input type="submit" value="充值" class="layui-btn"/>
+                <input type="reset" value="重置" class="layui-btn layui-btn-primary"/>
+            </div>
+        </div>
+    </form>
+</script>
+
+<script>
+    $(document).ready(function () {
+        //全局变量存储用户列表
+        var user_list = {};
+        //用户列表
+        common.bindAjax("submit", "#form_list", function (e) {
+            e.preventDefault();
+            return true
+        },function (data, res) {
+            if(res.code > 0){
+                //将数据保存在DOM节点中
+                user_list = res;
+                //渲染列表
+                common.render(res, "#tpl_list", "#view_list");
+                //渲染分页
+                layui.laypage({
+                    cont: 'view-page',
+                    curr: res.data.page.page,
+                    pages: res.data.page.page_count, //得到总页数
+                    jump: function(obj){
+                        var input_page = "#form_list input[name='page']";
+                        if(obj.curr != $(input_page).val()){
+                            $(input_page).val(obj.curr);
+                            $("#form_list").submit();
+                        }
+                    }
+                });
+            }else {
+                common.msg("错误",res.msg)
+            }
+        });
+
+        //搜索时重置表单page为1
+        $("#form_list input[name='keyword']").on("change", function (e) {
+            $("#form_list input[name='page']").val("1");
+        });
+
+        //删除用户
+        common.bindAjax("click", ".list_del_btn", function (e) {
+            e.preventDefault();
+            return window.confirm("确定删除该用户？")
+        },function (data, res) {
+            common.msg("消息", res.msg);
+            $("#"+$(this).data("user")).remove()
+        });
+
+        //编辑用户
+        common.bindAjax("click", ".list_edit_btn", function (e) {
+            e.preventDefault();
+            common.renderLayer(user_list.data.list[$(this).data("index")], "#tpl_edit");
+            return false
+        });
+
+        //更新用户资料
+        common.bindAjax("submit", "#form_edit", function (e) {
+            e.preventDefault();
+            return true
+        },function (data, res) {
+            if(res.code > 0){
+                common.msg("信息", "更新用户资料成功！");
+                $("#form_list").submit();
+            }else {
+                common.msg("信息", "更新用户资料失败！");
+            }
+        });
+
+        //用户充值
+        common.bindAjax("click", ".list_recharge_btn", function (e) {
+            e.preventDefault();
+            common.renderLayer(user_list.data.list[$(this).data("index")], "#tpl_recharge");
+            return false
+        });
+
+        //用户充值表单
+        common.bindAjax("submit", "#form_recharge", function (e) {
+            e.preventDefault();
+            return true
+        },function (data, res) {
+            if(res.code > 0){
+                common.msg("信息", "充值成功！");
+                //渲染列表
+                $("#form_list").submit()
+            }else {
+                common.msg("信息", "充值失败！");
+            }
+        });
+
+        $("#form_list").submit();
+
+//        userList = {
+//            state: {
+//                req: {"page":1,"keyword":""},
+//                res:{}
+//            },
+//            init:function () {
+//                userList.page(1);
+//                //绑定搜索事件
+//                $(document).on("submit","#form_list", function (e) {
+//                    e.preventDefault();
+//                    userList.search($(this).find("input[name='keyword']"));
+//                },function (res) {
+//
+//                });
+//                //
+//            },
+//            render: function () {
+//                common.render(this.state.res, "#tpl_list", "#view_list");
+//                var data = this.state.res.data;
+//                layui.laypage({
+//                    cont: 'view-page',
+//                    curr: data.page.page,
+//                    pages: data.page.page_count, //得到总页数
+//                    jump: function(obj){
+//                        if(obj.curr != data.page.page){
+//                            userList.page(obj.curr)
+//                        }
+//                    }
+//                });
+//            },
+//            ajax: function () {
+//                common.ajaxForm("#form_list", this.state.req, function (res) {
+//                    userList.state.res = res;
+//                    userList.render()
+//                })
+//            },
+//            page: function (p) {
+//                this.state.req.page = p;
+//                this.ajax();
+//            },
+//            search: function (keyword) {
+//                var req = this.state.req;
+//                req.keyword = keyword;
+//                req.page = 1;
+//                this.ajax();
+//            },
+//            edit: function (index) {
+//                var list = userList.state.res.data.list;
+//                var data = list[index];
+//                common.renderLayer(data, "#tpl_edit");
+//            },
+//            del: function (index) {
+//                this.state.res.data.list.splice(index, 1);
+//                this.render();
+//            },
+//            update: function (uid, data) {
+//                this.state.res.data.list[this.getIndexByUid(uid)] = data;
+//                this.render();
+//            },
+//            getIndexByUid: function (uid) {
+//                var list = userList.state.res.data.list;
+//                for(var i=0;i<list.length;i++){
+//                    if(list[i].id == uid){
+//                        return i
+//                    }
+//                }
+//                return 0
+//            }
+//        };
+//        userList.init();
+    });
+
+</script>
+
+{{template "manage_footer" }}

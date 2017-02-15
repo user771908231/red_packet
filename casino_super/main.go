@@ -2,15 +2,17 @@ package main
 
 import (
 	"gopkg.in/macaron.v1"
-	"casino_super/handler/logHandler"
-	"github.com/go-macaron/binding"
-	"casino_super/model/logDao"
 	"casino_common/common/sys"
 	"os"
 	"casino_super/conf"
 	"casino_super/conf/config"
 	"time"
 	"casino_common/proto/ddproto"
+	"casino_super/routers"
+	"casino_super/modules"
+	"github.com/go-macaron/session"
+	"github.com/go-macaron/captcha"
+	"github.com/go-macaron/cache"
 )
 
 
@@ -29,7 +31,9 @@ func init() {
 		config.DB_ENSURECOUNTER_KEY,
 		[]string{
 			config.DBT_SUPER_LOGS,
-			config.DBT_T_TH_GAMENUMBER_SEQ})
+			config.DBT_T_TH_GAMENUMBER_SEQ,
+			config.DB_USER_SEQ,
+		})
 	//判断初始化是否成功
 	if err != nil {
 		os.Exit(-1)        //推出系统
@@ -37,26 +41,32 @@ func init() {
 
 	time.Sleep(time.Second * 3)        //初始化3秒之后启动程序
 }
-//
+
 func main() {
 	m := macaron.Classic()
-	m.Use(macaron.Renderer())        //使用模板
-
-	m.Use(macaron.Static("public/assets"))
-
-	//log upload interface
-	m.Post("log", binding.Json(logDao.ReqLog{}), logHandler.Post)
-
-	m.Delete("logs", binding.Json(logHandler.CodeValidate{}), logHandler.Delete)
-
-	m.Get("logs/:page", logHandler.Get)
-	m.Get("logs", logHandler.Get)
-
-	m.NotFound(func() string {
-		return "not found 233..."
+	//注册模板
+	m.Use(macaron.Renderer(macaron.RenderOptions{Directory:"templates",IndentJSON:true}))
+	//注册Session
+	m.Use(session.Sessioner())
+	//验证码依赖缓存组件
+	m.Use(cache.Cacher())
+	//验证码
+	m.Use(captcha.Captchaer(captcha.Options{
+		FieldCaptchaName: "captcha",
+		ChallengeNums:4,
+	}))
+	//注册Context
+	m.Use(func(ctx *macaron.Context, session session.Store) {
+		ctx.Map(&modules.Context{Context:ctx,Session:session})
 	})
-	//launch server
-	m.Run(conf.Server.HttpIp, conf.Server.HttpPort)
 
+	//注册路由
+	routers.Regist(m)
+
+	m.NotFound(func(ctx *modules.Context) {
+		ctx.Error("对不起未找到该页面！", "", 0)
+	})
+
+	m.Run(conf.Server.HttpIp, conf.Server.HttpPort)
 
 }
