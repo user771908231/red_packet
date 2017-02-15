@@ -7,6 +7,12 @@ import (
 	"casino_majiang/msg/protogo"
 	"github.com/name5566/leaf/gate"
 	"casino_majianagv2/core/data"
+	"github.com/golang/protobuf/proto"
+	"casino_majiang/msg/funcsInit"
+	"casino_common/common/consts"
+	"casino_common/common/Error"
+	"casino_majiang/service/majiang"
+	"casino_common/common/userService"
 )
 
 func handler(m interface{}, h interface{}) {
@@ -49,13 +55,80 @@ func handlerCreateDesk(args []interface{}) {
 
 	//get mjconfig by m
 	log.T("麻将的配置 %v ", m)
-	config := data.SkeletonMJConfig{}
-	err, _ := room.CreateDesk(config)
-	if err != nil {
-		log.E("创建房间失败 err %v", err)
-		//ack
-		a.WriteMsg(nil)
-		return
+	config := data.SkeletonMJConfig{
+		Owner: m.GetHeader().GetUserId(),
+		//Password         string
+		//DeskId           int32
+		RoomType:   majiang.ROOMTYPE_FRIEND,
+		Status:     majiang.MJDESK_STATUS_READY,
+		MjRoomType: int32(m.GetRoomTypeInfo().GetMjRoomType()),
+		//RoomId           int32
+		//CreateFee        int64
+		//BoardsCout       int32 //局数，如：4局（房卡 × 2）、8局（房卡 × 3）
+		//CapMax           int32
+		//CardsNum         int32
+		//Settlement       int32
+		//BaseValue        int64
+		//ZiMoRadio        int32
+		//OthersCheckBox   []int32
+		//HuRadio          int32
+		//DianGangHuaRadio int32
+		//MJPaiCursor      int32
+		//TotalPlayCount   int32
+		//CurrPlayCount    int32
+		//Banker           uint32
+		//NextBanker       uint32
+		//CheckCase        *CheckCase
+		//ActiveUser       uint32
+		//GameNumber       int32
+		//ActUser          uint32
+		//ActType          int32
+		//NInitActionTime  int32
+		//RoomLevel        int32
+	}
+
+	desk, err := room.CreateDesk(config)
+	if desk == nil {
+		result := newProto.NewGame_AckCreateRoom()
+		*result.Header.Code = consts.ACK_RESULT_ERROR
+		*result.Header.Error = Error.GetErrorMsg(err)
+		log.Error("用户[%v]创建房间失败...err[%v]", m.GetHeader().GetUserId(), err)
+		a.WriteMsg(result)
+
+	} else {
+		//创建desk成功...设置为开始准备的状态
+		//desk.SetStatus(MJDESK_STATUS_READY) //设置为开始准备的状态
+		log.T("用户[%v]创建房间成功，roomKey[%v]", desk.GetMJConfig().Owner, desk.GetMJConfig().Password)
+		result := newProto.NewGame_AckCreateRoom()
+		*result.Header.Code = consts.ACK_RESULT_SUCC
+		*result.Password = desk.GetMJConfig().Password
+		*result.DeskId = desk.GetMJConfig().DeskId
+		*result.CreateFee = desk.GetMJConfig().CreateFee
+		result.RoomTypeInfo = &mjproto.RoomTypeInfo{
+			MjRoomType: mjproto.MJRoomType(desk.GetMJConfig().MjRoomType).Enum(),
+			BoardsCout: proto.Int32(desk.GetMJConfig().BoardsCout),
+			CapMax:     proto.Int64(desk.GetMJConfig().CapMax),
+			PlayOptions: &mjproto.PlayOptions{
+				ZiMoRadio:        proto.Int32(desk.GetMJConfig().ZiMoRadio),
+				DianGangHuaRadio: proto.Int32(desk.GetMJConfig().DianGangHuaRadio),
+				OthersCheckBox:   desk.GetMJConfig().OthersCheckBox,
+				HuRadio:          proto.Int32(desk.GetMJConfig().HuRadio),
+			},
+			CardsNum:   proto.Int32(desk.GetMJConfig().CardsNum),
+			Settlement: proto.Int32(desk.GetMJConfig().Settlement),
+			BaseValue:  proto.Int64(desk.GetMJConfig().BaseValue),
+			ChangShaPlayOptions: &mjproto.ChangShaPlayOptions{
+				//PlayerCount:
+				//IgnoreBank:
+				//BirdCount:
+				//BirdMultiple:
+			},
+		}
+		*result.UserBalance = userService.GetUserRoomCard(m.GetHeader().GetUserId())
+		a.WriteMsg(result)
+
+		//创建成功之后，用户自动进入房间...
+		room.EnterUser(m.GetHeader().GetUserId(), desk.GetMJConfig().Password)
 	}
 }
 
@@ -86,12 +159,51 @@ func handlerDissolveDesk(args []interface{}) {
 	}
 }
 
+//准备的协议
 func handlerGame_Ready(args []interface{}) {
+	m := args[0].(*mjproto.Game_Ready)
+	a := args[1].(gate.Agent)
 
+	userId := m.GetUserId()
+	log.T("收到请求，game_Ready([%v])", userId)
+	desk := roomMgr.GetMjDeskBySession(userId)
+	if desk == nil {
+		// 准备失败
+		log.E("用户[%v]准备失败.因为没有找到对应的desk", userId)
+		result := newProto.NewGame_AckReady()
+		*result.Header.Code = consts.ACK_RESULT_ERROR
+		*result.Header.Error = "准备失败"
+		result.UserId = proto.Uint32(userId)
+		a.WriteMsg(result)
+		return
+	}
+
+	//开始准备
+	err := desk.Ready(userId)
+	if err != nil {
+		log.E("用户[%v]准备失败.err %v", userId, err)
+		result := newProto.NewGame_AckReady()
+		*result.Header.Code = consts.ACK_RESULT_ERROR
+		*result.Header.Error = Error.GetErrorMsg(err)
+		result.UserId = proto.Uint32(userId)
+		a.WriteMsg(result)
+		return
+	}
 }
 
 func handlerGame_DingQue(args []interface{}) {
-
+	m := args[0].(*mjproto.Game_DingQue)
+	userId := m.GetUserId()
+	color := m.GetColor()
+	desk := roomMgr.GetMjDeskBySession(userId)
+	if desk == nil {
+		log.E("玩家[%v]定缺[%v]失败,desk 没有找到..", userId, color)
+		return
+	}
+	err := desk.DingQue(userId, color) //普通玩家定缺
+	if err != nil {
+		log.E("用户[%v]定缺失败...", userId)
+	}
 }
 func handlerGame_ExchangeCards(args []interface{}) {
 }

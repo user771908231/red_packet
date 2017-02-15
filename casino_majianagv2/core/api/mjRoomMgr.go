@@ -6,4 +6,5 @@ type MjRoomMgr interface {
 	GetRoom(int32, int32) MjRoom
 	OnInit() error
 	//SetSkeleton(*module.Skeleton)
+	GetMjDeskBySession(userId uint32) MjDesk
 }

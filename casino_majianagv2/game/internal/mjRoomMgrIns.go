@@ -25,6 +25,10 @@ func (m *MJMgr) OnInit() error {
 	return nil
 }
 
+func (m *MJMgr) GetMjDeskBySession(userId uint32) api.MjDesk {
+	return nil
+}
+
 //返回一个默认的mjroom管理器
 func OinitMJRoomMgr(s *module.Skeleton) api.MjRoomMgr {
 	return &MJMgr{

@@ -6,6 +6,10 @@ import (
 	"casino_majianagv2/core/ins/skeleton"
 	"casino_majianagv2/core/api"
 	"casino_majianagv2/core/data"
+	"casino_majiang/msg/protogo"
+	"casino_common/common/Error"
+	"casino_common/common/userService"
+	"casino_common/common/consts"
 )
 
 type FMJRoom struct {
@@ -17,18 +21,43 @@ type FMJRoom struct {
 //初始化一个朋友桌room
 func NewDefaultFMJRoom(s *module.Skeleton) api.MjRoom {
 	return &FMJRoom{
-		Skeleton:s,
+		Skeleton: s,
 	}
 }
 
 //room创建房间
-func (r *FMJRoom) CreateDesk(config interface{}) (error, api.MjDesk) {
+func (r *FMJRoom) CreateDesk(config interface{}) (api.MjDesk, error) {
 	c := config.(data.SkeletonMJConfig)
-	//1,创建房间
-	desk := NewFMJDesk(c)
+	//1,找到是否有已经创建的房间
+	oldDesk := r.getDeskByOwer(c.Owner)
+	if oldDesk != nil && oldDesk.GetStatus().IsNotGaming() {
+		//如果房间没有开始游戏..则返回老的房间,否则创建新的房间...
+		return oldDesk, nil
+	}
 
-	//2，进入房间
-	err := desk.EnterUser(c.Owner)
+	//2,判断房卡是否足够
+	createFee, err := r.CalcCreateFee(c.BoardsCout)
+	if err != nil {
+		log.E("玩家[%v]创建房间的时候出错..传入的局数[%v]有误...", c.BoardsCout)
+		return nil, Error.ERR_SYS
+	}
+
+	rc := userService.GetUserRoomCard(c.Owner)
+	if rc < createFee {
+		log.E("玩家[%v]创建房间的时候出错..房卡[%v]不足...", c.Owner, rc)
+		return nil, Error.NewError(consts.ACK_RESULT_ERROR, "房卡不足，创建房间失败")
+	}
+
+	//3,创建房间
+	var desk api.MjDesk
+
+	if c.MjRoomType == int32(mjproto.MJRoomType_roomType_changSha) {
+		desk = NewChangShaFMJDesk(c) //创建长沙麻将朋友桌
+	} else {
+		desk = NewFMJDesk(c) //创建成都麻将朋友桌
+	}
+	//4，进入房间
+	err = desk.EnterUser(c.Owner)
 	if err != nil {
 		log.E("进入desk失败")
 		return nil, nil
@@ -40,8 +69,19 @@ func (r *FMJRoom) CreateDesk(config interface{}) (error, api.MjDesk) {
 func (r *FMJRoom) getDeskByPassword(ps string) api.MjDesk {
 	for _, d := range r.desks {
 		if d != nil {
-			c := d.GetMJConfig().(data.SkeletonMJConfig)
+			c := d.GetMJConfig()
 			if c.Password == ps {
+				return d
+			}
+		}
+	}
+	return nil
+}
+
+func (r *FMJRoom) getDeskByOwer(userId uint32) api.MjDesk {
+	for _, d := range r.desks {
+		if d != nil {
+			if d.GetMJConfig().Owner == userId {
 				return d
 			}
 		}
@@ -63,4 +103,9 @@ func (r *FMJRoom) EnterUser(userId uint32, key string) error {
 	}
 
 	return nil
+}
+
+//todo
+func (r *FMJRoom) CalcCreateFee(n int32) (int64, error) {
+	return 0, nil
 }
