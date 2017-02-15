@@ -8,6 +8,7 @@ import (
 	"casino_super/handler/logHandler"
 	"casino_super/modules"
 	"casino_super/handler/admin/manage"
+	"casino_super/handler/weixin"
 )
 
 //注册路由
@@ -38,13 +39,21 @@ func Regist(m *macaron.Macaron) {
 				m.Get("/", func(ctx *modules.Context) {ctx.HTML(200, "admin/manage/user/index")})
 				m.Get("/list", manage.UserListHandler)
 				m.Get("/del/:id", manage.DelUserHandler)
-				m.Get("/update/:id", manage.UpdateUserHandler)
+				m.Post("/update", binding.BindIgnErr(manage.UserUpdateForm{}), manage.UpdateUserHandler)
+				m.Post("/recharge", binding.BindIgnErr(manage.RechargeForm{}),manage.RechargeHandler)
 			})
 		}, admin.NeedLogin)
 	}, admin.ShowPanel)
 
+	//微信
+	m.Group("/weixin", func() {
+		m.Get("/oath", weixin.Oath)
+		m.Get("/user/info", weixin.UserInfo)
+	})
+
 	//首页
 	m.Get("/", func(ctx *modules.Context) {
-		ctx.Success("即将跳转至后台！", "/admin", 3)
+		//ctx.Success("即将跳转至后台！", "/admin", 3)
+		ctx.Redirect("/admin", 302)
 	})
 }
