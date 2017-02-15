@@ -6,6 +6,7 @@ import (
 
 	"github.com/chanxuehong/rand"
 	"github.com/chanxuehong/wechat.v2/mch/core"
+	"fmt"
 )
 
 // 统一下单.
@@ -95,6 +96,7 @@ func UnifiedOrder2(clt *core.Client, req *UnifiedOrderRequest) (resp *UnifiedOrd
 
 	m2, err := UnifiedOrder(clt, m1)
 	if err != nil {
+		fmt.Printf("统一下单接口调用完毕...\n")
 		return
 	}
 
