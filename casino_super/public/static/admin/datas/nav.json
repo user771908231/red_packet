@@ -1,0 +1,106 @@
+{
+	"1": [
+		{
+			"title": "用户管理",
+			"icon": "fa-cogs",
+			"spread": true,
+			"children": [
+				{
+					"title": "游戏用户",
+					"icon": "fa-users",
+					"href": "/admin/manage/user/"
+				},{
+					"title": "管理员",
+					"icon": "fa-users",
+					"href": "/button"
+				}
+			]
+		},{
+			"title": "系统设置",
+			"icon": "fa-sliders",
+			"spread": true,
+			"children": [
+				{
+					"title": "设置",
+					"icon": "fa-slider",
+					"href": "button.html"
+				}
+			]
+		}
+	],
+	"2": [
+		{
+			"title": "文章管理",
+			"icon": "fa-th",
+			"spread": true,
+			"children": [
+				{
+					"title": "文章列表",
+					"icon": "fa-list",
+					"href": "button.html"
+				},
+				{
+					"title": "文章回收站",
+					"icon": "fa-trash",
+					"href": "form.html"
+				}
+			]
+		},{
+			"title": "基础信息",
+			"icon": "fa-info",
+			"spread": true,
+			"children": [
+				{
+					"title": "标签管理",
+					"icon": "fa-tag",
+					"href": "button.html"
+				},
+				{
+					"title": "类别管理",
+					"icon": "fa-tag",
+					"href": "form.html"
+				},
+				{
+					"title": "其他设置",
+					"icon": "fa-cog",
+					"href": "form.html"
+				}
+			]
+		}
+	],
+	"3": [
+		{
+			"title": "审核管理",
+			"icon": "fa-cubes",
+			"spread": true,
+			"children": [
+				{
+					"title": "用户信息",
+					"icon": "fa-users",
+					"href": "button.html"
+				},
+				{
+					"title": "评论管理",
+					"icon": "fa-list",
+					"href": "form.html"
+				}
+			]
+		},{
+			"title": "支付管理",
+			"icon": "fa-paypal",
+			"spread": true,
+			"children": [
+				{
+					"title": "订单管理",
+					"icon": "fa-money",
+					"href": "button.html"
+				},
+				{
+					"title": "产品管理",
+					"icon": "fa-product-hunt",
+					"href": "form.html"
+				}
+			]
+		}
+	]
+}
