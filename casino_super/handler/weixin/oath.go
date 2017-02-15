@@ -33,7 +33,7 @@ func UserInfo(ctx *modules.Context) {
 	code := ctx.Query("code")
 
 	if ctx.Query("state") != ctx.Session.Get("state").(string) {
-		log.Println("state err.")
+		ctx.Error("state错误！", "", 0)
 		return
 	}
 
