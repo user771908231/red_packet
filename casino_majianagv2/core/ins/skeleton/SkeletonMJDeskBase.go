@@ -6,6 +6,7 @@ import (
 	"casino_majianagv2/core/api"
 	"github.com/golang/protobuf/proto"
 	"casino_majiang/msg/protogo"
+	"casino_majiang/service/majiang"
 )
 
 //常见的get set 方法 需要放置在这里
@@ -52,7 +53,7 @@ func (d *SkeletonMJDesk) GetUsers() []api.MjUser {
 }
 
 func (d *SkeletonMJDesk) GetBankerUser() *api.MjUser {
-	return  d.GetUserByUserId(d.GetMJConfig().Banker)
+	return d.GetUserByUserId(d.GetMJConfig().Banker)
 }
 
 //是否需要自摸加底
@@ -133,4 +134,44 @@ func (d *SkeletonMJDesk) IntArry2PaiTypeEnum(ia []int32) []mjproto.PaiType {
 		result = append(result, mjproto.PaiType(i))
 	}
 	return result
+}
+
+//得到当前桌子的人数..
+func (d *SkeletonMJDesk) GetUserCount() int32 {
+	var count int32 = 0
+	for _, user := range d.GetUsers() {
+		if user != nil {
+			count ++
+		}
+	}
+	//log.T("当前桌子的玩家数量是count[%v]", count)
+	return count
+}
+
+//玩家是否足够
+func (d *SkeletonMJDesk) IsPlayerEnough() bool {
+	return d.GetUserCount() == d.GetMJConfig().PlayerCountLimit
+}
+
+//是不是所有人都准备
+func (d *SkeletonMJDesk) IsAllReady() bool {
+	for _, u := range d.Users {
+		if u != nil && !u.GetStatus().IsReady() {
+			return false
+		}
+	}
+	return true
+}
+
+//是否在定缺中
+func (d *SkeletonMJDesk) IsDingQue() bool {
+	if d.GetStatus(). == majiang.MJDESK_STATUS_DINGQUE {
+		return true
+	} else {
+		return false
+	}
+}
+
+func (d *SkeletonMJDesk) IsNotDingQue() bool {
+	return !d.IsDingQue()
 }

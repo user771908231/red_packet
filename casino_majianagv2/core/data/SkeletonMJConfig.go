@@ -35,6 +35,8 @@ type SkeletonMJConfig struct {
 	NInitActionTime  int32
 	RoomLevel        int32
 	FangCount        int32
+	PlayerCountLimit int32 //玩家的人数
+	BeginTime        string
 	//desk.AllUsers = desk.GetUsersApi
 	//desk.InitUsers ()//根据房间类型初始化房间玩家数
 	//desk.InitUserCountAndFangCountByType() //初始化人数和房数
