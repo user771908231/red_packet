@@ -62,19 +62,19 @@ func handlerCreateDesk(args []interface{}) {
 		RoomType:   majiang.ROOMTYPE_FRIEND,
 		Status:     majiang.MJDESK_STATUS_READY,
 		MjRoomType: int32(m.GetRoomTypeInfo().GetMjRoomType()),
-		//RoomId           int32
+		//RoomId:           int32,
 		//CreateFee        int64
-		//BoardsCout       int32 //局数，如：4局（房卡 × 2）、8局（房卡 × 3）
-		//CapMax           int32
-		//CardsNum         int32
-		//Settlement       int32
-		//BaseValue        int64
-		//ZiMoRadio        int32
-		//OthersCheckBox   []int32
-		//HuRadio          int32
-		//DianGangHuaRadio int32
-		//MJPaiCursor      int32
-		//TotalPlayCount   int32
+		BoardsCout:       m.GetRoomTypeInfo().GetBoardsCout(), //局数，如：4局（房卡 × 2）、8局（房卡 × 3）
+		CapMax:           m.GetRoomTypeInfo().GetCapMax(),
+		CardsNum:         m.GetRoomTypeInfo().GetCardsNum(),
+		Settlement:       m.GetRoomTypeInfo().GetSettlement(),
+		BaseValue:        m.GetRoomTypeInfo().GetBaseValue(),
+		ZiMoRadio:        m.GetRoomTypeInfo().GetPlayOptions().GetZiMoRadio(),
+		OthersCheckBox:   m.GetRoomTypeInfo().GetPlayOptions().GetOthersCheckBox(),
+		HuRadio:          m.GetRoomTypeInfo().GetPlayOptions().GetHuRadio(),
+		DianGangHuaRadio: m.GetRoomTypeInfo().GetPlayOptions().GetDianGangHuaRadio(),
+		//MJPaiCursor:      int32(),
+		//TotalPlayCount:   int32
 		//CurrPlayCount    int32
 		//Banker           uint32
 		//NextBanker       uint32
@@ -227,7 +227,8 @@ func handlerGame_SendOutCard(args []interface{}) {
 
 	//开始打牌
 	err := desk.ActOut(userId, cardId) //普通玩家打牌
-	if err != nil { //打牌失败
+	if err != nil {
+		//打牌失败
 		result := newProto.NewGame_AckSendOutCard()
 		*result.Header.Code = Error.GetErrorCode(err)
 		*result.Header.Error = Error.GetErrorMsg(err)
