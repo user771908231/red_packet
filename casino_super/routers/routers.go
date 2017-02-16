@@ -49,6 +49,8 @@ func Regist(m *macaron.Macaron) {
 	m.Group("/weixin", func() {
 		m.Get("/oath", weixin.Oath)
 		m.Get("/user/info", weixin.UserInfo)
+		m.Get("/", weixin.MainHandler)
+		m.Get("/info", weixin.InfoHandler)
 	})
 
 	//首页
