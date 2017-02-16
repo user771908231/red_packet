@@ -9,6 +9,9 @@ import (
 	"casino_majianagv2/core/majiangv2"
 	"github.com/golang/protobuf/proto"
 	"github.com/name5566/leaf/gate"
+	"sync/atomic"
+	"casino_common/common/log"
+	"casino_common/common/Error"
 )
 
 type SkeletonMJUser struct {
@@ -99,4 +102,319 @@ func (u *SkeletonMJUser) SendOverTurn(p proto.Message) error {
 	//如果是金币场有超时的处理...
 	u.WriteMsg(p)
 	return nil
+}
+func (u *SkeletonMJUser) printStatiscLog(round int32) {
+	//roundBean := u.GetStatisticsRoundBean(round)
+	//log.T("用户[%v] 被巴杠+1, 当局被巴杠[%v]次, 汇总被巴杠[%v]次", u.GetUserId(), roundBean.GetCountBeiBaGang(), u.Statisc.GetCountBeiBaGang())
+	//log.T("用户[%v] 巴杠+1, 当局巴杠[%v]次, 汇总巴杠[%v]次", u.GetUserId(), roundBean.GetCountBaGnag(), u.Statisc.GetCountBaGang())
+	//log.T("用户[%v] 被暗杠+1, 当局被暗杠[%v]次, 汇总被暗杠[%v]次", u.GetUserId(), roundBean.GetCountBeiAnGang(), u.Statisc.GetCountBeiAnGang())
+	//log.T("用户[%v] 暗杠+1, 当局暗杠[%v]次, 汇总暗杠[%v]次", u.GetUserId(), roundBean.GetCountAnGang(), u.Statisc.GetCountAnGang())
+	//log.T("用户[%v] 明杠+1, 当局明杠[%v]次, 汇总明杠[%v]次", u.GetUserId(), roundBean.GetCountMingGang(), u.Statisc.GetCountMingGang())
+	//log.T("用户[%v] 点杠+1, 当局点杠[%v]次, 汇总点杠[%v]次", u.GetUserId(), roundBean.GetCountDianGang(), u.Statisc.GetCountDianGang())
+	//log.T("用户[%v] 胡+1, 当局胡[%v]次, 汇总胡[%v]次", u.GetUserId(), roundBean.GetCountHu(), u.Statisc.GetCountHu())
+	//log.T("用户[%v] 点炮+1, 当局点炮[%v]次, 汇总点炮[%v]次", u.GetUserId(), roundBean.GetCountDianPao(), u.Statisc.GetCountDianPao())
+	//log.T("用户[%v] 被自摸+1, 当局被自摸[%v]次, 汇总被自摸[%v]次", u.GetUserId(), roundBean.GetCountBeiZiMo(), u.Statisc.GetCountBeiZiMo())
+	//log.T("用户[%v] 自摸+1, 当局自摸[%v]次, 汇总自摸[%v]次", u.GetUserId(), roundBean.GetCountZiMo(), u.Statisc.GetCountZiMo())
+	//log.T("用户[%v] 查大叫+1, 当局查大叫[%v]次, 汇总查大叫[%v]次", u.GetUserId(), roundBean.GetCountChaDaJiao(), u.Statisc.GetCountChaDaJiao())
+	//log.T("用户[%v] 被查大叫+1, 当局被查叫[%v]次, 汇总被查叫[%v]次", u.GetUserId(), roundBean.GetCountBeiChaJiao(), u.Statisc.GetCountBeiChaJiao())
+	//log.T("用户[%v] 查花猪+1, 当局查花猪[%v]次, 汇总查花猪[%v]次", u.GetUserId(), roundBean.GetCountChaHuaZhu(), u.Statisc.GetCountChaHuaZhu())
+	//log.T("用户[%v] 被查花猪+1, 当局被查花猪[%v]次, 汇总被查花猪[%v]次", u.GetUserId(), roundBean.GetCountBeiChaHuaZhu(), u.Statisc.GetCountBeiChaHuaZhu())
+
+}
+
+/****统计信息相关方法****/
+
+//得到每一局的统计bean...
+func (u *SkeletonMJUser) GetStatisticsRoundBean(round int32) *majiang.StatiscRound {
+	for _, bean := range u.Statisc.RoundBean {
+		if bean != nil && bean.GetRound() == round {
+			return bean
+		}
+	}
+	//如果没有找到返回nil
+	return nil
+}
+
+//增加用户被巴杠的统计记录
+func (u *SkeletonMJUser) AddStatisticsCountBeiBaGang(round int32) error {
+	roundBean := u.GetStatisticsRoundBean(round)
+	if roundBean == nil {
+		log.E("统计的时候出错...")
+		return Error.NewFailError("没有找到统计的roundBean，无法统计")
+	}
+
+	atomic.AddInt32(roundBean.CountBeiBaGang, 1) //单局
+
+	atomic.AddInt32(u.Statisc.CountBeiBaGang, 1) //汇总
+
+	//log.T("用户[%v] 被巴杠+1, 当局被巴杠[%v]次, 汇总被巴杠[%v]次", u.GetUserId(), roundBean.GetCountBeiBaGang(), u.Statisc.GetCountBeiBaGang())
+	u.printStatiscLog(round)
+	return nil
+}
+
+//增加用户巴杠的统计记录
+func (u *SkeletonMJUser) AddStatisticsCountBaGang(round int32) error {
+	roundBean := u.GetStatisticsRoundBean(round)
+	if roundBean == nil {
+		log.E("统计的时候出错...")
+		return Error.NewFailError("没有找到统计的roundBean，无法统计")
+	}
+
+	atomic.AddInt32(roundBean.CountBaGnag, 1) //单局
+
+	atomic.AddInt32(u.Statisc.CountBaGang, 1) //汇总
+
+	//log.T("用户[%v] 巴杠+1, 当局巴杠[%v]次, 汇总巴杠[%v]次", u.GetUserId(), roundBean.GetCountBaGnag(), u.Statisc.GetCountBaGang())
+	u.printStatiscLog(round)
+	return nil
+}
+
+//增加用户被暗杠的统计记录
+func (u *SkeletonMJUser) AddStatisticsCountBeiAnGang(round int32) error {
+	roundBean := u.GetStatisticsRoundBean(round)
+	if roundBean == nil {
+		log.E("统计的时候出错...")
+		return Error.NewFailError("没有找到统计的roundBean，无法统计")
+	}
+
+	atomic.AddInt32(roundBean.CountBeiAnGang, 1) //单局
+
+	atomic.AddInt32(u.Statisc.CountBeiAnGang, 1) //汇总
+
+	//log.T("用户[%v] 被暗杠+1, 当局被暗杠[%v]次, 汇总被暗杠[%v]次", u.GetUserId(), roundBean.GetCountBeiAnGang(), u.Statisc.GetCountBeiAnGang())
+	u.printStatiscLog(round)
+	return nil
+}
+
+//增加用户暗杠的统计记录
+func (u *SkeletonMJUser) AddStatisticsCountAnGang(round int32) error {
+	roundBean := u.GetStatisticsRoundBean(round)
+	if roundBean == nil {
+		log.E("统计的时候出错...")
+		return Error.NewFailError("没有找到统计的roundBean，无法统计")
+	}
+
+	atomic.AddInt32(roundBean.CountAnGang, 1) //单局
+
+	atomic.AddInt32(u.Statisc.CountAnGang, 1) //汇总
+
+	//log.T("用户[%v] 暗杠+1, 当局暗杠[%v]次, 汇总暗杠[%v]次", u.GetUserId(), roundBean.GetCountAnGang(), u.Statisc.GetCountAnGang())
+	u.printStatiscLog(round)
+	return nil
+}
+
+//增加用户明杠的统计记录
+func (u *SkeletonMJUser) AddStatisticsCountMingGang(round int32) error {
+	roundBean := u.GetStatisticsRoundBean(round)
+	if roundBean == nil {
+		log.E("统计的时候出错...")
+		return Error.NewFailError("没有找到统计的roundBean，无法统计")
+	}
+
+	atomic.AddInt32(roundBean.CountMingGang, 1) //单局
+
+	atomic.AddInt32(u.Statisc.CountMingGang, 1) //汇总
+
+	//log.T("用户[%v] 明杠+1, 当局明杠[%v]次, 汇总明杠[%v]次", u.GetUserId(), roundBean.GetCountMingGang(), u.Statisc.GetCountMingGang())
+	u.printStatiscLog(round)
+	return nil
+}
+
+//增加用户点杠的统计记录
+func (u *SkeletonMJUser) AddStatisticsCountDianGang(round int32) error {
+	roundBean := u.GetStatisticsRoundBean(round)
+	if roundBean == nil {
+		log.E("统计的时候出错...")
+		return Error.NewFailError("没有找到统计的roundBean，无法统计")
+	}
+
+	atomic.AddInt32(roundBean.CountDianGang, 1) //单局
+
+	atomic.AddInt32(u.Statisc.CountDianGang, 1) //汇总
+
+	//log.T("用户[%v] 点杠+1, 当局点杠[%v]次, 汇总点杠[%v]次", u.GetUserId(), roundBean.GetCountDianGang(), u.Statisc.GetCountDianGang())
+	u.printStatiscLog(round)
+	return nil
+}
+
+//增加用户胡牌的统计记录
+func (u *SkeletonMJUser) AddStatisticsCountHu(round int32) error {
+	roundBean := u.GetStatisticsRoundBean(round)
+	if roundBean == nil {
+		log.E("统计的时候出错...")
+		return Error.NewFailError("没有找到统计的roundBean，无法统计")
+	}
+
+	atomic.AddInt32(roundBean.CountHu, 1) //单局
+
+	atomic.AddInt32(u.Statisc.CountHu, 1) //汇总
+
+	//log.T("用户[%v] 胡+1, 当局胡[%v]次, 汇总胡[%v]次", u.GetUserId(), roundBean.GetCountHu(), u.Statisc.GetCountHu())
+	u.printStatiscLog(round)
+	return nil
+}
+
+//增加用户点炮的统计记录
+func (u *SkeletonMJUser) AddStatisticsCountDianPao(round int32) error {
+	roundBean := u.GetStatisticsRoundBean(round)
+	if roundBean == nil {
+		log.E("统计的时候出错...")
+		return Error.NewFailError("没有找到统计的roundBean，无法统计")
+	}
+
+	atomic.AddInt32(roundBean.CountDianPao, 1) //单局
+
+	atomic.AddInt32(u.Statisc.CountDianPao, 1) //汇总
+
+	//log.T("用户[%v] 点炮+1, 当局点炮[%v]次, 汇总点炮[%v]次", u.GetUserId(), roundBean.GetCountDianPao(), u.Statisc.GetCountDianPao())
+	u.printStatiscLog(round)
+	return nil
+}
+
+//增加用户被自摸的统计记录
+func (u *SkeletonMJUser) AddStatisticsCountBeiZiMo(round int32) error {
+	roundBean := u.GetStatisticsRoundBean(round)
+	if roundBean == nil {
+		log.E("统计的时候出错...")
+		return Error.NewFailError("没有找到统计的roundBean，无法统计")
+	}
+
+	atomic.AddInt32(roundBean.CountBeiZiMo, 1) //单局
+
+	atomic.AddInt32(u.Statisc.CountBeiZiMo, 1) //汇总
+
+	//log.T("用户[%v] 被自摸+1, 当局被自摸[%v]次, 汇总被自摸[%v]次", u.GetUserId(), roundBean.GetCountBeiZiMo(), u.Statisc.GetCountBeiZiMo())
+	u.printStatiscLog(round)
+	return nil
+}
+
+//增加用户自摸的统计记录
+func (u *SkeletonMJUser) AddStatisticsCountZiMo(round int32) error {
+	roundBean := u.GetStatisticsRoundBean(round)
+	if roundBean == nil {
+		log.E("统计的时候出错...")
+		return Error.NewFailError("没有找到统计的roundBean，无法统计")
+	}
+
+	atomic.AddInt32(roundBean.CountZiMo, 1) //单局
+
+	atomic.AddInt32(u.Statisc.CountZiMo, 1) //汇总
+
+	//log.T("用户[%v] 自摸+1, 当局自摸[%v]次, 汇总自摸[%v]次", u.GetUserId(), roundBean.GetCountZiMo(), u.Statisc.GetCountZiMo())
+	u.printStatiscLog(round)
+	return nil
+}
+
+//增加用户查大叫的统计记录
+func (u *SkeletonMJUser) AddStatisticsCountChaDaJiao(round int32) error {
+	roundBean := u.GetStatisticsRoundBean(round)
+	if roundBean == nil {
+		log.E("统计的时候出错...")
+		return Error.NewFailError("没有找到统计的roundBean，无法统计")
+	}
+
+	atomic.AddInt32(roundBean.CountChaDaJiao, 1) //单局
+
+	atomic.AddInt32(u.Statisc.CountChaDaJiao, 1) //汇总
+
+	//log.T("用户[%v] 查大叫+1, 当局查大叫[%v]次, 汇总查大叫[%v]次", u.GetUserId(), roundBean.GetCountChaDaJiao(), u.Statisc.GetCountChaDaJiao())
+	u.printStatiscLog(round)
+	return nil
+}
+
+//增加用户被查叫的统计记录
+func (u *SkeletonMJUser) AddStatisticsCountBeiChaJiao(round int32) error {
+	roundBean := u.GetStatisticsRoundBean(round)
+	if roundBean == nil {
+		log.E("统计的时候出错...")
+		return Error.NewFailError("没有找到统计的roundBean，无法统计")
+	}
+
+	atomic.AddInt32(roundBean.CountBeiChaJiao, 1) //单局
+
+	atomic.AddInt32(u.Statisc.CountBeiChaJiao, 1) //汇总
+
+	//log.T("用户[%v] 被查大叫+1, 当局被查叫[%v]次, 汇总被查叫[%v]次", u.GetUserId(), roundBean.GetCountBeiChaJiao(), u.Statisc.GetCountBeiChaJiao())
+	u.printStatiscLog(round)
+	return nil
+}
+
+//增加用户查花猪的统计记录
+func (u *SkeletonMJUser) AddStatisticsCountChaHuaZhu(round int32) error {
+	roundBean := u.GetStatisticsRoundBean(round)
+	if roundBean == nil {
+		log.E("统计的时候出错...")
+		return Error.NewFailError("没有找到统计的roundBean，无法统计")
+	}
+
+	atomic.AddInt32(roundBean.CountChaHuaZhu, 1) //单局
+
+	atomic.AddInt32(u.Statisc.CountChaHuaZhu, 1) //汇总
+
+	//log.T("用户[%v] 查花猪+1, 当局查花猪[%v]次, 汇总查花猪[%v]次", u.GetUserId(), roundBean.GetCountChaHuaZhu(), u.Statisc.GetCountChaHuaZhu())
+	u.printStatiscLog(round)
+	return nil
+}
+
+//增加用户被查花猪的统计记录
+func (u *SkeletonMJUser) AddStatisticsCountBeiChaHuaZhu(round int32) error {
+	roundBean := u.GetStatisticsRoundBean(round)
+	if roundBean == nil {
+		log.E("统计的时候出错...")
+		return Error.NewFailError("没有找到统计的roundBean，无法统计")
+	}
+
+	atomic.AddInt32(roundBean.CountBeiChaHuaZhu, 1) //单局
+
+	atomic.AddInt32(u.Statisc.CountBeiChaHuaZhu, 1) //汇总
+
+	//log.T("用户[%v] 被查花猪+1, 当局被查花猪[%v]次, 汇总被查花猪[%v]次", u.GetUserId(), roundBean.GetCountBeiChaHuaZhu(), u.Statisc.GetCountBeiChaHuaZhu())
+	u.printStatiscLog(round)
+	return nil
+}
+
+//增加用户抓鸟的统计记录
+func (u *SkeletonMJUser) AddStatisticsCountCatchBird(round int32) error {
+	roundBean := u.GetStatisticsRoundBean(round)
+	if roundBean == nil {
+		log.E("统计的时候出错...")
+		return Error.NewFailError("没有找到统计的roundBean，无法统计")
+	}
+
+	atomic.AddInt32(roundBean.CountCatchBird, 1) //单局
+
+	atomic.AddInt32(u.Statisc.CountCatchBird, 1) //汇总
+
+	//log.T("用户[%v] 被自摸+1, 当局被自摸[%v]次, 汇总被自摸[%v]次", u.GetUserId(), roundBean.GetCountBeiZiMo(), u.Statisc.GetCountBeiZiMo())
+	u.printStatiscLog(round)
+	return nil
+}
+
+//增加用户被抓鸟的统计记录
+func (u *SkeletonMJUser) AddStatisticsCountCaughtBird(round int32) error {
+	roundBean := u.GetStatisticsRoundBean(round)
+	if roundBean == nil {
+		log.E("统计的时候出错...")
+		return Error.NewFailError("没有找到统计的roundBean，无法统计")
+	}
+
+	atomic.AddInt32(roundBean.CountCaughtBird, 1) //单局
+
+	atomic.AddInt32(u.Statisc.CountCaughtBird, 1) //汇总
+
+	//log.T("用户[%v] 被自摸+1, 当局被自摸[%v]次, 汇总被自摸[%v]次", u.GetUserId(), roundBean.GetCountBeiZiMo(), u.Statisc.GetCountBeiZiMo())
+	u.printStatiscLog(round)
+	return nil
+}
+
+//判断是否是花猪
+func (u *SkeletonMJUser) IsHuaZhu() bool {
+	for _, pai := range u.GetGameData().HandPai.Pais {
+		if pai != nil && pai.GetFlower() == u.GameData.HandPai.GetQueFlower() {
+			//是花猪
+			return true
+		}
+	}
+	//不是花猪
+	return false
 }

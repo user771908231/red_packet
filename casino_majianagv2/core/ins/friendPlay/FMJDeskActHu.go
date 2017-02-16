@@ -194,13 +194,13 @@ func (d *FMJDesk) DoQiangGang(hu *majiang.HuPaiInfo) error {
 func (d *FMJDesk) DoHuBill(hu *majiang.HuPaiInfo) {
 	isZimo := (hu.GetGetUserId() == hu.GetSendUserId())
 	outUser := hu.GetSendUserId()
-	huUser := d.GetUserByUserId(hu.GetGetUserId())
+	huUser := d.GetFMJUser(hu.GetGetUserId())
 
 	log.T("玩家[%v]胡牌，开始处理计算分数的逻辑...", huUser.GetUserId())
 	if isZimo {
 		//如果是自摸的话，三家都需要给钱
 		huUser.AddStatisticsCountZiMo(d.GetMJConfig().CurrPlayCount)
-		for _, shuUser := range d.GetUsers() {
+		for _, shuUser := range d.GetFMJUsers() {
 			if shuUser != nil && shuUser.GetStatus().IsGaming() && (shuUser.GetUserId() != huUser.GetUserId()) && shuUser.GetStatus().IsNotHu() {
 
 				//赢钱的账单
@@ -216,8 +216,7 @@ func (d *FMJDesk) DoHuBill(hu *majiang.HuPaiInfo) {
 	} else {
 
 		//如果是点炮的话，只有一家需要给钱...
-		shuUser := d.GetUserByUserId(outUser)
-
+		shuUser := d.GetFMJUser(outUser)
 		//赢钱的账单
 		huUser.AddBill(shuUser.GetUserId(), majiang.MJUSER_BILL_TYPE_YING_HU, "点炮胡牌，获得收入", d.GetYingScore(huUser, hu.GetScore()), hu.Pai, d.GetMJConfig().RoomType)
 
