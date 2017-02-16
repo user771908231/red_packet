@@ -7,7 +7,6 @@ import (
 	"github.com/golang/protobuf/proto"
 	"casino_majiang/msg/protogo"
 	"casino_majiang/service/majiang"
-	"casino_majiang/msg/funcsInit"
 	"fmt"
 )
 
@@ -248,4 +247,27 @@ func (d *SkeletonMJDesk) IsXueLiuChengHe() bool {
 //返回desk 骨架
 func (d *SkeletonMJDesk) GetSkeletonMJDesk() *SkeletonMJDesk {
 	return d
+}
+
+func (d *SkeletonMJDesk) GetSkeletonMJUser(user api.MjUser) *SkeletonMJUser {
+	return user.(*SkeletonMJUser)
+}
+
+//得到骨架User
+func (d *SkeletonMJDesk) GetSkeletonMJUsers() []*SkeletonMJUser {
+	ret := make([]*SkeletonMJUser, len(d.GetUsers()))
+	for i, u := range d.GetUsers() {
+		if u != nil {
+			ret[i] = u.(*SkeletonMJUser)
+		}
+	}
+	return ret
+}
+
+func (d *SkeletonMJDesk) BroadCastProtoExclusive(msg proto.Message, userId uint32) {
+	for _, u := range d.Users {
+		if u != nil && u.GetUserId() != userId {
+			u.WriteMsg(msg)
+		}
+	}
 }

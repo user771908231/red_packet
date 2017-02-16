@@ -10,6 +10,8 @@ import (
 	"casino_common/utils/db"
 	"casino_common/utils/timeUtils"
 	"casino_majianagv2/core/majiangv2"
+	"casino_majiang/msg/protogo"
+	"casino_majianagv2/core/api"
 )
 
 //是否可以开始
@@ -108,6 +110,37 @@ func (d *SkeletonMJDesk) InitCards() error {
 	return nil
 }
 
+//发牌的协议
+func (d *SkeletonMJDesk) GetDealCards(user api.MjUser) *mjproto.Game_DealCards {
+	dealCards := newProto.NewGame_DealCards()
+	*dealCards.DealerUserId = d.GetMJConfig().Banker
+	for _, u := range d.GetSkeletonMJUsers() {
+		if u != nil {
+			if u.GetUserId() == user.GetUserId() {
+				//表示是自己，可以看到手牌
+				pc := u.GetPlayerCard(true, false)
+				if d.GetMJConfig().Banker == u.GetUserId() {
+					pc.HandCard = append(pc.HandCard, u.GameData.HandPai.InPai.GetCardInfo())
+				}
+
+				dealCards.PlayerCard = append(dealCards.PlayerCard, pc)
+			} else {
+				pc := u.GetPlayerCard(false, false) //表示不是自己，不能看到手牌
+
+				if d.GetMJConfig().Banker == u.GetUserId() {
+					pc.HandCard = append(pc.HandCard, majiang.NewBackPai())
+				}
+
+				dealCards.PlayerCard = append(dealCards.PlayerCard, pc)
+			}
+
+		}
+
+	}
+
+	return dealCards
+}
+
 //开始换三张
 func (d *SkeletonMJDesk) BeginExchange() error {
 	log.T("desk[%v]round[%v]beginExchange()...", d.GetMJConfig().DeskId, d.GetMJConfig().CurrPlayCount)
@@ -150,13 +183,11 @@ func (d *SkeletonMJDesk) BeginStart() error {
 
 	overTurn := d.GetMoPaiOverTurn(bankUser, true) //定缺完了之后，庄摸牌
 	bankUser.SendOverTurn(overTurn)                //庄家打牌
-
 	//广播时候的信息
 	overTurn.ActCard = nil
 	*overTurn.CanHu = false
 	*overTurn.CanGang = false
 	*overTurn.CanPeng = false
-	d.BroadCastProtoExclusive(overTurn, d.GetBanker())
-
+	d.BroadCastProtoExclusive(overTurn, d.GetMJConfig().Banker)
 	return nil
 }

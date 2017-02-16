@@ -9,11 +9,9 @@ import (
 	"errors"
 	"casino_common/common/userService"
 	"github.com/golang/protobuf/proto"
+	"casino_majiang/msg/protogo"
+	"casino_majiang/msg/funcsInit"
 )
-
-func (u *SkeletonMJUser) GetUserData() *data.MJUserData {
-	return u.UserData
-}
 
 func (u *SkeletonMJUser) GetUserId() uint32 {
 	return u.userId
@@ -93,17 +91,123 @@ func (u *SkeletonMJUser) AddBill(relationUserid uint32, billType int32, des stri
 	return nil
 }
 
+func (u *SkeletonMJUser) AddStatisticsWinCoin(coin int64) {
+	atomic.AddInt64(u.Statisc.WinCoin, coin)
+}
+
 //更新用户金币
 func (u *SkeletonMJUser) AddCoin(coin int64, roomType int32) {
 	//减少玩家金额
-	atomic.AddInt64(&u.GetUserData().Coin, coin) //更新账户余额
+	atomic.AddInt64(&u.Coin, coin) //更新账户余额
 	//如果是金币场。需要更新用户的金币余额
 	if roomType == majiang.ROOMTYPE_COINPLAY {
 		remainCoin, _ := userService.INCRUserCOIN(u.GetUserId(), coin)
-		u.GetUserData().Coin = proto.Int64(remainCoin) //增加用户的金币
+		u.Coin = remainCoin //增加用户的金币
 	}
+}
+
+func (u *SkeletonMJUser) GetSkeletonMJDesk() *SkeletonMJDesk {
+	return u.GetDesk().(*SkeletonMJDesk)
 }
 
 func (u *SkeletonMJUser) GetSkeletonMJUser() *SkeletonMJUser {
 	return u
+}
+func (u *SkeletonMJUser) GetPlayerCard(showHand bool, needInpai bool) *mjproto.PlayerCard {
+	//log.T("得到玩家[%v]的手牌,showHand[%v],needInpai[%v]", u.GetUserId(), showHand, needInpai)
+	playerCard := newProto.NewPlayerCard()
+	*playerCard.UserId = u.GetUserId()
+
+	//得到inpai
+	if needInpai {
+		playerCard.HandCardCount = proto.Int32(1)
+		if showHand {
+			playerCard.HandCard = append(playerCard.HandCard, u.GameData.HandPai.InPai.GetCardInfo())
+		} else {
+			//直接不返回
+			playerCard.HandCard = append(playerCard.HandCard, u.GameData.HandPai.InPai.GetBackPai())
+		}
+	}
+
+	//手牌的长度
+	playerCard.HandCardCount = proto.Int32(playerCard.GetHandCardCount() + int32(len(u.GameData.HandPai.Pais)))
+	//得到手牌
+	for _, pai := range u.GameData.HandPai.GetPais() {
+		if pai != nil {
+			if showHand {
+				playerCard.HandCard = append(playerCard.HandCard, pai.GetCardInfo())
+			} else {
+				playerCard.HandCard = append(playerCard.HandCard, pai.GetBackPai())
+			}
+		}
+	}
+
+	//是否显示换三张的牌
+
+	//类型（1,碰，2,明杠，3,暗杠）
+	//得到碰牌
+	for i, pai := range u.GameData.HandPai.GetPengPais() {
+		if pai != nil && i%3 == 0 {
+			com := newProto.NewComposeCard()
+			*com.Value = pai.GetClientId()
+			*com.Type = int32(mjproto.ComposeCardType_C_PENG) //todo ,需要把type 放置在常量里面 这里代表的是碰牌
+			playerCard.ComposeCard = append(playerCard.ComposeCard, com)
+		}
+	}
+
+	//得到吃的牌
+	for i := 0; i < len(u.GetGameData().GetHandPai().GetChiPais()); i += 3 {
+		com := newProto.NewComposeCard()
+		*com.Type = int32(mjproto.ComposeCardType_C_CHI) //todo ,需要把type 放置在常量里面 这里代表的是碰牌
+		com.ChiValue = append(com.ChiValue, u.GetGameData().GetHandPai().GetChiPais()[i].GetClientId())
+		com.ChiValue = append(com.ChiValue, u.GetGameData().GetHandPai().GetChiPais()[i+1].GetClientId())
+		com.ChiValue = append(com.ChiValue, u.GetGameData().GetHandPai().GetChiPais()[i+2].GetClientId())
+		playerCard.ComposeCard = append(playerCard.ComposeCard, com)
+	}
+
+	//得到杠牌
+	for _, info := range u.GameData.GangInfo {
+		if info != nil {
+			com := newProto.NewComposeCard()
+			*com.Value = info.GetPai().GetClientId()
+
+			if info.GetGangType() == majiang.GANG_TYPE_DIAN {
+				*com.Type = int32(mjproto.ComposeCardType_C_MINGGANG) // 明杠
+			} else if info.GetGangType() == majiang.GANG_TYPE_AN {
+				*com.Type = int32(mjproto.ComposeCardType_C_ANGANG) // 暗杠
+			} else if info.GetGangType() == majiang.GANG_TYPE_BA {
+				*com.Type = int32(mjproto.ComposeCardType_C_BAGANG) // 巴杠
+			}
+			playerCard.ComposeCard = append(playerCard.ComposeCard, com)
+		}
+	}
+
+	//得到胡牌
+	for _, pai := range u.GameData.HandPai.GetHuPais() {
+		if pai != nil {
+			playerCard.HuCard = append(playerCard.HuCard, pai.GetCardInfo())
+		}
+	}
+
+	//打出去的牌
+	for _, pai := range u.GameData.HandPai.GetOutPais() {
+		if pai != nil {
+			playerCard.OutCard = append(playerCard.OutCard, pai.GetCardInfo())
+		}
+	}
+
+	return playerCard
+}
+
+func (u *SkeletonMJUser) WriteMsg(p proto.Message) error {
+	u.a.WriteMsg(p)
+	return nil
+}
+
+func (u *SkeletonMJUser) GetWaitTime() int32 {
+	return 30
+}
+
+func (u *SkeletonMJUser) SetCoin(c int64) {
+	u.Coin = c
 }

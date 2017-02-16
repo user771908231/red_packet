@@ -11,7 +11,7 @@ import (
 var ERR_OUTPAI = Error.NewError(consts.ACK_RESULT_ERROR, "")
 
 //打牌
-func (d *FMJDesk) ActOut(userId uint32, paiKey int32) error {
+func (d *FMJDesk) ActOut(userId uint32, paiKey int32, auto bool) error {
 	defer Error.ErrorRecovery("actOut")
 	log.T("锁日志: %v ActOut(%v,%v)的时候等待锁", d.DlogDes(), userId, paiKey)
 	d.Lock()

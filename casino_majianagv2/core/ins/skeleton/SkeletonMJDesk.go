@@ -8,11 +8,12 @@ import (
 	"casino_common/common/Error"
 	"casino_common/common/consts"
 	"casino_majiang/msg/funcsInit"
-	"github.com/name5566/leaf/timer"
 	"casino_majiang/service/majiang"
 	"casino_common/utils/rand"
 	"github.com/golang/protobuf/proto"
 	"casino_majiang/msg/protogo"
+	"casino_majianagv2/core/majiangv2"
+	"time"
 )
 
 var ERR_SYS = Error.NewError(consts.ACK_RESULT_FAIL, "系统错误")
@@ -34,10 +35,10 @@ type SkeletonMJDesk struct {
 	config        *data.SkeletonMJConfig //这里不用使用指针，此配置创建之后不会再改变
 	status        *data.MjDeskStatus     //桌子的所有状态都在这里
 	HuParser      api.HuPaerApi          //胡牌解析器
-	OverTurnTimer *timer.Timer           //定时器
 	CheckCase     *data.CheckCase        //麻将的判定器
 	Users         []api.MjUser           //所有的玩家
 	AllMJPais     []*majiang.MJPai       //所有的麻将牌
+	OverTurnTimer *time.Timer            //定时器
 }
 
 func NewSkeletonMJDesk(config *data.SkeletonMJConfig) *SkeletonMJDesk {
@@ -119,6 +120,32 @@ func (d *SkeletonMJDesk) DoCheckCase() error {
 	return nil
 }
 
+func (d *SkeletonMJDesk) ActGang(userId uint32, c int32, bu bool) error {
+	return nil
+}
+
+func (d *SkeletonMJDesk) ActHu(userId uint32) error {
+	return nil
+}
+
+func (d *SkeletonMJDesk) ActPeng(userId uint32) error {
+	return nil
+}
+
+//打牌
+func (d *SkeletonMJDesk) ActOut(userId uint32, cardId int32, auto bool) error {
+	return nil
+}
+
+//胡牌解析器
+func (d *SkeletonMJDesk) GetHuParser() api.HuPaerApi {
+	return d.HuParser
+}
+
+func (d *SkeletonMJDesk) Leave(userId uint32) error {
+	return nil
+}
+
 //指针指向的玩家
 func (d *SkeletonMJDesk) SetActiveUser(userId uint32) error {
 	d.GetMJConfig().ActiveUser = userId
@@ -173,9 +200,141 @@ func (d *SkeletonMJDesk) GetDice2() int32 {
 	return rand.Rand(1, 7)
 }
 
-//可以把overturn放在一个地方,目前都是摸牌的时候在用
-func (d *SkeletonMJDesk) GetMoPaiOverTurn(user api.MjUser, isOpen bool) *mjproto.Game_OverTurn {
+func GettPaiValueByCountPos(countPos int) int32 {
+	return int32(countPos%9 + 1)
+}
 
+//从pais数组里删除一张pos位置的pai 注 pos是索引值 使用覆盖的方式
+func removeFromPais(pais []*majiang.MJPai, pos int) []*majiang.MJPai {
+	pais[pos] = pais[len(pais)-1]
+	return pais[:len(pais)-1]
+}
+
+//将一张pai插入到指定pos的pais数组里去
+func addPaiIntoPais(pai *majiang.MJPai, pais []*majiang.MJPai, pos int) []*majiang.MJPai {
+	tempPais := make([]*majiang.MJPai, len(pais)+1)
+	copy(tempPais[:pos], pais[:pos])
+	tempPais[pos] = pai
+	copy(tempPais[pos+1:], pais[pos:])
+	return tempPais
+}
+
+//剩下的牌的数量
+func (d *SkeletonMJDesk) GetLeftPaiCount(user api.MjUser, mjPai *majiang.MJPai) int {
+	var count int = 0
+	displayPais := d.GetDisplayPais(user)
+	for i := 0; i < len(displayPais); i++ {
+		if (displayPais[i].GetValue() == mjPai.GetValue()) && (displayPais[i].GetFlower() == mjPai.GetFlower()) {
+			count++
+		}
+	}
+	count = 4 - count
+	if count < 0 {
+		count = 0
+	}
+	//log.T("leftPai is %v Count is : %v", mjPai.GetDes(), count)
+	return count
+}
+
+//获取用户已知亮出台面的牌 包括自己手牌、自己和其他玩家碰杠牌、其他玩家outPais
+func (d *SkeletonMJDesk) GetDisplayPais(user api.MjUser) []*majiang.MJPai {
+	//获取所有玩家的亮出台面的牌 outPais + pengPais + gangPais
+
+	displayPais := []*majiang.MJPai{}
+	for _, user := range d.GetUsers() {
+		userHandPai := user.GetGameData().GetHandPai()
+
+		if userHandPai.GetGangPais() != nil {
+			displayPais = append(displayPais, userHandPai.GangPais...) //杠的牌
+		}
+		if userHandPai.GetPengPais() != nil {
+			displayPais = append(displayPais, userHandPai.PengPais...) //碰的牌
+		}
+		if userHandPai.GetOutPais() != nil {
+			displayPais = append(displayPais, userHandPai.OutPais...) //打出去的牌
+		}
+	}
+
+	//在亮出台面的牌中加入用户自己的手牌
+	userHandPai := user.GetGameData().GetHandPai()
+	displayPais = append(displayPais, userHandPai.InPai)
+	displayPais = append(displayPais, userHandPai.Pais...)
+	return displayPais
+}
+
+//得到一个canhuinfos
+/**
+	一次判断打出每一张牌的时候，有哪些牌可以胡，可以胡的翻数是多少
+ */
+func (d *SkeletonMJDesk) GetJiaoInfos(user api.MjUser) []*mjproto.JiaoInfo {
+	log.T("[%v]开始判断玩家[%v]的叫牌...GetJiaoInfos()", d.DlogDes(), user.GetUserId())
+	if user == nil ||
+		user.GetGameData() == nil ||
+		user.GetGameData().HandPai == nil {
+		log.E("[%v]开始判断玩家[%v]的叫牌...GetJiaoInfos()失败...因为手牌为nil", d.DlogDes(), user.GetUserId())
+		return nil
+	}
+
+	jiaoInfos := []*mjproto.JiaoInfo{}
+
+	//获取用户手牌 包括inPai
+	userHandPai := majiang.NewMJHandPai()
+	*userHandPai = *user.GetGameData().HandPai                //手牌
+	userPais := make([]*majiang.MJPai, len(userHandPai.Pais)) //需要改变的牌
+	copy(userPais, userHandPai.Pais)
+	if userHandPai.InPai != nil {
+		//碰牌 无inPai的情况
+		userPais = append(userPais, userHandPai.InPai)
+	}
+
+	lenth := len(userPais)
+	for i := 0; i < lenth; i++ {
+		//从用户手牌中移除当前遍历的元素
+		removedPai := userPais[i]
+		userPais = removeFromPais(userPais, i)
+		userHandPai.Pais = userPais
+		jiaoInfo := majiang.NewJiaoInfo()
+
+		//遍历麻将牌,看哪一张能胡牌
+		for l := 0; l < len(majiangv2.MjpaiMap); l += 4 {
+
+			//遍历未知牌
+			//将遍历到的未知牌与用户手牌组合成handPai 去canhu
+			mjPai := majiangv2.InitMjPaiByIndex(l)
+			canHu, fan, _, _, _, _ := d.HuParser.GetCanHu(userHandPai, mjPai, true, 0)
+			if canHu {
+				//叫牌的信息
+				mjPaiLeftCount := int32(d.GetLeftPaiCount(user, mjPai)) //该可胡牌在桌面中的剩余数量 注 对于自己而言的剩余
+				jiaoPaiInfo := majiang.NewJiaoPaiInfo()
+				jiaoPaiInfo.HuCard = mjPai.GetCardInfo()
+				*jiaoPaiInfo.Fan = fan //可胡番数
+				*jiaoPaiInfo.Count = mjPaiLeftCount
+				//log.T("[%v],玩家[%v]打牌判断jiaoPaiInfo结果[%v]", d.DlogDes(), user.GetUserId(), jiaoPaiInfo)
+
+				//增加到jiao info
+				jiaoInfo.OutCard = removedPai.GetCardInfo() //当前打出去的牌
+				jiaoInfo.PaiInfos = append(jiaoInfo.PaiInfos, jiaoPaiInfo)
+			}
+
+		}
+
+		//回复手牌
+		userPais = addPaiIntoPais(removedPai, userPais, i) //将移除的牌添加回原位置继续遍历
+		///如果有叫牌，加入jiaoinfoS
+		if jiaoInfo.PaiInfos != nil && len(jiaoInfo.PaiInfos) > 0 {
+			jiaoInfos = append(jiaoInfos, jiaoInfo)
+		} else {
+
+		}
+	}
+
+	log.T("[%v],玩家[%v]判断jiaoInfo结果[%v]", d.DlogDes(), user.GetUserId(), jiaoInfos)
+	return jiaoInfos
+}
+
+//可以把overturn放在一个地方,目前都是摸牌的时候在用
+func (d *SkeletonMJDesk) GetMoPaiOverTurn(userApi api.MjUser, isOpen bool) *mjproto.Game_OverTurn {
+	user := d.GetSkeletonMJUser(userApi)
 	overTurn := newProto.NewGame_OverTurn()
 	*overTurn.UserId = user.GetUserId()                 //这个是摸牌的，所以是广播...
 	*overTurn.PaiCount = d.GetRemainPaiCount()          //桌子剩余多少牌
@@ -205,7 +364,7 @@ func (d *SkeletonMJDesk) GetMoPaiOverTurn(user api.MjUser, isOpen bool) *mjproto
 			jiaoPais := d.HuParser.GetJiaoPais(user.GetGameData().HandPai.Pais)
 			for _, g := range gangPais {
 				//判断杠牌之后的叫牌是否和杠牌之前一样
-				if user.AfterGangEqualJiaoPai(jiaoPais, g) {
+				if user.GetSkeletonMJUser().AfterGangEqualJiaoPai(jiaoPais, g) {
 					overTurn.GangCards = append(overTurn.GangCards, g.GetCardInfo())
 				}
 			}
@@ -228,7 +387,7 @@ func (d *SkeletonMJDesk) GetMoPaiOverTurn(user api.MjUser, isOpen bool) *mjproto
 	}
 
 	//对长沙麻将做特殊处理
-	overTurn.JiaoInfos = d.GetJiaoInfos(user)
+	overTurn.JiaoInfos = d.GetJiaoInfos(userApi)
 	return overTurn
 }
 

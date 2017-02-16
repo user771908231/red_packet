@@ -7,16 +7,21 @@ import (
 	"casino_majianagv2/core/api"
 	"fmt"
 	"casino_majianagv2/core/majiangv2"
+	"github.com/golang/protobuf/proto"
+	"github.com/name5566/leaf/gate"
 )
 
 type SkeletonMJUser struct {
-	desk       api.MjDesk
-	status     *data.MjUserStatus
-	userId     uint32
-	readyTimer *time.Timer
-	Bill       *majiang.Bill
-	UserData   *data.MJUserData
-	GameData   *data.MJUserGameData
+	desk            api.MjDesk
+	status          *data.MjUserStatus
+	userId          uint32
+	readyTimer      *time.Timer
+	Bill            *majiang.Bill
+	GameData        *data.MJUserGameData
+	Coin            int64                  //金币
+	Statisc         *majiang.MjUserStatisc //统计信息
+	a               gate.Agent
+	ActTimeoutCount int32 //
 }
 
 //初始化一个user骨架
@@ -55,7 +60,7 @@ func (u *SkeletonMJUser) AfterGangEqualJiaoPai(beforJiaoPais []*majiang.MJPai, g
 	}
 
 	//2，通过杠牌之后的手牌 获得此时的叫牌
-	afterJiaoPais := u.GetDesk()..GetHuParser().GetJiaoPais(afterPais)
+	afterJiaoPais := u.GetDesk().GetHuParser().GetJiaoPais(afterPais)
 
 	//2,比较beforJiaoPais 和 afterJiaoPais
 	if len(afterPais) != len(beforJiaoPais) {
@@ -78,4 +83,20 @@ func (u *SkeletonMJUser) AfterGangEqualJiaoPai(beforJiaoPais []*majiang.MJPai, g
 	}
 
 	return true;
+}
+
+//初始化方法
+func (u *SkeletonMJUser) BeginInit(CurrPlayCount int32, banker uint32) {
+
+}
+
+//发送overTrun
+/**
+	这里需要区分有托管 和没有托管的状态：
+	1，有托管的时候，给玩家发送
+ */
+func (u *SkeletonMJUser) SendOverTurn(p proto.Message) error {
+	//如果是金币场有超时的处理...
+	u.WriteMsg(p)
+	return nil
 }

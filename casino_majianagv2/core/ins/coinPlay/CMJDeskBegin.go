@@ -15,7 +15,7 @@ func (d *CMJDesk) DeductCreateFee() error {
 			if err != nil {
 				log.E("%v 金币场开始游戏，扣除玩家[%v]房费[%v]的时候出错,err %v ", d.DlogDes(), u.GetUserId(), d.GetMJConfig().CreateFee, err)
 			} else {
-				u.GetUserData().Coin = remain                                           //玩家的金币
+				u.SetCoin(remain)                                                       //玩家的金币
 				awardService.AddOnlineCapital(u.GetUserId(), d.GetMJConfig().CreateFee) //增加在线奖励的提成本金
 			}
 		}

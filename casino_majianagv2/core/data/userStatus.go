@@ -4,8 +4,9 @@ import "casino_majiang/service/majiang"
 
 //麻将桌子的一些状态
 type MjUserStatus struct {
-	status int32
-	Ready  bool
+	status    int32
+	Ready     bool
+	AgentMode bool
 }
 
 //todo
@@ -35,4 +36,11 @@ func (s *MjUserStatus) IsNotHu() bool {
 //设置用户的状态
 func (s *MjUserStatus) SetStatus(status int32) {
 	s.status = status
+}
+
+func (s *MjUserStatus) GetAgentMode() bool {
+	return s.AgentMode
+}
+func (s *MjUserStatus) SetAgentMode(a bool) {
+	s.AgentMode = a
 }

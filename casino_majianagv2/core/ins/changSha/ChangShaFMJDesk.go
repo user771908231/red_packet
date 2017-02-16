@@ -27,8 +27,12 @@ func NewChangShaFMJDesk(config *data.SkeletonMJConfig) api.MjDesk {
 	return desk
 }
 
+func (d *ChangShaFMJDesk) GetCSUser(u interface{}) *ChangShaMJUser {
+	return u.(*ChangShaMJUser)
+}
+
 //打牌
-func (d *ChangShaFMJDesk) ActOut(userId uint32, cardId int32) error {
+func (d *ChangShaFMJDesk) ActOut(userId uint32, cardId int32, bu bool) error {
 	return nil
 }
 
@@ -48,7 +52,7 @@ func (d *ChangShaFMJDesk) GetOverTurnByCaseBean(user api.MjUser, isOpen bool) *m
 		overTurn.GangCards = nil
 		//判断长沙麻将能不能杠
 		for _, g := range overTurn.BuCards {
-			cang := user.GetCanChangShaGang(majiangv2.InitMjPaiByIndex(int(g.GetId())))
+			cang := d.GetCSUser(user).GetCanChangShaGang(majiangv2.InitMjPaiByIndex(int(g.GetId())))
 			log.T("判断玩家[%v]对牌[%v]是否可以长沙杠[%v]", user.GetUserId(), g.GetId(), cang)
 			if cang {
 				overTurn.CanGang = proto.Bool(true)
@@ -62,6 +66,7 @@ func (d *ChangShaFMJDesk) GetOverTurnByCaseBean(user api.MjUser, isOpen bool) *m
 //可以把overturn放在一个地方,目前都是摸牌的时候在用
 func (d *ChangShaFMJDesk) GetMoPaiOverTurn(user api.MjUser, isOpen bool) *mjproto.Game_OverTurn {
 	overTurn := d.SkeletonMJDesk.GetMoPaiOverTurn(user, isOpen)
+	overTurn.JiaoInfos = d.GetJiaoInfos(user)
 	//这里需要对长沙麻将做特殊处理(主要是杠，补的处理)
 	if overTurn.GetCanGang() {
 		overTurn.CanBu = proto.Bool(true)
@@ -70,7 +75,7 @@ func (d *ChangShaFMJDesk) GetMoPaiOverTurn(user api.MjUser, isOpen bool) *mjprot
 		overTurn.GangCards = nil
 		//判断长沙麻将能不能杠
 		for _, g := range overTurn.BuCards {
-			cang := user.GetCanChangShaGang(InitMjPaiByIndex(int(g.GetId())))
+			cang := d.GetCSUser(user).GetCanChangShaGang(majiangv2.InitMjPaiByIndex(int(g.GetId())))
 			log.T("判断玩家[%v]对牌[%v]是否可以长沙杠[%v]", user.GetUserId(), g.GetId(), cang)
 			if cang {
 				overTurn.CanGang = proto.Bool(true)

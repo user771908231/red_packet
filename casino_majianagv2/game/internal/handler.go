@@ -224,7 +224,7 @@ func handlerGame_SendOutCard(args []interface{}) {
 	}
 
 	//开始打牌
-	err := desk.ActOut(userId, cardId) //普通玩家打牌
+	err := desk.ActOut(userId, cardId,false) //普通玩家打牌
 	if err != nil {
 		//打牌失败
 		result := newProto.NewGame_AckSendOutCard()

@@ -36,7 +36,7 @@ func (u *ChangShaMJUser) GetCanChangShaGang(pai *majiang.MJPai) bool {
 	}
 
 	//2 看剩下的牌有无听 by 彬哥
-	jiaoPais := u.GetDesk().GetSkeletonMJDesk().HuParser.GetJiaoPais(newPais)
+	jiaoPais := u.GetDesk().GetHuParser().GetJiaoPais(newPais)
 	if jiaoPais != nil && len(jiaoPais) > 0 {
 		return true
 	}
