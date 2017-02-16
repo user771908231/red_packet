@@ -8,6 +8,8 @@ import (
 	"casino_common/common/Error"
 	"casino_common/common/consts"
 	"casino_majiang/msg/funcsInit"
+	"github.com/name5566/leaf/timer"
+	"casino_majiang/service/majiang"
 )
 
 var ERR_SYS = Error.NewError(consts.ACK_RESULT_FAIL, "系统错误")
@@ -25,13 +27,16 @@ var ERR_READY_state = Error.NewError(consts.ACK_RESULT_FAIL, "准备失败，不
 
 //desk 的骨架,业务逻辑的方法 放置在这里
 type SkeletonMJDesk struct {
-	config   data.SkeletonMJConfig //这里不用使用指针，此配置创建之后不会再改变
-	status   *data.MjDeskStatus    //桌子的所有状态都在这里
-	HuParser api.HuPaerApi         //胡牌解析器
 	*sync.Mutex
+	config        *data.SkeletonMJConfig //这里不用使用指针，此配置创建之后不会再改变
+	status        *data.MjDeskStatus     //桌子的所有状态都在这里
+	HuParser      api.HuPaerApi          //胡牌解析器
+	OverTurnTimer *timer.Timer           //定时器
+	CheckCase     *data.CheckCase        //麻将的判定器
+	Users         []api.MjUser
 }
 
-func NewSkeletonMJDesk(config data.SkeletonMJConfig) *SkeletonMJDesk {
+func NewSkeletonMJDesk(config *data.SkeletonMJConfig) *SkeletonMJDesk {
 	desk := &SkeletonMJDesk{
 		config: config,
 	}
@@ -87,7 +92,66 @@ func (d *SkeletonMJDesk) Ready(userId uint32) error {
 	return nil
 }
 
+//检测是否轮到当前玩家打牌...
+func (d *SkeletonMJDesk) CheckActUser(userId uint32) bool {
+	if d.GetMJConfig().ActUser == userId {
+		return true //检测通过
+	} else {
+		//没有轮到当前玩家
+		log.E("[%v]非法请求，没有轮到当前玩家打牌..应该是[%v]", d.DlogDes(), d.GetMJConfig().ActUser)
+		return false
+	}
+}
+
+//检测是否轮到操作
+func (d *SkeletonMJDesk) CheckNotActUser(userId uint32) bool {
+	return !d.CheckActUser(userId)
+}
+
 //定缺
 func (f *SkeletonMJDesk) DingQue(userId uint32, color int32) error {
 	return nil
+}
+
+func (d *SkeletonMJDesk) InitCheckCase(p *majiang.MJPai, outUser api.MjUser) error {
+	return nil
+}
+
+//处理下一个checkCase
+func (d *SkeletonMJDesk) DoCheckCase() error {
+	return nil
+}
+
+//指针指向的玩家
+func (d *SkeletonMJDesk) SetActiveUser(userId uint32) error {
+	d.GetMJConfig().ActiveUser = userId
+	return nil
+}
+
+func (d *SkeletonMJDesk) Time2Lottery() bool {
+	//游戏中的玩家只剩下一个人，表示游戏结束...
+	gamingCount := d.GetGamingCount() //正在游戏中的玩家数量
+
+	log.T("判断是否胡牌...当前的gamingCount[%v],当前的PaiCursor[%v]", gamingCount, d.GetMJPaiCursor())
+
+	//1,只剩下一个人的时候. 表示游戏结束
+	if gamingCount == 1 {
+		return true
+	}
+
+	log.T("HandPaiCanMo[%v]", d.HandPaiCanMo())
+	//2，没有牌可以摸的时候，返回可以lottery了
+	if !d.HandPaiCanMo() {
+		return true
+	}
+
+	//如果是倒倒胡并且nextCheckCase为空
+	if d.IsDaodaohu() && d.GetCheckCase().GetNextBean() == nil {
+		for _, user := range d.Users {
+			if user != nil && user.IsHu() {
+				return true
+			}
+		}
+	}
+	return false
 }

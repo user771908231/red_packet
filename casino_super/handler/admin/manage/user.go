@@ -15,7 +15,7 @@ import (
 func UserListHandler(ctx *modules.Context) {
 	query := bson.M{
 		"$and": []bson.M{
-			bson.M{"id":bson.M{"$gt":0}},
+			bson.M{"id": bson.M{"$gt": 0}},
 		},
 	}
 	if keyword := ctx.Query("keyword"); keyword != "" {
@@ -30,22 +30,22 @@ func UserListHandler(ctx *modules.Context) {
 	}
 
 	list := new([]*ddproto.User)
-	err,count := db.C(tableName.DBT_T_USER).Page(query, list, "id", page, 10)
+	err, count := db.C(tableName.DBT_T_USER).Page(query, list, "id", page, 10)
 
 	data := bson.M{
-		"list":list,
-		"page":bson.M{
-			"count": count,
+		"list": list,
+		"page": bson.M{
+			"count":      count,
 			"list_count": len(*list),
-			"limit": 10,
-			"page": page,
-			"page_count": math.Ceil(float64(count)/float64(10)),
+			"limit":      10,
+			"page":       page,
+			"page_count": math.Ceil(float64(count) / float64(10)),
 		},
 	}
 
 	if err != nil {
 		ctx.Ajax(-1, err.Error(), nil)
-	}else {
+	} else {
 		ctx.Ajax(1, "成功返回列表成功!", data)
 	}
 
@@ -55,20 +55,21 @@ func UserListHandler(ctx *modules.Context) {
 
 //用户更新表单
 type UserUpdateForm struct {
-	RoomCard            int64  `form:"RoomCard"`
-	Coin                int64  `form:"coin"`
-	Id                  uint32 `form:"id"`
-	NickName            string `form:"nickName"`
-	Diamond             int64  `form:"Diamond"`
-	OpenId              string `form:"openId"`
-	UnionId             string `form:"UnionId"`
-	HeadUrl             string `form:"headUrl"`
-	Sex                 int32  `form:"sex"`
-	RobotType           int32  `form:"robotType"`
+	RoomCard  int64  `form:"RoomCard"`
+	Coin      int64  `form:"coin"`
+	Id        uint32 `form:"id"`
+	NickName  string `form:"nickName"`
+	Diamond   int64  `form:"Diamond"`
+	OpenId    string `form:"openId"`
+	UnionId   string `form:"UnionId"`
+	HeadUrl   string `form:"headUrl"`
+	Sex       int32  `form:"sex"`
+	RobotType int32  `form:"robotType"`
 }
+
 //更新一个用户的数据
 func UpdateUserHandler(ctx *modules.Context, form UserUpdateForm) {
-	err := db.C(tableName.DBT_T_USER).Update(bson.M{"id": form.Id},bson.M{"$set": form})
+	err := db.C(tableName.DBT_T_USER).Update(bson.M{"id": form.Id}, bson.M{"$set": form})
 	if err != nil {
 		ctx.Ajax(-1, err.Error(), form)
 		return
@@ -78,9 +79,9 @@ func UpdateUserHandler(ctx *modules.Context, form UserUpdateForm) {
 
 //充值表单
 type RechargeForm struct {
-	Id uint32 `form:"Id" binding:"Required"`
-	Coin int64 `form:"Coin" binding:""`
-	Diamond int64 `form:"Diamond" binding:""`
+	Id       uint32 `form:"Id" binding:"Required"`
+	Coin     int64 `form:"Coin" binding:""`
+	Diamond  int64 `form:"Diamond" binding:""`
 	RoomCard int64 `form:"RoomCard" binding:""`
 }
 
@@ -97,6 +98,7 @@ func RechargeHandler(ctx *modules.Context, form RechargeForm, errs binding.Error
 			ctx.Ajax(-2, "充值金币失败！", nil)
 			return
 		}
+		//userService.UpdateUser2MgoById()
 	}
 	if form.Diamond != 0 {
 		_, err = userService.INCRUserDiamond(form.Id, form.Diamond)
@@ -114,6 +116,7 @@ func RechargeHandler(ctx *modules.Context, form RechargeForm, errs binding.Error
 	}
 
 	ctx.Ajax(1, "充值成功！", form)
+	userService.SyncMgoUserMoney(form.Id) //同步user的数据到mgo
 }
 
 //删除单个用户
@@ -121,8 +124,8 @@ func DelUserHandler(ctx *modules.Context) {
 	err := db.C(tableName.DBT_T_USER).Remove(bson.M{"id": ctx.ParamsInt("id")})
 	if err != nil {
 		//ctx.Error("删除失败！"+err.Error(), "/admin/manage/user/all", 3)
-		ctx.Ajax(-1, "删除失败！",nil)
+		ctx.Ajax(-1, "删除失败！", nil)
 		return
 	}
-	ctx.Ajax(1, "删除成功！",nil)
+	ctx.Ajax(1, "删除成功！", nil)
 }

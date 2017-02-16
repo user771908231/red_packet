@@ -13,29 +13,22 @@ type FMJDesk struct {
 }
 
 //创建一个朋友桌的desk
-func NewFMJDesk(config data.SkeletonMJConfig) api.MjDesk {
+func NewFMJDesk(config *data.SkeletonMJConfig) api.MjDesk {
 
 	//desk 骨架
 	desk := &FMJDesk{
 		SkeletonMJDesk: skeleton.NewSkeletonMJDesk(config),
 	}
 
-	desk.HuParser = huParserIns.NewChengDuHuParser()
+	//胡牌的解析器
+	desk.HuParser = huParserIns.NewChengDuHuParser(
+		desk.GetMJConfig().BaseValue,
+		desk.IsNeedZiMoJiaDi(),
+		desk.IsNeedYaojiuJiangdui(),
+		desk.IsDaodaohu(),
+		desk.IsNeedMenqingZhongzhang(),
+		desk.IsNeedZiMoJiaFan(),
+		desk.GetMJConfig().CapMax,
+	)
 	return desk
-}
-
-//离开房间
-func (d *FMJDesk) Leave(userId uint32) error {
-	return nil
-}
-
-func (d *FMJDesk) Ready(userId uint32) error {
-	d.SkeletonMJDesk.Ready(userId)
-	//如果人数还是不够，就需要在计划增加机器人
-	d.begin()
-	return nil
-}
-
-func (d *FMJDesk) begin() {
-
 }

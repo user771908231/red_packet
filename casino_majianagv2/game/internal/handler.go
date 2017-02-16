@@ -62,29 +62,27 @@ func handlerCreateDesk(args []interface{}) {
 		RoomType:   majiang.ROOMTYPE_FRIEND,
 		Status:     majiang.MJDESK_STATUS_READY,
 		MjRoomType: int32(m.GetRoomTypeInfo().GetMjRoomType()),
-		//RoomId           int32
+		//RoomId:           int32,
 		//CreateFee        int64
-		//BoardsCout       int32 //局数，如：4局（房卡 × 2）、8局（房卡 × 3）
-		//CapMax           int32
-		//CardsNum         int32
-		//Settlement       int32
-		//BaseValue        int64
-		//ZiMoRadio        int32
-		//OthersCheckBox   []int32
-		//HuRadio          int32
-		//DianGangHuaRadio int32
-		//MJPaiCursor      int32
-		//TotalPlayCount   int32
-		//CurrPlayCount    int32
-		//Banker           uint32
-		//NextBanker       uint32
-		//CheckCase        *CheckCase
-		//ActiveUser       uint32
-		//GameNumber       int32
-		//ActUser          uint32
-		//ActType          int32
-		//NInitActionTime  int32
-		//RoomLevel        int32
+		BoardsCout:       m.GetRoomTypeInfo().GetBoardsCout(), //局数，如：4局（房卡 × 2）、8局（房卡 × 3）
+		CapMax:           m.GetRoomTypeInfo().GetCapMax(),
+		CardsNum:         m.GetRoomTypeInfo().GetCardsNum(),
+		Settlement:       m.GetRoomTypeInfo().GetSettlement(),
+		BaseValue:        m.GetRoomTypeInfo().GetBaseValue(),
+		ZiMoRadio:        m.GetRoomTypeInfo().GetPlayOptions().GetZiMoRadio(),
+		OthersCheckBox:   m.GetRoomTypeInfo().GetPlayOptions().GetOthersCheckBox(),
+		HuRadio:          m.GetRoomTypeInfo().GetPlayOptions().GetHuRadio(),
+		DianGangHuaRadio: m.GetRoomTypeInfo().GetPlayOptions().GetDianGangHuaRadio(),
+		MJPaiCursor:      0,
+		TotalPlayCount:   m.GetRoomTypeInfo().GetBoardsCout(),
+		CurrPlayCount:    0,
+		Banker:           0,
+		NextBanker:       0,
+		ActiveUser:       0,
+		ActUser:          0,
+		ActType:          0,
+		NInitActionTime:  30,
+		RoomLevel:        0,
 	}
 
 	desk, err := room.CreateDesk(config)
@@ -205,37 +203,82 @@ func handlerGame_DingQue(args []interface{}) {
 		log.E("用户[%v]定缺失败...", userId)
 	}
 }
+
+//换三张
 func handlerGame_ExchangeCards(args []interface{}) {
 }
 
+//打牌
 func handlerGame_SendOutCard(args []interface{}) {
+	m := args[0].(*mjproto.Game_SendOutCard)
+	a := args[1].(gate.Agent)
+	userId := m.GetHeader().GetUserId()
+	cardId := m.GetCardId()
+
+	//检测参数
+	desk := roomMgr.GetMjDeskBySession(userId)
+	if desk == nil {
+		//打牌失败，因为没有找到对应的麻将桌子
+		log.E("用户[%v]打牌", userId)
+		return
+	}
+
+	//开始打牌
+	err := desk.ActOut(userId, cardId) //普通玩家打牌
+	if err != nil {
+		//打牌失败
+		result := newProto.NewGame_AckSendOutCard()
+		*result.Header.Code = Error.GetErrorCode(err)
+		*result.Header.Error = Error.GetErrorMsg(err)
+		a.WriteMsg(result)
+		return
+	}
 }
 
+//碰牌
 func handlerGame_ActPeng(args []interface{}) {
 }
+
+//杠牌
 func handlerGame_ActGang(args []interface{}) {
 }
+
+//过牌
 func handlerGame_ActGuo(args []interface{}) {
 }
 
+//胡牌
 func handlerGame_ActHu(args []interface{}) {
 }
 
+//游戏记录
 func handlerGame_GameRecord(args []interface{}) {
 }
 
+//发信息
 func handlerGame_Message(args []interface{}) {
 }
 
+//强制退出
 func HandlerCommonAckLogout(args []interface{}) {
 }
+
+//离开房间
 func HandlerCommonReqLeaveDesk(args []interface{}) {
 }
+
+//申请解散房间
 func handlerCommonReqApplyDissolve(args []interface{}) {
 }
+
+//申请解散 回复
 func handlerApplyDissolveBack(args []interface{}) {
 }
+
+//托管模式
 func handlerEnterAgentMode(args []interface{}) {
 }
+
+//拖出托管模式
 func handlerQuitAgentMode(args []interface{}) {
 }
