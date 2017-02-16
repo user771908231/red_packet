@@ -16,6 +16,7 @@ type SkeletonMJUser struct {
 	userId     uint32
 	readyTimer *time.Timer
 	Bill       *majiang.Bill
+	UserData   *data.MJUserData
 }
 
 //初始化一个user骨架

@@ -8,7 +8,12 @@ import (
 	"casino_common/common/log"
 	"errors"
 	"casino_common/common/userService"
+	"github.com/golang/protobuf/proto"
 )
+
+func (u *SkeletonMJUser) GetUserData() *data.MJUserData {
+	return u.UserData
+}
 
 func (u *SkeletonMJUser) GetUserId() uint32 {
 	return u.userId
@@ -82,4 +87,15 @@ func (u *SkeletonMJUser) AddBill(relationUserid uint32, billType int32, des stri
 	u.AddCoin(score, roomType)    //统计用户剩余多少钱
 	u.AddStatisticsWinCoin(score) //统计用户输赢多少钱
 	return nil
+}
+
+//更新用户金币
+func (u *SkeletonMJUser) AddCoin(coin int64, roomType int32) {
+	//减少玩家金额
+	atomic.AddInt64(u.GetUserData().Coin, coin) //更新账户余额
+	//如果是金币场。需要更新用户的金币余额
+	if roomType == majiang.ROOMTYPE_COINPLAY {
+		remainCoin, _ := userService.INCRUserCOIN(u.GetUserId(), coin)
+		u.GetUserData().Coin = proto.Int64(remainCoin) //增加用户的金币
+	}
 }
