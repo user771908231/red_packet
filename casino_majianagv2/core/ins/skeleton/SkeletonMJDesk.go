@@ -10,6 +10,7 @@ import (
 	"casino_majiang/msg/funcsInit"
 	"github.com/name5566/leaf/timer"
 	"casino_majiang/service/majiang"
+	"casino_common/utils/rand"
 )
 
 var ERR_SYS = Error.NewError(consts.ACK_RESULT_FAIL, "系统错误")
@@ -50,13 +51,6 @@ func (f *SkeletonMJDesk) EnterUser(userId uint32) error {
 
 //准备
 func (d *SkeletonMJDesk) Ready(userId uint32) error {
-	log.T("锁日志: %v ready(%v)的时候等待锁", d.DlogDes(), userId)
-	d.Lock()
-	defer func() {
-		d.Unlock()
-		log.T("锁日志: %v ready(%v)的时候释放锁", d.DlogDes(), userId)
-	}()
-
 	//判断desk状态
 	if d.GetStatus().IsNotPreparing() {
 		// 准备失败
@@ -132,8 +126,7 @@ func (d *SkeletonMJDesk) Time2Lottery() bool {
 	//游戏中的玩家只剩下一个人，表示游戏结束...
 	gamingCount := d.GetGamingCount() //正在游戏中的玩家数量
 
-	log.T("判断是否胡牌...当前的gamingCount[%v],当前的PaiCursor[%v]", gamingCount, d.GetMJPaiCursor())
-
+	log.T("判断是否胡牌...当前的gamingCount[%v],当前的PaiCursor[%v]", gamingCount, d.GetMJConfig().MJPaiCursor)
 	//1,只剩下一个人的时候. 表示游戏结束
 	if gamingCount == 1 {
 		return true
@@ -148,10 +141,31 @@ func (d *SkeletonMJDesk) Time2Lottery() bool {
 	//如果是倒倒胡并且nextCheckCase为空
 	if d.IsDaodaohu() && d.GetCheckCase().GetNextBean() == nil {
 		for _, user := range d.Users {
-			if user != nil && user.IsHu() {
+			if user != nil && user.GetStatus().IsHu() {
 				return true
 			}
 		}
 	}
 	return false
+}
+
+//发送game_opening 的协议
+func (d *SkeletonMJDesk) SendNewGame_Opening() {
+	log.T("发送游戏开始的协议..")
+	log.T("当前桌子共[%v]把，现在是第[%v]把游戏开始", d.GetMJConfig().TotalPlayCount, d.GetMJConfig().CurrPlayCount)
+
+	open := newProto.NewGame_Opening()
+	*open.CurrPlayCount = d.GetMJConfig().CurrPlayCount
+	*open.Dice1 = d.GetDice1() //骰子
+	*open.Dice2 = d.GetDice2() //骰子
+	d.BroadCastProto(open)
+}
+
+//通过庄来判断骰子的数目
+func (d *SkeletonMJDesk) GetDice1() int32 {
+	return rand.Rand(1, 7)
+}
+
+func (d *SkeletonMJDesk) GetDice2() int32 {
+	return rand.Rand(1, 7)
 }
