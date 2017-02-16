@@ -8,6 +8,7 @@ import (
 	"casino_common/common/Error"
 	"errors"
 	"casino_majiang/service/majiang"
+	"casino_majianagv2/core/api"
 )
 
 func (d *FMJDesk) ActHu(userId uint32) error {
@@ -151,14 +152,14 @@ func (d *FMJDesk) ActHuChengDu(userId uint32) error {
 2,增加碰牌
 3,删除杠牌的账单
 */
-func (d *FMJDesk) DoQiangGang(hu *HuPaiInfo) error {
-	if d.CheckCase != nil && d.CheckCase.PreOutGangInfo != nil && d.CheckCase.PreOutGangInfo.GetGangType() == GANG_TYPE_BA {
+func (d *FMJDesk) DoQiangGang(hu *majiang.HuPaiInfo) error {
+	if d.CheckCase != nil && d.CheckCase.PreOutGangInfo != nil && d.CheckCase.PreOutGangInfo.GetGangType() == majiang.GANG_TYPE_BA {
 		log.T("开始处理抢杠的逻辑....")
 		dianUser := d.GetUserByUserId(hu.GetSendUserId())
 
 		//1,首先是清楚杠牌的info
 		var gangKeys []int32
-		for _, pai := range dianUser.GameData.HandPai.GangPais {
+		for _, pai := range dianUser.GetGameData().GetHandPai().GetGangPais() {
 			if pai == nil {
 				continue
 			}
@@ -166,14 +167,14 @@ func (d *FMJDesk) DoQiangGang(hu *HuPaiInfo) error {
 			if pai != nil && pai.GetClientId() == hu.Pai.GetClientId() {
 				gangKeys = append(gangKeys, pai.GetIndex()) //需要删除的杠牌
 				if pai.GetIndex() != hu.Pai.GetIndex() {
-					dianUser.GameData.HandPai.PengPais = append(dianUser.GameData.HandPai.PengPais, pai) //碰牌
+					dianUser.GetGameData().GetHandPai().PengPais = append(dianUser.GetGameData().GetHandPai().PengPais, pai) //碰牌
 				}
 			}
 		}
 
 		//删除杠牌的信息
-		dianUser.GameData.DelGangInfo(hu.Pai)
-		dianUser.PreMoGangInfo = nil //摸牌前的杠牌处理也要删除
+		dianUser.GetGameData().DelGangInfo(hu.Pai)
+		dianUser.GetGameData().DelPreMoGangInfo() //摸牌前的杠牌处理也要删除
 		//删除杠牌的账单
 		for _, billUser := range d.GetUsers() {
 			//处理每一个人的账单,并且减去amount
@@ -189,7 +190,7 @@ func (d *FMJDesk) DoQiangGang(hu *HuPaiInfo) error {
 	增加账单
 	//todo 这里需要完善算账的逻辑逻辑,目前就自摸和点炮来做
  */
-func (d *FMJDesk) DoHuBill(hu *HuPaiInfo) {
+func (d *FMJDesk) DoHuBill(hu *majiang.HuPaiInfo) {
 	isZimo := (hu.GetGetUserId() == hu.GetSendUserId())
 	outUser := hu.GetSendUserId()
 	huUser := d.GetUserByUserId(hu.GetGetUserId())
@@ -197,18 +198,18 @@ func (d *FMJDesk) DoHuBill(hu *HuPaiInfo) {
 	log.T("玩家[%v]胡牌，开始处理计算分数的逻辑...", huUser.GetUserId())
 	if isZimo {
 		//如果是自摸的话，三家都需要给钱
-		huUser.AddStatisticsCountZiMo(d.GetCurrPlayCount())
+		huUser.AddStatisticsCountZiMo(d.GetMJConfig().CurrPlayCount)
 		for _, shuUser := range d.GetUsers() {
-			if shuUser != nil && shuUser.IsGaming() && (shuUser.GetUserId() != huUser.GetUserId()) && shuUser.IsNotHu() {
+			if shuUser != nil && shuUser.GetStatus().IsGaming() && (shuUser.GetUserId() != huUser.GetUserId()) && shuUser.GetStatus().IsNotHu() {
 
 				//赢钱的账单
-				huUser.AddBill(shuUser.GetUserId(), MJUSER_BILL_TYPE_YING_HU, "用户自摸，获得收入", d.GetYingScore(huUser, hu.GetScore()), hu.Pai, d.GetRoomType())
+				huUser.AddBill(shuUser.GetUserId(), majiang.MJUSER_BILL_TYPE_YING_HU, "用户自摸，获得收入", d.GetYingScore(huUser, hu.GetScore()), hu.Pai, d.GetMJConfig().RoomType)
 
 				//输钱的账单
-				shuUser.AddBill(huUser.GetUserId(), MJUSER_BILL_TYPE_SHU_ZIMO, "用户自摸，输钱", -d.GetYingScore(shuUser, hu.GetScore()), hu.Pai, d.GetRoomType())
+				shuUser.AddBill(huUser.GetUserId(), majiang.MJUSER_BILL_TYPE_SHU_ZIMO, "用户自摸，输钱", -d.GetYingScore(shuUser, hu.GetScore()), hu.Pai, d.GetMJConfig().RoomType)
 
 				//被自摸的用户没人统计一次
-				shuUser.AddStatisticsCountBeiZiMo(d.GetCurrPlayCount())
+				shuUser.AddStatisticsCountBeiZiMo(d.GetMJConfig().CurrPlayCount)
 			}
 		}
 	} else {
@@ -217,18 +218,18 @@ func (d *FMJDesk) DoHuBill(hu *HuPaiInfo) {
 		shuUser := d.GetUserByUserId(outUser)
 
 		//赢钱的账单
-		huUser.AddBill(shuUser.GetUserId(), MJUSER_BILL_TYPE_YING_HU, "点炮胡牌，获得收入", d.GetYingScore(huUser, hu.GetScore()), hu.Pai, d.GetRoomType())
+		huUser.AddBill(shuUser.GetUserId(), majiang.MJUSER_BILL_TYPE_YING_HU, "点炮胡牌，获得收入", d.GetYingScore(huUser, hu.GetScore()), hu.Pai, d.GetMJConfig().RoomType)
 
 		//输钱的账单
-		shuUser.AddBill(huUser.GetUserId(), MJUSER_BILL_TYPE_SHU_DIANPAO, "用户点炮，输钱", -d.GetYingScore(huUser, hu.GetScore()), hu.Pai, d.GetRoomType())
+		shuUser.AddBill(huUser.GetUserId(), majiang.MJUSER_BILL_TYPE_SHU_DIANPAO, "用户点炮，输钱", -d.GetYingScore(huUser, hu.GetScore()), hu.Pai, d.GetMJConfig().RoomType)
 
-		huUser.AddStatisticsCountHu(d.GetCurrPlayCount())       //胡的用户统计信息
-		shuUser.AddStatisticsCountDianPao(d.GetCurrPlayCount()) //点炮的用户统计信息
+		huUser.AddStatisticsCountHu(d.GetMJConfig().CurrPlayCount)       //胡的用户统计信息
+		shuUser.AddStatisticsCountDianPao(d.GetMJConfig().CurrPlayCount) //点炮的用户统计信息
 	}
 }
 
 //获取玩家赢分 为长沙麻将添加的方法
-func (d *FMJDesk) GetYingScore(yingUser *MjUser, score int64) int64 {
+func (d *FMJDesk) GetYingScore(yingUser api.MjUser, score int64) int64 {
 	if !d.IsChangShaMaJiang() {
 		return score
 	}
@@ -244,7 +245,7 @@ func (d *FMJDesk) DoAfterDianPao(hu *HuPaiInfo) {
 		return
 	}
 	//点炮胡牌成功之后的处理... 处理checkCase
-	d.CheckCase.UpdateCheckBeanStatus(hu.GetGetUserId(), CHECK_CASE_BEAN_STATUS_CHECKED) // update checkCase...
+	d.CheckCase.UpdateCheckBeanStatus(hu.GetGetUserId(), majiang.CHECK_CASE_BEAN_STATUS_CHECKED) // update checkCase...
 	atomic.AddInt32(d.CheckCase.DianPaoCount, 1)
 	//胡牌之后，更新canPeng 或者 canGang 的checkCase
 	for _, bean := range d.CheckCase.CheckB {

@@ -47,6 +47,14 @@ func (d *SkeletonMJDesk) GetGamingCount() int32 {
 	return 0
 }
 
+func (d *SkeletonMJDesk) GetUsers() []api.MjUser {
+	return d.Users
+}
+
+func (d *SkeletonMJDesk) GetBankerUser() *api.MjUser {
+	return  d.GetUserByUserId(d.GetMJConfig().Banker)
+}
+
 //是否需要自摸加底
 func (d *SkeletonMJDesk) IsNeedZiMoJiaDi() bool {
 	if mjproto.MJOption(d.GetMJConfig().ZiMoRadio) == mjproto.MJOption_ZIMO_JIA_DI {
