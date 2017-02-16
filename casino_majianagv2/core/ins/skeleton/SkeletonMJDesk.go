@@ -120,3 +120,37 @@ func (d *SkeletonMJDesk) InitCheckCase(p *majiang.MJPai, outUser api.MjUser) err
 func (d *SkeletonMJDesk) DoCheckCase() error {
 	return nil
 }
+
+//指针指向的玩家
+func (d *SkeletonMJDesk) SetActiveUser(userId uint32) error {
+	d.GetMJConfig().ActiveUser = userId
+	return nil
+}
+
+func (d *SkeletonMJDesk) Time2Lottery() bool {
+	//游戏中的玩家只剩下一个人，表示游戏结束...
+	gamingCount := d.GetGamingCount() //正在游戏中的玩家数量
+
+	log.T("判断是否胡牌...当前的gamingCount[%v],当前的PaiCursor[%v]", gamingCount, d.GetMJPaiCursor())
+
+	//1,只剩下一个人的时候. 表示游戏结束
+	if gamingCount == 1 {
+		return true
+	}
+
+	log.T("HandPaiCanMo[%v]", d.HandPaiCanMo())
+	//2，没有牌可以摸的时候，返回可以lottery了
+	if !d.HandPaiCanMo() {
+		return true
+	}
+
+	//如果是倒倒胡并且nextCheckCase为空
+	if d.IsDaodaohu() && d.GetCheckCase().GetNextBean() == nil {
+		for _, user := range d.Users {
+			if user != nil && user.IsHu() {
+				return true
+			}
+		}
+	}
+	return false
+}

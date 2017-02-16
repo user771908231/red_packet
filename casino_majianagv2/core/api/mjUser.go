@@ -6,4 +6,5 @@ type MjUser interface {
 	GetStatus() *data.MjUserStatus
 	GetGameData() *data.MJUserGameData
 	Ready()
+	GetUserId() uint32 //
 }
