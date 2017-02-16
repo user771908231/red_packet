@@ -2,16 +2,14 @@ package skeleton
 
 import (
 	"casino_common/common/consts/tableName"
-	"github.com/golang/protobuf/proto"
 	"casino_common/common/log"
-	"casino_common/common/service/awardService"
 	"time"
 	"casino_majiang/service/majiang"
 	"errors"
 	"casino_majiang/msg/funcsInit"
 	"casino_common/utils/db"
 	"casino_common/utils/timeUtils"
-	"casino_common/common/userService"
+	"casino_majianagv2/core/majiangv2"
 )
 
 //是否可以开始
@@ -50,7 +48,7 @@ func (d *SkeletonMJDesk) BeginInit() error {
 	//初始化每个玩家的信息
 	for _, user := range d.GetUsers() {
 		if user != nil && user.GetStatus().IsReady() {
-			user.BeginInit(d.GetCurrPlayCount(), d.GetBanker())
+			user.BeginInit(d.GetMJConfig().CurrPlayCount, d.GetMJConfig().Banker)
 		}
 	}
 	//发送游戏开始的协议...
@@ -59,31 +57,30 @@ func (d *SkeletonMJDesk) BeginInit() error {
 	return nil
 }
 
-
 /**
 	初始化牌相关的信息
  */
 func (d *SkeletonMJDesk) InitCards() error {
 	log.T("%vinitCards()...", d.DlogDes())
-	d.AllMJPai = XiPai()
+	d.AllMJPais = majiangv2.XiPai() //真累需要穿参数 房.
 	//d.AllMJPai = XiPaiTestHu()
-	if d.IsLiangFang() {
+	if d.GetMJConfig().FangCount == 2 {
 		//如果是两房 过滤掉万牌
-		d.AllMJPai = IgnoreFlower(d.AllMJPai, W)
+		d.AllMJPais = majiangv2.IgnoreFlower(d.AllMJPais, majiangv2.W)
 	}
 
 	//cardsNum 发牌张数处理
-	cardsNum := int(d.GetCardsNum())
+	cardsNum := int(d.GetMJConfig().CardsNum)
 	if cardsNum == 0 {
 		cardsNum = 13 //默认13张
 	}
 	for i, u := range d.Users {
-		if u != nil && u.IsReady() {
+		if u != nil && u.GetStatus().IsReady() {
 			//log.T("开始给你玩家[%v]初始化手牌...", u.GetUserId())
-			ps := make([]*MJPai, cardsNum)
-			copy(ps, d.AllMJPai[i*cardsNum: (i+1)*cardsNum]) //这里这样做的目的是不能更改base的值
-			u.GameData.HandPai.Pais = ps
-			*d.MJPaiCursor = int32((i+1)*cardsNum) - 1;
+			ps := make([]*majiang.MJPai, cardsNum)
+			copy(ps, d.AllMJPais[i*cardsNum: (i+1)*cardsNum]) //这里这样做的目的是不能更改base的值
+			u.GetGameData().HandPai.Pais = ps
+			d.GetMJConfig().MJPaiCursor = int32((i+1)*cardsNum) - 1;
 		}
 	}
 
@@ -92,7 +89,7 @@ func (d *SkeletonMJDesk) InitCards() error {
 	if bankUser == nil {
 		return errors.New("系统错误")
 	}
-	bankUser.GameData.HandPai.InPai = d.GetNextPai()
+	bankUser.GetGameData().HandPai.InPai = d.GetNextPai()
 
 	//发牌的协议game_DealCards  初始化完成之后，给每个人发送牌
 	for _, user := range d.Users {
@@ -113,9 +110,9 @@ func (d *SkeletonMJDesk) InitCards() error {
 
 //开始换三张
 func (d *SkeletonMJDesk) BeginExchange() error {
-	log.T("desk[%v]round[%v]beginExchange()...", d.GetDeskId(), d.GetCurrPlayCount())
+	log.T("desk[%v]round[%v]beginExchange()...", d.GetMJConfig().DeskId, d.GetMJConfig().CurrPlayCount)
 
-	d.SetStatus(MJDESK_STATUS_EXCHANGE)
+	d.GetStatus().SetStatus(majiang.MJDESK_STATUS_EXCHANGE)
 	data := newProto.NewGame_BroadcastBeginExchange()
 	*data.Reconnect = false
 	d.BroadCastProto(data)
@@ -124,10 +121,10 @@ func (d *SkeletonMJDesk) BeginExchange() error {
 
 //开始定缺
 func (d *SkeletonMJDesk) BeginDingQue() error {
-	log.T("desk[%v]round[%v]beginDingQue()...", d.GetDeskId(), d.GetCurrPlayCount())
+	log.T("desk[%v]round[%v]beginDingQue()...", d.GetMJConfig().DeskId, d.GetMJConfig().CurrPlayCount)
 
 	//开始定缺，修改desk的状态
-	d.SetStatus(MJDESK_STATUS_DINGQUE)
+	d.GetStatus().SetStatus(majiang.MJDESK_STATUS_DINGQUE)
 
 	//给每个人发送开始定缺的信息
 	beginQue := newProto.NewGame_BroadcastBeginDingQue()
@@ -139,22 +136,20 @@ func (d *SkeletonMJDesk) BeginDingQue() error {
 
 //游戏正式开始，庄家打牌的广播
 func (d *SkeletonMJDesk) BeginStart() error {
-	log.T("desk[%v]round[%v]beginStart()...", d.GetDeskId(), d.GetCurrPlayCount())
+	log.T("desk[%v]round[%v]beginStart()...", d.GetMJConfig().DeskId, d.GetMJConfig().CurrPlayCount)
 
 	//设置游戏开始的状态
-	d.SetStatus(MJDESK_STATUS_RUNNING)
-	d.UpdateUserStatus(MJUSER_STATUS_GAMING)
-
-	d.SetActiveUser(d.GetBanker()) // d.beginStart
-	d.SetActUserAndType(d.GetBanker(), MJDESK_ACT_TYPE_MOPAI)
+	d.GetStatus().SetStatus(majiang.MJDESK_STATUS_RUNNING)
+	d.UpdateUserStatus(majiang.MJUSER_STATUS_GAMING)
+	d.SetActiveUser(d.GetMJConfig().Banker) // d.beginStart
+	d.SetActUserAndType(d.GetMJConfig().Banker, majiang.MJDESK_ACT_TYPE_MOPAI)
 
 	//通知庄家打一张牌,这里初始化信息，这里应该是广播的..
 	//注意是否可以碰，可以杠牌，可以胡牌，只有当时人才能看到，所以广播的和当事人的收到的数据不一样...
 	bankUser := d.GetBankerUser()
 
 	overTurn := d.GetMoPaiOverTurn(bankUser, true) //定缺完了之后，庄摸牌
-
-	bankUser.SendOverTurn(overTurn) //庄家打牌
+	bankUser.SendOverTurn(overTurn)                //庄家打牌
 
 	//广播时候的信息
 	overTurn.ActCard = nil

@@ -18,3 +18,8 @@ func (s *MjDeskStatus) IsNotPreparing() bool {
 func (s *MjDeskStatus) S() int32 {
 	return s.status
 }
+
+//设置status
+func (s *MjDeskStatus) SetStatus(ss int32) {
+	s.status = ss
+}

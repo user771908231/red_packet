@@ -34,7 +34,8 @@ type SkeletonMJDesk struct {
 	HuParser      api.HuPaerApi          //胡牌解析器
 	OverTurnTimer *timer.Timer           //定时器
 	CheckCase     *data.CheckCase        //麻将的判定器
-	Users         []api.MjUser
+	Users         []api.MjUser           //所有的玩家
+	AllMJPais     []*majiang.MJPai       //所有的麻将牌
 }
 
 func NewSkeletonMJDesk(config *data.SkeletonMJConfig) *SkeletonMJDesk {
