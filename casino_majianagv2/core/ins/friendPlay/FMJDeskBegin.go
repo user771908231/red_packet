@@ -2,8 +2,8 @@ package friendPlay
 
 import (
 	"casino_common/common/log"
-	"github.com/golang/protobuf/proto"
-	"casino_common/common/service/awardService"
+	"casino_common/common/userService"
+	"casino_majiang/service/majiang"
 )
 
 //开始游戏
@@ -60,19 +60,20 @@ func (d *FMJDesk) begin() error {
 	return nil
 }
 
+//扣除房费
 func (d *FMJDesk) DeductCreateFee() error {
 	//计算朋友桌的房费
-	if d.GetCurrPlayCount() != 1 {
+	if d.GetMJConfig().CurrPlayCount != 1 {
 		return nil
 	}
 
-	log.T("%v 玩家[%v]开始扣除房卡，消耗房卡:%v", d.DlogDes(), d.GetOwner(), d.GetCreateFee())
-	remain, err := userService.DECRUserRoomcard(d.GetOwner(), d.GetCreateFee())
+	log.T("%v 玩家[%v]开始扣除房卡，消耗房卡:%v", d.DlogDes(), d.GetMJConfig().Owner, d.GetMJConfig().CreateFee)
+	remain, err := userService.DECRUserRoomcard(d.GetMJConfig().Owner, d.GetMJConfig().CreateFee)
 	if err != nil {
 		//扣费失败，创建房间失败
-		log.E("玩家[%v]创建房间的时候扣房卡[%v]失败，创建房间失败...", d.GetOwner(), d.GetCreateFee())
-		return ERR_ROOMCARD_INSUFFICIENT
+		log.E("玩家[%v]创建房间的时候扣房卡[%v]失败，创建房间失败...", d.GetMJConfig().Owner, d.GetMJConfig().CreateFee)
+		return majiang.ERR_ROOMCARD_INSUFFICIENT
 	}
-	log.T("%v 玩家[%v]扣除房卡成功，消耗房卡:%v,剩余房卡:%v", d.DlogDes(), d.GetOwner(), d.GetCreateFee(), remain)
-
+	log.T("%v 玩家[%v]扣除房卡成功，消耗房卡:%v,剩余房卡:%v", d.DlogDes(), d.GetMJConfig().Owner, d.GetMJConfig().CreateFee, remain)
+	return nil
 }

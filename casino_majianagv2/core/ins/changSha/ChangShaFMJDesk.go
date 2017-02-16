@@ -8,7 +8,6 @@ import (
 	"casino_majiang/msg/protogo"
 	"casino_common/common/log"
 	"casino_majianagv2/core/majiangv2"
-	"casino_majiang/service/majiang"
 )
 
 //长沙麻将朋友桌

@@ -63,6 +63,10 @@ func (u *SkeletonMJUser) DelBillBean(pai *majiang.MJPai) (error, *majiang.BillBe
 	}
 }
 
+func (u *SkeletonMJUser) GetGameData() *data.MJUserGameData {
+	return u.GameData
+}
+
 //增加一条账单
 func (u *SkeletonMJUser) AddBillBean(bean *majiang.BillBean) error {
 	u.Bill.Bills = append(u.Bill.Bills, bean)
@@ -92,10 +96,14 @@ func (u *SkeletonMJUser) AddBill(relationUserid uint32, billType int32, des stri
 //更新用户金币
 func (u *SkeletonMJUser) AddCoin(coin int64, roomType int32) {
 	//减少玩家金额
-	atomic.AddInt64(u.GetUserData().Coin, coin) //更新账户余额
+	atomic.AddInt64(&u.GetUserData().Coin, coin) //更新账户余额
 	//如果是金币场。需要更新用户的金币余额
 	if roomType == majiang.ROOMTYPE_COINPLAY {
 		remainCoin, _ := userService.INCRUserCOIN(u.GetUserId(), coin)
 		u.GetUserData().Coin = proto.Int64(remainCoin) //增加用户的金币
 	}
+}
+
+func (u *SkeletonMJUser) GetSkeletonMJUser() *SkeletonMJUser {
+	return u
 }

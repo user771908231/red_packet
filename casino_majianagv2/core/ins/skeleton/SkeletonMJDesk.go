@@ -11,6 +11,8 @@ import (
 	"github.com/name5566/leaf/timer"
 	"casino_majiang/service/majiang"
 	"casino_common/utils/rand"
+	"github.com/golang/protobuf/proto"
+	"casino_majiang/msg/protogo"
 )
 
 var ERR_SYS = Error.NewError(consts.ACK_RESULT_FAIL, "系统错误")
@@ -169,4 +171,88 @@ func (d *SkeletonMJDesk) GetDice1() int32 {
 
 func (d *SkeletonMJDesk) GetDice2() int32 {
 	return rand.Rand(1, 7)
+}
+
+//可以把overturn放在一个地方,目前都是摸牌的时候在用
+func (d *SkeletonMJDesk) GetMoPaiOverTurn(user api.MjUser, isOpen bool) *mjproto.Game_OverTurn {
+
+	overTurn := newProto.NewGame_OverTurn()
+	*overTurn.UserId = user.GetUserId()                 //这个是摸牌的，所以是广播...
+	*overTurn.PaiCount = d.GetRemainPaiCount()          //桌子剩余多少牌
+	*overTurn.ActType = majiang.OVER_TURN_ACTTYPE_MOPAI //摸牌
+	*overTurn.Time = 30
+	if isOpen {
+		overTurn.ActCard = user.GetGameData().HandPai.InPai.GetBackPai()
+	} else {
+		overTurn.ActCard = user.GetGameData().HandPai.InPai.GetCardInfo()
+	}
+
+	log.T("[%v]摸牌的时候牌:%v", d.DlogDes(), user.GetSkeletonMJUser().UserPai2String())
+	*overTurn.CanHu, _, _, _, _, _ = d.HuParser.GetCanHu(user.GetGameData().GetHandPai(), user.GetGameData().GetHandPai().GetInPai(), true, 0) //是否可以胡牌
+	*overTurn.CanPeng = false                                                                                                                  //是否可以碰牌
+
+	//处理杠牌的时候
+	/**
+		1，血战到底：用户胡牌之后是不会进入到这个方法的
+		2，血流成河：用户已经胡牌，那么杠牌之后，胡牌不会改变的情况下，才可以杠 // todo
+	 */
+	canGangBool, gangPais := user.GetGameData().HandPai.GetCanGang(nil, d.GetRemainPaiCount()) //是否可以杠牌
+	*overTurn.CanGang = canGangBool
+	if canGangBool && gangPais != nil {
+		if user.GetStatus().IsHu() && d.IsXueLiuChengHe() {
+			//血流成河，胡牌之后 杠牌的逻辑
+			//jiaoPais := user.GetJiaoPaisByHandPais(); //得到杠牌之前的可以胡的叫牌
+			jiaoPais := d.HuParser.GetJiaoPais(user.GetGameData().HandPai.Pais)
+			for _, g := range gangPais {
+				//判断杠牌之后的叫牌是否和杠牌之前一样
+				if user.AfterGangEqualJiaoPai(jiaoPais, g) {
+					overTurn.GangCards = append(overTurn.GangCards, g.GetCardInfo())
+				}
+			}
+		} else {
+			//没有胡牌之前，杠牌的逻辑....
+			for _, g := range gangPais {
+				overTurn.GangCards = append(overTurn.GangCards, g.GetCardInfo())
+			}
+		}
+	}
+
+	//最后判断是否可以杠牌
+	if overTurn.GangCards == nil || len(overTurn.GangCards) <= 0 {
+		*overTurn.CanGang = false
+	}
+
+	//最后判断是否需要增加过(可以杠，可以胡的时候需要增加可以过的按钮)
+	if overTurn.GetCanGang() || overTurn.GetCanHu() {
+		overTurn.CanGuo = proto.Bool(true)
+	}
+
+	//对长沙麻将做特殊处理
+	overTurn.JiaoInfos = d.GetJiaoInfos(user)
+	return overTurn
+}
+
+//通过checkCase 得到一个OverTurn
+func (d *SkeletonMJDesk) GetOverTurnByCaseBean(checkPai *majiang.MJPai, caseBean *majiang.CheckBean, actType int32) *mjproto.Game_OverTurn {
+	overTurn := newProto.NewGame_OverTurn()
+	*overTurn.UserId = caseBean.GetUserId()
+	*overTurn.CanGang = caseBean.GetCanGang()
+	*overTurn.CanPeng = caseBean.GetCanPeng()
+	*overTurn.CanHu = caseBean.GetCanHu()
+	*overTurn.PaiCount = d.GetRemainPaiCount() //剩余多少钱
+	overTurn.ActCard = checkPai.GetCardInfo()  //
+	*overTurn.ActType = actType
+	*overTurn.Time = 30
+	overTurn.CanGuo = caseBean.CanGuo //目前默认是能过的
+	overTurn.CanGuo = proto.Bool(true)
+	overTurn.CanChi = caseBean.CanChi
+	for i := 0; i < len(caseBean.ChiCards); i += 3 {
+		c := &mjproto.ChiOverTurn{}
+		c.ChiCard = append(c.ChiCard, caseBean.ChiCards[i].GetCardInfo())
+		c.ChiCard = append(c.ChiCard, caseBean.ChiCards[i+1].GetCardInfo())
+		c.ChiCard = append(c.ChiCard, caseBean.ChiCards[i+2].GetCardInfo())
+		overTurn.ChiInfo = append(overTurn.ChiInfo, c)
+	}
+
+	return overTurn
 }
