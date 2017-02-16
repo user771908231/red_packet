@@ -73,18 +73,16 @@ func handlerCreateDesk(args []interface{}) {
 		OthersCheckBox:   m.GetRoomTypeInfo().GetPlayOptions().GetOthersCheckBox(),
 		HuRadio:          m.GetRoomTypeInfo().GetPlayOptions().GetHuRadio(),
 		DianGangHuaRadio: m.GetRoomTypeInfo().GetPlayOptions().GetDianGangHuaRadio(),
-		//MJPaiCursor:      int32(),
-		//TotalPlayCount:   int32
-		//CurrPlayCount    int32
-		//Banker           uint32
-		//NextBanker       uint32
-		//CheckCase        *CheckCase
-		//ActiveUser       uint32
-		//GameNumber       int32
-		//ActUser          uint32
-		//ActType          int32
-		//NInitActionTime  int32
-		//RoomLevel        int32
+		MJPaiCursor:      0,
+		TotalPlayCount:   m.GetRoomTypeInfo().GetBoardsCout(),
+		CurrPlayCount:    0,
+		Banker:           0,
+		NextBanker:       0,
+		ActiveUser:       0,
+		ActUser:          0,
+		ActType:          0,
+		NInitActionTime:  30,
+		RoomLevel:        0,
 	}
 
 	desk, err := room.CreateDesk(config)
