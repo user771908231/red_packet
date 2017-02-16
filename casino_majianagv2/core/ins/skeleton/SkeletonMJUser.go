@@ -5,6 +5,9 @@ import (
 	"casino_majianagv2/core/data"
 	"time"
 	"casino_majianagv2/core/api"
+	"casino_common/common/log"
+	"errors"
+	"sync/atomic"
 )
 
 type SkeletonMJUser struct {
@@ -12,6 +15,7 @@ type SkeletonMJUser struct {
 	status     *data.MjUserStatus
 	userId     uint32
 	readyTimer *time.Timer
+	Bill       *majiang.Bill
 }
 
 //初始化一个user骨架
@@ -29,3 +33,7 @@ func (user *SkeletonMJUser) Ready() {
 	}
 
 }
+
+
+
+

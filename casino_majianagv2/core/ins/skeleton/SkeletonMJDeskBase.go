@@ -110,3 +110,27 @@ func (d *SkeletonMJDesk) IsDaodaohu() bool {
 	}
 	return false
 }
+
+//判断下一个庄是否已经确定
+func (d *SkeletonMJDesk) IsNextBankerExist() bool {
+	if d.GetMJConfig().NextBanker > 0 {
+		return true
+	} else {
+		return false
+	}
+}
+
+//设置下一个庄
+func (d *SkeletonMJDesk) SetNextBanker(userId uint32) {
+	d.GetMJConfig().NextBanker = userId
+}
+
+
+//将int32数组转为paiType数组
+func (d *SkeletonMJDesk) IntArry2PaiTypeEnum(ia []int32) []mjproto.PaiType {
+	var result []mjproto.PaiType
+	for _, i := range ia {
+		result = append(result, mjproto.PaiType(i))
+	}
+	return result
+}

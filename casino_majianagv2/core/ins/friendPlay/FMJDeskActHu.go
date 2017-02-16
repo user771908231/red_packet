@@ -9,6 +9,7 @@ import (
 	"errors"
 	"casino_majiang/service/majiang"
 	"casino_majianagv2/core/api"
+	"casino_majiang/msg/funcsInit"
 )
 
 func (d *FMJDesk) ActHu(userId uint32) error {
@@ -230,16 +231,10 @@ func (d *FMJDesk) DoHuBill(hu *majiang.HuPaiInfo) {
 
 //获取玩家赢分 为长沙麻将添加的方法
 func (d *FMJDesk) GetYingScore(yingUser api.MjUser, score int64) int64 {
-	if !d.IsChangShaMaJiang() {
-		return score
-	}
-	if banker := d.GetBankerUser(); banker != nil && banker.GetUserId() == yingUser.GetUserId() {
-		score += 1
-	}
 	return score
 }
 
-func (d *FMJDesk) DoAfterDianPao(hu *HuPaiInfo) {
+func (d *FMJDesk) DoAfterDianPao(hu *majiang.HuPaiInfo) {
 	//自摸的不用关
 	if hu.GetGetUserId() == hu.GetSendUserId() {
 		return
@@ -259,7 +254,7 @@ func (d *FMJDesk) DoAfterDianPao(hu *HuPaiInfo) {
 
 	// 删除点炮者的out牌 //todo 如果有多个人胡牌，那么有可能重复删除？这里怎么处理
 	outUser := d.GetUserByUserId(hu.GetSendUserId())
-	errDelOut := outUser.GameData.HandPai.DelOutPai(hu.Pai.GetIndex())
+	errDelOut := outUser.GetGameData().GetHandPai().DelOutPai(hu.Pai.GetIndex())
 	if errDelOut != nil {
 		log.E("胡牌的时候，删除打牌玩家的out牌[%v]...注意:[这里有可能不是错误，一炮多响的情况会多次删除手牌，就可能出现这种情况，等待解决] err[%v]", hu.Pai.GetIndex(), errDelOut)
 	}
@@ -271,7 +266,7 @@ func (d *FMJDesk) DoAfterDianPao(hu *HuPaiInfo) {
 	1，如果当前的nextBanker 没有值(nextBanker==0)，那代表此人是第一个胡牌的，设置为nextBanekr
 	2,如果当前的nextBanker有值(nextBanker > 0 ),那需要判断是不是当前的点炮的人一炮双向
  */
-func (d *FMJDesk) InitNextBanker(hu *HuPaiInfo) {
+func (d *FMJDesk) InitNextBanker(hu *majiang.HuPaiInfo) {
 	log.T("%v 通过huinfo %v 开始设置下一次的庄的玩家", d.DlogDes(), hu)
 	if d.IsNextBankerExist() {
 		//已经存在的情况 //有双响就双响点炮的人做庄，不论之前是否有人胡牌  by 亮哥
@@ -293,14 +288,14 @@ func (d *FMJDesk) InitNextBanker(hu *HuPaiInfo) {
 	}
 }
 
-func (d *FMJDesk) SendAckActHu(hu *HuPaiInfo) {
+func (d *FMJDesk) SendAckActHu(hu *majiang.HuPaiInfo) {
 	ack := newProto.NewGame_AckActHu()
 	*ack.HuType = hu.GetHuType() //这里需要判断是自摸还是点炮
 	*ack.UserIdIn = hu.GetGetUserId()
 	*ack.UserIdOut = hu.GetSendUserId()
 	ack.HuCard = hu.Pai.GetCardInfo()
 	*ack.IsZiMo = (hu.GetGetUserId() == hu.GetSendUserId())
-	ack.PaiType = IntArry2PaiTypeEnum(hu.PaiType)
+	ack.PaiType = d.IntArry2PaiTypeEnum(hu.PaiType)
 	log.T("给用户[%v]广播胡牌的ack[%v]", hu.GetGetUserId(), ack)
 	d.BroadCastProto(ack)
 }
