@@ -12,6 +12,7 @@ import (
 	"casino_majiang/msg/protogo"
 	"casino_majiang/msg/funcsInit"
 	"github.com/name5566/leaf/gate"
+	"reflect"
 )
 
 func (u *SkeletonMJUser) GetUserId() uint32 {
@@ -206,7 +207,11 @@ func (u *SkeletonMJUser) GetPlayerCard(showHand bool, needInpai bool) *mjproto.P
 }
 
 func (u *SkeletonMJUser) WriteMsg(p proto.Message) error {
-	u.a.WriteMsg(p)
+	if u.a != nil {
+		typeString := reflect.TypeOf(p).String()
+		log.T("给玩家[%v]发送[%v]---[%v]", u.GetUserId(), typeString, p)
+		u.a.WriteMsg(p)
+	}
 	return nil
 }
 
@@ -278,4 +283,8 @@ func (u *SkeletonMJUser) GetWxInfo() *mjproto.WeixinInfo {
 	*weixinInfo.HeadUrl = user.GetHeadUrl()
 	*weixinInfo.OpenId = user.GetOpenId()
 	return weixinInfo
+}
+
+func (u *SkeletonMJUser) GetSkeletonUser() interface{} {
+	return u
 }

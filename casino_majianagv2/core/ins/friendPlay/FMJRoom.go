@@ -17,7 +17,6 @@ import (
 	"casino_common/utils/db"
 	"casino_common/common/sessionService"
 	"casino_majiang/service/majiang"
-	"github.com/name5566/leaf/gate"
 )
 
 type FMJRoom struct {
@@ -36,7 +35,7 @@ func NewDefaultFMJRoom(s *module.Skeleton) api.MjRoom {
 }
 
 //room创建房间
-func (r *FMJRoom) CreateDesk(config interface{}, a gate.Agent) (api.MjDesk, error) {
+func (r *FMJRoom) CreateDesk(config interface{}) (api.MjDesk, error) {
 	c := config.(*data.SkeletonMJConfig)
 	//1,找到是否有已经创建的房间
 	oldDesk := r.getDeskByOwer(c.Owner)
@@ -64,13 +63,8 @@ func (r *FMJRoom) CreateDesk(config interface{}, a gate.Agent) (api.MjDesk, erro
 	} else {
 		desk = NewFMJDesk(c, r.Skeleton) //创建成都麻将朋友桌
 	}
-	desk.SetRoom(r)
-	//4，进入房间
-	err := desk.EnterUser(c.Owner, a)
-	if err != nil {
-		log.E("玩家%v进入desk失败 err %v ", c.Owner, err)
-		return nil, nil
-	}
+	desk.SetRoom(r) //给desk设置room
+	r.AddDesk(desk) //
 	return desk, nil
 }
 

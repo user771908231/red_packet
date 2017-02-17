@@ -4,7 +4,7 @@ import "casino_majiang/service/majiang"
 
 //麻将桌子的一些状态
 type MjDeskStatus struct {
-	status     int32
+	Status     int32
 	IsExchange bool
 }
 
@@ -17,12 +17,12 @@ func (s *MjDeskStatus) IsNotPreparing() bool {
 }
 
 func (s *MjDeskStatus) S() int32 {
-	return s.status
+	return s.Status
 }
 
 //设置status
 func (s *MjDeskStatus) SetStatus(ss int32) {
-	s.status = ss
+	s.Status = ss
 }
 
 //是否已经开始游戏了...

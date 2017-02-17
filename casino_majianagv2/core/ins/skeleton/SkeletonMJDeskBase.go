@@ -19,7 +19,7 @@ func (f *SkeletonMJDesk) GetMJConfig() *data.SkeletonMJConfig {
 
 //得到麻将的Status
 func (r *SkeletonMJDesk) GetStatus() *data.MjDeskStatus {
-	return r.status
+	return r.deskStatus
 }
 
 //设置room
@@ -29,13 +29,16 @@ func (d *SkeletonMJDesk) SetRoom(r api.MjRoom) {
 
 //日志信息
 func (r *SkeletonMJDesk) DlogDes() string {
-	s := fmt.Sprintf("[desk[%v]-r[%v]-no[%v]]", r.GetMJConfig().DeskId, r.GetMJConfig().CurrPlayCount, r.GetMJConfig().GameNumber)
+	s := fmt.Sprintf("desk[%v]-r[%v]-no[%v]", r.GetMJConfig().DeskId, r.GetMJConfig().CurrPlayCount, r.GetMJConfig().GameNumber)
 	return s
 }
 
 //通过userId 找到对应的User
 func (r *SkeletonMJDesk) GetUserByUserId(userId uint32) api.MjUser {
 	for _, u := range r.GetUsers() {
+		if u != nil {
+			log.T("循环查找:%v,找到的u:%v", userId, u.GetUserId())
+		}
 		if u != nil && u.GetUserId() == userId {
 			return u
 		}
@@ -256,7 +259,7 @@ func (d *SkeletonMJDesk) GetSkeletonMJDesk() *SkeletonMJDesk {
 }
 
 func (d *SkeletonMJDesk) GetSkeletonMJUser(user api.MjUser) *SkeletonMJUser {
-	return user.(*SkeletonMJUser)
+	return user.GetSkeletonUser().(*SkeletonMJUser)
 }
 
 //得到骨架User
@@ -264,7 +267,7 @@ func (d *SkeletonMJDesk) GetSkeletonMJUsers() []*SkeletonMJUser {
 	ret := make([]*SkeletonMJUser, len(d.GetUsers()))
 	for i, u := range d.GetUsers() {
 		if u != nil {
-			ret[i] = u.(*SkeletonMJUser)
+			ret[i] = u.GetSkeletonUser().(*SkeletonMJUser)
 		}
 	}
 	return ret

@@ -28,7 +28,7 @@ func (d *SkeletonMJDesk) TryReEnter(userId uint32, a gate.Agent) (re bool) {
 
 //发送重新连接之后的overTurn
 func (d *SkeletonMJDesk) SendReconnectOverTurn(userId uint32) error {
-	log.T("[%v]开始处理 sendReconnectOverTurn(%v),当前desk.status(%v),", d.DlogDes(), userId, d.GetStatus())
+	log.T("[%v]开始处理 sendReconnectOverTurn(%v),当前desk.deskStatus(%v),", d.DlogDes(), userId, d.GetStatus())
 
 	//得到玩家
 	user := d.GetSkeletonMJUser(d.GetUserByUserId(userId))
@@ -113,7 +113,7 @@ func (d *SkeletonMJDesk) SendReconnectOverTurn(userId uint32) error {
 		}
 	}
 
-	log.T("%v开始处理 sendReconnectOverTurn(%v),当前desk.status(%v)----处理完毕...", d.DlogDes(), userId, d.GetStatus())
+	log.T("%v开始处理 sendReconnectOverTurn(%v),当前desk.deskStatus(%v)----处理完毕...", d.DlogDes(), userId, d.GetStatus())
 	return nil
 }
 
