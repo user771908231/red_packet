@@ -4,7 +4,8 @@ import "casino_majiang/service/majiang"
 
 //麻将桌子的一些状态
 type MjDeskStatus struct {
-	status int32
+	status     int32
+	IsExchange bool
 }
 
 func (s *MjDeskStatus) IsNotGaming() bool {

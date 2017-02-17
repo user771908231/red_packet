@@ -8,21 +8,36 @@ import (
 	"casino_common/utils/numUtils"
 	"casino_majiang/service/majiang"
 	"sync"
+	"casino_common/common/sessionService"
+	"casino_common/common/log"
+	"casino_majiang/msg/funcsInit"
 )
 
 type SkeletonMJRoom struct {
+	RoomId      int32
 	Desks       []api.MjDesk
 	RoomMnanger api.MjRoomMgr
 	sync.Mutex
 }
 
+func NewSkeletonMJRoom(id int32) *SkeletonMJRoom {
+	return &SkeletonMJRoom{
+		RoomId: id,
+	}
+}
+
 //得到一个desk
-func (r *SkeletonMJRoom) GetDesk() api.MjDesk {
+func (r *SkeletonMJRoom) GetDesk(id int32) api.MjDesk {
+	for _, d := range r.Desks {
+		if d.GetMJConfig().DeskId == id {
+			return d
+		}
+	}
 	return nil
 }
 
 //进入一个User
-func (r *SkeletonMJRoom) EnterUser(userId uint32) error {
+func (r *SkeletonMJRoom) EnterUser(userId uint32, key string) error {
 	return nil
 }
 
@@ -104,4 +119,57 @@ func (r *SkeletonMJRoom) SaveRunningDeskKeys(keys *majiang.RunningDeskKeys) {
 
 func (r *SkeletonMJRoom) GetRoomMgr() api.MjRoomMgr {
 	return r.RoomMnanger
+}
+
+//计算创建房间需要使用的费用
+func (r *SkeletonMJRoom) CalcCreateFee(boardsCout int32) (int64) {
+	var fee int64 = 0
+	if boardsCout == 4 {
+		fee = 2
+	} else if boardsCout == 8 {
+		fee = 3
+	} else if boardsCout == 12 {
+		fee = 5
+	} else {
+		return 5
+	}
+	return fee
+}
+
+// room 解散房间...解散朋友桌
+func (r *SkeletonMJRoom) DissolveDesk(desk api.MjDesk, sendMsg bool) error {
+	//清楚数据,1,session相关。2,
+	log.T("%v开始解散...", desk.GetMJConfig().DeskId)
+	for _, user := range desk.GetUsers() {
+		if user != nil {
+			sessionService.DelSessionByKey(user.GetUserId(), desk.GetMJConfig().RoomType)
+			agent := user.GetAgent()
+			if agent != nil {
+				agent.SetUserData(nil)
+			}
+		}
+	}
+	log.T("开始删除desk[%v]...", desk.GetMJConfig().DeskId)
+
+	//发送解散房间的广播
+	rmErr := r.RmDesk(desk)
+	if rmErr != nil {
+		log.E("删除房间失败,errmsg[%v]", rmErr)
+		return rmErr
+	}
+
+	//删除reids
+	r.DelMjDeskRedis(desk)
+
+	//删除房间
+	log.T("删除desk[%v]之后，发送删除的广播...", desk.GetMJConfig().DeskId)
+	if sendMsg {
+		//发送解散房间的广播
+		dissolve := newProto.NewGame_AckDissolveDesk()
+		*dissolve.DeskId = desk.GetMJConfig().DeskId
+		*dissolve.PassWord = desk.GetMJConfig().Password
+		*dissolve.UserId = desk.GetMJConfig().Owner
+		desk.BroadCastProto(dissolve)
+	}
+	return nil
 }

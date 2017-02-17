@@ -21,6 +21,13 @@ import (
 	"github.com/name5566/leaf/gate"
 )
 
+//状态表示的是当前状态.
+var MJDESK_STATUS_READY int32 = 2    //正在准备
+var MJDESK_STATUS_QISHOUHU int32 = 4 //起手胡牌增加工作量
+var MJDESK_STATUS_EXCHANGE int32 = 5 //desk初始化完成之后，告诉玩家可以开始换牌
+var MJDESK_STATUS_DINGQUE int32 = 6  //换牌结束之后，告诉玩家可以开始定缺
+var MJDESK_STATUS_RUNNING int32 = 7  //定缺之后，开始打牌
+
 var ERR_SYS = Error.NewError(consts.ACK_RESULT_FAIL, "系统错误")
 var ERR_REQ_REPETITION error = Error.NewError(consts.ACK_RESULT_FAIL, "重复请求")
 var ERR_ENTER_DESK error = Error.NewError(consts.ACK_RESULT_FAIL, "进入房间失败")
@@ -36,7 +43,7 @@ var ERR_READY_state = Error.NewError(consts.ACK_RESULT_FAIL, "准备失败，不
 
 //desk 的骨架,业务逻辑的方法 放置在这里
 type SkeletonMJDesk struct {
-	*sync.Mutex
+	sync.Mutex
 	*module.Skeleton
 	config        *data.SkeletonMJConfig //这里不用使用指针，此配置创建之后不会再改变
 	status        *data.MjDeskStatus     //桌子的所有状态都在这里
@@ -49,9 +56,12 @@ type SkeletonMJDesk struct {
 	Room          api.MjRoom             //room 的信息
 }
 
-func NewSkeletonMJDesk(config *data.SkeletonMJConfig) *SkeletonMJDesk {
+//骨架Desk
+func NewSkeletonMJDesk(config *data.SkeletonMJConfig, s *module.Skeleton) *SkeletonMJDesk {
 	desk := &SkeletonMJDesk{
-		config: config,
+		config:   config,
+		Skeleton: s,
+		Users:    make([]api.MjUser, config.PlayerCountLimit),
 	}
 	return desk
 }
@@ -85,7 +95,7 @@ func (d *SkeletonMJDesk) Ready(userId uint32) error {
 	//如果是金币场，需要判断玩家的金币是否足够
 	//判断金币是否足够,准备的阶段不会扣除房费，房费是在开始的时候扣除
 
-	user.Ready()
+	user.ActReady()
 
 	//准备成功,发送准备成功的广播
 	result := newProto.NewGame_AckReady()

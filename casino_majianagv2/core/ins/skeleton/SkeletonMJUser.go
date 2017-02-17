@@ -13,15 +13,20 @@ import (
 	"casino_common/common/log"
 	"casino_common/common/Error"
 	"casino_common/common/service/countService"
+	"casino_common/proto/ddproto"
+	"casino_common/common/sessionService"
+	"casino_common/common/userService"
+	"github.com/name5566/leaf/timer"
 )
 
 type SkeletonMJUser struct {
 	desk            api.MjDesk
-	status          *data.MjUserStatus
 	userId          uint32
-	Coin            int64  //金币
-	NickName        string //昵称
-	ReadyTimer      *time.Timer
+	UserStatus      *data.MjUserStatus //状态
+	Coin            int64              //金币
+	NickName        string             //昵称
+	Sex             int32              //性别
+	ReadyTimer      *timer.Timer
 	Bill            *majiang.Bill
 	GameData        *data.MJUserGameData
 	Statisc         *majiang.MjUserStatisc //统计信息
@@ -31,14 +36,38 @@ type SkeletonMJUser struct {
 }
 
 //初始化一个user骨架
-func NewSkeleconMJUser(userId uint32) *SkeletonMJUser {
-	return nil
+func NewSkeleconMJUser(desk api.MjDesk, userId uint32, a gate.Agent) *SkeletonMJUser {
+	//清空agent 的userData
+	a.SetUserData(nil)
+	redisUser := userService.GetUserById(userId)
+	if redisUser == nil {
+		log.E("系统中找不到用户%v", userId)
+		return nil
+	}
+	//返回用户信息
+	return &SkeletonMJUser{
+		desk:     desk,
+		userId:   userId,
+		a:        a,
+		NickName: redisUser.GetNickName(),
+		Sex:      redisUser.GetSex(),
+		UserStatus: &data.MjUserStatus{
+			Status:   1,
+			IsBanker: desk.GetMJConfig().Banker == userId,
+			IsLeave:  false,
+			IsBreak:  false,
+
+		},
+		GameData: &data.MJUserGameData{
+			PlayerGameData: majiang.NewPlayerGameData(),
+		},
+	}
 }
 
-func (user *SkeletonMJUser) Ready() {
+func (user *SkeletonMJUser) ActReady() {
 	//设置为准备的状态,并且停止准备计时器
-	user.status.SetStatus(majiang.MJUSER_STATUS_READY)
-	user.status.Ready = true
+	user.UserStatus.SetStatus(majiang.MJUSER_STATUS_READY)
+	user.UserStatus.Ready = true
 	if user.ReadyTimer != nil {
 		user.ReadyTimer.Stop()
 		user.ReadyTimer = nil
@@ -456,4 +485,51 @@ func (u *SkeletonMJUser) AddGuoHuInfo(checkCase *majiang.CheckCase) {
 		u.GameData.GuoHuInfo = append(u.GameData.GuoHuInfo, guoHuInfo)
 	}
 
+}
+
+//进入房间
+func (user *SkeletonMJUser) ReEnterDesk(a gate.Agent) error {
+	user.UpdateAgent(a)
+	user.UpdateSession(int32(ddproto.COMMON_ENUM_GAMESTATUS_GAMING))
+	return nil
+}
+
+func (u *SkeletonMJUser) UpdateAgent(a gate.Agent) error {
+	oldAgent := u.a
+	if oldAgent != nil {
+		//需要做处理
+		log.T("短线重连，强制断开玩家[%v]老的链接", u.GetUserId())
+		oldAgent.SetUserData(nil) //清空清空会话状态
+		//oldAgent.Close()
+	}
+	//设置为没有断开链接
+	u.GetStatus().IsBreak = false
+	u.GetStatus().IsLeave = false
+	u.a = a
+	return nil
+
+}
+
+func (u *SkeletonMJUser) UpdateSession(gameStatus int32) error {
+	//3,更新userSession,返回desk 的信息
+	s, _ := sessionService.UpdateSession(
+		u.GetUserId(),
+		gameStatus,
+		int32(ddproto.CommonEnumGame_GID_MAHJONG),
+		u.GetDesk().GetMJConfig().GameNumber,
+		u.GetDesk().GetMJConfig().RoomId,
+		u.GetDesk().GetMJConfig().DeskId,
+		u.GetDesk().GetMJConfig().Status,
+		u.GetStatus().IsBreak,
+		u.GetStatus().IsLeave,
+		u.GetDesk().GetMJConfig().RoomType,
+		u.GetDesk().GetMJConfig().Password)
+	if s != nil {
+		//给agent设置session
+		agent := u.a
+		if agent != nil {
+			agent.SetUserData(s)
+		}
+	}
+	return nil
 }

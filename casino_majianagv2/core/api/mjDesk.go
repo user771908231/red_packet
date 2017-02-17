@@ -8,7 +8,7 @@ import (
 
 type MjDesk interface {
 	EnterUser(userId uint32, a gate.Agent) error //进入游戏
-	Ready(userId uint32) error                   //
+	Ready(userId uint32) error                   //准备
 	DingQue(userId uint32, color int32) error    //定缺
 
 	ActOut(userId uint32, cardId int32, auto bool) error //打牌
