@@ -2,7 +2,7 @@ package friendPlay
 
 import (
 	"github.com/name5566/leaf/module"
-	"casino_server/common/log"
+	"casino_common/common/log"
 	"casino_majianagv2/core/ins/skeleton"
 	"casino_majianagv2/core/api"
 	"casino_majianagv2/core/data"
