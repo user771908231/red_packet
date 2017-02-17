@@ -27,9 +27,11 @@ type FMJRoom struct {
 
 //初始化一个朋友桌room
 func NewDefaultFMJRoom(s *module.Skeleton) api.MjRoom {
-	return &FMJRoom{
-		Skeleton: s,
+	ret := &FMJRoom{
+		Skeleton:       s,
+		SkeletonMJRoom: skeleton.NewSkeletonMJRoom(0),
 	}
+	return ret
 }
 
 //room创建房间
@@ -171,6 +173,9 @@ func (r *FMJRoom) RandRoomKey() string {
 
 //判断roomkey是否已经存在了
 func (r *FMJRoom) IsRoomKeyExist(roomkey string) bool {
+	log.T("测试 r == nil ? %v ", r == nil)
+	log.T("测试 r.Desks == nil ? %v ", r.Desks == nil)
+
 	ret := false
 	for i := 0; i < len(r.Desks); i++ {
 		d := r.Desks[i]

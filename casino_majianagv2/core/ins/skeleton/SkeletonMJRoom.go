@@ -11,13 +11,25 @@ import (
 )
 
 type SkeletonMJRoom struct {
+	RoomId      int32
 	Desks       []api.MjDesk
 	RoomMnanger api.MjRoomMgr
 	sync.Mutex
 }
 
+func NewSkeletonMJRoom(id int32) *SkeletonMJRoom {
+	return &SkeletonMJRoom{
+		RoomId: id,
+	}
+}
+
 //得到一个desk
-func (r *SkeletonMJRoom) GetDesk() api.MjDesk {
+func (r *SkeletonMJRoom) GetDesk(id int32) api.MjDesk {
+	for _, d := range r.Desks {
+		if d.GetMJConfig().DeskId == id {
+			return d
+		}
+	}
 	return nil
 }
 
