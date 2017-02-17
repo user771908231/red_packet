@@ -154,10 +154,10 @@ func (d *SkeletonMJDesk) AddUserBean(user api.MjUser) error {
 }
 
 func (d *SkeletonMJDesk) SendGameInfo(userId uint32, reconnect mjproto.RECONNECT_TYPE) {
-	gameinfo := d.GetGame_SendGameInfo(userId, reconnect)
-	log.T("[%v]用户[%v]进入房间,reconnect[%v]之后", d.DlogDes(), userId, reconnect)
-	d.BroadCastProto(gameinfo)
+	log.T("[%v]用户[%v]reconnect[%v]进入房间之后准备开始发送gameInfo的信息.", d.DlogDes(), userId, reconnect)
 
+	gameinfo := d.GetGame_SendGameInfo(userId, reconnect)
+	d.BroadCastProto(gameinfo)
 	//如果是重新进入房间，需要发送重近之后的处理
 	if reconnect == mjproto.RECONNECT_TYPE_RECONNECT {
 		time.Sleep(time.Second * 3)

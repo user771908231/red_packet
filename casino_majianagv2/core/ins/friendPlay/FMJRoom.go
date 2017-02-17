@@ -15,6 +15,9 @@ import (
 	"casino_common/proto/ddproto"
 	"casino_common/common/consts/tableName"
 	"casino_common/utils/db"
+	"casino_common/common/sessionService"
+	"casino_majiang/service/majiang"
+	"github.com/name5566/leaf/gate"
 )
 
 type FMJRoom struct {
@@ -33,7 +36,7 @@ func NewDefaultFMJRoom(s *module.Skeleton) api.MjRoom {
 }
 
 //room创建房间
-func (r *FMJRoom) CreateDesk(config interface{}) (api.MjDesk, error) {
+func (r *FMJRoom) CreateDesk(config interface{}, a gate.Agent) (api.MjDesk, error) {
 	c := config.(*data.SkeletonMJConfig)
 	//1,找到是否有已经创建的房间
 	oldDesk := r.getDeskByOwer(c.Owner)
@@ -63,7 +66,7 @@ func (r *FMJRoom) CreateDesk(config interface{}) (api.MjDesk, error) {
 	}
 	desk.SetRoom(r)
 	//4，进入房间
-	err := desk.EnterUser(c.Owner, nil)
+	err := desk.EnterUser(c.Owner, a)
 	if err != nil {
 		log.E("玩家%v进入desk失败 err %v ", c.Owner, err)
 		return nil, nil
@@ -98,9 +101,9 @@ func (r *FMJRoom) getDeskByOwer(userId uint32) api.MjDesk {
 func (r *FMJRoom) EnterUser(userId uint32, key string) error {
 	desk := r.getDeskByPassword(key)
 	if desk == nil {
+		sessionService.DelSessionByKey(userId, majiang.ROOMTYPE_FRIEND)
 		log.E("没有找到对应的desk,进入房间失败")
-		return nil
-
+		return Error.NewError(consts.ACK_RESULT_FAIL, "房间号输入错误")
 	}
 	err := desk.EnterUser(userId, nil)
 	if err != nil {
@@ -131,9 +134,8 @@ func (r *FMJRoom) RandRoomKey() string {
 
 //判断roomkey是否已经存在了
 func (r *FMJRoom) IsRoomKeyExist(roomkey string) bool {
-	log.T("测试 r == nil ? %v ", r == nil)
-	log.T("测试 r.Desks == nil ? %v ", r.Desks == nil)
-
+	//log.T("测试 r == nil ? %v ", r == nil)
+	//log.T("测试 r.Desks == nil ? %v ", r.Desks == nil)
 	ret := false
 	for i := 0; i < len(r.Desks); i++ {
 		d := r.Desks[i]

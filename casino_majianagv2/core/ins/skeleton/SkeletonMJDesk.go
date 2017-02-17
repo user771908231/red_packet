@@ -56,10 +56,12 @@ type SkeletonMJDesk struct {
 	Room          api.MjRoom             //room 的信息
 }
 
+//骨架Desk
 func NewSkeletonMJDesk(config *data.SkeletonMJConfig, s *module.Skeleton) *SkeletonMJDesk {
 	desk := &SkeletonMJDesk{
 		config:   config,
 		Skeleton: s,
+		Users:    make([]api.MjUser, config.PlayerCountLimit),
 	}
 	return desk
 }

@@ -54,8 +54,24 @@ func handlerCreateDesk(args []interface{}) {
 		return
 	}
 
-	//get mjconfig by m
-	log.T("麻将的配置 %v ", m)
+	var playerCountLimit int32 = 4 //人数
+	//if d.IsSanRenLiangFang() {
+	//	*d.UserCountLimit = 3
+	//	*d.FangCountLimit = 2
+	//} else if d.IsSiRenLiangFang() {
+	//	*d.UserCountLimit = 4
+	//	*d.FangCountLimit = 2
+	//} else if d.IsLiangRenLiangFang() {
+	//	*d.UserCountLimit = 2
+	//	*d.FangCountLimit = 2
+	//} else if d.IsSanRenSanFang() {
+	//	*d.UserCountLimit = 3
+	//	*d.FangCountLimit = 3
+	//} else {
+	//	*d.UserCountLimit = 4
+	//	*d.FangCountLimit = 3
+	//}
+
 	config := &data.SkeletonMJConfig{
 		Owner:            m.GetHeader().GetUserId(),
 		RoomType:         majiang.ROOMTYPE_FRIEND,
@@ -81,16 +97,16 @@ func handlerCreateDesk(args []interface{}) {
 		ActType:          0,
 		NInitActionTime:  30,
 		RoomLevel:        0,
+		PlayerCountLimit: playerCountLimit,
 	}
 
-	desk, err := room.CreateDesk(config)
+	desk, err := room.CreateDesk(config, a)
 	if desk == nil {
 		result := newProto.NewGame_AckCreateRoom()
 		*result.Header.Code = consts.ACK_RESULT_ERROR
 		*result.Header.Error = Error.GetErrorMsg(err)
 		log.Error("用户[%v]创建房间失败...err[%v]", m.GetHeader().GetUserId(), err)
 		a.WriteMsg(result)
-
 	} else {
 		//创建desk成功...设置为开始准备的状态
 		//desk.SetStatus(MJDESK_STATUS_READY) //设置为开始准备的状态
@@ -135,17 +151,27 @@ func handlerGame_EnterRoom(args []interface{}) {
 	m := args[0].(*mjproto.Game_EnterRoom) //创建房间时候的配置
 	a := args[1].(gate.Agent)              //连接
 
+	userId := m.GetUserId()
+	passWord := m.GetPassWord()
 	//1,找到room
 	room := roomMgr.GetRoom(m.GetRoomType(), m.GetRoomLevel())
 	if room == nil {
-		log.E("room没有找到...")
-		a.WriteMsg(nil)
+		//没有找到room，进入房间失败
+		log.T("用户[%v]进入房间失败，没有找到对应的room", userId)
+		ack := newProto.NewGame_AckEnterRoom()
+		*ack.Header.Code = consts.ACK_RESULT_ERROR
+		*ack.Header.Error = "房间号输入错误"
+		a.WriteMsg(ack)
 	}
 
 	//2,进入房间
-	err := room.EnterUser(m.GetUserId(), m.GetPassWord())
+	err := room.EnterUser(userId, passWord)
 	if err != nil {
-		a.WriteMsg(nil)
+		//进入房间失败
+		ack := newProto.NewGame_AckEnterRoom()
+		*ack.Header.Code = Error.GetErrorCode(err)
+		*ack.Header.Error = Error.GetErrorMsg(err)
+		a.WriteMsg(ack)
 	}
 }
 

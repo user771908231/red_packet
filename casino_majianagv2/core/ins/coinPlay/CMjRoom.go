@@ -8,6 +8,7 @@ import (
 	"casino_majianagv2/core/data"
 	"casino_common/common/log"
 	"casino_common/utils/db"
+	"github.com/name5566/leaf/gate"
 )
 
 type CMjRoom struct {
@@ -26,7 +27,7 @@ func NewDefaultCMjRoom(s *module.Skeleton, l int32) api.MjRoom {
 }
 
 //room创建房间
-func (r *CMjRoom) CreateDesk(config interface{}) (api.MjDesk, error) {
+func (r *CMjRoom) CreateDesk(config interface{}, a gate.Agent) (api.MjDesk, error) {
 	c := config.(*data.SkeletonMJConfig)
 	c.DeskId, _ = db.GetNextSeq(tableName.DBT_MJ_DESK)
 	//根据不同的类型来得到不同地区的麻将
