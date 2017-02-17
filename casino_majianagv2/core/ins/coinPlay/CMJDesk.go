@@ -12,6 +12,7 @@ import (
 	"github.com/golang/protobuf/proto"
 	"casino_common/proto/ddproto"
 	"github.com/name5566/leaf/gate"
+	"github.com/name5566/leaf/module"
 )
 
 //朋友桌麻将的desk
@@ -22,13 +23,20 @@ type CMJDesk struct {
 }
 
 //创建一个朋友桌的desk
-func NewCMJDesk(config data.SkeletonMJConfig) api.MjDesk {
+func NewCMJDesk(config *data.SkeletonMJConfig, s *module.Skeleton) api.MjDesk {
 	//判断创建条件：房卡，
 	//desk 骨架
 	desk := &CMJDesk{
-		SkeletonMJDesk: skeleton.NewSkeletonMJDesk(config),
+		SkeletonMJDesk: skeleton.NewSkeletonMJDesk(config, s),
 	}
-	desk.HuParser = huParserIns.NewChengDuHuParser()
+	desk.HuParser = huParserIns.NewChengDuHuParser(
+		desk.GetMJConfig().BaseValue,
+		desk.IsNeedZiMoJiaDi(),
+		desk.IsNeedYaojiuJiangdui(),
+		desk.IsDaodaohu(),
+		desk.IsNeedMenqingZhongzhang(),
+		desk.IsNeedZiMoJiaFan(),
+		desk.GetMJConfig().CapMax)
 	return desk
 }
 

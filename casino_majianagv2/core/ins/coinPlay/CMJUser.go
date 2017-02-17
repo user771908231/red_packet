@@ -27,6 +27,7 @@ func (u *CMJUser) GetCoin() int64 {
 	return 0
 }
 
+//金币玩家准备
 func (u *CMJUser) Ready() error {
 	//判断金币是否足够
 	if u.GetCoin() < u.GetDesk().GetMJConfig().CreateFee {
@@ -36,4 +37,5 @@ func (u *CMJUser) Ready() error {
 	}
 	//设置为准备的状态,并且停止准备计时器
 	u.SkeletonMJUser.ActReady()
+	return nil
 }

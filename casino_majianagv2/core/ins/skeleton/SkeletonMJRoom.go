@@ -8,6 +8,9 @@ import (
 	"casino_common/utils/numUtils"
 	"casino_majiang/service/majiang"
 	"sync"
+	"casino_common/common/sessionService"
+	"casino_common/common/log"
+	"casino_majiang/msg/funcsInit"
 )
 
 type SkeletonMJRoom struct {
@@ -131,4 +134,42 @@ func (r *SkeletonMJRoom) CalcCreateFee(boardsCout int32) (int64) {
 		return 5
 	}
 	return fee
+}
+
+// room 解散房间...解散朋友桌
+func (r *SkeletonMJRoom) DissolveDesk(desk api.MjDesk, sendMsg bool) error {
+	//清楚数据,1,session相关。2,
+	log.T("%v开始解散...", desk.GetMJConfig().DeskId)
+	for _, user := range desk.GetUsers() {
+		if user != nil {
+			sessionService.DelSessionByKey(user.GetUserId(), desk.GetMJConfig().RoomType)
+			agent := user.GetAgent()
+			if agent != nil {
+				agent.SetUserData(nil)
+			}
+		}
+	}
+	log.T("开始删除desk[%v]...", desk.GetMJConfig().DeskId)
+
+	//发送解散房间的广播
+	rmErr := r.RmDesk(desk)
+	if rmErr != nil {
+		log.E("删除房间失败,errmsg[%v]", rmErr)
+		return rmErr
+	}
+
+	//删除reids
+	r.DelMjDeskRedis(desk)
+
+	//删除房间
+	log.T("删除desk[%v]之后，发送删除的广播...", desk.GetMJConfig().DeskId)
+	if sendMsg {
+		//发送解散房间的广播
+		dissolve := newProto.NewGame_AckDissolveDesk()
+		*dissolve.DeskId = desk.GetMJConfig().DeskId
+		*dissolve.PassWord = desk.GetMJConfig().Password
+		*dissolve.UserId = desk.GetMJConfig().Owner
+		desk.BroadCastProto(dissolve)
+	}
+	return nil
 }

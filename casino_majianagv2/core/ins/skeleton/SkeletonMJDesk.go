@@ -56,9 +56,10 @@ type SkeletonMJDesk struct {
 	Room          api.MjRoom             //room 的信息
 }
 
-func NewSkeletonMJDesk(config *data.SkeletonMJConfig) *SkeletonMJDesk {
+func NewSkeletonMJDesk(config *data.SkeletonMJConfig, s *module.Skeleton) *SkeletonMJDesk {
 	desk := &SkeletonMJDesk{
-		config: config,
+		config:   config,
+		Skeleton: s,
 	}
 	return desk
 }

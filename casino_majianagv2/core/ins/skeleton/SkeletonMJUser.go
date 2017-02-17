@@ -16,6 +16,7 @@ import (
 	"casino_common/proto/ddproto"
 	"casino_common/common/sessionService"
 	"casino_common/common/userService"
+	"github.com/name5566/leaf/timer"
 )
 
 type SkeletonMJUser struct {
@@ -25,7 +26,7 @@ type SkeletonMJUser struct {
 	Coin            int64              //金币
 	NickName        string             //昵称
 	Sex             int32              //性别
-	ReadyTimer      *time.Timer
+	ReadyTimer      *timer.Timer
 	Bill            *majiang.Bill
 	GameData        *data.MJUserGameData
 	Statisc         *majiang.MjUserStatisc //统计信息

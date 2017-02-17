@@ -11,8 +11,6 @@ import (
 	"casino_common/common/userService"
 	"casino_common/common/consts"
 	"casino_majianagv2/core/ins/changSha"
-	"casino_majiang/msg/funcsInit"
-	"casino_common/common/sessionService"
 	"casino_common/utils/chessUtils"
 	"casino_common/proto/ddproto"
 	"casino_common/common/consts/tableName"
@@ -59,9 +57,9 @@ func (r *FMJRoom) CreateDesk(config interface{}) (api.MjDesk, error) {
 
 	//根据不同的类型来得到不同地区的麻将
 	if c.MjRoomType == int32(mjproto.MJRoomType_roomType_changSha) {
-		desk = changSha.NewChangShaFMJDesk(c) //创建长沙麻将朋友桌
+		desk = changSha.NewChangShaFMJDesk(c, r.Skeleton) //创建长沙麻将朋友桌
 	} else {
-		desk = NewFMJDesk(c) //创建成都麻将朋友桌
+		desk = NewFMJDesk(c, r.Skeleton) //创建成都麻将朋友桌
 	}
 	desk.SetRoom(r)
 	//4，进入房间
@@ -115,46 +113,6 @@ func (r *FMJRoom) EnterUser(userId uint32, key string) error {
 //todo
 func (r *FMJRoom) CalcCreateFee(n int32) (int64) {
 	return 0
-}
-
-// room 解散房间...解散朋友桌
-func (r *FMJRoom) DissolveDesk(desk api.MjDesk, sendMsg bool) error {
-	//清楚数据,1,session相关。2,
-	log.T("%v开始解散...", desk.GetMJConfig().DeskId)
-	for _, user := range desk.GetUsers() {
-		if user != nil {
-			sessionService.DelSessionByKey(user.GetUserId(), desk.GetMJConfig().RoomType)
-			agent := user.GetAgent()
-			if agent != nil {
-				agent.SetUserData(nil)
-			}
-		}
-	}
-	log.T("开始删除desk[%v]...", desk.GetMJConfig().DeskId)
-
-	//发送解散房间的广播
-	rmErr := r.RmDesk(desk)
-	if rmErr != nil {
-		log.E("删除房间失败,errmsg[%v]", rmErr)
-		return rmErr
-	}
-
-	//删除reids
-	r.DelMjDeskRedis(desk)
-
-	//删除房间
-	log.T("删除desk[%v]之后，发送删除的广播...", desk.GetMJConfig().DeskId)
-	if sendMsg {
-		//发送解散房间的广播
-		dissolve := newProto.NewGame_AckDissolveDesk()
-		*dissolve.DeskId = desk.GetMJConfig().DeskId
-		*dissolve.PassWord = desk.GetMJConfig().Password
-		*dissolve.UserId = desk.GetMJConfig().Owner
-		desk.BroadCastProto(dissolve)
-	}
-
-	return nil
-
 }
 
 func (r *FMJRoom) RandRoomKey() string {

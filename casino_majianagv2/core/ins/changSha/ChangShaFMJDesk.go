@@ -8,6 +8,7 @@ import (
 	"casino_majiang/msg/protogo"
 	"casino_common/common/log"
 	"casino_majianagv2/core/majiangv2"
+	"github.com/name5566/leaf/module"
 )
 
 //长沙麻将朋友桌
@@ -19,10 +20,10 @@ type ChangShaFMJDesk struct {
 }
 
 //创建一个朋友桌的desk
-func NewChangShaFMJDesk(config *data.SkeletonMJConfig) api.MjDesk {
+func NewChangShaFMJDesk(config *data.SkeletonMJConfig, s *module.Skeleton) api.MjDesk {
 	//desk 骨架
 	desk := &ChangShaFMJDesk{
-		SkeletonMJDesk: skeleton.NewSkeletonMJDesk(config),
+		SkeletonMJDesk: skeleton.NewSkeletonMJDesk(config, s),
 	}
 	desk.HuParser = NewHuParserChangSha()
 	return desk

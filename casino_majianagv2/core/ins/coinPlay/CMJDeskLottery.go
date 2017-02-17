@@ -5,6 +5,8 @@ import (
 	"casino_majiang/service/majiang"
 	"casino_common/common/log"
 	"casino_majianagv2/core/api"
+	"casino_common/proto/ddproto"
+	"github.com/golang/protobuf/proto"
 )
 
 func (d *CMJDesk) AfterLottery() error {
@@ -66,7 +68,7 @@ func (d *CMJDesk) ClearRobotUser() error {
 func (d *CMJDesk) rmUser(user api.MjUser) error {
 	//删除
 	d.GetSkeletonMJDesk().RmUser(user)
-	MjroomManagerIns.RobotManger.ReleaseRobots(user.GetUserId())
+	d.Room.GetRoomMgr().GetRobotManger().ReleaseRobots(user.GetUserId())
 	return nil
 }
 
@@ -77,13 +79,40 @@ func (d *CMJDesk) beginEnter() error {
 	return nil
 }
 
+func (d *CMJDesk) ForceOutReadyTimeOutUser(userId uint32) {
+	//因为此方法是在afterFun执行，所以需要上锁
+	log.T("锁日志: %v ForceOutReadyTimeOutUser(%v)的时候等待锁", d.DlogDes(), userId)
+	d.Lock()
+	defer func() {
+		d.Unlock()
+		log.T("锁日志: %v ForceOutReadyTimeOutUser(%v)的时候释放锁", d.DlogDes(), userId)
+	}()
+
+	//如果玩家没有准备，强制玩家退出
+	readyUser := d.GetUserByUserId(userId)
+	if readyUser != nil && !readyUser.GetStatus().IsReady() {
+		log.T("%s,玩家[%v]超时没有准备，强制退出", d.DlogDes(), userId)
+		err := d.rmUser(readyUser) //强制退出一个玩家
+		if err != nil {
+			log.E("%v玩家[%v]准备超时，强制退出的时候出错", d.DlogDes(), userId)
+		} else {
+			//发送强制离开的广播
+			ack := new(ddproto.CommonBcKickout)
+			ack.UserId = proto.Uint32(readyUser.GetUserId())
+			ack.Type = ddproto.COMMON_ENUM_KICKOUT_K_TIMEOUT.Enum()
+			ack.Msg = proto.String("准备超时,退出房间")
+			readyUser.WriteMsg(ack)
+		}
+	}
+}
+
 //设置准备倒计时
 func (d *CMJDesk) initReadyTimer() {
 	for _, u := range d.Users {
 		if u != nil {
 			log.T("%s 开始给玩家[%v]设置准备倒计时", d.DlogDes(), u.GetUserId())
 			userId := u.GetUserId()
-			d.getCMJUser(u).ReadyTimer = d.AfterFunc(COIN_RAEDY_DURATION, func() {
+			d.getCMJUser(u).ReadyTimer = d.AfterFunc(majiang.COIN_RAEDY_DURATION, func() {
 				d.ForceOutReadyTimeOutUser(userId)
 			})
 		}
