@@ -140,11 +140,6 @@ func (d *SkeletonMJDesk) ActPeng(userId uint32) error {
 	return nil
 }
 
-//打牌
-func (d *SkeletonMJDesk) ActOut(userId uint32, cardId int32, auto bool) error {
-	return nil
-}
-
 //胡牌解析器
 func (d *SkeletonMJDesk) GetHuParser() api.HuPaerApi {
 	return d.HuParser

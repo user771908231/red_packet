@@ -24,6 +24,8 @@ func (m *Module) GetRoomMgr() api.MjRoomMgr {
 func (m *Module) OnInit() {
 	m.Skeleton = skeleton
 	m.roomMgr = roomMgr
+	roomMgr.OnInit()
+
 	//
 
 }

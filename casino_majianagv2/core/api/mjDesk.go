@@ -15,10 +15,10 @@ type MjDesk interface {
 	ActPeng(userId uint32) error                         //碰牌
 	ActGang(userId uint32, id int32, bu bool) error      //杠牌
 	ActHu(userId uint32) error                           //胡牌
+	ExchangeRoom(userId uint32, a gate.Agent) error      //更换房间
 	ActGuo(userId uint32) error
 	Leave(userId uint32) error //进入游戏
 	SendMessage(p proto.Message) error
-
 	GetMJConfig() *data.SkeletonMJConfig //获得一个麻将的配置
 	GetStatus() *data.MjDeskStatus       //桌子的状态
 	GetHuParser() HuPaerApi              //得到胡牌解析器

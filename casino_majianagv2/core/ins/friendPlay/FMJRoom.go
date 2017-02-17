@@ -2,7 +2,7 @@ package friendPlay
 
 import (
 	"github.com/name5566/leaf/module"
-	"casino_server/common/log"
+	"casino_common/common/log"
 	"casino_majianagv2/core/ins/skeleton"
 	"casino_majianagv2/core/api"
 	"casino_majianagv2/core/data"
@@ -61,7 +61,7 @@ func (r *FMJRoom) CreateDesk(config interface{}) (api.MjDesk, error) {
 	}
 	desk.SetRoom(r)
 	//4，进入房间
-	err = desk.EnterUser(c.Owner)
+	err = desk.EnterUser(c.Owner, nil)
 	if err != nil {
 		log.E("进入desk失败")
 		return nil, nil
@@ -101,7 +101,7 @@ func (r *FMJRoom) EnterUser(userId uint32, key string) error {
 		return nil
 
 	}
-	err := desk.EnterUser(userId)
+	err := desk.EnterUser(userId, nil)
 	if err != nil {
 		log.E("进入房间失败...")
 	}

@@ -135,10 +135,9 @@ func (d *CMJDesk) ExchangeRoom(userId uint32, a gate.Agent) error {
 			//d.BroadCastProto(ack)
 			a.WriteMsg(ack)
 			//进入房间
-			go HandlerGame_EnterDesk(userId, "", d.GetRoomType(), d.GetRoomLevel(), a)
+			go d.Room.EnterUser(userId, "") //进入房间
 		}
 	}
-	
 	return nil
 }
 
