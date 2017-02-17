@@ -613,3 +613,4 @@ func (d *SkeletonMJDesk) GetEndLotteryInfo(suser api.MjUser) *mjproto.EndLottery
 	*end.CountMingGang = user.Statisc.GetCountMingGang() //明杠
 	return end
 }
+

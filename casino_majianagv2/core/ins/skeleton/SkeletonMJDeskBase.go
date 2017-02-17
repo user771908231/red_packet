@@ -22,6 +22,11 @@ func (r *SkeletonMJDesk) GetStatus() *data.MjDeskStatus {
 	return r.status
 }
 
+//设置room
+func (d *SkeletonMJDesk) SetRoom(r api.MjRoom) {
+	d.Room = r
+}
+
 //日志信息
 func (r *SkeletonMJDesk) DlogDes() string {
 	s := fmt.Sprintf("[desk[%v]-r[%v]-no[%v]]", r.GetMJConfig().DeskId, r.GetMJConfig().CurrPlayCount, r.GetMJConfig().GameNumber)

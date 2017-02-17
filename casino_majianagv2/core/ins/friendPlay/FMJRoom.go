@@ -59,6 +59,7 @@ func (r *FMJRoom) CreateDesk(config interface{}) (api.MjDesk, error) {
 	} else {
 		desk = NewFMJDesk(c) //创建成都麻将朋友桌
 	}
+	desk.SetRoom(r)
 	//4，进入房间
 	err = desk.EnterUser(c.Owner)
 	if err != nil {
