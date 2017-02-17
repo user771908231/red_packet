@@ -105,3 +105,18 @@ func (r *SkeletonMJRoom) SaveRunningDeskKeys(keys *majiang.RunningDeskKeys) {
 func (r *SkeletonMJRoom) GetRoomMgr() api.MjRoomMgr {
 	return r.RoomMnanger
 }
+
+//计算创建房间需要使用的费用
+func (r *SkeletonMJRoom) CalcCreateFee(boardsCout int32) (int64) {
+	var fee int64 = 0
+	if boardsCout == 4 {
+		fee = 2
+	} else if boardsCout == 8 {
+		fee = 3
+	} else if boardsCout == 12 {
+		fee = 5
+	} else {
+		return 5
+	}
+	return fee
+}

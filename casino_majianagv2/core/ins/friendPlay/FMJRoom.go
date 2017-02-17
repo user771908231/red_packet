@@ -13,6 +13,10 @@ import (
 	"casino_majianagv2/core/ins/changSha"
 	"casino_majiang/msg/funcsInit"
 	"casino_common/common/sessionService"
+	"casino_common/utils/chessUtils"
+	"casino_common/proto/ddproto"
+	"casino_common/common/consts/tableName"
+	"casino_common/utils/db"
 )
 
 type FMJRoom struct {
@@ -30,7 +34,7 @@ func NewDefaultFMJRoom(s *module.Skeleton) api.MjRoom {
 
 //room创建房间
 func (r *FMJRoom) CreateDesk(config interface{}) (api.MjDesk, error) {
-	c := config.(data.SkeletonMJConfig)
+	c := config.(*data.SkeletonMJConfig)
 	//1,找到是否有已经创建的房间
 	oldDesk := r.getDeskByOwer(c.Owner)
 	if oldDesk != nil && oldDesk.GetStatus().IsNotGaming() {
@@ -39,12 +43,7 @@ func (r *FMJRoom) CreateDesk(config interface{}) (api.MjDesk, error) {
 	}
 
 	//2,判断房卡是否足够
-	createFee, err := r.CalcCreateFee(c.BoardsCout)
-	if err != nil {
-		log.E("玩家[%v]创建房间的时候出错..传入的局数[%v]有误...", c.BoardsCout)
-		return nil, Error.ERR_SYS
-	}
-
+	createFee := r.CalcCreateFee(c.BoardsCout) //开房费用
 	rc := userService.GetUserRoomCard(c.Owner)
 	if rc < createFee {
 		log.E("玩家[%v]创建房间的时候出错..房卡[%v]不足...", c.Owner, rc)
@@ -53,17 +52,20 @@ func (r *FMJRoom) CreateDesk(config interface{}) (api.MjDesk, error) {
 
 	//3,创建房间
 	var desk api.MjDesk
+	c.Password = r.RandRoomKey()
+	c.DeskId, _ = db.GetNextSeq(tableName.DBT_MJ_DESK)
+
 	//根据不同的类型来得到不同地区的麻将
 	if c.MjRoomType == int32(mjproto.MJRoomType_roomType_changSha) {
-		desk = changSha.NewChangShaFMJDesk(&c) //创建长沙麻将朋友桌
+		desk = changSha.NewChangShaFMJDesk(c) //创建长沙麻将朋友桌
 	} else {
-		desk = NewFMJDesk(&c) //创建成都麻将朋友桌
+		desk = NewFMJDesk(c) //创建成都麻将朋友桌
 	}
 	desk.SetRoom(r)
 	//4，进入房间
-	err = desk.EnterUser(c.Owner, nil)
+	err := desk.EnterUser(c.Owner, nil)
 	if err != nil {
-		log.E("进入desk失败")
+		log.E("玩家%v进入desk失败 err %v ", c.Owner, err)
 		return nil, nil
 	}
 	return desk, nil
@@ -109,8 +111,8 @@ func (r *FMJRoom) EnterUser(userId uint32, key string) error {
 }
 
 //todo
-func (r *FMJRoom) CalcCreateFee(n int32) (int64, error) {
-	return 0, nil
+func (r *FMJRoom) CalcCreateFee(n int32) (int64) {
+	return 0
 }
 
 // room 解散房间...解散朋友桌
@@ -151,4 +153,31 @@ func (r *FMJRoom) DissolveDesk(desk api.MjDesk, sendMsg bool) error {
 
 	return nil
 
+}
+
+func (r *FMJRoom) RandRoomKey() string {
+	//金币场没有房间号码
+	roomKey := chessUtils.GetRoomPass(int32(ddproto.CommonEnumGame_GID_MAHJONG))
+	//1,判断roomKey是否已经存在
+	if r.IsRoomKeyExist(roomKey) {
+		//log.E("房间密钥[%v]已经存在,创建房间失败,重新创建", roomKey)
+		return r.RandRoomKey()
+	} else {
+		//log.T("最终得到的密钥是[%v]", roomKey)
+		return roomKey
+	}
+	return ""
+}
+
+//判断roomkey是否已经存在了
+func (r *FMJRoom) IsRoomKeyExist(roomkey string) bool {
+	ret := false
+	for i := 0; i < len(r.Desks); i++ {
+		d := r.Desks[i]
+		if d != nil && d.GetMJConfig().Password == roomkey {
+			ret = true
+			break
+		}
+	}
+	return ret
 }

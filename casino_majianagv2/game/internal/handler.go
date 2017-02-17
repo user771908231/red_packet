@@ -56,16 +56,13 @@ func handlerCreateDesk(args []interface{}) {
 
 	//get mjconfig by m
 	log.T("麻将的配置 %v ", m)
-	config := data.SkeletonMJConfig{
-		Owner: m.GetHeader().GetUserId(),
-		//Password         string
-		//DeskId           int32
-		RoomType:   majiang.ROOMTYPE_FRIEND,
-		Status:     majiang.MJDESK_STATUS_READY,
-		MjRoomType: int32(m.GetRoomTypeInfo().GetMjRoomType()),
-		//RoomId:           int32,
-		//CreateFee        int64
+	config := &data.SkeletonMJConfig{
+		Owner:            m.GetHeader().GetUserId(),
+		RoomType:         majiang.ROOMTYPE_FRIEND,
+		Status:           majiang.MJDESK_STATUS_READY,
+		MjRoomType:       int32(m.GetRoomTypeInfo().GetMjRoomType()),
 		BoardsCout:       m.GetRoomTypeInfo().GetBoardsCout(), //局数，如：4局（房卡 × 2）、8局（房卡 × 3）
+		CreateFee:        room.CalcCreateFee(m.GetRoomTypeInfo().GetBoardsCout()),
 		CapMax:           m.GetRoomTypeInfo().GetCapMax(),
 		CardsNum:         m.GetRoomTypeInfo().GetCardsNum(),
 		Settlement:       m.GetRoomTypeInfo().GetSettlement(),

@@ -43,7 +43,7 @@ var ERR_READY_state = Error.NewError(consts.ACK_RESULT_FAIL, "准备失败，不
 
 //desk 的骨架,业务逻辑的方法 放置在这里
 type SkeletonMJDesk struct {
-	*sync.Mutex
+	sync.Mutex
 	*module.Skeleton
 	config        *data.SkeletonMJConfig //这里不用使用指针，此配置创建之后不会再改变
 	status        *data.MjDeskStatus     //桌子的所有状态都在这里
