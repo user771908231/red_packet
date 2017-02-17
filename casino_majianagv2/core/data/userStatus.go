@@ -6,7 +6,12 @@ import "casino_majiang/service/majiang"
 type MjUserStatus struct {
 	status    int32
 	Ready     bool
+	DingQue   bool
 	AgentMode bool
+	IsBanker  bool
+	IsBreak   bool
+	IsLeave   bool
+	IsRobot   bool
 }
 
 //todo

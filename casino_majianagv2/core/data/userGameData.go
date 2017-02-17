@@ -27,3 +27,20 @@ func (d *MJUserGameData) AddHuPaiInfo(hu *majiang.HuPaiInfo) {
 	d.HuInfo = append(d.HuInfo, hu)
 	d.HandPai.HuPais = append(d.HandPai.HuPais, hu.Pai) //增加胡牌
 }
+
+//是否是花猪
+func (d *MJUserGameData) IsHuaZhu() bool {
+	for _, pai := range d.HandPai.Pais {
+		if pai != nil && pai.GetFlower() == d.HandPai.GetQueFlower() {
+			//是花猪
+			return true
+		}
+	}
+	//不是花猪
+	return false
+}
+
+//判断不是花猪
+func (u *MJUserGameData) IsNotHuaZhu() bool {
+	return !u.IsHuaZhu()
+}

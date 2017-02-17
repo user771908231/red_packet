@@ -12,19 +12,22 @@ import (
 	"sync/atomic"
 	"casino_common/common/log"
 	"casino_common/common/Error"
+	"casino_common/common/service/countService"
 )
 
 type SkeletonMJUser struct {
 	desk            api.MjDesk
 	status          *data.MjUserStatus
 	userId          uint32
-	readyTimer      *time.Timer
+	Coin            int64  //金币
+	NickName        string //昵称
+	ReadyTimer      *time.Timer
 	Bill            *majiang.Bill
 	GameData        *data.MJUserGameData
-	Coin            int64                  //金币
 	Statisc         *majiang.MjUserStatisc //统计信息
 	a               gate.Agent
-	ActTimeoutCount int32 //
+	ActTimeoutCount int32                    //
+	Log             *countService.T_game_log //任务统计信息
 }
 
 //初始化一个user骨架
@@ -36,9 +39,9 @@ func (user *SkeletonMJUser) Ready() {
 	//设置为准备的状态,并且停止准备计时器
 	user.status.SetStatus(majiang.MJUSER_STATUS_READY)
 	user.status.Ready = true
-	if user.readyTimer != nil {
-		user.readyTimer.Stop()
-		user.readyTimer = nil
+	if user.ReadyTimer != nil {
+		user.ReadyTimer.Stop()
+		user.ReadyTimer = nil
 	}
 
 }
@@ -417,4 +420,25 @@ func (u *SkeletonMJUser) IsHuaZhu() bool {
 	}
 	//不是花猪
 	return false
+}
+
+//lottery之后，设置user为没有准备
+func (u *SkeletonMJUser) AfterLottery() error {
+	//准备状态
+	u.GetStatus().SetStatus(majiang.MJUSER_STATUS_SEATED)
+	u.GetStatus().Ready = false     //设置为没有准备的状态...
+	u.GetStatus().DingQue = false   //设置为没有定缺的状态...
+	u.GetStatus().AgentMode = false //第二局开始默认不准备
+	u.UpdateTaskLog()
+	return nil
+}
+
+//更新玩家任务系统用到的统计信息
+func (u *SkeletonMJUser) UpdateTaskLog() {
+	u.Log.EndTime = time.Now().Unix()
+	u.Log.Bill = float64(u.GetBill().GetWinAmount())
+	if u.GetBill().GetWinAmount() > 0 {
+		u.Log.IsWine = true
+	}
+	u.Log.Insert()
 }

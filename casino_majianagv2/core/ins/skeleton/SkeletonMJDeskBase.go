@@ -8,6 +8,7 @@ import (
 	"casino_majiang/msg/protogo"
 	"casino_majiang/service/majiang"
 	"fmt"
+	"casino_common/utils/numUtils"
 )
 
 //常见的get set 方法 需要放置在这里
@@ -23,7 +24,7 @@ func (r *SkeletonMJDesk) GetStatus() *data.MjDeskStatus {
 
 //日志信息
 func (r *SkeletonMJDesk) DlogDes() string {
-	s := fmt.Sprintf("[desk-%v-r-%v]", r.GetMJConfig().DeskId, r.GetMJConfig().CurrPlayCount)
+	s := fmt.Sprintf("[desk[%v]-r[%v]-no[%v]]", r.GetMJConfig().DeskId, r.GetMJConfig().CurrPlayCount, r.GetMJConfig().GameNumber)
 	return s
 }
 
@@ -270,4 +271,16 @@ func (d *SkeletonMJDesk) BroadCastProtoExclusive(msg proto.Message, userId uint3
 			u.WriteMsg(msg)
 		}
 	}
+}
+
+func (d *SkeletonMJDesk) GetUserIds() string {
+	ids := ""
+	for _, user := range d.GetUsers() {
+		if user != nil {
+			idStr, _ := numUtils.Uint2String(user.GetUserId())
+			ids = ids + "," + idStr
+		}
+	}
+	return ids
+
 }

@@ -14,6 +14,10 @@ import (
 	"casino_majiang/msg/protogo"
 	"casino_majianagv2/core/majiangv2"
 	"time"
+	"fmt"
+	"strings"
+	"github.com/name5566/leaf/module"
+	"casino_common/common/sessionService"
 )
 
 var ERR_SYS = Error.NewError(consts.ACK_RESULT_FAIL, "系统错误")
@@ -32,6 +36,7 @@ var ERR_READY_state = Error.NewError(consts.ACK_RESULT_FAIL, "准备失败，不
 //desk 的骨架,业务逻辑的方法 放置在这里
 type SkeletonMJDesk struct {
 	*sync.Mutex
+	*module.Skeleton
 	config        *data.SkeletonMJConfig //这里不用使用指针，此配置创建之后不会再改变
 	status        *data.MjDeskStatus     //桌子的所有状态都在这里
 	HuParser      api.HuPaerApi          //胡牌解析器
@@ -39,6 +44,8 @@ type SkeletonMJDesk struct {
 	Users         []api.MjUser           //所有的玩家
 	AllMJPais     []*majiang.MJPai       //所有的麻将牌
 	OverTurnTimer *time.Timer            //定时器
+	BirdInfo      []*mjproto.BirdInfo    //抓鸟的信息
+	Room          api.MjRoom             //room 的信息
 }
 
 func NewSkeletonMJDesk(config *data.SkeletonMJConfig) *SkeletonMJDesk {
@@ -414,4 +421,195 @@ func (d *SkeletonMJDesk) GetOverTurnByCaseBean(checkPai *majiang.MJPai, caseBean
 	}
 
 	return overTurn
+}
+
+//返回一个牌局结果
+func (d *SkeletonMJDesk) GetWinCoinInfo(user api.MjUser) *mjproto.WinCoinInfo {
+	suser := d.GetSkeletonMJUser(user)
+	win := newProto.NewWinCoinInfo()
+	*win.NickName = suser.GetNickName()
+	*win.UserId = user.GetUserId()
+	*win.WinCoin = suser.Bill.GetWinAmount()          //本次输赢多少(负数表示输了)
+	*win.Coin = suser.Coin                            // 输赢以后，当前筹码是多少
+	*win.CardTitle = d.GetCardTitle4WinCoinInfo(user) // 赢牌牌型信息( 如:"点炮x2 明杠x2 根x2 自摸 3番" )
+	log.T("用户[%v]的CardTitle is [%v]", user.GetUserId(), *win.CardTitle)
+	win.Cards = suser.GetPlayerCard(true, false) //牌信息,true 表示要显示牌的信息...
+	*win.IsDealer = suser.GetStatus().IsBanker   //是否是庄家
+	//*win.HuCount = user.Statisc.GetCountHu()        //本局胡的次数(血流成河会多次胡)
+	roundBean := suser.GetStatisticsRoundBean(d.GetMJConfig().CurrPlayCount)
+	*win.HuCount = roundBean.GetCountHu() + roundBean.GetCountZiMo() //本局胡的次数(血流成河会多次胡)
+	log.T("用户[%v]的HuCount is [%v]", user.GetUserId(), *win.HuCount)
+	return win
+}
+
+//得到这个人的胡牌描述
+func (d *SkeletonMJDesk) GetCardTitle4WinCoinInfo(suser api.MjUser) string {
+	user := d.GetSkeletonMJUser(suser)
+	var huDes []string
+
+	//获取当局的统计信息
+	roundBean := user.GetStatisticsRoundBean(d.GetMJConfig().CurrPlayCount)
+	var count int32 = 0 //统计数大于count才显示
+
+	mingGangCount := roundBean.GetCountMingGang()         //明杠
+	baGangCount := roundBean.GetCountBaGnag()             //巴杠
+	beiBaGangCount := roundBean.GetCountBeiBaGang()       //被巴杠
+	anGangCount := roundBean.GetCountAnGang()             //暗杠
+	beiAnGangCount := roundBean.GetCountBeiAnGang()       //被暗杠
+	dianPaoCount := roundBean.GetCountDianPao()           //点炮
+	dianGangCount := roundBean.GetCountDianGang()         //点杠
+	beiZimoCount := roundBean.GetCountBeiZiMo()           //被自摸
+	zimoCount := roundBean.GetCountZiMo()                 //自摸
+	beiChaHuaZhuCount := roundBean.GetCountBeiChaHuaZhu() //被查花猪
+	beiChaJiaoCount := roundBean.GetCountBeiChaJiao()     //被查叫
+	chaJiaoCount := roundBean.GetCountChaDaJiao()         //查大叫
+
+	catchBirdCount := roundBean.GetCountCatchBird()   //抓鸟
+	caughtBirdCount := roundBean.GetCountCaughtBird() //被抓鸟
+
+	//log.T("user[%v] roundBean is %v", user.GetUserId(), roundBean)
+
+	if zimoCount > count {
+		//log.T("user[%v] zimoCount[%v]", user.GetUserId(), zimoCount)
+		huDes = append(huDes, fmt.Sprintf("自摸x%d", zimoCount))
+	}
+
+	if mingGangCount > count {
+		//log.T("user[%v] mingGangCount[%v]", user.GetUserId(), mingGangCount)
+		huDes = append(huDes, fmt.Sprintf("明杠x%d", mingGangCount))
+	}
+
+	if baGangCount > count {
+		//log.T("user[%v] baGangCount[%v]", user.GetUserId(), baGangCount)
+		huDes = append(huDes, fmt.Sprintf("巴杠x%d", baGangCount))
+	}
+
+	if anGangCount > count {
+		//log.T("user[%v] anGangCount[%v]", user.GetUserId(), anGangCount)
+		huDes = append(huDes, fmt.Sprintf("暗杠x%d", anGangCount))
+	}
+
+	if chaJiaoCount > count {
+		//log.T("user[%v] chaJiaoCount[%v]", user.GetUserId(), chaJiaoCount)
+		huDes = append(huDes, fmt.Sprintf("查大叫x%d", chaJiaoCount))
+	}
+
+	if beiBaGangCount > count {
+		//log.T("user[%v] beiBaGangCount[%v]", user.GetUserId(), anGangCount)
+		huDes = append(huDes, fmt.Sprintf("被巴杠x%d", beiBaGangCount))
+	}
+
+	if beiAnGangCount > count {
+		//log.T("user[%v] beiAnGangCount[%v]", user.GetUserId(), beiAnGangCount)
+		huDes = append(huDes, fmt.Sprintf("被暗杠x%d", beiAnGangCount))
+	}
+
+	if dianPaoCount > count {
+		//log.T("user[%v] dianPaoCount[%v]", user.GetUserId(), dianPaoCount)
+		huDes = append(huDes, fmt.Sprintf("点炮x%d", dianPaoCount))
+	}
+
+	if dianGangCount > count {
+		//log.T("user[%v] dianGangCount[%v]", user.GetUserId(), dianGangCount)
+		huDes = append(huDes, fmt.Sprintf("点杠x%d", dianGangCount))
+	}
+
+	if beiZimoCount > count {
+		//log.T("user[%v] beiZimoCount[%v]", user.GetUserId(), beiZimoCount)
+		huDes = append(huDes, fmt.Sprintf("被自摸x%d", beiZimoCount))
+	}
+
+	if beiChaHuaZhuCount > count {
+		//log.T("user[%v] beiChaHuaZhuCount[%v]", user.GetUserId(), beiChaHuaZhuCount)
+		huDes = append(huDes, fmt.Sprintf("被查花猪x%d", beiChaHuaZhuCount))
+	}
+
+	if beiChaJiaoCount > count {
+		//log.T("user[%v] beiChaJiaoCount[%v]", user.GetUserId(), beiChaJiaoCount)
+		huDes = append(huDes, fmt.Sprintf("被查叫x%d", beiChaJiaoCount))
+	}
+
+	if catchBirdCount > count {
+		//log.T("user[%v] beiChaJiaoCount[%v]", user.GetUserId(), beiChaJiaoCount)
+		huDes = append(huDes, fmt.Sprintf("抓鸟x%d", catchBirdCount))
+	}
+
+	if caughtBirdCount > count {
+		//log.T("user[%v] beiChaJiaoCount[%v]", user.GetUserId(), beiChaJiaoCount)
+		huDes = append(huDes, fmt.Sprintf("被抓鸟x%d", caughtBirdCount))
+	}
+
+	//获取胡番的信息
+	if user.GameData.HuInfo != nil && len(user.GameData.HuInfo) > 0 {
+		huDes = append(huDes, user.GameData.HuInfo[0].GetHuDesc())
+	}
+	log.T("用户[%v]GameData.HuInfo is [%v]", user.GetUserId(), user.GetGameData().GetHuInfo())
+	log.T("用户[%v] huDes is [%v]", user.GetUserId(), huDes)
+	s := strings.Join(huDes, " ")
+	log.T("用户[%v] DesStr is [%v]", user.GetUserId(), s)
+	return s
+}
+
+/**
+玩家开始进入房间
+1,如果是朋友桌，不做操作
+2,如果是金币场，到了时间之后增加机器人
+ */
+func (d *SkeletonMJDesk) beginEnter() error {
+	d.GetStatus().SetStatus(majiang.MJDESK_STATUS_READY) //桌子开始ready
+	return nil
+}
+
+//删除一个user
+func (d *SkeletonMJDesk) RmUser(user api.MjUser) error {
+	for i, u := range d.Users {
+		if u != nil && u.GetUserId() == user.GetUserId() {
+			//更新session
+			d.Users[i] = nil
+			log.T("%v d.rmUser(%v)", d.DlogDes(), u.GetUserId())
+			sessionService.DelSessionByKey(u.GetUserId(), d.GetMJConfig().RoomType)
+
+		}
+	}
+
+	return nil
+}
+
+//doend
+func (d *SkeletonMJDesk) DoEnd() error {
+
+	//1
+	//首先发送游戏 结束的广播....game_SendEndLottery
+	result := newProto.NewGame_SendEndLottery()
+	for _, user := range d.GetUsers() {
+		if user != nil {
+			result.CoinInfo = append(result.CoinInfo, d.GetEndLotteryInfo(user))
+		}
+	}
+
+	//发送之前需要判断谁是大赢家...这里暂时没有判断...
+
+	//发送游戏结束的结果
+	d.BroadCastProto(result)
+
+	//2,清楚数据，解散房间....
+	d.Room.DissolveDesk(d, false)
+	return nil
+}
+
+//得到EndLotteryInfo结果...
+func (d *SkeletonMJDesk) GetEndLotteryInfo(suser api.MjUser) *mjproto.EndLotteryInfo {
+	user := d.GetSkeletonMJUser(suser)
+	end := newProto.NewEndLotteryInfo()
+	*end.UserId = user.GetUserId()
+	*end.BigWin = false                                  //是否是大赢家...
+	*end.CountAnGang = user.Statisc.GetCountAnGang()     //暗杠的次数
+	*end.CountChaJiao = user.Statisc.GetCountChaDaJiao() //查叫的次数..
+	*end.CountDianGang = user.Statisc.GetCountDianGang() // 点杠的次数
+	*end.CountDianPao = user.Statisc.GetCountDianPao()   //点炮的次数
+	*end.CountHu = user.Statisc.GetCountHu()             //胡牌的次数
+	*end.CountZiMo = user.Statisc.GetCountZiMo()         //自摸的次数
+	*end.WinCoin = user.Statisc.GetWinCoin()             //赢了多少钱
+	*end.CountMingGang = user.Statisc.GetCountMingGang() //明杠
+	return end
 }

@@ -2,6 +2,7 @@ package api
 
 import (
 	"casino_majianagv2/core/data"
+	"github.com/golang/protobuf/proto"
 )
 
 type MjDesk interface {
@@ -16,4 +17,6 @@ type MjDesk interface {
 	GetMJConfig() *data.SkeletonMJConfig                 //获得一个麻将的配置
 	GetStatus() *data.MjDeskStatus                       //桌子的状态
 	GetHuParser() HuPaerApi                              //得到胡牌解析器
+	GetUsers() []MjUser                                  //得到所有的玩家
+	BroadCastProto(p proto.Message)
 }

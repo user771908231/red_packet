@@ -11,10 +11,16 @@ import (
 	"github.com/golang/protobuf/proto"
 	"casino_majiang/msg/protogo"
 	"casino_majiang/msg/funcsInit"
+	"github.com/name5566/leaf/gate"
 )
 
 func (u *SkeletonMJUser) GetUserId() uint32 {
 	return u.userId
+}
+
+func (u *SkeletonMJUser) GetNickName() string {
+	return u.NickName
+
 }
 
 func (u *SkeletonMJUser) GetStatus() *data.MjUserStatus {
@@ -210,4 +216,8 @@ func (u *SkeletonMJUser) GetWaitTime() int32 {
 
 func (u *SkeletonMJUser) SetCoin(c int64) {
 	u.Coin = c
+}
+
+func (r *SkeletonMJUser) GetAgent() gate.Agent {
+	return r.a
 }
