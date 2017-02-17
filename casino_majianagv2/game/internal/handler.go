@@ -21,7 +21,7 @@ func handler(m interface{}, h interface{}) {
 }
 
 func init() {
-	handler(&mjproto.Game_CreateRoom{}, handlerCreateDesk)                   //创建房间
+	handler(&mjproto.Game_CreateRoom{}, handlerCreateDesk)                    //创建房间
 	handler(&mjproto.Game_EnterRoom{}, handlerGame_EnterRoom)                 //进入房间
 	handler(&mjproto.Game_DissolveDesk{}, handlerDissolveDesk)                //解散房间
 	handler(&mjproto.Game_Ready{}, handlerGame_Ready)                         //准备
@@ -127,7 +127,10 @@ func handlerCreateDesk(args []interface{}) {
 		a.WriteMsg(result)
 
 		//创建成功之后，用户自动进入房间...
-		room.EnterUser(m.GetHeader().GetUserId(), desk.GetMJConfig().Password)
+		err := desk.EnterUser(desk.GetMJConfig().Owner, nil)
+		if err != nil {
+			log.E("进入房间失败...")
+		}
 	}
 }
 

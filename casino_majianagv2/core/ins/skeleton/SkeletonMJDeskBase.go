@@ -9,11 +9,11 @@ import (
 	"casino_majiang/service/majiang"
 	"fmt"
 	"casino_common/utils/numUtils"
+	"casino_majiang/msg/funcsInit"
 )
 
 //常见的get set 方法 需要放置在这里
 func (f *SkeletonMJDesk) GetMJConfig() *data.SkeletonMJConfig {
-	log.Debug("玩家[%v]进入fdesk")
 	return f.config
 }
 
@@ -308,4 +308,112 @@ func (d *SkeletonMJDesk) GetIndexByUserId(userId uint32) int {
 		}
 	}
 	return -1
+}
+
+// 发送gameInfo的信息
+func (d *SkeletonMJDesk) GetGame_SendGameInfo(receiveUserId uint32, isReconnect mjproto.RECONNECT_TYPE) *mjproto.Game_SendGameInfo {
+	//如果是短线重连，并且玩家还没有换三张，或者处于定缺的状态，那么需要发送庄家的inpai
+	isDingQue := false
+	/**
+		1,当前阶段处于定缺的阶段
+		2，用户是庄稼的情况
+		3，此时需要发送 inpai
+	 */
+	if isReconnect == mjproto.RECONNECT_TYPE_RECONNECT &&
+		( d.GetStatus().IsExchange || d.IsDingQue()) {
+		isDingQue = true
+	}
+
+	gameInfo := newProto.NewGame_SendGameInfo()
+	gameInfo.DeskGameInfo = d.GetDeskGameInfo()
+	*gameInfo.SenderUserId = receiveUserId
+	gameInfo.PlayerInfo = d.GetPlayerInfo(receiveUserId, isDingQue)
+	*gameInfo.IsReconnect = isReconnect
+	return gameInfo
+
+}
+
+//得到最后一张麻将pai
+func (d *SkeletonMJDesk) GetLastMjPai() *majiang.MJPai {
+	return d.AllMJPais[len(d.AllMJPais)-1]
+}
+
+//得到deskGameInfo
+func (d *SkeletonMJDesk) GetDeskGameInfo() *mjproto.DeskGameInfo {
+	deskInfo := newProto.NewDeskGameInfo()
+	*deskInfo.GameStatus = d.GetClientGameStatus()
+	*deskInfo.CurrPlayCount = d.GetMJConfig().CurrPlayCount   //当前第几局
+	*deskInfo.TotalPlayCount = d.GetMJConfig().TotalPlayCount //总共几局
+	*deskInfo.PlayerNum = d.GetUserCount()                    //玩家的人数
+	deskInfo.RoomTypeInfo = d.GetRoomTypeInfo()
+	*deskInfo.RoomNumber = d.GetMJConfig().Password //房间号码...
+	*deskInfo.Banker = d.GetMJConfig().Banker
+	*deskInfo.NInitActionTime = d.GetMJConfig().NInitActionTime
+	*deskInfo.ActiveUserId = d.GetMJConfig().ActiveUser
+	*deskInfo.RemainCards = d.GetRemainPaiCount()
+	return deskInfo
+}
+
+func (d *SkeletonMJDesk) GetClientGameStatus() int32 {
+	var gameStatus mjproto.DeskGameStatus = mjproto.DeskGameStatus_INIT //默认状态
+	switch d.GetStatus().S() {
+	case MJDESK_STATUS_READY:
+		gameStatus = mjproto.DeskGameStatus_INIT
+	case MJDESK_STATUS_EXCHANGE:
+		gameStatus = mjproto.DeskGameStatus_EXCHANGE
+	case MJDESK_STATUS_DINGQUE:
+		gameStatus = mjproto.DeskGameStatus_DINGQUE
+	case MJDESK_STATUS_RUNNING:
+		gameStatus = mjproto.DeskGameStatus_PLAYING
+	case MJDESK_STATUS_QISHOUHU:
+		gameStatus = mjproto.DeskGameStatus_PLAYING
+	}
+	return int32(gameStatus)
+}
+
+//返回玩家的数目
+/**
+	needInpai ： 是否需要把inpai去得到
+ */
+func (d *SkeletonMJDesk) GetPlayerInfo(receiveUserId uint32, isDingQue bool) []*mjproto.PlayerInfo {
+	var players []*mjproto.PlayerInfo
+	for _, user := range d.GetSkeletonMJUsers() {
+		if user != nil {
+			showHand := (user.GetUserId() == receiveUserId)         //是否需要显示手牌
+			isOwner := ( d.GetMJConfig().Owner == user.GetUserId()) //判断是否是房主
+
+			//定缺的状态，并且用户是 用户是庄，那么就显示inpai
+			needInpai := false
+			if isDingQue && user.GetUserId() == d.GetMJConfig().Banker {
+				needInpai = true
+			}
+			info := user.GetPlayerInfo(showHand, needInpai)
+			*info.IsOwner = isOwner
+			players = append(players, info)
+		}
+	}
+	return players
+}
+
+func (d *SkeletonMJDesk) GetRoomTypeInfo() *mjproto.RoomTypeInfo {
+	typeInfo := newProto.NewRoomTypeInfo()
+	*typeInfo.Settlement = d.GetMJConfig().Settlement
+	typeInfo.PlayOptions = d.GetPlayOptions()
+	*typeInfo.MjRoomType = mjproto.MJRoomType(d.GetMJConfig().MjRoomType)
+	*typeInfo.BaseValue = d.GetMJConfig().BaseValue
+	*typeInfo.BoardsCout = d.GetMJConfig().BoardsCout
+	*typeInfo.CapMax = d.GetMJConfig().CapMax
+	*typeInfo.CardsNum = d.GetMJConfig().CardsNum
+	//typeInfo.ChangShaPlayOptions = d.ChangShaPlayOptions 这里应该在长沙的desk里获取
+	return typeInfo
+}
+
+func (d *SkeletonMJDesk) GetPlayOptions() *mjproto.PlayOptions {
+	o := newProto.NewPlayOptions()
+	*o.ZiMoRadio = d.GetMJConfig().ZiMoRadio
+	*o.HuRadio = d.GetMJConfig().HuRadio
+	*o.DianGangHuaRadio = d.GetMJConfig().DianGangHuaRadio
+	o.OthersCheckBox = d.GetMJConfig().OthersCheckBox
+	//log.T("回复的时候回复的othersCheckBox[%v]", o.OthersCheckBox)
+	return o
 }

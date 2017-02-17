@@ -5,10 +5,22 @@ import (
 	"github.com/golang/protobuf/proto"
 	"casino_majiang/service/majiang"
 	"casino_common/common/log"
+	"casino_majianagv2/core/api"
+	"github.com/name5566/leaf/gate"
 )
 
 type FMJUser struct {
 	*skeleton.SkeletonMJUser
+}
+
+func NewFMJUser(desk api.MjDesk, userId uint32, a gate.Agent) *FMJUser {
+	//骨架User
+	suser := skeleton.NewSkeleconMJUser(desk, userId, a)
+	suser.Coin = 0 //默认金币是0
+	suser.ActTimeoutCount = 0
+	return &FMJUser{
+		SkeletonMJUser: suser,
+	}
 }
 
 func (u *FMJUser) SendOverTurn(p proto.Message) error {

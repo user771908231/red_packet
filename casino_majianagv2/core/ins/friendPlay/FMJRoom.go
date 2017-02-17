@@ -73,8 +73,7 @@ func (r *FMJRoom) CreateDesk(config interface{}) (api.MjDesk, error) {
 func (r *FMJRoom) getDeskByPassword(ps string) api.MjDesk {
 	for _, d := range r.desks {
 		if d != nil {
-			c := d.GetMJConfig()
-			if c.Password == ps {
+			if d.GetMJConfig().Password == ps {
 				return d
 			}
 		}
@@ -97,7 +96,7 @@ func (r *FMJRoom) getDeskByOwer(userId uint32) api.MjDesk {
 func (r *FMJRoom) EnterUser(userId uint32, key string) error {
 	desk := r.getDeskByPassword(key)
 	if desk == nil {
-		log.E("进入房间失败")
+		log.E("没有找到对应的desk,进入房间失败")
 		return nil
 
 	}

@@ -24,7 +24,7 @@ func (u *SkeletonMJUser) GetNickName() string {
 }
 
 func (u *SkeletonMJUser) GetStatus() *data.MjUserStatus {
-	return u.status
+	return u.UserStatus
 }
 
 //todo
@@ -210,7 +210,7 @@ func (u *SkeletonMJUser) WriteMsg(p proto.Message) error {
 	return nil
 }
 
-func (u *SkeletonMJUser) GetWaitTime() int32 {
+func (u *SkeletonMJUser) GetWaitTime() int64 {
 	return 30
 }
 
@@ -220,4 +220,62 @@ func (u *SkeletonMJUser) SetCoin(c int64) {
 
 func (r *SkeletonMJUser) GetAgent() gate.Agent {
 	return r.a
+}
+
+//返回一个用户信息
+func (u *SkeletonMJUser) GetPlayerInfo(showHand bool, needInpai bool) *mjproto.PlayerInfo {
+	info := newProto.NewPlayerInfo()
+	*info.NHuPai = u.GetNHuPai()
+	*info.BDingQue = u.GetBDingQue()
+	*info.BExchanged = u.GetBExchanged()
+	*info.BReady = u.getBReady()
+	*info.Coin = u.Coin
+	*info.IsBanker = u.GetStatus().IsBanker
+	info.PlayerCard = u.GetPlayerCard(showHand, needInpai)
+	*info.NickName = u.GetNickName()
+	*info.UserId = u.GetUserId()
+	info.WxInfo = u.GetWxInfo()
+	*info.QuePai = u.GameData.HandPai.GetQueFlower()
+	*info.Sex = u.Sex
+	info.AgentMode = proto.Bool(u.GetStatus().AgentMode)
+	return info
+}
+
+//是否胡牌
+func (u *SkeletonMJUser) GetNHuPai() int32 {
+	return 0
+}
+
+func (u *SkeletonMJUser) GetBDingQue() int32 {
+	if u.GetStatus().DingQue {
+		return 1
+	} else {
+		return 0
+	}
+}
+
+func (u *SkeletonMJUser) GetBExchanged() int32 {
+	if u.GetStatus().Exchange {
+		return 1
+	} else {
+		return 0
+
+	}
+}
+
+func (u *SkeletonMJUser) getBReady() int32 {
+	if u.GetStatus().IsReady() {
+		return 1
+	} else {
+		return 0
+	}
+}
+
+func (u *SkeletonMJUser) GetWxInfo() *mjproto.WeixinInfo {
+	user := userService.GetUserById(u.GetUserId())
+	weixinInfo := newProto.NewWeixinInfo()
+	*weixinInfo.NickName = user.GetNickName()
+	*weixinInfo.HeadUrl = user.GetHeadUrl()
+	*weixinInfo.OpenId = user.GetOpenId()
+	return weixinInfo
 }

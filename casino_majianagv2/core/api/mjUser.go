@@ -10,7 +10,7 @@ import (
 type MjUser interface {
 	GetStatus() *data.MjUserStatus
 	GetGameData() *data.MJUserGameData
-	Ready()
+	ActReady()
 	BeginInit(CurrPlayCount int32, banker uint32)
 	GetUserId() uint32 //
 	GetAgent() gate.Agent
@@ -18,5 +18,6 @@ type MjUser interface {
 	DelBillBean(pai *majiang.MJPai) (error, *majiang.BillBean)
 	AddBill(relationUserid uint32, billType int32, des string, score int64, pai *majiang.MJPai, roomType int32) error
 	SendOverTurn(p proto.Message) error
-	SetCoin(coin int64)
+	SetCoin(coin int64)             //设置用户金币
+	ReEnterDesk(a gate.Agent) error //重新连接的处理
 }

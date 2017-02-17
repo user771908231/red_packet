@@ -15,6 +15,7 @@ import (
 //朋友桌麻将的desk
 type ChangShaFMJDesk struct {
 	*skeleton.SkeletonMJDesk
+	ChangShaPlayOptions *mjproto.ChangShaPlayOptions //长沙麻将的方案
 }
 
 //创建一个朋友桌的desk
