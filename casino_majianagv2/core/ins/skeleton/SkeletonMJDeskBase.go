@@ -6,6 +6,9 @@ import (
 	"casino_majianagv2/core/api"
 	"github.com/golang/protobuf/proto"
 	"casino_majiang/msg/protogo"
+	"casino_majiang/service/majiang"
+	"fmt"
+	"casino_common/utils/numUtils"
 )
 
 //常见的get set 方法 需要放置在这里
@@ -19,40 +22,66 @@ func (r *SkeletonMJDesk) GetStatus() *data.MjDeskStatus {
 	return r.status
 }
 
-//todo 日志信息
-func (r *SkeletonMJDesk) DlogDes() string {
-	return "todo"
+//设置room
+func (d *SkeletonMJDesk) SetRoom(r api.MjRoom) {
+	d.Room = r
 }
 
-//todo 通过userId 找到对应的User
+//日志信息
+func (r *SkeletonMJDesk) DlogDes() string {
+	s := fmt.Sprintf("[desk[%v]-r[%v]-no[%v]]", r.GetMJConfig().DeskId, r.GetMJConfig().CurrPlayCount, r.GetMJConfig().GameNumber)
+	return s
+}
+
+//通过userId 找到对应的User
 func (r *SkeletonMJDesk) GetUserByUserId(userId uint32) api.MjUser {
+	for _, u := range r.GetUsers() {
+		if u != nil && u.GetUserId() == userId {
+			return u
+		}
+	}
+
 	return nil
 }
 
-//todo 广播
+//广播
 func (d *SkeletonMJDesk) BroadCastProto(p proto.Message) {
-
+	for _, u := range d.Users {
+		if u != nil {
+			u.WriteMsg(p)
+		}
+	}
 }
 
-//todo 是否有牌可以摸
+//是否有牌可以摸
 func (d *SkeletonMJDesk) HandPaiCanMo() bool {
-	return false
+	if d.GetRemainPaiCount() == 0 {
+		return false
+	} else {
+		return true
+	}
 }
-func (d *SkeletonMJDesk) GetCheckCase() *data.CheckCase {
+func (d *SkeletonMJDesk) GetCheckCase() *majiang.CheckCase {
 	return d.CheckCase
 }
 
-// todo 游戏中玩家的人数
+//游戏中玩家的人数
 func (d *SkeletonMJDesk) GetGamingCount() int32 {
-	return 0
+	var gamingCount int32 = 0 //正在游戏中的玩家数量
+	for _, user := range d.GetUsers() {
+		if user != nil && user.GetStatus().IsGaming() {
+			gamingCount ++
+		}
+	}
+	return gamingCount
 }
 
 func (d *SkeletonMJDesk) GetUsers() []api.MjUser {
 	return d.Users
 }
 
-func (d *SkeletonMJDesk) GetBankerUser() *api.MjUser {
-	return  d.GetUserByUserId(d.GetMJConfig().Banker)
+func (d *SkeletonMJDesk) GetBankerUser() api.MjUser {
+	return d.GetUserByUserId(d.GetMJConfig().Banker)
 }
 
 //是否需要自摸加底
@@ -109,4 +138,174 @@ func (d *SkeletonMJDesk) IsDaodaohu() bool {
 		return true
 	}
 	return false
+}
+
+//判断下一个庄是否已经确定
+func (d *SkeletonMJDesk) IsNextBankerExist() bool {
+	if d.GetMJConfig().NextBanker > 0 {
+		return true
+	} else {
+		return false
+	}
+}
+
+//设置下一个庄
+func (d *SkeletonMJDesk) SetNextBanker(userId uint32) {
+	d.GetMJConfig().NextBanker = userId
+}
+
+//将int32数组转为paiType数组
+func (d *SkeletonMJDesk) IntArry2PaiTypeEnum(ia []int32) []mjproto.PaiType {
+	var result []mjproto.PaiType
+	for _, i := range ia {
+		result = append(result, mjproto.PaiType(i))
+	}
+	return result
+}
+
+//得到当前桌子的人数..
+func (d *SkeletonMJDesk) GetUserCount() int32 {
+	var count int32 = 0
+	for _, user := range d.GetUsers() {
+		if user != nil {
+			count ++
+		}
+	}
+	//log.T("当前桌子的玩家数量是count[%v]", count)
+	return count
+}
+
+//玩家是否足够
+func (d *SkeletonMJDesk) IsPlayerEnough() bool {
+	return d.GetUserCount() == d.GetMJConfig().PlayerCountLimit
+}
+
+//是不是所有人都准备
+func (d *SkeletonMJDesk) IsAllReady() bool {
+	for _, u := range d.Users {
+		if u != nil && !u.GetStatus().IsReady() {
+			return false
+		}
+	}
+	return true
+}
+
+//是否在定缺中
+func (d *SkeletonMJDesk) IsDingQue() bool {
+	if d.GetStatus().S() == majiang.MJDESK_STATUS_DINGQUE {
+		return true
+	} else {
+		return false
+	}
+}
+
+func (d *SkeletonMJDesk) IsNotDingQue() bool {
+	return !d.IsDingQue()
+}
+
+//得到下一张牌...
+func (d *SkeletonMJDesk) GetNextPai() *majiang.MJPai {
+	d.GetMJConfig().MJPaiCursor ++
+	if d.GetMJConfig().MJPaiCursor >= 36*d.GetMJConfig().FangCount {
+		log.E("服务器错误:要找的牌的坐标[%v]已经超过整副麻将的坐标了... ", d.GetMJConfig().MJPaiCursor)
+		d.GetMJConfig().MJPaiCursor --
+		return nil
+	} else {
+		p := d.AllMJPais[d.GetMJConfig().MJPaiCursor]
+		pai := majiang.NewMjpai()
+		*pai.Des = p.GetDes()
+		*pai.Flower = p.GetFlower()
+		*pai.Index = p.GetIndex()
+		*pai.Value = p.GetValue()
+		return pai
+	}
+}
+
+func (d *SkeletonMJDesk) GetTotalMjPaiCount() int32 {
+	return 36 * d.GetMJConfig().FangCount
+}
+
+func (d *SkeletonMJDesk) GetRemainPaiCount() int32 {
+	remainCount := d.GetTotalMjPaiCount() - d.GetMJConfig().MJPaiCursor - 1
+	return remainCount
+}
+
+func (d *SkeletonMJDesk) UpdateUserStatus(status int32) {
+	for _, user := range d.GetUsers() {
+		if user != nil {
+			user.GetStatus().SetStatus(status)
+		}
+	}
+}
+
+//当前操作的玩家
+func (d *SkeletonMJDesk) SetActUserAndType(userId uint32, actType int32) error {
+	d.GetMJConfig().ActUser = userId
+	d.GetMJConfig().ActType = actType
+	return nil
+}
+
+//判断是否是血流成河
+func (d *SkeletonMJDesk) IsXueLiuChengHe() bool {
+	return d.GetMJConfig().MjRoomType == int32(mjproto.MJRoomType_roomType_xueLiuChengHe)
+}
+
+//返回desk 骨架
+func (d *SkeletonMJDesk) GetSkeletonMJDesk() *SkeletonMJDesk {
+	return d
+}
+
+func (d *SkeletonMJDesk) GetSkeletonMJUser(user api.MjUser) *SkeletonMJUser {
+	return user.(*SkeletonMJUser)
+}
+
+//得到骨架User
+func (d *SkeletonMJDesk) GetSkeletonMJUsers() []*SkeletonMJUser {
+	ret := make([]*SkeletonMJUser, len(d.GetUsers()))
+	for i, u := range d.GetUsers() {
+		if u != nil {
+			ret[i] = u.(*SkeletonMJUser)
+		}
+	}
+	return ret
+}
+
+func (d *SkeletonMJDesk) BroadCastProtoExclusive(msg proto.Message, userId uint32) {
+	for _, u := range d.Users {
+		if u != nil && u.GetUserId() != userId {
+			u.WriteMsg(msg)
+		}
+	}
+}
+
+func (d *SkeletonMJDesk) GetUserIds() string {
+	ids := ""
+	for _, user := range d.GetUsers() {
+		if user != nil {
+			idStr, _ := numUtils.Uint2String(user.GetUserId())
+			ids = ids + "," + idStr
+		}
+	}
+	return ids
+}
+
+//是不是全部都定缺了
+func (d *SkeletonMJDesk) AllDingQue() bool {
+	for _, user := range d.GetUsers() {
+		if user != nil && user.GetStatus().DingQue {
+			log.T("%v用户[%v]还没有缺牌，等待定缺之后庄家开始打牌...", d.DlogDes(), user.GetUserId())
+			return false
+		}
+	}
+	return true
+}
+
+//是不是全部都定缺了
+func (d *SkeletonMJDesk) GetIndexByUserId(userId uint32) int {
+	for i, u := range d.GetUsers() {
+		if u != nil && u.GetUserId() == userId {
+			return i
+		}
+	}
+	return -1
 }

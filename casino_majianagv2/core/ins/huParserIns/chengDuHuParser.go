@@ -120,7 +120,7 @@ func (p *HuParserChengDu) CanHuByPais(handPais []*majiang.MJPai, huPai *majiang.
 	return canHu
 }
 
-func (p *HuParserChengDu) GetHuScore(handPai *majiang.MJHandPai, hupai *majiang.MJPai, isZimo bool, is19 bool, extraAct mjproto.HuType) (fan int32, score int64, huCardStr [] string, paiType PaiType) {
+func (p *HuParserChengDu) GetHuScore(handPai *majiang.MJHandPai, hupai *majiang.MJPai, isZimo bool, is19 bool, extraAct mjproto.HuType) (fan int32, score int64, huCardStr [] string, paiType mjproto.PaiType) {
 
 	log.T("判断是否能胡牌的牌,手牌[%v],碰牌[%v],杠牌[%v]", handPai.GetDes(), majiangv2.ServerPais2string(handPai.PengPais), majiangv2.ServerPais2string(handPai.GangPais))
 

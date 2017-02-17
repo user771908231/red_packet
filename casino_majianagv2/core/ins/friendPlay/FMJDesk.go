@@ -32,3 +32,21 @@ func NewFMJDesk(config *data.SkeletonMJConfig) api.MjDesk {
 	)
 	return desk
 }
+
+func (d *FMJDesk) GetFMJUser(userId uint32) *FMJUser {
+	u := d.GetUserByUserId(userId)
+	if u != nil {
+		return u.(*FMJUser)
+	}
+	return nil
+}
+
+func (d *FMJDesk) GetFMJUsers() []*FMJUser {
+	ret := make([]*FMJUser, len(d.GetUsers()))
+	for i, u := range d.GetUsers() {
+		if u != nil {
+			ret[i] = u.(*FMJUser)
+		}
+	}
+	return ret
+}
