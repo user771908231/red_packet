@@ -85,3 +85,13 @@ func (d *ChangShaFMJDesk) GetMoPaiOverTurn(user api.MjUser, isOpen bool) *mjprot
 	}
 	return overTurn
 }
+
+//类型转换，得到长沙User
+func (d *ChangShaFMJDesk) GetChangShaUserById(userId uint32) *ChangShaMJUser {
+	user := d.GetUserByUserId(userId)
+	if user != nil {
+		return user.(*ChangShaMJUser)
+	} else {
+		return nil
+	}
+}

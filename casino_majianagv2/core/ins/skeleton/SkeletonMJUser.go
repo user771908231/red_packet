@@ -442,3 +442,18 @@ func (u *SkeletonMJUser) UpdateTaskLog() {
 	}
 	u.Log.Insert()
 }
+
+func (u *SkeletonMJUser) AddGuoHuInfo(checkCase *majiang.CheckCase) {
+	if checkCase == nil {
+		return
+	}
+	checkBean := checkCase.GetBeanByUserIdAndStatus(u.GetUserId(), majiang.CHECK_CASE_BEAN_STATUS_CHECKING)
+	if checkBean != nil && checkBean.GetCanHu() {
+		guoHuInfo := majiang.NewGuoHuInfo()
+		*guoHuInfo.SendUserId = checkCase.GetUserIdOut()
+		guoHuInfo.Pai = checkCase.CheckMJPai
+		*guoHuInfo.FanShu = 0 //现在都设置为0翻
+		u.GameData.GuoHuInfo = append(u.GameData.GuoHuInfo, guoHuInfo)
+	}
+
+}

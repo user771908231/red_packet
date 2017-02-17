@@ -433,20 +433,25 @@ func HandlerCommonAckLogout(args []interface{}) {
 
 //离开房间
 func HandlerCommonReqLeaveDesk(args []interface{}) {
+
 }
 
 //申请解散房间
 func handlerCommonReqApplyDissolve(args []interface{}) {
+
 }
 
 //申请解散 回复
 func handlerApplyDissolveBack(args []interface{}) {
+
 }
 
 //托管模式
 func handlerEnterAgentMode(args []interface{}) {
+
 }
 
 //拖出托管模式
 func handlerQuitAgentMode(args []interface{}) {
+
 }

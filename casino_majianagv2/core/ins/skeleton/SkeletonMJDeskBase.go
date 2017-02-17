@@ -61,7 +61,7 @@ func (d *SkeletonMJDesk) HandPaiCanMo() bool {
 		return true
 	}
 }
-func (d *SkeletonMJDesk) GetCheckCase() *data.CheckCase {
+func (d *SkeletonMJDesk) GetCheckCase() *majiang.CheckCase {
 	return d.CheckCase
 }
 
@@ -287,5 +287,25 @@ func (d *SkeletonMJDesk) GetUserIds() string {
 		}
 	}
 	return ids
+}
 
+//是不是全部都定缺了
+func (d *SkeletonMJDesk) AllDingQue() bool {
+	for _, user := range d.GetUsers() {
+		if user != nil && user.GetStatus().DingQue {
+			log.T("%v用户[%v]还没有缺牌，等待定缺之后庄家开始打牌...", d.DlogDes(), user.GetUserId())
+			return false
+		}
+	}
+	return true
+}
+
+//是不是全部都定缺了
+func (d *SkeletonMJDesk) GetIndexByUserId(userId uint32) int {
+	for i, u := range d.GetUsers() {
+		if u != nil && u.GetUserId() == userId {
+			return i
+		}
+	}
+	return -1
 }

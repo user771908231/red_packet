@@ -8,6 +8,7 @@ import (
 
 type ChangShaMJUser struct {
 	*skeleton.SkeletonMJUser
+	changshaGang bool
 }
 
 /**
@@ -42,4 +43,16 @@ func (u *ChangShaMJUser) GetCanChangShaGang(pai *majiang.MJPai) bool {
 	}
 	return false
 
+}
+
+//目前主要是长沙麻将使用
+func (u *ChangShaMJUser) IsCanInitCheckCaseChi() bool {
+	//由于湖南麻将是倒倒胡，所以不用考虑中间间隔胡牌玩家的情况
+	//log.T("判断能不能吃..u.d.getIndexByUserId(u.d.GetCheckCase().GetUserIdOut()) %v", u.d.getIndexByUserId(u.d.GetCheckCase().GetUserIdOut()))
+	//log.T("判断能不能吃..u.d.GetUserCountLimit() %v", u.d.GetUserCountLimit())
+	//log.T("判断能不能吃..u.d.getIndexByUserId(u.GetUserId()) %v", u.d.getIndexByUserId(u.GetUserId()))
+	if (u.GetSkeletonMJDesk().GetIndexByUserId(u.GetSkeletonMJDesk().GetCheckCase().GetUserIdOut())+1)%int(u.GetSkeletonMJDesk().GetMJConfig().PlayerCountLimit) == u.GetSkeletonMJDesk().GetIndexByUserId(u.GetUserId()) {
+		return true
+	}
+	return false
 }
