@@ -20,7 +20,7 @@ func handler(m interface{}, h interface{}) {
 }
 
 func init() {
-	handler(&ddproto.DdzReqCreateDesk{}, handlerCreateDesk)                   //创建房间
+	handler(&mjproto.Game_CreateRoom{}, handlerCreateDesk)                   //创建房间
 	handler(&mjproto.Game_EnterRoom{}, handlerGame_EnterRoom)                 //进入房间
 	handler(&mjproto.Game_DissolveDesk{}, handlerDissolveDesk)                //解散房间
 	handler(&mjproto.Game_Ready{}, handlerGame_Ready)                         //准备

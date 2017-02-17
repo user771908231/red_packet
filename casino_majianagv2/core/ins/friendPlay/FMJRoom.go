@@ -30,7 +30,7 @@ func NewDefaultFMJRoom(s *module.Skeleton) api.MjRoom {
 
 //room创建房间
 func (r *FMJRoom) CreateDesk(config interface{}) (api.MjDesk, error) {
-	c := config.(*data.SkeletonMJConfig)
+	c := config.(data.SkeletonMJConfig)
 	//1,找到是否有已经创建的房间
 	oldDesk := r.getDeskByOwer(c.Owner)
 	if oldDesk != nil && oldDesk.GetStatus().IsNotGaming() {
@@ -55,9 +55,9 @@ func (r *FMJRoom) CreateDesk(config interface{}) (api.MjDesk, error) {
 	var desk api.MjDesk
 	//根据不同的类型来得到不同地区的麻将
 	if c.MjRoomType == int32(mjproto.MJRoomType_roomType_changSha) {
-		desk = changSha.NewChangShaFMJDesk(c) //创建长沙麻将朋友桌
+		desk = changSha.NewChangShaFMJDesk(&c) //创建长沙麻将朋友桌
 	} else {
-		desk = NewFMJDesk(c) //创建成都麻将朋友桌
+		desk = NewFMJDesk(&c) //创建成都麻将朋友桌
 	}
 	desk.SetRoom(r)
 	//4，进入房间
@@ -66,7 +66,7 @@ func (r *FMJRoom) CreateDesk(config interface{}) (api.MjDesk, error) {
 		log.E("进入desk失败")
 		return nil, nil
 	}
-	return nil, nil
+	return desk, nil
 }
 
 //通过key得到一个desk
