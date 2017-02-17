@@ -18,6 +18,7 @@ import (
 	"strings"
 	"github.com/name5566/leaf/module"
 	"casino_common/common/sessionService"
+	"github.com/name5566/leaf/gate"
 )
 
 var ERR_SYS = Error.NewError(consts.ACK_RESULT_FAIL, "系统错误")
@@ -55,7 +56,7 @@ func NewSkeletonMJDesk(config *data.SkeletonMJConfig) *SkeletonMJDesk {
 	return desk
 }
 
-func (f *SkeletonMJDesk) EnterUser(userId uint32) error {
+func (f *SkeletonMJDesk) EnterUser(userId uint32, a gate.Agent) error {
 	log.Debug("玩家[%v]进入fdesk")
 	return nil
 }
@@ -613,4 +614,3 @@ func (d *SkeletonMJDesk) GetEndLotteryInfo(suser api.MjUser) *mjproto.EndLottery
 	*end.CountMingGang = user.Statisc.GetCountMingGang() //明杠
 	return end
 }
-

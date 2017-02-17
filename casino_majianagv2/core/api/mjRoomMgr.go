@@ -1,5 +1,7 @@
 package api
 
+import "casino_common/common/service/robotService"
+
 //麻将的房间管理器
 type MjRoomMgr interface {
 	GetDesk() MjDesk
@@ -7,4 +9,5 @@ type MjRoomMgr interface {
 	OnInit() error
 	//SetSkeleton(*module.Skeleton)
 	GetMjDeskBySession(userId uint32) MjDesk
+	GetRobotManger() robotService.RobotsMgrApi //得到机器人管理器
 }

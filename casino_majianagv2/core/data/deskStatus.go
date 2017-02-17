@@ -10,6 +10,10 @@ func (s *MjDeskStatus) IsNotGaming() bool {
 	return false
 }
 
+func (s *MjDeskStatus) IsGaming() bool {
+	return false
+}
+
 //todo
 func (s *MjDeskStatus) IsNotPreparing() bool {
 	return false

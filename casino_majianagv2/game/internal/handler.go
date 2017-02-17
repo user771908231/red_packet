@@ -13,6 +13,7 @@ import (
 	"casino_common/common/Error"
 	"casino_majiang/service/majiang"
 	"casino_common/common/userService"
+	"casino_majiang/gamedata/dao"
 )
 
 func handler(m interface{}, h interface{}) {
@@ -206,6 +207,7 @@ func handlerGame_DingQue(args []interface{}) {
 
 //换三张
 func handlerGame_ExchangeCards(args []interface{}) {
+
 }
 
 //打牌
@@ -235,32 +237,198 @@ func handlerGame_SendOutCard(args []interface{}) {
 	}
 }
 
-//碰牌
+//碰牌 todo
 func handlerGame_ActPeng(args []interface{}) {
+	m := args[0].(*mjproto.Game_ActPeng)
+	a := args[1].(gate.Agent)
+	userId := m.GetUserId()
+
+	//找到桌子
+	desk := roomMgr.GetMjDeskBySession(userId) //通过userId 的session 得到对应的desk
+	if desk == nil {
+		//这里属于服务器错误... 是否需要给客户端返回信息？
+		log.E("没有找到对应的desk ..")
+		result := &mjproto.Game_AckActPeng{}
+		result.Header = newProto.ErrorHeader()
+		a.WriteMsg(result)
+		return
+	}
+
+	//开始碰牌
+	err := desk.ActPeng(userId) //普通玩家碰牌
+	if err != nil {
+		log.E("服务器错误: 用户[%v]碰牌失败...", userId)
+	}
 }
 
-//杠牌
+//杠牌 todo
 func handlerGame_ActGang(args []interface{}) {
+	m := args[0].(*mjproto.Game_ActGang)
+
+	userId := m.GetUserId()
+	cardId := m.GetGangCard().GetId()
+	bu := m.GetBu()
+
+	result := &mjproto.Game_AckActGang{}
+	result.Header = newProto.SuccessHeader()
+
+	desk := roomMgr.GetMjDeskBySession(userId) //通过userId 的session 得到对应的desk
+	//通过userId 的session 得到对应的desk
+	if desk == nil {
+		//这里属于服务器错误... 是否需要给客户端返回信息？
+		log.E("没有找到对应的desk ..")
+		result.Header = newProto.ErrorHeader()
+		return
+	}
+
+	//先杠牌
+	err := desk.ActGang(userId, cardId, bu) //普通玩家开始杠牌
+	if err != nil {
+		log.E("服务器错误：用户[%v]杠牌的时候出错err[%v]", userId, err)
+	}
 }
 
-//过牌
+//过牌 todo
 func handlerGame_ActGuo(args []interface{}) {
+	m := args[0].(*mjproto.Game_ActGuo)
+	a := args[1].(gate.Agent)
+	userId := m.GetUserId()
+	desk := roomMgr.GetMjDeskBySession(userId) //通过userId 的session 得到对应的desk
+	if desk == nil {
+		log.E("玩家%v过的时候失败,没有找到对应的desk", userId)
+		return
+	}
+	err := desk.ActGuo(userId)
+	if err != nil {
+		result := newProto.NewGame_AckActGuo()
+		result.Header = newProto.ErrorHeader()
+		a.WriteMsg(result)
+		return
+	}
 }
 
-//胡牌
+//胡牌 todo
 func handlerGame_ActHu(args []interface{}) {
+	m := args[0].(*mjproto.Game_ActHu)
+	userId := m.GetUserId()
+
+	//区分自摸点炮:1,如果自己的手牌就已经糊了（或者如果自己自己的牌是14，11，8，5，2 张的时候），那么就自摸，如果需要加上判定牌，那就是点炮
+	desk := roomMgr.GetMjDeskBySession(userId) //通过userId 的session 得到对应的desk
+
+	if desk == nil {
+		//这里属于服务器错误... 是否需要给客户端返回信息？
+		log.E("没有找到对应的desk ..")
+		result := newProto.NewGame_AckActHu()
+		result.Header = newProto.ErrorHeader()
+		return
+	}
+
+	//开始胡牌...
+	err := desk.ActHu(userId) //普通玩家开始胡牌
+	if err != nil {
+		log.E("服务器错误，胡牌失败..err[%v]", err)
+		return
+	}
 }
 
-//游戏记录
+//游戏记录 todo
 func handlerGame_GameRecord(args []interface{}) {
+	m := args[0].(*mjproto.Game_GameRecord)
+	a := args[1].(gate.Agent)
+	log.T("用户[%v]请求战绩", m.GetUserId())
+
+	//todo 复用
+	switch m.GetGameId() {
+	case int32(ddproto.CommonEnumGame_GID_DDZ):
+		data := dao.GetDdzDeskRoundByUserId(m.GetUserId())
+		//战绩 mongoData
+		log.T("data[%v]", data)
+		//返回数据到client
+		result := newProto.NewGame_AckGameRecord()
+		*result.UserId = m.GetUserId()
+		//*result.Records
+		//增加records
+		for _, d := range data {
+			bean := d.TransRecord()
+			result.Records = append(result.Records, bean)
+		}
+
+		//发送战绩
+		log.T("发送玩家[%v]的战绩[%v]", m.GetUserId(), result)
+		a.WriteMsg(result)
+
+	case int32(ddproto.CommonEnumGame_GID_MAHJONG):
+		data := dao.GetMjDeskRoundByUserId(m.GetUserId())
+		//战绩 mongoData
+		log.T("data[%v]", data)
+		//返回数据到client
+		result := newProto.NewGame_AckGameRecord()
+		*result.UserId = m.GetUserId()
+		//*result.Records
+		//增加records
+		for _, d := range data {
+			bean := d.TransRecord()
+			result.Records = append(result.Records, bean)
+		}
+
+		//发送战绩
+		log.T("发送玩家[%v]的战绩[%v]", m.GetUserId(), result)
+		a.WriteMsg(result)
+	default:
+		data := dao.GetMjDeskRoundByUserId(m.GetUserId())
+		//战绩 mongoData
+		log.T("data[%v]", data)
+		//返回数据到client
+		result := newProto.NewGame_AckGameRecord()
+		*result.UserId = m.GetUserId()
+		//*result.Records
+		//增加records
+		for _, d := range data {
+			bean := d.TransRecord()
+			result.Records = append(result.Records, bean)
+		}
+
+		//发送战绩
+		log.T("发送玩家[%v]的战绩[%v]", m.GetUserId(), result)
+		a.WriteMsg(result)
+	}
 }
 
-//发信息
+//发信息 todo
 func handlerGame_Message(args []interface{}) {
+	m := args[0].(*ddproto.CommonReqMessage)
+	log.T("请求发送信息[%v]", m)
+	userId := m.GetHeader().GetUserId()
+	desk := roomMgr.GetMjDeskBySession(userId) //通过userId 的session 得到对应的desk
+	if desk != nil {
+		desk.SendMessage(m)
+	} else {
+		log.E("玩家发送消息失败....因为没有找到玩家【%v】所在的desk", userId)
+	}
 }
 
 //强制退出
 func HandlerCommonAckLogout(args []interface{}) {
+	m := args[0].(*ddproto.CommonReqLeaveDesk)
+	a := args[1].(gate.Agent)
+	userId := m.GetHeader().GetUserId()
+
+	desk := roomMgr.GetMjDeskBySession(userId) //通过userId 的session 得到对应的desk
+	if desk == nil {
+		return
+	}
+
+	if m.GetIsExchange() {
+		//换房间
+		desk.ExchangeRoom(userId, a)
+	} else {
+		//离开房间
+		log.T("玩家[%v]开始离开房间...", userId)
+		err := desk.Leave(userId)
+		if err != nil {
+			log.E("玩家[%v]离开房间的时候出错", userId)
+		}
+	}
 }
 
 //离开房间
