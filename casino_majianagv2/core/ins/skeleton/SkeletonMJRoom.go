@@ -37,7 +37,7 @@ func (r *SkeletonMJRoom) GetDesk(id int32) api.MjDesk {
 }
 
 //进入一个User
-func (r *SkeletonMJRoom) EnterUser(userId uint32) error {
+func (r *SkeletonMJRoom) EnterUser(userId uint32, key string) error {
 	return nil
 }
 
