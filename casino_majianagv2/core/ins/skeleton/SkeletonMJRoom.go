@@ -11,7 +11,8 @@ import (
 )
 
 type SkeletonMJRoom struct {
-	Desks []api.MjDesk
+	Desks       []api.MjDesk
+	RoomMnanger api.MjRoomMgr
 	sync.Mutex
 }
 
@@ -99,4 +100,8 @@ func (r *SkeletonMJRoom) GetRunningDeskeys() *majiang.RunningDeskKeys {
 
 func (r *SkeletonMJRoom) SaveRunningDeskKeys(keys *majiang.RunningDeskKeys) {
 	redisUtils.SetObj(majiang.REDIS_KEY_MJ_RUNNING, keys)
+}
+
+func (r *SkeletonMJRoom) GetRoomMgr() api.MjRoomMgr {
+	return r.RoomMnanger
 }

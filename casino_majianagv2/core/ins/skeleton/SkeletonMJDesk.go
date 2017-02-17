@@ -18,6 +18,7 @@ import (
 	"strings"
 	"github.com/name5566/leaf/module"
 	"casino_common/common/sessionService"
+	"github.com/name5566/leaf/gate"
 )
 
 var ERR_SYS = Error.NewError(consts.ACK_RESULT_FAIL, "系统错误")
@@ -40,7 +41,7 @@ type SkeletonMJDesk struct {
 	config        *data.SkeletonMJConfig //这里不用使用指针，此配置创建之后不会再改变
 	status        *data.MjDeskStatus     //桌子的所有状态都在这里
 	HuParser      api.HuPaerApi          //胡牌解析器
-	CheckCase     *data.CheckCase        //麻将的判定器
+	CheckCase     *majiang.CheckCase     //麻将的判定器
 	Users         []api.MjUser           //所有的玩家
 	AllMJPais     []*majiang.MJPai       //所有的麻将牌
 	OverTurnTimer *time.Timer            //定时器
@@ -55,7 +56,7 @@ func NewSkeletonMJDesk(config *data.SkeletonMJConfig) *SkeletonMJDesk {
 	return desk
 }
 
-func (f *SkeletonMJDesk) EnterUser(userId uint32) error {
+func (f *SkeletonMJDesk) EnterUser(userId uint32, a gate.Agent) error {
 	log.Debug("玩家[%v]进入fdesk")
 	return nil
 }
@@ -132,15 +133,6 @@ func (d *SkeletonMJDesk) ActGang(userId uint32, c int32, bu bool) error {
 }
 
 func (d *SkeletonMJDesk) ActHu(userId uint32) error {
-	return nil
-}
-
-func (d *SkeletonMJDesk) ActPeng(userId uint32) error {
-	return nil
-}
-
-//打牌
-func (d *SkeletonMJDesk) ActOut(userId uint32, cardId int32, auto bool) error {
 	return nil
 }
 
@@ -614,3 +606,15 @@ func (d *SkeletonMJDesk) GetEndLotteryInfo(suser api.MjUser) *mjproto.EndLottery
 	return end
 }
 
+//巴杠之后需要初始化抢杠的CheckCase
+func (d *SkeletonMJDesk) InitCheckCaseAfterGang(gangType int32, gangPai *majiang.MJPai, user api.MjUser) {
+	d.CheckCase = nil //设置 判断的为nil
+	///如果是巴杠，需要设置巴杠的判断  initCheckCase
+	if gangType == majiang.GANG_TYPE_BA {
+		d.InitCheckCase(gangPai, user) //杠牌之后 初始化checkCase
+		if d.CheckCase == nil {
+			log.T("巴杠没有人可以抢杠...")
+		}
+	}
+
+}

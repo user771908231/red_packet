@@ -19,6 +19,12 @@ func (d *MJUserGameData) GetPreMoGangInfo() *majiang.GangPaiInfo {
 
 //todo 删除摸牌前杠牌的信息
 func (d *MJUserGameData) DelPreMoGangInfo() {
+	d.preMoGangInfo = nil
+
+}
+
+func (d *MJUserGameData) SetPreMoGangInfo(g *majiang.GangPaiInfo) {
+	d.preMoGangInfo = g
 
 }
 

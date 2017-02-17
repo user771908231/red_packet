@@ -4,14 +4,15 @@ import "casino_majiang/service/majiang"
 
 //麻将桌子的一些状态
 type MjUserStatus struct {
-	status    int32
-	Ready     bool
-	DingQue   bool
-	AgentMode bool
-	IsBanker  bool
-	IsBreak   bool
-	IsLeave   bool
-	IsRobot   bool
+	status        int32
+	Ready         bool
+	DingQue       bool
+	AgentMode     bool
+	IsBanker      bool
+	IsBreak       bool
+	IsLeave       bool
+	IsRobot       bool
+	ApplyDissolve int32 //是否同意解散房间
 }
 
 //todo
@@ -48,4 +49,9 @@ func (s *MjUserStatus) GetAgentMode() bool {
 }
 func (s *MjUserStatus) SetAgentMode(a bool) {
 	s.AgentMode = a
+}
+
+//
+func (s *MjUserStatus) GetApplyDissolve() int32 {
+	return s.ApplyDissolve
 }
