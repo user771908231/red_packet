@@ -100,7 +100,7 @@ func handlerCreateDesk(args []interface{}) {
 		PlayerCountLimit: playerCountLimit,
 	}
 
-	desk, err := room.CreateDesk(config, a)
+	desk, err := room.CreateDesk(config)
 	if desk == nil {
 		result := newProto.NewGame_AckCreateRoom()
 		*result.Header.Code = consts.ACK_RESULT_ERROR
@@ -140,7 +140,7 @@ func handlerCreateDesk(args []interface{}) {
 		a.WriteMsg(result)
 
 		//创建成功之后，用户自动进入房间...
-		err := desk.EnterUser(desk.GetMJConfig().Owner, nil)
+		err := desk.EnterUser(desk.GetMJConfig().Owner, a)
 		if err != nil {
 			log.E("进入房间失败...")
 		}
@@ -190,7 +190,6 @@ func handlerGame_Ready(args []interface{}) {
 	a := args[1].(gate.Agent)
 
 	userId := m.GetUserId()
-	log.T("收到请求，game_Ready([%v])", userId)
 	desk := roomMgr.GetMjDeskBySession(userId)
 	if desk == nil {
 		// 准备失败

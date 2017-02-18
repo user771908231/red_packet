@@ -10,6 +10,7 @@ import (
 type MjUser interface {
 	GetStatus() *data.MjUserStatus
 	GetGameData() *data.MJUserGameData
+	GetSkeletonUser() interface{} //返回骨架User
 	ActReady()
 	BeginInit(CurrPlayCount int32, banker uint32)
 	GetUserId() uint32 //

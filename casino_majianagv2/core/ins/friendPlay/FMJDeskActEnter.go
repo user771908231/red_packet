@@ -15,7 +15,7 @@ func (d *FMJDesk) EnterUser(userId uint32, a gate.Agent) error {
 	d.Lock()
 	defer func() {
 		d.Unlock()
-		log.T("锁日志: %v FMJDesk/.enterUser(%v)的时候释放锁", d.DlogDes(), userId)
+		log.T("锁日志: %v FMJDesk.enterUser(%v)的时候释放锁", d.DlogDes(), userId)
 	}()
 
 	//1是否重新进入

@@ -46,7 +46,7 @@ type SkeletonMJDesk struct {
 	sync.Mutex
 	*module.Skeleton
 	config        *data.SkeletonMJConfig //这里不用使用指针，此配置创建之后不会再改变
-	status        *data.MjDeskStatus     //桌子的所有状态都在这里
+	deskStatus    *data.MjDeskStatus     //桌子的所有状态都在这里
 	HuParser      api.HuPaerApi          //胡牌解析器
 	CheckCase     *majiang.CheckCase     //麻将的判定器
 	Users         []api.MjUser           //所有的玩家
@@ -62,6 +62,9 @@ func NewSkeletonMJDesk(config *data.SkeletonMJConfig, s *module.Skeleton) *Skele
 		config:   config,
 		Skeleton: s,
 		Users:    make([]api.MjUser, config.PlayerCountLimit),
+		deskStatus: &data.MjDeskStatus{
+			Status: MJDESK_STATUS_READY,
+		},
 	}
 	return desk
 }

@@ -26,11 +26,22 @@ func NewSkeletonMJRoom(id int32) *SkeletonMJRoom {
 	}
 }
 
+func (r *SkeletonMJRoom) GetRoomId() int32 {
+	return r.RoomId
+
+}
+func (r *SkeletonMJRoom) GetRoomLevel() int32 {
+	return 0
+}
+
 //得到一个desk
 func (r *SkeletonMJRoom) GetDesk(id int32) api.MjDesk {
 	for _, d := range r.Desks {
-		if d.GetMJConfig().DeskId == id {
-			return d
+		if d != nil {
+			log.T("开始通过id %v 查找deskId:%v", id, d.GetMJConfig().DeskId)
+			if d.GetMJConfig().DeskId == id {
+				return d
+			}
 		}
 	}
 	return nil
@@ -134,6 +145,12 @@ func (r *SkeletonMJRoom) CalcCreateFee(boardsCout int32) (int64) {
 		return 5
 	}
 	return fee
+}
+
+//给room增加desk
+func (r *SkeletonMJRoom) AddDesk(desk api.MjDesk) error {
+	r.Desks = append(r.Desks, desk)
+	return nil
 }
 
 // room 解散房间...解散朋友桌
