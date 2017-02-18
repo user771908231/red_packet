@@ -7,8 +7,8 @@ import (
 	"github.com/name5566/leaf/log"
 	"github.com/name5566/leaf/module"
 	"os"
-	//"os/signal"
-	//"syscall"
+	"os/signal"
+	"syscall"
 )
 
 func Run(mods ...module.Module) {
@@ -37,8 +37,8 @@ func Run(mods ...module.Module) {
 	console.Init()
 
 	// close
-	c := make(chan os.Signal, 1)
-	//signal.Notify(c, os.Interrupt, os.Kill,syscall.SIGUSR1)
+	//c := make(chan os.Signal, 1)
+	signal.Notify(c, os.Interrupt, os.Kill, syscall.SIGUSR1)
 	sig := <-c
 	log.Release("Leaf closing down (signal: %v)", sig)
 	console.Destroy()
