@@ -37,7 +37,7 @@ func Run(mods ...module.Module) {
 	console.Init()
 
 	// close
-	//c := make(chan os.Signal, 1)
+	c := make(chan os.Signal, 1)
 	signal.Notify(c, os.Interrupt, os.Kill, syscall.SIGUSR1)
 	sig := <-c
 	log.Release("Leaf closing down (signal: %v)", sig)
@@ -45,3 +45,4 @@ func Run(mods ...module.Module) {
 	cluster.Destroy()
 	module.Destroy()
 }
+
