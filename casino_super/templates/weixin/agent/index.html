@@ -20,7 +20,7 @@
                 <!--<ul class="dropdown-menu" id="choseGame">-->
                 <!--</ul>-->
             <!--</li>-->
-            <li class="dropdown li-border"><a href="#" class="dropdown-toggle mystyle-color" data-toggle="dropdown"><span id="userNick">李东升</span><span class="caret"></span></a>
+            <li class="dropdown li-border"><a href="#" class="dropdown-toggle mystyle-color" data-toggle="dropdown"><span id="userNick">{{.wx_user.Nickname}}</span><span class="caret"></span></a>
                 <ul class="dropdown-menu">
                     <li><a href="#" id="logout">退出</a></li>
                 </ul>
@@ -37,28 +37,28 @@
                 <ul class="navContent" style="display:block">
                     <li class="active">
                         <div class="showtitle" style="width:100px;">首页</div>
-                        <a href="index.html"><span class="sublist-icon glyphicon glyphicon-home"></span><span class="sub-title">首页</span></a></li>
+                        <a href="/weixin/agent"><span class="sublist-icon glyphicon glyphicon-home"></span><span class="sub-title">首页</span></a></li>
                     <li>
                         <div class="showtitle" style="width:100px;">出售</div>
-                        <a href="sale.html"><span class="sublist-icon glyphicon glyphicon-tag"></span><span class="sub-title">出售</span></a></li>
+                        <a href="/weixin/agent/sales"><span class="sublist-icon glyphicon glyphicon-tag"></span><span class="sub-title">出售</span></a></li>
                     <li>
                         <div class="showtitle" style="width:100px;">充值</div>
-                        <a href="charge.html"><span class="sublist-icon glyphicon glyphicon-shopping-cart"></span><span class="sub-title">充值</span></a></li>
+                        <a href="/weixin/agent/recharge"><span class="sublist-icon glyphicon glyphicon-shopping-cart"></span><span class="sub-title">充值</span></a></li>
                     <li>
                         <div class="showtitle" style="width:100px;">充值记录</div>
-                        <a href="rechargerecord.html"><span class="sublist-icon glyphicon glyphicon-time"></span><span class="sub-title">充值记录</span></a></li>
+                        <a href="/weixin/agent/recharge_log"><span class="sublist-icon glyphicon glyphicon-time"></span><span class="sub-title">充值记录</span></a></li>
                     <li>
                         <div class="showtitle" style="width:100px;">出售记录</div>
-                        <a href="salerecord.html"><span class="sublist-icon glyphicon glyphicon-star-empty"></span><span class="sub-title">出售记录</span></a></li>
-                    <li id="addMember">
-                        <div class="showtitle" style="width:100px;">添加会员</div>
-                        <a href="addmember.html"><span class="sublist-icon glyphicon glyphicon-plus"></span><span class="sub-title">添加会员</span></a></li>
-                    <li>
-                        <div class="showtitle" style="width:100px;">我的会员</div>
-                        <a href="recommand.html"><span class="sublist-icon glyphicon glyphicon-user"></span><span class="sub-title">我的会员</span></a></li>
-                    <li>
-                        <div class="showtitle" style="width:100px;">会员中心</div>
-                        <a href="set.html"><span class="sublist-icon glyphicon glyphicon-cog"></span><span class="sub-title">会员中心</span></a></li>
+                        <a href="/weixin/agent/sales_log"><span class="sublist-icon glyphicon glyphicon-star-empty"></span><span class="sub-title">出售记录</span></a></li>
+                    <!--<li id="addMember">-->
+                        <!--<div class="showtitle" style="width:100px;">添加会员</div>-->
+                        <!--<a href="addmember.html"><span class="sublist-icon glyphicon glyphicon-plus"></span><span class="sub-title">添加会员</span></a></li>-->
+                    <!--<li>-->
+                        <!--<div class="showtitle" style="width:100px;">我的会员</div>-->
+                        <!--<a href="recommand.html"><span class="sublist-icon glyphicon glyphicon-user"></span><span class="sub-title">我的会员</span></a></li>-->
+                    <!--<li>-->
+                        <!--<div class="showtitle" style="width:100px;">会员中心</div>-->
+                        <!--<a href="set.html"><span class="sublist-icon glyphicon glyphicon-cog"></span><span class="sub-title">会员中心</span></a></li>-->
                 </ul>
             </div>
         </div>
@@ -67,11 +67,10 @@
     <div class="right-product my-index right-off">
         <div class="container-fluid">
             <div class="info-center">
-
                 <!---title----->
                 <div class="info-title">
                     <div class="col-md-6 col-sm-6 col-xs-12">
-                        <h4 id="username"><strong>李东升</strong></h4>
+                        <h4 id="username"><strong>{{.wx_user.Nickname}}</strong></h4>
                         <p>欢迎登录<span id="gameName">四川麻将会员代理后台</span></p>
                     </div>
                     <div class="time-title col-sm-6 col-md-6 col-xs-12">
@@ -109,15 +108,15 @@
                             </ul>
                             <ul class="diamondcon">
                                 <li>
-                                    <span id="money">1234567890</span>
+                                    <span id="money">0</span>
                                     <a href="charge.html">立即充值</a>
                                 </li>
                                 <li>
-                                    <span id="buyReward">1234567890</span>
+                                    <span id="buyReward">0</span>
                                     <a href="#" id="GetBuyReward">领取推荐返利</a>
                                 </li>
                                 <li>
-                                    <span id="accruedReward">1234567890</span>
+                                    <span id="accruedReward">0</span>
                                     <a href="#" id="getAccruedReward">领取充值返利</a>
                                 </li>
                             </ul>
