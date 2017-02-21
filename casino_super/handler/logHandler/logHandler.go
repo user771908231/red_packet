@@ -104,9 +104,14 @@ func Get(ctx *macaron.Context) {
 
 	createdStartedAt := ctx.Query("createdStartedAt")
 	createdEndedAt := ctx.Query("createdEndedAt")
-	if createdStartedAt != "" && createdEndedAt != "" {
+	if createdStartedAt != "" {
 		timeBegin := timeUtils.String2YYYYMMDDHHMMSS(createdStartedAt)
-		timeEnd := timeUtils.String2YYYYMMDDHHMMSS(createdEndedAt)
+		timeEnd := time.Time{}
+		if createdEndedAt != "" {
+			timeEnd = timeUtils.String2YYYYMMDDHHMMSS(createdEndedAt)
+		}else {
+			timeEnd = time.Now()
+		}
 		timeBeginS := timeUtils.Format(timeBegin)
 		timeEndS := timeUtils.Format(timeEnd)
 		println(fmt.Sprintf("begin %v end %v", timeBeginS, timeEndS))
@@ -169,7 +174,15 @@ func Get(ctx *macaron.Context) {
 		ctx.Data["paginator"] = paginator
 	}
 
-	ctx.Data["params"] = "?userId=" + userId + "&deskId=" + deskId + "&level=" + level + "&data=" + dataSearch + "&dataFilter=" + dataFilter + "&createdAt=" + createdAt + "&limit=" + limit
+	ctx.Data["params"] = "?userId=" + userId +
+		"&deskId=" + deskId +
+		"&level=" + level +
+		"&data=" + dataSearch +
+		"&dataFilter=" + dataFilter +
+		"&createdAt=" + createdAt +
+		"&limit=" + limit +
+		"&createdStartedAt=" + createdStartedAt +
+		"&createdEndedAt=" + createdEndedAt
 
 	ctx.HTML(200, "log/logs") // 200 为响应码
 }
