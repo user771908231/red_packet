@@ -3,10 +3,23 @@ package coinPlay
 import (
 	"casino_majianagv2/core/ins/skeleton"
 	"casino_common/common/log"
+	"casino_majianagv2/core/api"
+	"github.com/name5566/leaf/gate"
+	"casino_common/common/userService"
 )
 
 type CMJUser struct {
 	*skeleton.SkeletonMJUser
+}
+
+func NewCMJUser(desk api.MjDesk, userId uint32, a gate.Agent) *CMJUser {
+	//骨架User
+	suser := skeleton.NewSkeleconMJUser(desk, userId, a)
+	suser.Coin = userService.GetUserCoin(userId) //默认金币是0
+	suser.ActTimeoutCount = 2
+	return &CMJUser{
+		SkeletonMJUser: suser,
+	}
 }
 
 //todo
@@ -14,6 +27,7 @@ func (u *CMJUser) GetCoin() int64 {
 	return 0
 }
 
+//金币玩家准备
 func (u *CMJUser) Ready() error {
 	//判断金币是否足够
 	if u.GetCoin() < u.GetDesk().GetMJConfig().CreateFee {
@@ -22,5 +36,6 @@ func (u *CMJUser) Ready() error {
 		return skeleton.ERR_READY_COIN_INSUFFICIENT
 	}
 	//设置为准备的状态,并且停止准备计时器
-	u.SkeletonMJUser.Ready()
+	u.SkeletonMJUser.ActReady()
+	return nil
 }

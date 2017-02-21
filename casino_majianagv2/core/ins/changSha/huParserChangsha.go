@@ -104,7 +104,7 @@ func (p *HuParserChangSha) GetJiaoPais(pais []*majiang.MJPai) []*majiang.MJPai {
 	tryHuPais := make([]*majiang.MJPai, len(pais)+1)
 	copy(tryHuPais, pais)
 
-	for i := 0; i < len(mjpaiMap); {
+	for i := 0; i < len(majiangv2.MjpaiMap); {
 		tmpPai := majiangv2.InitMjPaiByIndex(i)
 
 		//组装tryHu的牌数组

@@ -87,6 +87,11 @@ func (p *HuParserSkeleton) Is258(val int) bool {
 	return v == 2 || v == 5 || v == 8
 }
 
+//todo 得到最大的翻
+func (p *HuParserSkeleton) GetJiaoMaxFan(h *majiang.MJHandPai) int32 {
+	return 0
+}
+
 func (p *HuParserSkeleton) TryHU(count []int, len int) (result bool, isAll19 bool, jiang int) {
 	//log.T("开始判断tryHu(%v,%v)", count, len)
 	isAll19 = true //全带幺

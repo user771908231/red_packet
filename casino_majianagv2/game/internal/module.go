@@ -17,9 +17,15 @@ type Module struct {
 	roomMgr api.MjRoomMgr
 }
 
+func (m *Module) GetRoomMgr() api.MjRoomMgr {
+	return m.roomMgr
+}
+
 func (m *Module) OnInit() {
 	m.Skeleton = skeleton
 	m.roomMgr = roomMgr
+	roomMgr.OnInit()
+
 	//
 
 }
