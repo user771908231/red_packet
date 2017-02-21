@@ -14,12 +14,14 @@ import (
 )
 
 type SearchParams struct {
-	UserId     string
-	DeskId     string
-	Level      string
-	DataSearch string
-	DataFilter string
-	CreatedAt  string
+	UserId           string
+	DeskId           string
+	Level            string
+	DataSearch       string
+	DataFilter       string
+	CreatedAt        string
+	CreatedStartedAt string
+	CreatedEndedAt   string
 }
 
 type CodeValidate struct {
@@ -100,6 +102,20 @@ func Get(ctx *macaron.Context) {
 		}
 	}
 
+	createdStartedAt := ctx.Query("createdStartedAt")
+	createdEndedAt := ctx.Query("createdEndedAt")
+	if createdStartedAt != "" && createdEndedAt != "" {
+		timeBegin := timeUtils.StringYYYYMMDD2time(createdStartedAt)
+		timeEnd := timeUtils.StringYYYYMMDD2time(createdEndedAt)
+		timeBeginS := timeUtils.FormatYYYYMMDD(timeBegin)
+		timeEndS := timeUtils.FormatYYYYMMDD(timeEnd)
+		println(fmt.Sprintf("begin %v end %v", timeBeginS, timeEndS))
+		m["createdat"] = bson.M{
+			"$gte" : timeBeginS,
+			"$lt" : timeEndS,
+		}
+	}
+
 	searchParams := SearchParams{
 		UserId:userId,
 		DeskId:deskId,
@@ -107,9 +123,11 @@ func Get(ctx *macaron.Context) {
 		DataFilter:dataFilter,
 		Level:level,
 		CreatedAt:createdAt,
+		CreatedStartedAt:createdStartedAt,
+		CreatedEndedAt:createdEndedAt,
 	}
 	ctx.Data["searchParams"] = searchParams
-	log.T("查询条件 userId[%v] deskId[%v] level[%v] dataSearch[%v] dataFilter[%v] createAt[%v]", searchParams.UserId, searchParams.DeskId, searchParams.Level, searchParams.DataSearch, searchParams.DataFilter, searchParams.CreatedAt)
+	log.T("查询条件 userId[%v] deskId[%v] level[%v] dataSearch[%v] dataFilter[%v] createAt[%v] createdStartedAt[%v] createdEndedAt[%v]", searchParams.UserId, searchParams.DeskId, searchParams.Level, searchParams.DataSearch, searchParams.DataFilter, searchParams.CreatedAt, searchParams.CreatedStartedAt, searchParams.CreatedEndedAt)
 
 
 	//分页控件
