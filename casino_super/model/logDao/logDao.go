@@ -32,7 +32,7 @@ var TABLE string = "t_log"
 func FindLogsByKV(key string, v interface{}) []LogData {
 	logData := []LogData{}
 	db.Query(func(d *mgo.Database) {
-		d.C(TABLE).Find(bson.M{key: v}).Sort("createdat").All(&logData)
+		d.C(TABLE).Find(bson.M{key: v}).Sort("_id").All(&logData)
 	})
 	if len(logData) > 0 {
 		return logData
