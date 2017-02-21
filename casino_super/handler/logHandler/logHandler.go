@@ -105,10 +105,10 @@ func Get(ctx *macaron.Context) {
 	createdStartedAt := ctx.Query("createdStartedAt")
 	createdEndedAt := ctx.Query("createdEndedAt")
 	if createdStartedAt != "" && createdEndedAt != "" {
-		timeBegin := timeUtils.StringYYYYMMDD2time(createdStartedAt)
-		timeEnd := timeUtils.StringYYYYMMDD2time(createdEndedAt)
-		timeBeginS := timeUtils.FormatYYYYMMDD(timeBegin)
-		timeEndS := timeUtils.FormatYYYYMMDD(timeEnd)
+		timeBegin := timeUtils.String2YYYYMMDDHHMMSS(createdStartedAt)
+		timeEnd := timeUtils.String2YYYYMMDDHHMMSS(createdEndedAt)
+		timeBeginS := timeUtils.Format(timeBegin)
+		timeEndS := timeUtils.Format(timeEnd)
 		println(fmt.Sprintf("begin %v end %v", timeBeginS, timeEndS))
 		m["createdat"] = bson.M{
 			"$gte" : timeBeginS,
