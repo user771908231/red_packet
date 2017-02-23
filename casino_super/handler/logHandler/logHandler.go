@@ -14,12 +14,14 @@ import (
 )
 
 type SearchParams struct {
-	UserId     string
-	DeskId     string
-	Level      string
-	DataSearch string
-	DataFilter string
-	CreatedAt  string
+	UserId           string
+	DeskId           string
+	Level            string
+	DataSearch       string
+	DataFilter       string
+	CreatedAt        string
+	CreatedStartedAt string
+	CreatedEndedAt   string
 }
 
 type CodeValidate struct {
@@ -100,6 +102,25 @@ func Get(ctx *macaron.Context) {
 		}
 	}
 
+	createdStartedAt := ctx.Query("createdStartedAt")
+	createdEndedAt := ctx.Query("createdEndedAt")
+	if createdStartedAt != "" {
+		timeBegin := timeUtils.String2YYYYMMDDHHMMSS(createdStartedAt)
+		timeEnd := time.Time{}
+		if createdEndedAt != "" {
+			timeEnd = timeUtils.String2YYYYMMDDHHMMSS(createdEndedAt)
+		}else {
+			timeEnd = time.Now()
+		}
+		timeBeginS := timeUtils.Format(timeBegin)
+		timeEndS := timeUtils.Format(timeEnd)
+		println(fmt.Sprintf("begin %v end %v", timeBeginS, timeEndS))
+		m["createdat"] = bson.M{
+			"$gte" : timeBeginS,
+			"$lt" : timeEndS,
+		}
+	}
+
 	searchParams := SearchParams{
 		UserId:userId,
 		DeskId:deskId,
@@ -107,9 +128,11 @@ func Get(ctx *macaron.Context) {
 		DataFilter:dataFilter,
 		Level:level,
 		CreatedAt:createdAt,
+		CreatedStartedAt:createdStartedAt,
+		CreatedEndedAt:createdEndedAt,
 	}
 	ctx.Data["searchParams"] = searchParams
-	log.T("查询条件 userId[%v] deskId[%v] level[%v] dataSearch[%v] dataFilter[%v] createAt[%v]", searchParams.UserId, searchParams.DeskId, searchParams.Level, searchParams.DataSearch, searchParams.DataFilter, searchParams.CreatedAt)
+	log.T("查询条件 userId[%v] deskId[%v] level[%v] dataSearch[%v] dataFilter[%v] createAt[%v] createdStartedAt[%v] createdEndedAt[%v]", searchParams.UserId, searchParams.DeskId, searchParams.Level, searchParams.DataSearch, searchParams.DataFilter, searchParams.CreatedAt, searchParams.CreatedStartedAt, searchParams.CreatedEndedAt)
 
 
 	//分页控件
@@ -151,7 +174,15 @@ func Get(ctx *macaron.Context) {
 		ctx.Data["paginator"] = paginator
 	}
 
-	ctx.Data["params"] = "?userId=" + userId + "&deskId=" + deskId + "&level=" + level + "&data=" + dataSearch + "&dataFilter=" + dataFilter + "&createdAt=" + createdAt + "&limit=" + limit
+	ctx.Data["params"] = "?userId=" + userId +
+		"&deskId=" + deskId +
+		"&level=" + level +
+		"&data=" + dataSearch +
+		"&dataFilter=" + dataFilter +
+		"&createdAt=" + createdAt +
+		"&limit=" + limit +
+		"&createdStartedAt=" + createdStartedAt +
+		"&createdEndedAt=" + createdEndedAt
 
 	ctx.HTML(200, "log/logs") // 200 为响应码
 }
