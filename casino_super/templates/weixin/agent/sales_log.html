@@ -94,9 +94,9 @@
             <table class="layui-table">
                 <thead>
                 <tr>
-                    <th>编号</th>
+                    <!--<th>编号</th>-->
                     <th>用户</th>
-                    <th>道具</th>
+                    <!--<th>道具</th>-->
                     <th>数量</th>
                     <th>金额</th>
                     <th>备注</th>
@@ -106,9 +106,9 @@
                 <tbody>
                 {{range $k,$v := .Logs.list}}
                 <tr id="user-<{ item.id }>">
-                    <td>{{$v.Id.Hex}}</td>
+                    <!--<td>{{$v.Id.Hex}}</td>-->
                     <td>{{$v.UserId}}</td>
-                    <td>{{$v.Type}}</td>
+                    <!--<td>{{$v.Type}}</td>-->
                     <td>{{$v.Num}}</td>
                     <td>{{$v.Money}}</td>
                     <td>{{$v.Remark}}</td>
