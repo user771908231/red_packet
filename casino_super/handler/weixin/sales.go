@@ -9,6 +9,9 @@ import (
 	"casino_super/model/agentModel"
 	"casino_common/common/userService"
 	"github.com/go-macaron/binding"
+	"github.com/golang/protobuf/proto"
+	"math"
+	"time"
 )
 
 //售卖首页
@@ -16,6 +19,10 @@ func SalesIndexHandler(ctx *modules.Context) {
 	uid := ctx.QueryInt("uid")
 	var user *ddproto.User = nil
 	db.C(tableName.DBT_T_USER).Find(bson.M{"id": uint32(uid)}, &user)
+
+	if user != nil {
+		user.RoomCard = proto.Int64(userService.GetUserRoomCard(user.GetId()))
+	}
 
 	ctx.Data["Uid"] = uid
 	ctx.Data["User"] = user
@@ -68,4 +75,56 @@ func SalesToUserHandler(ctx *modules.Context, form SalesForm, errs binding.Error
 		return
 	}
 	ctx.Ajax(1, "为该用户添加房卡成功！",nil)
+}
+
+//出售记录表单
+type SalesLogForm struct {
+
+}
+//出售记录
+func SalesLogHandler(ctx *modules.Context) {
+	page := ctx.QueryInt("page")
+	if page <= 0 {
+		page = 1
+	}
+	agent := ctx.IsWxLogin()
+	agent_id := agentModel.GetUserIdByOpenId(agent.OpenId)
+	list := []agentModel.SalesLog{}
+	query := bson.M{
+		"$and": []bson.M{
+			bson.M{"agentid": bson.M{"$eq": agent_id}},
+		},
+	}
+	start_time := ctx.Query("start")
+	if start_time != "" {
+		start,_ := time.Parse("2006-01-02", start_time)
+		query["$and"] = append(query["$and"].([]bson.M), bson.M{
+			"addtime": bson.M{"$gte": start},
+		})
+	}
+	end_time := ctx.Query("end")
+	if end_time != "" {
+		end,_ := time.Parse("2006-01-02", end_time)
+		query["$and"] = append(query["$and"].([]bson.M), bson.M{
+			"addtime": bson.M{"$lt": end.AddDate(0,0,1)},
+		})
+	}
+
+	_, count := db.C(tableName.DBT_AGENT_SALES_LOG).Page(query, &list, "-addtime", page, 10)
+
+	data := bson.M{
+		"list": list,
+		"page": bson.M{
+			"count":      count,
+			"list_count": len(list),
+			"limit":      10,
+			"page":       page,
+			"page_count": math.Ceil(float64(count) / float64(10)),
+		},
+	}
+
+	ctx.Data["Logs"] = data
+	ctx.Data["start_time"] = start_time
+	ctx.Data["end_time"] = end_time
+	ctx.HTML(200, "weixin/agent/sales_log")
 }

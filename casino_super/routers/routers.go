@@ -61,7 +61,9 @@ func Regist(m *macaron.Macaron) {
 			m.Group("/sales", func() {
 				m.Get("/", weixin.SalesIndexHandler)
 				m.Post("/",binding.BindIgnErr(weixin.SalesForm{}), weixin.SalesToUserHandler)
+				m.Get("/log", weixin.SalesLogHandler)
 			})
+			//登录-登出
 			m.Group("/user", func() {
 				m.Get("/login", func(ctx *modules.Context) {
 					ctx.Redirect("/weixin/oauth/login", 200)

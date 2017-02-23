@@ -16,7 +16,7 @@ type SalesLog struct {
 	Num int64  //数量
 	Money float64  //金额
 	Remark string  //备注
-	AddTime int64  //销售时间
+	AddTime time.Time  //销售时间
 }
 
 //新增代理商销售记录
@@ -29,7 +29,7 @@ func AddNewSalesLog(agent_id uint32, user_id uint32, goods_type GoodsType, num i
 		Num: num,
 		Money: money,
 		Remark:remark,
-		AddTime:time.Now().Unix(),
+		AddTime: time.Now(),
 	})
 
 	return err

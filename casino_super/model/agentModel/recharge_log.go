@@ -15,8 +15,8 @@ type RechargeLog struct {
 	AgentId uint32  //代理商id
 	Amount float32  //总价格
 	IsPay bool  //是否已支付
-	AddTime int64   //充值时间
-	DoneTime int64   //付款时间
+	AddTime time.Time   //充值时间
+	DoneTime time.Time   //付款时间
 }
 
 //表更新
@@ -39,8 +39,8 @@ func AddNewRechargeLog(agent_id uint32,goods_id int32, goods_num int64) *Recharg
 		GoodsNum:goods_num,
 		AgentId:agent_id,
 		Amount:goods.Price * float32(goods_num),
-		AddTime:time.Now().Unix(),
-		DoneTime:0,
+		AddTime:time.Now(),
+		DoneTime:time.Time{},
 		IsPay:false,
 	}
 	err := db.C(tableName.DBT_AGENT_RECHARGE_LOG).Insert(newOrder)
