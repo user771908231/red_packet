@@ -55,7 +55,7 @@ func FindLogsByMapCount(m bson.M) (int, error) {
 func FindLogsByMap(m bson.M, skip, limit int) []LogData {
 	logData := []LogData{}
 	db.Query(func(d *mgo.Database) {
-		d.C(config.DBT_SUPER_LOGS).Find(m).Sort("id").Skip(skip).Limit(limit).All(&logData)
+		d.C(config.DBT_SUPER_LOGS).Find(m).Sort("-id").Skip(skip).Limit(limit).All(&logData)
 	})
 	if len(logData) > 0 {
 		return logData
