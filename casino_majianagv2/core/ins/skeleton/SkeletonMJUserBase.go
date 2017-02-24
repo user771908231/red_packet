@@ -120,36 +120,33 @@ func (u *SkeletonMJUser) GetSkeletonMJDesk() *SkeletonMJDesk {
 func (u *SkeletonMJUser) GetSkeletonMJUser() *SkeletonMJUser {
 	return u
 }
-func (u *SkeletonMJUser) GetPlayerCard(showHand bool, needInpai bool) *mjproto.PlayerCard {
+func (u *SkeletonMJUser) GetPlayerCard(showHand bool) *mjproto.PlayerCard {
 	//log.T("得到玩家[%v]的手牌,showHand[%v],needInpai[%v]", u.GetUserId(), showHand, needInpai)
 	playerCard := newProto.NewPlayerCard()
 	*playerCard.UserId = u.GetUserId()
+	playerCard.HandCardCount = proto.Int32(int32(len(u.GetGameData().GetHandPai().GetPais()))) //手牌的长度
 
 	//得到inpai
-	if needInpai {
-		playerCard.HandCardCount = proto.Int32(1)
+	/*
+		1，in1 !=nil
+		2，in2 ==nil
+		这样能保证在杠牌之后断线 不发送in牌
+	 */
+	if u.GetGameData().GetHandPai().GetInPai() != nil && u.GetGameData().GetHandPai().GetInPai2() == nil {
+		*playerCard.HandCardCount ++
 		if showHand {
 			playerCard.HandCard = append(playerCard.HandCard, u.GameData.HandPai.InPai.GetCardInfo())
-		} else {
-			//直接不返回
-			playerCard.HandCard = append(playerCard.HandCard, u.GameData.HandPai.InPai.GetBackPai())
 		}
 	}
 
-	//手牌的长度
-	playerCard.HandCardCount = proto.Int32(playerCard.GetHandCardCount() + int32(len(u.GameData.HandPai.Pais)))
-	//得到手牌
-	for _, pai := range u.GameData.HandPai.GetPais() {
-		if pai != nil {
-			if showHand {
+	//得到所有的手牌手牌
+	if showHand {
+		for _, pai := range u.GameData.HandPai.GetPais() {
+			if pai != nil {
 				playerCard.HandCard = append(playerCard.HandCard, pai.GetCardInfo())
-			} else {
-				playerCard.HandCard = append(playerCard.HandCard, pai.GetBackPai())
 			}
 		}
 	}
-
-	//是否显示换三张的牌
 
 	//类型（1,碰，2,明杠，3,暗杠）
 	//得到碰牌
@@ -228,7 +225,7 @@ func (r *SkeletonMJUser) GetAgent() gate.Agent {
 }
 
 //返回一个用户信息
-func (u *SkeletonMJUser) GetPlayerInfo(showHand bool, needInpai bool) *mjproto.PlayerInfo {
+func (u *SkeletonMJUser) GetPlayerInfo(showHand bool) *mjproto.PlayerInfo {
 	info := newProto.NewPlayerInfo()
 	*info.NHuPai = u.GetNHuPai()
 	*info.BDingQue = u.GetBDingQue()
@@ -236,7 +233,7 @@ func (u *SkeletonMJUser) GetPlayerInfo(showHand bool, needInpai bool) *mjproto.P
 	*info.BReady = u.getBReady()
 	*info.Coin = u.Coin
 	*info.IsBanker = u.GetStatus().IsBanker
-	info.PlayerCard = u.GetPlayerCard(showHand, needInpai)
+	info.PlayerCard = u.GetPlayerCard(showHand)
 	*info.NickName = u.GetNickName()
 	*info.UserId = u.GetUserId()
 	info.WxInfo = u.GetWxInfo()

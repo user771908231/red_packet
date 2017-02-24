@@ -438,8 +438,8 @@ func (d *SkeletonMJDesk) GetWinCoinInfo(user api.MjUser) *mjproto.WinCoinInfo {
 	*win.Coin = suser.Coin                            // 输赢以后，当前筹码是多少
 	*win.CardTitle = d.GetCardTitle4WinCoinInfo(user) // 赢牌牌型信息( 如:"点炮x2 明杠x2 根x2 自摸 3番" )
 	log.T("用户[%v]的CardTitle is [%v]", user.GetUserId(), *win.CardTitle)
-	win.Cards = suser.GetPlayerCard(true, false) //牌信息,true 表示要显示牌的信息...
-	*win.IsDealer = suser.GetStatus().IsBanker   //是否是庄家
+	win.Cards = suser.GetPlayerCard(true)      //牌信息,true 表示要显示牌的信息...
+	*win.IsDealer = suser.GetStatus().IsBanker //是否是庄家
 	//*win.HuCount = user.Statisc.GetCountHu()        //本局胡的次数(血流成河会多次胡)
 	roundBean := suser.GetStatisticsRoundBean(d.GetMJConfig().CurrPlayCount)
 	*win.HuCount = roundBean.GetCountHu() + roundBean.GetCountZiMo() //本局胡的次数(血流成河会多次胡)

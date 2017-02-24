@@ -316,21 +316,10 @@ func (d *SkeletonMJDesk) GetIndexByUserId(userId uint32) int {
 // 发送gameInfo的信息
 func (d *SkeletonMJDesk) GetGame_SendGameInfo(receiveUserId uint32, isReconnect mjproto.RECONNECT_TYPE) *mjproto.Game_SendGameInfo {
 	//如果是短线重连，并且玩家还没有换三张，或者处于定缺的状态，那么需要发送庄家的inpai
-	isDingQue := false
-	/**
-		1,当前阶段处于定缺的阶段
-		2，用户是庄稼的情况
-		3，此时需要发送 inpai
-	 */
-	if isReconnect == mjproto.RECONNECT_TYPE_RECONNECT &&
-		( d.GetStatus().IsExchange || d.IsDingQue()) {
-		isDingQue = true
-	}
-
 	gameInfo := newProto.NewGame_SendGameInfo()
 	gameInfo.DeskGameInfo = d.GetDeskGameInfo()
 	*gameInfo.SenderUserId = receiveUserId
-	gameInfo.PlayerInfo = d.GetPlayerInfo(receiveUserId, isDingQue)
+	gameInfo.PlayerInfo = d.GetPlayerInfo(receiveUserId)
 	*gameInfo.IsReconnect = isReconnect
 	return gameInfo
 
@@ -378,23 +367,23 @@ func (d *SkeletonMJDesk) GetClientGameStatus() int32 {
 /**
 	needInpai ： 是否需要把inpai去得到
  */
-func (d *SkeletonMJDesk) GetPlayerInfo(receiveUserId uint32, isDingQue bool) []*mjproto.PlayerInfo {
-	var players []*mjproto.PlayerInfo
-	for _, user := range d.GetSkeletonMJUsers() {
+func (d *SkeletonMJDesk) GetPlayerInfo(receiveUserId uint32) []*mjproto.PlayerInfo {
+
+	var players []*mjproto.PlayerInfo = make([]*mjproto.PlayerInfo, len(d.Users))
+	for i, user := range d.GetSkeletonMJUsers() {
 		if user != nil {
 			showHand := (user.GetUserId() == receiveUserId)         //是否需要显示手牌
 			isOwner := ( d.GetMJConfig().Owner == user.GetUserId()) //判断是否是房主
-
 			//定缺的状态，并且用户是 用户是庄，那么就显示inpai
-			needInpai := false
-			if isDingQue && user.GetUserId() == d.GetMJConfig().Banker {
-				needInpai = true
-			}
-			info := user.GetPlayerInfo(showHand, needInpai)
+			info := user.GetPlayerInfo(showHand)
 			*info.IsOwner = isOwner
-			players = append(players, info)
+			players[i] = info
+		} else {
+			players[i] = &mjproto.PlayerInfo{}
 		}
 	}
+	return players
+
 	return players
 }
 

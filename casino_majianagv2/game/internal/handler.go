@@ -55,6 +55,8 @@ func handlerCreateDesk(args []interface{}) {
 	}
 
 	var playerCountLimit int32 = 4 //人数
+	var FangCountLimit int32 = 3   //麻将房数
+
 	//if d.IsSanRenLiangFang() {
 	//	*d.UserCountLimit = 3
 	//	*d.FangCountLimit = 2
@@ -98,6 +100,7 @@ func handlerCreateDesk(args []interface{}) {
 		NInitActionTime:  30,
 		RoomLevel:        0,
 		PlayerCountLimit: playerCountLimit,
+		FangCount:        FangCountLimit,
 	}
 
 	desk, err := room.CreateDesk(config)
