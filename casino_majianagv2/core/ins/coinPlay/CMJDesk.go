@@ -81,7 +81,7 @@ func (d *CMJDesk) enterRobot() {
 	}
 
 	//3，加入房间
-	err := d.EnterUser(robot.GetId(), nil) //机器人进入房间
+	err := d.EnterUser(robot.GetId(), nil) //金币场 机器人进入房间
 	if err != nil {
 		//用户加入房间失败...
 		log.E("机器人玩家[%v]加入房间失败errMsg[%v]", robot.GetId(), err)
@@ -143,7 +143,7 @@ func (d *CMJDesk) ExchangeRoom(userId uint32, a gate.Agent) error {
 			//d.BroadCastProto(ack)
 			a.WriteMsg(ack)
 			//进入房间
-			go d.Room.EnterUser(userId, "") //进入房间
+			go d.Room.EnterUser(userId, "", a) //进入房间
 		}
 	}
 	return nil

@@ -27,6 +27,11 @@ func (d *SkeletonMJDesk) SetRoom(r api.MjRoom) {
 	d.Room = r
 }
 
+//返回骨架
+func (d *SkeletonMJDesk) GetSkeletonMjDesk() interface{} {
+	return d
+}
+
 //日志信息
 func (r *SkeletonMJDesk) DlogDes() string {
 	s := fmt.Sprintf("desk[%v]-r[%v]-no[%v]", r.GetMJConfig().DeskId, r.GetMJConfig().CurrPlayCount, r.GetMJConfig().GameNumber)

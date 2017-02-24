@@ -143,7 +143,7 @@ func handlerCreateDesk(args []interface{}) {
 		a.WriteMsg(result)
 
 		//创建成功之后，用户自动进入房间...
-		err := desk.EnterUser(desk.GetMJConfig().Owner, a)
+		err := desk.EnterUser(m.GetHeader().GetUserId(), a)
 		if err != nil {
 			log.E("进入房间失败...")
 		}
@@ -154,7 +154,7 @@ func handlerGame_EnterRoom(args []interface{}) {
 	m := args[0].(*mjproto.Game_EnterRoom) //创建房间时候的配置
 	a := args[1].(gate.Agent)              //连接
 
-	userId := m.GetUserId()
+	userId := m.GetHeader().GetUserId()
 	passWord := m.GetPassWord()
 	//1,找到room
 	room := roomMgr.GetRoom(m.GetRoomType(), m.GetRoomLevel())
@@ -168,7 +168,7 @@ func handlerGame_EnterRoom(args []interface{}) {
 	}
 
 	//2,进入房间
-	err := room.EnterUser(userId, passWord)
+	err := room.EnterUser(userId, passWord, a)
 	if err != nil {
 		//进入房间失败
 		ack := newProto.NewGame_AckEnterRoom()

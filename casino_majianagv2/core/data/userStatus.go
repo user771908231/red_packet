@@ -56,3 +56,14 @@ func (s *MjUserStatus) SetAgentMode(a bool) {
 func (s *MjUserStatus) GetApplyDissolve() int32 {
 	return s.ApplyDissolve
 }
+
+func (u *MjUserStatus) CanMoPai(xueliuchenghe bool) bool {
+	if u.IsNotHu() {
+		return true
+	}
+
+	if u.IsHu() && xueliuchenghe {
+		return true
+	}
+	return false
+}

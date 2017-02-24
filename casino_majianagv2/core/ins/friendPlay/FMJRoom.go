@@ -17,6 +17,7 @@ import (
 	"casino_common/utils/db"
 	"casino_common/common/sessionService"
 	"casino_majiang/service/majiang"
+	"github.com/name5566/leaf/gate"
 )
 
 type FMJRoom struct {
@@ -92,14 +93,14 @@ func (r *FMJRoom) getDeskByOwer(userId uint32) api.MjDesk {
 }
 
 //进入desk
-func (r *FMJRoom) EnterUser(userId uint32, key string) error {
+func (r *FMJRoom) EnterUser(userId uint32, key string, a gate.Agent) error {
 	desk := r.getDeskByPassword(key)
 	if desk == nil {
 		sessionService.DelSessionByKey(userId, majiang.ROOMTYPE_FRIEND)
 		log.E("没有找到对应的desk,进入房间失败")
 		return Error.NewError(consts.ACK_RESULT_FAIL, "房间号输入错误")
 	}
-	err := desk.EnterUser(userId, nil)
+	err := desk.EnterUser(userId, nil) //朋友桌 进入房间
 	if err != nil {
 		log.E("进入房间失败...")
 	}

@@ -24,7 +24,7 @@ func (d *CMJDesk) EnterUser(userId uint32, a gate.Agent) error {
 	}
 
 	//先判断房间人数是否已经足够,这样就可以不处理下边的逻辑了
-	if d.GetUserCount() == d.GetMJConfig().PlayerCountLimit {
+	if d.IsPlayerEnough() {
 		return majiang.ERR_ENTER_DESK //进入房间失败
 	}
 
