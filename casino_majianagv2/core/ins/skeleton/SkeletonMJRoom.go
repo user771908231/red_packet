@@ -20,9 +20,10 @@ type SkeletonMJRoom struct {
 	sync.Mutex
 }
 
-func NewSkeletonMJRoom(id int32) *SkeletonMJRoom {
+func NewSkeletonMJRoom(mgr api.MjRoomMgr, id int32) *SkeletonMJRoom {
 	return &SkeletonMJRoom{
-		RoomId: id,
+		RoomId:      id,
+		RoomMnanger: mgr,
 	}
 }
 

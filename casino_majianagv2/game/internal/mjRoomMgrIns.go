@@ -44,13 +44,13 @@ func (m *MJMgr) OnInit() error {
 	//初始化机器人
 	m.RobotManger = robotService.NewRobotManager(ddproto.CommonEnumGame_GID_MAHJONG)
 	//初始化朋友桌
-	m.froom = friendPlay.NewDefaultFMJRoom(m.Skeleton)
+	m.froom = friendPlay.NewDefaultFMJRoom(m, m.Skeleton)
 
 	//初始化金币场
-	m.croom = append(m.croom, coinPlay.NewDefaultCMjRoom(m.Skeleton, 1))
-	m.croom = append(m.croom, coinPlay.NewDefaultCMjRoom(m.Skeleton, 2))
-	m.croom = append(m.croom, coinPlay.NewDefaultCMjRoom(m.Skeleton, 3))
-	m.croom = append(m.croom, coinPlay.NewDefaultCMjRoom(m.Skeleton, 4))
+	m.croom = append(m.croom, coinPlay.NewDefaultCMjRoom(m, m.Skeleton, 1))
+	m.croom = append(m.croom, coinPlay.NewDefaultCMjRoom(m, m.Skeleton, 2))
+	m.croom = append(m.croom, coinPlay.NewDefaultCMjRoom(m, m.Skeleton, 3))
+	m.croom = append(m.croom, coinPlay.NewDefaultCMjRoom(m, m.Skeleton, 4))
 	return nil
 }
 

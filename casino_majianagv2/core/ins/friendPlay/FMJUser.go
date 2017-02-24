@@ -15,8 +15,8 @@ type FMJUser struct {
 
 func NewFMJUser(desk api.MjDesk, userId uint32, a gate.Agent) *FMJUser {
 	//骨架User
-	suser := skeleton.NewSkeleconMJUser(desk, userId, a)
-	suser.Coin = 0 //默认金币是0
+	suser := skeleton.NewSkeletonMJUser(desk, userId, a) //朋友桌user
+	suser.Coin = 0                                       //默认金币是0
 	suser.ActTimeoutCount = 0
 	return &FMJUser{
 		SkeletonMJUser: suser,

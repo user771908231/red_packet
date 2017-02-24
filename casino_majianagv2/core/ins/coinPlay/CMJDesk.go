@@ -87,7 +87,6 @@ func (d *CMJDesk) enterRobot() {
 		log.E("机器人玩家[%v]加入房间失败errMsg[%v]", robot.GetId(), err)
 		d.Room.GetRoomMgr().GetRobotManger().ReleaseRobots(robot.GetId())
 	}
-
 }
 
 //todo

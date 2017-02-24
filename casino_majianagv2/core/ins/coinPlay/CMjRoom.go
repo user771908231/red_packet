@@ -23,11 +23,11 @@ type CMjRoom struct {
 	EnterFee  int64 //进房费用
 }
 
-func NewDefaultCMjRoom(s *module.Skeleton, l int32) api.MjRoom {
+func NewDefaultCMjRoom(mgr api.MjRoomMgr, s *module.Skeleton, l int32) api.MjRoom {
 	ret := &CMjRoom{
 		Skeleton:       s,
 		RoomLevel:      l,
-		SkeletonMJRoom: skeleton.NewSkeletonMJRoom(l),
+		SkeletonMJRoom: skeleton.NewSkeletonMJRoom(mgr, l),
 	}
 	return ret
 }
@@ -42,7 +42,8 @@ func (r *CMjRoom) CreateDesk(config interface{}) (api.MjDesk, error) {
 	c.DeskId, _ = db.GetNextSeq(tableName.DBT_MJ_DESK)
 	//根据不同的类型来得到不同地区的麻将
 	desk := NewCMJDesk(c, r.Skeleton) //创建成都麻将朋友桌
-	desk.SetRoom(r)
+	desk.SetRoom(r)                   //desk 关联room
+	r.AddDesk(desk)                   //room 关联desk
 	return desk, nil
 }
 
@@ -104,9 +105,11 @@ func (r *CMjRoom) GetAbleCoinDesk(userId uint32) api.MjDesk {
 
 //创建金币场的desk
 func (r *CMjRoom) CreateCoinPlayDesk() api.MjDesk {
+	log.T("金币场没有空闲的房间，重新新建一个.")
 	//创建金币场，创建时，需要更新mjroom的配置来创建
 	config := &data.SkeletonMJConfig{
 		Owner:            0,
+		RoomId:           r.GetRoomId(),
 		RoomType:         majiang.ROOMTYPE_COINPLAY,
 		Status:           majiang.MJDESK_STATUS_READY,
 		MjRoomType:       int32(mjproto.MJRoomType_roomType_xueZhanDaoDi),
@@ -133,7 +136,6 @@ func (r *CMjRoom) CreateCoinPlayDesk() api.MjDesk {
 		PlayerCountLimit: 4,
 		FangCount:        3,
 		CoinLimit:        r.GetCoinLimit(),
-
 	}
 	//
 	desk, err := r.CreateDesk(config)

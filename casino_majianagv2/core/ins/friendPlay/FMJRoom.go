@@ -27,10 +27,10 @@ type FMJRoom struct {
 }
 
 //初始化一个朋友桌room
-func NewDefaultFMJRoom(s *module.Skeleton) api.MjRoom {
+func NewDefaultFMJRoom(mgr api.MjRoomMgr, s *module.Skeleton) api.MjRoom {
 	ret := &FMJRoom{
 		Skeleton:       s,
-		SkeletonMJRoom: skeleton.NewSkeletonMJRoom(0),
+		SkeletonMJRoom: skeleton.NewSkeletonMJRoom(mgr, 0),
 	}
 	return ret
 }

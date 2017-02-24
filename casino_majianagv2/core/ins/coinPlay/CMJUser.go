@@ -12,14 +12,21 @@ type CMJUser struct {
 	*skeleton.SkeletonMJUser
 }
 
-func NewCMJUser(desk api.MjDesk, userId uint32, a gate.Agent) *CMJUser {
+func NewCMJUser(desk api.MjDesk, userId uint32, a gate.Agent) api.MjUser {
 	//骨架User
-	suser := skeleton.NewSkeleconMJUser(desk, userId, a)
+	suser := skeleton.NewSkeletonMJUser(desk, userId, a)
 	suser.Coin = userService.GetUserCoin(userId) //默认金币是0
 	suser.ActTimeoutCount = 2
-	return &CMJUser{
-		SkeletonMJUser: suser,
+	if suser.RobotType != 0 {
+		return &CMJUser{
+			SkeletonMJUser: suser,
+		}
+	} else {
+		return &CMJRobotUser{
+			SkeletonMJUser: suser,
+		}
 	}
+
 }
 
 //todo

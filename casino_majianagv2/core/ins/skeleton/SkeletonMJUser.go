@@ -26,6 +26,7 @@ type SkeletonMJUser struct {
 	Coin            int64              //金币
 	NickName        string             //昵称
 	Sex             int32              //性别
+	RobotType       int32              //机器人类型
 	ReadyTimer      *timer.Timer
 	Bill            *majiang.Bill
 	GameData        *data.MJUserGameData
@@ -36,9 +37,8 @@ type SkeletonMJUser struct {
 }
 
 //初始化一个user骨架
-func NewSkeleconMJUser(desk api.MjDesk, userId uint32, a gate.Agent) *SkeletonMJUser {
+func NewSkeletonMJUser(desk api.MjDesk, userId uint32, a gate.Agent) *SkeletonMJUser {
 	//清空agent 的userData
-	a.SetUserData(nil)
 	redisUser := userService.GetUserById(userId)
 	if redisUser == nil {
 		log.E("系统中找不到用户%v", userId)
@@ -46,11 +46,12 @@ func NewSkeleconMJUser(desk api.MjDesk, userId uint32, a gate.Agent) *SkeletonMJ
 	}
 	//返回用户信息
 	return &SkeletonMJUser{
-		desk:     desk,
-		userId:   userId,
-		a:        a,
-		NickName: redisUser.GetNickName(),
-		Sex:      redisUser.GetSex(),
+		desk:      desk,
+		userId:    userId,
+		a:         a,
+		NickName:  redisUser.GetNickName(),
+		Sex:       redisUser.GetSex(),
+		RobotType: redisUser.GetRobotType(),
 		UserStatus: &data.MjUserStatus{
 			Status:   1,
 			IsBanker: desk.GetMJConfig().Banker == userId,
