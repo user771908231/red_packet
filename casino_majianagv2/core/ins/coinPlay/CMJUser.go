@@ -17,7 +17,7 @@ func NewCMJUser(desk api.MjDesk, userId uint32, a gate.Agent) api.MjUser {
 	suser := skeleton.NewSkeletonMJUser(desk, userId, a)
 	suser.Coin = userService.GetUserCoin(userId) //默认金币是0
 	suser.ActTimeoutCount = 2
-	if suser.RobotType != 0 {
+	if suser.RobotType == 0 {
 		return &CMJUser{
 			SkeletonMJUser: suser,
 		}

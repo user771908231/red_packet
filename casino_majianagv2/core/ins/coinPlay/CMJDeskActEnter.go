@@ -13,11 +13,11 @@ import (
 
 //进入游戏
 func (d *CMJDesk) EnterUser(userId uint32, a gate.Agent) error {
-	log.T("锁日志: %v enterUser(%v)的时候等待锁", d.DlogDes(), userId)
+	log.T("锁日志: %v CMJDesk.enterUser(%v)的时候等待锁", d.DlogDes(), userId)
 	d.Lock()
 	defer func() {
 		d.Unlock()
-		log.T("锁日志: %v enterUser(%v)的时候释放锁", d.DlogDes(), userId)
+		log.T("锁日志: %v CMJDesk.enterUser(%v)的时候释放锁", d.DlogDes(), userId)
 	}()
 
 	rtype := d.TryReEnter(userId, a)
