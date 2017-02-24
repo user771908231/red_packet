@@ -9,9 +9,9 @@ import (
 )
 
 const (
-	wxAppId           = "APPID"                           // 填上自己的参数
-	wxAppSecret       = "APPSECRET"                       // 填上自己的参数
-	oauth2RedirectURI = "http://192.168.1.129:8080/page2" // 填上自己的参数
+	wxAppId           = "wx804b74c45a08e6e1"                           // 填上自己的参数
+	wxAppSecret       = "4b81d61d2f2773c7752396ee2e8ca96e"                       // 填上自己的参数
+	oauth2RedirectURI = "http://wx.tondeen.com/weixin/oauth/callback" // 填上自己的参数
 	oauth2Scope       = "snsapi_userinfo"                 // 填上自己的参数
 )
 
@@ -19,8 +19,18 @@ var (
 	oauth2Endpoint oauth2.Endpoint = mpoauth2.NewEndpoint(wxAppId, wxAppSecret)
 )
 
-//oath验证
-func Oath(ctx *modules.Context) {
+//需要微信登录验证
+func NeedWxLogin(ctx *modules.Context) {
+	user := ctx.IsWxLogin()
+	ctx.Data["wx_user"] = user
+	if user == nil {
+		ctx.Redirect("/weixin/oauth/login", 302)
+		return
+	}
+}
+
+//oauth验证第一步发起认证
+func OauthLogin(ctx *modules.Context) {
 	state := string(rand.NewHex())
 	ctx.Session.Set("state", state)
 	AuthCodeURL := mpoauth2.AuthCodeURL(wxAppId, oauth2RedirectURI, oauth2Scope, state)
@@ -28,8 +38,8 @@ func Oath(ctx *modules.Context) {
 
 	ctx.Redirect(AuthCodeURL, 302)
 }
-
-func UserInfo(ctx *modules.Context) {
+//oauth验证第二步回调，获取用户信息并存入session
+func OauthCallBack(ctx *modules.Context) {
 	code := ctx.Query("code")
 
 	if ctx.Query("state") != ctx.Session.Get("state").(string) {
@@ -53,5 +63,9 @@ func UserInfo(ctx *modules.Context) {
 		return
 	}
 
-	ctx.JSON(200, userinfo)
+	//保存用户信息至session
+	ctx.Session.Set("wx_user", userinfo)
+
+	//ctx.JSON(200, userinfo)
+	ctx.Redirect("/weixin/agent", 302)
 }

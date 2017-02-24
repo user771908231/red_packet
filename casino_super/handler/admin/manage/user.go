@@ -9,6 +9,8 @@ import (
 	"math"
 	"github.com/go-macaron/binding"
 	"casino_common/common/userService"
+	"github.com/golang/protobuf/proto"
+	"log"
 )
 
 //所有用户
@@ -31,6 +33,12 @@ func UserListHandler(ctx *modules.Context) {
 
 	list := new([]*ddproto.User)
 	err, count := db.C(tableName.DBT_T_USER).Page(query, list, "id", page, 10)
+
+	for _,u := range *list {
+		u.RoomCard = proto.Int64(userService.GetUserRoomCard(u.GetId()))
+		u.Coin = proto.Int64(userService.GetUserCoin(u.GetId()))
+		u.Diamond = proto.Int64(userService.GetUserDiamond(u.GetId()))
+	}
 
 	data := bson.M{
 		"list": list,
@@ -60,6 +68,8 @@ type UserUpdateForm struct {
 	Id        uint32 `form:"id"`
 	NickName  string `form:"nickName"`
 	Diamond   int64  `form:"Diamond"`
+	Ticket    int32  `form:"ticket"`
+	Bonus     float64 `form:"bonus"`
 	OpenId    string `form:"openId"`
 	UnionId   string `form:"UnionId"`
 	HeadUrl   string `form:"headUrl"`
@@ -83,10 +93,13 @@ type RechargeForm struct {
 	Coin     int64 `form:"Coin" binding:""`
 	Diamond  int64 `form:"Diamond" binding:""`
 	RoomCard int64 `form:"RoomCard" binding:""`
+	Bonus    float64 `form:"bonus"`
+	Ticket   int32 `form:"ticket"`
 }
 
 //用户充值
 func RechargeHandler(ctx *modules.Context, form RechargeForm, errs binding.Errors) {
+	log.Println(form)
 	if len(errs) > 0 {
 		ctx.Ajax(-1, "表单参数错误！", errs)
 		return
@@ -114,9 +127,23 @@ func RechargeHandler(ctx *modules.Context, form RechargeForm, errs binding.Error
 			return
 		}
 	}
+	if form.Bonus != 0 {
+		_, err = userService.INCRUserBonus(form.Id, form.Bonus)
+		if err != nil {
+			ctx.Ajax(-4, "充值红包失败！", nil)
+			return
+		}
+	}
+	if form.Ticket != 0 {
+		_, err = userService.INCRUserTicket(form.Id, form.Ticket)
+		if err != nil {
+			ctx.Ajax(-4, "充值奖券失败！", nil)
+			return
+		}
+	}
 
 	ctx.Ajax(1, "充值成功！", form)
-	userService.SyncMgoUserMoney(form.Id) //同步user的数据到mgo
+	//userService.SyncMgoUserMoney(form.Id) //同步user的数据到mgo
 }
 
 //删除单个用户

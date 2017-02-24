@@ -47,8 +47,33 @@ func Regist(m *macaron.Macaron) {
 
 	//微信
 	m.Group("/weixin", func() {
-		m.Get("/oath", weixin.Oath)
-		m.Get("/user/info", weixin.UserInfo)
+		m.Get("/oauth/login", weixin.OauthLogin)
+		m.Get("/oauth/callback", weixin.OauthCallBack)
+		//需要微信登录
+		m.Group("/agent", func() {
+			m.Get("/", weixin.MainHandler)
+			//m.Get("/info", weixin.InfoHandler)
+			//充值
+			m.Group("/recharge", func() {
+				m.Get("/", weixin.RechargeListHandler)
+			})
+			//销售
+			m.Group("/sales", func() {
+				m.Get("/", weixin.SalesIndexHandler)
+				m.Post("/",binding.BindIgnErr(weixin.SalesForm{}), weixin.SalesToUserHandler)
+				m.Get("/log", weixin.SalesLogHandler)
+			})
+			//登录-登出
+			m.Group("/user", func() {
+				m.Get("/login", func(ctx *modules.Context) {
+					ctx.Redirect("/weixin/oauth/login", 200)
+				})
+				m.Get("/logout", func(ctx *modules.Context) {
+					ctx.Session.Delete("wx_user")
+					ctx.Success("退出成功！", "/weixin/", 3)
+				})
+			})
+		}, weixin.NeedWxLogin)
 	})
 
 	//首页

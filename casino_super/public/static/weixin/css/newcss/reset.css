@@ -1,0 +1,82 @@
+body,ul,li{
+    padding:0;
+    margin:0;
+}
+/*alert弹出框的样式*/
+.alert {
+    display: none;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    -ms-transform: translate(-50%, -50%);
+    -moz-transform: translate(-50%, -50%);
+    -o-transform: translate(-50%, -50%);
+    transform: translate(-50%, -50%);
+    z-index: 2000;
+}
+@media (min-width: 320px){
+    .modalBox{
+        right: 1%;
+        left: 1%;
+        display:none;
+        z-index:1500;
+        position: absolute;
+        top: 50%;
+        bottom: auto;
+        -webkit-transition: opacity 0.3s linear, top 0.3s ease-out, bottom 0.3s ease-out, margin-top 0.3s ease-out;
+        overflow-x: hidden;
+        overflow-y: auto;
+        opacity: 1;
+        width: auto !important;
+        height: auto !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        outline: none;
+        background-color: #ffffff;
+        border: 1px solid rgba(0, 0, 0, 0.2);
+        border-radius: 6px;
+        box-shadow: 0 3px 9px rgba(0, 0, 0, 0.5);
+        background-clip: padding-box;
+        box-sizing: border-box;
+        -ms-transform: translate(0,-50%);
+        -moz-transform: translate(0,-50%);
+        -o-transform: translate(0,-50%);
+        transform: translate(0,-50%);
+    }
+    .modalBox p{
+        margin:0 0 15px;
+    }
+}
+@media (min-width: 800px){
+    .modalBox{
+        right: 15%;
+        left: 15%;
+        display:none;
+        z-index:1500;
+        position: absolute;
+        top: 50%;
+        bottom: auto;
+        -webkit-transition: opacity 0.3s linear, top 0.3s ease-out, bottom 0.3s ease-out, margin-top 0.3s ease-out;
+        overflow-x: hidden;
+        overflow-y: auto;
+        opacity: 1;
+        width: auto !important;
+        height: auto !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        outline: none;
+        background-color: #ffffff;
+        border: 1px solid rgba(0, 0, 0, 0.2);
+        border-radius: 6px;
+        box-shadow: 0 3px 9px rgba(0, 0, 0, 0.5);
+        background-clip: padding-box;
+        box-sizing: border-box;
+        -ms-transform: translate(0,-50%);
+        -moz-transform: translate(0,-50%);
+        -o-transform: translate(0,-50%);
+        transform: translate(0,-50%);
+    }
+    .modalBox p{
+        margin:0 0 15px;
+    }
+}
