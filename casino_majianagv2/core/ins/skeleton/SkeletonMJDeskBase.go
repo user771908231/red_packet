@@ -42,7 +42,7 @@ func (r *SkeletonMJDesk) DlogDes() string {
 func (r *SkeletonMJDesk) GetUserByUserId(userId uint32) api.MjUser {
 	for _, u := range r.GetUsers() {
 		if u != nil {
-			log.T("循环查找:%v,找到的u:%v", userId, u.GetUserId())
+			//log.T("循环查找:%v,找到的u:%v", userId, u.GetUserId())
 		}
 		if u != nil && u.GetUserId() == userId {
 			return u

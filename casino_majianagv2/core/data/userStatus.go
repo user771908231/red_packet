@@ -16,9 +16,9 @@ type MjUserStatus struct {
 	ApplyDissolve int32 //是否同意解散房间
 }
 
-//todo
+//玩家是否在准备状态
 func (s *MjUserStatus) IsReady() bool {
-	return false
+	return s.Ready
 }
 
 //是否游戏中

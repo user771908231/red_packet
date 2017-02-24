@@ -40,21 +40,6 @@ func NewCMJDesk(config *data.SkeletonMJConfig, s *module.Skeleton) api.MjDesk {
 	return desk
 }
 
-//准备
-func (d *CMJDesk) Ready(userId uint32) error {
-	log.T("锁日志: %v CMJDesk.Ready(%v)的时候等待锁", d.DlogDes(), userId)
-	d.Lock()
-	defer func() {
-		d.Unlock()
-		log.T("锁日志: %v CMJDesk.Ready(%v)的时候释放锁", d.DlogDes(), userId)
-	}()
-
-	d.SkeletonMJDesk.Ready(userId)
-	d.initEnterTimer() //房间进入一个人之后开始计划添加机器人
-	d.begin()
-	return nil
-}
-
 //todo
 func (d *CMJDesk) initEnterTimer() {
 	//房间中有人的时候，才会让机器人进来
@@ -92,11 +77,6 @@ func (d *CMJDesk) enterRobot() {
 		log.E("机器人玩家[%v]加入房间失败errMsg[%v]", robot.GetId(), err)
 		d.Room.GetRoomMgr().GetRobotManger().ReleaseRobots(robot.GetId())
 	}
-}
-
-//todo
-func (d *CMJDesk) begin() {
-
 }
 
 //金币场的玩家
