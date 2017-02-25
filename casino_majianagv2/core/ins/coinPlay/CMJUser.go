@@ -29,9 +29,8 @@ func NewCMJUser(desk api.MjDesk, userId uint32, a gate.Agent) api.MjUser {
 
 }
 
-//todo
 func (u *CMJUser) GetCoin() int64 {
-	return 0
+	return u.Coin
 }
 
 //金币玩家准备
