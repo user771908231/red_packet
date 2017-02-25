@@ -11,3 +11,5 @@ casino_zjh.tgz
 casino_super/log/
 makelinux
 gameclientlog
+.gitignore
+log/
