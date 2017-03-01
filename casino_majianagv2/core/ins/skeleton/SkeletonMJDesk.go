@@ -85,7 +85,7 @@ func (d *SkeletonMJDesk) Ready(userId uint32) error {
 	}
 
 	//找到需要准备的user
-	user := d.GetUserByUserId(userId)
+	user := d.GetSkeletonMJUserById(userId)
 	if user == nil {
 		log.E("用户[%v]在desk[%v]准备的时候失败,没有找到对应的玩家", userId, d.GetMJConfig().DeskId)
 		return ERR_SYS

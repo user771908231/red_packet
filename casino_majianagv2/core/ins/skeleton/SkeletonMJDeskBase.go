@@ -264,7 +264,16 @@ func (d *SkeletonMJDesk) GetSkeletonMJDesk() *SkeletonMJDesk {
 }
 
 func (d *SkeletonMJDesk) GetSkeletonMJUser(user api.MjUser) *SkeletonMJUser {
-	return user.GetSkeletonUser().(*SkeletonMJUser)
+	if user != nil {
+		return user.GetSkeletonUser().(*SkeletonMJUser)
+	}
+	return nil
+}
+
+//通过id得到骨架的user
+func (d *SkeletonMJDesk) GetSkeletonMJUserById(userId uint32) *SkeletonMJUser {
+	return d.GetSkeletonMJUser(d.GetUserByUserId(userId))
+
 }
 
 //得到骨架User
