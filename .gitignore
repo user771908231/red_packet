@@ -12,3 +12,5 @@ casino_super/log/
 makelinux
 gameclientlog
 conf
+log/as.err
+log/as.log
