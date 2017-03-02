@@ -241,7 +241,7 @@ func (d *SkeletonMJDesk) GetRemainPaiCount() int32 {
 func (d *SkeletonMJDesk) UpdateUserStatus(status int32) {
 	for _, user := range d.GetUsers() {
 		if user != nil {
-			user.GetStatus().SetStatus(status)
+			user.GetStatus().SetStatus(status) //desk 统一设置...
 		}
 	}
 }

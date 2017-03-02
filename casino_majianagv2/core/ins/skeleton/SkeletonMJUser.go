@@ -69,7 +69,7 @@ func NewSkeletonMJUser(desk api.MjDesk, userId uint32, a gate.Agent) *SkeletonMJ
 
 func (user *SkeletonMJUser) ActReady() {
 	//设置为准备的状态,并且停止准备计时器
-	user.UserStatus.SetStatus(majiang.MJUSER_STATUS_READY)
+	user.UserStatus.SetStatus(majiang.MJUSER_STATUS_READY) //设置为准备的状态
 	user.UserStatus.Ready = true
 	if user.ReadyTimer != nil {
 		user.ReadyTimer.Stop()
@@ -490,10 +490,10 @@ func (u *SkeletonMJUser) IsHuaZhu() bool {
 //lottery之后，设置user为没有准备
 func (u *SkeletonMJUser) AfterLottery() error {
 	//准备状态
-	u.GetStatus().SetStatus(majiang.MJUSER_STATUS_SEATED)
-	u.GetStatus().Ready = false     //设置为没有准备的状态...
-	u.GetStatus().DingQue = false   //设置为没有定缺的状态...
-	u.GetStatus().AgentMode = false //第二局开始默认不准备
+	u.GetStatus().SetStatus(majiang.MJUSER_STATUS_SEATED) //设置为坐下的状态
+	u.GetStatus().Ready = false                           //设置为没有准备的状态...
+	u.GetStatus().DingQue = false                         //设置为没有定缺的状态...
+	u.GetStatus().AgentMode = false                       //第二局开始默认不准备
 	u.UpdateTaskLog()
 	return nil
 }
