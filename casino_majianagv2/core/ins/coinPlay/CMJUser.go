@@ -22,11 +22,11 @@ func NewCMJUser(desk api.MjDesk, userId uint32, a gate.Agent) api.MjUser {
 			SkeletonMJUser: suser,
 		}
 	} else {
+		suser.GetStatus().IsRobot = true //设置成机器人
 		return &CMJRobotUser{
 			SkeletonMJUser: suser,
 		}
 	}
-
 }
 
 func (u *CMJUser) GetCoin() int64 {

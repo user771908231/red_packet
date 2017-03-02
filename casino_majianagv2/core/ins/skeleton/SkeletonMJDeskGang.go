@@ -9,13 +9,6 @@ import (
 )
 
 func (d *SkeletonMJDesk) ActGang(userId uint32, paiId int32, bu bool) error {
-	log.T("锁日志: %v ActGang(%v,%v)的时候等待锁", d.DlogDes(), userId, paiId)
-	d.Lock()
-	defer func() {
-		d.Unlock()
-		log.T("锁日志: %v ActGang(%v,%v)的时候释放锁", d.DlogDes(), userId, paiId)
-	}()
-
 	if d.CheckNotActUser(userId) { //杠牌
 		log.E("非法操作，没有轮到玩家[%v]操作杠牌...", userId)
 		return Error.NewFailError("暂时没有轮到玩家操作")
@@ -158,11 +151,7 @@ func (d *SkeletonMJDesk) ActGang(userId uint32, paiId int32, bu bool) error {
 		}
 	}
 	log.T("广播玩家[%v]杠牌[%v]之后的ack[%v]", user.GetUserId(), gangPai, result)
-
 	d.BroadCastProto(result)
-
-	//
-	d.DoCheckCase() //杠牌之后，处理下一个判定牌
 
 	return nil
 }

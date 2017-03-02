@@ -140,7 +140,7 @@ func (d *CMJDesk) initReadyTimer() {
 		if u != nil {
 			log.T("%s 开始给玩家[%v]设置准备倒计时", d.DlogDes(), u.GetUserId())
 			userId := u.GetUserId()
-			d.getCMJUser(u).ReadyTimer = d.AfterFunc(majiang.COIN_RAEDY_DURATION, func() {
+			d.GetSkeletonMJUserById(userId).ReadyTimer = d.AfterFunc(majiang.COIN_RAEDY_DURATION, func() {
 				d.ForceOutReadyTimeOutUser(userId)
 			})
 		}
