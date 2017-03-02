@@ -9,7 +9,6 @@ import (
 	"errors"
 	"sync/atomic"
 	"casino_majiang/msg/funcsInit"
-	"casino_majianagv2/core/api"
 )
 
 func (d *SkeletonMJDesk) ActHu(userId uint32) error {
@@ -214,7 +213,7 @@ func (d *SkeletonMJDesk) DoHuBill(hu *majiang.HuPaiInfo) {
 }
 
 //获取玩家赢分 为长沙麻将添加的方法
-func (d *SkeletonMJDesk) GetYingScore(yingUser api.MjUser, score int64) int64 {
+func (d *SkeletonMJDesk) GetYingScore(yingUser *SkeletonMJUser, score int64) int64 {
 	return score
 }
 

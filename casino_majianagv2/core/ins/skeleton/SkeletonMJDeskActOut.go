@@ -15,7 +15,7 @@ func (d *SkeletonMJDesk) ActOut(userId uint32, cardId int32, auto bool) error {
 func (d *SkeletonMJDesk) GetNextMoPaiUser() api.MjUser {
 
 	//首先找，刚刚杠过牌的User，否则找下一个User
-	for _, u := range d.GetSkeletonMJUsers() {
+	for _, u := range d.GetUsers() {
 		if u != nil && u.GetGameData().GetPreMoGangInfo() != nil {
 			return u
 		}
