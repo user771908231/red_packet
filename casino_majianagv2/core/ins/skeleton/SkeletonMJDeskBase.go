@@ -309,7 +309,7 @@ func (d *SkeletonMJDesk) GetUserIds() string {
 //是不是全部都定缺了
 func (d *SkeletonMJDesk) AllDingQue() bool {
 	for _, user := range d.GetUsers() {
-		if user != nil && user.GetStatus().DingQue {
+		if user != nil && !user.GetStatus().DingQue {
 			log.T("%v用户[%v]还没有缺牌，等待定缺之后庄家开始打牌...", d.DlogDes(), user.GetUserId())
 			return false
 		}

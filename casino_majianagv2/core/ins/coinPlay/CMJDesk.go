@@ -50,7 +50,7 @@ func (d *CMJDesk) initEnterTimer() {
 			d.RobotEnterTimer.Stop()
 		}
 		//停止之后，再来重新计时进入机器人
-		d.RobotEnterTimer = d.AfterFunc(timeUtils.RandDuration(5, 10), func() {
+		d.RobotEnterTimer = d.AfterFunc(timeUtils.RandDuration(2, 7), func() {
 			log.T("%v现在开始添加机器人.", d.DlogDes())
 			d.enterRobot() //进入一个
 		})

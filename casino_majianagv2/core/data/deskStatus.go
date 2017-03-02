@@ -9,7 +9,7 @@ type MjDeskStatus struct {
 }
 
 func (s *MjDeskStatus) IsNotGaming() bool {
-	return !s.IsNotGaming()
+	return !s.IsGaming()
 }
 
 func (s *MjDeskStatus) IsNotPreparing() bool {

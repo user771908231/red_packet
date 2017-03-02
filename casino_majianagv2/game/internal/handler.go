@@ -202,8 +202,8 @@ func handlerGame_Ready(args []interface{}) {
 		// 准备失败
 		log.E("用户[%v]准备失败.因为没有找到对应的desk", userId)
 		result := newProto.NewGame_AckReady()
-		*result.Header.Code = consts.ACK_RESULT_ERROR
-		*result.Header.Error = "准备失败"
+		*result.Header.Code = consts.ACK_RESULT_SUCC
+		*result.Header.Error = ""
 		result.UserId = proto.Uint32(userId)
 		a.WriteMsg(result)
 		return
@@ -214,8 +214,8 @@ func handlerGame_Ready(args []interface{}) {
 	if err != nil {
 		log.E("用户[%v]准备失败.err %v", userId, err)
 		result := newProto.NewGame_AckReady()
-		*result.Header.Code = consts.ACK_RESULT_ERROR
-		*result.Header.Error = Error.GetErrorMsg(err)
+		*result.Header.Code = consts.ACK_RESULT_SUCC
+		*result.Header.Error = ""
 		result.UserId = proto.Uint32(userId)
 		a.WriteMsg(result)
 		return

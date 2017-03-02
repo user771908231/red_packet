@@ -6,6 +6,7 @@ func (d *SkeletonMJDesk) ActOut(userId uint32, cardId int32, auto bool) error {
 	return nil
 }
 
+
 //得到下一个摸牌的人...
 func (d *SkeletonMJDesk) GetNextMoPaiUser() api.MjUser {
 

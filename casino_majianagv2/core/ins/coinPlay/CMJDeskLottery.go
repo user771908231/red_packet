@@ -9,6 +9,34 @@ import (
 	"github.com/golang/protobuf/proto"
 )
 
+//成都麻将的 结算方式
+func (d *CMJDesk) LotteryChengDu() error {
+	//结账需要分两中情况
+	/**
+		1，只剩一个玩家没有胡牌的时候
+		2，没有生育麻将的时候.需要分别做处理...
+	 */
+
+	//判断是否可以胡牌
+	log.T("现在开始处理lottery()的逻辑....")
+
+	//查花猪
+	d.ChaHuaZhu()
+
+	//查大叫
+	d.ChaDaJiao()
+
+	//1，处理开奖的数据,
+	d.DoLottery()
+
+	//发送结束的广播
+	d.SendLotteryData()
+
+	//开奖之后 desk需要处理
+	d.AfterLottery()
+	return nil
+}
+
 func (d *CMJDesk) AfterLottery() error {
 	//开奖完成之后的一些处理
 	if d.OverTurnTimer != nil {
