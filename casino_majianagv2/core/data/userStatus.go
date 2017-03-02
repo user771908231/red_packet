@@ -23,11 +23,7 @@ func (s *MjUserStatus) IsReady() bool {
 
 //是否游戏中
 func (s *MjUserStatus) IsGaming() bool {
-	if s.Status == majiang.MJDESK_STATUS_RUNNING {
-		return true
-	} else {
-		return false
-	}
+	return s.Status == majiang.MJDESK_STATUS_RUNNING
 }
 
 //用户是否胡牌

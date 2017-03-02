@@ -343,7 +343,7 @@ func handlerGame_ActGuo(args []interface{}) {
 	}
 }
 
-//胡牌 todo
+//胡牌
 func handlerGame_ActHu(args []interface{}) {
 	m := args[0].(*mjproto.Game_ActHu)
 	userId := m.GetUserId()

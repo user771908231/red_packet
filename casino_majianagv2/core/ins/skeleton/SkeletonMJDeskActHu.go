@@ -101,6 +101,7 @@ func (d *SkeletonMJDesk) ActHu(userId uint32) error {
 	hu.PaiType = majiang.PaiTypeEnum2IntArry(paiType)
 	*hu.Score = score //只是胡牌的分数，不是赢了多少钱
 	hu.Pai = huPai
+	
 	huUser.GetGameData().AddHuPaiInfo(hu) //胡牌之后，设置用户的数据
 	huUser.GetStatus().SetStatus(majiang.MJUSER_STATUS_HUPAI)
 
