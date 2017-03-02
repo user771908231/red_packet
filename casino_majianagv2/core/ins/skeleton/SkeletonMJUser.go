@@ -62,6 +62,8 @@ func NewSkeletonMJUser(desk api.MjDesk, userId uint32, a gate.Agent) *SkeletonMJ
 		GameData: &data.MJUserGameData{
 			PlayerGameData: majiang.NewPlayerGameData(),
 		},
+		Statisc: majiang.NewMjUserStatisc(),
+		Log:     &countService.T_game_log{},
 	}
 }
 
@@ -122,8 +124,41 @@ func (u *SkeletonMJUser) AfterGangEqualJiaoPai(beforJiaoPais []*majiang.MJPai, g
 }
 
 //初始化方法
-func (u *SkeletonMJUser) BeginInit(CurrPlayCount int32, banker uint32) {
+func (u *SkeletonMJUser) BeginInit(round int32, banker uint32) error {
+	//1,游戏开始时候的初始化...
+	u.GameData = &data.MJUserGameData{
+		PlayerGameData: majiang.NewPlayerGameData(),
+	} //初始化一个空的麻将牌
+	u.GetStatus().DingQue = false
+	u.GetStatus().Exchange = false
+	if u.GetUserId() == banker {
+		u.GetStatus().IsBanker = true
+	} else {
+		u.GetStatus().IsBanker = false
+	}
+	//杠牌信息
+	u.GetGameData().DelPreMoGangInfo()
+	//初始化账单
+	u.Bill = majiang.NewBill()
+	//2,初始化统计bean
+	statisticsRoundBean := majiang.NewStatiscRound()
+	*statisticsRoundBean.Round = round
+	u.Statisc.RoundBean = append(u.Statisc.RoundBean, statisticsRoundBean)
+	u.ActTimeoutCount = 0 //初始化超时的次数
+	u.initTaskLog()
 
+	return nil
+}
+
+func (u *SkeletonMJUser) initTaskLog() {
+	u.Log.UserId = u.GetUserId()
+	u.Log.Bill = 0
+	u.Log.GameId = ddproto.CommonEnumGame_GID_MAHJONG
+	u.Log.GameNumber = u.GetDesk().GetMJConfig().GameNumber
+	u.Log.RoomType = ddproto.COMMON_ENUM_ROOMTYPE(u.GetDesk().GetMJConfig().RoomType)
+	u.Log.RoomLevel = u.GetDesk().GetMJConfig().RoomLevel
+	u.Log.StartTime = time.Now().Unix()
+	u.Log.IsWine = false
 }
 
 //发送overTrun
@@ -533,4 +568,85 @@ func (u *SkeletonMJUser) UpdateSession(gameStatus int32) error {
 		}
 	}
 	return nil
+}
+
+//得到判定bean
+func (u *SkeletonMJUser) GetCheckBean(p *majiang.MJPai, remainPaiCoun int32) *majiang.CheckBean {
+	bean := majiang.NewCheckBean()
+
+	*bean.CheckStatus = majiang.CHECK_CASE_BEAN_STATUS_CHECKING
+	*bean.UserId = u.GetUserId()
+	bean.CheckPai = p
+	var fan int32 = 0
+
+	//是否可以胡牌
+	if u.IsCanInitCheckCaseHu() {
+		*bean.CanHu, fan, _, _, _, _ = u.GetDesk().GetHuParser().GetCanHu(u.GameData.HandPai, p, false, 0)
+	}
+	//是否可以杠
+	if u.IsCanInitCheckCaseGang() {
+		*bean.CanGang, _ = u.GameData.HandPai.GetCanGang(p, remainPaiCoun)
+	}
+	//是否可以碰
+	if u.IsCanInitCheckCasePeng() {
+		*bean.CanPeng = u.GameData.HandPai.GetCanPeng(p)
+	}
+
+	log.T("得到用户[%v]对牌[%v]的check , bean[%v]", u.GetUserId(), p.LogDes(), bean)
+	//判断过胡.如果有过胡，那么就不能再胡了
+	/**
+		过胡要分两种：
+		成都麻将：只有要过胡，那就不能胡
+		长沙麻将：如果是自己的，那不胡，如果是别人点了，翻数<= 过户的时候，不能胡，翻数> 过户的时候可以胡
+	 */
+	if u.HadGuoHuInfo(fan) {
+		*bean.CanHu = false
+	}
+
+	if bean.GetCanGang() || bean.GetCanHu() || bean.GetCanPeng() || bean.GetCanChi() {
+		return bean
+	} else {
+		return nil
+	}
+}
+
+//判断用户是否可以杠
+func (u *SkeletonMJUser) IsCanInitCheckCaseGang() bool {
+	//这里需要判断是否是 血流成河，目前暂时不判断...
+
+	//1,普通规则
+	if u.GetStatus().IsNotHu() {
+		return true
+	}
+
+	//2,血流成河
+	if u.GetStatus().IsHu() && u.GetDesk().GetMJConfig().XueLiuChengHe {
+		return true
+	}
+
+	//其他情况返回false
+	return false
+}
+
+func (u *SkeletonMJUser) IsCanInitCheckCasePeng() bool {
+	//1,普通规则
+	if u.GetStatus().IsNotHu() {
+		return true
+	} else {
+		return false;
+	}
+}
+
+//判断用户是否可以杠
+func (u *SkeletonMJUser) IsCanInitCheckCaseHu() bool {
+	return u.IsCanInitCheckCaseGang()
+}
+
+//是否已经有过胡了
+func (u *SkeletonMJUser) HadGuoHuInfo(fan int32) bool {
+	//通用的过胡判断
+	if u.GameData.GuoHuInfo == nil || len(u.GameData.GuoHuInfo) <= 0 {
+		return false
+	}
+	return true
 }
