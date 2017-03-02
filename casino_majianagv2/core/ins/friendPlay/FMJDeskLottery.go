@@ -39,8 +39,6 @@ func (d *FMJDesk) LotteryChengDu() error {
 	return nil
 }
 
-
-
 func (d *FMJDesk) AfterLottery() error {
 	//开奖完成之后的一些处理
 	if d.OverTurnTimer != nil {

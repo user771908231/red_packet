@@ -127,7 +127,7 @@ func (d *CMJDesk) ForceOutReadyTimeOutUser(userId uint32) {
 			//发送强制离开的广播
 			ack := new(ddproto.CommonBcKickout)
 			ack.UserId = proto.Uint32(readyUser.GetUserId())
-			ack.Type = ddproto.COMMON_ENUM_KICKOUT_K_TIMEOUT.Enum()
+			ack.Type = ddproto.COMMON_ENUM_KICKOUT_K_TIMEOUT_NOTREADY_ENTERDESK.Enum()
 			ack.Msg = proto.String("准备超时,退出房间")
 			readyUser.WriteMsg(ack)
 		}

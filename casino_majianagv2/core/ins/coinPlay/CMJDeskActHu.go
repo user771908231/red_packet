@@ -1,6 +1,6 @@
-package friendPlay
+package coinPlay
 
-func (d *FMJDesk) ActHu(userId uint32) error {
+func (d *CMJDesk) ActHu(userId uint32) error {
 	d.SkeletonMJDesk.ActHu(userId)
 	//胡牌之后，需要判断游戏是否结束...
 	if d.Time2Lottery() {

@@ -38,4 +38,5 @@ type SkeletonMJConfig struct {
 	PlayerCountLimit int32 //玩家的人数
 	BeginTime        string
 	CoinLimit        int64 //金币限制
+	CanChi           bool  //有些麻将可以吃，有些不可以吃(已知的长沙麻将可以吃牌)
 }

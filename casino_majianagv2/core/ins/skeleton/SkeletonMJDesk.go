@@ -187,20 +187,8 @@ func (d *SkeletonMJDesk) GetDingQueEndInfo() *mjproto.Game_DingQueEnd {
 	return end
 }
 
-func (d *SkeletonMJDesk) InitCheckCase(p *majiang.MJPai, outUser api.MjUser) error {
-	return nil
-}
-
 //处理下一个checkCase
 func (d *SkeletonMJDesk) DoCheckCase() error {
-	return nil
-}
-
-func (d *SkeletonMJDesk) ActGang(userId uint32, c int32, bu bool) error {
-	return nil
-}
-
-func (d *SkeletonMJDesk) ActHu(userId uint32) error {
 	return nil
 }
 
