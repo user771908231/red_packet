@@ -125,8 +125,6 @@ func (d *SkeletonMJDesk) ActHu(userId uint32) error {
 
 	//发送胡牌成功的回复
 	d.SendAckActHu(hu)
-
-
 	return nil
 }
 
