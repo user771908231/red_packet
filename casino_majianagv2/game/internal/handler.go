@@ -58,25 +58,28 @@ func handlerCreateDesk(args []interface{}) {
 		return
 	}
 
-	var playerCountLimit int32 = 4 //人数
-	var FangCountLimit int32 = 3   //麻将房数
+	var UserCountLimit int32 = 4 //人数
+	var FangCountLimit int32 = 3 //麻将房数
 
-	//if d.IsSanRenLiangFang() {
-	//	*d.UserCountLimit = 3
-	//	*d.FangCountLimit = 2
-	//} else if d.IsSiRenLiangFang() {
-	//	*d.UserCountLimit = 4
-	//	*d.FangCountLimit = 2
-	//} else if d.IsLiangRenLiangFang() {
-	//	*d.UserCountLimit = 2
-	//	*d.FangCountLimit = 2
-	//} else if d.IsSanRenSanFang() {
-	//	*d.UserCountLimit = 3
-	//	*d.FangCountLimit = 3
-	//} else {
-	//	*d.UserCountLimit = 4
-	//	*d.FangCountLimit = 3
-	//}
+	if m.GetRoomTypeInfo().GetMjRoomType() == mjproto.MJRoomType_roomType_sanRenLiangFang {
+		UserCountLimit = 3
+		FangCountLimit = 2
+	}
+
+	if m.GetRoomTypeInfo().GetMjRoomType() == mjproto.MJRoomType_roomType_siRenLiangFang {
+		UserCountLimit = 4
+		FangCountLimit = 2
+	}
+
+	if m.GetRoomTypeInfo().GetMjRoomType() == mjproto.MJRoomType_roomType_liangRenLiangFang {
+		UserCountLimit = 2
+		FangCountLimit = 2
+	}
+
+	if m.GetRoomTypeInfo().GetMjRoomType() == mjproto.MJRoomType_roomType_sanRenSanFang {
+		UserCountLimit = 3
+		FangCountLimit = 3
+	}
 
 	config := &data.SkeletonMJConfig{
 		Owner:            m.GetHeader().GetUserId(),
@@ -103,8 +106,9 @@ func handlerCreateDesk(args []interface{}) {
 		ActType:          0,
 		NInitActionTime:  30,
 		RoomLevel:        0,
-		PlayerCountLimit: playerCountLimit,
+		PlayerCountLimit: UserCountLimit,
 		FangCount:        FangCountLimit,
+		XueLiuChengHe:    m.GetRoomTypeInfo().GetMjRoomType() == mjproto.MJRoomType_roomType_xueLiuChengHe, //是否是血流成河
 	}
 
 	desk, err := room.CreateDesk(config)

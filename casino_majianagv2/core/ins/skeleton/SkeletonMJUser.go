@@ -569,7 +569,7 @@ func (u *SkeletonMJUser) UpdateSession(gameStatus int32) error {
 }
 
 //得到判定bean
-func (u *SkeletonMJUser) GetCheckBean(p *majiang.MJPai, xueliuchenghe bool, remainPaiCoun int32) *majiang.CheckBean {
+func (u *SkeletonMJUser) GetCheckBean(p *majiang.MJPai, remainPaiCoun int32) *majiang.CheckBean {
 	bean := majiang.NewCheckBean()
 
 	*bean.CheckStatus = majiang.CHECK_CASE_BEAN_STATUS_CHECKING
@@ -578,11 +578,11 @@ func (u *SkeletonMJUser) GetCheckBean(p *majiang.MJPai, xueliuchenghe bool, rema
 	var fan int32 = 0
 
 	//是否可以胡牌
-	if u.IsCanInitCheckCaseHu(xueliuchenghe) {
+	if u.IsCanInitCheckCaseHu() {
 		*bean.CanHu, fan, _, _, _, _ = u.GetDesk().GetHuParser().GetCanHu(u.GameData.HandPai, p, false, 0)
 	}
 	//是否可以杠
-	if u.IsCanInitCheckCaseGang(xueliuchenghe) {
+	if u.IsCanInitCheckCaseGang() {
 		*bean.CanGang, _ = u.GameData.HandPai.GetCanGang(p, remainPaiCoun)
 	}
 	//是否可以碰
@@ -609,7 +609,7 @@ func (u *SkeletonMJUser) GetCheckBean(p *majiang.MJPai, xueliuchenghe bool, rema
 }
 
 //判断用户是否可以杠
-func (u *SkeletonMJUser) IsCanInitCheckCaseGang(xueliuchenghe bool) bool {
+func (u *SkeletonMJUser) IsCanInitCheckCaseGang() bool {
 	//这里需要判断是否是 血流成河，目前暂时不判断...
 
 	//1,普通规则
@@ -618,7 +618,7 @@ func (u *SkeletonMJUser) IsCanInitCheckCaseGang(xueliuchenghe bool) bool {
 	}
 
 	//2,血流成河
-	if u.GetStatus().IsHu() && xueliuchenghe {
+	if u.GetStatus().IsHu() && u.GetDesk().GetMJConfig().XueLiuChengHe {
 		return true
 	}
 
@@ -636,8 +636,8 @@ func (u *SkeletonMJUser) IsCanInitCheckCasePeng() bool {
 }
 
 //判断用户是否可以杠
-func (u *SkeletonMJUser) IsCanInitCheckCaseHu(xueliuchenghe bool) bool {
-	return u.IsCanInitCheckCaseGang(xueliuchenghe)
+func (u *SkeletonMJUser) IsCanInitCheckCaseHu() bool {
+	return u.IsCanInitCheckCaseGang()
 }
 
 //是否已经有过胡了

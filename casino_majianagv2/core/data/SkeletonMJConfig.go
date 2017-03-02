@@ -39,4 +39,5 @@ type SkeletonMJConfig struct {
 	BeginTime        string
 	CoinLimit        int64 //金币限制
 	CanChi           bool  //有些麻将可以吃，有些不可以吃(已知的长沙麻将可以吃牌)
+	XueLiuChengHe    bool  // 血流成河
 }

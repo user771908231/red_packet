@@ -37,7 +37,6 @@ func (d *SkeletonMJDesk) GetNextMoPaiUser() api.MjUser {
 
 	for i := activeIndex + 1; i < activeIndex+int(d.GetUserCount()); i++ {
 		user := d.GetUsers()[i%int(d.GetUserCount())]
-		//log.T("查询下一个玩家...当前的activeUser[%v],activeIndex[%v],循环检测index[%v],user.IsNotHu(%v),user.CanMoPai[%v]", d.GetActiveUser(), activeIndex, i, user.IsNotHu(), user.CanMoPai(d.IsXueLiuChengHe()))
 		if user != nil && user.GetStatus().CanMoPai(d.IsXueLiuChengHe()) {
 			activeUser = user
 			break
@@ -65,7 +64,7 @@ func (d *SkeletonMJDesk) InitCheckCase(p *majiang.MJPai, outUser api.MjUser) err
 		if checkUser != nil && checkUser.GetUserId() != outUser.GetUserId() {
 			log.T("用户[%v]打牌，判断user[%v]是否可以碰杠胡.手牌[%v]", outUser.GetUserId(), checkUser.GetUserId(), checkUser.GameData.HandPai.GetDes())
 			//添加checkBean
-			bean := checkUser.GetCheckBean(p, d.IsXueLiuChengHe(), d.GetRemainPaiCount())
+			bean := checkUser.GetCheckBean(p, d.GetRemainPaiCount())
 			if bean != nil {
 				checkCase.CheckB = append(checkCase.CheckB, bean)
 			}

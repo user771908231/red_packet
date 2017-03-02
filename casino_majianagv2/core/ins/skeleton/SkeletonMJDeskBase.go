@@ -255,7 +255,7 @@ func (d *SkeletonMJDesk) SetActUserAndType(userId uint32, actType int32) error {
 
 //判断是否是血流成河
 func (d *SkeletonMJDesk) IsXueLiuChengHe() bool {
-	return d.GetMJConfig().MjRoomType == int32(mjproto.MJRoomType_roomType_xueLiuChengHe)
+	return d.GetMJConfig().XueLiuChengHe
 }
 
 //返回desk 骨架

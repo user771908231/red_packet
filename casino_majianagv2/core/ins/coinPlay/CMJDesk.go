@@ -17,7 +17,7 @@ import (
 
 //朋友桌麻将的desk
 type CMJDesk struct {
-	*skeleton.SkeletonMJDesk
+	*skeleton.SkeletonChengDuMJDesk
 	RobotEnterTimer *timer.Timer
 	CoinLimit       int64 //金币场的金币最低限制
 }
@@ -27,7 +27,7 @@ func NewCMJDesk(config *data.SkeletonMJConfig, s *module.Skeleton) api.MjDesk {
 	//判断创建条件：房卡，
 	//desk 骨架
 	desk := &CMJDesk{
-		SkeletonMJDesk: skeleton.NewSkeletonMJDesk(config, s),
+		SkeletonChengDuMJDesk: skeleton.NewSkeletonChengDuMJDesk(config, s),
 	}
 	desk.HuParser = huParserIns.NewChengDuHuParser(
 		desk.GetMJConfig().BaseValue,
