@@ -62,6 +62,8 @@ func NewSkeletonMJUser(desk api.MjDesk, userId uint32, a gate.Agent) *SkeletonMJ
 		GameData: &data.MJUserGameData{
 			PlayerGameData: majiang.NewPlayerGameData(),
 		},
+		Statisc: majiang.NewMjUserStatisc(),
+		Log:     &countService.T_game_log{},
 	}
 }
 
