@@ -47,7 +47,7 @@ func SalesToUserHandler(ctx *modules.Context, form SalesForm, errs binding.Error
 		ctx.Ajax(-2, "为该用户添加房卡失败！请重新登录！",nil)
 		return
 	}
-	agent_id := agentModel.GetUserIdByOpenId(wx_info.OpenId)
+	agent_id := agentModel.GetUserIdByUnionId(wx_info.UnionId)
 	if agent_id == 0 {
 		ctx.Ajax(-3, "为该用户添加房卡失败！请重新登录！",nil)
 		return
@@ -88,7 +88,7 @@ func SalesLogHandler(ctx *modules.Context) {
 		page = 1
 	}
 	agent := ctx.IsWxLogin()
-	agent_id := agentModel.GetUserIdByOpenId(agent.OpenId)
+	agent_id := agentModel.GetUserIdByUnionId(agent.UnionId)
 	list := []agentModel.SalesLog{}
 	query := bson.M{
 		"$and": []bson.M{
