@@ -531,6 +531,7 @@ func (user *SkeletonMJUser) ReEnterDesk(a gate.Agent) error {
 }
 
 func (u *SkeletonMJUser) UpdateAgent(a gate.Agent) error {
+	log.T("玩家[%v]断线重连，进入房间UpdateAgent(a)", u.GetUserId())
 	oldAgent := u.a
 	if oldAgent != nil {
 		//需要做处理

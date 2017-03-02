@@ -187,6 +187,7 @@ func handlerGame_EnterRoom(args []interface{}) {
 }
 
 func handlerDissolveDesk(args []interface{}) {
+
 	desk := roomMgr.GetDesk()
 	err := desk.Leave(0)
 	if err != nil {
