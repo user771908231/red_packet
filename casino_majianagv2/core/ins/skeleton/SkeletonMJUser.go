@@ -122,8 +122,41 @@ func (u *SkeletonMJUser) AfterGangEqualJiaoPai(beforJiaoPais []*majiang.MJPai, g
 }
 
 //初始化方法
-func (u *SkeletonMJUser) BeginInit(CurrPlayCount int32, banker uint32) {
+func (u *SkeletonMJUser) BeginInit(round int32, banker uint32) error {
+	//1,游戏开始时候的初始化...
+	u.GameData = &data.MJUserGameData{
+		PlayerGameData: majiang.NewPlayerGameData(),
+	} //初始化一个空的麻将牌
+	u.GetStatus().DingQue = false
+	u.GetStatus().Exchange = false
+	if u.GetUserId() == banker {
+		u.GetStatus().IsBanker = true
+	} else {
+		u.GetStatus().IsBanker = false
+	}
+	//杠牌信息
+	u.GetGameData().DelPreMoGangInfo()
+	//初始化账单
+	u.Bill = majiang.NewBill()
+	//2,初始化统计bean
+	statisticsRoundBean := majiang.NewStatiscRound()
+	*statisticsRoundBean.Round = round
+	u.Statisc.RoundBean = append(u.Statisc.RoundBean, statisticsRoundBean)
+	u.ActTimeoutCount = 0 //初始化超时的次数
+	u.initTaskLog()
 
+	return nil
+}
+
+func (u *SkeletonMJUser) initTaskLog() {
+	u.Log.UserId = u.GetUserId()
+	u.Log.Bill = 0
+	u.Log.GameId = ddproto.CommonEnumGame_GID_MAHJONG
+	u.Log.GameNumber = u.GetDesk().GetMJConfig().GameNumber
+	u.Log.RoomType = ddproto.COMMON_ENUM_ROOMTYPE(u.GetDesk().GetMJConfig().RoomType)
+	u.Log.RoomLevel = u.GetDesk().GetMJConfig().RoomLevel
+	u.Log.StartTime = time.Now().Unix()
+	u.Log.IsWine = false
 }
 
 //发送overTrun
