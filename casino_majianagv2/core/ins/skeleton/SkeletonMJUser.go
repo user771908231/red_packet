@@ -499,7 +499,7 @@ func (u *SkeletonMJUser) UpdateAgent(a gate.Agent) error {
 	oldAgent := u.a
 	if oldAgent != nil {
 		//需要做处理
-		log.T("短线重连，强制断开玩家[%v]老的链接", u.GetUserId())
+		log.T("断线重连，强制断开玩家[%v]老的链接", u.GetUserId())
 		oldAgent.SetUserData(nil) //清空清空会话状态
 		//oldAgent.Close()
 	}

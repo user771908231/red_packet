@@ -40,6 +40,10 @@ func init() {
 	handler(&ddproto.CommonReqApplyDissolveBack{}, handlerApplyDissolveBack)  //申请解散房间
 	handler(&ddproto.CommonReqEnterAgentMode{}, handlerEnterAgentMode)        //申请进入托管
 	handler(&ddproto.CommonReqQuitAgentMode{}, handlerQuitAgentMode)          //申请退出托管
+	handler(&mjproto.Game_ActChi{}, handlerActChi)                            //吃牌
+	handler(&mjproto.Game_ActChangShaQiShouHu{}, handlerQiShouHu)             //长沙麻将起手胡牌
+	handler(&mjproto.Game_ReqDealHaiDiCards{}, handlerNeedHaidi)              //询问是否需要海底牌
+
 }
 
 //创建一个房间,请求创建房间必定是朋友桌的请求，金币场没有创建房间
@@ -482,4 +486,31 @@ func handlerEnterAgentMode(args []interface{}) {
 //拖出托管模式
 func handlerQuitAgentMode(args []interface{}) {
 
+}
+
+//吃
+func handlerActChi(args []interface{}) {
+}
+
+//长沙麻将起手胡牌
+func handlerQiShouHu(args []interface{}) {
+}
+
+func handlerNeedHaidi(args []interface{}) {
+	m := args[0].(*mjproto.Game_ReqDealHaiDiCards)
+	//a := args[1].(gate.Agent)
+
+	userId := m.GetUserId()
+	need := m.GetNeed()
+
+	desk := roomMgr.GetMjDeskBySession(userId)
+	if desk == nil {
+		log.E("玩家%v need:%v 海底牌的时候出错...没有找到desk", userId, need)
+		//这里是否需要返回错误信息
+	}
+
+	err := desk.NeedHaidi(userId, need) //普通玩家开始起手胡牌
+	if err != nil {
+		log.E("服务器错误，胡牌失败..err[%v]", err)
+	}
 }
