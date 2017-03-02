@@ -1,0 +1,69 @@
+[
+  {
+    "RoomId": 1,
+    "RoomType":2,
+    "RoomLevel":1,
+    "RoomTitle":"平民场",
+    "BaseValue":100,
+    "MaxValue":2000,
+    "XuepinBaseValue":5000,
+    "MinCoin": 1000,
+    "DaShangChip": 150
+  },
+  {
+    "RoomId": 2,
+    "RoomType":2,
+    "RoomLevel":2,
+    "RoomTitle":"小资场",
+    "BaseValue":1000,
+    "MaxValue":20000,
+    "XuepinBaseValue":50000,
+    "MinCoin": 10000,
+    "DaShangChip": 1500
+  },
+  {
+    "RoomId": 3,
+    "RoomType":2,
+    "RoomLevel":3,
+    "RoomTitle":"老板场",
+    "BaseValue":10000,
+    "MaxValue":200000,
+    "XuepinBaseValue":500000,
+    "MinCoin": 100000,
+    "DaShangChip": 15000
+  },
+  {
+    "RoomId": 4,
+    "RoomType":2,
+    "RoomLevel":4,
+    "RoomTitle":"土豪场",
+    "BaseValue":30000,
+    "MaxValue":500000,
+    "XuepinBaseValue":2000000,
+    "MinCoin": 400000,
+    "DaShangChip": 30000
+  },
+  {
+    "RoomId": 5,
+    "RoomType":2,
+    "RoomLevel":5,
+    "RoomTitle":"贵族场",
+    "BaseValue":100000,
+    "MaxValue":2000000,
+    "XuepinBaseValue":5000000,
+    "MinCoin": 1000000,
+    "DaShangChip": 50000
+  },
+  {
+    "RoomId": 6,
+    "RoomType":2,
+    "RoomLevel":6,
+    "RoomTitle":"皇家场",
+    "BaseValue":300000,
+    "MaxValue":5000000,
+    "XuepinBaseValue":20000000,
+    "MinCoin": 4000000,
+    "DaShangChip": 150000
+  }
+]
+
