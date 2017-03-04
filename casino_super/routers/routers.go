@@ -43,6 +43,12 @@ func Regist(m *macaron.Macaron) {
 				m.Post("/update", binding.BindIgnErr(manage.UserUpdateForm{}), manage.UpdateUserHandler)
 				m.Post("/recharge", binding.BindIgnErr(manage.RechargeForm{}),manage.RechargeHandler)
 			})
+			//红包兑换相关
+			m.Group("/exchange", func() {
+				m.Get("/", manage.ExchangeListHandler)
+				m.Get("/list", manage.ExchangeListHandler)
+				m.Get("/switch", manage.ExchangeSwitchState)
+			})
 		}, admin.NeedLogin)
 	}, admin.ShowPanel)
 
