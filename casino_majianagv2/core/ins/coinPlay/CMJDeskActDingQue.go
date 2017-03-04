@@ -16,5 +16,6 @@ func (d *CMJDesk) DingQue(userId uint32, color int32) error {
 		log.E("% 玩家 %v 定缺的时候出错:%v", d.DlogDes(), userId, err)
 		return err
 	}
+	
 	return nil
 }

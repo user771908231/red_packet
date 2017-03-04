@@ -17,7 +17,7 @@ import (
 
 //朋友桌麻将的desk
 type CMJDesk struct {
-	*skeleton.SkeletonMJDesk
+	*skeleton.SkeletonChengDuMJDesk
 	RobotEnterTimer *timer.Timer
 	CoinLimit       int64 //金币场的金币最低限制
 }
@@ -27,7 +27,7 @@ func NewCMJDesk(config *data.SkeletonMJConfig, s *module.Skeleton) api.MjDesk {
 	//判断创建条件：房卡，
 	//desk 骨架
 	desk := &CMJDesk{
-		SkeletonMJDesk: skeleton.NewSkeletonMJDesk(config, s),
+		SkeletonChengDuMJDesk: skeleton.NewSkeletonChengDuMJDesk(config, s),
 	}
 	desk.HuParser = huParserIns.NewChengDuHuParser(
 		desk.GetMJConfig().BaseValue,
@@ -50,7 +50,7 @@ func (d *CMJDesk) initEnterTimer() {
 			d.RobotEnterTimer.Stop()
 		}
 		//停止之后，再来重新计时进入机器人
-		d.RobotEnterTimer = d.AfterFunc(timeUtils.RandDuration(5, 10), func() {
+		d.RobotEnterTimer = d.AfterFunc(timeUtils.RandDuration(2, 7), func() {
 			log.T("%v现在开始添加机器人.", d.DlogDes())
 			d.enterRobot() //进入一个
 		})

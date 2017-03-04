@@ -241,7 +241,7 @@ func (d *SkeletonMJDesk) GetRemainPaiCount() int32 {
 func (d *SkeletonMJDesk) UpdateUserStatus(status int32) {
 	for _, user := range d.GetUsers() {
 		if user != nil {
-			user.GetStatus().SetStatus(status)
+			user.GetStatus().SetStatus(status) //desk 统一设置...
 		}
 	}
 }
@@ -255,7 +255,7 @@ func (d *SkeletonMJDesk) SetActUserAndType(userId uint32, actType int32) error {
 
 //判断是否是血流成河
 func (d *SkeletonMJDesk) IsXueLiuChengHe() bool {
-	return d.GetMJConfig().MjRoomType == int32(mjproto.MJRoomType_roomType_xueLiuChengHe)
+	return d.GetMJConfig().XueLiuChengHe
 }
 
 //返回desk 骨架
@@ -309,7 +309,7 @@ func (d *SkeletonMJDesk) GetUserIds() string {
 //是不是全部都定缺了
 func (d *SkeletonMJDesk) AllDingQue() bool {
 	for _, user := range d.GetUsers() {
-		if user != nil && user.GetStatus().DingQue {
+		if user != nil && !user.GetStatus().DingQue {
 			log.T("%v用户[%v]还没有缺牌，等待定缺之后庄家开始打牌...", d.DlogDes(), user.GetUserId())
 			return false
 		}

@@ -12,7 +12,7 @@ type MjUser interface {
 	GetGameData() *data.MJUserGameData
 	GetSkeletonUser() interface{} //返回骨架User
 	ActReady()
-	BeginInit(CurrPlayCount int32, banker uint32)
+	BeginInit(CurrPlayCount int32, banker uint32) error
 	GetUserId() uint32 //
 	GetAgent() gate.Agent
 	WriteMsg(p proto.Message) error

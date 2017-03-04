@@ -13,7 +13,7 @@ func (d *ChangShaFMJDesk) SendGameInfo(userId uint32, reconnect mjproto.RECONNEC
 	gameinfo := d.GetGame_SendGameInfo(userId, reconnect)
 	gameinfo.GetDeskGameInfo().GetRoomTypeInfo().ChangShaPlayOptions = d.ChangShaPlayOptions //长沙麻将的配置
 	d.BroadCastProto(gameinfo)
-	
+
 	//如果是重新进入房间，需要发送重近之后的处理
 	if reconnect == mjproto.RECONNECT_TYPE_RECONNECT {
 		time.Sleep(time.Second * 3)

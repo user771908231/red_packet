@@ -119,10 +119,6 @@ func (d *SkeletonMJDesk) GetDealCards(user api.MjUser) *mjproto.Game_DealCards {
 			if u.GetUserId() == user.GetUserId() {
 				//表示是自己，可以看到手牌
 				pc := u.GetPlayerCard(true)
-				if d.GetMJConfig().Banker == u.GetUserId() {
-					pc.HandCard = append(pc.HandCard, u.GameData.HandPai.InPai.GetCardInfo())
-				}
-
 				dealCards.PlayerCard = append(dealCards.PlayerCard, pc)
 			} else {
 				pc := u.GetPlayerCard(false) //表示不是自己，不能看到手牌
@@ -132,9 +128,7 @@ func (d *SkeletonMJDesk) GetDealCards(user api.MjUser) *mjproto.Game_DealCards {
 				}
 				dealCards.PlayerCard = append(dealCards.PlayerCard, pc)
 			}
-
 		}
-
 	}
 	return dealCards
 }

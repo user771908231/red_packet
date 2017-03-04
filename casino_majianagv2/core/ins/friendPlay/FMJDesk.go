@@ -10,14 +10,14 @@ import (
 
 //朋友桌麻将的desk
 type FMJDesk struct {
-	*skeleton.SkeletonMJDesk
+	*skeleton.SkeletonChengDuMJDesk
 }
 
 //创建一个朋友桌的desk
 func NewFMJDesk(config *data.SkeletonMJConfig, s *module.Skeleton) api.MjDesk {
 	//desk 骨架
 	desk := &FMJDesk{
-		SkeletonMJDesk: skeleton.NewSkeletonMJDesk(config, s),
+		SkeletonChengDuMJDesk: skeleton.NewSkeletonChengDuMJDesk(config, s),
 	}
 
 	//胡牌的解析器
