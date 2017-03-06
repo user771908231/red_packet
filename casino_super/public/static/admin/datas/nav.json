@@ -16,14 +16,30 @@
 				}
 			]
 		},{
-			"title": "系统设置",
+			"title": "兑换审核",
 			"icon": "fa-sliders",
 			"spread": true,
 			"children": [
 				{
-					"title": "设置",
+					"title": "审核中",
 					"icon": "fa-slider",
-					"href": "button.html"
+					"href": "/admin/manage/exchange/list?status=1&page=1"
+				},{
+					"title": "已通过",
+					"icon": "fa-slider",
+					"href": "/admin/manage/exchange/list?status=2&page=1"
+				},{
+					"title": "已拒绝",
+					"icon": "fa-slider",
+					"href": "/admin/manage/exchange/list?status=3&page=1"
+				},{
+					"title": "发放中",
+					"icon": "fa-slider",
+					"href": "/admin/manage/exchange/list?status=4&page=1"
+				},{
+					"title": "已发放",
+					"icon": "fa-slider",
+					"href": "/admin/manage/exchange/list?status=5&page=1"
 				}
 			]
 		}

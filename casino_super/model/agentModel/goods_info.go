@@ -8,12 +8,12 @@ import (
 
 //商品
 type Goods struct {
-	Id   int32     //商品编号
+	GoodsId   int32     //商品编号
 	Name string    //商品名
 	Description string //详细描述
 	Type GoodsType //商品类型
 	Num  int64     //商品数量
-	Price float32    //价格 RMB
+	Price float64    //价格 RMB
 	GiveNum int64     //赠送的数量
 }
 
@@ -30,7 +30,7 @@ const (
 func GetGoodsInfoById(goods_id int32) *Goods {
 	goods := new(Goods)
 	err := db.C(tableName.DBT_AGENT_GOODS).Find(bson.M{
-		"id": goods_id,
+		"goodsid": goods_id,
 	},goods)
 	if err != nil {
 		return nil

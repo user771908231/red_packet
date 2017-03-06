@@ -5,6 +5,7 @@ import (
 	"testing"
 	"github.com/name5566/leaf/timer"
 	"sync"
+	"fmt"
 )
 
 func TestTimer(t *testing.T) {
@@ -22,15 +23,28 @@ func TestTimer(t *testing.T) {
 
 //模拟Cron定时任务
 func TestCronTab(t *testing.T) {
-	//cuur_second := -1
-	new_timer := timer.NewDispatcher(10)
-	new_cronExpr,_ := timer.NewCronExpr("* * * * * *")
-	var new_cron *timer.Cron
-	new_cron = new_timer.CronFunc(new_cronExpr, func() {
-		t.Log("123")
-		new_cron.Stop()
-	})
-	(<-new_timer.ChanTimer).Cb()
+	go func() {
+		d := timer.NewDispatcher(10)
+
+		// cron expr
+		cronExpr, err := timer.NewCronExpr("0 0 0 * * *")
+		if err != nil {
+			return
+		}
+
+		d.CronFunc(cronExpr, func() {
+			fmt.Println("My name is Leaf")
+		})
+
+		// dispatch
+		for {
+			fmt.Println(cronExpr.Next(time.Now()))
+			(<-d.ChanTimer).Cb()
+		}
+	}()
+
+	// Output:
+	// My name is Leaf
 }
 
 //定时器

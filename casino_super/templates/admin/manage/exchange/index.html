@@ -1,0 +1,161 @@
+{{template "manage_header" }}
+<form id="form_list" action="" method="get">
+    <input type="hidden" name="page" value="{{.page.page}}">
+    <input type="hidden" name="status" value="{{.status}}">
+    <div class="layui-form-pane" style="margin-top: 15px;">
+        <div class="layui-form-item">
+            <label class="layui-form-label" style="width: 110px">选择日期</label>
+            <div class="layui-input-inline">
+                <input class="layui-input" name="start" value="{{.start_time}}" placeholder="开始日" id="LAY_demorange_s">
+            </div>
+            <div class="layui-input-inline">
+                <input class="layui-input" name="end" value="{{.end_time}}" placeholder="截止日" id="LAY_demorange_e">
+            </div>
+            <div class="layui-input-inline">
+                <input id="form_list_btn" class="layui-btn" type="submit" value="确定">
+            </div>
+        </div>
+    </div>
+</form>
+<table class="layui-table">
+    <thead>
+    <tr>
+        <th>订单号</th>
+        <th>用户id</th>
+        <th>兑换类型</th>
+        <th>兑换金额/数量</th>
+        <th>姓名</th>
+        <th>电话</th>
+        <th>微信号</th>
+        <th>地址</th>
+        <th>状态</th>
+        <th>提交时间</th>
+        {{if ne .status 1}}
+        <th>处理时间</th>
+        {{end}}
+        <th>切换状态</th>
+    </tr>
+    </thead>
+    <tbody>
+    {{range $k,$v := .list}}
+        <tr>
+            <td>{{$v.Id.Hex}}</td>
+            <td>{{$v.UserId}}</td>
+            <td>
+                {{if eq $v.Type.String "TRADE_BONUS"}}红包
+                {{else if eq $v.Type.String "REAL_PHONE_IPHONE7"}}iPhone7
+                {{else}}$v.Type.String
+                {{end}}
+            </td>
+            <td>{{$v.Amount}}</td>
+            <td>{{$v.Name}}</td>
+            <td>{{$v.Phone}}</td>
+            <td>{{$v.WxNumber}}</td>
+            <td>{{$v.Address}}</td>
+            <td>{{$v.Status.Name}}</td>
+            <td>{{$v.RequestTime.Format "2006-01-02 15:04:05"}}</td>
+            {{if ne $v.Status 1}}
+            <td>{{$v.ProcessTime.Format "2006-01-02 15:04:05"}}</td>
+            {{end}}
+            <td>
+                <form class="layui-form" action="">
+                    <div class="layui-form-item">
+                        <div class="layui-input-inline">
+                            <select class="select_status" lay-filter="status" data-id="{{$v.Id.Hex}}" name="status">
+                                <option {{if eq $v.Status 1}}selected=""{{end}} value="1">审核中</option>
+                                <option {{if eq $v.Status 2}}selected=""{{end}} value="2">通过申请</option>
+                                <option {{if eq $v.Status 3}}selected=""{{end}} value="3">拒绝申请</option>
+                                <option {{if eq $v.Status 4}}selected=""{{end}} value="4">发放中</option>
+                                <option {{if eq $v.Status 5}}selected=""{{end}} value="5">已发放</option>
+                            </select>
+                        </div>
+                    </div>
+                </form>
+            </td>
+        </tr>
+    {{end}}
+    </tbody>
+</table>
+<div style="height: 35px;width: 750px;">
+    <div id="view_page"></div>
+</div>
+<script>
+    layui.use(['form','laypage','laydate'], function(){
+        var form = layui.form();
+        form.on('select(status)', function (data) {
+            var val = data.value;
+            var elem = data.elem;
+            var id = $(elem).data("id");
+            if(window.confirm("确定切换状态吗？")){
+                $.ajax({
+                    url:"/admin/manage/exchange/switch",
+                    type:"get",
+                    data:{"id": id, "status": val},
+                    success: function (res) {
+                        if(window.confirm(res.msg)){
+                            window.location.reload();
+                        }
+                    }
+                });
+            }
+//            alert(val);
+//            alert(id);
+        });
+        $("#form_list_btn").on("click", function (e) {
+            e.preventDefault();
+            var page = $("#form_list").find("[name=page]");
+            page.val(1);
+            $("#form_list").submit();
+        });
+
+        layui.laypage({
+            cont: 'view_page',
+            pages: {{.page.page_count}}, //总页数
+        curr: {{.page.page}},
+        skip:true, //连续显示分页数
+            jump: function (obj) {
+            var page = $("#form_list").find("[name=page]");
+            if(page.val() != obj.curr) {
+                page.val(obj.curr);
+                $("#form_list").submit();
+            }
+        }
+    });
+
+        var laydate = layui.laydate;
+
+        var start = {
+//        min: laydate.now(),
+//        max: '2099-06-16 23:59:59',
+            min: '2017-01-01 00:00:00',
+            max: laydate.now(),
+            istoday: false
+            ,choose: function(datas){
+                end.min = datas; //开始日选好后，重置结束日的最小日期
+                end.start = datas; //将结束日的初始值设定为开始日
+            }
+        };
+
+        var end = {
+//        min: laydate.now()
+//        ,max: '2099-06-16 23:59:59'
+            min: '2017-01-01 00:00:00',
+            max: laydate.now()
+            ,istoday: false
+            ,choose: function(datas){
+                start.max = datas; //结束日选好后，重置开始日的最大日期
+            }
+        };
+        document.getElementById('LAY_demorange_s').onclick = function(){
+            start.elem = this;
+            laydate(start);
+        };
+        document.getElementById('LAY_demorange_e').onclick = function(){
+            end.elem = this;
+            laydate(end);
+        }
+
+    });
+</script>
+
+{{template "manage_footer" }}
