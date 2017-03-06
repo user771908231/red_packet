@@ -6,7 +6,7 @@
   "MongoIp": "192.168.199.120",
   "MongoPort": 51668,
   "RedisAddr": "127.0.0.1:6379",
-  "CurVersion": 8,
+  "CurVersion": 1,
   "BaseDownloadUrl": "",
   "DDZ_CurVersion": 1,
   "DDZ_IsUpdate": 0,
@@ -45,7 +45,7 @@
   "HALL_ReleaseTag": 1,
   "HALL_DownloadUrl": "http://d.tondeen.com/sjtexas.html",
   "HALL_LatestClientVersion": 1,
-  "HALL_IP": "192.168.199.120",
+  "HALL_IP": "192.168.199.240",
   "HALL_PORT": 3801,
   "HALL_STATUS": 1
 }
