@@ -11,6 +11,7 @@ import (
 	"casino_common/common/userService"
 	"github.com/golang/protobuf/proto"
 	"log"
+	"casino_common/common/service/pushService"
 )
 
 //所有用户
@@ -141,7 +142,8 @@ func RechargeHandler(ctx *modules.Context, form RechargeForm, errs binding.Error
 			return
 		}
 	}
-
+	err = pushService.PushUserData(form.Id)
+	log.Println("push userData:", err)
 	ctx.Ajax(1, "充值成功！", form)
 	//userService.SyncMgoUserMoney(form.Id) //同步user的数据到mgo
 }

@@ -57,14 +57,14 @@ func OauthCallBack(ctx *modules.Context) {
 		return
 	}
 
-	userinfo, err := mpoauth2.GetUserInfo(token.AccessToken, token.OpenId, "", nil)
+	userinfo, err := mpoauth2.GetUserInfo(token.AccessToken, token.UnionId, "", nil)
 	if err != nil {
 		ctx.Error("根据token获取userinfo失败！"+err.Error(),"",0)
 		return
 	}
 
 	//保存用户信息至session
-	ctx.Session.Set("wx_user", userinfo)
+	ctx.Session.Set("wx_user", *userinfo)
 
 	//ctx.JSON(200, userinfo)
 	ctx.Redirect("/weixin/agent", 302)

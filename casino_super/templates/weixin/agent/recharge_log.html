@@ -41,10 +41,10 @@
                     <li>
                         <div class="showtitle" style="width:100px;">出售</div>
                         <a href="/weixin/agent/sales"><span class="sublist-icon glyphicon glyphicon-tag"></span><span class="sub-title">出售</span></a></li>
-                    <li class="active">
+                    <li>
                         <div class="showtitle" style="width:100px;">充值</div>
                         <a href="/weixin/agent/recharge"><span class="sublist-icon glyphicon glyphicon-shopping-cart"></span><span class="sub-title">充值</span></a></li>
-                    <li>
+                    <li class="active">
                         <div class="showtitle" style="width:100px;">充值记录</div>
                         <a href="/weixin/agent/recharge/log"><span class="sublist-icon glyphicon glyphicon-time"></span><span class="sub-title">充值记录</span></a></li>
                     <li>
@@ -69,55 +69,52 @@
             <div class="info-center">
                 <div class="page-header">
                     <div class="pull-left">
-                        <h4>充值<small id="gameName">四川麻将会员代理后台</small></h4>
+                        <h4>充值记录<small id="gameName">四川麻将会员代理后台</small></h4>
                     </div>
                 </div>
-                <div class="indentify-class padding-lr">
-                    <ul class="class-content">
-                        {{range $k,$v := .goods_list}}
-                        <li class="pull-left margin-large-20">
-                            <ul class="class-detail-has margin-top text-lh-big class-detail-top class-detail pull-right">
-                                <li><span class="text-black-gray">充值:</span><span class="pull-right text-gray-white">{{$v.Num}} {{$v.Type}}</span></li>
-                                <li><span class="text-black-gray">赠送:</span><span class="pull-right text-gray-white">{{$v.GiveNum}} {{$v.Type}}</span></li>
-                                <li><span class="text-black-gray">价格:</span><span class="pull-right text-gray-white">{{$v.Price}} 元</span></li>
-                                <a class="continue text-big" href="/weixin/agent/recharge/done?goods_id={{$v.GoodsId}}">充值</a>
-                            </ul>
-                        </li>
-                        {{end}}
-                        <!--<li class="pull-left margin-large-20">-->
-                            <!--<ul class="class-detail-has margin-top text-lh-big class-detail-top class-detail pull-right">-->
-                                <!--<li><span class="text-black-gray">充值:</span><span class="pull-right text-gray-white">500钻石</span></li>-->
-                                <!--<li><span class="text-black-gray">赠送:</span><span class="pull-right text-gray-white">1500钻石</span></li>-->
-                                <!--<li><span class="text-black-gray">价格:</span><span class="pull-right text-gray-white">300元</span></li>-->
-                                <!--<a class="continue text-big" data="3">充值</a>-->
-                            <!--</ul>-->
-                        <!--</li>-->
-                        <!--<li class="pull-left margin-large-20">-->
-                            <!--<ul class="class-detail-has margin-top text-lh-big class-detail-top class-detail pull-right">-->
-                                <!--<li><span class="text-black-gray">充值:</span><span class="pull-right text-gray-white">900钻石</span></li>-->
-                                <!--<li><span class="text-black-gray">赠送:</span><span class="pull-right text-gray-white">2700钻石</span></li>-->
-                                <!--<li><span class="text-black-gray">价格:</span><span class="pull-right text-gray-white">500元</span></li>-->
-                                <!--<a class="continue text-big" data="4">充值</a>-->
-                            <!--</ul>-->
-                        <!--</li>-->
-                        <!--<li class="pull-left margin-large-20">-->
-                            <!--<ul class="class-detail-has margin-top text-lh-big class-detail-top class-detail pull-right">-->
-                                <!--<li><span class="text-black-gray">充值:</span><span class="pull-right text-gray-white">1900钻石</span></li>-->
-                                <!--<li><span class="text-black-gray">赠送:</span><span class="pull-right text-gray-white">5700钻石</span></li>-->
-                                <!--<li><span class="text-black-gray">价格:</span><span class="pull-right text-gray-white">1000元</span></li>-->
-                                <!--<a class="continue text-big" data="5">充值</a>-->
-                            <!--</ul>-->
-                        <!--</li>-->
-                        <!--<li class="pull-left margin-large-20">-->
-                            <!--<ul class="class-detail-has margin-top text-lh-big class-detail-top class-detail pull-right">-->
-                                <!--<li><span class="text-black-gray">充值:</span><span class="pull-right text-gray-white">4000钻石</span></li>-->
-                                <!--<li><span class="text-black-gray">赠送:</span><span class="pull-right text-gray-white">8000钻石</span></li>-->
-                                <!--<li><span class="text-black-gray">价格:</span><span class="pull-right text-gray-white">2000元</span></li>-->
-                                <!--<a class="continue text-big" data="6">充值</a>-->
-                            <!--</ul>-->
-                        <!--</li>-->
-                    </ul>
+            </div>
+            <form id="form_list" action="" method="get">
+                <input type="hidden" name="page" value="{{.Logs.page.page}}">
+                <div class="layui-form-pane" style="margin-top: 15px;">
+                    <div class="layui-form-item">
+                        <label class="layui-form-label" style="width: 110px">选择日期</label>
+                        <div class="layui-input-inline">
+                            <input class="layui-input" name="start" value="{{.start_time}}" placeholder="开始日" id="LAY_demorange_s">
+                        </div>
+                        <div class="layui-input-inline">
+                            <input class="layui-input" name="end" value="{{.end_time}}" placeholder="截止日" id="LAY_demorange_e">
+                        </div>
+                        <div class="layui-input-inline">
+                            <input id="form_list_btn" class="layui-btn" type="submit" value="确定">
+                        </div>
+                    </div>
                 </div>
+            </form>
+
+            <table class="layui-table">
+                <thead>
+                <tr>
+                    <th>订单号</th>
+                    <th>详情</th>
+                    <th>金额</th>
+                    <th>已付款</th>
+                    <th>时间</th>
+                </tr>
+                </thead>
+                <tbody>
+                {{range $k,$v := .Logs.list}}
+                <tr id="user-<{ item.id }>">
+                    <td>{{$v.Id.Hex}}</td>
+                    <td>{{$v.Detail}}</td>
+                    <td>￥{{$v.Money}}</td>
+                    <td>{{if $v.IsPay}}是{{else}}否{{end}}</td>
+                    <td>{{$v.AddTime.Format "2006-01-02 15:04:05"}}</td>
+                </tr>
+                {{end}}
+                </tbody>
+            </table>
+            <div style="height: 35px;width: 750px;">
+                <div id="view_page"></div>
             </div>
         </div>
     </div>
@@ -125,6 +122,60 @@
 <script src="/static/weixin/js/slide_menu.js"></script>
 <script src="/static/weixin/js/share.js"></script>
 <script type="text/javascript">
+    $("#form_list_btn").on("click", function (e) {
+        e.preventDefault();
+        var page = $("#form_list").find("[name=page]");
+        page.val(1);
+        $("#form_list").submit();
+    });
+    layui.use(["laypage","laydate"], function () {
+        layui.laypage({
+            cont: 'view_page',
+            pages: {{.Logs.page.page_count}}, //总页数
+        curr: {{.Logs.page.page}},
+        skip:true, //连续显示分页数
+            jump: function (obj) {
+            var page = $("#form_list").find("[name=page]");
+            if(page.val() != obj.curr) {
+                page.val(obj.curr);
+                $("#form_list").submit();
+            }
+        }
+    });
+
+        var laydate = layui.laydate;
+
+        var start = {
+//        min: laydate.now(),
+//        max: '2099-06-16 23:59:59',
+            min: '2017-01-01 00:00:00',
+            max: laydate.now(),
+            istoday: false
+            ,choose: function(datas){
+                end.min = datas; //开始日选好后，重置结束日的最小日期
+                end.start = datas; //将结束日的初始值设定为开始日
+            }
+        };
+
+        var end = {
+//        min: laydate.now()
+//        ,max: '2099-06-16 23:59:59'
+            min: '2017-01-01 00:00:00',
+            max: laydate.now()
+            ,istoday: false
+            ,choose: function(datas){
+                start.max = datas; //结束日选好后，重置开始日的最大日期
+            }
+        };
+        document.getElementById('LAY_demorange_s').onclick = function(){
+            start.elem = this;
+            laydate(start);
+        };
+        document.getElementById('LAY_demorange_e').onclick = function(){
+            end.elem = this;
+            laydate(end);
+        }
+    });
 
 </script>
 

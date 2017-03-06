@@ -10,7 +10,7 @@ import (
 
 //面板数据注入
 func NeedLogin(ctx *modules.Context) {
-	//todo 测试时忽略登录验证
+	//测试时忽略登录验证
 	//return
 	user := ctx.IsLogin()
 	if user == nil {

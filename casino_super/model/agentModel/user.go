@@ -17,9 +17,9 @@ type UserInfo struct {
 }
 
 //代理模型
-func GetUserIdByOpenId(op_id string) uint32 {
+func GetUserIdByUnionId(op_id string) uint32 {
 	user := ddproto.User{}
-	err := db.C(tableName.DBT_T_USER).Find(bson.M{"openid": op_id}, &user)
+	err := db.C(tableName.DBT_T_USER).Find(bson.M{"unionid": op_id}, &user)
 	if err != nil {
 		log.Println(err)
 		return 0

@@ -9,6 +9,7 @@ import (
 	"casino_super/modules"
 	"casino_super/handler/admin/manage"
 	"casino_super/handler/weixin"
+	"casino_super/model/agentModel"
 )
 
 //注册路由
@@ -42,6 +43,12 @@ func Regist(m *macaron.Macaron) {
 				m.Post("/update", binding.BindIgnErr(manage.UserUpdateForm{}), manage.UpdateUserHandler)
 				m.Post("/recharge", binding.BindIgnErr(manage.RechargeForm{}),manage.RechargeHandler)
 			})
+			//红包兑换相关
+			m.Group("/exchange", func() {
+				m.Get("/", manage.ExchangeListHandler)
+				m.Get("/list", manage.ExchangeListHandler)
+				m.Get("/switch", manage.ExchangeSwitchState)
+			})
 		}, admin.NeedLogin)
 	}, admin.ShowPanel)
 
@@ -56,6 +63,9 @@ func Regist(m *macaron.Macaron) {
 			//充值
 			m.Group("/recharge", func() {
 				m.Get("/", weixin.RechargeListHandler)
+				m.Get("/done", weixin.RechargeDoneHandler)
+				m.Get("/wx_pay", weixin.RechargeAjaxWxTradeDataHandler)
+				m.Get("/log", weixin.RechargeLogHandler)
 			})
 			//销售
 			m.Group("/sales", func() {
@@ -75,10 +85,13 @@ func Regist(m *macaron.Macaron) {
 			})
 		}, weixin.NeedWxLogin)
 	})
+	//微信充值回调
+	m.Any("/mp/pay/callback", agentModel.WxNotifyHandler)
 
 	//首页
 	m.Get("/", func(ctx *modules.Context) {
 		//ctx.Success("即将跳转至后台！", "/admin", 3)
-		ctx.Redirect("/admin", 302)
+		//ctx.Redirect("/admin", 302)
+		ctx.Redirect("/weixin/agent", 302)
 	})
 }
