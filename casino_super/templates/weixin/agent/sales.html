@@ -56,9 +56,9 @@
                     <!--<li>-->
                     <!--<div class="showtitle" style="width:100px;">我的会员</div>-->
                     <!--<a href="recommand.html"><span class="sublist-icon glyphicon glyphicon-user"></span><span class="sub-title">我的会员</span></a></li>-->
-                    <!--<li>-->
-                    <!--<div class="showtitle" style="width:100px;">会员中心</div>-->
-                    <!--<a href="set.html"><span class="sublist-icon glyphicon glyphicon-cog"></span><span class="sub-title">会员中心</span></a></li>-->
+                    <li>
+                        <div class="showtitle" style="width:100px;">我的客户</div>
+                        <a href="/weixin/agent/customers"><span class="sublist-icon glyphicon glyphicon-user"></span><span class="sub-title">我的客户</span></a></li>
                 </ul>
             </div>
         </div>
@@ -155,6 +155,7 @@
 <script src="/static/weixin/js/share.js"></script>
 <script src="/static/admin/static/js/manage.js"></script>
 <script type="text/javascript">
+    $("title").html("代理系统-销售");
     common.bindAjax("submit", "#form_add", function (e) {
         e.preventDefault();
         return true

@@ -16,30 +16,41 @@
 				}
 			]
 		},{
-			"title": "兑换审核",
+			"title": "红包兑换审核",
 			"icon": "fa-sliders",
 			"spread": true,
 			"children": [
 				{
-					"title": "审核中",
+					"title": "待审核",
 					"icon": "fa-slider",
-					"href": "/admin/manage/exchange/list?status=1&page=1"
+					"href": "/admin/manage/exchange?status=1&page=1"
 				},{
-					"title": "已通过",
+					"title": "已被拒",
 					"icon": "fa-slider",
-					"href": "/admin/manage/exchange/list?status=2&page=1"
-				},{
-					"title": "已拒绝",
-					"icon": "fa-slider",
-					"href": "/admin/manage/exchange/list?status=3&page=1"
-				},{
-					"title": "发放中",
-					"icon": "fa-slider",
-					"href": "/admin/manage/exchange/list?status=4&page=1"
+					"href": "/admin/manage/exchange?status=2&page=1"
 				},{
 					"title": "已发放",
 					"icon": "fa-slider",
-					"href": "/admin/manage/exchange/list?status=5&page=1"
+					"href": "/admin/manage/exchange?status=3&page=1"
+				}
+			]
+		},{
+			"title": "代理商申请",
+			"icon": "fa-sliders",
+			"spread": true,
+			"children": [
+				{
+					"title": "待审核",
+					"icon": "fa-slider",
+					"href": "/admin/manage/apply?status=1&page=1"
+				},{
+					"title": "已被拒",
+					"icon": "fa-slider",
+					"href": "/admin/manage/apply?status=2&page=1"
+				},{
+					"title": "已通过",
+					"icon": "fa-slider",
+					"href": "/admin/manage/apply?status=3&page=1"
 				}
 			]
 		}

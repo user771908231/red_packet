@@ -56,9 +56,9 @@
                     <!--<li>-->
                         <!--<div class="showtitle" style="width:100px;">我的会员</div>-->
                         <!--<a href="recommand.html"><span class="sublist-icon glyphicon glyphicon-user"></span><span class="sub-title">我的会员</span></a></li>-->
-                    <!--<li>-->
-                        <!--<div class="showtitle" style="width:100px;">会员中心</div>-->
-                        <!--<a href="set.html"><span class="sublist-icon glyphicon glyphicon-cog"></span><span class="sub-title">会员中心</span></a></li>-->
+                    <li>
+                        <div class="showtitle" style="width:100px;">我的客户</div>
+                        <a href="/weixin/agent/customers"><span class="sublist-icon glyphicon glyphicon-user"></span><span class="sub-title">我的客户</span></a></li>
                 </ul>
             </div>
         </div>
@@ -103,33 +103,33 @@
                                 <div class="clear"></div>
                                 <li><img src="http://scmj.coolgamebox.com:89/img/zuanshi.png" alt="钻石logo"></li>
                                 <div class="clear"></div>
-                                <li><img src="http://scmj.coolgamebox.com:89/img/zuanshi.png" alt="钻石logo"></li>
-                                <div class="clear"></div>
+                                <!--<li><img src="http://scmj.coolgamebox.com:89/img/zuanshi.png" alt="钻石logo"></li>-->
+                                <!--<div class="clear"></div>-->
                             </ul>
                             <ul class="diamondcon">
                                 <li>
-                                    <span id="money">0</span>
+                                    <span id="money">{{.my_roomcard}}</span>
                                     <a href="charge.html">立即充值</a>
                                 </li>
                                 <li>
                                     <span id="buyReward">0</span>
-                                    <a href="#" id="GetBuyReward">领取推荐返利</a>
+                                    <a href="#" id="GetBuyReward">领取返利</a>
                                 </li>
-                                <li>
-                                    <span id="accruedReward">0</span>
-                                    <a href="#" id="getAccruedReward">领取充值返利</a>
-                                </li>
+                                <!--<li>-->
+                                    <!--<span id="accruedReward">0</span>-->
+                                    <!--<a href="#" id="getAccruedReward">领取充值返利</a>-->
+                                <!--</li>-->
                             </ul>
                             <div class="clear"></div>
                         </div>
                     </div>
                     <!-------信息列表------->
-                    <div class="row noticelist" style="margin-top:20px;">
-                        <h3 class="tab-h3">公告</h3>
-                        <p class="tab-p">公告公告公告公告公告公告公告公告公告公告公告公告公告公告公告公告公告公告公告公告公告公告公告公告公告公告公告公告公告公告公告公告公告公告公告公告公告公告公告公告公告公告公告公告公告
-                            公告公告公告公告公告公告公告公告公告公告公告公告公告公告公告公告公告公告公告公告公告公告公告公告公告公告公告公告公告公告公告公告公告公告公告公告公告公告公告公告公告公告公告公告公告
-                            公告公告公告公告公告公告公告公告公告公告公告公告公告公告公告公告公告公告公告公告公告公告公告公告公告公告公告公告公告公告公告公告公告公告公告公告公告公告公告公告公告公告公告公告公告</p>
-                    </div>
+                    <!--<div class="row noticelist" style="margin-top:20px;">-->
+                        <!--<h3 class="tab-h3">公告</h3>-->
+                        <!--<p class="tab-p">公告公告公告公告公告公告公告公告公告公告公告公告公告公告公告公告公告公告公告公告公告公告公告公告公告公告公告公告公告公告公告公告公告公告公告公告公告公告公告公告公告公告公告公告公告-->
+                            <!--公告公告公告公告公告公告公告公告公告公告公告公告公告公告公告公告公告公告公告公告公告公告公告公告公告公告公告公告公告公告公告公告公告公告公告公告公告公告公告公告公告公告公告公告公告-->
+                            <!--公告公告公告公告公告公告公告公告公告公告公告公告公告公告公告公告公告公告公告公告公告公告公告公告公告公告公告公告公告公告公告公告公告公告公告公告公告公告公告公告公告公告公告公告公告</p>-->
+                    <!--</div>-->
                 </div>
 
             </div>
@@ -139,6 +139,7 @@
 <script src="/static/weixin/js/slide_menu.js"></script>
 <script src="/static/weixin/js/share.js"></script>
 <script type="text/javascript">
+    $("title").html("动点弃牌-代理系统");
     $(function(){
         /*系统时间显示功能*/
         setInterval(showTime,1000);
