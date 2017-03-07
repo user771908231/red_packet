@@ -6,6 +6,7 @@ import (
 	mpoauth2 "github.com/chanxuehong/wechat.v2/mp/oauth2"
 	"github.com/chanxuehong/wechat.v2/oauth2"
 	"log"
+	"casino_super/model/agentModel"
 )
 
 const (
@@ -57,14 +58,20 @@ func OauthCallBack(ctx *modules.Context) {
 		return
 	}
 
-	userinfo, err := mpoauth2.GetUserInfo(token.AccessToken, token.UnionId, "", nil)
+	wx_info, err := mpoauth2.GetUserInfo(token.AccessToken, token.UnionId, "", nil)
 	if err != nil {
 		ctx.Error("根据token获取userinfo失败！"+err.Error(),"",0)
 		return
 	}
 
+	//验证该微信是否已在游戏中注册
+	agent_id := agentModel.GetUserIdByUnionId(wx_info.UnionId)
+	if agent_id == 0 {
+		ctx.Error("请先使用该微信登录神经斗地主游戏！","",0)
+		return
+	}
 	//保存用户信息至session
-	ctx.Session.Set("wx_user", *userinfo)
+	ctx.Session.Set("wx_user", *wx_info)
 
 	//ctx.JSON(200, userinfo)
 	ctx.Redirect("/weixin/agent", 302)

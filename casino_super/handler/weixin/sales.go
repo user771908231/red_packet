@@ -74,13 +74,17 @@ func SalesToUserHandler(ctx *modules.Context, form SalesForm, errs binding.Error
 		ctx.Ajax(-7, "为该用户添加房卡成功！但生成充值记录失败。",nil)
 		return
 	}
+
+	//如果该用户第一次被代理充值，则设置该用户为该代理的返利客户
+	user := userService.GetUserById(form.Uid)
+	if user.GetAgentId() == 0 {
+		user.AgentId = proto.Uint32(agent_id)
+		userService.UpdateUser2Mgo(user)
+	}
+
 	ctx.Ajax(1, "为该用户添加房卡成功！",nil)
 }
 
-//出售记录表单
-type SalesLogForm struct {
-
-}
 //出售记录
 func SalesLogHandler(ctx *modules.Context) {
 	page := ctx.QueryInt("page")

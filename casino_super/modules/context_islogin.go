@@ -26,7 +26,7 @@ func (ctx *Context) IsWxLogin() *oauth2.UserInfo {
 	}
 	//todo 测试数据
 	//ret = &oauth2.UserInfo{
-	//	OpenId: "oG9kZwrv8oFF9ja6WRlHxxMoJZoU", //sapmm: oab_twdGywSq99suV8Mt14FNxxOQ wsx: oG9kZwrv8oFF9ja6WRlHxxMoJZoU
+	//	OpenId: "oab_twdGywSq99suV8Mt14FNxxOQ", //sapmm: oab_twdGywSq99suV8Mt14FNxxOQ wsx: oG9kZwrv8oFF9ja6WRlHxxMoJZoU
 	//	Nickname: "王蜀贤",
 	//	Sex: 1,      // 用户的性别, 值为1时是男性, 值为2时是女性, 值为0时是未知
 	//	City: "成都",     // 普通用户个人资料填写的城市
@@ -37,7 +37,7 @@ func (ctx *Context) IsWxLogin() *oauth2.UserInfo {
 	//	HeadImageURL: "http://wx.qlogo.cn/mmopen/ajNVdqHZLLDR9YkFYEz0XhumSbNtrpn98PlbDp7K87CxAGYMhkRwV6LEiaYPNRftBoktV2yXTQlodYEUA7SpZkg/0",
 	//
 	//	Privilege: []string{}, // 用户特权信息，json 数组，如微信沃卡用户为（chinaunicom）
-	//	UnionId: "oKKIfxCxJiKHLOZcOobsBzb2sl0Q",   // 只有在用户将公众号绑定到微信开放平台帐号后，才会出现该字段。
+	//	UnionId: "oKKIfxHr0Gf-36iEgKDLCJUzeqrg",   // 只有在用户将公众号绑定到微信开放平台帐号后，才会出现该字段。 sapmm:oKKIfxHr0Gf-36iEgKDLCJUzeqrg   wsx:oKKIfxCxJiKHLOZcOobsBzb2sl0Q
 	//}
 	return ret
 }

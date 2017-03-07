@@ -46,8 +46,11 @@ func Regist(m *macaron.Macaron) {
 			//红包兑换相关
 			m.Group("/exchange", func() {
 				m.Get("/", manage.ExchangeListHandler)
-				m.Get("/list", manage.ExchangeListHandler)
 				m.Get("/switch", manage.ExchangeSwitchState)
+			})
+			m.Group("/apply", func() {
+				m.Get("/", manage.ApplyListHandler)
+				m.Get("/switch", manage.ApplySwitchState)
 			})
 		}, admin.NeedLogin)
 	}, admin.ShowPanel)
@@ -73,6 +76,11 @@ func Regist(m *macaron.Macaron) {
 				m.Post("/",binding.BindIgnErr(weixin.SalesForm{}), weixin.SalesToUserHandler)
 				m.Get("/log", weixin.SalesLogHandler)
 			})
+			//我的客户
+			m.Get("/customers", weixin.CustomersListHandler)
+			//代理申请
+			m.Get("/apply", weixin.ApplyHandler)
+			m.Post("/apply", admin.NeedCaptcha, binding.BindIgnErr(weixin.ApplyForm{}), weixin.ApplyPostHandler)
 			//登录-登出
 			m.Group("/user", func() {
 				m.Get("/login", func(ctx *modules.Context) {
