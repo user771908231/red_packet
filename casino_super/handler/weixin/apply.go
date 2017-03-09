@@ -5,6 +5,9 @@ import (
 	"github.com/go-macaron/binding"
 	"casino_super/model/agentModel"
 	"casino_common/common/userService"
+	"casino_common/utils/db"
+	"casino_common/common/consts/tableName"
+	"gopkg.in/mgo.v2/bson"
 )
 
 func ApplyHandler(ctx *modules.Context) {
@@ -31,6 +34,15 @@ func ApplyPostHandler(ctx *modules.Context, errs binding.Errors, form ApplyForm)
 	//验证InvitedId
 	if form.InvitedId != 0 && userService.GetUserById(form.InvitedId) == nil {
 		ctx.Error("验证推荐人Id失败！请检查表单。", "/weixin/agent/apply", 3)
+		return
+	}
+	//判断是否为重复申请
+	exist_agent := agentModel.ApplyRecord{}
+	err_exists := db.C(tableName.DBT_AGENT_APPLY_LOG).Find(bson.M{
+		"userid": user_id,
+	}, &exist_agent)
+	if err_exists == nil {
+		ctx.Error("您已经发过申请，请不要重复发送！", "", 3)
 		return
 	}
 	//插入表

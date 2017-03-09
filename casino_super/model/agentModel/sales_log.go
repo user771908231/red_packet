@@ -35,6 +35,24 @@ func AddNewSalesLog(agent_id uint32, user_id uint32, goods_type GoodsType, num i
 	return err
 }
 
+//获取某代理商总出售的房卡数
+func GetAgentSalesCount(agent_id uint32) int64 {
+	resp := struct {
+		Sum int64
+	}{}
+	query := []bson.M{
+		bson.M{"$match":bson.M{
+			"agentid": agent_id,
+		}},
+		bson.M{"$group":bson.M{
+			"_id": nil,
+			"sum": bson.M{"$sum": "$num"},
+		}},
+	}
+	db.C(tableName.DBT_AGENT_SALES_LOG).Pipe(query, &resp)
+	return resp.Sum
+}
+
 //获取某代理商用户总购买的房卡数
 func GetAgentUserSalesCount(agent_id uint32, user_id uint32) int64 {
 	resp := struct {

@@ -52,6 +52,11 @@ func SalesToUserHandler(ctx *modules.Context, form SalesForm, errs binding.Error
 		ctx.Ajax(-3, "为该用户添加房卡失败！请重新登录！",nil)
 		return
 	}
+	//代理之间无法转房卡
+	if agentModel.IsAgent(form.Uid) {
+		ctx.Ajax(-7, "为该用户添加房卡失败！因为该用户为代理商。",nil)
+		return
+	}
 	roomCardNum := userService.GetUserRoomCard(agent_id)
 	if roomCardNum < form.Num {
 		ctx.Ajax(-4, "为该用户添加房卡失败！您的房卡数不足！",nil)
@@ -80,6 +85,14 @@ func SalesToUserHandler(ctx *modules.Context, form SalesForm, errs binding.Error
 	if user.GetAgentId() == 0 {
 		user.AgentId = proto.Uint32(agent_id)
 		userService.UpdateUser2Mgo(user)
+	}
+
+	//尝试领取返利
+	for {
+		rebate_err := agentModel.DoGetRebateRoomCard(agent_id)
+		if rebate_err != nil {
+			break
+		}
 	}
 
 	ctx.Ajax(1, "为该用户添加房卡成功！",nil)

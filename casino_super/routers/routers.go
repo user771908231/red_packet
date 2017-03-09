@@ -78,9 +78,11 @@ func Regist(m *macaron.Macaron) {
 			})
 			//我的客户
 			m.Get("/customers", weixin.CustomersListHandler)
-			//代理申请
-			m.Get("/apply", weixin.ApplyHandler)
-			m.Post("/apply", admin.NeedCaptcha, binding.BindIgnErr(weixin.ApplyForm{}), weixin.ApplyPostHandler)
+			//返利记录
+			m.Group("/rebate", func() {
+				m.Get("/log", weixin.RebateLogHandler)
+				m.Get("/check", weixin.CheckRebateHandler)
+			})
 			//登录-登出
 			m.Group("/user", func() {
 				m.Get("/login", func(ctx *modules.Context) {
@@ -91,8 +93,11 @@ func Regist(m *macaron.Macaron) {
 					ctx.Success("退出成功！", "/weixin/", 3)
 				})
 			})
-		}, weixin.NeedWxLogin)
+		}, weixin.NeedWxLogin, weixin.NeedIsAgent)
 	})
+	//代理申请
+	m.Get("/weixin/agent/apply", weixin.NeedWxLogin, weixin.ApplyHandler)
+	m.Post("/weixin/agent/apply", weixin.NeedWxLogin, admin.NeedCaptcha, binding.BindIgnErr(weixin.ApplyForm{}), weixin.ApplyPostHandler)
 	//微信充值回调
 	m.Any("/mp/pay/callback", agentModel.WxNotifyHandler)
 
