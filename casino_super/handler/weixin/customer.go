@@ -14,13 +14,14 @@ import (
 func CustomersListHandler(ctx *modules.Context) {
 	wx_info := ctx.IsWxLogin()
 	agent_id := agentModel.GetUserIdByUnionId(wx_info.UnionId)
-	list := []*ddproto.User{}
+	user_list := []*ddproto.User{}
 
 	page := ctx.QueryInt("page")
 	if page <= 0 {
 		page = 1
 	}
 
+	//return
 	//ctx.Dump(wx_info)
 	//ctx.Dump("agentid:", agent_id)
 
@@ -28,14 +29,25 @@ func CustomersListHandler(ctx *modules.Context) {
 	if agent_id >0 {
 		_,count = db.C(tableName.DBT_T_USER).Page(bson.M{
 			"agentid": agent_id,
-		}, &list, "", page, 10)
+		}, &user_list, "", page, 10)
 	}
 
 	//ctx.Ajax(1, "", data)
+	list := []bson.M{}
+	for _,user := range user_list {
+		week_sales_count := agentModel.GetAgentThisWeekOneUserSalesCount(agent_id, user.GetId())
+		all_sales_count := agentModel.GetAgentUserSalesCount(agent_id, user.GetId())
+		list = append(list, bson.M{
+			"Id": user.GetId(),
+			"NickName": user.GetNickName(),
+			"AllSalesCount": all_sales_count,
+			"WeekSalesCount": week_sales_count,
+		})
+	}
 	ctx.Data["list"] = list
 	ctx.Data["page"] = bson.M{
 		"count":      count,
-		"list_count": len(list),
+		"list_count": len(user_list),
 		"limit":      10,
 		"page":       page,
 		"page_count": math.Ceil(float64(count) / float64(10)),

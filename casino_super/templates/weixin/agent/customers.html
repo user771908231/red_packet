@@ -81,10 +81,11 @@
                 <thead>
                 <tr>
                     <th>ID</th>
-                    <th>用户名</th>
-                    <th>本周购买</th>
-                    <th>返利</th>
-                    <th>时间</th>
+                    <th>昵称</th>
+                    <th>一共购买(张房卡)</th>
+                    <th>本周购买(张房卡)</th>
+                    <th>操作</th>
+                    <!--<th>返利</th>-->
                 </tr>
                 </thead>
                 <tbody>
@@ -92,9 +93,10 @@
                 <tr id="">
                     <td>{{$v.Id}}</td>
                     <td>{{$v.NickName}}</td>
-                    <td>0</td>
-                    <td>0</td>
-                    <td></td>
+                    <td>{{$v.AllSalesCount}}</td>
+                    <td>{{$v.WeekSalesCount}}</td>
+                    <td><a href="/weixin/agent/sales?uid={{$v.Id}}">出售</a></td>
+                    <!--<td>{{$v.RebateCount}}</td>-->
                 </tr>
                 {{end}}
                 </tbody>

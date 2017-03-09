@@ -34,3 +34,48 @@ func AddNewSalesLog(agent_id uint32, user_id uint32, goods_type GoodsType, num i
 
 	return err
 }
+
+//获取某代理商用户总购买的房卡数
+func GetAgentUserSalesCount(agent_id uint32, user_id uint32) int64 {
+	resp := struct {
+		Sum int64
+	}{}
+	query := []bson.M{
+		bson.M{"$match":bson.M{
+			"userid": user_id,
+			"agentid": agent_id,
+		}},
+		bson.M{"$group":bson.M{
+			"_id": nil,
+			"sum": bson.M{"$sum": "$num"},
+		}},
+	}
+	db.C(tableName.DBT_AGENT_SALES_LOG).Pipe(query, &resp)
+	return resp.Sum
+}
+
+//获取某代理商用户本周购买的房卡数
+func GetAgentThisWeekOneUserSalesCount(agent_id uint32, user_id uint32) int64 {
+	now := time.Now()
+	y,m,d := now.Date()
+	week_one := time.Date(y,m,d-int(now.Weekday())+1,0,0,0,0,time.Local)
+	resp := struct {
+		Sum int64
+	}{}
+	query := []bson.M{
+		bson.M{"$match":bson.M{
+			"userid": user_id,
+			"agentid": agent_id,
+			"addtime": bson.M{
+				"$gt": week_one,
+				"$lt": now,
+			},
+		}},
+		bson.M{"$group":bson.M{
+			"_id": nil,
+			"sum": bson.M{"$sum": "$num"},
+		}},
+	}
+	db.C(tableName.DBT_AGENT_SALES_LOG).Pipe(query, &resp)
+	return resp.Sum
+}
