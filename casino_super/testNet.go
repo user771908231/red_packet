@@ -7,7 +7,7 @@ import (
 	"github.com/golang/protobuf/proto"
 	"encoding/binary"
 	"crypto/md5"
-	//"fmt"
+	"testing"
 	"fmt"
 	"casino_common/proto/funcsInit"
 )
@@ -65,7 +65,7 @@ func AssembleData(idv ddproto.HallEnumProtoId, data proto.Message) []byte {
 	return m2
 }
 
-func main() {
+func TestRun(t *testing.T) {
 	factory := func() (net.Conn, error) {
 		return net.Dial("tcp", "192.168.199.155:2801")
 	}

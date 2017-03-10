@@ -35,6 +35,19 @@ func (r *ApplyRecord) Save() error {
 	}, r)
 }
 
+//判断一个用户是否为代理商
+func IsAgent(user_id uint32) bool {
+	row := new(ApplyRecord)
+	err := db.C(tableName.DBT_AGENT_APPLY_LOG).Find(bson.M{
+		"userid": user_id,
+		"status": exchangeService.PROCESS_TRUE,
+	}, row)
+	if err == nil {
+		return true
+	}
+	return false
+}
+
 //通过id获取一条记录
 func GetApplyRecordById(id string) *ApplyRecord {
 	row := new(ApplyRecord)
