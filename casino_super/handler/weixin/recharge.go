@@ -8,6 +8,7 @@ import (
 	"gopkg.in/mgo.v2/bson"
 	"time"
 	"math"
+	"casino_super/model/weixinModel"
 )
 
 //充值列表
@@ -48,13 +49,13 @@ func RechargeAjaxWxTradeDataHandler(ctx *modules.Context) {
 		return
 	}
 	//调用统一下单接口
-	res,err := agentModel.GetUnifiedOrderResponse(order.Id.Hex(), order.Money, order.Detail, ctx.RemoteAddr(), wx_info.OpenId)
+	res,err := weixinModel.GetUnifiedOrderResponse(order.Id.Hex(), order.Money, order.Detail, ctx.RemoteAddr(), wx_info.OpenId)
 	if err != nil {
 		ctx.Ajax(-3, "统一下单失败！", nil)
 		return
 	}
 	//返回发起交易需要的数据
-	trade_data := agentModel.GetTradeData(res.PrepayId)
+	trade_data := weixinModel.GetTradeData(res.PrepayId)
 	ctx.Ajax(1, "发起交易成功！", trade_data)
 	return
 }

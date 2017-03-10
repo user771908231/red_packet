@@ -27,6 +27,9 @@ var Server struct {
 	CurVersion int32
 
 	ProdMod    bool
+
+	//外网Ip
+	OutIp string
 }
 
 func init() {
