@@ -9,7 +9,7 @@ import (
 	"casino_super/modules"
 	"casino_super/handler/admin/manage"
 	"casino_super/handler/weixin"
-	"casino_super/model/agentModel"
+	"casino_super/model/weixinModel"
 )
 
 //注册路由
@@ -57,8 +57,8 @@ func Regist(m *macaron.Macaron) {
 
 	//微信
 	m.Group("/weixin", func() {
-		m.Get("/oauth/login", weixin.OauthLogin)
-		m.Get("/oauth/callback", weixin.OauthCallBack)
+		m.Get("/oauth/login", weixinModel.OauthLogin)
+		m.Get("/oauth/callback", weixinModel.OauthCallBack)
 		//需要微信登录
 		m.Group("/agent", func() {
 			m.Get("/", weixin.MainHandler)
@@ -99,7 +99,7 @@ func Regist(m *macaron.Macaron) {
 	m.Get("/weixin/agent/apply", weixin.NeedWxLogin, weixin.ApplyHandler)
 	m.Post("/weixin/agent/apply", weixin.NeedWxLogin, admin.NeedCaptcha, binding.BindIgnErr(weixin.ApplyForm{}), weixin.ApplyPostHandler)
 	//微信充值回调
-	m.Any("/mp/pay/callback", agentModel.WxNotifyHandler)
+	m.Any("/mp/pay/callback", weixinModel.WxNotifyHandler)
 
 	//首页
 	m.Get("/", func(ctx *modules.Context) {

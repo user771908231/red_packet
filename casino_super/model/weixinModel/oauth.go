@@ -1,4 +1,4 @@
-package weixin
+package weixinModel
 
 import (
 	"casino_super/modules"
@@ -6,55 +6,27 @@ import (
 	mpoauth2 "github.com/chanxuehong/wechat.v2/mp/oauth2"
 	"github.com/chanxuehong/wechat.v2/oauth2"
 	"log"
-	"casino_super/model/agentModel"
 )
 
 const (
-	wxAppId           = "wx804b74c45a08e6e1"                           // 填上自己的参数
-	wxAppSecret       = "4b81d61d2f2773c7752396ee2e8ca96e"                       // 填上自己的参数
 	oauth2RedirectURI = "http://wx.tondeen.com/weixin/oauth/callback" // 填上自己的参数
 	oauth2Scope       = "snsapi_userinfo"                 // 填上自己的参数
 )
 
 var (
-	oauth2Endpoint oauth2.Endpoint = mpoauth2.NewEndpoint(wxAppId, wxAppSecret)
+	oauth2Endpoint oauth2.Endpoint = mpoauth2.NewEndpoint(WX_APP_ID, WX_APP_SECRET)
 )
-
-//需要微信登录验证
-func NeedWxLogin(ctx *modules.Context) {
-	wx_info := ctx.IsWxLogin()
-	if wx_info == nil {
-		ctx.Redirect("/weixin/oauth/login", 302)
-		return
-	}
-	ctx.Data["wx_user"] = wx_info
-}
-
-//需要是代理商
-func NeedIsAgent(ctx *modules.Context)  {
-	wx_info := ctx.IsWxLogin()
-	//验证该微信是否已在游戏中注册
-	agent_id := agentModel.GetUserIdByUnionId(wx_info.UnionId)
-	if agent_id == 0 {
-		ctx.Error("您的微信账号还未与神经斗地主游戏关联，请先用手机登录游戏再刷新本页面。","",0)
-		return
-	}
-	//验证是否为代理商
-	if !agentModel.IsAgent(agent_id) {
-		ctx.Error("您还不是代理商，请先填写申请表单。","/weixin/agent/apply",5)
-		return
-	}
-}
 
 //oauth验证第一步发起认证
 func OauthLogin(ctx *modules.Context) {
 	state := string(rand.NewHex())
 	ctx.Session.Set("state", state)
-	AuthCodeURL := mpoauth2.AuthCodeURL(wxAppId, oauth2RedirectURI, oauth2Scope, state)
+	AuthCodeURL := mpoauth2.AuthCodeURL(WX_APP_ID, oauth2RedirectURI, oauth2Scope, state)
 	log.Println("AuthCodeURL:", AuthCodeURL)
 
 	ctx.Redirect(AuthCodeURL, 302)
 }
+
 //oauth验证第二步回调，获取用户信息并存入session
 func OauthCallBack(ctx *modules.Context) {
 	code := ctx.Query("code")
@@ -86,3 +58,4 @@ func OauthCallBack(ctx *modules.Context) {
 	//ctx.JSON(200, userinfo)
 	ctx.Redirect("/weixin/agent", 302)
 }
+

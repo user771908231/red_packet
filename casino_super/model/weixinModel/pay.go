@@ -1,4 +1,4 @@
-package agentModel
+package weixinModel
 
 import (
 	"github.com/chanxuehong/wechat.v2/mch/pay"
@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"gopkg.in/mgo.v2/bson"
 	"net/http"
+	"casino_super/model/agentModel"
 )
 
 var (
@@ -22,9 +23,7 @@ func init() {
 }
 
 const (
-	WX_APP_ID string = "wx804b74c45a08e6e1"
-	WX_MCH_ID string = "1394403202"
-	WX_API_KEY string = "DD18Secoh98GdO5Ikl1Kehj4IqxMP998"
+	//回调地址
 	WX_NOTIFY_URL string = "http://wx.tondeen.com/mp/pay/callback"
 )
 
@@ -91,7 +90,7 @@ func notifyHanlder(ctx *core.Context) {
 	//收到的信息经过包装，验证sign 已经在框架做过了,这里只需要处理业务就行了
 	out_trade_no := ctx.Msg["out_trade_no"] //商户订单号
 	//开始处理回调
-	err := SetRechargeDone(out_trade_no)
+	err := agentModel.SetRechargeDone(out_trade_no)
 	if err != nil {
 		//log.E("微信异步回调出错..err :%v", err)
 	} else {
@@ -106,3 +105,4 @@ func notifyHanlder(ctx *core.Context) {
 func WxNotifyHandler(r *http.Request, w http.ResponseWriter) {
 	payServer.ServeHTTP(w, r, nil)
 }
+

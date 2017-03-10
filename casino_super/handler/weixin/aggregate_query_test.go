@@ -1,8 +1,8 @@
 package weixin
 
 import (
-	"casino_common/common/sys"
-	db_init "casino_common/common/db"
+	//"casino_common/common/sys"
+	//db_init "casino_common/common/db"
 	"testing"
 	"casino_common/utils/db"
 	"casino_common/common/consts/tableName"
@@ -12,8 +12,8 @@ import (
 )
 
 func init() {
-	db_init.InitMongoDb("192.168.199.200", 27017, "test", "id",[]string{})
-	sys.InitRedis("192.168.199.200:6379","test")
+	//db_init.InitMongoDb("192.168.199.200", 27017, "test", "id",[]string{})
+	//sys.InitRedis("192.168.199.200:6379","test")
 }
 
 func TestAggregateQuery(t *testing.T) {

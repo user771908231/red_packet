@@ -8,6 +8,8 @@ import (
 	"casino_common/common/service/exchangeService"
 	"time"
 	"math"
+	"casino_super/model/weixinModel"
+	"casino_common/common/userService"
 )
 
 //红包与实物兑换
@@ -71,11 +73,29 @@ func ExchangeSwitchState(ctx *modules.Context) {
 		ctx.Ajax(-2, "切换状态失败！", nil)
 		return
 	}
-	row.Status = exchangeService.ExchangeState(status)
+	new_status := exchangeService.ExchangeState(status)
+	user_info := userService.GetUserById(row.UserId)
+	//发放红包
+	if row.Status != exchangeService.PROCESS_TRUE && new_status == exchangeService.PROCESS_TRUE{
+		err := weixinModel.SendRedPack(user_info.GetOpenId(), row.Money, row.Id.Hex())
+		if err != nil {
+			ctx.Ajax(-4, "红包发放失败："+err.Error(), nil)
+			return
+		}
+	}
+	row.Status = new_status
 	row.ProcessTime = time.Now()
 	err := row.Save()
 	if err != nil {
+		if new_status == exchangeService.PROCESS_TRUE {
+			ctx.Ajax(-5,"发红包成功，但切换状态失败。", nil)
+			return
+		}
 		ctx.Ajax(-3, "切换状态失败！", nil)
+		return
+	}
+	if new_status == exchangeService.PROCESS_TRUE {
+		ctx.Ajax(2,"发红包成功！", nil)
 		return
 	}
 	ctx.Ajax(1,"切换状态成功！", nil)
