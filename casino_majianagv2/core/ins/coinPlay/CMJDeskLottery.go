@@ -96,7 +96,12 @@ func (d *CMJDesk) ClearRobotUser() error {
 func (d *CMJDesk) rmUser(user api.MjUser) error {
 	//删除
 	d.GetSkeletonMJDesk().RmUser(user)
-	d.Room.GetRoomMgr().GetRobotManger().ReleaseRobots(user.GetUserId())
+	//log.D("d.GetRoom() == nil %v", d.GetRoom() == nil)
+	//log.D("d.Room.GetRoomMgr() == nil %v", d.Room.GetRoomMgr() == nil)
+	//log.D("d.Room.GetRoomMgr().GetRobotManger() == nil %v", d.Room.GetRoomMgr().GetRobotManger() == nil)
+	if user.GetStatus().IsRobot {
+		d.Room.GetRoomMgr().GetRobotManger().ReleaseRobots(user.GetUserId())
+	}
 	return nil
 }
 
