@@ -9,6 +9,7 @@ import (
 	"casino_common/common/Error"
 	"casino_majianagv2/core/ins/skeleton"
 	"casino_common/common/consts"
+	"casino_common/utils/timeUtils"
 )
 
 //进入游戏
@@ -53,5 +54,44 @@ func (d *CMJDesk) EnterUser(userId uint32, a gate.Agent) error {
 		d.SendGameInfo(userId, mjproto.RECONNECT_TYPE_NORMAL)
 		//如果人数不够，这里会再初始化一个initEnterTimer,只有在金币场的时候会初始化
 		return nil
+	}
+}
+
+//机器人进入房间
+func (d *CMJDesk) enterRobot() {
+	log.T("%v 开是添加机器人", d.DlogDes())
+	//1,做异常处理
+	defer Error.ErrorRecovery("添加机器人")
+
+	//2,获取机器人
+	robot := d.Room.GetRoomMgr().GetRobotManger().ExpropriationRobotByCoin(d.CoinLimit)
+	if robot == nil {
+		log.E("[%v]添加机器人的时候，没有找到合适的机器人...", d.DlogDes())
+		return
+	}
+
+	//3，加入房间
+	err := d.EnterUser(robot.GetId(), nil) //金币场 机器人进入房间
+	if err != nil {
+		//用户加入房间失败...
+		log.E("机器人玩家[%v]加入房间失败errMsg[%v]", robot.GetId(), err)
+		d.Room.GetRoomMgr().GetRobotManger().ReleaseRobots(robot.GetId())
+	}
+}
+
+//todo
+func (d *CMJDesk) initEnterTimer() {
+	//房间中有人的时候，才会让机器人进来
+	log.T("%v开始准备机器人的enterTimer,d.GetUserCount(%v),d.GetUserCountLimit(%v)", d.DlogDes(), d.GetUserCount(), d.GetMJConfig().PlayerCountLimit)
+	if d.GetUserCount() > 0 && d.GetUserCount() < d.GetMJConfig().PlayerCountLimit {
+		//5到10秒之后进入一个机器人
+		if d.RobotEnterTimer != nil {
+			d.RobotEnterTimer.Stop()
+		}
+		//停止之后，再来重新计时进入机器人
+		d.RobotEnterTimer = d.AfterFunc(timeUtils.RandDuration(2, 7), func() {
+			log.T("%v现在开始添加机器人.", d.DlogDes())
+			d.enterRobot() //进入一个
+		})
 	}
 }

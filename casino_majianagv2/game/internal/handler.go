@@ -446,15 +446,28 @@ func handlerGame_Message(args []interface{}) {
 
 //强制退出
 func HandlerCommonAckLogout(args []interface{}) {
+
+}
+
+//离开房间
+func HandlerCommonReqLeaveDesk(args []interface{}) {
 	m := args[0].(*ddproto.CommonReqLeaveDesk)
 	a := args[1].(gate.Agent)
 	userId := m.GetHeader().GetUserId()
 
+	//需要返回ack
+	ack := &ddproto.CommonAckLeaveDesk{
+		UserId:     proto.Uint32(userId),
+		IsExchange: proto.Bool(false)}
+
+	//得到desk
 	desk := roomMgr.GetMjDeskBySession(userId) //通过userId 的session 得到对应的desk
 	if desk == nil {
+		a.WriteMsg(ack) //回复离开房间的回复
 		return
 	}
 
+	//查看是离开房间  还是换房间
 	if m.GetIsExchange() {
 		//换房间
 		desk.ExchangeRoom(userId, a)
@@ -462,15 +475,11 @@ func HandlerCommonAckLogout(args []interface{}) {
 		//离开房间
 		log.T("玩家[%v]开始离开房间...", userId)
 		err := desk.Leave(userId)
-		if err != nil {
-			log.E("玩家[%v]离开房间的时候出错", userId)
+		if err == nil {
+			desk.BroadCastProto(ack) //给每个人发送离开房间的协议...
 		}
+		a.WriteMsg(ack) //返回房间 始终返回退出
 	}
-}
-
-//离开房间
-func HandlerCommonReqLeaveDesk(args []interface{}) {
-
 }
 
 //申请解散房间

@@ -27,6 +27,10 @@ func (d *SkeletonMJDesk) SetRoom(r api.MjRoom) {
 	d.Room = r
 }
 
+func (d *SkeletonMJDesk) GetRoom() api.MjRoom {
+	return d.Room
+}
+
 //返回骨架
 func (d *SkeletonMJDesk) GetSkeletonMjDesk() interface{} {
 	return d

@@ -24,6 +24,7 @@ type MjDesk interface {
 	GetHuParser() HuPaerApi              //得到胡牌解析器
 	GetUsers() []MjUser                  //得到所有的玩家
 	GetSkeletonMjDesk() interface{}      //得到骨架的desk
+	GetRoom() MjRoom                     //得到桌子
 	SetRoom(d MjRoom)                    //设置room
 	BroadCastProto(p proto.Message)      //广播
 }

@@ -14,21 +14,34 @@ import (
 	"casino_majiang/service/majiang"
 	"github.com/name5566/leaf/gate"
 	"casino_majiang/msg/protogo"
+	"casino_common/proto/ddproto"
+	"fmt"
+	"casino_common/utils"
+	"casino_majiang/gamedata/model"
 )
 
 type CMjRoom struct {
 	*module.Skeleton //leaf 的骨架
 	*skeleton.SkeletonMJRoom
-	RoomLevel int32 //金币场等级
-	EnterFee  int64 //进房费用
+	RoomLevel   int32 //金币场等级
+	EnterFee    int64 //进房费用
+	CoinLimit   int64
+	CoinLimitUL int64
+	BaseValue   int64 //底分
 }
 
-func NewDefaultCMjRoom(mgr api.MjRoomMgr, s *module.Skeleton, l int32) api.MjRoom {
+//new一个room
+func NewDefaultCMjRoom(mgr api.MjRoomMgr, s *module.Skeleton, config *model.TMjRoomConfig) api.MjRoom {
 	ret := &CMjRoom{
 		Skeleton:       s,
-		RoomLevel:      l,
-		SkeletonMJRoom: skeleton.NewSkeletonMJRoom(mgr, l),
+		RoomLevel:      config.RoomLevel,
+		EnterFee:       config.EnterCoinFee,
+		CoinLimit:      config.RoomLimitCoin,
+		CoinLimitUL:    config.RoomLimitCoinUL,
+		SkeletonMJRoom: skeleton.NewSkeletonMJRoom(mgr, config.RoomLevel),
 	}
+	ret.RoomName = config.RoomName
+	ret.BaseValue = config.RoomBaseValue
 	return ret
 }
 
@@ -50,7 +63,7 @@ func (r *CMjRoom) CreateDesk(config interface{}) (api.MjDesk, error) {
 //金币场 进入一个User
 func (r *CMjRoom) EnterUser(userId uint32, key string, a gate.Agent) error {
 	//金币场加入房间的逻辑
-	desk := r.GetAbleCoinDesk(userId)
+	desk, err := r.GetAbleCoinDeskBySession(userId)
 	if desk == nil {
 		log.T("通过key[%v]没有找到对应的desk,删除session", key)
 		//删除玩家对应的session
@@ -58,7 +71,7 @@ func (r *CMjRoom) EnterUser(userId uint32, key string, a gate.Agent) error {
 		return Error.NewError(consts.ACK_RESULT_FAIL, "长时间没有动作，请换房间")
 	}
 
-	err := desk.EnterUser(userId, a) //普通玩家进入房间
+	err = desk.EnterUser(userId, a) //普通玩家进入房间
 	if err != nil {
 		//用户加入房间失败...
 		sessionService.DelSession(sessionService.GetSession(userId, majiang.ROOMTYPE_COINPLAY))
@@ -70,37 +83,52 @@ func (r *CMjRoom) EnterUser(userId uint32, key string, a gate.Agent) error {
 }
 
 //找到金币场可以玩的桌子
-func (r *CMjRoom) GetAbleCoinDesk(userId uint32) api.MjDesk {
+//通过session 找到对应的金币场的游戏desk
+func (r *CMjRoom) GetAbleCoinDeskBySession(userId uint32) (api.MjDesk, error) {
 	var retDesk api.MjDesk
-	//1,通过session来找
+	//得到金币场的session
 	csession := sessionService.GetSession(userId, majiang.ROOMTYPE_COINPLAY)
-	//log.T("玩家%v进入金币场的时候，获取到的session：%v", userId, csession)
-	if csession != nil {
-		retDesk = r.GetDesk(csession.GetDeskId())
+	//如果csession == nil 表示之前没有在游戏状态 返回nil
+	if csession == nil {
+		log.T("没有找到玩家[%v]的session，返回空，需要寻找room中合适的房间...", userId)
+		return nil, nil
 	}
 
-	//如果session中寻找到的desk不为空，那么直接返回，如果没有找到，那么再从新分配
-	if retDesk != nil {
-		return retDesk
+	//定义错误
+	errMsg := "[%v]%v的游戏还没有结束，请完成后再来"
+	gameName := utils.GetGameName(csession.GetGameId(), csession.GetRoomType())
+
+	//如果金币的session 不是麻将的，直接返回
+	if csession.GetGameId() != int32(ddproto.CommonEnumGame_GID_MAHJONG) {
+		log.T("玩家[%v]当前的游戏状态没有在麻将金币场中..返回错误", userId)
+		return nil, Error.NewError(consts.ACK_RESULT_ERROR, fmt.Sprintf(errMsg, gameName, ""))
 	}
 
-	//2,session中没有找到原来的desk，重新分配桌子
-	//log.T("开始获取可以使用的金币场level[%v]的desk....", r.GetRoomLevel())
-	for _, d := range r.Desks {
-		if d != nil && d.GetSkeletonMjDesk() != nil {
-			s := d.GetSkeletonMjDesk().(*skeleton.SkeletonMJDesk)
-			if !s.IsPlayerEnough() {
-				retDesk = d
-			}
-		}
+	//
+	if csession.GetRoomId() != r.GetRoomId() {
+		log.T("玩家[%v]当前的游戏状态room(id==%v)没有在当前room(id==%v)中..返回错误", userId, csession.GetRoomId(), r.GetRoomId())
+		return nil, Error.NewError(consts.ACK_RESULT_ERROR,
+			fmt.Sprintf(errMsg, gameName, r.GetRoomMgr().GetRoom(csession.GetRoomType(), csession.GetRoomId()).GetRoomName()))
 	}
 
-	//创建一个金币场的桌子
+	//进入房间的error
+	retDesk = r.GetDesk(csession.GetDeskId())
 	if retDesk == nil {
-		retDesk = r.CreateCoinPlayDesk()
+		//玩家的session信息已经过时，直接删除
+		log.T("通过玩家[%v]的session[%v]没有找到对应的desk，表示session过期，需要删除对应的session", userId, csession)
+		sessionService.DelSessionByKey(userId, majiang.ROOMTYPE_COINPLAY) //通过session没有找到desk，证明session失效,此时删除session
+		return nil, nil
 	}
-	log.T("获取到的可以使用level[%v]的金币场的desk[%v].", r.GetRoomLevel(), retDesk.GetMJConfig().DeskId)
-	return retDesk
+
+	//判断桌子的登记是否一样
+	log.T("开始判断找到的desk的level[%v] 和 room 的level[%v] 是否相等", retDesk.GetRoom().GetRoomLevel(), r.GetRoomLevel())
+	if retDesk.GetRoom().GetRoomLevel() != r.GetRoomLevel() {
+		return nil, Error.NewError(consts.ACK_RESULT_ERROR,
+			fmt.Sprintf(errMsg, gameName, r.GetRoomMgr().GetRoom(csession.GetRoomType(), csession.GetRoomId()).GetRoomName()))
+	}
+
+	//返回最终的数据
+	return retDesk, nil
 }
 
 //创建金币场的desk
@@ -135,7 +163,7 @@ func (r *CMjRoom) CreateCoinPlayDesk() api.MjDesk {
 		RoomLevel:        0,
 		PlayerCountLimit: 4,
 		FangCount:        3,
-		CoinLimit:        r.GetCoinLimit(),
+		CoinLimit:        r.CoinLimit,
 	}
 	//
 	desk, err := r.CreateDesk(config)
@@ -143,26 +171,4 @@ func (r *CMjRoom) CreateCoinPlayDesk() api.MjDesk {
 		log.E("创建金币场的房间的时候出错..err %v ", err)
 	}
 	return desk
-}
-
-//进入房间的费用 todo 需要移动到配置文件
-func (r *CMjRoom) GetEnterFee() int64 {
-	return 300
-}
-
-//金币的限制 todo 需要移动到配置文件
-func (r *CMjRoom) GetCoinLimit() int64 {
-	retcoin := int64(0)
-	switch r.GetRoomLevel() {
-	case 1:
-		retcoin = 1000
-	case 2:
-		retcoin = 5000
-	case 3:
-		retcoin = 10000
-	case 4:
-		retcoin = 10000
-	}
-
-	return retcoin
 }

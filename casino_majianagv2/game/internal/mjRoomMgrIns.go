@@ -10,6 +10,7 @@ import (
 	"casino_majiang/service/majiang"
 	"casino_common/common/sessionService"
 	"casino_common/common/log"
+	"casino_majiang/gamedata/dao"
 )
 
 type MJMgr struct {
@@ -41,17 +42,30 @@ func (m *MJMgr) GetRoom(roomType int32, roomLevel int32) api.MjRoom {
 
 //room管理器的初始化工作应该放在这里
 func (m *MJMgr) OnInit() error {
-	//初始化机器人
-	m.RobotManger = robotService.NewRobotManager(ddproto.CommonEnumGame_GID_MAHJONG)
-	//初始化朋友桌
-	m.froom = friendPlay.NewDefaultFMJRoom(m, m.Skeleton)
-
-	//初始化金币场
-	m.croom = append(m.croom, coinPlay.NewDefaultCMjRoom(m, m.Skeleton, 1))
-	m.croom = append(m.croom, coinPlay.NewDefaultCMjRoom(m, m.Skeleton, 2))
-	m.croom = append(m.croom, coinPlay.NewDefaultCMjRoom(m, m.Skeleton, 3))
-	m.croom = append(m.croom, coinPlay.NewDefaultCMjRoom(m, m.Skeleton, 4))
+	m.initFriendDesk()  //初始化朋友桌
+	m.initCoinDesk()    //初始化金币场
+	m.initRobotManger() //初始化机器人
 	return nil
+}
+
+//初始化朋友桌
+func (m *MJMgr) initFriendDesk() {
+	m.froom = friendPlay.NewDefaultFMJRoom(m, m.Skeleton)
+}
+
+//初始化金币场
+func (m *MJMgr) initCoinDesk() {
+	roomConfigs := dao.GetMJRoomConfigData()
+	log.T("开始初始化麻将的金币场room：roomConfigs:%v", roomConfigs)
+	for _, d := range roomConfigs {
+		m.croom = append(m.croom, coinPlay.NewDefaultCMjRoom(m, m.Skeleton, d))
+	}
+	log.T("麻将的金币场room初始化腕尺:%v", m.croom)
+}
+
+//初始化机器人管理器
+func (m *MJMgr) initRobotManger() {
+	m.RobotManger = robotService.NewRobotManager(ddproto.CommonEnumGame_GID_MAHJONG)
 }
 
 func (m *MJMgr) GetMjDeskBySession(userId uint32) api.MjDesk {

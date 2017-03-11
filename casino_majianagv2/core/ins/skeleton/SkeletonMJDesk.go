@@ -672,5 +672,4 @@ func (d *SkeletonMJDesk) InitCheckCaseAfterGang(gangType int32, gangPai *majiang
 			log.T("巴杠没有人可以抢杠...")
 		}
 	}
-
 }

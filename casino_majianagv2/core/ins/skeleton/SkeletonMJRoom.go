@@ -15,6 +15,8 @@ import (
 
 type SkeletonMJRoom struct {
 	RoomId      int32
+	RoomName    string
+	RoomType    int32 //room类型
 	Desks       []api.MjDesk
 	RoomMnanger api.MjRoomMgr
 	sync.Mutex
@@ -33,6 +35,9 @@ func (r *SkeletonMJRoom) GetRoomId() int32 {
 }
 func (r *SkeletonMJRoom) GetRoomLevel() int32 {
 	return 0
+}
+func (r *SkeletonMJRoom) GetRoomName() string {
+	return r.RoomName
 }
 
 //得到一个desk
