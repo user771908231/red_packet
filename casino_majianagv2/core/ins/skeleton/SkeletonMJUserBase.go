@@ -204,7 +204,7 @@ func (u *SkeletonMJUser) GetPlayerCard(showHand bool) *mjproto.PlayerCard {
 }
 
 func (u *SkeletonMJUser) WriteMsg(p proto.Message) error {
-	if u.a != nil {
+	if u.a != nil && !u.GetStatus().IsBreak && !u.GetStatus().IsLeave {
 		typeString := reflect.TypeOf(p).String()
 		log.T("给玩家[%v]发送[%v]--[%v]", u.GetUserId(), typeString, p)
 		u.a.WriteMsg(p)
