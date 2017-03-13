@@ -71,7 +71,10 @@ func RechargeLogHandler(ctx *modules.Context) {
 	list := []agentModel.RechargeLog{}
 	query := bson.M{
 		"$and": []bson.M{
-			bson.M{"agentid": bson.M{"$eq": agent_id}},
+			bson.M{
+				"agentid": bson.M{"$eq": agent_id},
+				"ispay": true,
+			},
 		},
 	}
 	start_time := ctx.Query("start")

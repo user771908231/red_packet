@@ -54,8 +54,12 @@ func OauthCallBack(ctx *modules.Context) {
 
 	//保存用户信息至session
 	ctx.Session.Set("wx_user", *wx_info)
-
+	//跳转至发起微信登录时的页面
+	if url := ctx.Session.Get("redirect"); url != nil{
+		ctx.Session.Delete("redirect")
+		ctx.Redirect(url.(string), 302)
+		return
+	}
 	//ctx.JSON(200, userinfo)
 	ctx.Redirect("/weixin/agent", 302)
 }
-

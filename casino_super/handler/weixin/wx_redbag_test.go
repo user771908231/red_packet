@@ -24,7 +24,7 @@ func TestRedBag(t *testing.T) {
 		"re_openid": "oG9kZwrv8oFF9ja6WRlHxxMoJZoU",  //用户openid
 		"total_amount": "100",  //付款金额，单位（分）
 		"total_num": "1",  //红包发放总人数
-		"wishing": "这是祝福语。",  //红包祝福语
+		"wishing": "恭喜发财，大吉大利！",  //红包祝福语
 		"client_ip": "171.221.137.148",  //调用接口的机器Ip地址
 		"act_name": "领红包活动",  //活动名称
 		"remark": "红包兑换",  //备注信息

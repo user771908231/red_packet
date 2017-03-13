@@ -9,6 +9,7 @@ import (
 	"time"
 	"math"
 	"casino_super/model/agentModel"
+	"casino_common/common/userService"
 )
 
 //红包与实物兑换
@@ -26,7 +27,10 @@ func ApplyListHandler(ctx *modules.Context) {
 
 	query := bson.M{
 		"$and": []bson.M{
-			bson.M{"status": status,},
+			bson.M{
+				"status": status,
+				"invitedid": 0,
+			},
 		},
 	}
 
@@ -45,7 +49,7 @@ func ApplyListHandler(ctx *modules.Context) {
 		})
 	}
 
-	list := []*exchangeService.ExchangeRecord{}
+	list := []*agentModel.ApplyRecord{}
 	_,count := db.C(tableName.DBT_AGENT_APPLY_LOG).Page(query, &list, "-requesttime", page, 10)
 	ctx.Data["status"] = status
 	ctx.Data["list"] = list
@@ -78,6 +82,22 @@ func ApplySwitchState(ctx *modules.Context) {
 	if err != nil {
 		ctx.Ajax(-3, "切换状态失败！", nil)
 		return
+	}
+	//切换为申请成功,则插入代理信息表
+	if row.Status == exchangeService.PROCESS_TRUE {
+		user_info := userService.GetUserById(row.UserId)
+		new_agent_info := agentModel.AgentInfo{
+			UserId: row.UserId,
+			NickName: user_info.GetNickName(),
+			RealName: row.Name,
+			Phone: row.Phone,
+			OpenId: user_info.GetOpenId(),
+			UnionId: user_info.GetUnionId(),
+			Pid: row.InvitedId,
+			Level: 1,
+			Type: agentModel.AGENT_TYPE_1,
+		}
+		new_agent_info.Insert()
 	}
 	ctx.Ajax(1,"切换状态成功！", nil)
 }
