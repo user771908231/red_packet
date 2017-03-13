@@ -78,6 +78,13 @@ func Regist(m *macaron.Macaron) {
 			})
 			//我的客户
 			m.Get("/customers", weixin.CustomersListHandler)
+			m.Group("/apply", func() {
+				m.Get("/log", weixin.ApplyLogHandler)
+				m.Get("/switch", weixin.ApplySwitchState)
+			})
+
+			//我的下线代理
+			m.Get("/my_agents", weixin.MyAgentsHandler)
 			//返利记录
 			m.Group("/rebate", func() {
 				m.Get("/log", weixin.RebateLogHandler)
@@ -100,6 +107,8 @@ func Regist(m *macaron.Macaron) {
 	m.Post("/weixin/agent/apply", weixin.NeedWxLogin, admin.NeedCaptcha, binding.BindIgnErr(weixin.ApplyForm{}), weixin.ApplyPostHandler)
 	//微信充值回调
 	m.Any("/mp/pay/callback", weixinModel.WxNotifyHandler)
+	//微信领红包
+	m.Get("/weixin/get_redpack", weixin.NeedWxLogin, weixin.NeedIsGamer, weixin.GetRedPackHandler)
 
 	//首页
 	m.Get("/", func(ctx *modules.Context) {

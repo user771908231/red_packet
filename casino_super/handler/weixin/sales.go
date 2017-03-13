@@ -52,10 +52,21 @@ func SalesToUserHandler(ctx *modules.Context, form SalesForm, errs binding.Error
 		ctx.Ajax(-3, "为该用户添加房卡失败！请重新登录！",nil)
 		return
 	}
-	//代理之间无法转房卡
+	//代理之间无法跨级转房卡，除非该用户为总代理
 	if agentModel.IsAgent(form.Uid) {
-		ctx.Ajax(-7, "为该用户添加房卡失败！因为该用户为代理商。",nil)
-		return
+		my_agent_info := agentModel.GetAgentInfoById(agent_id)
+		agent_info := agentModel.GetAgentInfoById(form.Uid)
+		if my_agent_info.Type == agentModel.AGENT_TYPE_1 {
+			if my_agent_info.UserId != agent_info.RootId {
+				ctx.Ajax(-7, "为该代理商添加房卡失败！因为该代理不属于你的子代理。",nil)
+				return
+			}
+		}else {
+			if my_agent_info.UserId != agent_info.Pid {
+				ctx.Ajax(-7, "为该代理商添加房卡失败！因为该代理不属于你的子代理。",nil)
+				return
+			}
+		}
 	}
 	roomCardNum := userService.GetUserRoomCard(agent_id)
 	if roomCardNum < form.Num {
