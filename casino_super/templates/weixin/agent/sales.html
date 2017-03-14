@@ -6,7 +6,10 @@
 <!--顶部 导航栏部分-->
 <nav class="nav navbar-default navbar-mystyle navbar-fixed-top">
     <div class="navbar-header">
-        <span><a href="/weixin/" style="font-family: 微软雅黑;font-size: 2rem;line-height: 50px;margin-left: 2rem;font-weight: bold;color: darkgrey">动点游戏</a></span>
+        <a id="back-btn" href="/weixin/agent">
+            <span id="back-text">返回</span>
+        </a>
+            <span><a id="logo-text" href="/weixin/agent">动点游戏</a></span>           
         <button class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
             <span class="icon-bar"></span>
             <span class="icon-bar"></span>
@@ -16,10 +19,6 @@
     </div>
     <div class="collapse navbar-collapse" style="background-color: #394555;">
         <ul class="nav navbar-nav pull-right">
-            <!--<li class="dropdown li-border" id="oSpan"><a href="#" class="dropdown-toggle mystyle-color" data-toggle="dropdown">选择游戏后台<span class="caret"></span></a>-->
-            <!--<ul class="dropdown-menu" id="choseGame">-->
-            <!--</ul>-->
-            <!--</li>-->
             <li class="dropdown li-border"><a href="#" class="dropdown-toggle mystyle-color" data-toggle="dropdown"><span id="userNick">{{.wx_user.Nickname}}</span><span class="caret"></span></a>
                 <ul class="dropdown-menu">
                     <li><a href="#" id="logout">退出</a></li>
@@ -28,47 +27,9 @@
         </ul>
     </div>
 </nav>
-<!--左侧菜单栏部分-->
-<div class="down-main">
-    <div class="left-main left-off">
-        <div class="sidebar-fold"><span class="glyphicon glyphicon-menu-hamburger"></span></div>
-        <div class="subNavBox">
-            <div class="sBox">
-                <ul class="navContent" style="display:block">
-                    <li>
-                        <div class="showtitle" style="width:100px;">首页</div>
-                        <a href="/weixin/agent"><span class="sublist-icon glyphicon glyphicon-home"></span><span class="sub-title">首页</span></a></li>
-                    <li class="active">
-                        <div class="showtitle" style="width:100px;">出售</div>
-                        <a href="/weixin/agent/sales"><span class="sublist-icon glyphicon glyphicon-tag"></span><span class="sub-title">出售</span></a></li>
-                    <li>
-                        <div class="showtitle" style="width:100px;">充值</div>
-                        <a href="/weixin/agent/recharge"><span class="sublist-icon glyphicon glyphicon-shopping-cart"></span><span class="sub-title">充值</span></a></li>
-                    <li>
-                        <div class="showtitle" style="width:100px;">充值记录</div>
-                        <a href="/weixin/agent/recharge/log"><span class="sublist-icon glyphicon glyphicon-time"></span><span class="sub-title">充值记录</span></a></li>
-                    <li>
-                        <div class="showtitle" style="width:100px;">出售记录</div>
-                        <a href="/weixin/agent/sales/log"><span class="sublist-icon glyphicon glyphicon-star-empty"></span><span class="sub-title">出售记录</span></a></li>
-                    <li>
-                        <div class="showtitle" style="width:100px;">我的客户</div>
-                        <a href="/weixin/agent/customers"><span class="sublist-icon glyphicon glyphicon-user"></span><span class="sub-title">我的客户</span></a></li>
-                    <li>
-                        <div class="showtitle" style="width:100px;">代理审核</div>
-                        <a href="/weixin/agent/apply/log"><span class="sublist-icon glyphicon glyphicon-user"></span><span class="sub-title">代理审核</span></a></li>
-                    <li>
-                        <div class="showtitle" style="width:100px;">我的代理</div>
-                        <a href="/weixin/agent/my_agents"><span class="sublist-icon glyphicon glyphicon-user"></span><span class="sub-title">我的代理</span></a></li>
-                    <li>
-                        <div class="showtitle" style="width:100px;">返利记录</div>
-                        <a href="/weixin/agent/rebate/log"><span class="sublist-icon glyphicon glyphicon-star-empty"></span><span class="sub-title">返利记录</span></a></li>
-                </ul>
-            </div>
-        </div>
-    </div>
     <!--右侧主体部分-->
-    <div class="right-product my-index right-off">
-        <div class="container-fluid">
+    <div class="my-index right-off">
+        <div class="">
             <div class="info-center">
                 <div class="page-header">
                     <div class="pull-left">

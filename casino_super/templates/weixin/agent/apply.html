@@ -8,22 +8,22 @@
 <div style="margin-top: 100px">
     <h3 style="text-align: center">神经棋牌-代理申请</h3>
 </div>
-<div style="width: 440px; margin: 0 auto; border: solid 2px darkgrey; padding: 20px 20px 30px 0">
+<!--<div style="width: 440px; margin: 0 auto; border: solid 2px darkgrey; padding: 20px 20px 30px 0">-->
     <form class="layui-form" method="post" action="">
         <div class="layui-form-item">
-            <label class="layui-form-label">真实姓名：</label>
+            <label class="layui-form-label">真实姓名</label>
             <div class="layui-input-block">
                 <input type="text" name="name" lay-verify="required" placeholder="请输入" autocomplete="off" class="layui-input">
             </div>
         </div>
         <div class="layui-form-item">
-            <label class="layui-form-label">联系电话：</label>
+            <label class="layui-form-label">联系电话</label>
             <div class="layui-input-block">
                 <input type="tel" name="phone" lay-verify="phone" placeholder="请输入" autocomplete="off" class="layui-input">
             </div>
         </div>
         <div class="layui-form-item">
-            <label class="layui-form-label">邀请人Id：</label>
+            <label class="layui-form-label">邀请人Id</label>
             <div class="layui-input-block">
                 <input type="number" name="invited" placeholder="如果没有，可以不填。" autocomplete="off" class="layui-input">
             </div>
@@ -32,7 +32,7 @@
             {{.Captcha.CreateHtml}}
         </div>
         <div class="layui-form-item">
-            <label class="layui-form-label">验证码：</label>
+            <label class="layui-form-label">验证码</label>
             <div class="layui-input-block">
                 <input type="number" name="captcha" value="" lay-verify="number" autocomplete="off" class="layui-input">
             </div>
@@ -44,7 +44,7 @@
             </div>
         </div>
     </form>
-</div>
+<!--</div>-->
 
 <script>
     $("title").html("动点网络-棋牌代理申请");

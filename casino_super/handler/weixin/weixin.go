@@ -49,6 +49,17 @@ func NeedIsAgent(ctx *modules.Context)  {
 	}
 }
 
+//需要是一级代理
+func NeedIsRootAgent(ctx *modules.Context) {
+	wx_info := ctx.IsWxLogin()
+	agent_id := agentModel.GetUserIdByUnionId(wx_info.UnionId)
+	agent_info := agentModel.GetAgentInfoById(agent_id)
+	if agent_info == nil || agent_info.Level != 1 {
+		ctx.Error("您没有权限访问本页面！", "", 0)
+		return
+	}
+}
+
 //领红包
 func GetRedPackHandler(ctx *modules.Context) {
 	wx_info := ctx.IsWxLogin()

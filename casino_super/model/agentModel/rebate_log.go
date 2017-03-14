@@ -15,11 +15,11 @@ func init() {
 	RebateConfig = []RebateConfigItem{
 		//卖满10张房卡则奖励1张房卡
 		RebateConfigItem{
-			Num: 10,
+			Num: 100,
 			Reward: []*ddproto.HallBagItem{
 				&ddproto.HallBagItem{
 					Type:   ddproto.HallEnumTradeType_PROPS_FANGKA.Enum(),
-					Amount: proto.Float64(1),
+					Amount: proto.Float64(10),
 				},
 			},
 		},

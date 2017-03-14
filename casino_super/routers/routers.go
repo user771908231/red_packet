@@ -69,7 +69,7 @@ func Regist(m *macaron.Macaron) {
 				m.Get("/done", weixin.RechargeDoneHandler)
 				m.Get("/wx_pay", weixin.RechargeAjaxWxTradeDataHandler)
 				m.Get("/log", weixin.RechargeLogHandler)
-			})
+			}, weixin.NeedIsRootAgent)
 			//销售
 			m.Group("/sales", func() {
 				m.Get("/", weixin.SalesIndexHandler)
