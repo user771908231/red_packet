@@ -62,7 +62,8 @@ func Regist(m *macaron.Macaron) {
 		//需要微信登录
 		m.Group("/agent", func() {
 			m.Get("/", weixin.MainHandler)
-			//m.Get("/info", weixin.InfoHandler)
+			//代理个人信息
+			m.Get("/info", weixin.AgentInfoHandler)
 			//充值
 			m.Group("/recharge", func() {
 				m.Get("/", weixin.RechargeListHandler)
