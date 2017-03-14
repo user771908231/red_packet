@@ -1,0 +1,89 @@
+{{ template "weixin_header" }}
+<div class="alert alert-info alert-dismissable" role="alert">
+    <button class="close" type="button" onclick="$('.alert').eq(0).hide();">&times;</button>
+    <span></span>
+</div>
+<!--顶部 导航栏部分-->
+<nav class="nav navbar-default navbar-mystyle navbar-fixed-top">
+    <div class="navbar-header">
+        <a id="back-btn" href="/weixin/agent">
+            <span id="back-text">返回</span>
+        </a>
+        <span><a id="logo-text" href="/weixin/agent">动点游戏</a></span>
+        <button class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+        </button>
+        <!--<a class="navbar-brand mystyle-brand" href="#"><span class="glyphicon glyphicon-home"></span></a>-->
+    </div>
+    <div class="collapse navbar-collapse" style="background-color: #394555;">
+        <ul class="nav navbar-nav pull-right">
+            <!--<li class="dropdown li-border" id="oSpan"><a href="#" class="dropdown-toggle mystyle-color" data-toggle="dropdown">选择游戏后台<span class="caret"></span></a>-->
+            <!--<ul class="dropdown-menu" id="choseGame">-->
+            <!--</ul>-->
+            <!--</li>-->
+            <li class="dropdown li-border"><a href="#" class="dropdown-toggle mystyle-color" data-toggle="dropdown"><span id="userNick">{{.wx_user.Nickname}}</span><span class="caret"></span></a>
+                <ul class="dropdown-menu">
+                    <li><a href="#" id="logout">退出</a></li>
+                </ul>
+            </li>
+        </ul>
+    </div>
+</nav>
+
+<!--右侧主体部分-->
+<div class="my-index right-off">
+    <div class="">
+        <div class="info-center">
+            <div class="page-header">
+                <div class="pull-left">
+                    <h4>返利记录<small id="gameName">四川麻将会员代理后台</small></h4>
+                </div>
+            </div>
+        </div>
+        <table class="layui-table">
+            <caption style="text-align: center">代理信息</caption>
+            <tbody>
+            <tr>
+                <td>头像：</td>
+                <td><img src="{{.wx_user.HeadImageURL}}" width="80px" alt=""></td>
+            </tr>
+            <tr>
+                <td>代理ID：</td>
+                <td>{{.info.UserId}}</td>
+            </tr>
+            <tr>
+                <td>昵称：</td>
+                <td>{{.info.NickName}}</td>
+            </tr>
+            <tr>
+                <td>代理类型：</td>
+                <td>
+                    {{if eq .info.Type 1}}总代理{{end}}
+                    {{if eq .info.Type 2}}一级代理{{end}}
+                    {{if eq .info.Type 3}}普通代理{{end}}
+                </td>
+            </tr>
+            <tr>
+                <td>姓名：</td>
+                <td>{{.info.RealName}}</td>
+            </tr>
+            <tr>
+                <td>手机号：</td>
+                <td>{{.info.Phone}}</td>
+            </tr>
+            </tbody>
+        </table>
+
+    </div>
+</div>
+</div>
+<script src="/static/weixin/js/slide_menu.js"></script>
+<script src="/static/weixin/js/share.js"></script>
+<script type="text/javascript">
+    $("title").html("代理信息");
+</script>
+
+
+{{ template "weixin_footer" }}
