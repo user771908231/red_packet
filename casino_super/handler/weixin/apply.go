@@ -14,7 +14,13 @@ import (
 )
 
 func ApplyHandler(ctx *modules.Context) {
-
+	wx_info := ctx.IsWxLogin()
+	user_id := agentModel.GetUserIdByUnionId(wx_info.UnionId)
+	//验证代理商不得重复申请
+	if agentModel.GetAgentInfoById(user_id) != nil {
+		ctx.Success("您现在已经是代理商了，请不要重复申请！", "", 0)
+		return
+	}
 	ctx.HTML(200, "weixin/agent/apply")
 }
 
@@ -33,6 +39,12 @@ func ApplyPostHandler(ctx *modules.Context, errs binding.Errors, form ApplyForm)
 	}
 	wx_info := ctx.IsWxLogin()
 	user_id := agentModel.GetUserIdByUnionId(wx_info.UnionId)
+
+	//验证代理商不得重复申请
+	if agentModel.GetAgentInfoById(user_id) != nil {
+		ctx.Success("您现在已经是代理商了，请不要重复申请！", "", 0)
+		return
+	}
 
 	//验证InvitedId
 	if form.InvitedId != 0 {
