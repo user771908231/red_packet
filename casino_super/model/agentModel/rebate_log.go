@@ -8,6 +8,7 @@ import (
 	"github.com/golang/protobuf/proto"
 	"gopkg.in/mgo.v2/bson"
 	"time"
+	"casino_super/conf"
 )
 
 func init() {
@@ -15,11 +16,11 @@ func init() {
 	RebateConfig = []RebateConfigItem{
 		//卖满10张房卡则奖励1张房卡
 		RebateConfigItem{
-			Num: 100,
+			Num: conf.Server.RebateMan,
 			Reward: []*ddproto.HallBagItem{
 				&ddproto.HallBagItem{
 					Type:   ddproto.HallEnumTradeType_PROPS_FANGKA.Enum(),
-					Amount: proto.Float64(10),
+					Amount: proto.Float64(float64(conf.Server.RebateSong)),
 				},
 			},
 		},
