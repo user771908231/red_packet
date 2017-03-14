@@ -30,6 +30,11 @@ var Server struct {
 
 	//外网Ip
 	OutIp string
+	HallTcpAddr string
+
+	//返利
+	RebateMan int64  //满1000
+	RebateSong int64 //送10
 }
 
 func init() {
