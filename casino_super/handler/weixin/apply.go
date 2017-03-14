@@ -46,6 +46,7 @@ func ApplyPostHandler(ctx *modules.Context, errs binding.Errors, form ApplyForm)
 	exist_agent := agentModel.ApplyRecord{}
 	err_exists := db.C(tableName.DBT_AGENT_APPLY_LOG).Find(bson.M{
 		"userid": user_id,
+		"status": exchangeService.PROCESS_ING,
 	}, &exist_agent)
 	if err_exists == nil {
 		ctx.Error("您已经发过申请，请不要重复发送！", "", 3)
