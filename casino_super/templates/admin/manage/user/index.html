@@ -36,7 +36,7 @@
 </div>
 
 <!--模板：用户列表-->
-<script id="tpl_list" type="text/html">
+<script id="tpl_list" type="text/javascript">
     <{# layui.each(d.data.list, function(index,item){ }>
     <tr id="user-<{ item.id }>">
         <td><{ item.id }></td>
@@ -61,7 +61,7 @@
 </script>
 
 <!--模板：编辑用户-->
-<script id="tpl_edit" data-width="360px" data-title="编辑用户" type="text/html">
+<script id="tpl_edit" data-width="360px" data-title="编辑用户" type="text/javascript">
     <form id="form_edit" method="post" action="/admin/manage/user/update">、
         <input type="hidden" name="id" value="<{ d.id }>">
         <div class="layui-form-item">
@@ -158,7 +158,7 @@
 </script>
 
 <!--模板：用户充值-->
-<script id="tpl_recharge" data-width="360px" data-title="用户充值" type="text/html">
+<script id="tpl_recharge" data-width="360px" data-title="用户充值" type="text/javascript">
     <form id="form_recharge" method="post" action="/admin/manage/user/recharge">
         <input type="hidden" name="Id" value="<{ d.id }>">
         <div class="layui-form-item">
