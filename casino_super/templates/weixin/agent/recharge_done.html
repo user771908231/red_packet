@@ -59,7 +59,7 @@
             WeixinJSBridge.invoke(
                 'getBrandWCPayRequest', data,
                 function(res){
-                    if(res.err_msg == "get_brand_wcpay_request：ok" ) {
+                    if(res.err_msg == "get_brand_wcpay_request:ok") {
                         common.msg("消息", "恭喜你,支付成功！");
                     }else {
                         common.msg("消息","支付失败！")
