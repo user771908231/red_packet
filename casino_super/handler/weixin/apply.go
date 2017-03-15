@@ -14,7 +14,13 @@ import (
 )
 
 func ApplyHandler(ctx *modules.Context) {
-
+	wx_info := ctx.IsWxLogin()
+	user_id := agentModel.GetUserIdByUnionId(wx_info.UnionId)
+	//验证代理商不得重复申请
+	if agentModel.GetAgentInfoById(user_id) != nil {
+		ctx.Success("您现在已经是代理商了，请不要重复申请！", "", 0)
+		return
+	}
 	ctx.HTML(200, "weixin/agent/apply")
 }
 
@@ -34,11 +40,17 @@ func ApplyPostHandler(ctx *modules.Context, errs binding.Errors, form ApplyForm)
 	wx_info := ctx.IsWxLogin()
 	user_id := agentModel.GetUserIdByUnionId(wx_info.UnionId)
 
+	//验证代理商不得重复申请
+	if agentModel.GetAgentInfoById(user_id) != nil {
+		ctx.Success("您现在已经是代理商了，请不要重复申请！", "", 0)
+		return
+	}
+
 	//验证InvitedId
 	if form.InvitedId != 0 {
 		invited_user := agentModel.GetAgentInfoById(form.InvitedId)
 		if invited_user == nil {
-			ctx.Error("验证推荐人Id失败！请检查表单。", "/weixin/agent/apply", 3)
+			ctx.Error("推荐人Id不是代理商！请重新填写。", "/weixin/agent/apply", 3)
 			return
 		}
 	}
@@ -49,7 +61,7 @@ func ApplyPostHandler(ctx *modules.Context, errs binding.Errors, form ApplyForm)
 		"status": exchangeService.PROCESS_ING,
 	}, &exist_agent)
 	if err_exists == nil {
-		ctx.Error("您已经发过申请，请不要重复发送！", "", 3)
+		ctx.Error("您已经发过申请，请不要重复发送！", "/weixin/agent/apply", 3)
 		return
 	}
 	//插入代理申请表

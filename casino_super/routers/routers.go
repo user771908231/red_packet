@@ -105,7 +105,7 @@ func Regist(m *macaron.Macaron) {
 	})
 	//代理申请
 	m.Get("/weixin/agent/apply", weixin.NeedWxLogin, weixin.ApplyHandler)
-	m.Post("/weixin/agent/apply", weixin.NeedWxLogin, admin.NeedCaptcha, binding.BindIgnErr(weixin.ApplyForm{}), weixin.ApplyPostHandler)
+	m.Post("/weixin/agent/apply", weixin.NeedWxLogin, weixin.NeedIsGamer, admin.NeedCaptcha, binding.BindIgnErr(weixin.ApplyForm{}), weixin.ApplyPostHandler)
 	//微信充值回调
 	m.Any("/mp/pay/callback", weixinModel.WxNotifyHandler)
 	//微信领红包
