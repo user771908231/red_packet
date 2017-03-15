@@ -14,3 +14,4 @@ gameclientlog
 conf
 log/as.err
 log/as.log
+tcp_client_test.go
