@@ -21,15 +21,15 @@
 			"spread": true,
 			"children": [
 				{
-					"title": "待审核",
+					"title": "红包-待审核",
 					"icon": "fa-slider",
 					"href": "/admin/manage/exchange?status=1&page=1"
 				},{
-					"title": "已被拒",
+					"title": "红包-已被拒",
 					"icon": "fa-slider",
 					"href": "/admin/manage/exchange?status=2&page=1"
 				},{
-					"title": "已发放",
+					"title": "红包-已发放",
 					"icon": "fa-slider",
 					"href": "/admin/manage/exchange?status=3&page=1"
 				}
@@ -40,17 +40,21 @@
 			"spread": true,
 			"children": [
 				{
-					"title": "待审核",
+					"title": "代理-待审核",
 					"icon": "fa-slider",
 					"href": "/admin/manage/apply?status=1&page=1"
 				},{
-					"title": "已被拒",
+					"title": "代理-已被拒",
 					"icon": "fa-slider",
 					"href": "/admin/manage/apply?status=2&page=1"
 				},{
-					"title": "已通过",
+					"title": "代理-已通过",
 					"icon": "fa-slider",
 					"href": "/admin/manage/apply?status=3&page=1"
+				},{
+					"title": "全部代理",
+					"icon": "fa-slider",
+					"href": "/admin/manage/agent?pid=0&page=1"
 				}
 			]
 		}

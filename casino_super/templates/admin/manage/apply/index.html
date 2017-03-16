@@ -1,75 +1,96 @@
 {{template "manage_header" }}
-<form id="form_list" action="" method="get">
-    <input type="hidden" name="page" value="{{.page.page}}">
-    <input type="hidden" name="status" value="{{.status}}">
-    <div class="layui-form-pane" style="margin-top: 15px;">
-        <div class="layui-form-item">
-            <label class="layui-form-label" style="width: 110px">选择日期</label>
-            <div class="layui-input-inline">
-                <input class="layui-input" name="start" value="{{.start_time}}" placeholder="开始日" id="LAY_demorange_s">
-            </div>
-            <div class="layui-input-inline">
-                <input class="layui-input" name="end" value="{{.end_time}}" placeholder="截止日" id="LAY_demorange_e">
-            </div>
-            <div class="layui-input-inline">
-                <input id="form_list_btn" class="layui-btn" type="submit" value="确定">
-            </div>
-        </div>
-    </div>
-</form>
-<table class="layui-table">
-    <thead>
-    <tr>
-        <th>Id</th>
-        <th>游戏id</th>
-        <th>姓名</th>
-        <th>电话</th>
-        <th>状态</th>
-        <th>请求时间</th>
-        {{if ne .status 1}}
-        <th>处理时间</th>
-        {{end}}
-        {{if eq .status 1}}
-        <th>操作</th>
-        {{end}}
-    </tr>
-    </thead>
-    <tbody>
-    {{range $k,$v := .list}}
-    <tr>
-        <td>{{$v.Id.Hex}}</td>
-        <td>{{$v.UserId}}</td>
-        <td>{{$v.Name}}</td>
-        <td>{{$v.Phone}}</td>
-        <td>{{$v.Status.Name}}</td>
-        <td>{{$v.RequestTime.Format "2006-01-02 15:04:05"}}</td>
-        {{if ne $v.Status 1}}
-        <td>{{$v.ProcessTime.Format "2006-01-02 15:04:05"}}</td>
-        {{end}}
-        {{if eq $v.Status 1}}
-        <td>
-            <form class="layui-form" action="">
-                <div class="layui-form-item">
-                    <div class="layui-input-inline">
-                        <select class="select_status" lay-filter="status" data-id="{{$v.Id.Hex}}" name="status">
-                            <option value="">操作</option>
-                            <option value="2">拒绝</option>
-                            <option value="3">通过</option>
-                        </select>
+
+<div class="layui-tab" style="overflow: visible" lay-filter="apply_tab">
+    <ul class="layui-tab-title">
+        <li data-invited="0" {{if eq .invited 0}}class="layui-this"{{end}}>一级代理</li>
+        <li data-invited="1" {{if eq .invited 1}}class="layui-this"{{end}}>二级代理</li>
+    </ul>
+    <div class="layui-tab-content">
+        <div class="layui-tab-item layui-show">
+            <form id="form_list" action="" method="get">
+                <input type="hidden" name="page" value="{{.page.page}}">
+                <input type="hidden" name="status" value="{{.status}}">
+                <input type="hidden" name="invited" value="{{.invited}}">
+                <div class="layui-form-pane" style="margin-top: 15px;">
+                    <div class="layui-form-item">
+                        <label class="layui-form-label" style="width: 110px">选择日期</label>
+                        <div class="layui-input-inline">
+                            <input class="layui-input" name="start" value="{{.start_time}}" placeholder="开始日" id="LAY_demorange_s">
+                        </div>
+                        <div class="layui-input-inline">
+                            <input class="layui-input" name="end" value="{{.end_time}}" placeholder="截止日" id="LAY_demorange_e">
+                        </div>
+                        <div class="layui-input-inline">
+                            <input id="form_list_btn" class="layui-btn" type="submit" value="确定">
+                        </div>
                     </div>
                 </div>
             </form>
-        </td>
-        {{end}}
-    </tr>
-    {{end}}
-    </tbody>
-</table>
-<div style="height: 35px;width: 750px;">
-    <div id="view_page"></div>
+
+            <table class="layui-table">
+                <thead>
+                <tr>
+                    <th>Id</th>
+                    <th>游戏id</th>
+                    <th>推荐id</th>
+                    <th>姓名</th>
+                    <th>电话</th>
+                    <th>状态</th>
+                    <th>请求时间</th>
+                    {{if ne .status 1}}
+                    <th>处理时间</th>
+                    {{end}}
+                    {{if eq .status 1}}
+                    <th>操作</th>
+                    {{end}}
+                </tr>
+                </thead>
+                <tbody>
+                {{range $k,$v := .list}}
+                <tr>
+                    <td>{{$v.Id.Hex}}</td>
+                    <td>{{$v.UserId}}</td>
+                    <td>{{$v.InvitedId}}</td>
+                    <td>{{$v.Name}}</td>
+                    <td>{{$v.Phone}}</td>
+                    <td>{{$v.Status.Name}}</td>
+                    <td>{{$v.RequestTime.Format "2006-01-02 15:04:05"}}</td>
+                    {{if ne $v.Status 1}}
+                    <td>{{$v.ProcessTime.Format "2006-01-02 15:04:05"}}</td>
+                    {{end}}
+                    {{if eq $v.Status 1}}
+                    <td>
+                        <form class="layui-form" action="">
+                            <div class="layui-form-item">
+                                <div class="layui-input-inline">
+                                    <select class="select_status" lay-filter="status" data-id="{{$v.Id.Hex}}" name="types">
+                                        <option value="">操作</option>
+                                        {{if eq $.invited 0}}
+                                        <option value="1">设为总代理</option>
+                                        <option value="2">设为普通代理</option>
+                                        {{else}}
+                                        <option value="3">通过</option>
+                                        {{end}}
+                                        <option value="4">拒绝</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </form>
+                    </td>
+                    {{end}}
+                </tr>
+                {{end}}
+                </tbody>
+            </table>
+            <div style="height: 35px;width: 750px;">
+                <div id="view_page"></div>
+            </div>
+        </div>
+    </div>
 </div>
+
 <script>
-    layui.use(['form','laypage','laydate'], function(){
+    layui.use(['form','laypage','laydate','element'], function(){
         var form = layui.form();
         form.on('select(status)', function (data) {
             var val = data.value;
@@ -79,7 +100,7 @@
                 $.ajax({
                     url:"/admin/manage/apply/switch",
                     type:"get",
-                    data:{"id": id, "status": val},
+                    data:{"id": id, "types": val},
                     success: function (res) {
                         if(window.confirm(res.msg)){
                             window.location.reload();
@@ -96,6 +117,17 @@
             page.val(1);
             $("#form_list").submit();
         });
+        //选项卡
+        layui.element().on("tab(apply_tab)", function(ele){
+            var page = $("#form_list").find("[name=page]");
+            page.val(1);
+            var invited_input = $("#form_list").find("[name=invited]");
+            var invited = this.getAttribute("data-invited");
+            invited_input.val(invited);
+
+            $("#form_list").submit();
+        });
+
 
         layui.laypage({
             cont: 'view_page',
