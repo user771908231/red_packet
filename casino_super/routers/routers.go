@@ -48,9 +48,15 @@ func Regist(m *macaron.Macaron) {
 				m.Get("/", manage.ExchangeListHandler)
 				m.Get("/switch", manage.ExchangeSwitchState)
 			})
+			//代理商申请审核
 			m.Group("/apply", func() {
 				m.Get("/", manage.ApplyListHandler)
 				m.Get("/switch", manage.ApplySwitchState)
+			})
+			//代理商管理
+			m.Group("/agent", func() {
+				m.Get("/", manage.AgentListHandler)
+				m.Get("/del", manage.AgentDelHandler)
 			})
 		}, admin.NeedLogin)
 	}, admin.ShowPanel)
