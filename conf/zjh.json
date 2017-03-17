@@ -8,5 +8,6 @@
   "RedisAddr": "192.168.199.200:6379",
   "CurVersion": 3,
   "BaseDownloadUrl": "",
-  "ProdMod": false
+  "ProdMod": false,
+  "HallTcpAddr": "192.168.199.155:2801"
 }
