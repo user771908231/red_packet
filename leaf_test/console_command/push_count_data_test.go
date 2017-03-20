@@ -8,13 +8,14 @@ import (
 )
 
 func TestPushCountData(t *testing.T) {
-	pushService.PoolInit("192.168.199.155:2801")
-	//pushService.PushUserData(11750)
+	pushService.PoolInit("192.168.199.200:2801")
+	pushService.PushUserData(11750)
 	row := countService.T_game_log{
-		UserId: 123,
+		UserId: 13801,
 		IsWine:true,
 		Bill: 9595,
 	}
+	t.Log(row.Insert())
 	t.Log(row.Insert())
 }
 
