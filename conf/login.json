@@ -6,7 +6,7 @@
   "MongoIp": "192.168.199.120",
   "MongoPort": 51668,
   "RedisAddr": "127.0.0.1:6379",
-  "CurVersion": 2,
+  "CurVersion": 8,
   "BaseDownloadUrl": "",
   "DDZ_CurVersion": 1,
   "DDZ_IsUpdate": 0,
