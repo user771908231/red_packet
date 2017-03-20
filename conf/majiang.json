@@ -8,5 +8,5 @@
   "RedisAddr": "192.168.199.200:6379",
   "CurVersion": 3,
   "ConsolePort": 33798,
-  "HallTcpAddr": "192.168.199.155:2801"
+  "HallTcpAddr": "192.168.199.120:2801"
 }
