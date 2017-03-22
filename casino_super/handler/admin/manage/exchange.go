@@ -32,6 +32,7 @@ func ExchangeListHandler(ctx *modules.Context) {
 	start_time := ctx.Query("start")
 	if start_time != "" {
 		start,_ := time.Parse("2006-01-02", start_time)
+		ctx.Data["start_time"] = start_time
 		query["$and"] = append(query["$and"].([]bson.M), bson.M{
 			"requesttime": bson.M{"$gte": start},
 		})
@@ -39,6 +40,7 @@ func ExchangeListHandler(ctx *modules.Context) {
 	end_time := ctx.Query("end")
 	if end_time != "" {
 		end,_ := time.Parse("2006-01-02", end_time)
+		ctx.Data["end_time"] = end_time
 		query["$and"] = append(query["$and"].([]bson.M), bson.M{
 			"requesttime": bson.M{"$lt": end.AddDate(0,0,1)},
 		})
