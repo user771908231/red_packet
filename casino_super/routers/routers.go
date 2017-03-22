@@ -10,6 +10,8 @@ import (
 	"casino_super/handler/admin/manage"
 	"casino_super/handler/weixin"
 	"casino_super/model/weixinModel"
+	"casino_super/handler/admin/config"
+	"casino_common/common/model"
 )
 
 //注册路由
@@ -59,6 +61,18 @@ func Regist(m *macaron.Macaron) {
 				m.Get("/del", manage.AgentDelHandler)
 			})
 		}, admin.NeedLogin)
+
+		//配置管理
+		m.Group("/config", func() {
+			//商城商品配置
+			m.Group("/goods", func() {
+				m.Get("/list", config.GoodsListHandler)
+				m.Post("/edit", binding.Bind(model.T_Goods_Row{}), config.GoodsEditPost)
+				m.Post("/insert", binding.Bind(model.T_Goods_Row{}), config.GoodsInsertPost)
+				m.Get("/remove", config.GoodsRemoveHnadler)
+			})
+
+		})
 	}, admin.ShowPanel)
 
 	//微信

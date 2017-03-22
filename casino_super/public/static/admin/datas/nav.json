@@ -57,6 +57,17 @@
 					"href": "/admin/manage/agent?pid=0&page=1"
 				}
 			]
+		},{
+			"title": "配置管理",
+			"icon": "fa-sliders",
+			"spread": true,
+			"children": [
+				{
+					"title": "商城配置",
+					"icon": "fa-slider",
+					"href": "/admin/config/goods/list"
+				}
+			]
 		}
 	],
 	"2": [

@@ -1,0 +1,152 @@
+{{template "manage_header" }}
+<div class="layui-tab" style="overflow: visible" lay-filter="goods_tab">
+    <ul class="layui-tab-title">
+        <li data-cate_id="0" {{if eq .cate_id 0}}class="layui-this"{{end}}>全部</li>
+        <li data-cate_id="1" {{if eq .cate_id 1}}class="layui-this"{{end}}>金币兑换</li>
+        <li data-cate_id="2" {{if eq .cate_id 2}}class="layui-this"{{end}}>钻石购买</li>
+        <li data-cate_id="3" {{if eq .cate_id 3}}class="layui-this"{{end}}>兑换专区</li>
+        <li data-cate_id="4" {{if eq .cate_id 4}}class="layui-this"{{end}}>道具购买</li>
+
+    </ul>
+    <div class="layui-tab-content">
+        <div class="layui-tab-item layui-show">
+            <table class="layui-table">
+                <thead>
+                <tr>
+                    <th>商品Id</th>
+                    <th>排序</th>
+                    <th>商品名</th>
+                    <th>所属分类</th>
+                    <th>商品类型</th>
+                    <th>商品数量</th>
+                    <th>价格类型</th>
+                    <th>价格</th>
+                    <th>折扣</th>
+                    <th>图片</th>
+                    <th>是否显示</th>
+                    <th>操作</th>
+                </tr>
+                </thead>
+                <tbody>
+                {{range $k,$v := .list}}
+                <form class="form_list_item" action="/admin/config/goods/edit" method="post">
+                    <input type="hidden" name="obj_id" value="{{$v.ObjId.Hex}}">
+                    <tr>
+                        <td>
+                            <input name="goods_id" style="width: 50px" type="number" value="{{$v.GoodsId}}">
+                        </td>
+                        <td>
+                            <input type="number" style="width: 50px" name="sort" value="{{$v.Sort}}">
+                        </td>
+                        <td>
+                            <input type="text" style="width: 100px" name="name" value="{{$v.Name}}">
+                        </td>
+                        <td>
+                            <select name="category">
+                                <option {{if eq $v.Category 1}} selected {{end}} value="1">金币专区</option>
+                                <option {{if eq $v.Category 2}} selected {{end}} value="2">钻石专区</option>
+                                <option {{if eq $v.Category 3}} selected {{end}} value="3">兑换专区</option>
+                                <option {{if eq $v.Category 4}} selected {{end}} value="4">道具专区</option>
+                            </select>
+                        </td>
+                        <td>
+                            <select name="goods_type">
+                                <option {{if eq $v.GoodsType 1}} selected {{end}} value="1">金币</option>
+                                <option {{if eq $v.GoodsType 2}} selected {{end}} value="2">钻石</option>
+                                <option {{if eq $v.GoodsType 3}} selected {{end}} value="3">红包</option>
+                                <option {{if eq $v.GoodsType 7}} selected {{end}} value="7">奖券</option>
+                                <option {{if eq $v.GoodsType 5}} selected {{end}} value="5">RMB</option>
+                                <option {{if eq $v.GoodsType 101}} selected {{end}} value="101">房卡</option>
+                            </select>
+                        </td>
+                        <td>
+                            <input name="amount" style="width: 100px" type="number" value="{{$v.Amount}}">
+                        </td>
+                        <td>
+                            <select name="price_type">
+                                <option {{if eq $v.PriceType 1}} selected {{end}} value="1">金币</option>
+                                <option {{if eq $v.PriceType 2}} selected {{end}} value="2">钻石</option>
+                                <option {{if eq $v.PriceType 3}} selected {{end}} value="3">红包</option>
+                                <option {{if eq $v.PriceType 7}} selected {{end}} value="7">奖券</option>
+                                <option {{if eq $v.PriceType 5}} selected {{end}} value="5">RMB</option>
+                                <option {{if eq $v.PriceType 101}} selected {{end}} value="101">房卡</option>
+                            </select>
+                        </td>
+                        <td>
+                            <input name="price" style="width: 100px" type="number" value="{{$v.Price}}">
+                        </td>
+                        <td>
+                            <input type="text" style="width: 100px" name="discount" value="{{$v.Discount}}">
+                        </td>
+                        <td>
+                            <select name="image">
+                                <option {{if eq $v.Image ""}} selected {{end}} value="">无</option>
+                                <option {{if eq $v.Image "coin_1"}} selected {{end}} value="coin_1">金币1</option>
+                                <option {{if eq $v.Image "coin_2"}} selected {{end}} value="coin_2">金币2</option>
+                                <option {{if eq $v.Image "coin_3"}} selected {{end}} value="coin_3">金币3</option>
+                                <option {{if eq $v.Image "coin_4"}} selected {{end}} value="coin_4">金币4</option>
+                                <option {{if eq $v.Image "coin_5"}} selected {{end}} value="coin_5">金币5</option>
+                                <option {{if eq $v.Image "coin_6"}} selected {{end}} value="coin_6">金币6</option>
+                                <option {{if eq $v.Image "diamond_1"}} selected {{end}} value="diamond_1">钻石1</option>
+                                <option {{if eq $v.Image "diamond_2"}} selected {{end}} value="diamond_2">钻石2</option>
+                                <option {{if eq $v.Image "diamond_3"}} selected {{end}} value="diamond_3">钻石3</option>
+                                <option {{if eq $v.Image "diamond_4"}} selected {{end}} value="diamond_4">钻石4</option>
+                                <option {{if eq $v.Image "diamond_5"}} selected {{end}} value="diamond_5">钻石5</option>
+                                <option {{if eq $v.Image "diamond_6"}} selected {{end}} value="diamond_6">钻石6</option>
+
+                            </select>
+                        </td>
+                        <td>
+                            <select name="is_show">
+                                <option {{if eq $v.IsShow true}} selected {{end}} value="true">是</option>
+                                <option {{if eq $v.IsShow false}} selected {{end}} value="false">否</option>
+                            </select>
+                        </td>
+                        <td>
+                            <input type="submit" value="更新">
+                            <input type="reset" value="重置">
+                            <a class="list_remove_btn" href="/admin/config/goods/remove?id={{$v.ObjId.Hex}}"><button type="button">删除</button></a>
+                        </td>
+                        </td>
+                    </tr>
+                </form>
+                {{end}}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+
+
+<script>
+    layui.use(["element"], function () {
+        //选项卡
+        layui.element().on("tab(goods_tab)", function(ele){
+            var cate_id = this.getAttribute("data-cate_id");
+            window.location.href = "./list?cate_id="+cate_id;
+        });
+    });
+
+    //更新
+    common.bindAjax("submit", ".form_list_item", function (e) {
+        e.preventDefault();
+        return window.confirm("确定更新配置吗？");
+    }, function (req, res) {
+        common.msg("消息", res.msg);
+    });
+    //删除
+    common.bindAjax("click", ".list_remove_btn", function (e) {
+        e.preventDefault();
+        return window.confirm("确定删除该条配置吗？");
+    }, function (req, res) {
+        if(res.code > 0){
+            alert(res.msg);
+            window.location.reload();
+        }else {
+            common.msg("消息", res.msg);
+        }
+    });
+</script>
+
+{{template "manage_footer" }}
