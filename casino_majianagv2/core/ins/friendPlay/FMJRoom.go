@@ -17,19 +17,19 @@ import (
 	"casino_common/utils/db"
 	"casino_common/common/sessionService"
 	"casino_majiang/service/majiang"
+	"github.com/name5566/leaf/gate"
 )
 
 type FMJRoom struct {
 	*module.Skeleton         //leaf 的骨架
 	*skeleton.SkeletonMJRoom //麻将room骨架
-	desks []api.MjDesk       //所有的desk
 }
 
 //初始化一个朋友桌room
-func NewDefaultFMJRoom(s *module.Skeleton) api.MjRoom {
+func NewDefaultFMJRoom(mgr api.MjRoomMgr, s *module.Skeleton) api.MjRoom {
 	ret := &FMJRoom{
 		Skeleton:       s,
-		SkeletonMJRoom: skeleton.NewSkeletonMJRoom(0),
+		SkeletonMJRoom: skeleton.NewSkeletonMJRoom(mgr, 0),
 	}
 	return ret
 }
@@ -70,8 +70,9 @@ func (r *FMJRoom) CreateDesk(config interface{}) (api.MjDesk, error) {
 
 //通过key得到一个desk
 func (r *FMJRoom) getDeskByPassword(ps string) api.MjDesk {
-	for _, d := range r.desks {
+	for _, d := range r.Desks {
 		if d != nil {
+			log.T("通过pass %v 寻找 d。pas:%v", ps, d.GetMJConfig().Password)
 			if d.GetMJConfig().Password == ps {
 				return d
 			}
@@ -81,7 +82,7 @@ func (r *FMJRoom) getDeskByPassword(ps string) api.MjDesk {
 }
 
 func (r *FMJRoom) getDeskByOwer(userId uint32) api.MjDesk {
-	for _, d := range r.desks {
+	for _, d := range r.Desks {
 		if d != nil {
 			if d.GetMJConfig().Owner == userId {
 				return d
@@ -92,14 +93,14 @@ func (r *FMJRoom) getDeskByOwer(userId uint32) api.MjDesk {
 }
 
 //进入desk
-func (r *FMJRoom) EnterUser(userId uint32, key string) error {
+func (r *FMJRoom) EnterUser(userId uint32, key string, a gate.Agent) error {
 	desk := r.getDeskByPassword(key)
 	if desk == nil {
 		sessionService.DelSessionByKey(userId, majiang.ROOMTYPE_FRIEND)
 		log.E("没有找到对应的desk,进入房间失败")
 		return Error.NewError(consts.ACK_RESULT_FAIL, "房间号输入错误")
 	}
-	err := desk.EnterUser(userId, nil)
+	err := desk.EnterUser(userId, a) //朋友桌 进入房间
 	if err != nil {
 		log.E("进入房间失败...")
 	}

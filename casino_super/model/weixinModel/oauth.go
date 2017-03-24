@@ -1,4 +1,4 @@
-package weixin
+package weixinModel
 
 import (
 	"casino_super/modules"
@@ -9,27 +9,26 @@ import (
 )
 
 const (
-	wxAppId           = "APPID"                           // 填上自己的参数
-	wxAppSecret       = "APPSECRET"                       // 填上自己的参数
-	oauth2RedirectURI = "http://192.168.1.129:8080/page2" // 填上自己的参数
+	oauth2RedirectURI = "http://wx.tondeen.com/weixin/oauth/callback" // 填上自己的参数
 	oauth2Scope       = "snsapi_userinfo"                 // 填上自己的参数
 )
 
 var (
-	oauth2Endpoint oauth2.Endpoint = mpoauth2.NewEndpoint(wxAppId, wxAppSecret)
+	oauth2Endpoint oauth2.Endpoint = mpoauth2.NewEndpoint(WX_APP_ID, WX_APP_SECRET)
 )
 
-//oath验证
-func Oath(ctx *modules.Context) {
+//oauth验证第一步发起认证
+func OauthLogin(ctx *modules.Context) {
 	state := string(rand.NewHex())
 	ctx.Session.Set("state", state)
-	AuthCodeURL := mpoauth2.AuthCodeURL(wxAppId, oauth2RedirectURI, oauth2Scope, state)
+	AuthCodeURL := mpoauth2.AuthCodeURL(WX_APP_ID, oauth2RedirectURI, oauth2Scope, state)
 	log.Println("AuthCodeURL:", AuthCodeURL)
 
 	ctx.Redirect(AuthCodeURL, 302)
 }
 
-func UserInfo(ctx *modules.Context) {
+//oauth验证第二步回调，获取用户信息并存入session
+func OauthCallBack(ctx *modules.Context) {
 	code := ctx.Query("code")
 
 	if ctx.Query("state") != ctx.Session.Get("state").(string) {
@@ -47,11 +46,20 @@ func UserInfo(ctx *modules.Context) {
 		return
 	}
 
-	userinfo, err := mpoauth2.GetUserInfo(token.AccessToken, token.OpenId, "", nil)
+	wx_info, err := mpoauth2.GetUserInfo(token.AccessToken, token.UnionId, "", nil)
 	if err != nil {
 		ctx.Error("根据token获取userinfo失败！"+err.Error(),"",0)
 		return
 	}
 
-	ctx.JSON(200, userinfo)
+	//保存用户信息至session
+	ctx.Session.Set("wx_user", *wx_info)
+	//跳转至发起微信登录时的页面
+	if url := ctx.Session.Get("redirect"); url != nil{
+		ctx.Session.Delete("redirect")
+		ctx.Redirect(url.(string), 302)
+		return
+	}
+	//ctx.JSON(200, userinfo)
+	ctx.Redirect("/weixin/agent", 302)
 }

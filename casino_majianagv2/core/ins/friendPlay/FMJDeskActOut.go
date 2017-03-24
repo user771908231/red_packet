@@ -6,6 +6,8 @@ import (
 	"casino_common/common/consts"
 	"casino_majiang/msg/funcsInit"
 	"casino_majianagv2/core/majiangv2"
+	"casino_majiang/service/majiang"
+	"errors"
 )
 
 var ERR_OUTPAI = Error.NewError(consts.ACK_RESULT_ERROR, "")
@@ -84,5 +86,63 @@ func (d *FMJDesk) ActOut(userId uint32, paiKey int32, auto bool) error {
 
 	log.T("[%v]用户[%v]已经打牌结束，开始处理下一个checkCase", d.DlogDes(), userId)
 	d.DoCheckCase() //打牌之后，别人判定牌
+	return nil
+}
+
+func (d *FMJDesk) DoCheckCase() error {
+	//检测参数
+	if d.CheckCase.GetNextBean() == nil {
+		log.T("[%v]已经没有需要处理的CheckCase,下一个玩家摸牌...", d.DlogDes())
+		//直接跳转到下一个操作的玩家...,这里表示判断已经玩了...
+		d.CheckCase = nil
+		//在这之前需要保证 activeUser 是正确的...
+		d.SendMopaiOverTurnChengDu()
+		return nil
+	} else {
+		log.T("继续处理CheckCase,开处理下一个checkBean...")
+		//1,找到胡牌的人来进行处理
+		caseBean := d.CheckCase.GetNextBean()
+		//找到需要判断bean之后，发送给判断人	//send overTurn
+		overTurn := d.GetOverTurnByCaseBean(d.CheckCase.CheckMJPai, caseBean, majiang.OVER_TURN_ACTTYPE_OTHER) //别人打牌，判断是否可以碰杠胡
+
+		///发送overTurn 的信息
+		log.T("%v 开始发送overTurn[%v]", d.DlogDes(), overTurn)
+		d.GetUserByUserId(caseBean.GetUserId()).SendOverTurn(overTurn)                //DoCheckCase
+		d.SetActUserAndType(caseBean.GetUserId(), majiang.MJDESK_ACT_TYPE_WAIT_CHECK) //DoCheckCase 设置当前活动的玩家
+		return nil
+	}
+}
+
+//发送摸牌的广播
+//指定一个摸牌，如果没有指定，则系统通过游标来判断
+func (d *FMJDesk) SendMopaiOverTurnChengDu() error {
+	//首先判断是否可以lottery(),如果可以那么直接开奖
+	if d.Time2Lottery() {
+		d.LotteryChengDu() //摸牌的时候判断可以lottery了
+		return nil
+	}
+
+	//开始摸牌的逻辑
+	user := d.GetNextMoPaiUser()
+	if user == nil {
+		log.E("服务器出现错误..没有找到下一个摸牌的玩家...")
+		return errors.New("没有找到下一家")
+	}
+
+	//转换user
+
+	d.SetActiveUser(user.GetUserId())                                    //用户摸牌之后，设置前端指针指向的玩家
+	d.SetActUserAndType(user.GetUserId(), majiang.MJDESK_ACT_TYPE_MOPAI) //长度麻将 用户摸牌之后，设置当前活动的玩家
+
+	//发送摸牌的OverTrun
+	user.GetGameData().GetHandPai().InPai = d.GetNextPai()
+	overTrun := d.GetMoPaiOverTurn(user, false) //普通摸牌，用户摸牌的时候,发送一个用户摸牌的overturn
+	user.SendOverTurn(overTrun)                 //玩家摸排之后发送overturn
+	//给其他人广播协议
+	*overTrun.CanHu = false
+	*overTrun.CanGang = false
+	overTrun.ActCard = majiang.NewBackPai()
+	d.BroadCastProtoExclusive(overTrun, user.GetUserId())
+
 	return nil
 }

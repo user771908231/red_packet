@@ -19,6 +19,8 @@
         <th>金币</th>
         <th>钻石</th>
         <th>房卡</th>
+        <th>红包</th>
+        <th>奖券</th>
         <th>OpenId</th>
         <th>UnionId</th>
         <th>机器人</th>
@@ -34,7 +36,7 @@
 </div>
 
 <!--模板：用户列表-->
-<script id="tpl_list" type="text/html">
+<script id="tpl_list" type="text/javascript">
     <{# layui.each(d.data.list, function(index,item){ }>
     <tr id="user-<{ item.id }>">
         <td><{ item.id }></td>
@@ -44,6 +46,8 @@
         <td><{ item.coin }></td>
         <td><{ item.Diamond }></td>
         <td><{ item.RoomCard || 0 }></td>
+        <td><{ item.bonus || 0 }></td>
+        <td><{ item.ticket || 0 }></td>
         <td><{ item.openId }></td>
         <td><{ item.UnionId }></td>
         <td><{ item.robotType }></td>
@@ -57,7 +61,7 @@
 </script>
 
 <!--模板：编辑用户-->
-<script id="tpl_edit" data-width="360px" data-title="编辑用户" type="text/html">
+<script id="tpl_edit" data-width="360px" data-title="编辑用户" type="text/javascript">
     <form id="form_edit" method="post" action="/admin/manage/user/update">、
         <input type="hidden" name="id" value="<{ d.id }>">
         <div class="layui-form-item">
@@ -93,6 +97,22 @@
                 <label class="layui-form-label">房卡：</label>
                 <div class="layui-input-inline">
                     <input type="number" name="RoomCard" value="<{ d.RoomCard || 0 }>" lay-verify="number" autocomplete="off" class="layui-input">
+                </div>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <div class="layui-inline">
+                <label class="layui-form-label">红包：</label>
+                <div class="layui-input-inline">
+                    <input type="text" name="bonus" value="<{ d.bonus || 0 }>" lay-verify="number" autocomplete="off" class="layui-input">
+                </div>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <div class="layui-inline">
+                <label class="layui-form-label">奖券：</label>
+                <div class="layui-input-inline">
+                    <input type="number" name="ticket" value="<{ d.ticket || 0 }>" lay-verify="number" autocomplete="off" class="layui-input">
                 </div>
             </div>
         </div>
@@ -138,7 +158,7 @@
 </script>
 
 <!--模板：用户充值-->
-<script id="tpl_recharge" data-width="360px" data-title="用户充值" type="text/html">
+<script id="tpl_recharge" data-width="360px" data-title="用户充值" type="text/javascript">
     <form id="form_recharge" method="post" action="/admin/manage/user/recharge">
         <input type="hidden" name="Id" value="<{ d.id }>">
         <div class="layui-form-item">
@@ -168,6 +188,22 @@
                 <label class="layui-form-label">房卡：</label>
                 <div class="layui-input-inline">
                     <input type="number" name="RoomCard" value="0" lay-verify="number" autocomplete="off" class="layui-input">
+                </div>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <div class="layui-inline">
+                <label class="layui-form-label">红包：</label>
+                <div class="layui-input-inline">
+                    <input type="text" name="bonus" value="0" autocomplete="off" class="layui-input">
+                </div>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <div class="layui-inline">
+                <label class="layui-form-label">奖券：</label>
+                <div class="layui-input-inline">
+                    <input type="number" name="ticket" value="0" lay-verify="number" autocomplete="off" class="layui-input">
                 </div>
             </div>
         </div>
@@ -259,11 +295,11 @@
             return true
         },function (data, res) {
             if(res.code > 0){
-                common.msg("信息", "充值成功！");
+                common.msg("成功", res.msg);
                 //渲染列表
                 $("#form_list").submit()
             }else {
-                common.msg("信息", "充值失败！");
+                common.msg("失败", res.msg);
             }
         });
 

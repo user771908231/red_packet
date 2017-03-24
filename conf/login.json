@@ -6,7 +6,7 @@
   "MongoIp": "192.168.199.120",
   "MongoPort": 51668,
   "RedisAddr": "127.0.0.1:6379",
-  "CurVersion": 5,
+  "CurVersion": 8,
   "BaseDownloadUrl": "",
 
   "DDZ_CurVersion": 1,
@@ -16,7 +16,7 @@
   "DDZ_ReleaseTag": 1,
   "DDZ_DownloadUrl": "http://d.tondeen.com/sjtexas.html",
   "DDZ_LatestClientVersion": 1,
-  "DDZ_IP": "192.168.199.120",
+  "DDZ_IP": "192.168.199.152",
   "DDZ_PORT": 3799,
   "DDZ_STATUS": 1,
 

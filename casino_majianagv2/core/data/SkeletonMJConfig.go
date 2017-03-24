@@ -37,7 +37,7 @@ type SkeletonMJConfig struct {
 	FangCount        int32
 	PlayerCountLimit int32 //玩家的人数
 	BeginTime        string
-	//desk.AllUsers = desk.GetUsersApi
-	//desk.InitUsers ()//根据房间类型初始化房间玩家数
-	//desk.InitUserCountAndFangCountByType() //初始化人数和房数
+	CoinLimit        int64 //金币限制
+	CanChi           bool  //有些麻将可以吃，有些不可以吃(已知的长沙麻将可以吃牌)
+	XueLiuChengHe    bool  // 血流成河
 }

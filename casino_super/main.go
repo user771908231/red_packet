@@ -13,6 +13,7 @@ import (
 	"github.com/go-macaron/session"
 	"github.com/go-macaron/captcha"
 	"github.com/go-macaron/cache"
+	"casino_common/common/service/pushService"
 )
 
 
@@ -38,6 +39,9 @@ func init() {
 	if err != nil {
 		os.Exit(-1)        //推出系统
 	}
+
+	//初始化pushService
+	pushService.PoolInit(conf.Server.HallTcpAddr)
 
 	time.Sleep(time.Second * 3)        //初始化3秒之后启动程序
 }

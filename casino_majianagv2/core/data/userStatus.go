@@ -16,18 +16,14 @@ type MjUserStatus struct {
 	ApplyDissolve int32 //是否同意解散房间
 }
 
-//todo
+//玩家是否在准备状态
 func (s *MjUserStatus) IsReady() bool {
-	return false
+	return s.Ready
 }
 
 //是否游戏中
 func (s *MjUserStatus) IsGaming() bool {
-	if s.Status == majiang.MJDESK_STATUS_RUNNING {
-		return true
-	} else {
-		return false
-	}
+	return s.Status == majiang.MJUSER_STATUS_GAMING
 }
 
 //用户是否胡牌
@@ -55,4 +51,15 @@ func (s *MjUserStatus) SetAgentMode(a bool) {
 //
 func (s *MjUserStatus) GetApplyDissolve() int32 {
 	return s.ApplyDissolve
+}
+
+func (u *MjUserStatus) CanMoPai(xueliuchenghe bool) bool {
+	if u.IsNotHu() {
+		return true
+	}
+
+	if u.IsHu() && xueliuchenghe {
+		return true
+	}
+	return false
 }

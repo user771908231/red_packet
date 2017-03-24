@@ -40,6 +40,10 @@ func init() {
 	handler(&ddproto.CommonReqApplyDissolveBack{}, handlerApplyDissolveBack)  //申请解散房间
 	handler(&ddproto.CommonReqEnterAgentMode{}, handlerEnterAgentMode)        //申请进入托管
 	handler(&ddproto.CommonReqQuitAgentMode{}, handlerQuitAgentMode)          //申请退出托管
+	handler(&mjproto.Game_ActChi{}, handlerActChi)                            //吃牌
+	handler(&mjproto.Game_ActChangShaQiShouHu{}, handlerQiShouHu)             //长沙麻将起手胡牌
+	handler(&mjproto.Game_ReqDealHaiDiCards{}, handlerNeedHaidi)              //询问是否需要海底牌
+
 }
 
 //创建一个房间,请求创建房间必定是朋友桌的请求，金币场没有创建房间
@@ -54,23 +58,28 @@ func handlerCreateDesk(args []interface{}) {
 		return
 	}
 
-	var playerCountLimit int32 = 4 //人数
-	//if d.IsSanRenLiangFang() {
-	//	*d.UserCountLimit = 3
-	//	*d.FangCountLimit = 2
-	//} else if d.IsSiRenLiangFang() {
-	//	*d.UserCountLimit = 4
-	//	*d.FangCountLimit = 2
-	//} else if d.IsLiangRenLiangFang() {
-	//	*d.UserCountLimit = 2
-	//	*d.FangCountLimit = 2
-	//} else if d.IsSanRenSanFang() {
-	//	*d.UserCountLimit = 3
-	//	*d.FangCountLimit = 3
-	//} else {
-	//	*d.UserCountLimit = 4
-	//	*d.FangCountLimit = 3
-	//}
+	var UserCountLimit int32 = 4 //人数
+	var FangCountLimit int32 = 3 //麻将房数
+
+	if m.GetRoomTypeInfo().GetMjRoomType() == mjproto.MJRoomType_roomType_sanRenLiangFang {
+		UserCountLimit = 3
+		FangCountLimit = 2
+	}
+
+	if m.GetRoomTypeInfo().GetMjRoomType() == mjproto.MJRoomType_roomType_siRenLiangFang {
+		UserCountLimit = 4
+		FangCountLimit = 2
+	}
+
+	if m.GetRoomTypeInfo().GetMjRoomType() == mjproto.MJRoomType_roomType_liangRenLiangFang {
+		UserCountLimit = 2
+		FangCountLimit = 2
+	}
+
+	if m.GetRoomTypeInfo().GetMjRoomType() == mjproto.MJRoomType_roomType_sanRenSanFang {
+		UserCountLimit = 3
+		FangCountLimit = 3
+	}
 
 	config := &data.SkeletonMJConfig{
 		Owner:            m.GetHeader().GetUserId(),
@@ -97,7 +106,9 @@ func handlerCreateDesk(args []interface{}) {
 		ActType:          0,
 		NInitActionTime:  30,
 		RoomLevel:        0,
-		PlayerCountLimit: playerCountLimit,
+		PlayerCountLimit: UserCountLimit,
+		FangCount:        FangCountLimit,
+		XueLiuChengHe:    m.GetRoomTypeInfo().GetMjRoomType() == mjproto.MJRoomType_roomType_xueLiuChengHe, //是否是血流成河
 	}
 
 	desk, err := room.CreateDesk(config)
@@ -140,7 +151,7 @@ func handlerCreateDesk(args []interface{}) {
 		a.WriteMsg(result)
 
 		//创建成功之后，用户自动进入房间...
-		err := desk.EnterUser(desk.GetMJConfig().Owner, a)
+		err := desk.EnterUser(m.GetHeader().GetUserId(), a)
 		if err != nil {
 			log.E("进入房间失败...")
 		}
@@ -151,7 +162,7 @@ func handlerGame_EnterRoom(args []interface{}) {
 	m := args[0].(*mjproto.Game_EnterRoom) //创建房间时候的配置
 	a := args[1].(gate.Agent)              //连接
 
-	userId := m.GetUserId()
+	userId := m.GetHeader().GetUserId()
 	passWord := m.GetPassWord()
 	//1,找到room
 	room := roomMgr.GetRoom(m.GetRoomType(), m.GetRoomLevel())
@@ -165,7 +176,7 @@ func handlerGame_EnterRoom(args []interface{}) {
 	}
 
 	//2,进入房间
-	err := room.EnterUser(userId, passWord)
+	err := room.EnterUser(userId, passWord, a)
 	if err != nil {
 		//进入房间失败
 		ack := newProto.NewGame_AckEnterRoom()
@@ -176,6 +187,7 @@ func handlerGame_EnterRoom(args []interface{}) {
 }
 
 func handlerDissolveDesk(args []interface{}) {
+
 	desk := roomMgr.GetDesk()
 	err := desk.Leave(0)
 	if err != nil {
@@ -195,8 +207,8 @@ func handlerGame_Ready(args []interface{}) {
 		// 准备失败
 		log.E("用户[%v]准备失败.因为没有找到对应的desk", userId)
 		result := newProto.NewGame_AckReady()
-		*result.Header.Code = consts.ACK_RESULT_ERROR
-		*result.Header.Error = "准备失败"
+		*result.Header.Code = consts.ACK_RESULT_SUCC
+		*result.Header.Error = ""
 		result.UserId = proto.Uint32(userId)
 		a.WriteMsg(result)
 		return
@@ -207,8 +219,8 @@ func handlerGame_Ready(args []interface{}) {
 	if err != nil {
 		log.E("用户[%v]准备失败.err %v", userId, err)
 		result := newProto.NewGame_AckReady()
-		*result.Header.Code = consts.ACK_RESULT_ERROR
-		*result.Header.Error = Error.GetErrorMsg(err)
+		*result.Header.Code = consts.ACK_RESULT_SUCC
+		*result.Header.Error = ""
 		result.UserId = proto.Uint32(userId)
 		a.WriteMsg(result)
 		return
@@ -332,7 +344,7 @@ func handlerGame_ActGuo(args []interface{}) {
 	}
 }
 
-//胡牌 todo
+//胡牌
 func handlerGame_ActHu(args []interface{}) {
 	m := args[0].(*mjproto.Game_ActHu)
 	userId := m.GetUserId()
@@ -434,15 +446,28 @@ func handlerGame_Message(args []interface{}) {
 
 //强制退出
 func HandlerCommonAckLogout(args []interface{}) {
+
+}
+
+//离开房间
+func HandlerCommonReqLeaveDesk(args []interface{}) {
 	m := args[0].(*ddproto.CommonReqLeaveDesk)
 	a := args[1].(gate.Agent)
 	userId := m.GetHeader().GetUserId()
 
+	//需要返回ack
+	ack := &ddproto.CommonAckLeaveDesk{
+		UserId:     proto.Uint32(userId),
+		IsExchange: proto.Bool(false)}
+
+	//得到desk
 	desk := roomMgr.GetMjDeskBySession(userId) //通过userId 的session 得到对应的desk
 	if desk == nil {
+		a.WriteMsg(ack) //回复离开房间的回复
 		return
 	}
 
+	//查看是离开房间  还是换房间
 	if m.GetIsExchange() {
 		//换房间
 		desk.ExchangeRoom(userId, a)
@@ -450,15 +475,11 @@ func HandlerCommonAckLogout(args []interface{}) {
 		//离开房间
 		log.T("玩家[%v]开始离开房间...", userId)
 		err := desk.Leave(userId)
-		if err != nil {
-			log.E("玩家[%v]离开房间的时候出错", userId)
+		if err == nil {
+			desk.BroadCastProto(ack) //给每个人发送离开房间的协议...
 		}
+		a.WriteMsg(ack) //返回房间 始终返回退出
 	}
-}
-
-//离开房间
-func HandlerCommonReqLeaveDesk(args []interface{}) {
-
 }
 
 //申请解散房间
@@ -479,4 +500,31 @@ func handlerEnterAgentMode(args []interface{}) {
 //拖出托管模式
 func handlerQuitAgentMode(args []interface{}) {
 
+}
+
+//吃
+func handlerActChi(args []interface{}) {
+}
+
+//长沙麻将起手胡牌
+func handlerQiShouHu(args []interface{}) {
+}
+
+func handlerNeedHaidi(args []interface{}) {
+	m := args[0].(*mjproto.Game_ReqDealHaiDiCards)
+	//a := args[1].(gate.Agent)
+
+	userId := m.GetUserId()
+	need := m.GetNeed()
+
+	desk := roomMgr.GetMjDeskBySession(userId)
+	if desk == nil {
+		log.E("玩家%v need:%v 海底牌的时候出错...没有找到desk", userId, need)
+		//这里是否需要返回错误信息
+	}
+
+	err := desk.NeedHaidi(userId, need) //普通玩家开始起手胡牌
+	if err != nil {
+		log.E("服务器错误，胡牌失败..err[%v]", err)
+	}
 }

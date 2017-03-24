@@ -16,14 +16,56 @@
 				}
 			]
 		},{
-			"title": "系统设置",
+			"title": "红包兑换审核",
 			"icon": "fa-sliders",
 			"spread": true,
 			"children": [
 				{
-					"title": "设置",
+					"title": "红包-待审核",
 					"icon": "fa-slider",
-					"href": "button.html"
+					"href": "/admin/manage/exchange?status=1&page=1"
+				},{
+					"title": "红包-已被拒",
+					"icon": "fa-slider",
+					"href": "/admin/manage/exchange?status=2&page=1"
+				},{
+					"title": "红包-已发放",
+					"icon": "fa-slider",
+					"href": "/admin/manage/exchange?status=3&page=1"
+				}
+			]
+		},{
+			"title": "代理商申请",
+			"icon": "fa-sliders",
+			"spread": true,
+			"children": [
+				{
+					"title": "代理-待审核",
+					"icon": "fa-slider",
+					"href": "/admin/manage/apply?status=1&page=1"
+				},{
+					"title": "代理-已被拒",
+					"icon": "fa-slider",
+					"href": "/admin/manage/apply?status=2&page=1"
+				},{
+					"title": "代理-已通过",
+					"icon": "fa-slider",
+					"href": "/admin/manage/apply?status=3&page=1"
+				},{
+					"title": "全部代理",
+					"icon": "fa-slider",
+					"href": "/admin/manage/agent?pid=0&page=1"
+				}
+			]
+		},{
+			"title": "配置管理",
+			"icon": "fa-sliders",
+			"spread": true,
+			"children": [
+				{
+					"title": "商城配置",
+					"icon": "fa-slider",
+					"href": "/admin/config/goods/list"
 				}
 			]
 		}

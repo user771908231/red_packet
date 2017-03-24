@@ -95,7 +95,6 @@ func (d *SkeletonMJDesk) SendReconnectOverTurn(userId uint32) error {
 			user.WriteMsg(overTurn)
 		} else if d.GetMJConfig().ActType == majiang.MJDESK_ACT_TYPE_WAIT_HAIDI {
 			log.T("sendReconnectOverTurn，给user[%]发送判定海底牌的消息....", userId)
-			d.enquireHaiDi(user)
 		}
 	} else if d.GetStatus().S() == majiang.MJDESK_STATUS_QISHOUHU {
 		//长沙麻将起手胡牌的阶段...查看玩家是否需要发送起手胡牌
@@ -115,17 +114,6 @@ func (d *SkeletonMJDesk) SendReconnectOverTurn(userId uint32) error {
 
 	log.T("%v开始处理 sendReconnectOverTurn(%v),当前desk.deskStatus(%v)----处理完毕...", d.DlogDes(), userId, d.GetStatus())
 	return nil
-}
-
-//询问玩家是否需要海底牌
-func (d *SkeletonMJDesk) enquireHaiDi(user api.MjUser) {
-	d.SetActiveUser(user.GetUserId())
-	d.SetActUserAndType(user.GetUserId(), majiang.MJDESK_ACT_TYPE_WAIT_HAIDI) //海底牌
-	ack := &mjproto.Game_DealHaiDiCards{
-		HaidiCard: d.GetLastMjPai().GetCardInfo(),
-		UserId:    proto.Uint32(user.GetUserId()),
-	}
-	user.WriteMsg(ack)
 }
 
 //新增加一个玩家
@@ -155,7 +143,6 @@ func (d *SkeletonMJDesk) AddUserBean(user api.MjUser) error {
 
 func (d *SkeletonMJDesk) SendGameInfo(userId uint32, reconnect mjproto.RECONNECT_TYPE) {
 	log.T("[%v]用户[%v]reconnect[%v]进入房间之后准备开始发送gameInfo的信息.", d.DlogDes(), userId, reconnect)
-
 	gameinfo := d.GetGame_SendGameInfo(userId, reconnect)
 	d.BroadCastProto(gameinfo)
 	//如果是重新进入房间，需要发送重近之后的处理
