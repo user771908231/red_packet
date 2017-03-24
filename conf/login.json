@@ -6,13 +6,13 @@
   "MongoIp": "192.168.199.120",
   "MongoPort": 51668,
   "RedisAddr": "127.0.0.1:6379",
-  "CurVersion": 8,
+  "CurVersion": 9,
   "BaseDownloadUrl": "",
 
   "DDZ_CurVersion": 1,
   "DDZ_IsUpdate": 0,
   "DDZ_IsMaintain": 0,
-  "DDZ_MaintainMsg": "测试麻将的维护信息",
+  "DDZ_MaintainMsg": "测试斗地主的维护信息",
   "DDZ_ReleaseTag": 1,
   "DDZ_DownloadUrl": "http://d.tondeen.com/sjtexas.html",
   "DDZ_LatestClientVersion": 1,
@@ -23,7 +23,7 @@
   "MJ_CurVersion": 1,
   "MJ_IsUpdate": 0,
   "MJ_IsMaintain": 0,
-  "MJ_MaintainMsg": "测试斗地主的维护信息",
+  "MJ_MaintainMsg": "测试麻将的维护信息",
   "MJ_ReleaseTag": 1,
   "MJ_DownloadUrl": "http://d.tondeen.com/sjtexas.html",
   "MJ_LatestClientVersion": 1,
@@ -61,6 +61,6 @@
   "PDK_DownloadUrl": "http://d.tondeen.com/sjtexas.html",
   "PDK_LatestClientVersion": 1,
   "PDK_IP": "192.168.199.152",
-  "PDK_PORT": 3801,
+  "PDK_PORT": 3802,
   "PDK_STATUS": 1
 }
