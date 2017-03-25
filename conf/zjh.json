@@ -1,7 +1,7 @@
 {
   "LogLevel": "debug",
   "LogPath": "./log",
-  "WSAddr": "192.168.199.155:3800",
+  "WSAddr": "192.168.199.199:3800",
   "MaxConnNum": 20000,
   "MongoIp": "192.168.199.200",
   "MongoPort": 27017,
@@ -9,5 +9,5 @@
   "CurVersion": 3,
   "BaseDownloadUrl": "",
   "ProdMod": false,
-  "HallTcpAddr": "192.168.199.155:2801"
+  "HallTcpAddr": "192.168.199.199:2801"
 }
