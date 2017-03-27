@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+    {{template "header" .}}
+    <title>{{.desk.GetPassword}}号房间玩家详情</title>
+</head>
+<body>
+
+<div class="container-fluid">
+    <br>
+    <div class="table-responsive panel panel-default">
+        <div class="panel-heading">
+            <p>{{.desk.GetPassword}}号房 ( {{.desk.GetCurrPlayCount}} / {{.desk.GetTotalPlayCount}} )</p>
+        </div>
+        <div class="panel-body">
+            <p>打印时间 {{.renderTime}}</p>
+            <p>当前的牌,游标为{{.desk.GetMJPaiCursor}}</p>
+            <p>
+                <style>
+                    .img-responsive {
+                        display: inline !important;
+                        width: 30px;
+                        height: 40px;
+                        border: 1px solid #a7a1a1;
+                        margin: 1px;
+                    }
+
+                    .img-active {
+                        border-width: 3.5px;
+                        border-color: crimson;
+                        border-style: dashed;
+                        background-color: chocolate;
+                    }
+
+                </style>
+                {{range $i, $pai := .desk.AllMJPai}}
+                {{if eq $.desk.GetMJPaiCursor $i}}
+                <img title="牌Index:{{$pai.GetIndex}} 循环Index:{{$i}}"
+                     src="/img/pokers/poker_word_up{{$pai.GetClientId}}.png"
+                     class="img-responsive img-active" data-toggle="tooltip" data-placement="top">
+                {{else}}
+                <img title="牌Index:{{$pai.GetIndex}} 循环Index:{{$i}}"
+                     src="/img/pokers/poker_word_up{{$pai.GetClientId}}.png"
+                     class="img-responsive" data-toggle="tooltip" data-placement="top">
+                {{end}}
+                {{end}}
+            </p>
+        </div>
+        <table class="table table-hover table-bordered">
+            <thead>
+            <tr>
+                <th>＃</th>
+                <th>玩家Id</th>
+                <th>nickname</th>
+                <th>玩家状态</th>
+                <th>是否定缺</th>
+                <th>网络状态</th>
+                <th>是否离开</th>
+                <th>缺</th>
+                <th>换出三张</th>
+                <th>换入三张</th>
+                <th>手牌</th>
+                <th>碰牌</th>
+                <th>杠牌</th>
+                <th>吃牌</th>
+                <th>胡牌</th>
+                <th>inpai</th>
+            </tr>
+            </thead>
+            <tbody>
+            {{range $key, $user := .users}}
+            <tr>
+                <td>{{$key}}</td>
+                <td>{{$user.GetUserId}}</td>
+                <td>{{$user.GetNickName}}</td>
+                <td>{{$user.GetTransferredStatus}}</td>
+
+                {{if $user.GetDingQue }}
+                <td>已定缺</td>
+                {{else}}
+                <td>未定缺</td>
+                {{end}}
+
+                {{if $user.GetIsBreak }}
+                <td>掉线...</td>
+                {{else}}
+                <td>在线...</td>
+                {{end}}
+
+                {{if $user.GetIsLeave }}
+                <td>已离开</td>
+                {{else}}
+                <td>未离开</td>
+                {{end}}
+
+                {{if eq $user.GameData.HandPai.GetQueFlower 1 }}
+                <td>万</td>
+                {{else if eq $user.GameData.HandPai.GetQueFlower 2 }}
+                <td>索</td>
+                {{else if eq $user.GameData.HandPai.GetQueFlower 3 }}
+                <td>筒</td>
+                {{else}}
+                <td></td>
+                {{end}}
+
+                <td title="换出三张">
+                    {{range $i, $pai := $user.GameData.ExchangeCardsOut}}
+                    <img title="{{$pai.GetIndex}}" src="/img/pokers/poker_word_up{{$pai.GetClientId}}.png"
+                         class="img-responsive" data-toggle="tooltip" data-placement="top">
+                    {{end}}
+                </td>
+
+                <td title="换入三张">
+                    {{range $i, $pai := $user.GameData.ExchangeCardsIn}}
+                    <img title="{{$pai.GetIndex}}" src="/img/pokers/poker_word_up{{$pai.GetClientId}}.png"
+                         class="img-responsive" data-toggle="tooltip" data-placement="top">
+                    {{end}}
+                </td>
+
+                <td title="手牌">
+                    {{range $i, $pai := $user.GetUserSortedPais}}
+                    <img title="{{$pai.GetIndex}}" src="/img/pokers/poker_word_up{{$pai.GetClientId}}.png"
+                         class="img-responsive" data-toggle="tooltip" data-placement="top">
+                    {{end}}
+                </td>
+
+                <td title="碰牌">
+                    {{range $i, $pai := $user.GameData.HandPai.PengPais}}
+                    <img title="{{$pai.GetIndex}}" src="/img/pokers/poker_word_up{{$pai.GetClientId}}.png"
+                         class="img-responsive" data-toggle="tooltip" data-placement="top">
+                    {{end}}
+                </td>
+
+                <td title="杠牌">
+                    {{range $i, $pai := $user.GameData.HandPai.GangPais}}
+                    <img title="{{$pai.GetIndex}}" src="/img/pokers/poker_word_up{{$pai.GetClientId}}.png"
+                         class="img-responsive" data-toggle="tooltip" data-placement="top">
+                    {{end}}
+                </td>
+
+                <td title="吃牌">
+                    {{range $i, $pai := $user.GameData.HandPai.ChiPais}}
+                    <img title="{{$pai.GetIndex}}" src="/img/pokers/poker_word_up{{$pai.GetClientId}}.png"
+                         class="img-responsive" data-toggle="tooltip" data-placement="top">
+                    {{end}}
+                </td>
+
+                <td title="胡牌">
+                    {{range $i, $pai := $user.GameData.HandPai.HuPais}}
+                    <img title="{{$pai.GetIndex}}" src="/img/pokers/poker_word_up{{$pai.GetClientId}}.png"
+                         class="img-responsive" data-toggle="tooltip" data-placement="top">
+                    {{end}}
+                </td>
+
+                <td title="in牌">
+                    {{if $user.GameData.HandPai.InPai}}
+                    <img title="{{$user.GameData.HandPai.InPai.GetIndex}}"
+                         src="/img/pokers/poker_word_up{{$user.GameData.HandPai.InPai.GetClientId}}.png"
+                         class="img-responsive" data-toggle="tooltip" data-placement="top">
+                    {{end}}
+
+                    {{if $user.GameData.HandPai.InPai2}}
+                    <img title="{{$user.GameData.HandPai.InPai2.GetIndex}}"
+                         src="/img/pokers/poker_word_up{{$user.GameData.HandPai.InPai2.GetClientId}}.png"
+                         class="img-responsive" data-toggle="tooltip" data-placement="top">
+                    {{end}}
+                </td>
+            </tr>
+            {{end}}
+            </tbody>
+        </table>
+    </div>
+    <div class="col-md-3"></div>
+    <div class="col-md-3"></div>
+    <div class="col-md-3"></div>
+    <div class="col-md-3">
+        <nav>
+            <ul class="pagination">
+                <li><a href="#">&laquo;</a></li>
+                <li><a href="#">1</a></li>
+                <li><a href="#">2</a></li>
+                <li><a href="#">3</a></li>
+                <li><a href="#">4</a></li>
+                <li><a href="#">5</a></li>
+                <li><a href="#">&raquo;</a></li>
+            </ul>
+        </nav>
+    </div>
+</div>
+</body>
+</html>
+
+
+<!-- 设置当前页面才有的状态 -->
+<script>
+    $(function () {
+        $('[data-toggle="tooltip"]').tooltip()
+    })
+</script>
+
