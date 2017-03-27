@@ -141,12 +141,12 @@ func Get(ctx *macaron.Context) {
 	if limit == "" {
 		limit = "500" //默认每页100条数据
 	}
-	limitInt64, err := strconv.ParseInt(limit, 10, 64)
+	limitInt64, _ := strconv.ParseInt(limit, 10, 64)
 
 	skip := int64(0)
-	pageInt64, err := strconv.ParseInt(page, 10, 64)
+	pageInt64, _ := strconv.ParseInt(page, 10, 64)
 	if page != "" {
-		if err != nil || (pageInt64 - 1) < 0 {
+		if pageInt64 <= 0 {
 			pageInt64 = 1
 		}
 		skip = limitInt64 * (pageInt64 - 1)
@@ -161,7 +161,7 @@ func Get(ctx *macaron.Context) {
 	logs := logDao.FindLogsByMap(m, int(skip), int(limitInt64))
 	ctx.Data["logs"] = logs
 
-	count, err := logDao.FindLogsByMapCount(m) //总数
+	count, _ := logDao.FindLogsByMapCount(m) //总数
 	log.T(fmt.Sprintf("已找到[%v]条记录", count))
 
 	paginator := Paginator(int(pageInt64), int(limitInt64), int64(count))

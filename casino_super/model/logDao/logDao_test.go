@@ -24,9 +24,9 @@ func TestSaveLog2Mgo(t *testing.T) {
 	t1 := time.Now()
 	println(fmt.Sprintf("TestSaveLog2Mgo begin %v", t1))
 	for i := 0; i < 500; i++ {
-		for _, l := range getTestLogs() {
-			SaveLog2Mgo(l)
-		}
+		//for _, l := range getTestLogs() {
+		//	SaveLog2Mgo(l)
+		//}
 	}
 	t2 := time.Now()
 	println(fmt.Sprintf("TestSaveLog2Mgo end %v", t2))
@@ -35,15 +35,17 @@ func TestSaveLog2Mgo(t *testing.T) {
 }
 
 
-func getTestLogs() []LogData {
-	logs := []LogData{
-		LogData{
+func getTestLogs() []LogValidater {
+	logs := []LogValidater{
+		LogValidater{
+			Time: "1490148861570",
 			DeskId: "1",
 			UserId: "2",
 			Level: "1",
 			Data: "过滤123吧",
 		},
-		LogData{
+		LogValidater{
+			Time: "1490148861572",
 			DeskId: "2",
 			UserId: "2",
 			Level: "2",
@@ -52,14 +54,16 @@ func getTestLogs() []LogData {
 	}
 
 	for i := 0; i < 100; i++ {
-		logs2 := []LogData{
-			LogData{
+		logs2 := []LogValidater{
+			LogValidater{
+				Time: "1490148861573",
 				DeskId: "1",
 				UserId: "2",
 				Level: "2",
 				Data: "过滤SsS吧",
 			},
-			LogData{
+			LogValidater{
+				Time: "1490148861574",
 				DeskId: "2",
 				UserId: "2",
 				Level: "3",
@@ -95,9 +99,9 @@ func TestFindLogsByMap(t *testing.T) {
 		"$lt" : timeEnd,
 	}
 
-	logs := FindLogsByMap(m, 0, 100)
+	logs := FindLogsByMap(bson.M{}, 0, 100)
 	for _, log := range logs {
-		println(fmt.Sprintf("%v %v", log.Level, log.Data))
+		println(fmt.Sprintf("%v", log))
 	}
 	println(2)
 	time.Sleep(time.Duration(2) * time.Second)
