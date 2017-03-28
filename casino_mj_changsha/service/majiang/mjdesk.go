@@ -101,27 +101,29 @@ func (d *MjDesk) InitCheckCase(p *MJPai, outUser *MjUser, isBagang bool) error {
 
  */
 func (d *MjDesk) DoCheckCase() error {
-	//检测参数
-	if d.CheckCase.GetNextBean() == nil {
+	//处理摸牌
+	if d.GetCheckCase() == nil {
 		log.T("[%v]已经没有需要处理的CheckCase,下一个玩家摸牌...", d.DlogDes())
 		//直接跳转到下一个操作的玩家...,这里表示判断已经玩了...
 		d.CheckCase = nil
 		//在这之前需要保证 activeUser 是正确的...
 		d.SendMopaiOverTurn()
 		return nil
-	} else {
+	}
+
+	//处理CheckCase
+	for _, caseBean := range d.GetCheckCase().GetCheckB() {
 		//1,找到胡牌的人来进行处理
-		caseBean := d.CheckCase.GetNextBean()
 		log.T("继续处理CheckCase,开处理下一个checkBean：%v", caseBean)
 		//找到需要判断bean之后，发送给判断人	//send overTurn
 		overTurn := d.GetOverTurnByCaseBean(d.CheckCase.CheckMJPai, caseBean, OVER_TURN_ACTTYPE_OTHER) //别人打牌，判断是否可以碰杠胡
 
 		///发送overTurn 的信息
-		//log.T("%v 开始发送overTurn[%v]", d.DlogDes(), overTurn)
 		d.GetUserByUserId(caseBean.GetUserId()).SendOverTurn(overTurn)        //DoCheckCase
 		d.SetActUserAndType(caseBean.GetUserId(), MJDESK_ACT_TYPE_WAIT_CHECK) //长沙麻将 DoCheckCase 设置当前活动的玩家
-		return nil
 	}
+
+	return nil
 }
 
 //得到一个canhuinfos

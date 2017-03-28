@@ -32,6 +32,7 @@ type MjDesk struct {
 	HuParser            HuParser            //胡牌的解析器
 	BirdInfo            []*mjproto.BirdInfo //抓鸟的信息
 	ChangShaPlayOptions *mjproto.ChangShaPlayOptions
+	checkPeng           chan bool //能不能碰
 }
 
 ///获取用户已知亮出台面的牌 包括自己手牌、自己和其他玩家碰杠牌、其他玩家outPais

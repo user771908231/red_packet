@@ -10,10 +10,6 @@ import (
 func (d *MjDesk) ActPeng(userId uint32) error {
 	log.T("锁日志: %v ActPeng(%v)的时候等待锁", d.DlogDes(), userId)
 	d.Lock()
-	defer func() {
-		d.Unlock()
-		log.T("锁日志: %v ActPeng(%v)的时候释放锁", d.DlogDes(), userId)
-	}()
 
 	//1，检测玩家是否可以进行碰的操作
 	err := d.CheckActUser(userId, ACTTYPE_PENG)
@@ -33,6 +29,21 @@ func (d *MjDesk) ActPeng(userId uint32) error {
 		log.E("用户[%v]碰牌的时候，没有找到可以碰的牌...", userId)
 		return errors.New("服务器错误碰牌失败")
 	}
+
+	//new 如果checkCase 里面没有人胡，那么可以直接碰
+	if d.GetCheckCase().GetHuBean(CHECK_CASE_BEAN_STATUS_CHECKING) == nil {
+		d.checkPeng <- true
+	}
+	d.Unlock()
+
+	//接收信号，继续操作
+	if canCheckPeng := <-d.checkPeng; !canCheckPeng {
+		//已经有人操作了，现在不能碰了
+		return nil
+	}
+
+	d.Lock()
+	defer d.Unlock()
 
 	//停止定时器
 	if d.overTurnTimer != nil {
@@ -101,7 +112,6 @@ func (d *MjDesk) ActPeng(userId uint32) error {
 
 	user.SendOverTurn(ack) //碰牌之后的ACK
 	d.BroadCastProtoExclusive(ack, user.GetUserId())
-	//最后设置checkCase = nil
 	d.CheckCase = nil //设置为nil
 
 	overTurn := d.AfterPengChiChangSha(user)

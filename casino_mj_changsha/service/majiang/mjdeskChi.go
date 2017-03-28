@@ -112,10 +112,6 @@ func (d *MjDesk) ActChi(userId uint32, chooseCards []*mjproto.CardInfo) error {
 
 //判断授牌是否可以杠(长沙碰，吃之后的操作)
 func (d *MjDesk) AfterPengChiChangSha(user *MjUser) *mjproto.Game_OverTurn {
-	//如果不是长沙麻将直接返回nil
-	if !d.IsChangShaMaJiang() || user == nil {
-		return nil
-	}
 
 	overTurn := newProto.NewGame_OverTurn()
 	*overTurn.UserId = user.GetUserId()         //这个是摸牌的，所以是广播...
@@ -138,20 +134,18 @@ func (d *MjDesk) AfterPengChiChangSha(user *MjUser) *mjproto.Game_OverTurn {
 	//对长沙麻将做特殊处理
 	overTurn.JiaoInfos = d.GetJiaoInfos(user)
 	//这里需要对长沙麻将做特殊处理(主要是杠，补的处理)
-	if d.IsChangShaMaJiang() {
-		if overTurn.GetCanGang() {
-			overTurn.CanBu = proto.Bool(true)
-			overTurn.CanGang = proto.Bool(false)
-			overTurn.BuCards = overTurn.GangCards
-			overTurn.GangCards = nil
-			//判断长沙麻将能不能杠
-			for _, g := range overTurn.BuCards {
-				cang := user.GetCanChangShaGang(InitMjPaiByIndex(int(g.GetId()))) // 摸牌的时候 判断能否gang
-				log.T("判断玩家[%v]对牌[%v]是否可以长沙杠[%v]", user.GetUserId(), g.GetId(), cang)
-				if cang {
-					overTurn.CanGang = proto.Bool(true)
-					overTurn.GangCards = append(overTurn.GangCards, g)
-				}
+	if overTurn.GetCanGang() {
+		overTurn.CanBu = proto.Bool(true)
+		overTurn.CanGang = proto.Bool(false)
+		overTurn.BuCards = overTurn.GangCards
+		overTurn.GangCards = nil
+		//判断长沙麻将能不能杠
+		for _, g := range overTurn.BuCards {
+			cang := user.GetCanChangShaGang(InitMjPaiByIndex(int(g.GetId()))) // 摸牌的时候 判断能否gang
+			log.T("判断玩家[%v]对牌[%v]是否可以长沙杠[%v]", user.GetUserId(), g.GetId(), cang)
+			if cang {
+				overTurn.CanGang = proto.Bool(true)
+				overTurn.GangCards = append(overTurn.GangCards, g)
 			}
 		}
 	}
