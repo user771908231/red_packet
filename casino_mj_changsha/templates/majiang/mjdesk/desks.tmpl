@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+    {{template "header" .}}
+    <title>当前房间列表</title>
+</head>
+<body>
+
+<div class="container-fluid">
+    <br>
+    <div class="table-responsive panel panel-default">
+
+        <div class="panel-heading">
+            <p>打印时间 {{.renderTime}}</p>
+        </div>
+
+        <table class="table table-hover table-bordered">
+            <thead>
+            <tr>
+                <th>＃</th>
+                <th>房间id</th>
+                <th>房间号</th>
+                <th>房主</th>
+                <th>指针指向的玩家ID</th>
+                <th>当前操作活动的玩家ID</th>
+                <th>桌子状态</th>
+                <th>房间类型</th>
+                <th>换三张</th>
+                <th>总局数</th>
+                <th>当前局数</th>
+                <th>庄家ID</th>
+                <th>判定牌</th>
+                <th>其他</th>
+            </tr>
+            </thead>
+            <tbody>
+            {{range $key, $desk := .desks}}
+            {{if $desk.IsCoinPlay }}
+            <tr class="warning">
+                {{else}}
+            <tr>
+                {{end}}
+
+                <td>{{$key}}</td>
+                <td><a href="/mjdesk-users/{{$desk.GetDeskId}}" target="_blank">{{$desk.GetDeskId}}</a></td>
+                <td>{{$desk.GetPassword}}</td>
+                <td>{{$desk.GetOwner}}</td>
+                <td>{{$desk.GetActiveUser}}</td>
+                <td>{{$desk.GetActUser}},{{$desk.GetActType}}</td>
+                <td>{{$desk.GetTransferredStatus}}</td>
+
+                <td>{{$desk.GetTransferredRoomType}}</td>
+
+                {{if $desk.IsNeedExchange3zhang }}
+                <td>是</td>
+                {{else}}
+                <td>否</td>
+                {{end}}
+
+                <td>{{$desk.GetTotalPlayCount}}</td>
+                <td>{{$desk.GetCurrPlayCount}}</td>
+                <td>{{$desk.GetBanker}}</td>
+                <td>{{$desk.CheckCase}}</td>
+                <td><a href="/mjdesk-bills/{{$desk.GetDeskId}}" target="_blank" class="btn btn-primary btn-sm">账单</a>
+                </td>
+            </tr>
+            {{end}}
+            </tbody>
+        </table>
+    </div>
+    <div class="col-md-3"></div>
+    <div class="col-md-3"></div>
+    <div class="col-md-3"></div>
+    <div class="col-md-3">
+        <nav>
+            <ul class="pagination">
+                <li><a href="#">&laquo;</a></li>
+                <li><a href="#">1</a></li>
+                <li><a href="#">2</a></li>
+                <li><a href="#">3</a></li>
+                <li><a href="#">4</a></li>
+                <li><a href="#">5</a></li>
+                <li><a href="#">&raquo;</a></li>
+            </ul>
+        </nav>
+    </div>
+</div>
+</body>
+</html>
+
+
+<!-- 设置当前页面才有的状态 -->
+<script>
+    $("#nav-li-golang").addClass("active")
+</script>
+
