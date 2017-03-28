@@ -7,7 +7,8 @@ import (
 	"github.com/chanxuehong/wechat.v2/oauth2"
 	"log"
 )
-
+//二维码登陆：
+//https://open.weixin.qq.com/connect/qrconnect?appid=wx804b74c45a08e6e1&redirect_uri=http://wx.tondeen.com/weixin/oauth/callback&response_type=code&scope=snsapi_login&state=STATE#wechat_redirect
 const (
 	oauth2RedirectURI = "http://wx.tondeen.com/weixin/oauth/callback" // 填上自己的参数
 	oauth2Scope       = "snsapi_userinfo"                 // 填上自己的参数
