@@ -12,6 +12,7 @@ import (
 	"casino_super/model/weixinModel"
 	"casino_super/handler/admin/config"
 	"casino_common/common/model"
+	"casino_super/handler/qrLoginHandler"
 )
 
 //注册路由
@@ -122,6 +123,12 @@ func Regist(m *macaron.Macaron) {
 				})
 			})
 		}, weixin.NeedWxLogin, weixin.NeedIsAgent)
+
+		//二维码登陆
+		m.Group("/game", func() {
+			m.Get("/qrlogin", qrLoginHandler.QrLoginHandler)
+		}, weixin.NeedWxLogin)
+
 	})
 	//代理申请
 	m.Get("/weixin/agent/apply", weixin.NeedWxLogin, weixin.ApplyHandler)
