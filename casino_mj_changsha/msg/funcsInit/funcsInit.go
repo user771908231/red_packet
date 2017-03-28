@@ -240,33 +240,6 @@ func NewGame_AckActPeng() *mjProto.Game_AckActPeng {
 	return ret
 }
 
-func NewGame_AckLogin() *mjProto.Game_AckLogin {
-	ret := &mjProto.Game_AckLogin{}
-	ret.Header = NewHeader()
-	ret.UserId = new(uint32)
-	ret.NickName = new(string)
-	ret.RoomPassword = new(string)
-	ret.CostCreateRoom = new(int64)
-	ret.CostRebuy = new(int64)
-	ret.Championship = new(bool)
-	ret.Chip = new(int64)
-	ret.MailCount = new(int32)
-	ret.Notice = new(string)
-	ret.GameStatus = new(int32)
-	return ret
-}
-
-func NewWeixinInfo() *mjProto.WeixinInfo {
-	ret := &mjProto.WeixinInfo{}
-	ret.City = new(string)
-	ret.HeadUrl = new(string)
-	ret.NickName = new(string)
-	ret.OpenId = new(string)
-	ret.Sex = new(int32)
-	ret.UnionId = new(string)
-	return ret
-}
-
 func NewGame_SendCurrentResult() *mjProto.Game_SendCurrentResult {
 	ret := &mjProto.Game_SendCurrentResult{}
 	ret.Header = NewHeader()
@@ -349,21 +322,6 @@ func NewGame_AckActGuo() *mjProto.Game_AckActGuo {
 	ret := &mjProto.Game_AckActGuo{}
 	ret.Header = NewHeader()
 	ret.UserId = new(uint32)
-	return ret
-}
-
-func NewGame_AckExchangeCards() *mjProto.Game_AckExchangeCards {
-	ret := &mjProto.Game_AckExchangeCards{}
-	ret.Header = NewHeader()
-	ret.UserId = new(uint32)
-	return ret
-}
-
-func NewGame_ExchangeCardsEnd() *mjProto.Game_ExchangeCardsEnd {
-	ret := &mjProto.Game_ExchangeCardsEnd{}
-	ret.Header = NewHeader()
-	ret.ExchangeNum = new(int32)
-	ret.ExchangeType = new(int32)
 	return ret
 }
 

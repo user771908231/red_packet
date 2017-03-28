@@ -2,7 +2,7 @@ package majiang
 
 import (
 	"strings"
-	mjproto        "casino_mj_changsha/msg/protogo"
+	mjproto "casino_mj_changsha/msg/protogo"
 	"casino_common/common/Error"
 	"casino_common/common/log"
 	"errors"
@@ -11,7 +11,12 @@ import (
 )
 
 //长沙麻将的杠上花单独做
-func (d *MjDesk) ActHuChangsha(userId uint32) error {
+func (d *MjDesk) ActHu(userId uint32) error {
+	d.Lock()
+	defer func() {
+		d.Unlock()
+		log.T("锁日志: %v ActHu(%v)的时候释放锁", d.DlogDes(), userId)
+	}()
 
 	//对于杠，有摸牌前 杠的状态，有打牌前杠的状态
 
@@ -160,6 +165,7 @@ func (d *MjDesk) ActHuChangsha(userId uint32) error {
 		return d.Lottery() //长沙胡牌之后判断是否lottery
 	} else {
 		//处理下一个
+
 		return d.DoCheckCase() //胡牌之后，处理下一个判定牌
 	}
 	return nil

@@ -11,7 +11,7 @@ import (
 	只有判断别人打的牌的时候，需要过的时候才会请求这个协议，自己摸牌 需不需要过的时候不需要请求这个协议...
 */
 
-func (desk *MjDesk) ActGuoChangSha(userId uint32) error {
+func (desk *MjDesk) ActGuo(userId uint32) error {
 
 	err := desk.CheckActUser(userId, ACTTYPE_GUO)
 	//过牌

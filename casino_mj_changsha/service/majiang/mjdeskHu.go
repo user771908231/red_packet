@@ -7,18 +7,6 @@ import (
 	"sync/atomic"
 )
 
-func (d *MjDesk) ActHu(userId uint32) error {
-	log.T("锁日志: %v ActHu(%v)的时候等待锁", d.DlogDes(), userId)
-	d.Lock()
-	defer func() {
-		d.Unlock()
-		log.T("锁日志: %v ActHu(%v)的时候释放锁", d.DlogDes(), userId)
-	}()
-
-	err := d.ActHuChangsha(userId)
-	return err
-}
-
 //处理抢杠的逻辑
 /**
 处理抢杠的逻辑，抢杠的逻辑需要特殊处理...
