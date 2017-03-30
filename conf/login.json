@@ -6,7 +6,7 @@
   "MongoIp": "192.168.199.120",
   "MongoPort": 51668,
   "RedisAddr": "127.0.0.1:6379",
-  "CurVersion": 9,
+  "CurVersion": 1,
   "BaseDownloadUrl": "",
 
   "DDZ_CurVersion": 1,
@@ -62,5 +62,16 @@
   "PDK_LatestClientVersion": 1,
   "PDK_IP": "192.168.199.152",
   "PDK_PORT": 3802,
-  "PDK_STATUS": 1
+  "PDK_STATUS": 1,
+
+  "ZXZ_CurVersion": 1,
+  "ZXZ_IsUpdate": 0,
+  "ZXZ_IsMaintain": 0,
+  "ZXZ_MaintainMsg": "测试跑得快的维护信息",
+  "ZXZ_ReleaseTag": 1,
+  "ZXZ_DownloadUrl": "http://d.tondeen.com/sjtexas.html",
+  "ZXZ_LatestClientVersion": 1,
+  "ZXZ_IP": "192.168.199.120",
+  "ZXZ_PORT": 3803,
+  "ZXZ_STATUS": 1
 }
