@@ -14,6 +14,15 @@ import (
 	"casino_common/common/service/pushService"
 )
 
+func UserIndexHnadler(ctx *modules.Context)  {
+	sort := ctx.Query("sort")
+	if sort == "" {
+		sort = "id"
+	}
+	ctx.Data["sort"] = sort
+	ctx.HTML(200, "admin/manage/user/index")
+}
+
 //所有用户
 func UserListHandler(ctx *modules.Context) {
 	query := bson.M{
@@ -31,9 +40,13 @@ func UserListHandler(ctx *modules.Context) {
 	if page = ctx.QueryInt("page"); page <= 0 {
 		page = 1
 	}
+	sort := "id"
+	if sort = ctx.Query("sort"); sort == "" {
+		sort = "id"
+	}
 
 	list := new([]*ddproto.User)
-	err, count := db.C(tableName.DBT_T_USER).Page(query, list, "id", page, 10)
+	err, count := db.C(tableName.DBT_T_USER).Page(query, list, sort, page, 10)
 
 	for _,u := range *list {
 		u.RoomCard = proto.Int64(userService.GetUserRoomCard(u.GetId()))

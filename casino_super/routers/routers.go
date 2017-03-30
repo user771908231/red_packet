@@ -40,7 +40,7 @@ func Regist(m *macaron.Macaron) {
 			//用户相关
 			m.Group("/user", func() {
 				//所有用户
-				m.Get("/", func(ctx *modules.Context) {ctx.HTML(200, "admin/manage/user/index")})
+				m.Get("/", manage.UserIndexHnadler)
 				m.Get("/list", manage.UserListHandler)
 				m.Get("/del/:id", manage.DelUserHandler)
 				m.Post("/update", binding.BindIgnErr(manage.UserUpdateForm{}), manage.UpdateUserHandler)
