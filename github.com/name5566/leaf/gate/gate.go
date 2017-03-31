@@ -116,6 +116,7 @@ func (a *agent) Run() {
 			if !strings.Contains(typeString, "Heartbeat") {
 				//log.Debug("解析出来的数据type[%v],m[%v]", reflect.TypeOf(msg).String(), msg)
 				clog.T("解析出来的数据type[%v],m[%v]", reflect.TypeOf(msg).String(), msg)
+				log.Debug("解析出来的数据type[%v],m[%v]", reflect.TypeOf(msg).String(), msg)
 			}
 
 			err = a.gate.Processor.Route(msg, a)
@@ -139,7 +140,6 @@ func (a *agent) OnClose() {
 func (a *agent) WriteMsg(msg interface{}) {
 	typeString := reflect.TypeOf(msg).String()
 	log.Debug("agent发送的信息 type[%v],\t\t content[%v]", typeString, msg)
-
 	if a.gate.Processor != nil {
 		data, err := a.gate.Processor.Marshal(msg)
 		if err != nil {
