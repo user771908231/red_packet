@@ -36,7 +36,20 @@
                     <td>{{$v.RealName}}</td>
                     <td>{{$v.Phone}}</td>
                     <td><a href="/admin/manage/agent?pid={{$v.UserId}}">点击查看</a></td>
-                    <td><a class="agent_del_btn" href="/admin/manage/agent/del?id={{$v.UserId}}">删除</a></td>
+                    <td>
+                        <form class="layui-form" action="">
+                            <div class="layui-form-item">
+                                <div class="layui-input-inline">
+                                    <select class="select_status" lay-filter="status" data-id="{{$v.UserId}}" name="types">
+                                        <option value="">设为总代理</option>
+                                        <option value="1">设为一级总代理</option>
+                                        <option value="2">设为一级普通代理</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </form>
+                        <a class="agent_del_btn" href="/admin/manage/agent/del?id={{$v.UserId}}">删除</a>
+                    </td>
                 </tr>
                 {{end}}
                 </tbody>
@@ -48,6 +61,25 @@
 <script>
     layui.use(['form','laypage','laydate','element'], function(){
         var form = layui.form();
+
+        //切换代理商上级
+        form.on('select(status)', function (data) {
+            var val = data.value;
+            var elem = data.elem;
+            var id = $(elem).data("id");
+            if(window.confirm("确定执行该操作吗？")){
+                $.ajax({
+                    url:"/admin/manage/agent/switch",
+                    type:"get",
+                    data:{"id": id, "types": val},
+                    success: function (res) {
+                        if(window.confirm(res.msg)){
+                            window.location.reload();
+                        }
+                    }
+                });
+            }
+        });
 
         common.bindAjax("click", ".agent_del_btn", function(e){
             e.preventDefault();

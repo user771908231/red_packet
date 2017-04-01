@@ -1,0 +1,75 @@
+{{template "manage_header" }}
+<div class="layui-tab" style="overflow: visible" lay-filter="task_tab">
+    <ul class="layui-tab-title">
+        <li data-cate_id="0" {{if eq .cate_id 0}}class="layui-this"{{end}}>全部</li>
+        <li data-cate_id="1" {{if eq .cate_id 1}}class="layui-this"{{end}}>大厅任务</li>
+        <li data-cate_id="2" {{if eq .cate_id 2}}class="layui-this"{{end}}>旧版红包任务</li>
+        <li data-cate_id="3" {{if eq .cate_id 3}}class="layui-this"{{end}}>大厅分享任务</li>
+        <li data-cate_id="4" {{if eq .cate_id 4}}class="layui-this"{{end}}>新版红包任务</li>
+
+    </ul>
+    <div class="layui-tab-content">
+        <div class="layui-tab-item layui-show">
+            <table class="layui-table">
+                <thead>
+                <tr>
+                    <td>任务id</td>
+                    <td>分类id</td>
+                    <td>任务类型</td>
+                    <td>所属游戏</td>
+                    <td>标题</td>
+                    <td>详情</td>
+                    <td>排序</td>
+                    <td>完成条件</td>
+                    <td>可重复完成次数</td>
+                    <td>操作</td>
+                </tr>
+                </thead>
+                <tbody>
+                {{range $k,$v := .list}}
+                <form class="form_list_item" action="/admin/config/task/edit" method="post">
+                    <input type="hidden" name="id" value="{{$v.Id.Hex}}">
+                    <tr>
+                        <td><input type="hidden" name="task_id" value="{{.TaskId}}">{{.TaskId}}</td>
+                        <td><input type="hidden" name="cate_id" value="{{.CateId}}">{{.CateId}}</td>
+                        <td><input type="hidden" name="task_type" value="{{.TaskType}}">{{.TaskType}}</td>
+                        <td>{{.GameId}}</td>
+                        <td><input type="text" name="title" value="{{.Title}}"></td>
+                        <td><input type="text" name="description" value="{{.Description}}"></td>
+                        <td><input type="number" style="width: 100px" name="sort" value="{{.Sort}}"></td>
+                        <td><input type="number" style="width: 100px" name="task_sum" value="{{.TaskSum}}"></td>
+                        <td><input type="number" style="width: 100px" name="repeat_sum" value="{{.RepeatSum}}"></td>
+                        <td>
+                            <input type="submit" value="更新">
+                            <input type="reset" value="重置">
+                        </td>
+                    </tr>
+                </form>
+                {{end}}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+
+
+<script>
+    layui.use(["element"], function () {
+        //选项卡
+        layui.element().on("tab(task_tab)", function(ele){
+            var cate_id = this.getAttribute("data-cate_id");
+            window.location.href = "./list?cate_id="+cate_id;
+        });
+    });
+
+    //更新
+    common.bindAjax("submit", ".form_list_item", function (e) {
+        e.preventDefault();
+        return window.confirm("确定更新配置吗？");
+    }, function (req, res) {
+        common.msg("消息", res.msg);
+    });
+</script>
+
+{{template "manage_footer" }}

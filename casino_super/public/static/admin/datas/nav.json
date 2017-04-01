@@ -66,6 +66,10 @@
 					"title": "商城配置",
 					"icon": "fa-slider",
 					"href": "/admin/config/goods/list"
+				},{
+					"title": "任务配置",
+					"icon": "fa-slider",
+					"href": "/admin/config/task/list"
 				}
 			]
 		}
