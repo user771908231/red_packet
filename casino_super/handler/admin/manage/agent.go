@@ -46,6 +46,19 @@ func AgentListHandler(ctx *modules.Context) {
 	ctx.HTML(200, "admin/manage/agent/index")
 }
 
+//切换代理商类型
+func AgentSwitchHandler(ctx *modules.Context)  {
+	id := ctx.QueryInt("id")
+	agent_id := uint32(id)
+	types := uint32(ctx.QueryInt("types"))
+
+	err := agentModel.SetAgentParent(agent_id, types)
+	if err != nil {
+		ctx.Ajax(-1, err.Error(), nil)
+		return
+	}
+	ctx.Ajax(1, "设置成功！", nil)
+}
 
 //删除
 func AgentDelHandler(ctx *modules.Context) {

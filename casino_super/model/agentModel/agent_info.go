@@ -4,6 +4,7 @@ import (
 	"gopkg.in/mgo.v2/bson"
 	"casino_common/common/consts/tableName"
 	"casino_common/utils/db"
+	"errors"
 )
 
 type AgentType int
@@ -72,4 +73,59 @@ func GetAgentChildNum(agent_id uint32) int {
 		"pid": agent_id,
 	})
 	return num
+}
+
+//获取子代理列表
+func GetAgentChildrens(agent_id uint32) []*AgentInfo {
+	childs := []*AgentInfo{}
+
+	db.C(tableName.DBT_AGENT_INFO).FindAll(bson.M{
+		"pid": agent_id,
+	}, &childs)
+
+	return childs
+}
+
+//=======设置代理的上级========
+func SetAgentParent(agent_id uint32, new_pid uint32) error {
+	agent_info := GetAgentInfoById(agent_id)
+	if agent_info == nil {
+		return errors.New("代理不存在！")
+	}
+	switch new_pid {
+	case 1:
+		agent_info.Pid = 0
+		agent_info.RootId = 0
+		agent_info.Level = 1
+		agent_info.Type = AGENT_TYPE_1
+	case 2:
+		agent_info.Pid = 0
+		agent_info.RootId = 0
+		agent_info.Level = 1
+		agent_info.Type = AGENT_TYPE_2
+	default:
+		parent_info := GetAgentInfoById(new_pid)
+		if parent_info == nil {
+			return errors.New("未找到父级代理！")
+		}
+		agent_info.Pid = parent_info.UserId
+		if parent_info.Level == 1 {
+			agent_info.RootId = parent_info.UserId
+		}else {
+			agent_info.RootId = parent_info.RootId
+		}
+
+		agent_info.Level = parent_info.Level + 1
+		agent_info.Type = AGENT_TYPE_3
+	}
+	//更新数据
+	agent_info.Save()
+
+	//更新子代理的下级代理关系
+	childs := GetAgentChildrens(agent_info.UserId)
+	for _,child := range childs {
+		SetAgentParent(child.UserId, agent_info.UserId)
+	}
+
+	return nil
 }
