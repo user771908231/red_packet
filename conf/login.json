@@ -1,11 +1,11 @@
 {
   "LogLevel": "debug",
   "LogPath": "log",
-  "WSAddr": "192.168.43.35:4700",
+  "WSAddr": "192.168.199.15:4700",
   "MaxConnNum": 20000,
-  "MongoIp": "192.168.43.35",
+  "MongoIp": "192.168.199.200",
   "MongoPort": 51668,
-  "RedisAddr": "127.0.0.1:6379",
+  "RedisAddr": "192.168.199.200:6379",
   "CurVersion": 3,
   "BaseDownloadUrl": "",
 
@@ -27,13 +27,13 @@
   "MJ_ReleaseTag": 1,
   "MJ_DownloadUrl": "http://d.tondeen.com/sjtexas.html",
   "MJ_LatestClientVersion": 1,
-  "MJ_IP": "192.168.43.35",
+  "MJ_IP": "192.168.199.15",
   "MJ_PORT": 3798,
   "MJ_STATUS": 1,
 
   "ZJH_CurVersion": 1,
   "ZJH_IsUpdate": 0,
-  "ZJH_IsMaintain": 0,
+  "ZJH_IsMaintain": 0,.
   "ZJH_MaintainMsg": "炸金花的维护信息",
   "ZJH_ReleaseTag": 1,
   "ZJH_DownloadUrl": "http://d.tondeen.com/sjtexas.html",
@@ -49,7 +49,7 @@
   "HALL_ReleaseTag": 1,
   "HALL_DownloadUrl": "http://d.tondeen.com/sjtexas.html",
   "HALL_LatestClientVersion": 1,
-  "HALL_IP": "192.168.43.35",
+  "HALL_IP": "192.168.199.15",
   "HALL_PORT": 3801,
   "HALL_STATUS": 1,
 
@@ -71,7 +71,7 @@
   "ZXZ_ReleaseTag": 1,
   "ZXZ_DownloadUrl": "http://d.tondeen.com/sjtexas.html",
   "ZXZ_LatestClientVersion": 1,
-  "ZXZ_IP": "192.168.43.35",
+  "ZXZ_IP": "192.168.199.120",
   "ZXZ_PORT": 3803,
   "ZXZ_STATUS": 1
 }
