@@ -32,6 +32,7 @@ func Regist(m *macaron.Macaron) {
 			m.Get("/main", admin.MainHandler)
 			m.Get("/sign", admin.SignHandler)
 		},admin.NeedLogin)
+
 		m.Get("/login", admin.LoginHandler)
 		m.Get("/logout", admin.LogoutHandler)
 		m.Post("/login", admin.NeedCaptcha, binding.Bind(admin.LoginForm{}), admin.LoginPostHandler)
