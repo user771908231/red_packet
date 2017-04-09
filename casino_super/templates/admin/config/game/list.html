@@ -1,0 +1,73 @@
+{{template "manage_header" }}
+<div class="layui-tab" style="overflow: visible" lay-filter="goods_tab">
+
+    <div class="layui-tab-content">
+        <div class="layui-tab-item layui-show">
+            {{range $i,$row := .list}}
+
+            {{range $j,$id := $.ids}}
+            {{if eq $i $j}} {{$id.Id.Hex}} {{end}}
+            {{end}}
+
+            <table class="layui-table">
+                <thead>
+                <tr>
+                    <th>字段名</th>
+                    <th>键</th>
+                    <th>值</th>
+                    <th>描述</th>
+                    <th>操作</th>
+                </tr>
+                </thead>
+                <tbody>
+                {{range $k,$v := $row}}
+                <form action="" method="post">
+                    <tr>
+                        <td>{{$v.Title}}</td>
+                        <td>{{$v.Name}}</td>
+                        <td>{{$v.Value}}</td>
+                        <td>{{$v.Info}}</td>
+                        <td>编辑</td>
+                    </tr>
+                </form>
+                {{end}}
+                </tbody>
+            </table>
+            {{end}}
+        </div>
+    </div>
+</div>
+
+
+
+<script>
+    layui.use(["element"], function () {
+        //选项卡
+        layui.element().on("tab(goods_tab)", function(ele){
+            var cate_id = this.getAttribute("data-cate_id");
+            window.location.href = "./list?cate_id="+cate_id;
+        });
+    });
+
+    //更新
+    common.bindAjax("submit", ".form_list_item", function (e) {
+        e.preventDefault();
+        return window.confirm("确定更新配置吗？");
+    }, function (req, res) {
+        common.msg("消息", res.msg);
+    });
+    //删除
+    common.bindAjax("click", ".list_remove_btn", function (e) {
+        e.preventDefault();
+        return window.confirm("确定删除该条配置吗？");
+    }, function (req, res) {
+        if(res.code > 0){
+            alert(res.msg);
+            window.location.reload();
+        }else {
+            common.msg("消息", res.msg);
+        }
+    });
+</script>
+
+{{template "manage_footer" }}

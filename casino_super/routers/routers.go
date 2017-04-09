@@ -80,6 +80,10 @@ func Regist(m *macaron.Macaron) {
 				m.Get("/list", config.TaskListHandler)
 				m.Post("/edit", binding.Bind(taskType.TaskInfo{}), config.TaskEditPost)
 			})
+			//游戏配置
+			m.Group("/game", func() {
+				m.Get("/list", config.GameConfigListHandler)
+			})
 		})
 	}, admin.ShowPanel)
 
