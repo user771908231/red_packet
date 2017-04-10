@@ -1,0 +1,77 @@
+{{template "manage_header" }}
+<div class="layui-tab" style="overflow: visible" lay-filter="goods_tab">
+
+    <div class="layui-tab-content">
+        <div class="layui-tab-item layui-show">
+            {{range $i,$row := .list}}
+            <table class="layui-table">
+                <thead>
+                <tr>
+                    <th>配置名</th>
+                    <th>类型</th>
+                    <th>键</th>
+                    <th>值</th>
+                    <th>描述</th>
+                </tr>
+                </thead>
+                <tbody>
+                <form class="form_list_item" action="addServerInfo" method="post">
+                {{range $v := $row}}
+                    <tr>
+                        <td>{{$v.Title}}</td>
+                        <td>{{$v.Type}}</td>
+                        <td>{{$v.Name}}</td>
+                        <td>
+                            <input class="layui-input" type="text" name="{{$v.Name}}" value="">
+                        </td>
+                        <td>{{$v.Info}}</td>
+                    </tr>
+                {{end}}
+                    <tr>
+                        <td colspan="5" style="align-content: center">
+                            <input class="layui-btn" type="submit" value="新增">
+                            <input class="layui-btn layui-btn-primary" type="reset" value="重置">
+                        </td>
+                    </tr>
+                </form>
+                </tbody>
+            </table>
+            {{end}}
+        </div>
+    </div>
+</div>
+
+
+
+<script>
+
+    //更新
+    common.bindAjax("submit", ".form_list_item", function (e) {
+        e.preventDefault();
+        return window.confirm("确定更新该条配置吗？");
+    }, function (req, res) {
+        common.msg("消息", res.msg);
+    });
+//    $(".form_list_item").on("submit", function (e) {
+//        e.preventDefault();
+//        var form = $(this);
+//        var data = common.getFormData(this);
+//        var json_data = JSON.stringify(data);
+//        $.ajax({
+//            url: "addServerInfo",
+//            type: "post",
+//            data: {"table":"{{.table}}", "data":json_data},
+//            async: false,
+//            success: function (res) {
+//                common.msg("消息", res.msg)
+//            },
+//            error: function () {
+//                layui.layer.open({title: "消息", content: "网络异常！"});
+//            }
+//        });
+//
+//    })
+
+</script>
+
+{{template "manage_footer" }}

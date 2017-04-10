@@ -14,6 +14,7 @@ import (
 	"casino_common/common/model"
 	"casino_super/handler/qrLoginHandler"
 	"casino_common/common/service/taskService/taskType"
+	login_conf "casino_login/conf"
 )
 
 //注册路由
@@ -32,6 +33,7 @@ func Regist(m *macaron.Macaron) {
 			m.Get("/main", admin.MainHandler)
 			m.Get("/sign", admin.SignHandler)
 		},admin.NeedLogin)
+
 		m.Get("/login", admin.LoginHandler)
 		m.Get("/logout", admin.LogoutHandler)
 		m.Post("/login", admin.NeedCaptcha, binding.Bind(admin.LoginForm{}), admin.LoginPostHandler)
@@ -78,6 +80,13 @@ func Regist(m *macaron.Macaron) {
 			m.Group("/task", func() {
 				m.Get("/list", config.TaskListHandler)
 				m.Post("/edit", binding.Bind(taskType.TaskInfo{}), config.TaskEditPost)
+			})
+			//游戏配置
+			m.Group("/game", func() {
+				m.Get("/list", config.GameConfigListHandler)
+				m.Post("/edit", binding.Bind(config.GameConfEditForm{}), config.GameConfigEditPost)
+				m.Get("/add", config.GameConfigAddHandler)
+				m.Post("/addServerInfo",binding.Bind(login_conf.ServerInfo{}), config.GameServerInfoAddPost)
 			})
 		})
 	}, admin.ShowPanel)
