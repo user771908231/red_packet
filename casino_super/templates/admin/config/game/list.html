@@ -3,16 +3,39 @@
 
     <div class="layui-tab-content">
         <div class="layui-tab-item layui-show">
-            {{range $i,$row := .list}}
-
-            {{range $j,$id := $.ids}}
-            {{if eq $i $j}} {{$id.Id.Hex}} {{end}}
-            {{end}}
 
             <table class="layui-table">
                 <thead>
                 <tr>
-                    <th>字段名</th>
+                    {{range $i,$row := .list}}
+                        {{if eq $i 0}}
+                            {{range $v := $row}}
+                                <th>{{$v.Title}}</th>
+                            {{end}}
+                        {{end}}
+                    {{end}}
+                    <td>操作</td>
+                </tr>
+                </thead>
+                <tbody>
+                {{range $i,$row := .list}}
+                <tr>
+                    {{range $v := $row}}
+                         <td>{{$v.Value}}</td>
+                    {{end}}
+                    <td><button class="jump_btn" data-id="{{$i}}">编辑</button></td>
+                </tr>
+                {{end}}
+                </tbody>
+            </table>
+
+            {{range $i,$row := .list}}
+            <a name="item{{$i}}"></a>
+            <table class="layui-table">
+                <thead>
+                <tr>
+                    <th>配置名</th>
+                    <th>类型</th>
                     <th>键</th>
                     <th>值</th>
                     <th>描述</th>
@@ -20,14 +43,23 @@
                 </tr>
                 </thead>
                 <tbody>
-                {{range $k,$v := $row}}
-                <form action="" method="post">
+                {{range $v := $row}}
+                <form class="form_list_item" data-id="{{$i}}" action="edit" method="post">
+                    <input type="hidden" name="table" value="{{$.table}}">
+                    <input class="input_id_{{$i}}" type="hidden" name="id" value="">
+                    <input type="hidden" name="field" value="{{$v.Name}}">
                     <tr>
                         <td>{{$v.Title}}</td>
+                        <td>{{$v.Type}}</td>
                         <td>{{$v.Name}}</td>
-                        <td>{{$v.Value}}</td>
+                        <td>
+                            <input class="layui-input" type="text" name="value" value="{{$v.Value}}">
+                        </td>
                         <td>{{$v.Info}}</td>
-                        <td>编辑</td>
+                        <td>
+                            <input class="layui-btn" type="submit" value="更新">
+                            <input class="layui-btn layui-btn-primary" type="reset" value="重置">
+                        </td>
                     </tr>
                 </form>
                 {{end}}
@@ -41,33 +73,29 @@
 
 
 <script>
-    layui.use(["element"], function () {
-        //选项卡
-        layui.element().on("tab(goods_tab)", function(ele){
-            var cate_id = this.getAttribute("data-cate_id");
-            window.location.href = "./list?cate_id="+cate_id;
-        });
+
+    $(document).ready(function () {
+        var ids = {{.ids}}
+        ids = eval('('+ids+')');
+
+        for(var i=0; i<ids.length; i++ ){
+            $(".input_id_"+i).val(ids[i].Id);
+        }
+    });
+
+    $(".jump_btn").on("click", function (e) {
+        var id = $(this).data("id");
+        location.href = "#item"+id
     });
 
     //更新
     common.bindAjax("submit", ".form_list_item", function (e) {
         e.preventDefault();
-        return window.confirm("确定更新配置吗？");
+        return window.confirm("确定更新该条配置吗？");
     }, function (req, res) {
         common.msg("消息", res.msg);
     });
-    //删除
-    common.bindAjax("click", ".list_remove_btn", function (e) {
-        e.preventDefault();
-        return window.confirm("确定删除该条配置吗？");
-    }, function (req, res) {
-        if(res.code > 0){
-            alert(res.msg);
-            window.location.reload();
-        }else {
-            common.msg("消息", res.msg);
-        }
-    });
+
 </script>
 
 {{template "manage_footer" }}

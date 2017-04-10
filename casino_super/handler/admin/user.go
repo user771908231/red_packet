@@ -11,7 +11,7 @@ import (
 //面板数据注入
 func NeedLogin(ctx *modules.Context) {
 	//测试时忽略登录验证
-	return
+	//return
 	user := ctx.IsLogin()
 	if user == nil {
 		ctx.Redirect("/admin/login", 302)

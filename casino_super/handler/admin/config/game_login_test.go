@@ -10,6 +10,8 @@ import (
 	db_init "casino_common/common/db"
 	"casino_common/common/sys"
 	"errors"
+	conf_login "casino_login/conf"
+	"casino_common/common/service/configService"
 )
 
 func init() {
@@ -25,13 +27,15 @@ func init() {
 }
 
 type ZjhConfig struct {
+	Id bson.ObjectId
 	Name string `title:"名称" info:"详情"`
 }
 
 type ColInfo struct {
-	Name string
+	Field string
+	Type string
 	Title string
-	Info string
+	Info  string
 	Value interface{}
 }
 
@@ -47,6 +51,7 @@ var ConfigMap map[string]ConfInfo
 func TestStructTag(t *testing.T) {
 	zjh_conf := ZjhConfig{
 		Name: "haha",
+		Id: bson.NewObjectId(),
 	}
 
 	val := reflect.TypeOf(zjh_conf)
@@ -54,10 +59,11 @@ func TestStructTag(t *testing.T) {
 	for i:=0;i<val.NumField();i++ {
 		col_info := ColInfo{}
 		col := val.Field(i)
-		col_info.Name = col.Name
+		col_info.Field = col.Name
 		col_info.Title = col.Tag.Get("title")
 		col_info.Info = col.Tag.Get("info")
 		t.Log(col_info)
+		t.Log(col.Type.Kind().String())
 	}
 
 }
@@ -74,7 +80,8 @@ func GetColInfo(col_struct interface{}) []ColInfo {
 	for i:=0;i<val.NumField();i++ {
 		col_info := ColInfo{}
 		col := val.Field(i)
-		col_info.Name = col.Name
+		col_info.Field = col.Name
+		col_info.Type = col.Type.Kind().String()
 		col_info.Title = col.Tag.Get("title")
 		col_info.Info = col.Tag.Get("info")
 		val_val := reflect.ValueOf(col_struct)
@@ -121,6 +128,13 @@ func GetConfig(table_name string) (err error) {
 	return nil
 }
 
+//赋值到指针
+func TestRegist(t *testing.T) {
+	serv := []conf_login.ConfStruct{}
+	err := configService.Regist(tableName.DBT_GAME_CONFIG_LOGIN, &serv)
+	t.Log(err)
+	t.Log(serv)
+}
 
 //pull config
 
