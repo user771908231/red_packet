@@ -23,7 +23,9 @@
                     {{range $v := $row}}
                          <td>{{$v.Value}}</td>
                     {{end}}
-                    <td><button class="jump_btn" data-id="{{$i}}">编辑</button></td>
+                    <td>
+                        <button class="layui-btn jump_btn" data-id="{{$i}}" type="button" >编辑</button>
+                    </td>
                 </tr>
                 {{end}}
                 </tbody>
