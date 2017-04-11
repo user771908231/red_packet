@@ -9,6 +9,8 @@ import (
 	"encoding/json"
 	login_conf "casino_login/conf"
 	"casino_common/common/consts/tableName"
+
+	"strconv"
 )
 
 //配置列表
@@ -42,13 +44,36 @@ type GameConfEditForm struct {
 }
 //编辑字段
 func GameConfigEditPost(ctx *modules.Context, form GameConfEditForm) {
-	err := db.C(form.Table).Update(bson.M{
-		"_id": bson.ObjectIdHex(form.Id),
-	}, bson.M{
-		"$set": bson.M{form.Field: form.Value},
-	})
+	conf, err := configService.GetConfig(form.Table)
 	if err != nil {
 		ctx.Ajax(-1, "更新失败！Error:"+err.Error(), err.Error())
+		return
+	}
+	//如果该值为string类型，则将mongo将该字段存为string类型
+	//如果该值为数值类型，则mongo将该字段存为double类型
+	field, bool_exit := reflect.TypeOf(conf.Row).Elem().FieldByName(form.Field)
+	if bool_exit != true {
+		ctx.Ajax(-2, "更新失败！Error:field not found", "field not found")
+		return
+	}
+	var value interface{}
+	if field.Type.Kind() != reflect.String {
+		value_double,err := strconv.ParseFloat(form.Value, 64)
+		if err != nil {
+			ctx.Ajax(-3, "更新失败！Error:"+err.Error(), err.Error())
+			return
+		}
+		value = value_double
+	}else {
+		value = form.Value
+	}
+	err = db.C(form.Table).Update(bson.M{
+		"_id": bson.ObjectIdHex(form.Id),
+	}, bson.M{
+		"$set": bson.M{form.Field: value},
+	})
+	if err != nil {
+		ctx.Ajax(-4, "更新失败！Error:"+err.Error(), err.Error())
 		return
 	}
 	ctx.Ajax(1, "更新成功！", nil)
