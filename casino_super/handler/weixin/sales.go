@@ -68,6 +68,12 @@ func SalesToUserHandler(ctx *modules.Context, form SalesForm, errs binding.Error
 			}
 		}
 	}
+
+	//防止填负数，导致bug
+	if form.Num < 0 {
+		form.Num = 0
+	}
+
 	roomCardNum := userService.GetUserRoomCard(agent_id)
 	if roomCardNum < form.Num {
 		ctx.Ajax(-4, "为该用户添加房卡失败！您的房卡数不足！",nil)

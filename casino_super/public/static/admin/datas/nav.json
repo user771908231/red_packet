@@ -70,6 +70,14 @@
 					"title": "任务配置",
 					"icon": "fa-slider",
 					"href": "/admin/config/task/list"
+				},{
+					"title": "登陆服配置",
+					"icon": "fa-slider",
+					"href": "/admin/config/game/list?t=t_game_config_login_list"
+				},{
+					"title": "新增登陆服配置",
+					"icon": "fa-slider",
+					"href": "/admin/config/game/add?t=t_game_config_login_list"
 				}
 			]
 		}

@@ -2,18 +2,13 @@ package main
 
 import (
 	"fmt"
-	"log"
 	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
 )
 
-type Language struct {
+//用户
+type User struct {
 	Name string
-	Language []struct{
-		Name string
-		Type int
-		Level int
-	}
 }
 
 func main() {
@@ -26,17 +21,18 @@ func main() {
 	// Optional. Switch the session to a monotonic behavior.
 	session.SetMode(mgo.Monotonic, true)
 
-	c := session.DB("test").C("runoob")
+	c := session.DB("test").C("users")
 
-	result := Language{}
-	err = c.Find(
-		bson.M{"language.name": "java"},
-	).Select(
-		bson.M{"language.$":1},
-	).One(&result)
+	result := []User{}
+
+	err = c.Find(bson.M{
+		"name": "james",
+	}).All(&result)
+
 	if err != nil {
-		log.Fatal(err)
+		fmt.Println("err !", err.Error())
+		return
 	}
 
-	fmt.Println("Phone:", result)
+	fmt.Println("result:", result)
 }

@@ -50,6 +50,7 @@ type LoginForm struct {
 	Passwd string `binding:"Required;MinSize(4);MaxSize(24)"`
 	//Captcha string `binding:"Required;Size(4)"`
 }
+
 func (form LoginForm)Error(ctx *macaron.Context, errs binding.Errors) {
 	if len(errs)>0 {
 		my_ctx := modules.Context{Context:ctx}
