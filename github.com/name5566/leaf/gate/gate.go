@@ -113,10 +113,9 @@ func (a *agent) Run() {
 
 			//打印接收到的信息
 			typeString := reflect.TypeOf(msg).String()
+			log.Debug("解析出来的数据type[%v],m[%v]", reflect.TypeOf(msg).String(), msg)
 			if !strings.Contains(typeString, "Heartbeat") {
-				//log.Debug("解析出来的数据type[%v],m[%v]", reflect.TypeOf(msg).String(), msg)
 				clog.T("解析出来的数据type[%v],m[%v]", reflect.TypeOf(msg).String(), msg)
-				log.Debug("解析出来的数据type[%v],m[%v]", reflect.TypeOf(msg).String(), msg)
 			}
 
 			err = a.gate.Processor.Route(msg, a)
