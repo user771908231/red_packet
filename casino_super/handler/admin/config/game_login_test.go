@@ -130,7 +130,7 @@ func GetConfig(table_name string) (err error) {
 
 //赋值到指针
 func TestRegist(t *testing.T) {
-	serv := []conf_login.ConfStruct{}
+	serv := []conf_login.ConfJson{}
 	err := configService.Regist(tableName.DBT_GAME_CONFIG_LOGIN, &serv)
 	t.Log(err)
 	t.Log(serv)
