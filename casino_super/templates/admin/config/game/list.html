@@ -4,6 +4,7 @@
     <div class="layui-tab-content">
         <div class="layui-tab-item layui-show">
 
+            <a href="add?t={{.table}}" class="layui-btn">新增</a>
             <table class="layui-table">
                 <thead>
                 <tr>
@@ -33,7 +34,7 @@
 
             {{range $i,$row := .list}}
             <a name="item{{$i}}"></a>
-            <table class="layui-table">
+            <table style="display: none" id="table_{{$i}}" class="layui-table table_item">
                 <thead>
                 <tr>
                     <th>配置名</th>
@@ -87,7 +88,8 @@
 
     $(".jump_btn").on("click", function (e) {
         var id = $(this).data("id");
-        location.href = "#item"+id
+        $(".table_item").hide();
+        $("#table_"+id).show();
     });
 
     //更新

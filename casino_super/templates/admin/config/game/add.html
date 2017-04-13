@@ -3,6 +3,7 @@
 
     <div class="layui-tab-content">
         <div class="layui-tab-item layui-show">
+            <a href="list?t={{.table}}" class="layui-btn">返回</a>
             {{range $i,$row := .list}}
             <table class="layui-table">
                 <thead>
