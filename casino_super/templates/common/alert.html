@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>跳转提示</title>
+    <title>温馨提示</title>
     <style type="text/css">
         *{ padding: 0; margin: 0; }
         body{ background: #fff; font-family: '微软雅黑'; color: #333; font-size: 16px; }
@@ -17,10 +17,10 @@
 <body>
 <div class="system-message">
     {{if ne .Msg ""}}
-    <h1>:)</h1>
+    <h1><img src="/img/success.png" alt=""></h1>
     <p class="success">{{.Msg}}</p>
     {{else}}
-    <h1>:(</h1>
+    <h1><img src="/img/error.png" alt=""></h1>
     <p class="error">{{.Error}}</p>
     {{end}}
     <p class="detail"></p>
