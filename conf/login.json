@@ -1,12 +1,12 @@
 {
   "LogLevel": "debug",
   "LogPath": "log",
-  "WSAddr": "192.168.199.15:4700",
+  "WSAddr": "192.168.2.188:4700",
   "MaxConnNum": 20000,
-  "MongoIp": "192.168.199.200",
+  "MongoIp": "192.168.2.188",
   "MongoPort": 51668,
-  "RedisAddr": "192.168.199.200:6379",
-  "CurVersion": 3,
+  "RedisAddr": "192.168.2.188:6379",
+  "CurVersion": 2,
   "BaseDownloadUrl": "",
 
   "DDZ_CurVersion": 1,
@@ -49,7 +49,7 @@
   "HALL_ReleaseTag": 1,
   "HALL_DownloadUrl": "http://d.tondeen.com/sjtexas.html",
   "HALL_LatestClientVersion": 1,
-  "HALL_IP": "192.168.199.15",
+  "HALL_IP": "192.168.2.188",
   "HALL_PORT": 3801,
   "HALL_STATUS": 1,
 
