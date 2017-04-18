@@ -7,7 +7,6 @@ import (
 	"gopkg.in/mgo.v2/bson"
 	"reflect"
 	"encoding/json"
-	login_conf "casino_login/conf"
 	"casino_common/common/consts/tableName"
 
 	"strconv"
@@ -121,7 +120,7 @@ func GameConfigAddPost(ctx *modules.Context, form GameConfigAddForm) {
 
 
 //新增ServerInfo
-func GameServerInfoAddPost(ctx *modules.Context, form login_conf.ServerInfo) {
+func GameServerInfoAddPost(ctx *modules.Context, form configService.LoginServerInfo) {
 	err := db.C(tableName.DBT_GAME_CONFIG_LOGIN_LIST).Insert(form)
 	if err != nil {
 		ctx.Ajax(-1, "新增失败！", nil)
