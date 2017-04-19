@@ -18,15 +18,22 @@ import (
 	"encoding/json"
 	"strconv"
 	"time"
+	//"runtime/debug"
 )
 
 const (
-	APP_ASSET_FILE="/Users/kory/Documents/Dev/cocos2d-x-3.12/casino/DDZ/assets/resources/HotUpdate/AssetsInfo.dat"
-	BUILD_NATIVE_PATH = "/Users/kory/Documents/Dev/cocos2d-x-3.12/casino/DDZ/build_native/"
-	ROOT_PATH = BUILD_NATIVE_PATH + "jsb-default/"
-	OUTPUT_PATH = "/Users/kory/Documents/Dev/workspace/Git/GameUpdate/SjddzUpdate/"
+	PROJ_ROOT_PATH = "/Users/kory/Documents/Dev/workspace/Git/casino/DDZ/"
+	//PROJ_ROOT_PATH = "/Users/kory/Documents/Dev/cocos2d-x-3.12/casino/casino/DDZ/"
+	BUILD_NATIVE_PATH = PROJ_ROOT_PATH+"build_native/"
 
-	FILEID_LIST_JSON = OUTPUT_PATH+"FileIdList.json"
+	APP_ASSET_FILE=PROJ_ROOT_PATH+"assets/resources/HotUpdate/AssetsInfo.dat"
+	IOS_BUILD_ASSET_FILE=BUILD_NATIVE_PATH+"jsb-default/res/raw-assets/resources/HotUpdate/AssetsInfo.dat"
+
+	ROOT_PATH = BUILD_NATIVE_PATH + "jsb-default/"
+	//OUTPUT_PATH = "/Users/kory/Documents/Dev/workspace/Git/GameUpdate/SjddzUpdate/"
+
+
+
 
 	ASSET_HOST = "http://test2.tondeen.com/hotupdate/"
 	TEST_ASSET_HOST = "http://d.tondeen.com/testhot/"
@@ -36,8 +43,17 @@ const (
 
 var (
 	gFileIdMap = make( map[string] string)
+	gUpdateFiles = make( map[string] string)
 
+	//OUTPUT_PATH = "/Users/kory/Documents/Dev/workspace/Git/GameUpdate/ios_lyqmj_3/" //iOS AppStore channelid=3
+	OUTPUT_ROOT = "/Users/kory/Documents/Dev/workspace/Git/GameUpdate/"
+	OUTPUT_PATH = OUTPUT_ROOT + "android_hunan_32/" //channelid=32
+
+	AssetsVer = int32(1)
+	FILEID_LIST_JSON = OUTPUT_PATH + "FileIdList_v1.json"
+	FILEID_LIST_JSON_NEW = OUTPUT_PATH + "FileIdList_v2.json"
 )
+
 
 type FileIdInfo struct {
 	FileId           int32
@@ -306,6 +322,14 @@ saveFile string, assetVer int32, redisHost string) (pkgData *ddproto.HotupdateAc
 			log.Printf("write文件失败:%v savefile:%V", err, APP_ASSET_FILE)
 			panic(err)
 		}
+
+		//再保存一份至ios build 目录
+		err = ioutil.WriteFile(IOS_BUILD_ASSET_FILE, filedata, 0666)
+		if err != nil {
+			log.Printf("write文件失败:%v savefile:%V", err, APP_ASSET_FILE)
+			panic(err)
+		}
+
 		log.Printf("=== 已更新 App/Resource/AssetsInfo.dat ====\n")
 	} else {
 		log.Printf("===isUpdateAppAsset=false >> 无需更新 App/Resource/HotUpdate/AssetsInfo.dat\n")
@@ -343,8 +367,8 @@ func printAssetInfoFile(saveFile, logSaveFileId string ) string {
 	assetInfo := loadAssetInfoFromFile( saveFile )
 
 	text := "" + logSaveFileId
-	text += fmt.Sprintf("\n=========================\nassetInfo.dat读取文件后打印: \n\t [ assetInfo: %v ]\n \t[ 资源文件数:%v]\t[版本号:%v]\n",
-	*assetInfo.AssetHost, len(assetInfo.Assets), *assetInfo.LastestAssetsVersion)
+	text += fmt.Sprintf("\n=========================\nassetInfo.dat读取文件后打印: [%s] \n\t [ assetInfo: %v ]\n \t[ 资源文件数:%v]\t[版本号:%v]\n",
+		time.Now().Format("2006-01-02 15:04:05"), *assetInfo.AssetHost, len(assetInfo.Assets), *assetInfo.LastestAssetsVersion)
 	for i, asset := range assetInfo.Assets {
 		text += fmt.Sprintf("\t--[%d] asset >>> fid:%v fPath:%v fver:%v size:%v md5:%v gameId:%v isCode:%v\n",
 			i,  *asset.FileId, *asset.FilePath,
@@ -382,6 +406,11 @@ func getFileVer(newAsset *ddproto.AssetInfo, oldAssetInfo *ddproto.HotupdateAckA
 				if ( *asset.Md5 == *newAsset.Md5 ) {
 					//md5一致, 直接返回旧文件的FileVer
 					*fileVer = *asset.FileVer
+					//if *asset.FileId >= 82 {
+					//	*fileVer = *asset.FileVer + 4
+					//	log.Printf("  >>>>> fid:%v[%v] md5虽然未变, 但设置fileVer:%v", *asset.FileId, *asset.FilePath, *fileVer)
+					//}
+
 					//log.Printf("fid:%v[%v] md5未变,直接返回fileVer:%v", *asset.FileId, *asset.FilePath, *fileVer)
 				} else {
 					//新文件md5变了, 版本号+1
@@ -390,6 +419,10 @@ func getFileVer(newAsset *ddproto.AssetInfo, oldAssetInfo *ddproto.HotupdateAckA
 						*asset.FileId, *asset.FilePath, *newAsset.FileId, *newAsset.FilePath, *fileVer,
 						*asset.FileSize, *newAsset.FileSize, *asset.Md5, *newAsset.Md5)
 				}
+
+				//if *asset.FileId == 1 {
+				//	*fileVer = 14
+				//}
 			} else {
 				*fileVer = *asset.FileVer
 				log.Printf("非法数据: fileId相同但filePath不同: fid:%v old:%v new:%v\n", *asset.FileId, *asset.FilePath, *newAsset.FilePath )
@@ -560,11 +593,11 @@ func packOneAsset(origAssetInfo *ddproto.HotupdateAckAssetsInfo,  resPath, modul
 	return asset, nil
 }
 
-func packResources(importpath string, outputPath string,  isRelease, isOnlySource bool) (assets []*ddproto.AssetInfo, err error ) {
+func packResources(importpath string, outputPath string, oldAssetFile string,  isRelease, isOnlySource bool) (assets []*ddproto.AssetInfo, err error ) {
 	resPath := ROOT_PATH + "/res/raw-assets/resources/"
 
 	//读取上一次生成的资源信息
-	origAssetInfo := loadAssetInfoFromFile( OUTPUT_PATH + "/AssetsInfo.dat" )
+	origAssetInfo := loadAssetInfoFromFile( oldAssetFile )
 
 	var srcFiles []string
 	if isRelease {
@@ -760,8 +793,9 @@ func setAssetsFileToRedis(assetFile, clientAppId, redisHost string ) {
 	/////////////////
 	//打印数据
 	text := ""
-	text += fmt.Sprintf("\n=========================\nassetInfo.dat读取文件后打印: \n\t [ assetInfo: %v ]\n \t[ 资源文件数:%v]\t[版本号:%v]\n",
-		*assetInfo.AssetHost, len(assetInfo.Assets), *assetInfo.LastestAssetsVersion)
+	text += fmt.Sprintf("\n=========================\nassetInfo.dat读取文件后打印: [%s] \n\t [ assetInfo: %v ]\n \t[ 资源文件数:%v]\t[版本号:%v]\n",
+		time.Now().Format("2006-01-02 15:04:05"), *assetInfo.AssetHost, len(assetInfo.Assets), *assetInfo.LastestAssetsVersion)
+
 	for i, asset := range assetInfo.Assets {
 		text += fmt.Sprintf("\t--[%d] asset >>> fid:%v fPath:%v fver:%v size:%v md5:%v gameId:%v isCode:%v compress:%v\n",
 			i,  *asset.FileId, *asset.FilePath,
@@ -808,18 +842,20 @@ func compareAssetInfo() {
 
 }
 
-func saveFileIdList() (result bool, logstr string) {
+func saveFileIdList( newAssetFile string ) (result bool, logstr string) {
 	//if isFileExist( FILEID_LIST_JSON ) {
 	//	log.Printf("%v fileId文件已存在. ", FILEID_LIST_JSON)
 	//	return false
 	//}
+	logstr = ""
 	logstr += fmt.Sprintf("==========检查是否有新增fileId=========\n")
+	//debug.PrintStack()
 
-	outputFileidList := FILEID_LIST_JSON+".new"
+	//outputFileidList := OUTPUT_PATH + "FileIdList" + "_v" + fmt.Sprintf("%d", assetsVer) // + ".new"
 	var gFileIdMap map[string] string
 
 	//读取新的assets文件
-	newAssetInfo := loadAssetInfoFromFile( OUTPUT_PATH + "AssetsInfo.dat" + ".new" )
+	newAssetInfo := loadAssetInfoFromFile( newAssetFile )
 
 	//读取旧的FileidList文件
 	fr, err := os.Open( FILEID_LIST_JSON )
@@ -868,13 +904,13 @@ func saveFileIdList() (result bool, logstr string) {
 		panic(err)
 	}
 
-	err = ioutil.WriteFile(outputFileidList, []byte( data ), 0666)
+	err = ioutil.WriteFile(FILEID_LIST_JSON_NEW, []byte( data ), 0666)
 	if err != nil {
-		log.Printf("write文件失败:%v savefile:%v", err, outputFileidList)
+		log.Printf("write文件失败:%v savefile:%v", err, FILEID_LIST_JSON_NEW)
 		panic(err)
 	}
 
-	logstr += fmt.Sprintf("=====保存文件Id信息完成( FileIdList.json.new )=====\n")
+	logstr += fmt.Sprintf("=====保存文件Id信息完成( %s )=====\n", FILEID_LIST_JSON_NEW)
 
 	return true, logstr
 }
@@ -934,33 +970,146 @@ func getFileId(globalFid *int32, filePath *string) (fileId int32) {
 	return *globalFid
 }
 
-func main() {
-	saveFile := OUTPUT_PATH + "/AssetsInfo.dat.new"
+var ConfData struct {
+	ChannelId	   int32
+	CurrVersion	   int32
+	LastVersion        int32
+	RedisAddr          string //redis配置
+	OutputPath         string
+	AssetHost	   string
 
+}
+
+//载入配置
+func LoadJsonConfig(cid string) {
+	filename := "conf.json"
+	if cid != "" {
+		filename = "./conf."+cid+".json"
+	}
+	data, err := ioutil.ReadFile( filename )
+	if err != nil {
+		log.Fatal("%v", err)
+	}
+	//log.Printf("配置文件信息:%v\n", string(data))
+
+	err = json.Unmarshal(data, &ConfData)
+	if err != nil {
+		log.Fatal("%v", err)
+	}
+
+	log.Printf("========================\n")
+	log.Printf("配置信息: \nChannelId: %v\nCurrVersion: %v\nLastVersion:%v\nRedisAddr: %v\nOUTPUT_ROOT:%v\nAssetHost: %v\n",
+		ConfData.ChannelId, ConfData.CurrVersion, ConfData.LastVersion, ConfData.RedisAddr,ConfData.OutputPath,  ConfData.AssetHost)
+	log.Printf("========================\n")
+}
+
+
+
+func main() {
+	if len(os.Args) < 2 {
+		fmt.Printf("参数错误： 请输入channelId. \n")
+		return
+	}
+
+	//if len(os.Args) < 3 {
+	//	fmt.Printf("参数错误： 请输入channelId AssetsInfo{cid}_{ver}.dat \n")
+	//	return
+	//}
+
+	cid := os.Args[1]    //channelId
+	assetHost := ""
+
+	//=======================================
+	//////更新redis数据
+	//AssetFile:= os.Args[2]
+	//redisHost := "127.0.0.1:6379"
+	//if len(os.Args) > 3 {
+	//	redisHost = os.Args[3]
+	//}
+	//log.Printf("cid="+ cid + " AssetFile=" + AssetFile + " redisHost="+redisHost+"\n")
+	//setAssetsFileToRedis( AssetFile, cid, redisHost )
+	//return
+	//=======================================
+
+
+	//读取配置文件
+	LoadJsonConfig( cid )
+
+	//newAssetFile:="/Users/kory/Documents/Dev/cocos2d-x-3.12/casino/DDZ/assets/resources/HotUpdate/AssetsInfo.dat"
 	//printAssetInfoFile( "/Users/kory/Documents/Dev/cocos2d-x-3.12/casino/DDZ/assets/resources/HotUpdate/AssetsInfo.dat", "" )
 	//return
-	////更新redis数据
-	//setAssetsFileToRedis( saveFile, CLIENT_APPID, "127.0.0.1:6379")
-	//return
 
+
+	//全局资源版本号
+	//AssetsVer = int32( 15 ) //2017.04.08
+	//AssetsVer = int32( 17 ) //2017.04.10
+	//AssetsVer = int32( 18 ) //2017.04.11
+	//AssetsVer = int32( 20 ) //2017.04.15
+	//AssetsVer = int32( 21 ) //2017.04.16
+	//AssetsVer = int32( 22 ) //2017.04.17
+	AssetsVer = ConfData.CurrVersion //int32( 23 ) //2017.04.18
+
+	LastAssetVer := ConfData.LastVersion
+	if LastAssetVer <= 0 {
+		LastAssetVer = AssetsVer - 1
+	}
+
+	sAssetsVer := fmt.Sprintf("%d", AssetsVer)
+	sAssetsVerOld := fmt.Sprintf("%d", AssetsVer-1)
+	//sAssetsVerOld = "19"
+
+	// 从配置文件赋值
+	OUTPUT_PATH = ConfData.OutputPath
+	assetHost = ConfData.AssetHost
+
+	////channelid=32
+	//if cid == "32" {
+	//	OUTPUT_PATH = OUTPUT_ROOT + "android_hunan_32/"
+	//	assetHost = "http://test2.tondeen.com/update/android_hunan_32/" //android湖南: cid=32
+	//} else if cid == "3" {
+	//	OUTPUT_PATH = OUTPUT_ROOT +"ios_lyqmj_3/"
+	//	assetHost = "http://test2.tondeen.com/update/lyqmj3/"  //来一圈麻将
+	//} else if cid == "33" {
+	//	OUTPUT_PATH = OUTPUT_ROOT +"android_gz_33/"
+	//	assetHost = "http://test2.tondeen.com/update/android_gz_33/"  //广州
+	//}
+
+
+	oldAssetFile := OUTPUT_PATH + "AssetsInfo"+ cid +"_"+ sAssetsVerOld + ".dat"
+	newAssetFile := OUTPUT_PATH + "AssetsInfo"+ cid +"_"+ sAssetsVer + ".dat"
+
+	FILEID_LIST_JSON = OUTPUT_PATH + "FileIdList"+ cid  + "_v" + sAssetsVerOld + ".json"
+	FILEID_LIST_JSON_NEW = OUTPUT_PATH + "FileIdList"+ cid + "_v" + sAssetsVer + ".json"
 
 	if true {
 		isOnlySource := false      //是否只生产源码
 		redisHost := "127.0.0.1:6379"
 
 		isRelease := true		 	//调试 or Release
+		//isRelease := false		 	//调试 or Release
 		isUpdateAppAsset := true  //是否更新App内置信息:/Resource/HotUpdate/AssetsInfo.dat
 
-		assets, err := packResources("", OUTPUT_PATH, isRelease, isOnlySource)
+		assets, err := packResources("", OUTPUT_PATH, oldAssetFile, isRelease, isOnlySource)
 		if err != nil {
 			return
 		}
 
 		//var assets []*ddproto.AssetInfo
-		//全局资源版本号
-		lastestAssetsVer := int32( 3 ) //2017.01.24
-		pkgData := makeInfoFile(isUpdateAppAsset, assets, ASSET_HOST, saveFile, lastestAssetsVer, redisHost)
-		//pkgData := makeInfoFile(isUpdateAppAsset, assets, TEST_ASSET_HOST, saveFile, lastestAssetsVer, redisHost)
+
+
+		//assetHost := ASSET_HOST
+		//assetHost := "http://test2.tondeen.com/sjddz_hotupdate/"  //神经斗地主
+		//cid = "31"
+		//AssetsVer = int32( 11 ) //2017.03.26
+		//assetHost := "http://test2.tondeen.com/corp_hotupdate/"  //企业号: cid=31
+
+
+		//cid = "101"
+		//AssetsVer = int32( 11 )
+		////assetHost := "http://192.168.199.18/"  //(测试)
+		//assetHost := "http://test2.tondeen.com/hunan_update.temp/"  //(TEST)
+
+		pkgData := makeInfoFile(isUpdateAppAsset, assets, assetHost, newAssetFile, AssetsVer, redisHost)
 
 		if( pkgData != nil ) {
 			////写入redis
@@ -972,15 +1121,18 @@ func main() {
 	}
 
 	//从文件AssetsInfo.dat.new生成FileId
-	_, logSaveFileId := saveFileIdList()
+	_, logSaveFileId := saveFileIdList( newAssetFile )
 	logSaveFileId += "========= 生成时间: " + time.Now().Format("2006-01-02 15:04:05") + " ==========\n" +logSaveFileId
 
 	log.Printf( logSaveFileId )
 
-	log.Printf("将打印saveFile:%s\n", saveFile)
+	log.Printf("将打印saveFile:%s\n", newAssetFile)
 
+	log.Printf( logSaveFileId )
+	printAssetInfoFile( newAssetFile, logSaveFileId )
 
+	//写入redis
+	//setAssetsFileToRedis( newAssetFile, cid, "127.0.0.1:6379")
 
-	printAssetInfoFile( saveFile, logSaveFileId )
 }
 

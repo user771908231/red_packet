@@ -1,0 +1,8 @@
+{
+    "ChannelId":   3,
+    "CurrVersion": 24,
+    "LastVersion": 0,
+    "RedisAddr":   "127.0.0.1:6379",
+    "OutputPath": "/Users/kory/Documents/Dev/workspace/Git/GameUpdate/ios_lyqmj_3/",
+    "AssetHost":   "http://test2.tondeen.com/update/ios_lyqmj_3/"
+}
