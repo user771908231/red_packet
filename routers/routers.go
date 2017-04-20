@@ -89,6 +89,12 @@ func Regist(m *macaron.Macaron) {
 				m.Post("/addServerInfo",binding.Bind(configService.LoginServerInfo{}), config.GameServerInfoAddPost)
 			})
 		})
+
+		//数据分析
+		m.Group("/data", func() {
+			m.Get("/atHome",admin.AtHome)
+			m.Post("/atHomeList",admin.AtHomeList)
+		})
 	}, admin.ShowPanel)
 
 	//微信
