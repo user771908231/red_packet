@@ -80,6 +80,61 @@
 					"href": "/admin/config/game/list?t=t_game_config_login_list"
 				}
 			]
+		},{
+			"title": "数据分析",
+			"icon": "fa-sliders",
+			"spread": true,
+			"children": [
+				{
+					"title": "充值统计",
+					"icon": "fa-slider",
+					"href": "/admin/manage/apply?status=1&page=1"
+				},{
+					"title": "注册统计",
+					"icon": "fa-slider",
+					"href": "/admin/manage/apply?status=2&page=1"
+				},{
+					"title": "在线统计",
+					"icon": "fa-slider",
+					"href": "/admin/manage/apply?status=3&page=1"
+				},{
+					"title": "在房间玩家",
+					"icon": "fa-slider",
+					"href": "/admin/data/atHome"
+				},{
+					"title": "金币分布",
+					"icon": "fa-slider",
+					"href": "/admin/manage/agent?pid=0&page=1"
+				},{
+					"title": "流失玩家",
+					"icon": "fa-slider",
+					"href": "/admin/manage/agent?pid=0&page=1"
+				},{
+					"title": "活跃玩家",
+					"icon": "fa-slider",
+					"href": "/admin/manage/agent?pid=0&page=1"
+				},{
+					"title": "系统统计",
+					"icon": "fa-slider",
+					"href": "/admin/manage/agent?pid=0&page=1"
+				},{
+					"title": "游戏记录",
+					"icon": "fa-slider",
+					"href": "/admin/manage/agent?pid=0&page=1"
+				},{
+					"title": "银行税收",
+					"icon": "fa-slider",
+					"href": "/admin/manage/agent?pid=0&page=1"
+				},{
+					"title": "游戏税收",
+					"icon": "fa-slider",
+					"href": "/admin/manage/agent?pid=0&page=1"
+				},{
+					"title": "清理表数据",
+					"icon": "fa-slider",
+					"href": "/admin/manage/agent?pid=0&page=1"
+				}
+			]
 		}
 	],
 	"2": [
