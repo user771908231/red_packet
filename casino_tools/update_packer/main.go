@@ -420,7 +420,7 @@ func getFileVer(newAsset *ddproto.AssetInfo, oldAssetInfo *ddproto.HotupdateAckA
 				//}
 			} else {
 				*fileVer = *asset.FileVer
-				log.Printf("非法数据: fileId相同但filePath不同: fid:%v old:%v new:%v\n", *asset.FileId, *asset.FilePath, *newAsset.FilePath )
+				log.Fatalf("非法数据: fileId相同但filePath不同: fid:%v old:%v new:%v\n", *asset.FileId, *asset.FilePath, *newAsset.FilePath )
 				//panic(nil)
 			}
 			break
@@ -1053,7 +1053,13 @@ func main() {
 	if os.Args[1] == "print" {
 		toPrintAssetFile :=  os.Args[2]
 		log.Printf(">>>>> 即将读取打印：%v\n", toPrintAssetFile)
-		printAssetInfoFile( toPrintAssetFile, "" )
+
+		FILEID_LIST_JSON = filepath.Dir(toPrintAssetFile) + "/FileIdList_Old.json"
+		FILEID_LIST_JSON_NEW = filepath.Dir(toPrintAssetFile)  + "/FileIdList_Curr.json"
+
+		_, logSaveFileId := saveFileIdList( toPrintAssetFile )
+
+		printAssetInfoFile( toPrintAssetFile, logSaveFileId )
 		return
 	}
 
@@ -1101,8 +1107,8 @@ func main() {
 	//}
 
 
-	oldAssetFile := OUTPUT_PATH + "AssetsInfo"+ cid +"_"+ sAssetsVerOld + ".dat"
-	newAssetFile := OUTPUT_PATH + "AssetsInfo"+ cid +"_"+ sAssetsVer + ".dat"
+	oldAssetFile := OUTPUT_PATH + "AssetsInfo"+ cid +"_v"+ sAssetsVerOld + ".dat"
+	newAssetFile := OUTPUT_PATH + "AssetsInfo"+ cid +"_v"+ sAssetsVer + ".dat"
 
 	FILEID_LIST_JSON = OUTPUT_PATH + "FileIdList"+ cid  + "_v" + sAssetsVerOld + ".json"
 	FILEID_LIST_JSON_NEW = OUTPUT_PATH + "FileIdList"+ cid + "_v" + sAssetsVer + ".json"
