@@ -22,6 +22,13 @@ import (
 )
 
 const (
+)
+
+
+var (
+	gFileIdMap = make( map[string] string)
+	gUpdateFiles = make( map[string] string)
+
 	PROJ_ROOT_PATH = "/Users/kory/Documents/Dev/workspace/Git/casino/DDZ/"
 	//PROJ_ROOT_PATH = "/Users/kory/Documents/Dev/cocos2d-x-3.12/casino/casino/DDZ/"
 	BUILD_NATIVE_PATH = PROJ_ROOT_PATH+"build_native/"
@@ -30,20 +37,6 @@ const (
 	IOS_BUILD_ASSET_FILE=BUILD_NATIVE_PATH+"jsb-default/res/raw-assets/resources/HotUpdate/AssetsInfo.dat"
 
 	ROOT_PATH = BUILD_NATIVE_PATH + "jsb-default/"
-	//OUTPUT_PATH = "/Users/kory/Documents/Dev/workspace/Git/GameUpdate/SjddzUpdate/"
-
-
-
-
-	ASSET_HOST = "http://test2.tondeen.com/hotupdate/"
-	TEST_ASSET_HOST = "http://d.tondeen.com/testhot/"
-	CLIENT_APPID = "1"
-)
-
-
-var (
-	gFileIdMap = make( map[string] string)
-	gUpdateFiles = make( map[string] string)
 
 	//OUTPUT_PATH = "/Users/kory/Documents/Dev/workspace/Git/GameUpdate/ios_lyqmj_3/" //iOS AppStore channelid=3
 	OUTPUT_ROOT = "/Users/kory/Documents/Dev/workspace/Git/GameUpdate/"
@@ -52,6 +45,8 @@ var (
 	AssetsVer = int32(1)
 	FILEID_LIST_JSON = OUTPUT_PATH + "FileIdList_v1.json"
 	FILEID_LIST_JSON_NEW = OUTPUT_PATH + "FileIdList_v2.json"
+
+
 )
 
 
@@ -435,6 +430,65 @@ func getFileVer(newAsset *ddproto.AssetInfo, oldAssetInfo *ddproto.HotupdateAckA
 	return fileVer
 }
 
+func getGameId( module string ) (gameId ddproto.CommonEnumGame, isCode bool) {
+	gameId = ddproto.CommonEnumGame_GID_HALL
+	isCode = false
+	//if( module == "Lobby" ) {
+	//	gameId = 6 //朋友桌
+	//} else if( module == "GameCommon" ) {
+	//	gameId = 100 //游戏桌内公用资源
+	//} else if( module == "Common" || module == "Hall" ) {
+	//	gameId = ddproto.CommonEnumGame_GID_HALL
+	//} else if( module == "Login" ) {
+	//	gameId = ddproto.CommonEnumGame_GID_HALL
+	//} else if( module == "DDZ" ) {
+	//	gameId = ddproto.CommonEnumGame_GID_DDZ
+	//} else if( module == "Mahjong" ) {
+	//	gameId = ddproto.CommonEnumGame_GID_MAHJONG
+	//} else if( module == "ZJH" ) {
+	//	gameId = ddproto.CommonEnumGame_GID_ZJH
+	//} else if( module == "PDK" ) {
+	//	gameId = ddproto.CommonEnumGame_GID_PDK
+	//}else if( strings.Contains(module, "src") ) { //源码
+	//	//gameId = ddproto.CommonEnumGame_GID_SRC
+	//	gameId = ddproto.CommonEnumGame_GID_HALL
+	//	isCode = true
+	//} else if( strings.Contains(module, "import") ) { //
+	//	gameId = ddproto.CommonEnumGame_GID_HALL
+	//	isCode = true
+	//} else {
+	//	log.Fatal("无法识别未知模块:" + module +". 终止进程!" )
+	//}
+
+
+	if( module == "Common" || module == "Hall" || module == "GameCommon" ) {
+		gameId = ddproto.CommonEnumGame_GID_HALL
+	} else if( module == "Lobby" ) {
+		gameId = ddproto.CommonEnumGame_GID_HALL
+	} else if( module == "Login" ) {
+		gameId = ddproto.CommonEnumGame_GID_HALL
+	} else if( module == "DDZ" ) {
+		gameId = ddproto.CommonEnumGame_GID_DDZ
+	} else if( module == "Mahjong" ) {
+		gameId = ddproto.CommonEnumGame_GID_MAHJONG
+	} else if( module == "ZJH" ) {
+		gameId = ddproto.CommonEnumGame_GID_ZJH
+	} else if( module == "PDK" ) {
+		gameId = ddproto.CommonEnumGame_GID_PDK
+	}else if( strings.Contains(module, "src") ) { //源码
+		//gameId = ddproto.CommonEnumGame_GID_SRC
+		gameId = ddproto.CommonEnumGame_GID_HALL
+		isCode = true
+	} else if( strings.Contains(module, "import") ) { //
+		gameId = ddproto.CommonEnumGame_GID_HALL
+		isCode = true
+	}else {
+		log.Fatal("无法识别未知模块:" + module +". 终止进程!" )
+	}
+
+	return gameId, isCode
+}
+
 //将多个散列文件打成1个zip包
 func packSomeFiles(origAssetInfo *ddproto.HotupdateAckAssetsInfo, files[]string, module, outputPath,filePath,basePath string,  fid *int32 ) (assets *ddproto.AssetInfo, err error) {
 	destFile := ""
@@ -472,29 +526,8 @@ func packSomeFiles(origAssetInfo *ddproto.HotupdateAckAssetsInfo, files[]string,
 	md5str, _ := getMd5( destFile )
 
 
-	isCode := false
+	gameId, isCode := getGameId( module )
 
-	gameId := ddproto.CommonEnumGame_GID_HALL
-	if( module == "Common" || module == "Hall" ) {
-		gameId = ddproto.CommonEnumGame_GID_HALL
-	} else if( module == "Lobby" ) {
-		gameId = ddproto.CommonEnumGame_GID_HALL
-	} else if( module == "Login" ) {
-		gameId = ddproto.CommonEnumGame_GID_HALL
-	} else if( module == "DDZ" ) {
-		gameId = ddproto.CommonEnumGame_GID_DDZ
-	} else if( module == "Mahjong" ) {
-		gameId = ddproto.CommonEnumGame_GID_MAHJONG
-	} else if( module == "ZJH" ) {
-		gameId = ddproto.CommonEnumGame_GID_ZJH
-	} else if( strings.Contains(module, "src") ) { //源码
-		//gameId = ddproto.CommonEnumGame_GID_SRC
-		gameId = ddproto.CommonEnumGame_GID_HALL
-		isCode = true
-	} else if( strings.Contains(module, "import") ) { //
-		gameId = ddproto.CommonEnumGame_GID_HALL
-		isCode = true
-	}
 
 	//*fid = *fid + 1
 	fileId := int32( getFileId(fid, &filePath) )
@@ -551,29 +584,7 @@ func packOneAsset(origAssetInfo *ddproto.HotupdateAckAssetsInfo,  resPath, modul
 	//计算文件md5
 	md5str, _ := getMd5( destFile )
 
-	isCode := false
-
-	gameId := ddproto.CommonEnumGame_GID_HALL
-	if( module == "Common" || module == "Hall" ) {
-		gameId = ddproto.CommonEnumGame_GID_HALL
-	} else if( module == "Lobby" ) {
-		gameId = ddproto.CommonEnumGame_GID_HALL
-	} else if( module == "Login" ) {
-		gameId = ddproto.CommonEnumGame_GID_HALL
-	} else if( module == "DDZ" ) {
-		gameId = ddproto.CommonEnumGame_GID_DDZ
-	} else if( module == "Mahjong" ) {
-		gameId = ddproto.CommonEnumGame_GID_MAHJONG
-	} else if( module == "ZJH" ) {
-		gameId = ddproto.CommonEnumGame_GID_ZJH
-	} else if( strings.Contains(module, "src") ) { //源码
-		//gameId = ddproto.CommonEnumGame_GID_SRC
-		gameId = ddproto.CommonEnumGame_GID_HALL
-		isCode = true
-	} else if( strings.Contains(module, "import") ) { //
-		gameId = ddproto.CommonEnumGame_GID_HALL
-		isCode = true
-	}
+	gameId, isCode := getGameId( module )
 
 	fileId := getFileId(fid, &filePath)
 
@@ -847,6 +858,7 @@ func saveFileIdList( newAssetFile string ) (result bool, logstr string) {
 	//	log.Printf("%v fileId文件已存在. ", FILEID_LIST_JSON)
 	//	return false
 	//}
+	log.Printf("saveFileIdList>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>\n")
 	logstr = ""
 	logstr += fmt.Sprintf("==========检查是否有新增fileId=========\n")
 	//debug.PrintStack()
@@ -912,6 +924,10 @@ func saveFileIdList( newAssetFile string ) (result bool, logstr string) {
 
 	logstr += fmt.Sprintf("=====保存文件Id信息完成( %s )=====\n", FILEID_LIST_JSON_NEW)
 
+	//log.Printf(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>\n")
+	//log.Printf("logstr: %s\n", logstr)
+	//log.Printf("===========>>>>>>>>>>>>>>>>==========\n")
+
 	return true, logstr
 }
 
@@ -975,6 +991,7 @@ var ConfData struct {
 	CurrVersion	   int32
 	LastVersion        int32
 	RedisAddr          string //redis配置
+	ProjectPath	   string //
 	OutputPath         string
 	AssetHost	   string
 
@@ -998,8 +1015,9 @@ func LoadJsonConfig(cid string) {
 	}
 
 	log.Printf("========================\n")
-	log.Printf("配置信息: \nChannelId: %v\nCurrVersion: %v\nLastVersion:%v\nRedisAddr: %v\nOUTPUT_ROOT:%v\nAssetHost: %v\n",
-		ConfData.ChannelId, ConfData.CurrVersion, ConfData.LastVersion, ConfData.RedisAddr,ConfData.OutputPath,  ConfData.AssetHost)
+	log.Printf("配置信息: \nChannelId: %v\nCurrVersion: %v\nLastVersion:%v\nRedisAddr: %v\nProjectPath:%v\nOUTPUT_PATH:%v\nAssetHost: %v\n",
+		ConfData.ChannelId, ConfData.CurrVersion, ConfData.LastVersion, ConfData.RedisAddr,
+		ConfData.ProjectPath, ConfData.OutputPath,  ConfData.AssetHost)
 	log.Printf("========================\n")
 }
 
@@ -1008,19 +1026,20 @@ func LoadJsonConfig(cid string) {
 func main() {
 	if len(os.Args) < 2 {
 		fmt.Printf("参数错误： 请输入channelId. \n")
+		fmt.Printf("参数错误： 可输入 print {AssetsInfo.dat} 来打印 \n")
 		return
 	}
-
-	//if len(os.Args) < 3 {
-	//	fmt.Printf("参数错误： 请输入channelId AssetsInfo{cid}_{ver}.dat \n")
-	//	return
-	//}
 
 	cid := os.Args[1]    //channelId
 	assetHost := ""
 
+
 	//=======================================
-	//////更新redis数据
+	//读取AssetsInfo.dat => 更新redis数据
+	//if len(os.Args) < 3 {
+	//	fmt.Printf("参数错误： 请输入channelId AssetsInfo{cid}_{ver}.dat \n")
+	//	return
+	//}
 	//AssetFile:= os.Args[2]
 	//redisHost := "127.0.0.1:6379"
 	//if len(os.Args) > 3 {
@@ -1031,18 +1050,25 @@ func main() {
 	//return
 	//=======================================
 
+	if os.Args[1] == "print" {
+		toPrintAssetFile :=  os.Args[2]
+		log.Printf(">>>>> 即将读取打印：%v\n", toPrintAssetFile)
+		printAssetInfoFile( toPrintAssetFile, "" )
+		return
+	}
 
 	//读取配置文件
 	LoadJsonConfig( cid )
 
-	//newAssetFile:="/Users/kory/Documents/Dev/cocos2d-x-3.12/casino/DDZ/assets/resources/HotUpdate/AssetsInfo.dat"
-	//printAssetInfoFile( "/Users/kory/Documents/Dev/cocos2d-x-3.12/casino/DDZ/assets/resources/HotUpdate/AssetsInfo.dat", "" )
-	//return
+	PROJ_ROOT_PATH = ConfData.ProjectPath
+
+	BUILD_NATIVE_PATH = PROJ_ROOT_PATH + "build_native/"
+	APP_ASSET_FILE=PROJ_ROOT_PATH + "assets/resources/HotUpdate/AssetsInfo.dat"
+	IOS_BUILD_ASSET_FILE=BUILD_NATIVE_PATH + "jsb-default/res/raw-assets/resources/HotUpdate/AssetsInfo.dat"
+	ROOT_PATH = BUILD_NATIVE_PATH + "jsb-default/"
 
 
 	//全局资源版本号
-	//AssetsVer = int32( 15 ) //2017.04.08
-	//AssetsVer = int32( 17 ) //2017.04.10
 	//AssetsVer = int32( 18 ) //2017.04.11
 	//AssetsVer = int32( 20 ) //2017.04.15
 	//AssetsVer = int32( 21 ) //2017.04.16
@@ -1103,12 +1129,6 @@ func main() {
 		//AssetsVer = int32( 11 ) //2017.03.26
 		//assetHost := "http://test2.tondeen.com/corp_hotupdate/"  //企业号: cid=31
 
-
-		//cid = "101"
-		//AssetsVer = int32( 11 )
-		////assetHost := "http://192.168.199.18/"  //(测试)
-		//assetHost := "http://test2.tondeen.com/hunan_update.temp/"  //(TEST)
-
 		pkgData := makeInfoFile(isUpdateAppAsset, assets, assetHost, newAssetFile, AssetsVer, redisHost)
 
 		if( pkgData != nil ) {
@@ -1124,11 +1144,9 @@ func main() {
 	_, logSaveFileId := saveFileIdList( newAssetFile )
 	logSaveFileId += "========= 生成时间: " + time.Now().Format("2006-01-02 15:04:05") + " ==========\n" +logSaveFileId
 
-	log.Printf( logSaveFileId )
+	//log.Printf("将打印saveFile:%s\n", newAssetFile)
+	//log.Printf( logSaveFileId )
 
-	log.Printf("将打印saveFile:%s\n", newAssetFile)
-
-	log.Printf( logSaveFileId )
 	printAssetInfoFile( newAssetFile, logSaveFileId )
 
 	//写入redis
