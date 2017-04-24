@@ -604,13 +604,16 @@ func packOneAsset(origAssetInfo *ddproto.HotupdateAckAssetsInfo,  resPath, modul
 	return asset, nil
 }
 
-func packResources(importpath string, outputPath string, oldAssetFile string,  isRelease, isOnlySource bool) (assets []*ddproto.AssetInfo, err error ) {
+func packResources(importpath string, outputPath string, oldAssetFile string,  isOnlySource bool) (assets []*ddproto.AssetInfo, err error ) {
 	resPath := ROOT_PATH + "/res/raw-assets/resources/"
 
 	//读取上一次生成的资源信息
 	origAssetInfo := loadAssetInfoFromFile( oldAssetFile )
 
 	var srcFiles []string
+
+	isRelease := isFileExist( ROOT_PATH+"src/project.jsc" )
+
 	if isRelease {
 		srcFiles = append(srcFiles, ROOT_PATH+"src/project.jsc")
 		srcFiles = append(srcFiles, ROOT_PATH+"src/settings.jsc")
@@ -1117,18 +1120,14 @@ func main() {
 		isOnlySource := false      //是否只生产源码
 		redisHost := "127.0.0.1:6379"
 
-		isRelease := true		 	//调试 or Release
-		//isRelease := false		 	//调试 or Release
 		isUpdateAppAsset := true  //是否更新App内置信息:/Resource/HotUpdate/AssetsInfo.dat
 
-		assets, err := packResources("", OUTPUT_PATH, oldAssetFile, isRelease, isOnlySource)
+		assets, err := packResources("", OUTPUT_PATH, oldAssetFile, isOnlySource)
 		if err != nil {
 			return
 		}
 
 		//var assets []*ddproto.AssetInfo
-
-
 		//assetHost := ASSET_HOST
 		//assetHost := "http://test2.tondeen.com/sjddz_hotupdate/"  //神经斗地主
 		//cid = "31"
