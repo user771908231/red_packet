@@ -105,7 +105,7 @@
         //测试数据
         var data = [
             '{{range $k, $v := .user}}',
-            '<tr><td>{{$v.UserID}}</td><td>{{$v.UserName}}</td><td>{{$v.UserNick}}</td><td>{{$v.GameID}}</td><td>{{$v.IP}}</td><td>{{$v.HomeIn}}</td><td>{{$v.IP}}</td></tr>',
+            '{{$v}}<tr><td>{{$v.UserID}}</td><td>{{$v.UserName}}</td><td>{{$v.UserNick}}</td><td>{{$v.GameID}}</td><td>{{$v.HomeIn}}</td><td>{{$v.IP}}</td><td>{{$v.Time.Format "2006-01-02 15:04:05"}}</td></tr>',
             '{{end}}'
         ];
 

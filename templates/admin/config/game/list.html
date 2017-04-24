@@ -25,50 +25,17 @@
                          <td>{{$v.Value}}</td>
                     {{end}}
                     <td>
-                        <button class="layui-btn jump_btn" data-id="{{$i}}" type="button" >编辑</button>
+                        <form action="edit" method="post">
+                            <input class="input_id_{{$i}}" type="hidden" name="id" value="">
+                            <button class="layui-btn" type="submit" >编辑</button>
+                        </form>
+
+
                     </td>
                 </tr>
                 {{end}}
                 </tbody>
             </table>
-
-            {{range $i,$row := .list}}
-            <a name="item{{$i}}"></a>
-            <table style="display: none" id="table_{{$i}}" class="layui-table table_item">
-                <thead>
-                <tr>
-                    <th>配置名</th>
-                    <th>类型</th>
-                    <th>键</th>
-                    <th>值</th>
-                    <th>描述</th>
-                    <th>操作</th>
-                </tr>
-                </thead>
-                <tbody>
-                {{range $v := $row}}
-                <form class="form_list_item" data-id="{{$i}}" action="edit" method="post">
-                    <input type="hidden" name="table" value="{{$.table}}">
-                    <input class="input_id_{{$i}}" type="hidden" name="id" value="">
-                    <input type="hidden" name="field" value="{{$v.Name}}">
-                    <tr>
-                        <td>{{$v.Title}}</td>
-                        <td>{{$v.Type}}</td>
-                        <td>{{$v.Name}}</td>
-                        <td>
-                            <input class="layui-input" type="text" name="value" value="{{$v.Value}}">
-                        </td>
-                        <td>{{$v.Info}}</td>
-                        <td>
-                            <input class="layui-btn" type="submit" value="更新">
-                            <input class="layui-btn layui-btn-primary" type="reset" value="重置">
-                        </td>
-                    </tr>
-                </form>
-                {{end}}
-                </tbody>
-            </table>
-            {{end}}
         </div>
     </div>
 </div>

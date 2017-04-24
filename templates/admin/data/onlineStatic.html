@@ -1,0 +1,24 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<script src="/data/jQuery.js" charset="utf-8"></script>
+	<script src="/data/jqplot.js" charset="utf-8"></script>
+<script type="text/javascript">
+$(document).ready(function() {
+	var data = [[1,22,3,12,5,23,7,8,9,15,16,12,18,21,23,16,22,18,5,8,16,21,28,26]];
+	var data_max = 30; //Y轴最大刻度
+	var line_title = ["玩家在线人数"]; //曲线名称
+	var y_label = "人数"; //Y轴标题
+	var x_label = "时间(h)"; //X轴标题
+	var x = [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24]; //定义X轴刻度值
+	var title = "这是标题"; //统计图标标题
+	j.jqplot.diagram.base("chart1", data, line_title, "这是统计标题", x, x_label, y_label, data_max, 1);
+});
+</script>
+</head>
+<body>
+	<div id="chart1"></div>
+</body>
+</html>

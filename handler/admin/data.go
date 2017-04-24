@@ -26,3 +26,8 @@ func AtHomeList(ctx *modules.Context) {
 	fmt.Println("success2222",result)
 	ctx.HTML(200,"admin/data/atHome")
 }
+
+//在线统计
+func OnlineStatic(ctx *modules.Context) {
+	ctx.HTML(200,"admin/data/onlineStatic")
+}

@@ -16,7 +16,7 @@ type User struct {
 	GameIn      string	`bson:"GameIn"`		//所在游戏
 	HomeIn      string    	`bson:"HomeIn"`		//所在房间
 	IP          string    	`bson:"IP"`			//进入IP
-	time        time.Time      `bson:"time"`		//进入时间
+	Time        time.Time      `bson:"time"`		//进入时间
 }
 func AtHome() []*User{
 	info := []*User{}
