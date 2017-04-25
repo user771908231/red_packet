@@ -27,7 +27,7 @@ const (
 
 var (
 	gFileIdMap = make( map[string] string)
-	gUpdateFiles = make( map[string] string)
+	gNewFiles = make( map[string] string)
 
 	PROJ_ROOT_PATH = "/Users/kory/Documents/Dev/workspace/Git/casino/DDZ/"
 	//PROJ_ROOT_PATH = "/Users/kory/Documents/Dev/cocos2d-x-3.12/casino/casino/DDZ/"
@@ -362,11 +362,17 @@ func printAssetInfoFile(saveFile, logSaveFileId string ) string {
 	assetInfo := loadAssetInfoFromFile( saveFile )
 
 	text := "" + logSaveFileId
-	text += fmt.Sprintf("\n=========================\nassetInfo.dat读取文件后打印: [%s] \n\t [ assetInfo: %v ]\n \t[ 资源文件数:%v]\t[版本号:%v]\n",
-		time.Now().Format("2006-01-02 15:04:05"), *assetInfo.AssetHost, len(assetInfo.Assets), *assetInfo.LastestAssetsVersion)
+	text += fmt.Sprintf("\n=========================\nassetInfo.dat读取文件后打印: [%s] \n\t [ assetInfo: %v ]\n \t[ 资源文件数:%v]\t [上一版本:%v] [当前版本:%v]\n",
+		time.Now().Format("2006-01-02 15:04:05"), *assetInfo.AssetHost, len(assetInfo.Assets), ConfData.LastVersion, *assetInfo.LastestAssetsVersion)
 	for i, asset := range assetInfo.Assets {
-		text += fmt.Sprintf("\t--[%d] asset >>> fid:%v fPath:%v fver:%v size:%v md5:%v gameId:%v isCode:%v\n",
-			i,  *asset.FileId, *asset.FilePath,
+		_, isNewFile := gNewFiles[*asset.FilePath]
+		newFileTag := "      "
+		if isNewFile {
+			newFileTag = "[NEW] " //本版本跟上一版本比更新的文件
+		}
+
+		text += fmt.Sprintf("\t--%v[%d] asset >>> fid:%v fPath:%v fver:%v size:%v md5:%v gameId:%v isCode:%v\n",
+			newFileTag, i,  *asset.FileId, *asset.FilePath,
 			*asset.FileVer, *asset.FileSize, *asset.Md5, *asset.GameId, *asset.IsCode)
 	}
 
@@ -391,10 +397,12 @@ func getFileVer(newAsset *ddproto.AssetInfo, oldAssetInfo *ddproto.HotupdateAckA
 	*fileVer = 1
 
 	if oldAssetInfo == nil {
+		log.Fatalf("未知错误：oldAssetInfo == nil")
 		return fileVer
 	}
 
 	//TODO: 到assetInfo.dat中找到asset.FileId对应的oldAsset.FileVer
+	isExistedFile := false
 	for _, asset := range oldAssetInfo.GetAssets() {
 		if ( *asset.FileId == *newAsset.FileId ) {
 			if ( *asset.FilePath == *newAsset.FilePath ) {
@@ -413,6 +421,12 @@ func getFileVer(newAsset *ddproto.AssetInfo, oldAssetInfo *ddproto.HotupdateAckA
 					log.Printf("fid:%v[%v] > new fid:%v[%v]新文件md5变了,版本号+1=%v (size:%v -> %v) md5:%v -> %v\n",
 						*asset.FileId, *asset.FilePath, *newAsset.FileId, *newAsset.FilePath, *fileVer,
 						*asset.FileSize, *newAsset.FileSize, *asset.Md5, *newAsset.Md5)
+
+					//记录已升级的文件列表
+					_, ok := gNewFiles[*newAsset.FilePath]
+					if !ok {
+						gNewFiles[*newAsset.FilePath] = fmt.Sprintf("%d", *newAsset.FileId)
+					}
 				}
 
 				//if *asset.FileId == 1 {
@@ -423,7 +437,17 @@ func getFileVer(newAsset *ddproto.AssetInfo, oldAssetInfo *ddproto.HotupdateAckA
 				log.Fatalf("非法数据: fileId相同但filePath不同: fid:%v old:%v new:%v\n", *asset.FileId, *asset.FilePath, *newAsset.FilePath )
 				//panic(nil)
 			}
+
+			isExistedFile = true //已存在fid的旧文件
 			break
+		}
+	}
+
+	if !isExistedFile {
+		log.Printf("[新增文件]: fid:%v  path:%v", *newAsset.FileId,*newAsset.FilePath )
+		_, ok := gNewFiles[*newAsset.FilePath]
+		if !ok {
+			gNewFiles[*newAsset.FilePath] = fmt.Sprintf("%d", *newAsset.FileId)
 		}
 	}
 
@@ -772,7 +796,7 @@ func packResources(importpath string, outputPath string, oldAssetFile string,  i
 
 
 //读取assetInfo文件,并写入redis
-func setAssetsFileToRedis(assetFile, clientAppId, redisHost string ) {
+func setAssetsFileToRedis(assetFile, clientAppId, redisHost string, isGrey bool ) {
 	//写入redis
 	data.InitRedis(redisHost, "test")
 
@@ -797,11 +821,15 @@ func setAssetsFileToRedis(assetFile, clientAppId, redisHost string ) {
 		return
 	}
 
-	err = redisUtils.SetObj("AssetsInfo"+clientAppId, assetInfo)
+	key := "AssetsInfo"+clientAppId
+	if isGrey { //灰度测试key
+		key = "AssetsInfoWhite"+clientAppId
+	}
+	err = redisUtils.SetObj(key , assetInfo)
 	if err!= nil {
 		log.Printf("===== 写入redis失败: %v\n", err)
 	} else {
-		log.Printf("===== 写入redis成功! (key:%v) =====\n", "AssetsInfo"+clientAppId)
+		log.Printf("===== 写入redis成功! (key:%v) =====\n", key)
 	}
 
 	/////////////////
@@ -819,40 +847,53 @@ func setAssetsFileToRedis(assetFile, clientAppId, redisHost string ) {
 	log.Printf(text)
 }
 
-func compareAssetInfo() {
-	fileOld:="/Users/kory/Documents/Dev/cocos2d-x-3.12/casino/DDZ/build_native/hotupdate103/assetsInfo.dat"
-	fileNew:="/Users/kory/Documents/Dev/cocos2d-x-3.12/casino/DDZ/build_native/hotupdate106/assetsInfo.dat"
-
+func compareAssetInfo(fileOld, fileNew string) {
+	log.Printf("比较两个文件：\n\t old:%v \n\t new:%v\n", fileOld, fileNew)
 	infoOld := loadAssetInfoFromFile( fileOld )
 	infoNew := loadAssetInfoFromFile( fileNew )
 
 	md5matchCnt := 0
-	matchSize := int32(0)
+	badCnt := 0
 	totalSize := int32(0)
 	for i, assetNew := range infoNew.Assets {
-		log.Printf("[%d] ==== loop >>> fid:%v fpath:%v md5: %v\n", i, *assetNew.FileId, *assetNew.FilePath, *assetNew.Md5)
+		log.Printf("[%d] ==== loop assetNew >>> fid:%v ver:%v path:%v md5: %v\n",
+			i, *assetNew.FileId, *assetNew.FileVer, *assetNew.FilePath, *assetNew.Md5)
 
 		totalSize += *assetNew.FileSize
 		bFound := false
 		for _, assetOld := range infoOld.Assets {
-			if *assetNew.FilePath == *assetOld.FilePath {
-				if *assetNew.Md5 == *assetOld.Md5 {
-					log.Printf("\t[%d] md5 is MATCH >>> fid:%v fpath:%v md5: %v\n", i, *assetNew.FileId, *assetNew.FilePath, *assetNew.Md5)
-					md5matchCnt++
-					matchSize += *assetNew.FileSize
+			if *assetNew.FileId == *assetOld.FileId {
+				if *assetNew.FilePath != *assetOld.FilePath {
+					log.Printf("[%d]严重错误： fid:%v 对应的path不同 >> oldPath:%v newPath:%v\n",
+						i, *assetNew.FileId , *assetOld.FilePath, *assetNew.FilePath)
+					badCnt ++
+				} else if *assetNew.FileVer == *assetOld.FileVer {
+					if *assetNew.Md5 == *assetOld.Md5 {
+						log.Printf("\t[%d] ==== fver 和 md5 均一致,合法记录 >>> fid:%v fpath:%v md5: %v\n", i, *assetNew.FileId, *assetNew.FilePath, *assetNew.Md5)
+						md5matchCnt++
+					} else {
+						badCnt ++
+						log.Printf("[%d]严重错误： fver相同 但 md5不同 >>> fid:%v fpath:%v oldMd5: %v newMd5:%v\n",
+							i, *assetNew.FileId, *assetNew.FilePath, *assetOld.Md5, *assetNew.Md5)
+					}
+				} else {
+					log.Printf("\t[%d] fver不同 >>> fid:%v fpath:%v oldVer:%v newVer:%v, oldMd5: %v newMd5:%v\n",
+						i, *assetNew.FileId, *assetNew.FilePath, *assetOld.FileVer, *assetNew.FileVer, *assetOld.Md5, *assetNew.Md5)
 				}
+
 				bFound = true
 				break
 			}
 		}
 
 		if !bFound {
-			log.Printf("\t[%d] ==== new File >>> fid:%v fpath:%v md5: %v\n", i, *assetNew.FileId, *assetNew.FilePath, *assetNew.Md5)
+			log.Printf("\t[%d] ==== 新增 newFile >>> fid:%v ver:%v size:%v path: %v md5: %v\n",
+				i, *assetNew.FileId, *assetNew.FileVer, *assetNew.FileSize, *assetNew.FilePath, *assetNew.Md5)
 		}
 	}
 
 
-	log.Printf("md5match:%v totalCnt: %v  size:%v / %v (%v%%)\n", md5matchCnt, len(infoNew.Assets), matchSize, totalSize, (100*matchSize/totalSize) )
+	log.Printf("一致文件数:%v 总数: %v  totalSize:%v \n", md5matchCnt, len(infoNew.Assets), totalSize )
 
 }
 
@@ -1028,41 +1069,55 @@ func LoadJsonConfig(cid string) {
 
 func main() {
 	if len(os.Args) < 2 {
-		fmt.Printf("参数错误： 请输入channelId. \n")
-		fmt.Printf("参数错误： 可输入 print {AssetsInfo.dat} 来打印 \n")
+		fmt.Printf("用法1： 输入 channelId 打包资源，生成 AssetsInfo. \n")
+		fmt.Printf("用法2： 输入 print {AssetsInfoFile} 来打印 \n")
+		fmt.Printf("用法3： 输入 compare {OldAssetsFile} {NewAssetsFile} 比较差异 \n")
 		return
 	}
 
 	cid := os.Args[1]    //channelId
 	assetHost := ""
 
-
 	//=======================================
 	//读取AssetsInfo.dat => 更新redis数据
-	//if len(os.Args) < 3 {
-	//	fmt.Printf("参数错误： 请输入channelId AssetsInfo{cid}_{ver}.dat \n")
-	//	return
-	//}
-	//AssetFile:= os.Args[2]
-	//redisHost := "127.0.0.1:6379"
-	//if len(os.Args) > 3 {
-	//	redisHost = os.Args[3]
-	//}
-	//log.Printf("cid="+ cid + " AssetFile=" + AssetFile + " redisHost="+redisHost+"\n")
-	//setAssetsFileToRedis( AssetFile, cid, redisHost )
-	//return
+	if len(os.Args) < 3 {
+		fmt.Printf("用法： 输入channelId AssetsInfo{cid}_{ver}.dat {gray/normal} {redishost}\n")
+		return
+	}
+	AssetFile:= os.Args[2]
+	redisHost := "127.0.0.1:6379"
+	isGrey := false
+	if len(os.Args) > 3 {
+		isGrey = (os.Args[3]=="gray" || os.Args[3]=="grey")
+	}
+	if len(os.Args) > 4 {
+		redisHost = os.Args[4]
+	}
+	log.Printf("cid="+ cid + " AssetFile=" + AssetFile + " redisHost="+redisHost+"\n")
+	setAssetsFileToRedis( AssetFile, cid, redisHost, isGrey )
+	return
 	//=======================================
 
 	if os.Args[1] == "print" {
 		toPrintAssetFile :=  os.Args[2]
-		log.Printf(">>>>> 即将读取打印：%v\n", toPrintAssetFile)
 
 		FILEID_LIST_JSON = filepath.Dir(toPrintAssetFile) + "/FileIdList_Old.json"
 		FILEID_LIST_JSON_NEW = filepath.Dir(toPrintAssetFile)  + "/FileIdList_Curr.json"
+		if len(os.Args) > 3 {
+			FILEID_LIST_JSON = filepath.Dir(toPrintAssetFile) + "/" + os.Args[3]
+		}
+
+		log.Printf(">>>>> 即将读取打印：%v\n基于FILEID_LIST_JSON: %v\n", toPrintAssetFile, FILEID_LIST_JSON)
 
 		_, logSaveFileId := saveFileIdList( toPrintAssetFile )
 
 		printAssetInfoFile( toPrintAssetFile, logSaveFileId )
+		return
+	} else if os.Args[1] == "compare" { //比较两个版本的AssetsInfo.dat
+		oldAssetFile := os.Args[2]
+		newAssetFile := os.Args[3]
+		compareAssetInfo( oldAssetFile, newAssetFile )
+
 		return
 	}
 
@@ -1084,13 +1139,12 @@ func main() {
 	//AssetsVer = int32( 22 ) //2017.04.17
 	AssetsVer = ConfData.CurrVersion //int32( 23 ) //2017.04.18
 
-	LastAssetVer := ConfData.LastVersion
-	if LastAssetVer <= 0 {
-		LastAssetVer = AssetsVer - 1
+	if ConfData.LastVersion <= 0 {
+		ConfData.LastVersion = AssetsVer - 1
 	}
 
 	sAssetsVer := fmt.Sprintf("%d", AssetsVer)
-	sAssetsVerOld := fmt.Sprintf("%d", AssetsVer-1)
+	sAssetsVerOld := fmt.Sprintf("%d", ConfData.LastVersion)
 	//sAssetsVerOld = "19"
 
 	// 从配置文件赋值
