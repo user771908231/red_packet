@@ -1080,22 +1080,22 @@ func main() {
 
 	//=======================================
 	//读取AssetsInfo.dat => 更新redis数据
-	if len(os.Args) < 3 {
-		fmt.Printf("用法： 输入channelId AssetsInfo{cid}_{ver}.dat {gray/normal} {redishost}\n")
-		return
-	}
-	AssetFile:= os.Args[2]
-	redisHost := "127.0.0.1:6379"
-	isGrey := false
-	if len(os.Args) > 3 {
-		isGrey = (os.Args[3]=="gray" || os.Args[3]=="grey")
-	}
-	if len(os.Args) > 4 {
-		redisHost = os.Args[4]
-	}
-	log.Printf("cid="+ cid + " AssetFile=" + AssetFile + " redisHost="+redisHost+"\n")
-	setAssetsFileToRedis( AssetFile, cid, redisHost, isGrey )
-	return
+	//if len(os.Args) < 3 {
+	//	fmt.Printf("用法： 输入channelId AssetsInfo{cid}_{ver}.dat {gray/normal} {redishost}\n")
+	//	return
+	//}
+	//AssetFile:= os.Args[2]
+	//redisHost := "127.0.0.1:6379"
+	//isGrey := false
+	//if len(os.Args) > 3 {
+	//	isGrey = (os.Args[3]=="gray" || os.Args[3]=="grey")
+	//}
+	//if len(os.Args) > 4 {
+	//	redisHost = os.Args[4]
+	//}
+	//log.Printf("cid="+ cid + " AssetFile=" + AssetFile + " redisHost="+redisHost+"\n")
+	//setAssetsFileToRedis( AssetFile, cid, redisHost, isGrey )
+	//return
 	//=======================================
 
 	if os.Args[1] == "print" {
