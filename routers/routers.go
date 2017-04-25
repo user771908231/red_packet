@@ -96,6 +96,7 @@ func Regist(m *macaron.Macaron) {
 			m.Get("/atHome",admin.AtHome)
 			m.Post("/atHomeList",admin.AtHomeList)
 			m.Get("/onlineStatic",admin.OnlineStatic)
+			m.Post("/onlineStaticList",admin.OnlineStaticList)
 		})
 	}, admin.ShowPanel)
 

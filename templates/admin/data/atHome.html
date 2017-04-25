@@ -22,22 +22,31 @@
         <div class="layui-inline">
             <div class="layui-input-block">
                 <select name="interest" lay-filter="aihao">
-                    <option value="0">按用户名</option>
-                    <option value="1">阅读</option>
-                    <option value="2">游戏</option>
-                    <option value="3">音乐</option>
-                    <option value="4">旅行</option>
+                    <option value="0">全部</option>
+                    <option value="1">朋友桌</option>
+                    <option value="2">金币场</option>
                 </select>
             </div>
         </div>
         <div class="layui-inline">
             <div class="layui-input-block">
                 <select name="interest" lay-filter="aihao">
-                    <option value="0">全部金币房间</option>
-                    <option value="1">阅读</option>
-                    <option value="2">游戏</option>
-                    <option value="3">音乐</option>
-                    <option value="4">旅行</option>
+                    <option value="0">朋友桌</option>
+                    <option value="1">麻将</option>
+                    <option value="2">斗地主</option>
+                    <option value="3">炸金花</option>
+                    <option value="4">跑得快</option>
+                    <option value="5">抓瞎子</option>
+                </select>
+            </div>
+        </div>
+        <div class="layui-inline">
+            <div class="layui-input-block">
+                <select name="interest" lay-filter="aihao">
+                    <option value="0">金币场</option>
+                    <option value="1">低级</option>
+                    <option value="2">中级</option>
+                    <option value="3">高级</option>
                 </select>
             </div>
         </div>
@@ -105,7 +114,7 @@
         //测试数据
         var data = [
             '{{range $k, $v := .user}}',
-            '{{$v}}<tr><td>{{$v.UserID}}</td><td>{{$v.UserName}}</td><td>{{$v.UserNick}}</td><td>{{$v.GameID}}</td><td>{{$v.HomeIn}}</td><td>{{$v.IP}}</td><td>{{$v.Time.Format "2006-01-02 15:04:05"}}</td></tr>',
+            '<tr><td>{{$v.UserID}}</td><td>{{$v.UserName}}</td><td>{{$v.UserNick}}</td><td>{{$v.GameID}}</td><td>{{$v.HomeIn}}</td><td>{{$v.IP}}</td><td>{{$v.Time.Format "2006-01-02 15:04:05"}}</td></tr>',
             '{{end}}'
         ];
 

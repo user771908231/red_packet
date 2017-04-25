@@ -5,20 +5,130 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 	<script src="/data/jQuery.js" charset="utf-8"></script>
 	<script src="/data/jqplot.js" charset="utf-8"></script>
+
+	<link rel="stylesheet" href="/layui/css/layui.css">
+	<script src="/layui/layui.js" charset="utf-8"></script>
 <script type="text/javascript">
-$(document).ready(function() {
-	var data = [[1,22,3,12,5,23,7,8,9,15,16,12,18,21,23,16,22,18,5,8,16,21,28,26]];
-	var data_max = 30; //Y轴最大刻度
-	var line_title = ["玩家在线人数"]; //曲线名称
-	var y_label = "人数"; //Y轴标题
-	var x_label = "时间(h)"; //X轴标题
-	var x = [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24]; //定义X轴刻度值
-	var title = "这是标题"; //统计图标标题
-	j.jqplot.diagram.base("chart1", data, line_title, "这是统计标题", x, x_label, y_label, data_max, 1);
-});
+
 </script>
 </head>
 <body>
+
+<form class="layui-form" action="/admin/data/onlineStaticList" method="post">
+	<div class="layui-form-item">
+		<div class="layui-inline">
+			<label class="layui-form-label">查询</label>
+			<div class="layui-input-inline">
+				<input type="text" name="gameID" lay-verify="gameID" autocomplete="off" class="layui-input">
+			</div>
+		</div>
+		<div class="layui-inline">
+			<label class="layui-form-label">开始日期</label>
+			<div class="layui-input-inline">
+				<input type="text" name="date_start" id="date_start" lay-verify="date" placeholder="请选择时间" autocomplete="off" class="layui-input" onclick="layui.laydate({elem: this})">
+			</div>
+			<label class="layui-form-label">结束日期</label>
+			<div class="layui-input-inline">
+				<input type="text" name="date_end" id="date_end" lay-verify="date" placeholder="请选择时间" autocomplete="off" class="layui-input" onclick="layui.laydate({elem: this})">
+			</div>
+		</div>
+		<div class="layui-inline">
+			<div class="layui-input-block">
+				<button class="layui-btn" lay-submit="" lay-filter="demo1" type="submit">查询</button>
+				<button type="reset" class="layui-btn layui-btn-primary">刷新</button>
+			</div>
+		</div>
+	</div>
+
+
+</form>
 	<div id="chart1"></div>
+
+
+
+
+
+
+<script>
+    layui.use(['form', 'layedit', 'laydate'], function(){
+        var form = layui.form()
+            ,layer = layui.layer
+            ,layedit = layui.layedit
+            ,laydate = layui.laydate;
+
+    });
+
+    //获得日期
+    function Todo(begin, end)
+    {
+        var ab = begin.split("-");
+        var ae = end.split("-");
+        var db = new Date();
+        db.setFullYear(ab[0], ab[1]-1, ab[2]);
+        var de = new Date();
+        de.setFullYear(ae[0], ae[1]-1, ae[2]);
+        var a = [];
+        for (var i=0,temp=db;temp < de;i++)
+        {
+            a[i] = GetDate(temp);
+            temp.setTime(temp.getTime() + 24*60*60*1000);
+        }
+        a[i] = GetDate(de);
+        return a.join();
+    }
+    //返回1900-01-01格式的字符串
+    function GetDate(d)
+    {
+        return d.getFullYear() + "-" + (d.getMonth()+1) + "-" +  d.getDate();
+    }
+
+    //分离字符串
+    str=Todo("{{.date_start}}", "{{.date_end}}"); //这是一字符串
+    var strs= new Array(); //定义一数组
+    strs=str.split(","); //字符分割
+
+
+    //统计表
+    $(document).ready(function() {
+
+        //没选择时间的时候，默认当天的数据
+        if (strs == "NaN-NaN-NaN") {
+            strs=[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24]
+            var x_label = "时间(h)"; //X轴标题
+            count = [[ 1,22,3,12,5,23,7,8,9,15,16,12,18,21,23,16,22,18,5,8,16,21,28,126]];
+        }else{
+            var x_label = "时间(天)"; //X轴标题
+		}
+
+		//当选择一天的时候，数据变为这一天的数据
+		if(strs.length <=2){
+            strs=[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24]
+            var x_label = "时间(24h)"; //X轴标题
+            var count = [
+                    '{{range $k,$v := .static}}',
+                    '{{$v.Count}}',
+                    '{{end}}'
+                ],
+                i, len;
+
+            for (i = count.length-1 ;  i >0; i--) {
+                if (count[i] === '') {
+                    count.splice(i, 1);
+                }
+            }
+            count =[count]
+			console.log(count)
+        }
+
+        var data = count;
+        var data_max = 150; //Y轴最大刻度
+        var line_title = ["玩家在线人数"]; //曲线名称
+        var y_label = "人数"; //Y轴标题
+        var x = strs; //定义X轴刻度值
+        var title = "这是标题"; //统计图标标题
+        j.jqplot.diagram.base("chart1", data, line_title, "玩家在线统计", x, x_label, y_label, data_max, 1);
+    });
+
+</script>
 </body>
 </html>
