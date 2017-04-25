@@ -138,13 +138,13 @@ func (a *agent) OnClose() {
 
 func (a *agent) WriteMsg(msg interface{}) {
 	typeString := reflect.TypeOf(msg).String()
-	log.Debug("agent[%p]发送的信息 type[%v],\t\t content[%v]", a, typeString, msg)
 	if a.gate.Processor != nil {
 		data, err := a.gate.Processor.Marshal(msg)
 		if err != nil {
 			log.Error("marshal message %v error: %v", reflect.TypeOf(msg), err)
 			return
 		}
+		log.Debug("agent[%p]发送的信息 type[%v],id[%v] len[%v],\t\t content[%v]", a, typeString, data[0], len(data[1]), msg)
 		a.conn.WriteMsg(data...)
 	}
 }
