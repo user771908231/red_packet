@@ -379,15 +379,15 @@ func printAssetInfoFile(saveFile, logSaveFileId string ) string {
 	log.Printf(text)
 
 	//写入文件
-
-	printFile := filepath.Dir(saveFile)+"/print.txt"
+	outputName := "print_" + strings.Replace(filepath.Base(saveFile), ".dat", ".txt", -1)
+	printFile := filepath.Dir(saveFile) + "/" + outputName
 	err := ioutil.WriteFile(printFile, []byte(text), 0666)
 	if err != nil {
 		log.Printf("write文件失败:%v savefile:%v", err, printFile)
 		panic(err)
 	}
 
-	log.Printf("============print.txt保存完毕=============\n")
+	log.Printf("============ %v 保存完毕=============\n", printFile )
 
 	return text
 }
@@ -854,22 +854,25 @@ func compareAssetInfo(fileOld, fileNew string) {
 
 	md5matchCnt := 0
 	badCnt := 0
+	updatedCnt := 0
+	newAddCnt := 0
 	totalSize := int32(0)
 	for i, assetNew := range infoNew.Assets {
-		log.Printf("[%d] ==== loop assetNew >>> fid:%v ver:%v path:%v md5: %v\n",
-			i, *assetNew.FileId, *assetNew.FileVer, *assetNew.FilePath, *assetNew.Md5)
+		log.Printf("[%d] ==== loop assetNew >>> fid:%v ver:%v path:%v md5: %v gameId:%v\n",
+			i, *assetNew.FileId, *assetNew.FileVer, *assetNew.FilePath, *assetNew.Md5, *assetNew.GameId)
 
 		totalSize += *assetNew.FileSize
 		bFound := false
 		for _, assetOld := range infoOld.Assets {
 			if *assetNew.FileId == *assetOld.FileId {
 				if *assetNew.FilePath != *assetOld.FilePath {
-					log.Printf("[%d]严重错误： fid:%v 对应的path不同 >> oldPath:%v newPath:%v\n",
-						i, *assetNew.FileId , *assetOld.FilePath, *assetNew.FilePath)
+					log.Printf("[%d]严重错误： fid:%v 对应的path不同 >> oldPath:%v newPath:%v GameId:%v\n",
+						i, *assetNew.FileId , *assetOld.FilePath, *assetNew.FilePath, *assetNew.GameId)
 					badCnt ++
 				} else if *assetNew.FileVer == *assetOld.FileVer {
 					if *assetNew.Md5 == *assetOld.Md5 {
-						log.Printf("\t[%d] ==== fver 和 md5 均一致,合法记录 >>> fid:%v fpath:%v md5: %v\n", i, *assetNew.FileId, *assetNew.FilePath, *assetNew.Md5)
+						log.Printf("\t[%d] ==== fver 和 md5 均一致,合法记录 >>> fid:%v ver:%v fpath:%v md5: %v gameId:%v\n",
+							i, *assetNew.FileId,*assetNew.FileVer, *assetNew.FilePath, *assetNew.Md5, *assetNew.GameId)
 						md5matchCnt++
 					} else {
 						badCnt ++
@@ -877,7 +880,8 @@ func compareAssetInfo(fileOld, fileNew string) {
 							i, *assetNew.FileId, *assetNew.FilePath, *assetOld.Md5, *assetNew.Md5)
 					}
 				} else {
-					log.Printf("\t[%d] fver不同 >>> fid:%v fpath:%v oldVer:%v newVer:%v, oldMd5: %v newMd5:%v\n",
+					updatedCnt++
+					log.Printf("\t[%d] fver有更新 >>> fid:%v fpath:%v oldVer:%v newVer:%v, oldMd5: %v newMd5:%v\n",
 						i, *assetNew.FileId, *assetNew.FilePath, *assetOld.FileVer, *assetNew.FileVer, *assetOld.Md5, *assetNew.Md5)
 				}
 
@@ -887,13 +891,15 @@ func compareAssetInfo(fileOld, fileNew string) {
 		}
 
 		if !bFound {
-			log.Printf("\t[%d] ==== 新增 newFile >>> fid:%v ver:%v size:%v path: %v md5: %v\n",
+			newAddCnt++
+			log.Printf("\t[%d] ==== 新增文件 >>> fid:%v ver:%v size:%v path: %v md5: %v\n",
 				i, *assetNew.FileId, *assetNew.FileVer, *assetNew.FileSize, *assetNew.FilePath, *assetNew.Md5)
 		}
 	}
 
 
-	log.Printf("一致文件数:%v 总数: %v  totalSize:%v \n", md5matchCnt, len(infoNew.Assets), totalSize )
+	log.Printf("===== 总数: %v 未变动:%v 更新数:%v 新增数:%v 错误数:%v totalSize:%v =====\n",
+		len(infoNew.Assets), md5matchCnt, updatedCnt, newAddCnt, badCnt,  totalSize )
 
 }
 
@@ -1070,8 +1076,8 @@ func LoadJsonConfig(cid string) {
 func main() {
 	if len(os.Args) < 2 {
 		fmt.Printf("用法1： 输入 channelId 打包资源，生成 AssetsInfo. \n")
-		fmt.Printf("用法2： 输入 print {AssetsInfoFile} 来打印 \n")
-		fmt.Printf("用法3： 输入 compare {OldAssetsFile} {NewAssetsFile} 比较差异 \n")
+		fmt.Printf("用法2： 输入 -print {AssetsInfoFile} 来打印 \n")
+		fmt.Printf("用法3： 输入 -compare {OldAssetsFile} {NewAssetsFile} 比较差异 \n")
 		return
 	}
 
@@ -1098,7 +1104,7 @@ func main() {
 	//return
 	//=======================================
 
-	if os.Args[1] == "print" {
+	if os.Args[1] == "-print" {
 		toPrintAssetFile :=  os.Args[2]
 
 		FILEID_LIST_JSON = filepath.Dir(toPrintAssetFile) + "/FileIdList_Old.json"
@@ -1113,7 +1119,7 @@ func main() {
 
 		printAssetInfoFile( toPrintAssetFile, logSaveFileId )
 		return
-	} else if os.Args[1] == "compare" { //比较两个版本的AssetsInfo.dat
+	} else if os.Args[1] == "-compare" { //比较两个版本的AssetsInfo.dat
 		oldAssetFile := os.Args[2]
 		newAssetFile := os.Args[3]
 		compareAssetInfo( oldAssetFile, newAssetFile )
