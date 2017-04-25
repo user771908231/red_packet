@@ -16,7 +16,12 @@ type User struct {
 	GameIn      string	`bson:"GameIn"`		//所在游戏
 	HomeIn      string    	`bson:"HomeIn"`		//所在房间
 	IP          string    	`bson:"IP"`			//进入IP
-	time        time.Time      `bson:"time"`		//进入时间
+	Time        time.Time      `bson:"time"`		//进入时间
+}
+type Online struct {
+	Id          bson.ObjectId   	`bson:"_id"`		//用户ID
+	Count      int32   		`bson:"count"`		//在线数
+	Time        time.Time     	 `bson:"time"`		//进入时间
 }
 func AtHome() []*User{
 	info := []*User{}
@@ -30,6 +35,12 @@ func AtHomeList(GameID string) []*User{
 	db.C(tableName.ADMIN_USER_ATHOME).FindAll(bson.M{
 		"GameID" : GameID,
 	},&info)
+	return info
+}
+
+func OnlineStaticList(Time_start time.Time,Time_end time.Time) []*Online{
+	info := []*Online{}
+	db.C(tableName.ADMIN_USER_ONLINE).FindAll(bson.M{"time": bson.M{"$gte": Time_start,"$lte": Time_end}},&info)
 	return info
 }
 

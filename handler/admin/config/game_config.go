@@ -9,7 +9,8 @@ import (
 	"encoding/json"
 	"casino_common/common/consts/tableName"
 
-	"strconv"
+	"casino_admin/model/configModel"
+	"fmt"
 )
 
 //配置列表
@@ -42,40 +43,35 @@ type GameConfEditForm struct {
 	Value string `binding:"Required"`
 }
 //编辑字段
-func GameConfigEditPost(ctx *modules.Context, form GameConfEditForm) {
-	conf, err := configService.GetConfig(form.Table)
-	if err != nil {
-		ctx.Ajax(-1, "更新失败！Error:"+err.Error(), err.Error())
-		return
+func GameConfigEdit(ctx *modules.Context) {
+	id := ctx.Query("id")
+	obj_id :=bson.ObjectIdHex(id)
+
+	result :=configModel.GameConfigOne(obj_id)
+	fmt.Println("success",obj_id)
+	ctx.Data["config"] = result
+	ctx.HTML(200,"admin/config/game/edit")
+}
+//编辑字段-更新
+func GameConfigUpdate(ctx *modules.Context) {
+	id := ctx.Query("id")
+	obj_id :=bson.ObjectIdHex(id)
+	GameId := ctx.QueryFloat64("GameId")
+	Name := ctx.Query("Name")
+	CurVersion := ctx.QueryFloat64("CurVersion")
+	IsUpdate := ctx.QueryFloat64("IsUpdate")
+	IsMaintain := ctx.QueryFloat64("IsMaintain")
+	MaintainMsg := ctx.Query("MaintainMsg")
+	ReleaseTag := ctx.QueryFloat64("ReleaseTag")
+	DownloadUrl := ctx.Query("DownloadUrl")
+	LatestClientVersion := ctx.QueryFloat64("LatestClientVersion")
+	IP := ctx.Query("IP")
+	PORT := ctx.QueryFloat64("PORT")
+	STATUS := ctx.QueryFloat64("STATUS")
+	err := configModel.GameConfigUpdate(obj_id,GameId,Name,CurVersion,IsUpdate,IsMaintain,MaintainMsg,ReleaseTag,DownloadUrl,LatestClientVersion,IP,PORT,STATUS)
+	if err == nil{
+		ctx.HTML(200,"admin/config/game/list")
 	}
-	//如果该值为string类型，则将mongo将该字段存为string类型
-	//如果该值为数值类型，则mongo将该字段存为double类型
-	field, bool_exit := reflect.TypeOf(conf.Row).Elem().FieldByName(form.Field)
-	if bool_exit != true {
-		ctx.Ajax(-2, "更新失败！Error:field not found", "field not found")
-		return
-	}
-	var value interface{}
-	if field.Type.Kind() != reflect.String {
-		value_double,err := strconv.ParseFloat(form.Value, 64)
-		if err != nil {
-			ctx.Ajax(-3, "更新失败！Error:"+err.Error(), err.Error())
-			return
-		}
-		value = value_double
-	}else {
-		value = form.Value
-	}
-	err = db.C(form.Table).Update(bson.M{
-		"_id": bson.ObjectIdHex(form.Id),
-	}, bson.M{
-		"$set": bson.M{form.Field: value},
-	})
-	if err != nil {
-		ctx.Ajax(-4, "更新失败！Error:"+err.Error(), err.Error())
-		return
-	}
-	ctx.Ajax(1, "更新成功！", nil)
 }
 
 //新增一组配置

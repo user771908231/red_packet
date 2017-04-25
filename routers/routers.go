@@ -84,7 +84,8 @@ func Regist(m *macaron.Macaron) {
 			//游戏配置
 			m.Group("/game", func() {
 				m.Get("/list", config.GameConfigListHandler)
-				m.Post("/edit", binding.Bind(config.GameConfEditForm{}), config.GameConfigEditPost)
+				m.Post("/edit", config.GameConfigEdit)
+				m.Post("/editUpdate", config.GameConfigUpdate)
 				m.Get("/add", config.GameConfigAddHandler)
 				m.Post("/addServerInfo",binding.Bind(configService.LoginServerInfo{}), config.GameServerInfoAddPost)
 			})
@@ -94,6 +95,8 @@ func Regist(m *macaron.Macaron) {
 		m.Group("/data", func() {
 			m.Get("/atHome",admin.AtHome)
 			m.Post("/atHomeList",admin.AtHomeList)
+			m.Get("/onlineStatic",admin.OnlineStatic)
+			m.Post("/onlineStaticList",admin.OnlineStaticList)
 		})
 	}, admin.ShowPanel)
 

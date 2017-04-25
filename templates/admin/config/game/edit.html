@@ -1,0 +1,104 @@
+{{template "manage_header" }}
+<form class="layui-form" action="/admin/config/game/editUpdate?id={{.config.Id.Hex}}" method="post">
+    <div class="layui-form-item">
+        <label class="layui-form-label" style="width: 120px">游戏ID</label>
+        <div class="layui-input-inline">
+            <input type="text" name="GameId" lay-verify="GameId" autocomplete="off" placeholder="请输入ID" class="layui-input" value="{{.config.GameId}}">
+        </div>
+
+        <label class="layui-form-label" style="width: 120px">游戏</label>
+        <div class="layui-input-inline">
+            <input type="text" name="Name" lay-verify="Name" placeholder="请输入" autocomplete="off" class="layui-input" value="{{.config.Name}}">
+        </div>
+
+        <label class="layui-form-label" >当前版本</label>
+        <div class="layui-input-inline">
+            <input type="text" name="CurVersion" lay-verify="CurVersion" placeholder="请输入" autocomplete="off" class="layui-input" value="{{.config.CurVersion}}">
+        </div>
+
+        <label class="layui-form-label" style="width: 120px">是否需要强制升级</label>
+        <div class="layui-input-inline">
+            <input type="text" name="IsUpdate" lay-verify="IsUpdate" placeholder="请输入" autocomplete="off" class="layui-input" value="{{.config.IsUpdate}}">
+        </div>
+    </div>
+
+    <div class="layui-form-item">
+        <label class="layui-form-label" style="width: 120px">是否在维护中</label>
+        <div class="layui-input-inline">
+            <input type="text" name="IsMaintain" lay-verify="IsMaintain" placeholder="请输入" autocomplete="off" class="layui-input" value="{{.config.IsMaintain}}">
+        </div>
+        <label class="layui-form-label" style="width: 120px">已经发布的版本</label>
+        <div class="layui-input-inline">
+            <input type="text" name="ReleaseTag" lay-verify="ReleaseTag" placeholder="请输入" autocomplete="off" class="layui-input" value="{{.config.ReleaseTag}}">
+        </div>
+        <label class="layui-form-label">下载链接</label>
+        <div class="layui-input-inline">
+            <input type="text" name="DownloadUrl" lay-verify="DownloadUrl" placeholder="请输入" autocomplete="off" class="layui-input" value="{{.config.DownloadUrl}}">
+        </div>
+        <label class="layui-form-label"  style="width: 120px">最后的版本号</label>
+        <div class="layui-input-inline">
+            <input type="text" name="LatestClientVersion" lay-verify="LatestClientVersion" placeholder="请输入" autocomplete="off" class="layui-input" value="{{.config.LatestClientVersion}}">
+        </div>
+    </div>
+
+    <div class="layui-form-item">
+        <label class="layui-form-label"  style="width: 120px">IP</label>
+        <div class="layui-input-inline">
+            <input type="text" name="IP" lay-verify="IP" placeholder="请输入" autocomplete="off" class="layui-input" value="{{.config.IP}}">
+        </div>
+        <label class="layui-form-label" style="width: 120px">端口</label>
+        <div class="layui-input-inline">
+            <input type="text" name="PORT" lay-verify="PORT" placeholder="请输入" autocomplete="off" class="layui-input" value="{{.config.PORT}}">
+        </div>
+        <label class="layui-form-label">状态码</label>
+        <div class="layui-input-inline">
+            <input type="text" name="STATUS" lay-verify="STATUS" placeholder="请输入" autocomplete="off" class="layui-input" value="{{.config.STATUS}}">
+        </div>
+    </div>
+
+    <div class="layui-form-item">
+        <div class="layui-input-block">
+            <button class="layui-btn" lay-submit="" lay-filter="demo1">立即提交</button>
+            <button type="reset" class="layui-btn layui-btn-primary">重置</button>
+        </div>
+    </div>
+</form>
+
+
+    <script>
+    layui.use(['form', 'layedit', 'laydate'], function(){
+        var form = layui.form()
+            ,layer = layui.layer
+            ,layedit = layui.layedit
+            ,laydate = layui.laydate;
+
+        //创建一个编辑器
+        var editIndex = layedit.build('LAY_demo_editor');
+
+        //自定义验证规则
+        form.verify({
+            title: function(value){
+                if(value.length < 5){
+                    return '标题至少得5个字符啊';
+                }
+            }
+            ,pass: [/(.+){6,12}$/, '密码必须6到12位']
+            ,content: function(value){
+                layedit.sync(editIndex);
+            }
+        });
+
+        //监听指定开关
+        form.on('switch(switchTest)', function(data){
+            layer.msg('开关checked：'+ (this.checked ? 'true' : 'false'), {
+                offset: '6px'
+            });
+            layer.tips('温馨提示：请注意开关状态的文字可以随意定义，而不仅仅是ON|OFF', data.othis)
+        });
+
+
+
+    });
+</script>
+
+{{template "manage_footer" }}
