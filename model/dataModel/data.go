@@ -29,7 +29,7 @@ func AtHome() []*User{
 	return info
 }
 
-
+//在房间玩家列表
 func AtHomeList(GameID string) []*User{
 	info := []*User{}
 	db.C(tableName.ADMIN_USER_ATHOME).FindAll(bson.M{
@@ -38,11 +38,19 @@ func AtHomeList(GameID string) []*User{
 	return info
 }
 
+//在线统计列表--小时
 func OnlineStaticList(Time_start time.Time,Time_end time.Time) []*Online{
 	info := []*Online{}
-	db.C(tableName.ADMIN_USER_ONLINE).FindAll(bson.M{"time": bson.M{"$gte": Time_start,"$lte": Time_end}},&info)
+	db.C(tableName.ADMIN_USER_ONLINEHOUR).FindAll(bson.M{"time": bson.M{"$gte": Time_start,"$lte": Time_end}},&info)
 	return info
 }
+//在线统计列表--天
+func OnlineStaticDay(Time_start time.Time,Time_end time.Time) []*Online{
+	info := []*Online{}
+	db.C(tableName.ADMIN_USER_ONLINEDAY).FindAll(bson.M{"time": bson.M{"$gte": Time_start,"$lte": Time_end}},&info)
+	return info
+}
+
 
 
 
