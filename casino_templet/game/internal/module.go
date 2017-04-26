@@ -14,7 +14,7 @@ var (
 
 type Module struct {
 	*module.Skeleton
-	roomMgr api.MjRoomMgr
+	roomMgr api.RoomManagerApi
 }
 
 func (m *Module) OnInit() {

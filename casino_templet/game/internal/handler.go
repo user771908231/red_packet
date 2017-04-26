@@ -49,7 +49,7 @@ func handlerCreateDesk(args []interface{}) {
 
 	//get mjconfig by m
 	log.T("麻将的配置 %v ", m)
-	config := data.SkeletonMJConfig{}
+	config := data.DeskConfig{}
 	err, _ := room.CreateDesk(config)
 	if err != nil {
 		log.E("创建房间失败 err %v", err)
