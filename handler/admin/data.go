@@ -42,8 +42,21 @@ func OnlineStaticList(ctx *modules.Context) {
 	ctx.Data["date_start"] =date_start
 	ctx.Data["date_end"] =date_end
 
-	err :=dataModel.OnlineStaticList(date1,date2)
-	ctx.Data["static"] =err
+
+	//一天之前
+	d, _ := time.ParseDuration("-24h")
+	date := date2.Add(d)
+	date4 := date.Format("2006-01-02")
+	date3,_ := time.Parse("2006-01-02",date4)
+
+	if(date1 != date3){
+		err :=dataModel.OnlineStaticDay(date1,date2)
+		ctx.Data["static"] =err
+	}else {
+		err :=dataModel.OnlineStaticList(date1,date2)
+		ctx.Data["static"] =err
+	}
+
 
 	ctx.HTML(200,"admin/data/onlineStatic")
 }
