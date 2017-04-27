@@ -70,7 +70,8 @@ func GameConfigUpdate(ctx *modules.Context) {
 	STATUS := ctx.QueryFloat64("STATUS")
 	err := configModel.GameConfigUpdate(obj_id,GameId,Name,CurVersion,IsUpdate,IsMaintain,MaintainMsg,ReleaseTag,DownloadUrl,LatestClientVersion,IP,PORT,STATUS)
 	if err == nil{
-		ctx.HTML(200,"admin/config/game/list")
+		ctx.Ajax(1, "编辑成功！", nil)
+		//ctx.HTML(200,"admin/config/game/list")
 	}
 }
 
