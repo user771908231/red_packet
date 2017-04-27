@@ -498,7 +498,7 @@ func getGameId( module string ) (gameId ddproto.CommonEnumGame, isCode bool) {
 	} else if( module == "ZJH" ) {
 		gameId = ddproto.CommonEnumGame_GID_ZJH
 	} else if( module == "PDK" ) {
-		gameId = ddproto.CommonEnumGame_GID_PDK
+		gameId = ddproto.CommonEnumGame_GID_HALL //低版本升级有问题(没有GameId:PDK）ddproto.CommonEnumGame_GID_PDK
 	}else if( strings.Contains(module, "src") ) { //源码
 		//gameId = ddproto.CommonEnumGame_GID_SRC
 		gameId = ddproto.CommonEnumGame_GID_HALL
@@ -1094,42 +1094,43 @@ func main() {
 
 	//=======================================
 	//读取AssetsInfo.dat => 更新redis数据
-	if len(os.Args) < 2 {
-		fmt.Printf("用法： 输入AssetsInfo{cid}_{ver}.dat {gray/release} {redishost}\n")
-		return
-	}
-	AssetFile:= os.Args[1]
-	redisHost := "127.0.0.1:6379"
-	mode := "正式发布"
-	isGrey := false
-	if len(os.Args) > 2 {
-		isGrey = (os.Args[2]!="release") //(os.Args[2]=="gray" || os.Args[2]=="grey")
-		if isGrey {
-			mode = "灰度发布"
-		}
-	}
-	if len(os.Args) > 3 {
-		redisHost = os.Args[3]
-	}
-	log.Printf("【"+mode+"】 cid="+ cid + " AssetFile=" + AssetFile + " redisHost="+redisHost+"\n")
-
-	//文件名格式如：AssetsInfo3_v23.dat (其中的23为cid）
-	ss1 := strings.Split(AssetFile, "_")
-	ss2 := strings.Split(ss1[1], ".")
-	cid = ss2[0][1:]
-
-	_, error := strconv.Atoi( cid )
-	if error != nil{
-		log.Fatalf("[%v] 非法文件名格式，无法识别cid：%v\n", AssetFile, cid)
-	}
-
-	//log.Printf("cid=%v ss1:%v ss2:%v\n", cid, ss1,ss2)
-
-	setAssetsFileToRedis( AssetFile, cid, redisHost, isGrey )
-
-	log.Printf("【"+mode+"】已导入 cid="+ cid + " AssetFile=" + AssetFile + " redisHost="+redisHost+"\n")
-
-	return
+	//if len(os.Args) < 2 {
+	//	fmt.Printf("用法： 输入AssetsInfo{cid}_{ver}.dat {gray/release} {redishost}\n")
+	//	return
+	//}
+	//AssetFile:= os.Args[1]
+	//redisHost := "127.0.0.1:6379"
+	//mode := "正式发布"
+	//isGrey := false
+	//if len(os.Args) > 2 {
+	//	isGrey = (os.Args[2]!="release") //(os.Args[2]=="gray" || os.Args[2]=="grey")
+	//	if isGrey {
+	//		mode = "灰度发布"
+	//	}
+	//}
+	//if len(os.Args) > 3 {
+	//	redisHost = os.Args[3]
+	//}
+	//
+	////文件名格式如：AssetsInfo3_v23.dat (其中的23为cid）
+	//ss1 := strings.Split(AssetFile, "_")
+	////ss2 := strings.Split(ss1[1], ".")
+	////cid = ss2[0][1:]
+	//cid = ss1[0][10:]
+	//
+	//log.Printf("【"+mode+"】 cid="+ cid + " AssetFile=" + AssetFile + " redisHost="+redisHost+"\n")
+	//
+	//_, error := strconv.Atoi( cid )
+	//if error != nil{
+	//	log.Fatalf("[%v] 非法文件名格式，无法识别cid：%v\n", AssetFile, cid)
+	//}
+	//
+	//
+	//setAssetsFileToRedis( AssetFile, cid, redisHost, isGrey )
+	//
+	//log.Printf("【"+mode+"】已导入 cid="+ cid + " AssetFile=" + AssetFile + " redisHost="+redisHost+"\n")
+	//
+	//return
 	//=======================================
 
 	if os.Args[1] == "-print" {
