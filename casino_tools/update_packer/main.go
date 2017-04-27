@@ -499,6 +499,10 @@ func getGameId( module string ) (gameId ddproto.CommonEnumGame, isCode bool) {
 		gameId = ddproto.CommonEnumGame_GID_ZJH
 	} else if( module == "PDK" ) {
 		gameId = ddproto.CommonEnumGame_GID_HALL //低版本升级有问题(没有GameId:PDK）ddproto.CommonEnumGame_GID_PDK
+	}else if( module == "PEZ" ) {
+		gameId = ddproto.CommonEnumGame_GID_HALL //低版本升级有问题(没有GameId:PEZ）,暂用GID_HALL
+	}else if( module == "Pokers" ) {
+		gameId = ddproto.CommonEnumGame_GID_HALL //低版本升级有问题(没有GameId:PEZ）,暂用GID_HALL
 	}else if( strings.Contains(module, "src") ) { //源码
 		//gameId = ddproto.CommonEnumGame_GID_SRC
 		gameId = ddproto.CommonEnumGame_GID_HALL
