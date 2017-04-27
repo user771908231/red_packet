@@ -144,7 +144,7 @@ func Get(ctx *macaron.Context) {
 	page := ctx.Params("page")
 	limit := ctx.Query("limit")
 	if limit == "" {
-		limit = "500" //默认每页100条数据
+		limit = "5000" //默认每页5000条数据
 	}
 	limitInt64, _ := strconv.ParseInt(limit, 10, 64)
 
