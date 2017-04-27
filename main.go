@@ -27,9 +27,7 @@ func init() {
 		conf.Server.LogPath,
 		"super",
 		conf.Server.MongoIp,
-		conf.Server.MongoPort,
 		config.SUPER_DBNAM,
-		config.DB_ENSURECOUNTER_KEY,
 		[]string{
 			config.DBT_SUPER_LOGS,
 			config.DBT_T_TH_GAMENUMBER_SEQ,

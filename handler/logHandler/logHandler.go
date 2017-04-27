@@ -2,7 +2,7 @@ package logHandler
 
 import (
 	"gopkg.in/macaron.v1"
-	"casino_common/utils/db"
+	//"casino_common/utils/db"
 	"casino_admin/model/logDao"
 	"gopkg.in/mgo.v2/bson"
 	"fmt"
@@ -36,7 +36,7 @@ type CallBack struct {
 var limiter = time.Tick(time.Millisecond * 200) //post请求的频率控制 200毫秒
 
 func init() {
-	db.Oninit("127.0.0.1", 51668, "test", "id")
+	//db.Oninit("127.0.0.1", 51668, "test", "id")
 }
 
 func Post(reqLog logDao.ReqLog, ctx *macaron.Context) {
