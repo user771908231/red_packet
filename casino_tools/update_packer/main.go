@@ -857,6 +857,7 @@ func compareAssetInfo(fileOld, fileNew string) {
 	updatedCnt := 0
 	newAddCnt := 0
 	totalSize := int32(0)
+	updateSize := int32(0)
 	for i, assetNew := range infoNew.Assets {
 		log.Printf("[%d] ==== loop assetNew >>> fid:%v ver:%v path:%v md5: %v gameId:%v\n",
 			i, *assetNew.FileId, *assetNew.FileVer, *assetNew.FilePath, *assetNew.Md5, *assetNew.GameId)
@@ -881,8 +882,14 @@ func compareAssetInfo(fileOld, fileNew string) {
 					}
 				} else {
 					updatedCnt++
-					log.Printf("\t[%d] fver有更新 >>> fid:%v fpath:%v oldVer:%v newVer:%v, oldMd5: %v newMd5:%v\n",
-						i, *assetNew.FileId, *assetNew.FilePath, *assetOld.FileVer, *assetNew.FileVer, *assetOld.Md5, *assetNew.Md5)
+					updateSize += *assetNew.FileSize
+					if *assetNew.FileVer < *assetOld.FileVer {
+						log.Printf("\t[%d] [警告]fver有更新, 但newVer < oldVer. >>> fid:%v fpath:%v oldVer:%v newVer:%v, oldMd5: %v newMd5:%v\n",
+							i, *assetNew.FileId, *assetNew.FilePath, *assetOld.FileVer, *assetNew.FileVer, *assetOld.Md5, *assetNew.Md5)
+					} else {
+						log.Printf("\t[%d] fver有更新 >>> fid:%v fpath:%v oldVer:%v newVer:%v, oldMd5: %v newMd5:%v\n",
+							i, *assetNew.FileId, *assetNew.FilePath, *assetOld.FileVer, *assetNew.FileVer, *assetOld.Md5, *assetNew.Md5)
+					}
 				}
 
 				bFound = true
@@ -892,14 +899,15 @@ func compareAssetInfo(fileOld, fileNew string) {
 
 		if !bFound {
 			newAddCnt++
+			updateSize += *assetNew.FileSize
 			log.Printf("\t[%d] ==== 新增文件 >>> fid:%v ver:%v size:%v path: %v md5: %v\n",
 				i, *assetNew.FileId, *assetNew.FileVer, *assetNew.FileSize, *assetNew.FilePath, *assetNew.Md5)
 		}
 	}
 
 
-	log.Printf("===== 总数: %v 未变动:%v 更新数:%v 新增数:%v 错误数:%v totalSize:%v =====\n",
-		len(infoNew.Assets), md5matchCnt, updatedCnt, newAddCnt, badCnt,  totalSize )
+	log.Printf("===== 总数: %v 未变动:%v 更新数:%v 新增数:%v 错误数:%v totalSize:%v updateSize:%v =====\n",
+		len(infoNew.Assets), md5matchCnt, updatedCnt, newAddCnt, badCnt,  totalSize, updateSize)
 
 }
 
@@ -1086,25 +1094,52 @@ func main() {
 
 	//=======================================
 	//读取AssetsInfo.dat => 更新redis数据
-	//if len(os.Args) < 3 {
-	//	fmt.Printf("用法： 输入channelId AssetsInfo{cid}_{ver}.dat {gray/normal} {redishost}\n")
-	//	return
-	//}
-	//AssetFile:= os.Args[2]
-	//redisHost := "127.0.0.1:6379"
-	//isGrey := false
-	//if len(os.Args) > 3 {
-	//	isGrey = (os.Args[3]=="gray" || os.Args[3]=="grey")
-	//}
-	//if len(os.Args) > 4 {
-	//	redisHost = os.Args[4]
-	//}
-	//log.Printf("cid="+ cid + " AssetFile=" + AssetFile + " redisHost="+redisHost+"\n")
-	//setAssetsFileToRedis( AssetFile, cid, redisHost, isGrey )
-	//return
+	if len(os.Args) < 2 {
+		fmt.Printf("用法： 输入AssetsInfo{cid}_{ver}.dat {gray/release} {redishost}\n")
+		return
+	}
+	AssetFile:= os.Args[1]
+	redisHost := "127.0.0.1:6379"
+	mode := "正式发布"
+	isGrey := false
+	if len(os.Args) > 2 {
+		isGrey = (os.Args[2]!="release") //(os.Args[2]=="gray" || os.Args[2]=="grey")
+		if isGrey {
+			mode = "灰度发布"
+		}
+	}
+	if len(os.Args) > 3 {
+		redisHost = os.Args[3]
+	}
+	log.Printf("【"+mode+"】 cid="+ cid + " AssetFile=" + AssetFile + " redisHost="+redisHost+"\n")
+
+	//文件名格式如：AssetsInfo3_v23.dat (其中的23为cid）
+	ss1 := strings.Split(AssetFile, "_")
+	ss2 := strings.Split(ss1[1], ".")
+	cid = ss2[0][1:]
+
+	_, error := strconv.Atoi( cid )
+	if error != nil{
+		log.Fatalf("[%v] 非法文件名格式，无法识别cid：%v\n", AssetFile, cid)
+	}
+
+	//log.Printf("cid=%v ss1:%v ss2:%v\n", cid, ss1,ss2)
+
+	setAssetsFileToRedis( AssetFile, cid, redisHost, isGrey )
+
+	log.Printf("【"+mode+"】已导入 cid="+ cid + " AssetFile=" + AssetFile + " redisHost="+redisHost+"\n")
+
+	return
 	//=======================================
 
 	if os.Args[1] == "-print" {
+		toPrintAssetFile :=  os.Args[2]
+
+		log.Printf(">>>>> 即将读取打印：%v\n", toPrintAssetFile)
+
+		printAssetInfoFile( toPrintAssetFile, "" )
+		return
+	} else if os.Args[1] == "-printsaveid" {
 		toPrintAssetFile :=  os.Args[2]
 
 		FILEID_LIST_JSON = filepath.Dir(toPrintAssetFile) + "/FileIdList_Old.json"
