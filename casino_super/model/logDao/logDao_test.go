@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"gopkg.in/mgo.v2/bson"
 	"casino_common/utils/timeUtils"
+	"casino_super/conf/config"
 )
 
 func TestSaveLogs2Mgo(t *testing.T) {
@@ -99,10 +100,14 @@ func TestFindLogsByMap(t *testing.T) {
 		"$lt" : timeEnd,
 	}
 
-	logs := FindLogsByMap(bson.M{}, 0, 100)
+	logs := FindLogsByMap(GetTableName(config.DBT_SUPER_LOGS, time.Now(), "10001"), bson.M{}, 0, 100)
 	for _, log := range logs {
 		println(fmt.Sprintf("%v", log))
 	}
 	println(2)
 	time.Sleep(time.Duration(2) * time.Second)
+}
+
+func TestGetTableName(t *testing.T) {
+	println(GetTableName(config.DBT_SUPER_LOGS, time.Now(), "10751"))
 }

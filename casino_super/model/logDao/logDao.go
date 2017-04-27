@@ -10,6 +10,7 @@ import (
 	"casino_super/conf/config"
 	"strconv"
 	"casino_common/common/log"
+	"fmt"
 )
 
 //校验上传日志数据的结构
@@ -55,20 +56,22 @@ func FindLogsByKV(key string, v interface{}) []LogValidater {
 }
 
 //查询条数
-func FindLogsByMapCount(m bson.M) (int, error) {
+func FindLogsByMapCount(t string, m bson.M) (int, error) {
 	err := errors.New("")
 	c := 0
+	log.T("开始从表[%v]中查询条数...", t)
 	db.Query(func(d *mgo.Database) {
-		c, err = d.C(config.DBT_SUPER_LOGS).Find(m).Count()
+		c, err = d.C(t).Find(m).Count()
 	})
 	return c, err
 }
 
 //分页查询
-func FindLogsByMap(m bson.M, skip, limit int) []LogData {
+func FindLogsByMap(t string, m bson.M, skip, limit int) []LogData {
 	logData := []LogData{}
+	log.T("开始从表[%v]中查询数据...", t)
 	db.Query(func(d *mgo.Database) {
-		d.C(config.DBT_SUPER_LOGS).Find(m).Sort("time").Skip(skip).Limit(limit).All(&logData)
+		d.C(t).Find(m).Sort("time").Skip(skip).Limit(limit).All(&logData)
 	})
 	if len(logData) > 0 {
 		return logData
@@ -82,12 +85,19 @@ func FindLogsByMap(m bson.M, skip, limit int) []LogData {
 //批量插入的方法
 func SaveLogs2Mgo(logValidaters []LogValidater) int {
 	new := make([]interface{}, len(logValidaters))
+
+	userId := "0"
 	for i, logValidater := range logValidaters {
 		seqId, _ := db.GetNextSeq(config.DBT_SUPER_LOGS) //自增键
 		t, err := strconv.ParseInt(logValidater.Time, 10, 64)
 		if err != nil {
 			t = int64(0)
 		}
+
+		if logValidater.UserId != "" {
+			userId = logValidater.UserId
+		}
+
 		logData := LogData{
 			id        :seqId,
 			Time      :t,
@@ -100,11 +110,20 @@ func SaveLogs2Mgo(logValidaters []LogValidater) int {
 		log.T("insert logData %v", logData)
 		new[i] = logData
 	}
-	err, count := db.InsertMgoDatas(config.DBT_SUPER_LOGS, new)
+	t := GetTableName(config.DBT_SUPER_LOGS, time.Now(), userId)
+	log.T("插入[%v]条数据到表[%v]中...", len(new), t)
+	err, count := db.InsertMgoDatas(t, new)
 	if err != nil {
 		return -1
 	}
 	return count
+}
+
+func GetTableName(prefixName string, t time.Time, userId string) string {
+	year, month, day := t.Date()
+	userId64, _ := strconv.ParseInt(userId, 10, 64)
+	userId64 = userId64 % 100
+	return fmt.Sprintf("%s_%d%d%d_%v", prefixName, year, month, day, userId64)
 }
 
 //删除所有

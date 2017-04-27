@@ -11,6 +11,7 @@ import (
 	"math"
 	"casino_common/common/log"
 	"casino_common/utils/timeUtils"
+	"casino_super/conf/config"
 )
 
 type SearchParams struct {
@@ -90,16 +91,20 @@ func Get(ctx *macaron.Context) {
 	}
 
 	createdAt := ctx.Query("createdAt")
+	tableName := ""
 	if createdAt != "" {
 		timeBegin := timeUtils.StringYYYYMMDD2time(createdAt)
-		timeEnd := timeBegin.AddDate(0, 0, 1)
-		timeBeginS := timeUtils.FormatYYYYMMDD(timeBegin)
-		timeEndS := timeUtils.FormatYYYYMMDD(timeEnd)
-		println(fmt.Sprintf("begin %v end %v", timeBeginS, timeEndS))
-		m["createdat"] = bson.M{
-			"$gte" : timeBeginS,
-			"$lt" : timeEndS,
-		}
+		//timeEnd := timeBegin.AddDate(0, 0, 1)
+		//timeBeginS := timeUtils.FormatYYYYMMDD(timeBegin)
+		//timeEndS := timeUtils.FormatYYYYMMDD(timeEnd)
+		//println(fmt.Sprintf("begin %v end %v", timeBeginS, timeEndS))
+		//m["createdat"] = bson.M{
+		//	"$gte" : timeBeginS,
+		//	"$lt" : timeEndS,
+		//}
+		tableName = logDao.GetTableName(config.DBT_SUPER_LOGS, timeBegin, userId)
+	}else {
+		tableName = logDao.GetTableName(config.DBT_SUPER_LOGS, time.Now(), userId)
 	}
 
 	createdStartedAt := ctx.Query("createdStartedAt")
@@ -115,7 +120,7 @@ func Get(ctx *macaron.Context) {
 		timeBeginS := timeUtils.Format(timeBegin)
 		timeEndS := timeUtils.Format(timeEnd)
 		println(fmt.Sprintf("begin %v end %v", timeBeginS, timeEndS))
-		m["createdat"] = bson.M{
+		m["time"] = bson.M{
 			"$gte" : timeBeginS,
 			"$lt" : timeEndS,
 		}
@@ -158,10 +163,10 @@ func Get(ctx *macaron.Context) {
 	//} else {}
 
 	log.T("开始查找, 查找条件userId[%v] deskId[%v] dataSearch[%v] dataFilter[%v] level[%v] createAt[%v]", userId, deskId, dataSearch, dataFilter, level, createdAt)
-	logs := logDao.FindLogsByMap(m, int(skip), int(limitInt64))
+	logs := logDao.FindLogsByMap(tableName, m, int(skip), int(limitInt64))
 	ctx.Data["logs"] = logs
 
-	count, _ := logDao.FindLogsByMapCount(m) //总数
+	count, _ := logDao.FindLogsByMapCount(tableName, m) //总数
 	log.T(fmt.Sprintf("已找到[%v]条记录", count))
 
 	paginator := Paginator(int(pageInt64), int(limitInt64), int64(count))
