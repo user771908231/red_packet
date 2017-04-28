@@ -3,7 +3,6 @@ package admin
 import (
 	"casino_admin/modules"
 	"casino_admin/model/dataModel"
-	"fmt"
 	"time"
 )
 
@@ -11,7 +10,6 @@ import (
 func AtHome(ctx *modules.Context) {
 	result := dataModel.AtHome()
 	if result !=nil{
-		fmt.Println("success",result)
 		ctx.Data["user"] = result
 		ctx.HTML(200,"admin/data/atHome")
 	}
@@ -24,7 +22,6 @@ func AtHomeList(ctx *modules.Context) {
 	GameID := ctx.Query("gameID")
 	result :=dataModel.AtHomeList(GameID)
 	ctx.Data["user"] = result
-	fmt.Println("success2222",result)
 	ctx.HTML(200,"admin/data/atHome")
 }
 
@@ -32,6 +29,7 @@ func AtHomeList(ctx *modules.Context) {
 func OnlineStatic(ctx *modules.Context) {
 	ctx.HTML(200,"admin/data/onlineStatic")
 }
+
 //在线统计列表
 func OnlineStaticList(ctx *modules.Context) {
 	date_start := ctx.Query("date_start")

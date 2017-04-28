@@ -1,0 +1,98 @@
+{{template "manage_header" }}
+
+<form class="layui-form" action="/admin/config/goods/editUpdate?id={{.info.Id.Hex}}" method="post">
+    <div class="layui-form-item">
+        <label class="layui-form-label" style="width: 120px">商品ID</label>
+        <div class="layui-input-inline">
+            <input type="text" name="Goodsid" lay-verify="Goodsid" autocomplete="off" placeholder="请输入ID" class="layui-input" value="{{.info.Goodsid}}">
+        </div>
+
+        <label class="layui-form-label" style="width: 120px">排序</label>
+        <div class="layui-input-inline">
+            <input type="text" name="Sort" lay-verify="Sort" placeholder="请输入" autocomplete="off" class="layui-input" value="{{.info.Sort}}">
+        </div>
+
+        <label class="layui-form-label" >商品名</label>
+        <div class="layui-input-inline">
+            <input type="text" name="Name" lay-verify="Name" placeholder="请输入" autocomplete="off" class="layui-input" value="{{.info.Name}}">
+        </div>
+
+        <label class="layui-form-label" style="width: 120px">所属分类</label>
+        <div class="layui-input-inline">
+            <input type="text" name="Category" lay-verify="Category" placeholder="请输入" autocomplete="off" class="layui-input" value="{{.info.Category}}">
+        </div>
+    </div>
+
+    <div class="layui-form-item">
+        <label class="layui-form-label" style="width: 120px">商品类型</label>
+        <div class="layui-input-inline">
+            <input type="text" name="Goodstype" lay-verify="Goodstype" placeholder="请输入" autocomplete="off" class="layui-input" value="{{.info.Goodstype}}">
+        </div>
+        <label class="layui-form-label" style="width: 120px">商品数量</label>
+        <div class="layui-input-inline">
+            <input type="text" name="Amount" lay-verify="Amount" placeholder="请输入" autocomplete="off" class="layui-input" value="{{.info.Amount}}">
+        </div>
+        <label class="layui-form-label">价格类型</label>
+        <div class="layui-input-inline">
+            <input type="text" name="Pricetype" lay-verify="Pricetype" placeholder="请输入" autocomplete="off" class="layui-input" value="{{.info.Pricetype}}">
+        </div>
+        <label class="layui-form-label"  style="width: 120px">价格</label>
+        <div class="layui-input-inline">
+            <input type="text" name="Price" lay-verify="Price" placeholder="请输入" autocomplete="off" class="layui-input" value="{{.info.Price}}">
+        </div>
+    </div>
+
+    <div class="layui-form-item">
+        <label class="layui-form-label"  style="width: 120px">折扣</label>
+        <div class="layui-input-inline">
+            <input type="text" name="Discount" lay-verify="Discount" placeholder="请输入" autocomplete="off" class="layui-input" value="{{.info.Discount}}">
+        </div>
+        <label class="layui-form-label" style="width: 120px">图片</label>
+        <div class="layui-input-inline">
+            <input type="text" name="Image" lay-verify="Image" placeholder="请输入" autocomplete="off" class="layui-input" value="{{.info.Image}}">
+        </div>
+        <label class="layui-form-label">是否显示</label>
+        <div class="layui-input-inline">
+            <input type="text" name="Isshow" lay-verify="Isshow" placeholder="请输入" autocomplete="off" class="layui-input" value="{{.info.Isshow}}">
+        </div>
+    </div>
+
+    <div class="layui-form-item">
+        <div class="layui-input-block">
+            <button class="layui-btn" lay-submit="" lay-filter="demo1">立即提交</button>
+            <button type="reset" class="layui-btn layui-btn-primary">重置</button>
+        </div>
+    </div>
+</form>
+
+<script>
+    layui.use(["element"], function () {
+        //选项卡
+        layui.element().on("tab(goods_tab)", function(ele){
+            var cate_id = this.getAttribute("data-cate_id");
+            window.location.href = "./list?cate_id="+cate_id;
+        });
+    });
+
+//    //更新
+//    common.bindAjax("submit", ".form_list_item", function (e) {
+//        e.preventDefault();
+//        return window.confirm("确定更新配置吗？");
+//    }, function (req, res) {
+//        common.msg("消息", res.msg);
+//    });
+    //删除
+    common.bindAjax("click", ".list_remove_btn", function (e) {
+        e.preventDefault();
+        return window.confirm("确定删除该条配置吗？");
+    }, function (req, res) {
+        if(res.code > 0){
+            alert(res.msg);
+            window.location.reload();
+        }else {
+            common.msg("消息", res.msg);
+        }
+    });
+</script>
+
+{{template "manage_footer" }}
