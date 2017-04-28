@@ -72,7 +72,8 @@ func Regist(m *macaron.Macaron) {
 			//商城商品配置
 			m.Group("/goods", func() {
 				m.Get("/list", config.GoodsListHandler)
-				m.Post("/edit", binding.Bind(model.T_Goods_Row{}), config.GoodsEditPost)
+				m.Post("/edit",config.GoodsEditPost)
+				m.Post("/editUpdate", config.GoodsEditUpdate)
 				m.Post("/insert", binding.Bind(model.T_Goods_Row{}), config.GoodsInsertPost)
 				m.Get("/remove", config.GoodsRemoveHnadler)
 			})
