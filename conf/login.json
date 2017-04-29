@@ -4,7 +4,6 @@
   "WSAddr": "192.168.2.188:4700",
   "MaxConnNum": 20000,
   "MongoIp": "192.168.2.188",
-  "MongoPort": 51668,
   "RedisAddr": "192.168.2.188:6379",
   "CurVersion": 2,
   "BaseDownloadUrl": ""
