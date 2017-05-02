@@ -20,7 +20,6 @@ type SearchParams struct {
 	Level            string
 	DataSearch       string
 	DataFilter       string
-	CreatedAt        string
 	CreatedStartedAt string
 	CreatedEndedAt   string
 }
@@ -90,40 +89,28 @@ func Get(ctx *macaron.Context) {
 		m["level"] = bson.M{"$gte" : level}
 	}
 
-	createdAt := ctx.Query("createdAt")
 	tableName := ""
-	if createdAt != "" {
-		timeBegin := timeUtils.StringYYYYMMDD2time(createdAt)
-		//timeEnd := timeBegin.AddDate(0, 0, 1)
-		//timeBeginS := timeUtils.FormatYYYYMMDD(timeBegin)
-		//timeEndS := timeUtils.FormatYYYYMMDD(timeEnd)
-		//println(fmt.Sprintf("begin %v end %v", timeBeginS, timeEndS))
-		//m["createdat"] = bson.M{
-		//	"$gte" : timeBeginS,
-		//	"$lt" : timeEndS,
-		//}
-		tableName = logDao.GetTableName(config.DBT_SUPER_LOGS, timeBegin, userId)
-	}else {
-		tableName = logDao.GetTableName(config.DBT_SUPER_LOGS, time.Now(), userId)
-	}
-
 	createdStartedAt := ctx.Query("createdStartedAt")
 	createdEndedAt := ctx.Query("createdEndedAt")
 	if createdStartedAt != "" {
 		timeBegin := timeUtils.String2YYYYMMDDHHMMSS(createdStartedAt)
+		tableName = logDao.GetTableName(config.DBT_SUPER_LOGS, timeBegin, userId)
 		timeEnd := time.Time{}
 		if createdEndedAt != "" {
 			timeEnd = timeUtils.String2YYYYMMDDHHMMSS(createdEndedAt)
 		}else {
-			timeEnd = time.Now()
+			str := timeUtils.Format(time.Now())
+			timeEnd = timeUtils.String2YYYYMMDDHHMMSS(str)
 		}
-		timeBeginS := timeUtils.Format(timeBegin)
-		timeEndS := timeUtils.Format(timeEnd)
-		println(fmt.Sprintf("begin %v end %v", timeBeginS, timeEndS))
-		m["time"] = bson.M{
-			"$gte" : timeBeginS,
-			"$lt" : timeEndS,
+		//timeBeginS := timeUtils.Format(timeBegin)
+		//timeEndS := timeUtils.Format(timeEnd)
+		println(fmt.Sprintf("begin %v end %v", timeBegin, timeEnd))
+		m["createdat"] = bson.M{
+			"$gte" : timeBegin,
+			"$lt" : timeEnd,
 		}
+	}else {
+		tableName = logDao.GetTableName(config.DBT_SUPER_LOGS, timeUtils.String2YYYYMMDDHHMMSS(timeUtils.Format(time.Now())), userId)
 	}
 
 	searchParams := SearchParams{
@@ -132,12 +119,11 @@ func Get(ctx *macaron.Context) {
 		DataSearch:dataSearch,
 		DataFilter:dataFilter,
 		Level:level,
-		CreatedAt:createdAt,
 		CreatedStartedAt:createdStartedAt,
 		CreatedEndedAt:createdEndedAt,
 	}
 	ctx.Data["searchParams"] = searchParams
-	log.T("查询条件 userId[%v] deskId[%v] level[%v] dataSearch[%v] dataFilter[%v] createAt[%v] createdStartedAt[%v] createdEndedAt[%v]", searchParams.UserId, searchParams.DeskId, searchParams.Level, searchParams.DataSearch, searchParams.DataFilter, searchParams.CreatedAt, searchParams.CreatedStartedAt, searchParams.CreatedEndedAt)
+	log.T("查询条件 userId[%v] deskId[%v] level[%v] dataSearch[%v] dataFilter[%v] createdStartedAt[%v] createdEndedAt[%v]", searchParams.UserId, searchParams.DeskId, searchParams.Level, searchParams.DataSearch, searchParams.DataFilter, searchParams.CreatedStartedAt, searchParams.CreatedEndedAt)
 
 
 	//分页控件
@@ -162,12 +148,12 @@ func Get(ctx *macaron.Context) {
 	//	ctx.Data["logs"] = []logDao.LogData{}
 	//} else {}
 
-	log.T("开始查找, 查找条件userId[%v] deskId[%v] dataSearch[%v] dataFilter[%v] level[%v] createAt[%v]", userId, deskId, dataSearch, dataFilter, level, createdAt)
 	logs := logDao.FindLogsByMap(tableName, m, int(skip), int(limitInt64))
+	log.T(fmt.Sprintf("已从表[%v]中找到[%v]条数据", tableName, len(logs)))
 	ctx.Data["logs"] = logs
 
 	count, _ := logDao.FindLogsByMapCount(tableName, m) //总数
-	log.T(fmt.Sprintf("已找到[%v]条记录", count))
+	log.T(fmt.Sprintf("已从表[%v]中找到共[%v]条数据", tableName, count))
 
 	paginator := Paginator(int(pageInt64), int(limitInt64), int64(count))
 
@@ -184,7 +170,6 @@ func Get(ctx *macaron.Context) {
 		"&level=" + level +
 		"&data=" + dataSearch +
 		"&dataFilter=" + dataFilter +
-		"&createdAt=" + createdAt +
 		"&limit=" + limit +
 		"&createdStartedAt=" + createdStartedAt +
 		"&createdEndedAt=" + createdEndedAt

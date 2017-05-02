@@ -4,13 +4,13 @@ import (
 	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
 	"casino_common/utils/db"
-	"casino_common/utils/timeUtils"
 	"time"
 	"errors"
 	"casino_super/conf/config"
 	"strconv"
 	"casino_common/common/log"
 	"fmt"
+	"casino_common/utils/timeUtils"
 )
 
 //校验上传日志数据的结构
@@ -30,7 +30,7 @@ type LogData struct {
 	UserId    string `json:"userid" binding:"Required"` //用户id
 	Level     string `json:"level" binding:"Required"`  //日志级别
 	Data      string `json:"data" binding:"Required"`   //日志内容
-	CreatedAt string                                    //创建时间
+	CreatedAt time.Time                                 //unix转time
 }
 
 type ReqLog struct {
@@ -59,7 +59,7 @@ func FindLogsByKV(key string, v interface{}) []LogValidater {
 func FindLogsByMapCount(t string, m bson.M) (int, error) {
 	err := errors.New("")
 	c := 0
-	log.T("开始从表[%v]中查询条数...", t)
+	log.T("开始从表[%v]中查询条数... m[%v]", t, m)
 	db.Query(func(d *mgo.Database) {
 		c, err = d.C(t).Find(m).Count()
 	})
@@ -69,7 +69,7 @@ func FindLogsByMapCount(t string, m bson.M) (int, error) {
 //分页查询
 func FindLogsByMap(t string, m bson.M, skip, limit int) []LogData {
 	logData := []LogData{}
-	log.T("开始从表[%v]中查询数据...", t)
+	log.T("开始从表[%v]中查询数据... m[%v] skip[%v] limit[%v]", t, m, skip, limit)
 	db.Query(func(d *mgo.Database) {
 		d.C(t).Find(m).Sort("time").Skip(skip).Limit(limit).All(&logData)
 	})
@@ -89,30 +89,34 @@ func SaveLogs2Mgo(logValidaters []LogValidater) int {
 	userId := "0"
 	for i, logValidater := range logValidaters {
 		seqId, _ := db.GetNextSeq(config.DBT_SUPER_LOGS) //自增键
-		t, err := strconv.ParseInt(logValidater.Time, 10, 64)
+		int64Time, err := strconv.ParseInt(logValidater.Time, 10, 64)
 		if err != nil {
-			t = int64(0)
+			int64Time = int64(0)
 		}
-
+		sec, _ := strconv.ParseInt(logValidater.Time[0:10], 10, 64)
+		nsec, _ := strconv.ParseInt(logValidater.Time[10:], 10, 64)
+		unixTime := timeUtils.String2YYYYMMDDHHMMSS(timeUtils.Format(time.Unix(sec, nsec)))
+		println(fmt.Sprintf("unix %v unixTime %v", logValidater.Time, unixTime))
 		if logValidater.UserId != "" {
 			userId = logValidater.UserId
 		}
 
 		logData := LogData{
 			id        :seqId,
-			Time      :t,
+			Time      :int64Time,
 			DeskId    :logValidater.DeskId,
 			UserId    :logValidater.UserId,
 			Level     :logValidater.Level,
 			Data      :logValidater.Data,
-			CreatedAt :timeUtils.Format(time.Now()),
+			CreatedAt :unixTime,
 		}
+
 		log.T("insert logData %v", logData)
 		new[i] = logData
 	}
-	t := GetTableName(config.DBT_SUPER_LOGS, time.Now(), userId)
-	log.T("插入[%v]条数据到表[%v]中...", len(new), t)
-	err, count := db.InsertMgoDatas(t, new)
+	tb := GetTableName(config.DBT_SUPER_LOGS, timeUtils.String2YYYYMMDDHHMMSS(timeUtils.Format(time.Now())), userId)
+	log.T("插入[%v]条数据到表[%v]中...", len(new), tb)
+	err, count := db.InsertMgoDatas(tb, new)
 	if err != nil {
 		return -1
 	}
@@ -123,6 +127,7 @@ func GetTableName(prefixName string, t time.Time, userId string) string {
 	year, month, day := t.Date()
 	userId64, _ := strconv.ParseInt(userId, 10, 64)
 	userId64 = userId64 % 100
+	//log.T("year %v month%v day%v", year, month, day)
 	return fmt.Sprintf("%s_%d%d%d_%v", prefixName, year, month, day, userId64)
 }
 
