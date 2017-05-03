@@ -50,7 +50,12 @@ func GoodsEditUpdate(ctx *modules.Context) {
 	Image := ctx.Query("Image")
 	Isshow := ctx.QueryBool("Isshow")
 	Sort := ctx.QueryFloat64("Sort")
-	configModel.GoodsEditUpdate(obj_id,Goodsid,Name,Category,Pricetype,Price,Goodstype,Amount,Discount,Image,Isshow,Sort)
+	err :=configModel.GoodsEditUpdate(obj_id,Goodsid,Name,Category,Pricetype,Price,Goodstype,Amount,Discount,Image,Isshow,Sort)
+	if err != nil {
+		ctx.Ajax(-1, "编辑失败！", nil)
+		return
+	}
+	ctx.Ajax(1, "编辑成功！", nil)
 }
 
 //新增
