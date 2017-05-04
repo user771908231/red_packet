@@ -38,9 +38,9 @@ type ReqLog struct {
 	Logs []LogValidater `json:"logs" binding:"Required"`         //数组
 }
 
-//func (l ReqLog) GetReadTime() string {
-//
-//}
+func (l LogData) GetReadableCreatedAt() string {
+	return timeUtils.Format(l.CreatedAt.UTC())
+}
 
 //按记录查询
 func FindLogsByKV(key string, v interface{}) []LogValidater {
