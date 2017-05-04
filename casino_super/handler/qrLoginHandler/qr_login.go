@@ -2,17 +2,17 @@ package qrLoginHandler
 
 import (
 	"casino_super/modules"
-	"casino_common/common/cfg"
 	"casino_common/utils/redisUtils"
 	"casino_common/proto/ddproto"
 	"github.com/golang/protobuf/proto"
+	"casino_common/common/consts"
 )
 
 //登陆成功
 func QrLoginHandler(ctx *modules.Context) {
 	wx_info := ctx.IsWxLogin()
 	code := ctx.Query("code")
-	key := cfg.RKEY_QR_CODE+ "_" +code
+	key := consts.RKEY_QR_CODE+ "_" +code
 
 	redis_wxinfo := &ddproto.WeixinInfo{
 		OpenId: &wx_info.OpenId,
