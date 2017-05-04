@@ -6,6 +6,7 @@ import (
 	"casino_common/utils/db"
 )
 const ADMIN_GAME_CONFIG string = "t_game_config_login_list"
+const ADMIN_GAME_LOGIN string = "t_game_config_login"
 type GameCongif struct {
 	Id          bson.ObjectId  			 `bson:"_id"`		//用户ID
 	GameId      	float64 	 		`bson:"GameId"`		//游戏ID
@@ -21,6 +22,31 @@ type GameCongif struct {
 	PORT	float64  			`bson:"PORT"`
 	STATUS	float64  			`bson:"STATUS"`
 }
+type GameCongifLogin struct {
+	Id          bson.ObjectId  			 `bson:"_id"`		//用户ID
+	CurVersion	float64  		`bson:"CurVersion"`
+	BaseDownloadUrl	string  		`bson:"BaseDownloadUrl"`
+}
+
+//登录服务器配置
+func GameConfig() []*GameCongif {
+	game_Congif := []*GameCongif{}
+	err :=db.C(ADMIN_GAME_CONFIG).FindAll(bson.M{},&game_Congif)
+	if err != nil {
+		return nil
+	}
+	return game_Congif
+}
+//登录服配置
+func GameConfigLogin() []*GameCongifLogin {
+	game_Congif := []*GameCongifLogin{}
+	err :=db.C(ADMIN_GAME_LOGIN).FindAll(bson.M{},&game_Congif)
+	if err != nil {
+		return nil
+	}
+	return game_Congif
+}
+
 func GameConfigOne(Id bson.ObjectId) *GameCongif {
 	game_Congif := new(GameCongif)
 	err :=db.C(ADMIN_GAME_CONFIG).Find(bson.M{
@@ -32,6 +58,7 @@ func GameConfigOne(Id bson.ObjectId) *GameCongif {
 	return game_Congif
 }
 
+//登录服务器配置更新
 func GameConfigUpdate(Id bson.ObjectId,GameId float64,Name string,CurVersion float64,IsUpdate float64,IsMaintain float64,MaintainMsg string,ReleaseTag float64,DownloadUrl string,LatestClientVersion float64,IP string,PORT float64,STATUS float64) (game_Congif *GameCongif) {
 	err := db.C(ADMIN_GAME_CONFIG).Update(bson.M{"_id": Id},bson.M{
 		"$set" : bson.M{
@@ -47,6 +74,20 @@ func GameConfigUpdate(Id bson.ObjectId,GameId float64,Name string,CurVersion flo
 			"IP" : IP,
 			"PORT" : PORT,
 			"STATUS" : STATUS,
+		},})
+	if err != nil {
+		return nil
+	}
+	return game_Congif
+}
+
+
+//登录服配置更新
+func GameConfigUpdateLogin(Id bson.ObjectId,CurVersion float64,BaseDownloadUrl string) (game_Congif *GameCongif) {
+	err := db.C(ADMIN_GAME_LOGIN).Update(bson.M{"_id": Id},bson.M{
+		"$set" : bson.M{
+			"CurVersion" : CurVersion,
+			"BaseDownloadUrl" : BaseDownloadUrl,
 		},})
 	if err != nil {
 		return nil

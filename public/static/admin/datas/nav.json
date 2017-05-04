@@ -73,11 +73,11 @@
 				},{
 					"title": "登陆服配置",
 					"icon": "fa-slider",
-					"href": "/admin/config/game/list?t=t_game_config_login"
+					"href": "/admin/config/game/listLogin"
 				},{
 					"title": "登陆服服务器列表配置",
 					"icon": "fa-slider",
-					"href": "/admin/config/game/list?t=t_game_config_login_list"
+					"href": "/admin/config/game/listAll"
 				}
 			]
 		}

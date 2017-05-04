@@ -27,24 +27,24 @@
                 </thead>
                 <tbody>
                 {{range $k,$v := .list}}
-                <form class="form_list_item" action="/admin/config/task/edit" method="post">
-                    <input type="hidden" name="id" value="{{$v.Id.Hex}}">
+                <!--<form class="form_list_item" action="/admin/config/task/edit" method="post">-->
                     <tr>
-                        <td><input type="hidden" name="task_id" value="{{.TaskId}}">{{.TaskId}}</td>
-                        <td><input type="hidden" name="cate_id" value="{{.CateId}}">{{.CateId}}</td>
-                        <td><input type="hidden" name="task_type" value="{{.TaskType}}">{{.TaskType}}</td>
+                        <td>{{.TaskId}}</td>
+                        <td>{{.CateId}}</td>
+                        <td>{{.TaskType}}</td>
                         <td>{{.GameId}}</td>
-                        <td><input type="text" name="title" value="{{.Title}}"></td>
-                        <td><input type="text" name="description" value="{{.Description}}"></td>
-                        <td><input type="number" style="width: 100px" name="sort" value="{{.Sort}}"></td>
-                        <td><input type="number" style="width: 100px" name="task_sum" value="{{.TaskSum}}"></td>
-                        <td><input type="number" style="width: 100px" name="repeat_sum" value="{{.RepeatSum}}"></td>
+                        <td>{{.Title}}</td>
+                        <td>{{.Description}}</td>
+                        <td>{{.Sort}}</td>
+                        <td>{{.TaskSum}}</td>
+                        <td>{{.RepeatSum}}</td>
                         <td>
-                            <input type="submit" value="更新">
-                            <input type="reset" value="重置">
+                            <button type="submit" class="layui-btn" data-id="{{.TaskId}}" data-cateid="{{.CateId}}" data-tasktype="{{.TaskType}}" data-gameid="{{.GameId}}"
+                                    data-title="{{.Title}}" data-description="{{.Description}}" data-sort="{{.Sort}}" data-tasksum="{{.TaskSum}}"
+                                    data-repeatsum="{{.RepeatSum}}" data-objid="{{.Id.Hex}}">更新</button>
                         </td>
                     </tr>
-                </form>
+                <!--</form>-->
                 {{end}}
                 </tbody>
             </table>
@@ -52,6 +52,67 @@
     </div>
 </div>
 
+<form class="layui-form" action="/admin/config/task/edit" method="post" id="form" style="display: none">
+    <input type="hidden" name="id" id="Game" value="">
+    <div class="layui-form-item">
+        <label class="layui-form-label" style="width: 120px">任务ID</label>
+        <div class="layui-input-inline">
+            <input type="text" name="TaskId" lay-verify="TaskId" id="TaskId" autocomplete="off" placeholder="请输入ID" class="layui-input" value="">
+        </div>
+
+        <label class="layui-form-label" style="width: 120px">分类ID</label>
+        <div class="layui-input-inline">
+            <input type="text" name="CateId" lay-verify="CateId" id="CateId" placeholder="请输入" autocomplete="off" class="layui-input" value="">
+        </div>
+    </div>
+
+    <div class="layui-form-item">
+        <label class="layui-form-label"  style="width: 120px">任务类型</label>
+        <div class="layui-input-inline">
+            <input type="text" name="TaskType" lay-verify="TaskType" id="TaskType" placeholder="请输入" autocomplete="off" class="layui-input" value="">
+        </div>
+
+        <label class="layui-form-label" style="width: 120px">所属游戏</label>
+        <div class="layui-input-inline">
+            <input type="text" name="GameId" lay-verify="GameId" id="GameId" placeholder="请输入" autocomplete="off" class="layui-input" value="">
+        </div>
+    </div>
+
+    <div class="layui-form-item">
+        <label class="layui-form-label" style="width: 120px">标题</label>
+        <div class="layui-input-inline">
+            <input type="text" name="Title" lay-verify="Title" id="Title" placeholder="请输入" autocomplete="off" class="layui-input" value="">
+        </div>
+        <label class="layui-form-label" style="width: 120px">详情</label>
+        <div class="layui-input-inline">
+            <input type="text" name="Description" lay-verify="Description" id="Description" placeholder="请输入" autocomplete="off" class="layui-input" value="">
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label" style="width: 120px">排序</label>
+        <div class="layui-input-inline">
+            <input type="text" name="Sort" lay-verify="Sort" id="Sort" placeholder="请输入" autocomplete="off" class="layui-input" value="">
+        </div>
+        <label class="layui-form-label"  style="width: 120px">完成条件</label>
+        <div class="layui-input-inline">
+            <input type="text" name="TaskSum" lay-verify="TaskSum" id="TaskSum" placeholder="请输入" autocomplete="off" class="layui-input" value="">
+        </div>
+    </div>
+
+    <div class="layui-form-item">
+        <label class="layui-form-label"  style="width: 120px">可重复完成次数</label>
+        <div class="layui-input-inline">
+            <input type="text" name="RepeatSum" lay-verify="RepeatSum" id="RepeatSum" placeholder="请输入" autocomplete="off" class="layui-input" value="">
+        </div>
+    </div>
+
+    <div class="layui-form-item">
+        <div class="layui-input-block">
+            <button class="layui-btn" lay-submit="" lay-filter="demo1" type="submit">立即提交</button>
+            <button type="reset" class="layui-btn layui-btn-primary">重置</button>
+        </div>
+    </div>
+</form>
 
 
 <script>
@@ -64,12 +125,42 @@
     });
 
     //更新
-    common.bindAjax("submit", ".form_list_item", function (e) {
+    common.bindAjax("submit", ".layui-form", function (e) {
         e.preventDefault();
         return window.confirm("确定更新配置吗？");
     }, function (req, res) {
         common.msg("消息", res.msg);
+        window.location.reload();
     });
+    layui.use('layer', function() {
+
+        var layer = layui.layer;
+        $(".layui-table td button").click(function () {
+            $("#TaskId").val(this.dataset.id)
+            $("#CateId").val(this.dataset.cateid)
+            $("#TaskType").val(this.dataset.tasktype)
+            $("#GameId").val(this.dataset.gameid)
+            $("#Title").val(this.dataset.title)
+            $("#Description").val(this.dataset.description)
+            $("#Sort").val(this.dataset.sort)
+            $("#TaskSum").val(this.dataset.tasksum)
+            $("#RepeatSum").val(this.dataset.repeatsum)
+            $("#IP").val(this.dataset.ip)
+            $("#PORT").val(this.dataset.port)
+            $("#STATUS").val(this.dataset.status)
+            $("#MaintainMsg").val(this.dataset.maintainMsg)
+            $("#Game").val(this.dataset.objid)
+            layer.open({
+                type: 1,
+                skin: 'layui-layer-rim', //加上边框
+                area: ['720px', '540px'], //宽高
+                content: $("#form")
+            });
+        })
+
+
+
+    })
 </script>
 
 {{template "manage_footer" }}

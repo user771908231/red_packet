@@ -26,7 +26,7 @@ func GoodsListHandler(ctx *modules.Context) {
 
 
 
-//编辑--列表
+//编辑--一条数据
 func GoodsEditPost(ctx *modules.Context) {
 	id :=ctx.Query("id")
 	obj_id := bson.ObjectIdHex(id)
@@ -39,18 +39,18 @@ func GoodsEditPost(ctx *modules.Context) {
 func GoodsEditUpdate(ctx *modules.Context) {
 	id :=ctx.Query("id")
 	obj_id := bson.ObjectIdHex(id)
-	Goodsid :=ctx.QueryInt64("Goodsid")
+	Goodsid :=ctx.QueryFloat64("Goodsid")
 	Name := ctx.Query("Name")
-	Category := ctx.QueryInt64("Category")
-	Pricetype := ctx.QueryInt64("Pricetype")
+	Category := ctx.QueryFloat64("Category")
+	PriceType := ctx.QueryFloat64("PriceType")
 	Price := ctx.QueryFloat64("Price")
 	Amount := ctx.QueryFloat64("Amount")
-	Goodstype := ctx.QueryInt64("Goodstype")
+	GoodsType := ctx.QueryFloat64("GoodsType")
 	Discount := ctx.Query("Discount")
 	Image := ctx.Query("Image")
-	Isshow := ctx.QueryBool("Isshow")
+	Isshow := ctx.QueryBool("IsShow")
 	Sort := ctx.QueryFloat64("Sort")
-	err :=configModel.GoodsEditUpdate(obj_id,Goodsid,Name,Category,Pricetype,Price,Goodstype,Amount,Discount,Image,Isshow,Sort)
+	err :=configModel.GoodsEditUpdate(obj_id,Goodsid,Name,Category,PriceType,Price,GoodsType,Amount,Discount,Image,Isshow,Sort)
 	if err != nil {
 		ctx.Ajax(-1, "编辑失败！", nil)
 		return
