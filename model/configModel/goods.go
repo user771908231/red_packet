@@ -8,12 +8,12 @@ import (
 
 type GoodsInfo struct {
 	Id 		bson.ObjectId 	`bson:"_id"`
-	Goodsid 	int64		`bson:"goodsid"`
+	Goodsid 	float64		`bson:"goodsid"`
 	Name 		string		`bson:"name"`
-	Category 	int64		`bson:"category"`
-	Pricetype 	int64		`bson:"pricetype"`
+	Category 	float64		`bson:"category"`
+	PriceType 	float64		`bson:"pricetype"`
 	Price 		float64		`bson:"price"`
-	Goodstype 	int64		`bson:"goodstype"`
+	GoodsType 	float64		`bson:"goodstype"`
 	Amount 		float64		`bson:"amount"`
 	Discount 	string		`bson:"discount"`
 	Image 		string		`bson:"image"`
@@ -32,15 +32,15 @@ func GoodsInfoOne(Id bson.ObjectId) *GoodsInfo{
 }
 
 //编辑--提交
-func GoodsEditUpdate(Id bson.ObjectId,Goodsid int64,Name string,Category int64,Pricetype int64,Price float64,Goodstype int64,Amount float64,Discount string,Image string,Isshow bool,Sort float64) (goods_info *GoodsInfo) {
+func GoodsEditUpdate(Id bson.ObjectId,Goodsid float64,Name string,Category float64,PriceType float64,Price float64,GoodsType float64,Amount float64,Discount string,Image string,Isshow bool,Sort float64) (goods_info *GoodsInfo) {
 	err := db.C(tableName.DBT_T_GOODS_INFO).Update(bson.M{"_id": Id},bson.M{
 		"$set" : bson.M{
 			"goodsid" : Goodsid,
 			"name" : Name,
 			"category" : Category,
-			"pricetype" : Pricetype,
+			"pricetype" : PriceType,
 			"price" : Price,
-			"goodstype" : Goodstype,
+			"goodstype" : GoodsType,
 			"amount" : Amount,
 			"discount" : Discount,
 			"image" : Image,

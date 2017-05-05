@@ -75,6 +75,30 @@ func GameConfigUpdate(ctx *modules.Context) {
 	}
 }
 
+//编辑字段-更新
+func GameConfigUpdateLogin(ctx *modules.Context) {
+	id := ctx.Query("id")
+	obj_id :=bson.ObjectIdHex(id)
+	CurVersion := ctx.QueryFloat64("CurVersion")
+	BaseDownloadUrl := ctx.Query("BaseDownloadUrl")
+	configModel.GameConfigUpdateLogin(obj_id,CurVersion,BaseDownloadUrl)
+}
+
+//登录服务器
+func GameConfigList(ctx *modules.Context) {
+	result :=configModel.GameConfig()
+	fmt.Println("success",result)
+	ctx.Data["config"] = result
+	ctx.HTML(200,"admin/config/game/list")
+}
+//登录服配置
+func GameConfigLogin(ctx *modules.Context) {
+	result :=configModel.GameConfigLogin()
+	fmt.Println("success",result)
+	ctx.Data["config"] = result
+	ctx.HTML(200,"admin/config/game/listLogin")
+}
+
 //新增一组配置
 func GameConfigAddHandler(ctx *modules.Context) {
 	table_name := ctx.Query("t")

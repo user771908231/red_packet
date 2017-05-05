@@ -13,7 +13,6 @@ import (
 	"casino_admin/handler/admin/config"
 	"casino_common/common/model"
 	"casino_admin/handler/qrLoginHandler"
-	"casino_common/common/service/taskService/taskType"
 	"casino_common/common/service/configService"
 )
 
@@ -80,13 +79,16 @@ func Regist(m *macaron.Macaron) {
 			//任务信息配置
 			m.Group("/task", func() {
 				m.Get("/list", config.TaskListHandler)
-				m.Post("/edit", binding.Bind(taskType.TaskInfo{}), config.TaskEditPost)
+				m.Post("/edit", config.TaskEditPost)
 			})
 			//游戏配置
 			m.Group("/game", func() {
 				m.Get("/list", config.GameConfigListHandler)
+				m.Get("/listAll", config.GameConfigList)
+				m.Get("/listLogin", config.GameConfigLogin)
 				m.Post("/edit", config.GameConfigEdit)
 				m.Post("/editUpdate", config.GameConfigUpdate)
+				m.Post("/editUpdateLogin", config.GameConfigUpdateLogin)
 				m.Get("/add", config.GameConfigAddHandler)
 				m.Post("/addServerInfo",binding.Bind(configService.LoginServerInfo{}), config.GameServerInfoAddPost)
 			})
