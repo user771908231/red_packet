@@ -132,7 +132,7 @@
 				},{
 					"title": "注册统计",
 					"icon": "fa-slider",
-					"href": "/admin/manage/apply?status=2&page=1"
+					"href": "/admin/manage/user/list"
 				},{
 					"title": "在线统计",
 					"icon": "fa-slider",
