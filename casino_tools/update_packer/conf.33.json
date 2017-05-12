@@ -1,8 +1,0 @@
-{
-    "ChannelId":   33,
-    "CurrVersion": 23,
-    "LastVersion": 0,
-    "RedisAddr":   "127.0.0.1:6379",
-    "OutputPath": "/Users/kory/Documents/Dev/workspace/Git/GameUpdate/android_gz_33/",
-    "AssetHost":   "http://test2.tondeen.com/update/android_gz_33/"
-}
