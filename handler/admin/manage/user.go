@@ -117,12 +117,6 @@ func UserListAllHandler(ctx *modules.Context)  {
 	db.C(tableName.DBT_T_USER).FindAll(bson.M{},&info)
 
 	ctx.Data["info"] = info
-	//格式化为字符串,tm为Time类型
-	//for _,x := range info{
-	//	lasttime := time.Unix(x.LastTime,0).Format("2006-01-02 03:04:05")
-	//	ctx.Data["time"] =lasttime
-	//	fmt.Println(x)
-	//}
 
 
 	ctx.HTML(200,"admin/manage/user/list")
@@ -138,33 +132,61 @@ func UserListOneHandler(ctx *modules.Context) {
 	date2,_ := time.Parse("2006-01-02",date_end)
 
 	info := []*User{}
+	if(ChannelId == 0){
+		db.C(tableName.DBT_T_USER).FindAll(bson.M{},&info)
+	}
 	//长沙
 	if(ChannelId == 1){
-		db.C(tableName.DBT_T_USER).FindAll(bson.M{
-			"regtime": bson.M{"$gte": date1,"$lte": date2},
-			"$or" :[]bson.M{bson.M{"channelid" : 31},bson.M{"channelid" : 32},bson.M{"channelid" : 33}},
-		},&info)
+		if(date1 == date2){
+			db.C(tableName.DBT_T_USER).FindAll(bson.M{
+				"$or" :[]bson.M{bson.M{"channelid" : 31},bson.M{"channelid" : 32},bson.M{"channelid" : 33}},
+			},&info)
+		}else {
+			db.C(tableName.DBT_T_USER).FindAll(bson.M{
+				"regtime": bson.M{"$gte": date1,"$lte": date2},
+				"$or" :[]bson.M{bson.M{"channelid" : 31},bson.M{"channelid" : 32},bson.M{"channelid" : 33}},
+			},&info)
+		}
+
 	}
 	//岳阳
 	if(ChannelId == 2){
-		db.C(tableName.DBT_T_USER).FindAll(bson.M{
-			"regtime": bson.M{"$gte": date1,"$lte": date2},
-			"$or" :[]bson.M{bson.M{"channelid" : 34},bson.M{"channelid" : 35}},
-		},&info)
+		if(date1 == date2){
+			db.C(tableName.DBT_T_USER).FindAll(bson.M{
+				"$or" :[]bson.M{bson.M{"channelid" : 34},bson.M{"channelid" : 35}},
+			},&info)
+		}else{
+			db.C(tableName.DBT_T_USER).FindAll(bson.M{
+				"regtime": bson.M{"$gte": date1,"$lte": date2},
+				"$or" :[]bson.M{bson.M{"channelid" : 34},bson.M{"channelid" : 35}},
+			},&info)
+		}
 	}
 	//四川
 	if(ChannelId == 3){
-		db.C(tableName.DBT_T_USER).FindAll(bson.M{
-			"regtime": bson.M{"$gte": date1,"$lte": date2},
-			"$or" :[]bson.M{bson.M{"channelid" : 1},bson.M{"channelid" : 2},bson.M{"channelid" : 3},bson.M{"channelid" : 11},bson.M{"channelid" : 12},bson.M{"channelid" : 41},bson.M{"channelid" : 21},bson.M{"channelid" : 22}},
-		},&info)
+		if(date1 == date2){
+			db.C(tableName.DBT_T_USER).FindAll(bson.M{
+				"$or" :[]bson.M{bson.M{"channelid" : 1},bson.M{"channelid" : 2},bson.M{"channelid" : 3},bson.M{"channelid" : 11},bson.M{"channelid" : 12},bson.M{"channelid" : 41},bson.M{"channelid" : 21},bson.M{"channelid" : 22}},
+			},&info)
+		}else{
+			db.C(tableName.DBT_T_USER).FindAll(bson.M{
+				"regtime": bson.M{"$gte": date1,"$lte": date2},
+				"$or" :[]bson.M{bson.M{"channelid" : 1},bson.M{"channelid" : 2},bson.M{"channelid" : 3},bson.M{"channelid" : 11},bson.M{"channelid" : 12},bson.M{"channelid" : 41},bson.M{"channelid" : 21},bson.M{"channelid" : 22}},
+			},&info)
+		}
 	}
 	//白山
 	if(ChannelId == 4){
-		db.C(tableName.DBT_T_USER).FindAll(bson.M{
-			"regtime": bson.M{"$gte": date1,"$lte": date2},
-			"$or" :[]bson.M{bson.M{"channelid" : 61},bson.M{"channelid" : 62}},
-		},&info)
+		if(date1 == date2){
+			db.C(tableName.DBT_T_USER).FindAll(bson.M{
+				"$or" :[]bson.M{bson.M{"channelid" : 61},bson.M{"channelid" : 62}},
+			},&info)
+		}else{
+			db.C(tableName.DBT_T_USER).FindAll(bson.M{
+				"regtime": bson.M{"$gte": date1,"$lte": date2},
+				"$or" :[]bson.M{bson.M{"channelid" : 61},bson.M{"channelid" : 62}},
+			},&info)
+		}
 	}
 	ctx.Data["info"] = info
 	ctx.HTML(200,"admin/manage/user/list")

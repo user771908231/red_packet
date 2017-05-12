@@ -11,16 +11,15 @@
     <legend style="margin-left: 100px">在房间玩家</legend>
 </fieldset>
 
-<form class="layui-form" action="/admin/manage/user/listOne" method="post">
+<form class="layui-form" action="/admin/data/roomCardOne" method="post">
     <div class="layui-form-item">
         <div class="layui-inline">
             <div class="layui-input-block">
-                <select name="ChannelId" lay-filter="ChannelId">
+                <select name="ChannelId">
                     <option value="0">全部</option>
-                    <option value="1">长沙</option>
-                    <option value="2">岳阳</option>
-                    <option value="3">四川</option>
-                    <option value="4">白山</option>
+                    <option value="1">神经斗地主</option>
+                    <option value="3">来一圈麻将</option>
+                    <option value="32">神经棋牌</option>
                 </select>
             </div>
         </div>
@@ -36,7 +35,7 @@
         </div>
         <div class="layui-inline">
             <div class="layui-input-block">
-                <button class="layui-btn" lay-submit="" lay-filter="demo1" type="submit">查询</button>
+                <button class="layui-btn" lay-submit="" type="submit">查询</button>
                 <button type="reset" class="layui-btn layui-btn-primary">刷新</button>
             </div>
         </div>
@@ -56,8 +55,7 @@
         <th>用户名</th>
         <th>用户昵称</th>
         <th>注册渠道</th>
-        <th>注册时间</th>
-        <th>最后登录时间</th>
+        <th>房卡使用时间</th>
     </tr>
     </thead>
     {{range $k,$v := .info}}
@@ -84,7 +82,6 @@
             {{else if eq .ChannelId 61}}来一圈麻将
             {{else if eq .ChannelId 62}}来一圈麻将{{end}}</td>
         <td>{{.RegTime.Format "2006-01-02 03:04:05"}}</td>
-        <td>{{.LastTime.Format "2006-01-02 03:04:05"}}</td>
     </tr>
     {{end}}
 </table>

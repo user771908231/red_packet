@@ -142,6 +142,10 @@
 					"icon": "fa-slider",
 					"href": "/admin/data/atHome"
 				},{
+					"title": "房卡消耗统计",
+					"icon": "fa-slider",
+					"href": "/admin/data/roomCard"
+				},{
 					"title": "金币分布",
 					"icon": "fa-slider",
 					"href": "/admin/manage/agent?pid=0&page=1"
