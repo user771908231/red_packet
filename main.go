@@ -1,21 +1,20 @@
 package main
 
 import (
-	"gopkg.in/macaron.v1"
-	"casino_common/common/sys"
-	"os"
 	"casino_admin/conf"
 	"casino_admin/conf/config"
-	"time"
-	"casino_common/proto/ddproto"
-	"casino_admin/routers"
 	"casino_admin/modules"
-	"github.com/go-macaron/session"
-	"github.com/go-macaron/captcha"
-	"github.com/go-macaron/cache"
+	"casino_admin/routers"
 	"casino_common/common/service/pushService"
+	"casino_common/common/sys"
+	"casino_common/proto/ddproto"
+	"github.com/go-macaron/cache"
+	"github.com/go-macaron/captcha"
+	"github.com/go-macaron/session"
+	"gopkg.in/macaron.v1"
+	"os"
+	"time"
 )
-
 
 func init() {
 	//初始化系统
@@ -30,24 +29,24 @@ func init() {
 		config.SUPER_DBNAM,
 		[]string{
 			config.DBT_SUPER_LOGS,
-			config.DBT_T_TH_GAMENUMBER_SEQ,
 			config.DB_USER_SEQ,
 		})
+
 	//判断初始化是否成功
 	if err != nil {
-		os.Exit(-1)        //推出系统
+		os.Exit(-1) //推出系统
 	}
 
 	//初始化pushService
 	pushService.PoolInit(conf.Server.HallTcpAddr)
 
-	time.Sleep(time.Second * 3)        //初始化3秒之后启动程序
+	time.Sleep(time.Second * 3) //初始化3秒之后启动程序
 }
 
 func main() {
 	m := macaron.Classic()
 	//注册模板
-	m.Use(macaron.Renderer(macaron.RenderOptions{Directory:"templates",IndentJSON:true}))
+	m.Use(macaron.Renderer(macaron.RenderOptions{Directory: "templates", IndentJSON: true}))
 	//注册Session
 	m.Use(session.Sessioner())
 	//验证码依赖缓存组件
@@ -55,11 +54,11 @@ func main() {
 	//验证码
 	m.Use(captcha.Captchaer(captcha.Options{
 		FieldCaptchaName: "captcha",
-		ChallengeNums:4,
+		ChallengeNums:    4,
 	}))
 	//注册Context
 	m.Use(func(ctx *macaron.Context, session session.Store) {
-		ctx.Map(&modules.Context{Context:ctx,Session:session})
+		ctx.Map(&modules.Context{Context: ctx, Session: session})
 	})
 
 	//注册路由

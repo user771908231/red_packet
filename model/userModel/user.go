@@ -1,20 +1,20 @@
 package userModel
 
 import (
-	"casino_common/utils/db"
-	"errors"
-	"crypto/md5"
-	"gopkg.in/mgo.v2/bson"
 	"casino_admin/conf/config"
+	"casino_common/utils/db"
+	"crypto/md5"
 	"encoding/hex"
+	"errors"
+	"gopkg.in/mgo.v2/bson"
 )
 
 const ADMIN_TABLE_NAME string = "t_super_admin"
 
 type User struct {
-	Id uint32
+	Id       uint32
 	NickName string
-	PassWd string
+	PassWd   string
 }
 
 //通过id获取用户信息
@@ -39,7 +39,7 @@ func Login(user_name string, passwd string) *User {
 	passwd = hex.EncodeToString(h.Sum(nil))
 	err = db.C(ADMIN_TABLE_NAME).Find(bson.M{
 		"nickname": user_name,
-		"passwd": passwd,
+		"passwd":   passwd,
 	}, user_row)
 	if err != nil {
 		return nil
@@ -48,7 +48,7 @@ func Login(user_name string, passwd string) *User {
 }
 
 //插入一个新用户
-func (user *User)Insert() error {
+func (user *User) Insert() error {
 	id, err := db.GetNextSeq(config.DB_USER_SEQ)
 	if err != nil {
 		return errors.New("获取user_id自增键失败！")
@@ -62,7 +62,7 @@ func (user *User)Insert() error {
 }
 
 //编辑用户资料
-func (user *User)Save() error {
-	err := db.C(ADMIN_TABLE_NAME).Update(bson.M{"id":user.Id}, user)
+func (user *User) Save() error {
+	err := db.C(ADMIN_TABLE_NAME).Update(bson.M{"id": user.Id}, user)
 	return err
 }

@@ -1,24 +1,22 @@
 package main
 
 import (
-	"io/ioutil"
-	"net/http"
-	"log"
 	"encoding/json"
-	//"math"
-	//"fmt"
+	"io/ioutil"
+	"log"
+	"net/http"
 )
 
 func main() {
 	type Person struct {
-		Data    struct{
+		Data struct {
 			City string
-			}
+		}
 	}
 	//unmarshal to struct
-	ip :="180.89.94.90"
+	ip := "180.89.94.90"
 	p := &Person{}
-	r, e := http.Get("http://ip.taobao.com/service/getIpInfo.php?ip="+ip)
+	r, e := http.Get("http://ip.taobao.com/service/getIpInfo.php?ip=" + ip)
 	body, _ := ioutil.ReadAll(r.Body)
 	log.Printf("r : %+v ,e : %v", string(body), e)
 	err := json.Unmarshal([]byte(body), &p)
@@ -26,9 +24,6 @@ func main() {
 		log.Printf("解析json的时候err:%v", err)
 	}
 	log.Printf("得到的ret :%v", p)
-
-
-
 
 	//lat1 := 29.490295
 	//lng1 := 106.486654

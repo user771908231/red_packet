@@ -1,9 +1,9 @@
 package main
 
 import (
-	"testing"
 	"casino_admin/model/weixinModel"
 	"gopkg.in/mgo.v2/bson"
+	"testing"
 )
 
 func TestSendRedPack(t *testing.T) {
