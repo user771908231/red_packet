@@ -40,7 +40,6 @@ func init() {
 
 	//初始化pushService
 	pushService.PoolInit(conf.Server.HallTcpAddr)
-
 	time.Sleep(time.Second * 3) //初始化3秒之后启动程序
 }
 
