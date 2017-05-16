@@ -2,9 +2,9 @@ package qrLoginHandler
 
 import (
 	"casino_admin/modules"
-	"casino_common/common/cfg"
-	"casino_common/utils/redisUtils"
+	"casino_common/common/consts"
 	"casino_common/proto/ddproto"
+	"casino_common/utils/redisUtils"
 	"github.com/golang/protobuf/proto"
 )
 
@@ -12,15 +12,15 @@ import (
 func QrLoginHandler(ctx *modules.Context) {
 	wx_info := ctx.IsWxLogin()
 	code := ctx.Query("code")
-	key := cfg.RKEY_QR_CODE+ "_" +code
+	key := consts.RKEY_QR_CODE + "_" + code
 
 	redis_wxinfo := &ddproto.WeixinInfo{
-		OpenId: &wx_info.OpenId,
+		OpenId:   &wx_info.OpenId,
 		NickName: &wx_info.Nickname,
-		HeadUrl: &wx_info.HeadImageURL,
-		Sex: proto.Int32(int32(wx_info.Sex)),
-		City: &wx_info.City,
-		UnionId: &wx_info.UnionId,
+		HeadUrl:  &wx_info.HeadImageURL,
+		Sex:      proto.Int32(int32(wx_info.Sex)),
+		City:     &wx_info.City,
+		UnionId:  &wx_info.UnionId,
 	}
 
 	err := redisUtils.SetObj(key, redis_wxinfo)
