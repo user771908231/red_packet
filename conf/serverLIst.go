@@ -26,7 +26,7 @@ type ServerInfo struct {
 //游戏服务器的列表 都在这里
 var ServerList []ServerInfo
 
-func init() {
+func OnInit() {
 	err := db.C(tableName.DBT_GAME_CONFIG_LOGIN_LIST).FindAll(bson.M{}, &ServerList)
 	if err != nil {
 		panic("server list not found.")
@@ -46,5 +46,5 @@ func GetServerInfoByGameId(game_id ddproto.CommonEnumGame) *ServerInfo {
 
 //获取登录服务器的ip地址
 func GetAsLoginRpcAddress() string {
-	return "192.168.2.188:44700"
+	return "192.168.199.120:44700"
 }

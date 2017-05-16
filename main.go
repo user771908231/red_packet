@@ -5,7 +5,6 @@ import (
 	"casino_admin/conf/config"
 	"casino_admin/modules"
 	"casino_admin/routers"
-	"casino_common/common/service/pushService"
 	"casino_common/common/sys"
 	"casino_common/proto/ddproto"
 	"fmt"
@@ -14,7 +13,6 @@ import (
 	"github.com/go-macaron/session"
 	"gopkg.in/macaron.v1"
 	"os"
-	"time"
 )
 
 func init() {
@@ -39,8 +37,7 @@ func init() {
 	}
 
 	//初始化pushService
-	pushService.PoolInit(conf.Server.HallTcpAddr)
-	time.Sleep(time.Second * 3) //初始化3秒之后启动程序
+	//pushService.PoolInit(conf.Server.HallTcpAddr)
 }
 
 func main() {

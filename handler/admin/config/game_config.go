@@ -6,6 +6,8 @@ import (
 	"casino_admin/modules"
 	"casino_common/common/consts/tableName"
 	"casino_common/common/log"
+	"casino_common/common/rpc"
+	"casino_common/common/rpc/protocol"
 	"casino_common/common/service/configService"
 	"casino_common/utils/db"
 	"encoding/json"
@@ -73,6 +75,7 @@ func GameConfigUpdate(ctx *modules.Context) {
 	STATUS := ctx.QueryFloat64("STATUS")
 	err := configModel.GameConfigUpdate(obj_id, GameId, Name, CurVersion, IsUpdate, IsMaintain, MaintainMsg, ReleaseTag, DownloadUrl, LatestClientVersion, IP, PORT, STATUS)
 	if err == nil {
+		rpc.Dial(conf.GetAsLoginRpcAddress(), rpc.AS_RELOAD_CONFIG, "", &protocol.CommonAckRpc{})
 		ctx.Ajax(1, "编辑成功！", nil)
 		//ctx.HTML(200,"admin/config/game/list")
 	}
@@ -80,15 +83,12 @@ func GameConfigUpdate(ctx *modules.Context) {
 
 //编辑字段-更新
 func GameConfigUpdateLogin(ctx *modules.Context) {
+	log.T("开始更新登录服务器列表的信息...")
 	id := ctx.Query("id")
 	obj_id := bson.ObjectIdHex(id)
 	CurVersion := ctx.QueryFloat64("CurVersion")
 	BaseDownloadUrl := ctx.Query("BaseDownloadUrl")
 	configModel.GameConfigUpdateLogin(obj_id, CurVersion, BaseDownloadUrl)
-
-	//todo 更新之后 调用rpc更新登录服务器的配置
-	address := conf.GetAsLoginRpcAddress()
-	log.T("接入服务器的地址:%v", address)
 }
 
 //登录服务器
