@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"errors"
 	"casino_common/common/userService"
+	"casino_common/proto/ddproto"
 )
 
 //充值记录表
@@ -75,7 +76,7 @@ func SetRechargeDone(order_id string) error {
 	goods_num := goods.Num * order.GoodsNum
 	var err error
 	if goods.Type == RoomCard {
-		_,err = userService.INCRUserRoomcard(order.AgentId, goods_num)
+		_,err = userService.INCRUserRoomcard(order.AgentId, goods_num, int32(ddproto.CommonEnumGame_GID_SRC), "代理商充值")
 	}
 	if err == nil {
 		err = db.C(tableName.DBT_AGENT_RECHARGE_LOG).Update(bson.M{"_id": bson.ObjectIdHex(order_id)}, bson.M{"$set": bson.M{

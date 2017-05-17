@@ -79,12 +79,12 @@ func SalesToUserHandler(ctx *modules.Context, form SalesForm, errs binding.Error
 		ctx.Ajax(-4, "为该用户添加房卡失败！您的房卡数不足！",nil)
 		return
 	}
-	_,err := userService.DECRUserRoomcard(agent_id, form.Num)
+	_,err := userService.DECRUserRoomcard(agent_id, form.Num, int32(ddproto.CommonEnumGame_GID_SRC), "代理商为用户充值房卡")
 	if err != nil {
 		ctx.Ajax(-5, "为该用户添加房卡失败，扣除房卡失败！",nil)
 		return
 	}else {
-		_, err = userService.INCRUserRoomcard(form.Uid, form.Num)
+		_, err = userService.INCRUserRoomcard(form.Uid, form.Num, int32(ddproto.CommonEnumGame_GID_SRC), "代理商为用户充值房卡")
 		if err != nil {
 			ctx.Ajax(-6, "为该用户添加房卡失败!",nil)
 			return

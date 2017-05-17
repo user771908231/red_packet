@@ -251,7 +251,7 @@ func RechargeHandler(ctx *modules.Context, form RechargeForm, errs binding.Error
 		}
 	}
 	if form.RoomCard != 0 {
-		_, err = userService.INCRUserRoomcard(form.Id, form.RoomCard)
+		_, err = userService.INCRUserRoomcard(form.Id, form.RoomCard, int32(ddproto.CommonEnumGame_GID_SRC), "管理后台给用户充值房卡")
 		if err != nil {
 			ctx.Ajax(-4, "充值房卡失败！", nil)
 			return
