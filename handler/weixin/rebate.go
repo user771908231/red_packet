@@ -9,6 +9,7 @@ import (
 	"casino_common/utils/db"
 	"math"
 	"casino_common/common/userService"
+	"casino_common/proto/ddproto"
 )
 
 //返利记录表
@@ -75,7 +76,7 @@ func CheckRebateHandler(ctx *modules.Context) {
 	row.IsCheck = true
 	row.Save()
 	//发放奖励
-	_, err = userService.INCRUserRoomcard(agent_id, row.GiveNum)
+	_, err = userService.INCRUserRoomcard(agent_id, row.GiveNum, int32(ddproto.CommonEnumGame_GID_SRC), "代理商房卡返利")
 	if err != nil {
 		ctx.Ajax(-2, "领取返利失败！", nil)
 		return
