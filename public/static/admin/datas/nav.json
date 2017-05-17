@@ -128,7 +128,7 @@
 				},{
 					"title": "活跃用户统计",
 					"icon": "fa-slider",
-					"href": "/admin/manage/user/list"
+					"href": "/admin/data/user_active"
 				},{
 					"title": "在线统计",
 					"icon": "fa-slider",
@@ -138,9 +138,13 @@
 					"icon": "fa-slider",
 					"href": "/admin/data/atHome"
 				},{
-					"title": "房卡消耗统计",
+					"title": "用户使用房卡统计",
 					"icon": "fa-slider",
 					"href": "/admin/data/roomCard"
+				},{
+					"title": "房卡每日消耗统计",
+					"icon": "fa-slider",
+					"href": "/admin/data/roomCardDay"
 				},{
 					"title": "金币分布",
 					"icon": "fa-slider",
