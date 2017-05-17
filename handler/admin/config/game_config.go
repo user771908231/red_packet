@@ -91,6 +91,14 @@ func GameConfigList(ctx *modules.Context) {
 	ctx.Data["config"] = result
 	ctx.HTML(200,"admin/config/game/list")
 }
+
+////游戏服务器
+//func GameListHandler(ctx *modules.Context){
+//	//code := ctx.Query("code")
+//
+//	real :=configModel.GameList
+//	fmt.Println(real)
+//}
 //登录服配置
 func GameConfigLogin(ctx *modules.Context) {
 	result :=configModel.GameConfigLogin()
