@@ -1,13 +1,10 @@
 package config
 
 import (
-	"casino_admin/conf"
 	"casino_admin/model/configModel"
 	"casino_admin/modules"
 	"casino_common/common/consts/tableName"
 	"casino_common/common/log"
-	"casino_common/common/rpc"
-	"casino_common/common/rpc/protocol"
 	"casino_common/common/service/configService"
 	"casino_common/utils/db"
 	"encoding/json"
@@ -75,7 +72,7 @@ func GameConfigUpdate(ctx *modules.Context) {
 	STATUS := ctx.QueryFloat64("STATUS")
 	err := configModel.GameConfigUpdate(obj_id, GameId, Name, CurVersion, IsUpdate, IsMaintain, MaintainMsg, ReleaseTag, DownloadUrl, LatestClientVersion, IP, PORT, STATUS)
 	if err == nil {
-		rpc.Dial(conf.GetAsLoginRpcAddress(), rpc.AS_RELOAD_CONFIG, "", &protocol.CommonAckRpc{})
+		//rpc.Dial(conf.GetAsLoginRpcAddress(), rpc.AS_RELOAD_CONFIG, "", &protocol.CommonAckRpc{})
 		ctx.Ajax(1, "编辑成功！", nil)
 		//ctx.HTML(200,"admin/config/game/list")
 	}
@@ -98,6 +95,16 @@ func GameConfigList(ctx *modules.Context) {
 	ctx.Data["config"] = result
 	ctx.HTML(200, "admin/config/game/list")
 }
+
+
+////游戏服务器
+//func GameListHandler(ctx *modules.Context){
+//	//code := ctx.Query("code")
+//
+//	real :=configModel.GameList
+//	fmt.Println(real)
+//}
+
 
 //登录服配置
 func GameConfigLogin(ctx *modules.Context) {

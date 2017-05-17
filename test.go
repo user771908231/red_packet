@@ -1,22 +1,27 @@
 package main
 
 import (
-	"encoding/json"
+	//"github.com/garyburd/redigo/redis"
+	//"fmt"
 	"io/ioutil"
-	"log"
 	"net/http"
+	"math"
+	"log"
+	"encoding/json"
 )
 
 func main() {
 	type Person struct {
-		Data struct {
-			City string
-		}
+		Result struct{
+			       Formatted_address string
+		       }
 	}
-	//unmarshal to struct
-	ip := "180.89.94.90"
 	p := &Person{}
-	r, e := http.Get("http://ip.taobao.com/service/getIpInfo.php?ip=" + ip)
+	//经度
+	lng := "28.696117043877"
+	//纬度
+	lat := "115.95845796638"
+	r, e := http.Get("http://api.map.baidu.com/geocoder/v2/?ak=DD279b2a90afdf0ae7a3796787a0742e&location="+lng+","+lat+"&output=json&pois=0")
 	body, _ := ioutil.ReadAll(r.Body)
 	log.Printf("r : %+v ,e : %v", string(body), e)
 	err := json.Unmarshal([]byte(body), &p)
@@ -25,26 +30,25 @@ func main() {
 	}
 	log.Printf("得到的ret :%v", p)
 
-	//lat1 := 29.490295
-	//lng1 := 106.486654
-	//
-	//lat2 := 29.615467
-	//lng2 := 106.581515
-	//fmt.Println(EarthDistance(lat1, lng1, lat2, lng2))
+
+	//fmt.Println(EarthDistance(39.9,116.3,31.47,104.73))
 
 }
 
-//func EarthDistance(lat1, lng1, lat2, lng2 float64) float64 {
-//	radius := 6371000.00 // 6378137
-//	rad := math.Pi/180.0
-//
-//	lat1 = lat1 * rad
-//	lng1 = lng1 * rad
-//	lat2 = lat2 * rad
-//	lng2 = lng2 * rad
-//
-//	theta := lng2 - lng1
-//	dist :=math.Acos(math.Sin(lat1) * math.Sin(lat2) + math.Cos(lat1) * math.Cos(lat2) * math.Cos(theta))
-//	err := radius * dist
-//	return err
-//}
+//经纬度计算距离
+func EarthDistance(lat1, lng1, lat2, lng2 float64) float64 {
+	radius := 6378137.00 // 6371000
+	rad := math.Pi/180.0
+
+	lat1 = lat1 * rad
+	lng1 = lng1 * rad
+	lat2 = lat2 * rad
+	lng2 = lng2 * rad
+
+	theta := lng2 - lng1
+	dist :=math.Acos(math.Sin(lat1) * math.Sin(lat2) + math.Cos(lat1) * math.Cos(lat2) * math.Cos(theta))
+	err := radius * dist
+	return err
+}
+
+

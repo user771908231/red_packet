@@ -70,14 +70,6 @@
 					"title": "任务配置",
 					"icon": "fa-slider",
 					"href": "/admin/config/task/list"
-				},{
-					"title": "登陆服配置",
-					"icon": "fa-slider",
-					"href": "/admin/config/game/listLogin"
-				},{
-					"title": "登陆服服务器列表配置",
-					"icon": "fa-slider",
-					"href": "/admin/config/game/listAll"
 				}
 			]
 		}
@@ -212,6 +204,28 @@
 					"title": "产品管理",
 					"icon": "fa-product-hunt",
 					"href": "form.html"
+				}
+			]
+		}
+	],
+	"4": [
+		{
+			"title": "登录服务器配置",
+			"icon": "fa-cubes",
+			"spread": true,
+			"children": [
+				{
+					"title": "登陆服配置",
+					"icon": "fa-slider",
+					"href": "/admin/config/game/listLogin"
+				},{
+					"title": "登陆服服务器列表配置",
+					"icon": "fa-slider",
+					"href": "/admin/config/game/listAll"
+				},{
+					"title": "游戏服务器列表配置",
+					"icon": "fa-slider",
+					"href": "/admin/config/game/gameList"
 				}
 			]
 		}

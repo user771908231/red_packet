@@ -2,6 +2,8 @@ package configModel
 
 import (
 	"casino_common/utils/db"
+	//"casino_common/common/consts"
+	//"casino_admin/modules"
 	"gopkg.in/mgo.v2/bson"
 )
 
@@ -48,6 +50,26 @@ func GameConfigLogin() []*GameCongifLogin {
 	}
 	return game_Congif
 }
+
+//type GameList struct {
+//	Id               *int32  `protobuf:"varint,1,opt,name=id" json:"id,omitempty"`
+//	gameID            []int32  `protobuf:"varint,2,opt,name=gameID" json:"gameID,omitempty"`
+//	isOnMaintain          []int64  `protobuf:"varint,3,opt,name=isOnMaintain" json:"isOnMaintain,omitempty"`
+//}
+
+const PKEY_GAME_LIST string= "config_game_isonmaintain"	//游戏服务器是否在维护中
+
+//游戏服务器是否在维护中
+//func GameList() ([]*GameList, error) {
+//	users := []*GameList{}
+//	code := 0
+//	err := redisUtils.GetObj(PKEY_GAME_LIST+ "_" +code,  users)
+//
+//	if err != nil {
+//		return err
+//	}
+//	return users
+//}
 
 func GameConfigOne(Id bson.ObjectId) *GameCongif {
 	game_Congif := new(GameCongif)
