@@ -7,7 +7,6 @@ import (
 	"casino_common/common/consts/tableName"
 	"gopkg.in/mgo.v2/bson"
 	"casino_common/utils/db"
-	"fmt"
 )
 type User struct {
 	RoomCard            int64   `protobuf:"varint,1,opt,name=RoomCard" json:"RoomCard,omitempty"`

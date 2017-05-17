@@ -124,7 +124,7 @@
 				},{
 					"title": "注册用户统计",
 					"icon": "fa-slider",
-					"href": "/admin/manage/user/list"
+					"href": "/admin/data/user_reg"
 				},{
 					"title": "活跃用户统计",
 					"icon": "fa-slider",

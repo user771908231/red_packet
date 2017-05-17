@@ -44,7 +44,6 @@ func Regist(m *macaron.Macaron) {
 				//所有用户
 				m.Get("/", manage.UserIndexHnadler)
 				//m.Get("/list", manage.UserListHandler)
-				m.Get("/list", manage.UserListAllHandler)
 				m.Post("/listOne", manage.UserListOneHandler)
 				m.Get("/del/:id", manage.DelUserHandler)
 				m.Post("/update", binding.BindIgnErr(manage.UserUpdateForm{}), manage.UpdateUserHandler)
@@ -105,6 +104,9 @@ func Regist(m *macaron.Macaron) {
 			m.Post("/onlineStaticList",admin.OnlineStaticList)
 			m.Get("/roomCard",admin.RoomCard)
 			m.Post("/roomCardOne",admin.RoomCardOne)
+			m.Get("/user_reg", manage.UserListAllHandler)
+			m.Get("/user_active", manage.UserListAllHandler)
+
 		})
 	}, admin.ShowPanel)
 
