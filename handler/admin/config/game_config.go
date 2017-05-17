@@ -97,13 +97,13 @@ func GameConfigList(ctx *modules.Context) {
 }
 
 
-////游戏服务器
-//func GameListHandler(ctx *modules.Context){
-//	//code := ctx.Query("code")
-//
-//	real :=configModel.GameList
-//	fmt.Println(real)
-//}
+//游戏服务器
+func GameListHandler(ctx *modules.Context){
+	//code := ctx.Query("code")
+
+	//real :=configModel.GameList
+	fmt.Println("real")
+}
 
 
 //登录服配置
