@@ -7,6 +7,7 @@ import (
 	"casino_common/common/consts/tableName"
 	"gopkg.in/mgo.v2/bson"
 	"casino_common/utils/db"
+	"fmt"
 )
 type User struct {
 	RoomCard            int64   `protobuf:"varint,1,opt,name=RoomCard" json:"RoomCard,omitempty"`
@@ -97,12 +98,22 @@ func OnlineStaticList(ctx *modules.Context) {
 	ctx.HTML(200,"admin/data/onlineStatic")
 }
 //房卡消耗统计
+const T_STATISTICS_ROOMCARD string= "t_statistics_roomcard"
+
+type T_statistics_roomcard struct {
+	Id        		bson.ObjectId     	`bson:"_id"` 		//用户ID
+	UserId			uint32          	`bson:"userid"`  	 //用户ID
+	Gid              	float64          	`bson:"gid"`    	 //游戏ID
+	Memo              	string          	`bson:"remo"`    	 //说明
+	RoomCardCount           int64          		`bson:"roomcardcount"`    	 //房卡消耗数
+	Time           		time.Time          	`bson:"time"`    	 //房卡消耗时间
+}
+
 func RoomCard(ctx *modules.Context) {
-	info := []*User{}
-	db.C(tableName.DBT_T_USER).FindAll(bson.M{},&info)
+	info := []*T_statistics_roomcard{}
+	db.C(T_STATISTICS_ROOMCARD).FindAll(bson.M{},&info)
 
 	ctx.Data["info"] = info
-
 	ctx.HTML(200,"admin/data/roomCard")
 }
 

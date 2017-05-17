@@ -57,12 +57,12 @@ func GameConfigLogin() []*GameCongifLogin {
 //	isOnMaintain          []int64  `protobuf:"varint,3,opt,name=isOnMaintain" json:"isOnMaintain,omitempty"`
 //}
 
-const PKEY_GAME_LIST string= "config_game_isonmaintain"	//游戏服务器是否在维护中
+const PKEY_GAME_LIST string= "game_id"	//游戏服务器是否在维护中
 
 //游戏服务器是否在维护中
 //func GameList() ([]*GameList, error) {
 //	users := []*GameList{}
-//	code := 0
+//	code := 1
 //	err := redisUtils.GetObj(PKEY_GAME_LIST+ "_" +code,  users)
 //
 //	if err != nil {

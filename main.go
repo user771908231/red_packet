@@ -7,7 +7,6 @@ import (
 	"casino_admin/routers"
 	"casino_common/common/sys"
 	"casino_common/proto/ddproto"
-	"fmt"
 	"github.com/go-macaron/cache"
 	"github.com/go-macaron/captcha"
 	"github.com/go-macaron/session"
@@ -65,7 +64,6 @@ func main() {
 		ctx.Error("对不起未找到该页面！", "", 0)
 	})
 
-	fmt.Println("开始run 马卡龙..")
 	m.Run(conf.Server.HttpIp, conf.Server.HttpPort)
 
 }
