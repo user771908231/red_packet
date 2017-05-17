@@ -5,15 +5,14 @@ import (
 	"casino_admin/conf/config"
 	"casino_admin/modules"
 	"casino_admin/routers"
-	"casino_common/common/service/pushService"
 	"casino_common/common/sys"
 	"casino_common/proto/ddproto"
+	"fmt"
 	"github.com/go-macaron/cache"
 	"github.com/go-macaron/captcha"
 	"github.com/go-macaron/session"
 	"gopkg.in/macaron.v1"
 	"os"
-	"time"
 )
 
 func init() {
@@ -38,9 +37,7 @@ func init() {
 	}
 
 	//初始化pushService
-	pushService.PoolInit(conf.Server.HallTcpAddr)
-
-	time.Sleep(time.Second * 3) //初始化3秒之后启动程序
+	//pushService.PoolInit(conf.Server.HallTcpAddr)
 }
 
 func main() {
@@ -68,6 +65,7 @@ func main() {
 		ctx.Error("对不起未找到该页面！", "", 0)
 	})
 
+	fmt.Println("开始run 马卡龙..")
 	m.Run(conf.Server.HttpIp, conf.Server.HttpPort)
 
 }

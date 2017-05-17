@@ -2,9 +2,9 @@ package conf
 
 import (
 	"encoding/json"
+	"fmt"
 	"github.com/name5566/leaf/log"
 	"io/ioutil"
-	"fmt"
 )
 
 var Server struct {
@@ -17,28 +17,28 @@ var Server struct {
 	MaxConnNum int
 
 	//mongo数据库相关的配置
-	MongoIp    string
-	MongoPort  int
+	MongoIp   string
+	MongoPort int
 
 	//redis配置
-	RedisAddr  string
+	RedisAddr string
 
 	//curVersion的配置
 	CurVersion int32
 
-	ProdMod    bool
+	ProdMod bool
 
 	//外网Ip
-	OutIp string
+	OutIp       string
 	HallTcpAddr string
 
 	//返利
-	RebateMan int64  //满1000
+	RebateMan  int64 //满1000
 	RebateSong int64 //送10
 }
 
 func init() {
-	data, err := ioutil.ReadFile("../conf/super.json")
+	data, err := ioutil.ReadFile("../conf/super120.json")
 	if err != nil {
 		log.Fatal("%v", err)
 	}
