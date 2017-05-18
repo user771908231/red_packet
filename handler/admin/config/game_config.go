@@ -11,6 +11,7 @@ import (
 	"fmt"
 	"gopkg.in/mgo.v2/bson"
 	"reflect"
+	"casino_common/utils/redisUtils"
 )
 
 //配置列表
@@ -49,7 +50,6 @@ func GameConfigEdit(ctx *modules.Context) {
 	obj_id := bson.ObjectIdHex(id)
 
 	result := configModel.GameConfigOne(obj_id)
-	fmt.Println("success", obj_id)
 	ctx.Data["config"] = result
 	ctx.HTML(200, "admin/config/game/edit")
 }
@@ -91,7 +91,6 @@ func GameConfigUpdateLogin(ctx *modules.Context) {
 //登录服务器
 func GameConfigList(ctx *modules.Context) {
 	result := configModel.GameConfig()
-	fmt.Println("success", result)
 	ctx.Data["config"] = result
 	ctx.HTML(200, "admin/config/game/list")
 }
@@ -100,9 +99,33 @@ func GameConfigList(ctx *modules.Context) {
 //游戏服务器
 func GameListHandler(ctx *modules.Context){
 	//code := ctx.Query("code")
+	ctx.Data["info_1"] = redisUtils.GetInt64("game_id_1")
+	ctx.Data["info_2"] = redisUtils.GetInt64("game_id_2")
+	ctx.Data["info_3"] = redisUtils.GetInt64("game_id_3")
+	ctx.Data["info_4"] = redisUtils.GetInt64("game_id_4")
+	ctx.Data["info_5"] = redisUtils.GetInt64("game_id_5")
+	ctx.Data["info_7"] = redisUtils.GetInt64("game_id_7")
+	ctx.Data["info_8"] = redisUtils.GetInt64("game_id_8")
+	ctx.Data["info_9"] = redisUtils.GetInt64("game_id_9")
+	ctx.Data["info_10"] = redisUtils.GetInt64("game_id_10")
+	ctx.Data["info_11"] = redisUtils.GetInt64("game_id_11")
+	ctx.Data["info_12"] = redisUtils.GetInt64("game_id_12")
+	ctx.Data["info_13"] = redisUtils.GetInt64("game_id_13")
+	ctx.Data["info_14"] = redisUtils.GetInt64("game_id_14")
+	ctx.Data["info_15"] = redisUtils.GetInt64("game_id_15")
+	ctx.Data["info_16"] = redisUtils.GetInt64("game_id_16")
+	ctx.Data["info_17"] = redisUtils.GetInt64("game_id_17")
+	ctx.Data["info_18"] = redisUtils.GetInt64("game_id_18")
+	ctx.Data["info_19"] = redisUtils.GetInt64("game_id_19")
+	ctx.Data["info_20"] = redisUtils.GetInt64("game_id_20")
+	ctx.HTML(200, "admin/config/game/game_server")
+}
 
-	//real :=configModel.GameList
-	fmt.Println("real")
+func GameListEditHandler(ctx *modules.Context) {
+	code := ctx.Query("code")
+	edit := ctx.QueryInt64("edit")
+	redisUtils.SetInt64("game_id_"+code,edit)
+	ctx.Success("操作成功！", "/admin/config/game/gameList", 1)
 }
 
 
@@ -114,6 +137,13 @@ func GameConfigLogin(ctx *modules.Context) {
 	ctx.HTML(200, "admin/config/game/listLogin")
 }
 
+//新增登录服
+func GameConfigEditLogin(ctx *modules.Context) {
+	CurVersion := ctx.QueryFloat64("CurVersion")
+	BaseDownloadUrl := ctx.Query("BaseDownloadUrl")
+	configModel.GameConfigEditLogin(CurVersion,BaseDownloadUrl)
+
+}
 //新增一组配置
 func GameConfigAddHandler(ctx *modules.Context) {
 	table_name := ctx.Query("t")

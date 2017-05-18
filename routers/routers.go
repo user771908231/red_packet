@@ -89,9 +89,11 @@ func Regist(m *macaron.Macaron) {
 				m.Post("/edit", config.GameConfigEdit)
 				m.Post("/editUpdate", config.GameConfigUpdate)
 				m.Post("/editUpdateLogin", config.GameConfigUpdateLogin)
+				m.Post("/editLogin", config.GameConfigEditLogin)
 				m.Get("/add", config.GameConfigAddHandler)
 				m.Post("/addServerInfo",binding.Bind(configService.LoginServerInfo{}), config.GameServerInfoAddPost)
 				m.Get("/gameList", config.GameListHandler)
+				m.Get("/gameListEdit", config.GameListEditHandler)
 			})
 		})
 

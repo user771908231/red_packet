@@ -8,6 +8,7 @@ import (
 	"math"
 	"log"
 	"encoding/json"
+	"fmt"
 )
 
 func main() {
@@ -17,11 +18,9 @@ func main() {
 		       }
 	}
 	p := &Person{}
-	//经度
-	lng := "28.696117043877"
-	//纬度
-	lat := "115.95845796638"
-	r, e := http.Get("http://api.map.baidu.com/geocoder/v2/?ak=DD279b2a90afdf0ae7a3796787a0742e&location="+lng+","+lat+"&output=json&pois=0")
+	lat:= "30.548635"
+	lng:= "104.06328"
+	r, e := http.Get("http://api.map.baidu.com/geocoder/v2/?ak=IBeISijoITQMKkuK9Dlp56ELYP2a8Nek&location="+lat+","+lng+"&output=json&pois=0")
 	body, _ := ioutil.ReadAll(r.Body)
 	log.Printf("r : %+v ,e : %v", string(body), e)
 	err := json.Unmarshal([]byte(body), &p)
@@ -31,7 +30,7 @@ func main() {
 	log.Printf("得到的ret :%v", p)
 
 
-	//fmt.Println(EarthDistance(39.9,116.3,31.47,104.73))
+	fmt.Println(EarthDistance(30.548646926879883,104.06388092041016,30.548696517944336,104.0637435913086))
 
 }
 

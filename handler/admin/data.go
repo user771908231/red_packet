@@ -6,6 +6,8 @@ import (
 	"time"
 	"gopkg.in/mgo.v2/bson"
 	"casino_common/utils/db"
+	"fmt"
+	"casino_common/common/service/statisticsService"
 )
 type User struct {
 	RoomCard            int64   `protobuf:"varint,1,opt,name=RoomCard" json:"RoomCard,omitempty"`
@@ -64,6 +66,8 @@ func AtHomeList(ctx *modules.Context) {
 
 //在线统计
 func OnlineStatic(ctx *modules.Context) {
+	a :=statisticsService.OnlineCountAll()
+	fmt.Println(a)
 	ctx.HTML(200,"admin/data/onlineStatic")
 }
 
@@ -76,7 +80,6 @@ func OnlineStaticList(ctx *modules.Context) {
 
 	ctx.Data["date_start"] =date_start
 	ctx.Data["date_end"] =date_end
-
 
 	//一天之前
 	d, _ := time.ParseDuration("-24h")
@@ -127,9 +130,12 @@ type T_statistics_roomcard_day_details struct {
 
 func RoomCardDay(ctx *modules.Context) {
 	info := []*T_statistics_roomcard_day_details{}
+
 	Time := time.Now().Format("2006-01-02")
+	date1,_ := time.Parse("2006-01-02",Time)
+
 	db.C(T_STATISTICS_ROOMCARD_DAY_DETAILS).FindAll(bson.M{
-		"time": Time,
+		"time": bson.M{"$gte": date1},
 	},&info)
 	ctx.Data["info"] = info
 	ctx.HTML(200,"admin/data/roomCardDay")
