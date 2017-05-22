@@ -30,8 +30,20 @@ func main() {
 	log.Printf("得到的ret :%v", p)
 
 
-	fmt.Println(EarthDistance(30.548646926879883,104.06388092041016,30.548696517944336,104.0637435913086))
+	//fmt.Println(EarthDistance(30.548646926879883,104.06388092041016,30.548696517944336,104.0637435913086))
 
+	for i:=0;i<5;i++{
+		fmt.Println(i)
+	}
+
+	m := map[string]string{
+		"a" : "aa" ,
+		"b" : "bb" ,
+	}
+
+	for k,v := range m{
+		fmt.Println(k,v)
+	}
 }
 
 //经纬度计算距离

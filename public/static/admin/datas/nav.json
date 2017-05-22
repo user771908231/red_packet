@@ -122,15 +122,15 @@
 					"icon": "fa-slider",
 					"href": "/admin/manage/apply?status=1&page=1"
 				},{
-					"title": "注册用户统计",
+					"title": "注册用户",
 					"icon": "fa-slider",
 					"href": "/admin/data/user_reg"
 				},{
-					"title": "活跃用户统计",
+					"title": "活跃用户",
 					"icon": "fa-slider",
 					"href": "/admin/data/user_active"
 				},{
-					"title": "在线统计",
+					"title": "在线人数",
 					"icon": "fa-slider",
 					"href": "/admin/data/onlineStatic"
 				},{
@@ -138,11 +138,11 @@
 					"icon": "fa-slider",
 					"href": "/admin/data/atHome"
 				},{
-					"title": "用户使用房卡统计",
+					"title": "房卡使用",
 					"icon": "fa-slider",
 					"href": "/admin/data/roomCard"
 				},{
-					"title": "房卡每日消耗统计",
+					"title": "每日房卡使用",
 					"icon": "fa-slider",
 					"href": "/admin/data/roomCardDay"
 				},{

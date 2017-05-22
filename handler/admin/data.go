@@ -66,7 +66,7 @@ func AtHomeList(ctx *modules.Context) {
 
 //在线统计
 func OnlineStatic(ctx *modules.Context) {
-	a :=statisticsService.OnlineCountAll()
+	a :=statisticsService.OnlineCountUsers()
 	fmt.Println(a)
 	ctx.HTML(200,"admin/data/onlineStatic")
 }
