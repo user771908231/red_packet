@@ -43,7 +43,7 @@ func Regist(m *macaron.Macaron) {
 			m.Group("/user", func() {
 				//所有用户
 				m.Get("/", manage.UserIndexHnadler)
-				//m.Get("/list", manage.UserListHandler)
+				m.Get("/list", manage.UserListHandler)
 				m.Get("/del/:id", manage.DelUserHandler)
 				m.Post("/update", binding.BindIgnErr(manage.UserUpdateForm{}), manage.UpdateUserHandler)
 				m.Post("/recharge", binding.BindIgnErr(manage.RechargeForm{}),manage.RechargeHandler)

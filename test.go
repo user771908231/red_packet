@@ -11,7 +11,7 @@ import (
 	"fmt"
 )
 
-func main() {
+func Testmain() {
 	type Person struct {
 		Result struct{
 			       Formatted_address string
