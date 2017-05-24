@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>在线演示 - layui</title>
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="format-detection" content="telephone=no">
+
+    <link rel="stylesheet" href="./plugins/layui/css/layui.css" media="all">
+    <link rel="stylesheet" href="./static/css/index.css" media="all">
+
+    <link rel="stylesheet" href="./plugins/font-awesome-4.7.0/css/font-awesome.min.css" media="all">
+
+</head>
+<body>
+<!--  头部 -->
+<div class="layui-header header header-demo">
+    <a href="" class="logo">
+        <small>CMS管理中心</small>
+    </a>
+    <ul class="myTabs">
+        <li aria-controls="nav1" class="active nav1"><a href="javascript:;">系统管理</a></li>
+        <li aria-controls="nav2" class=" nav2"><a href="javascript:;">内容中心</a></li>
+        <li aria-controls="nav3" class="nav3"><a href="javascript:;">运营管理</a></li>
+
+
+        <li class="rightT" id="infoDesc">
+            <a href="">欢迎：david</a>
+            <ul class="info">
+                <li><a href=""><i class="fa fa-cog"></i> 网站信息</a></li>
+                <li><a href=""><i class="fa fa-user"></i> 修改信息</a></li>
+                <li><a href=""><i class="fa fa-sign-out"></i> 退出</a></li>
+            </ul>
+        </li>
+        <li class="rightT"><a href=""><i class="fa fa-bell "></i></a></li>
+        <li class="rightT"><a href=""><i class="fa fa-envelope "></i></a></li>
+
+    </ul>
+</div>
+
+<!-- 侧边导航 -->
+<div class="layui-side layui-bg-black">
+    <div class="sidebar-shortcuts">
+        <button class="layui-btn layui-btn-warm layui-btn-mini"><i class="fa fa-home"></i></button>
+        <button class="layui-btn layui-btn-normal layui-btn-mini"><i class="fa fa-th"></i></button>
+        <button class="layui-btn layui-btn-mini"><i class="fa fa-pencil"></i></button>
+        <button class="layui-btn layui-btn-danger layui-btn-mini"><i class="fa fa-trash"></i></button>
+    </div>
+    <div class="nav_wraper">
+        <div class="layui-side-scroll" id="admin-navbar-side" lay-filter="side"></div>
+    </div>
+</div>
+
+<!--主题内容-->
+<div class="layui-body" style="bottom: 0;" id="admin-body">
+    <div class=" admin-nav-card layui-tab-brief layui-tab" lay-filter="admin-tab">
+        <ul class="layui-tab-title">
+            <li class="layui-this">
+                <i class="fa fa-dashboard" aria-hidden="true"></i>
+                <cite>控制面板</cite>
+            </li>
+
+        </ul>
+
+        <div class="layui-tab-content" style="min-height: 150px; padding: 5px 0 0 0;">
+            <div class="layui-tab-item layui-show">
+                <iframe src="main.html" style="width:100%;height: 100%;border: 0px;">
+                </iframe>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- 页脚 -->
+<div class="layui-footer">
+
+</div>
+
+<script src="./plugins/layui/layui.js"></script>
+<script src="./static/js/index.js"></script>
+</body>
+</html>
