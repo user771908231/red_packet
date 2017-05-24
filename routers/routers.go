@@ -14,6 +14,7 @@ import (
 	"casino_common/common/model"
 	"casino_admin/handler/qrLoginHandler"
 	"casino_common/common/service/configService"
+	"casino_admin/handler/game"
 )
 
 //注册路由
@@ -23,6 +24,10 @@ func Regist(m *macaron.Macaron) {
 	m.Delete("/logs", binding.Json(logHandler.CodeValidate{}), logHandler.Delete)
 	m.Get("/logs/:page", logHandler.Get)
 	m.Get("/logs", logHandler.Get)
+	m.Group("/game", func() {
+		m.Get("",game.GameTest)
+		m.Post("/edit",game.GameEdit)
+	})
 
 	//后台
 	m.Group("/admin", func() {
