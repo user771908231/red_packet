@@ -68,6 +68,12 @@ func AtHomeList(ctx *modules.Context) {
 func OnlineStatic(ctx *modules.Context) {
 	a :=statisticsService.OnlineCountUsers()
 	fmt.Println(a)
+	ticker := time.NewTicker(time.Minute * 1)
+	go func() {
+		for _ = range ticker.C {
+			fmt.Println("ticked at %v", time.Now())
+		}
+	}()
 	ctx.HTML(200,"admin/data/onlineStatic")
 }
 
