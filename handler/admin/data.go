@@ -66,14 +66,8 @@ func AtHomeList(ctx *modules.Context) {
 
 //在线统计
 func OnlineStatic(ctx *modules.Context) {
-	a :=statisticsService.OnlineCountUsers()
+	a :=statisticsService.OnlineCountAll()
 	fmt.Println(a)
-	ticker := time.NewTicker(time.Minute * 1)
-	go func() {
-		for _ = range ticker.C {
-			fmt.Println("ticked at %v", time.Now())
-		}
-	}()
 	ctx.HTML(200,"admin/data/onlineStatic")
 }
 
@@ -92,13 +86,16 @@ func OnlineStaticList(ctx *modules.Context) {
 	date := date2.Add(d)
 	date4 := date.Format("2006-01-02")
 	date3,_ := time.Parse("2006-01-02",date4)
-
+	err :=dataModel.OnlineStaticList(date1.Unix(),date2.Unix())
+	fmt.Println(date1.Unix())
+	fmt.Println(date2.AddDate(0,0,+1).Unix())
+	fmt.Println(err)
+	ctx.Data["static"] =err
 	if(date1 != date3){
-		err :=dataModel.OnlineStaticDay(date1,date2)
+		err :=dataModel.OnlineStaticDay(date1.Unix(),date2.Unix())
 		ctx.Data["static"] =err
 	}else {
-		err :=dataModel.OnlineStaticList(date1,date2)
-		ctx.Data["static"] =err
+
 	}
 
 
@@ -154,7 +151,7 @@ func RoomCardOne(ctx *modules.Context) {
 	date_end := ctx.Query("date_end")
 	date1,_ := time.Parse("2006-01-02",date_start)
 	date2,_ := time.Parse("2006-01-02",date_end)
-
+	date2 =date2.AddDate(0,0,+1)
 	info := []*T_statistics_roomcard{}
 	if(Gid == 0){
 		db.C(T_STATISTICS_ROOMCARD).FindAll(bson.M{},&info)
@@ -182,10 +179,11 @@ func RoomCardDayOne(ctx *modules.Context) {
 	date_end := ctx.Query("date_end")
 	date1,_ := time.Parse("2006-01-02",date_start)
 	date2,_ := time.Parse("2006-01-02",date_end)
+	date2 =date2.AddDate(0,0,+1)
 
 	info := []*T_statistics_roomcard_day_details{}
 
-	if(date1 == date2){
+	if(date1.String() == "0001-01-01 00:00:00 +0000 UTC"){
 		db.C(T_STATISTICS_ROOMCARD_DAY_DETAILS).FindAll(bson.M{},&info)
 	}else {
 		db.C(T_STATISTICS_ROOMCARD_DAY_DETAILS).FindAll(bson.M{

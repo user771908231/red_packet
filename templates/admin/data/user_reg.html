@@ -58,43 +58,78 @@
         <th>注册渠道</th>
         <th>注册时间</th>
     </tr>
+
     </thead>
-    {{range $k,$v := .info}}
-    <tr>
-        <td>{{.Id}}</td>
-        <td>{{.RoomCard}}</td>
-        <td>{{.Coin}}</td>
-        <td>{{.NickName}}</td>
-        <td>
-            {{if eq .ChannelId 1}}神经斗地主
-            {{else if eq .ChannelId 2}}来一圈四川麻将
-            {{else if eq .ChannelId 3}}来一圈麻将
-            {{else if eq .ChannelId 11}}神经斗地主
-            {{else if eq .ChannelId 12}}神经四川麻将
-            {{else if eq .ChannelId 21}}神经好友局
-            {{else if eq .ChannelId 22}}神经好友局
-            {{else if eq .ChannelId 31}}神经棋牌
-            {{else if eq .ChannelId 32}}神经棋牌
-            {{else if eq .ChannelId 33}}来一圈麻将
-            {{else if eq .ChannelId 34}}来一圈岳阳棋牌（ios）
-            {{else if eq .ChannelId 35}}来一圈岳阳棋牌（android）
-            {{else if eq .ChannelId 41}}神经四川麻将
-            {{else if eq .ChannelId 51}}来一圈麻将
-            {{else if eq .ChannelId 61}}来一圈麻将
-            {{else if eq .ChannelId 62}}来一圈麻将{{end}}</td>
-        <td>{{.RegTime.Format "2006-01-02 03:04:05"}}</td>
-    </tr>
-    {{end}}
+    <tbody id="biuuu_city_list">
+
+    </tbody>
 </table>
 
 <!--分页-->
-
 <div id="demo7"></div>
+
+
+
+<script src="/layui/layui.js" charset="utf-8"></script>
 <script>
     layui.use(['layer', 'laypage', 'element'], function() {
         var layer = layui.layer
             , laypage = layui.laypage
             , element = layui.element();
+
+        //测试数据
+        var data = [
+            '{{range $k,$v := .info}}',
+            '<tr>'+
+            '<td>{{.Id}}</td>'+
+            '<td>{{.RoomCard}}</td>'+
+            '<td>{{.Coin}}</td>'+
+            '<td>{{.NickName}}</td>'+
+            '<td>'+
+            '{{if eq .ChannelId 1}}神经斗地主'+
+            '{{else if eq .ChannelId 2}}来一圈四川麻将'+
+            '{{else if eq .ChannelId 3}}来一圈麻将'+
+            '{{else if eq .ChannelId 11}}神经斗地主'+
+            '{{else if eq .ChannelId 12}}神经四川麻将'+
+            '{{else if eq .ChannelId 21}}神经好友局'+
+            '{{else if eq .ChannelId 22}}神经好友局'+
+            '{{else if eq .ChannelId 31}}神经棋牌'+
+            '{{else if eq .ChannelId 32}}神经棋牌'+
+            '{{else if eq .ChannelId 33}}来一圈麻将'+
+            '{{else if eq .ChannelId 34}}来一圈岳阳棋牌（ios）'+
+            '{{else if eq .ChannelId 35}}来一圈岳阳棋牌（android）'+
+            '{{else if eq .ChannelId 41}}神经四川麻将'+
+            '{{else if eq .ChannelId 51}}来一圈麻将'+
+            '{{else if eq .ChannelId 61}}来一圈麻将'+
+            '{{else if eq .ChannelId 62}}来一圈麻将{{end}}</td>'+
+            '<td>{{.RegTime.Format "2006-01-02 03:04:05"}}</td>'+
+            '</tr>',
+            '{{end}}',
+        ];
+
+        var nums = 28; //每页出现的数据量
+
+        //模拟渲染
+        var render = function(curr){
+            //此处只是演示，实际场景通常是返回已经当前页已经分组好的数据
+            var str = '', last = curr*nums - 1;
+            last = last >= data.length ? (data.length-1) : last;
+            for(var i = (curr*nums - nums); i <= last; i++){
+                str += '<li>'+ data[i] +'</li>';
+            }
+            return str;
+        };
+
+        //调用分页
+        laypage({
+            cont: 'demo7'
+            ,pages: Math.ceil(data.length/nums) //得到总页数
+            ,skip: true
+            ,jump: function(obj){
+                document.getElementById('biuuu_city_list').innerHTML = render(obj.curr);
+            }
+        });
+
     })
     layui.use(['form', 'layedit', 'laydate'], function(){
         var form = layui.form()
@@ -103,7 +138,6 @@
             ,laydate = layui.laydate;
 
     });
-
 </script>
 
 </body>

@@ -40,9 +40,11 @@ func init() {
 }
 
 func main() {
-
 	//timer()
-	timer2()
+	//timer2()
+	t := time.Now().Unix()
+	fmt.Println(t)
+	fmt.Println(time.Unix(t,0).String())
 }
 //在线人数统计
 const ADMIN_ONLINE_COUNT string = "t_online_count"
@@ -62,23 +64,70 @@ func timer() {
 	}
 }
 //注册人数统计
+const ADMIN_USER_REG_COUNT string = "t_user_reg_count"
 func timer2() {
-	timer1 := time.NewTicker(1 * time.Second)
+	timer1 := time.NewTicker(1 * time.Hour * 24)
 	for {
 		select {
 		case <-timer1.C:
+			//当天的日期
 			Time := time.Now().Format("2006-01-02")
 			date1,_ := time.Parse("2006-01-02",Time)
-			count,_ :=db.C(tableName.DBT_T_USER).Count(bson.M{
-				"regtime" : bson.M{"$gte": date1.Unix()},
-			})
-			nTime := time.Now()
-			yesTime := nTime.AddDate(0,0,-1)
+
+			//前一天的日期
+			yesTime := time.Now().AddDate(0,0,-1)
 			logDay := yesTime.Format("2006-01-02")
 			date2,_ := time.Parse("2006-01-02",logDay)
-			fmt.Println(count)
-			fmt.Println(date1.Unix())
-			fmt.Println(date2)
+
+			//长沙
+			count1,_ :=db.C(tableName.DBT_T_USER).Count(bson.M{
+				"regtime" : bson.M{"$gte": date2.Unix(),"$lte" : date1.Unix()},
+				"$or" :[]bson.M{bson.M{"channelid" : 31},bson.M{"channelid" : 32},bson.M{"channelid" : 33}},
+			})
+
+			//岳阳
+			count2,_ :=db.C(tableName.DBT_T_USER).Count(bson.M{
+				"regtime" : bson.M{"$gte": date2.Unix(),"$lte" : date1.Unix()},
+				"$or" :[]bson.M{bson.M{"channelid" : 34},bson.M{"channelid" : 35}},
+			})
+
+			//四川
+			count3,_ :=db.C(tableName.DBT_T_USER).Count(bson.M{
+				"regtime" : bson.M{"$gte": date2.Unix(),"$lte" : date1.Unix()},
+				"$or" :[]bson.M{bson.M{"channelid" : 1},bson.M{"channelid" : 2},bson.M{"channelid" : 3},bson.M{"channelid" : 11},bson.M{"channelid" : 12},bson.M{"channelid" : 41},bson.M{"channelid" : 21},bson.M{"channelid" : 22}},
+			})
+
+			//白山
+			count4,_ :=db.C(tableName.DBT_T_USER).Count(bson.M{
+				"regtime" : bson.M{"$gte": date2.Unix(),"$lte" : date1.Unix()},
+				"$or" :[]bson.M{bson.M{"channelid" : 61},bson.M{"channelid" : 62}},
+			})
+
+
+			db.C(ADMIN_USER_REG_COUNT).Insert(bson.M{
+				"RegCount" : count1,
+				"Time" : date2.Unix(),
+				"channelidAll" : "31,32,33",
+			})
+			db.C(ADMIN_USER_REG_COUNT).Insert(bson.M{
+				"RegCount" : count2,
+				"Time" : date2.Unix(),
+				"channelidAll" : "34,35",
+			})
+			db.C(ADMIN_USER_REG_COUNT).Insert(bson.M{
+				"RegCount" : count3,
+				"Time" : date2.Unix(),
+				"channelidAll" : "1,2,3,11,12,21,22,41",
+			})
+			db.C(ADMIN_USER_REG_COUNT).Insert(bson.M{
+				"RegCount" : count4,
+				"Time" : date2.Unix(),
+				"channelidAll" : "61,62",
+			})
+			fmt.Println("长沙 :",count1)
+			fmt.Println("岳阳 :",count2)
+			fmt.Println("四川 :",count3)
+			fmt.Println("白山 :",count4)
 		}
 	}
 }
