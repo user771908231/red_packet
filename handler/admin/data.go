@@ -4,10 +4,10 @@ import (
 	"casino_admin/modules"
 	"casino_admin/model/dataModel"
 	"time"
-	"casino_common/common/consts/tableName"
 	"gopkg.in/mgo.v2/bson"
 	"casino_common/utils/db"
 	"fmt"
+	"casino_common/common/service/statisticsService"
 )
 type User struct {
 	RoomCard            int64   `protobuf:"varint,1,opt,name=RoomCard" json:"RoomCard,omitempty"`
@@ -66,6 +66,14 @@ func AtHomeList(ctx *modules.Context) {
 
 //在线统计
 func OnlineStatic(ctx *modules.Context) {
+	a :=statisticsService.OnlineCountUsers()
+	fmt.Println(a)
+	ticker := time.NewTicker(time.Minute * 1)
+	go func() {
+		for _ = range ticker.C {
+			fmt.Println("ticked at %v", time.Now())
+		}
+	}()
 	ctx.HTML(200,"admin/data/onlineStatic")
 }
 
@@ -78,7 +86,6 @@ func OnlineStaticList(ctx *modules.Context) {
 
 	ctx.Data["date_start"] =date_start
 	ctx.Data["date_end"] =date_end
-
 
 	//一天之前
 	d, _ := time.ParseDuration("-24h")
@@ -97,7 +104,7 @@ func OnlineStaticList(ctx *modules.Context) {
 
 	ctx.HTML(200,"admin/data/onlineStatic")
 }
-//房卡消耗统计
+//用户使用房卡统计
 const T_STATISTICS_ROOMCARD string= "t_statistics_roomcard"
 
 type T_statistics_roomcard struct {
@@ -117,26 +124,49 @@ func RoomCard(ctx *modules.Context) {
 	ctx.HTML(200,"admin/data/roomCard")
 }
 
-//房卡消耗统计查询
+//房卡每日消耗统计
+const T_STATISTICS_ROOMCARD_DAY_DETAILS string= "t_statistics_roomcard_day_details"
+
+type T_statistics_roomcard_day_details struct {
+	Id        		bson.ObjectId     	`bson:"_id"` 		//用户ID
+	Gid              	float64          	`bson:"gid"`    	 //游戏ID
+	RoomCardCount           int64          		`bson:"roomcardcount"`    	 //房卡消耗数
+	Time           		time.Time          	`bson:"time"`    	 //房卡消耗时间
+}
+
+func RoomCardDay(ctx *modules.Context) {
+	info := []*T_statistics_roomcard_day_details{}
+
+	Time := time.Now().Format("2006-01-02")
+	date1,_ := time.Parse("2006-01-02",Time)
+
+	db.C(T_STATISTICS_ROOMCARD_DAY_DETAILS).FindAll(bson.M{
+		"time": bson.M{"$gte": date1},
+	},&info)
+	ctx.Data["info"] = info
+	ctx.HTML(200,"admin/data/roomCardDay")
+}
+
+//用户使用房卡统计查询
 func RoomCardOne(ctx *modules.Context) {
-	ChannelId := ctx.QueryFloat64("ChannelId")
+	Gid := ctx.QueryFloat64("Gid")
 	date_start := ctx.Query("date_start")
 	date_end := ctx.Query("date_end")
 	date1,_ := time.Parse("2006-01-02",date_start)
 	date2,_ := time.Parse("2006-01-02",date_end)
 
-	info := []*User{}
-	if(ChannelId == 0){
-		db.C(tableName.DBT_T_USER).FindAll(bson.M{},&info)
+	info := []*T_statistics_roomcard{}
+	if(Gid == 0){
+		db.C(T_STATISTICS_ROOMCARD).FindAll(bson.M{},&info)
 	}else{
 		if(date1 == date2){
-			db.C(tableName.DBT_T_USER).FindAll(bson.M{
-				"$or" :[]bson.M{bson.M{"channelid" : ChannelId}},
+			db.C(T_STATISTICS_ROOMCARD).FindAll(bson.M{
+				"$or" :[]bson.M{bson.M{"gid" : Gid}},
 			},&info)
 		}else {
-			db.C(tableName.DBT_T_USER).FindAll(bson.M{
-				"regtime": bson.M{"$gte": date1,"$lte": date2},
-				"$or" :[]bson.M{bson.M{"channelid" : ChannelId}},
+			db.C(T_STATISTICS_ROOMCARD).FindAll(bson.M{
+				"time": bson.M{"$gte": date1,"$lte": date2},
+				"$or" :[]bson.M{bson.M{"gid" : Gid}},
 			},&info)
 		}
 	}
@@ -144,4 +174,27 @@ func RoomCardOne(ctx *modules.Context) {
 
 	ctx.Data["info"] = info
 	ctx.HTML(200,"admin/data/roomCard")
+}
+
+//用户使用房卡统计查询
+func RoomCardDayOne(ctx *modules.Context) {
+	date_start := ctx.Query("date_start")
+	date_end := ctx.Query("date_end")
+	date1,_ := time.Parse("2006-01-02",date_start)
+	date2,_ := time.Parse("2006-01-02",date_end)
+
+	info := []*T_statistics_roomcard_day_details{}
+
+	if(date1 == date2){
+		db.C(T_STATISTICS_ROOMCARD_DAY_DETAILS).FindAll(bson.M{},&info)
+	}else {
+		db.C(T_STATISTICS_ROOMCARD_DAY_DETAILS).FindAll(bson.M{
+			"time": bson.M{"$gte": date1,"$lte": date2},
+		},&info)
+	}
+
+
+
+	ctx.Data["info"] = info
+	ctx.HTML(200,"admin/data/roomCardDay")
 }

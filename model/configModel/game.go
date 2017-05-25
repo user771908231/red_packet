@@ -5,6 +5,7 @@ import (
 	//"casino_common/common/consts"
 	//"casino_admin/modules"
 	"gopkg.in/mgo.v2/bson"
+	"casino_common/utils/redisUtils"
 )
 
 const ADMIN_GAME_CONFIG string = "t_game_config_login_list"
@@ -58,18 +59,13 @@ func GameConfigLogin() []*GameCongifLogin {
 //}
 
 const PKEY_GAME_LIST string= "game_id"	//游戏服务器是否在维护中
+const PKEY_USER_LIST string= "user_coin_redis_key"	//游戏服务器是否在维护中
 
 //游戏服务器是否在维护中
-//func GameList() ([]*GameList, error) {
-//	users := []*GameList{}
-//	code := 1
-//	err := redisUtils.GetObj(PKEY_GAME_LIST+ "_" +code,  users)
-//
-//	if err != nil {
-//		return err
-//	}
-//	return users
-//}
+func GameList() int64 {
+	code := "14"
+	return redisUtils.GetInt64(PKEY_GAME_LIST+ "_" +code)
+}
 
 func GameConfigOne(Id bson.ObjectId) *GameCongif {
 	game_Congif := new(GameCongif)
@@ -112,6 +108,18 @@ func GameConfigUpdateLogin(Id bson.ObjectId, CurVersion float64, BaseDownloadUrl
 			"CurVersion":      CurVersion,
 			"BaseDownloadUrl": BaseDownloadUrl,
 		}, })
+	if err != nil {
+		return nil
+	}
+	return game_Congif
+}
+
+//新增登录服
+func GameConfigEditLogin(CurVersion float64, BaseDownloadUrl string) (game_Congif *GameCongif) {
+	err := db.C(ADMIN_GAME_LOGIN).Insert(bson.M{
+		"CurVersion" : CurVersion,
+		"BaseDownloadUrl" : BaseDownloadUrl,
+	})
 	if err != nil {
 		return nil
 	}
