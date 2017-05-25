@@ -112,19 +112,30 @@ func UserListHandler(ctx *modules.Context) {
 }
 
 //注册统计列表
-func UserListAllHandler(ctx *modules.Context)  {
+func UserRegAllHandler(ctx *modules.Context)  {
 	info := []*User{}
 	db.C(tableName.DBT_T_USER).FindAll(bson.M{},&info)
 
 	ctx.Data["info"] = info
 
 
-	ctx.HTML(200,"admin/manage/user/list")
+	ctx.HTML(200,"admin/data/user_reg")
+	//return info
+}
+//活跃统计列表
+func UserActiveAllHandler(ctx *modules.Context)  {
+	info := []*User{}
+	db.C(tableName.DBT_T_USER).FindAll(bson.M{},&info)
+
+	ctx.Data["info"] = info
+
+
+	ctx.HTML(200,"admin/data/user_active")
 	//return info
 }
 
 //注册统计查询
-func UserListOneHandler(ctx *modules.Context) {
+func UserRegOneHandler(ctx *modules.Context) {
 	ChannelId := ctx.QueryFloat64("ChannelId")
 	date_start := ctx.Query("date_start")
 	date_end := ctx.Query("date_end")
@@ -189,7 +200,75 @@ func UserListOneHandler(ctx *modules.Context) {
 		}
 	}
 	ctx.Data["info"] = info
-	ctx.HTML(200,"admin/manage/user/list")
+	ctx.HTML(200,"admin/data/user_reg")
+}
+//活跃统计查询
+func UserActiveOneHandler(ctx *modules.Context) {
+	ChannelId := ctx.QueryFloat64("ChannelId")
+	date_start := ctx.Query("date_start")
+	date_end := ctx.Query("date_end")
+	date1,_ := time.Parse("2006-01-02",date_start)
+	date2,_ := time.Parse("2006-01-02",date_end)
+
+	info := []*User{}
+	if(ChannelId == 0){
+		db.C(tableName.DBT_T_USER).FindAll(bson.M{},&info)
+	}
+	//长沙
+	if(ChannelId == 1){
+		if(date1 == date2){
+			db.C(tableName.DBT_T_USER).FindAll(bson.M{
+				"$or" :[]bson.M{bson.M{"channelid" : 31},bson.M{"channelid" : 32},bson.M{"channelid" : 33}},
+			},&info)
+		}else {
+			db.C(tableName.DBT_T_USER).FindAll(bson.M{
+				"lasttime": bson.M{"$gte": date1,"$lte": date2},
+				"$or" :[]bson.M{bson.M{"channelid" : 31},bson.M{"channelid" : 32},bson.M{"channelid" : 33}},
+			},&info)
+		}
+
+	}
+	//岳阳
+	if(ChannelId == 2){
+		if(date1 == date2){
+			db.C(tableName.DBT_T_USER).FindAll(bson.M{
+				"$or" :[]bson.M{bson.M{"channelid" : 34},bson.M{"channelid" : 35}},
+			},&info)
+		}else{
+			db.C(tableName.DBT_T_USER).FindAll(bson.M{
+				"lasttime": bson.M{"$gte": date1,"$lte": date2},
+				"$or" :[]bson.M{bson.M{"channelid" : 34},bson.M{"channelid" : 35}},
+			},&info)
+		}
+	}
+	//四川
+	if(ChannelId == 3){
+		if(date1 == date2){
+			db.C(tableName.DBT_T_USER).FindAll(bson.M{
+				"$or" :[]bson.M{bson.M{"channelid" : 1},bson.M{"channelid" : 2},bson.M{"channelid" : 3},bson.M{"channelid" : 11},bson.M{"channelid" : 12},bson.M{"channelid" : 41},bson.M{"channelid" : 21},bson.M{"channelid" : 22}},
+			},&info)
+		}else{
+			db.C(tableName.DBT_T_USER).FindAll(bson.M{
+				"lasttime": bson.M{"$gte": date1,"$lte": date2},
+				"$or" :[]bson.M{bson.M{"channelid" : 1},bson.M{"channelid" : 2},bson.M{"channelid" : 3},bson.M{"channelid" : 11},bson.M{"channelid" : 12},bson.M{"channelid" : 41},bson.M{"channelid" : 21},bson.M{"channelid" : 22}},
+			},&info)
+		}
+	}
+	//白山
+	if(ChannelId == 4){
+		if(date1 == date2){
+			db.C(tableName.DBT_T_USER).FindAll(bson.M{
+				"$or" :[]bson.M{bson.M{"channelid" : 61},bson.M{"channelid" : 62}},
+			},&info)
+		}else{
+			db.C(tableName.DBT_T_USER).FindAll(bson.M{
+				"lasttime": bson.M{"$gte": date1,"$lte": date2},
+				"$or" :[]bson.M{bson.M{"channelid" : 61},bson.M{"channelid" : 62}},
+			},&info)
+		}
+	}
+	ctx.Data["info"] = info
+	ctx.HTML(200,"admin/data/user_active")
 }
 //用户更新表单
 type UserUpdateForm struct {
@@ -251,7 +330,7 @@ func RechargeHandler(ctx *modules.Context, form RechargeForm, errs binding.Error
 		}
 	}
 	if form.RoomCard != 0 {
-		_, err = userService.INCRUserRoomcard(form.Id, form.RoomCard)
+		_, err = userService.INCRUserRoomcard(form.Id, form.RoomCard, int32(ddproto.CommonEnumGame_GID_SRC), "管理后台给用户充值房卡")
 		if err != nil {
 			ctx.Ajax(-4, "充值房卡失败！", nil)
 			return

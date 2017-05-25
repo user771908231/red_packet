@@ -70,14 +70,6 @@
 					"title": "任务配置",
 					"icon": "fa-slider",
 					"href": "/admin/config/task/list"
-				},{
-					"title": "登陆服配置",
-					"icon": "fa-slider",
-					"href": "/admin/config/game/listLogin"
-				},{
-					"title": "登陆服服务器列表配置",
-					"icon": "fa-slider",
-					"href": "/admin/config/game/listAll"
 				}
 			]
 		}
@@ -130,11 +122,15 @@
 					"icon": "fa-slider",
 					"href": "/admin/manage/apply?status=1&page=1"
 				},{
-					"title": "注册统计",
+					"title": "注册用户",
 					"icon": "fa-slider",
-					"href": "/admin/manage/user/list"
+					"href": "/admin/data/user_reg"
 				},{
-					"title": "在线统计",
+					"title": "活跃用户",
+					"icon": "fa-slider",
+					"href": "/admin/data/user_active"
+				},{
+					"title": "在线人数",
 					"icon": "fa-slider",
 					"href": "/admin/data/onlineStatic"
 				},{
@@ -142,9 +138,13 @@
 					"icon": "fa-slider",
 					"href": "/admin/data/atHome"
 				},{
-					"title": "房卡消耗统计",
+					"title": "房卡使用",
 					"icon": "fa-slider",
 					"href": "/admin/data/roomCard"
+				},{
+					"title": "每日房卡使用",
+					"icon": "fa-slider",
+					"href": "/admin/data/roomCardDay"
 				},{
 					"title": "金币分布",
 					"icon": "fa-slider",
@@ -212,6 +212,28 @@
 					"title": "产品管理",
 					"icon": "fa-product-hunt",
 					"href": "form.html"
+				}
+			]
+		}
+	],
+	"4": [
+		{
+			"title": "登录服务器配置",
+			"icon": "fa-cubes",
+			"spread": true,
+			"children": [
+				{
+					"title": "登陆服配置",
+					"icon": "fa-slider",
+					"href": "/admin/config/game/listLogin"
+				},{
+					"title": "登陆服服务器列表配置",
+					"icon": "fa-slider",
+					"href": "/admin/config/game/listAll"
+				},{
+					"title": "游戏服务器列表配置",
+					"icon": "fa-slider",
+					"href": "/admin/config/game/gameList"
 				}
 			]
 		}

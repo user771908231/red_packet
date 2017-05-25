@@ -4,7 +4,7 @@
     <div class="layui-tab-content">
         <div class="layui-tab-item layui-show">
 
-            <a href="add?t={{.table}}" class="layui-btn">新增</a>
+            <button class="layui-btn but" type="submit">新增</button>
             <table class="layui-table">
                 <thead>
                 <tr>
@@ -52,7 +52,28 @@
         </div>
     </div>
 </form>
+<form class="layui-form" action="/admin/config/game/editLogin" method="post" id="form2" style="display: none">
+    <div class="layui-form-item">
+        <label class="layui-form-label"  style="width: 120px">当前版本</label>
+        <div class="layui-input-inline">
+            <input type="text" name="CurVersion" lay-verify="CurVersion" id="CurVersion2" placeholder="请输入" autocomplete="off" class="layui-input" value="">
+        </div>
+        <label class="layui-form-label" style="width: 120px">下载链接</label>
+        <div class="layui-input-inline">
+            <input type="text" name="BaseDownloadUrl" lay-verify="BaseDownloadUrl" id="BaseDownloadUrl2" placeholder="请输入" autocomplete="off" class="layui-input" value="">
+        </div>
+    </div>
 
+
+
+
+    <div class="layui-form-item">
+        <div class="layui-input-block">
+            <button class="layui-btn" lay-submit="" lay-filter="demo1" type="submit">立即提交</button>
+            <button type="reset" class="layui-btn layui-btn-primary">重置</button>
+        </div>
+    </div>
+</form>
 
 <script>
 
@@ -92,6 +113,14 @@
                 skin: 'layui-layer-rim', //加上边框
                 area: ['720px', '540px'], //宽高
                 content: $("#form")
+            });
+        })
+        $(".but").click(function () {
+            layer.open({
+                type: 1,
+                skin: 'layui-layer-rim', //加上边框
+                area: ['720px', '540px'], //宽高
+                content: $("#form2")
             });
         })
 

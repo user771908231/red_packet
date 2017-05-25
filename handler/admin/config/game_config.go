@@ -1,7 +1,6 @@
 package config
 
 import (
-	"casino_admin/conf"
 	"casino_admin/model/configModel"
 	"casino_admin/modules"
 	"casino_common/common/consts/tableName"
@@ -12,6 +11,7 @@ import (
 	"fmt"
 	"gopkg.in/mgo.v2/bson"
 	"reflect"
+	"casino_common/utils/redisUtils"
 )
 
 //配置列表
@@ -50,7 +50,6 @@ func GameConfigEdit(ctx *modules.Context) {
 	obj_id := bson.ObjectIdHex(id)
 
 	result := configModel.GameConfigOne(obj_id)
-	fmt.Println("success", obj_id)
 	ctx.Data["config"] = result
 	ctx.HTML(200, "admin/config/game/edit")
 }
@@ -73,6 +72,7 @@ func GameConfigUpdate(ctx *modules.Context) {
 	STATUS := ctx.QueryFloat64("STATUS")
 	err := configModel.GameConfigUpdate(obj_id, GameId, Name, CurVersion, IsUpdate, IsMaintain, MaintainMsg, ReleaseTag, DownloadUrl, LatestClientVersion, IP, PORT, STATUS)
 	if err == nil {
+		//rpc.Dial(conf.GetAsLoginRpcAddress(), rpc.AS_RELOAD_CONFIG, "", &protocol.CommonAckRpc{})
 		ctx.Ajax(1, "编辑成功！", nil)
 		//ctx.HTML(200,"admin/config/game/list")
 	}
@@ -80,24 +80,54 @@ func GameConfigUpdate(ctx *modules.Context) {
 
 //编辑字段-更新
 func GameConfigUpdateLogin(ctx *modules.Context) {
+	log.T("开始更新登录服务器列表的信息...")
 	id := ctx.Query("id")
 	obj_id := bson.ObjectIdHex(id)
 	CurVersion := ctx.QueryFloat64("CurVersion")
 	BaseDownloadUrl := ctx.Query("BaseDownloadUrl")
 	configModel.GameConfigUpdateLogin(obj_id, CurVersion, BaseDownloadUrl)
-
-	//todo 更新之后 调用rpc更新登录服务器的配置
-	address := conf.GetAsLoginRpcAddress()
-	log.T("接入服务器的地址:%v", address)
 }
 
 //登录服务器
 func GameConfigList(ctx *modules.Context) {
 	result := configModel.GameConfig()
-	fmt.Println("success", result)
 	ctx.Data["config"] = result
 	ctx.HTML(200, "admin/config/game/list")
 }
+
+
+//游戏服务器
+func GameListHandler(ctx *modules.Context){
+	//code := ctx.Query("code")
+	ctx.Data["info_1"] = redisUtils.GetInt64("game_id_1")
+	ctx.Data["info_2"] = redisUtils.GetInt64("game_id_2")
+	ctx.Data["info_3"] = redisUtils.GetInt64("game_id_3")
+	ctx.Data["info_4"] = redisUtils.GetInt64("game_id_4")
+	ctx.Data["info_5"] = redisUtils.GetInt64("game_id_5")
+	ctx.Data["info_7"] = redisUtils.GetInt64("game_id_7")
+	ctx.Data["info_8"] = redisUtils.GetInt64("game_id_8")
+	ctx.Data["info_9"] = redisUtils.GetInt64("game_id_9")
+	ctx.Data["info_10"] = redisUtils.GetInt64("game_id_10")
+	ctx.Data["info_11"] = redisUtils.GetInt64("game_id_11")
+	ctx.Data["info_12"] = redisUtils.GetInt64("game_id_12")
+	ctx.Data["info_13"] = redisUtils.GetInt64("game_id_13")
+	ctx.Data["info_14"] = redisUtils.GetInt64("game_id_14")
+	ctx.Data["info_15"] = redisUtils.GetInt64("game_id_15")
+	ctx.Data["info_16"] = redisUtils.GetInt64("game_id_16")
+	ctx.Data["info_17"] = redisUtils.GetInt64("game_id_17")
+	ctx.Data["info_18"] = redisUtils.GetInt64("game_id_18")
+	ctx.Data["info_19"] = redisUtils.GetInt64("game_id_19")
+	ctx.Data["info_20"] = redisUtils.GetInt64("game_id_20")
+	ctx.HTML(200, "admin/config/game/game_server")
+}
+
+func GameListEditHandler(ctx *modules.Context) {
+	code := ctx.Query("code")
+	edit := ctx.QueryInt64("edit")
+	redisUtils.SetInt64("game_id_"+code,edit)
+	ctx.Success("操作成功！", "/admin/config/game/gameList", 1)
+}
+
 
 //登录服配置
 func GameConfigLogin(ctx *modules.Context) {
@@ -107,6 +137,13 @@ func GameConfigLogin(ctx *modules.Context) {
 	ctx.HTML(200, "admin/config/game/listLogin")
 }
 
+//新增登录服
+func GameConfigEditLogin(ctx *modules.Context) {
+	CurVersion := ctx.QueryFloat64("CurVersion")
+	BaseDownloadUrl := ctx.Query("BaseDownloadUrl")
+	configModel.GameConfigEditLogin(CurVersion,BaseDownloadUrl)
+
+}
 //新增一组配置
 func GameConfigAddHandler(ctx *modules.Context) {
 	table_name := ctx.Query("t")
