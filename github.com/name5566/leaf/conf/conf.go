@@ -16,4 +16,5 @@ var (
 	ListenAddr      string
 	ConnAddrs       []string
 	PendingWriteNum int
+	ProdMode        bool //是否是生产模式
 )
