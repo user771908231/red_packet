@@ -8,6 +8,7 @@ import (
 	"casino_common/utils/db"
 	"fmt"
 	"casino_common/common/service/statisticsService"
+	"casino_common/common/consts/tableName"
 )
 type User struct {
 	RoomCard            int64   `protobuf:"varint,1,opt,name=RoomCard" json:"RoomCard,omitempty"`
@@ -116,7 +117,8 @@ type T_statistics_roomcard struct {
 func RoomCard(ctx *modules.Context) {
 	info := []*T_statistics_roomcard{}
 	db.C(T_STATISTICS_ROOMCARD).FindAll(bson.M{},&info)
-
+	count,_ := db.C(T_STATISTICS_ROOMCARD).Count(bson.M{})
+	ctx.Data["count"] = count
 	ctx.Data["info"] = info
 	ctx.HTML(200,"admin/data/roomCard")
 }
@@ -156,7 +158,7 @@ func RoomCardOne(ctx *modules.Context) {
 	if(Gid == 0){
 		db.C(T_STATISTICS_ROOMCARD).FindAll(bson.M{},&info)
 	}else{
-		if(date1 == date2){
+		if(date1.String() == "0001-01-01 00:00:00 +0000 UTC"){
 			db.C(T_STATISTICS_ROOMCARD).FindAll(bson.M{
 				"$or" :[]bson.M{bson.M{"gid" : Gid}},
 			},&info)

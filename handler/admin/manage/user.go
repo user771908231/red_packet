@@ -115,7 +115,8 @@ func UserListHandler(ctx *modules.Context) {
 func UserRegAllHandler(ctx *modules.Context)  {
 	info := []*User{}
 	db.C(tableName.DBT_T_USER).FindAll(bson.M{},&info)
-
+	count,_ := db.C(tableName.DBT_T_USER).Count(bson.M{})
+	ctx.Data["count"] = count
 	ctx.Data["info"] = info
 
 
@@ -126,7 +127,8 @@ func UserRegAllHandler(ctx *modules.Context)  {
 func UserActiveAllHandler(ctx *modules.Context)  {
 	info := []*User{}
 	db.C(tableName.DBT_T_USER).FindAll(bson.M{},&info)
-
+	count,_ := db.C(tableName.DBT_T_USER).Count(bson.M{})
+	ctx.Data["count"] = count
 	ctx.Data["info"] = info
 
 
@@ -146,58 +148,96 @@ func UserRegOneHandler(ctx *modules.Context) {
 	info := []*User{}
 	if(ChannelId == 0){
 		db.C(tableName.DBT_T_USER).FindAll(bson.M{},&info)
+		count,_ := db.C(tableName.DBT_T_USER).Count(bson.M{})
+		ctx.Data["count"] = count
 	}
 	//长沙
 	if(ChannelId == 1){
-		if(date1 == date2){
+		if(date1.String() == "0001-01-01 00:00:00 +0000 UTC"){
 			db.C(tableName.DBT_T_USER).FindAll(bson.M{
 				"$or" :[]bson.M{bson.M{"channelid" : 31},bson.M{"channelid" : 32},bson.M{"channelid" : 33}},
 			},&info)
+			count,_ := db.C(tableName.DBT_T_USER).Count(bson.M{
+				"$or" :[]bson.M{bson.M{"channelid" : 31},bson.M{"channelid" : 32},bson.M{"channelid" : 33}},
+			})
+			ctx.Data["count"] = count
 		}else {
 			db.C(tableName.DBT_T_USER).FindAll(bson.M{
 				"regtime": bson.M{"$gte": date1,"$lte": date2},
 				"$or" :[]bson.M{bson.M{"channelid" : 31},bson.M{"channelid" : 32},bson.M{"channelid" : 33}},
 			},&info)
+			count,_ := db.C(tableName.DBT_T_USER).Count(bson.M{
+				"regtime": bson.M{"$gte": date1,"$lte": date2},
+				"$or" :[]bson.M{bson.M{"channelid" : 31},bson.M{"channelid" : 32},bson.M{"channelid" : 33}},
+			})
+			ctx.Data["count"] = count
 		}
 
 	}
 	//岳阳
 	if(ChannelId == 2){
-		if(date1 == date2){
+		if(date1.String() == "0001-01-01 00:00:00 +0000 UTC"){
 			db.C(tableName.DBT_T_USER).FindAll(bson.M{
 				"$or" :[]bson.M{bson.M{"channelid" : 34},bson.M{"channelid" : 35}},
 			},&info)
+			count,_ := db.C(tableName.DBT_T_USER).Count(bson.M{
+				"$or" :[]bson.M{bson.M{"channelid" : 34},bson.M{"channelid" : 35}},
+			})
+			ctx.Data["count"] = count
 		}else{
 			db.C(tableName.DBT_T_USER).FindAll(bson.M{
 				"regtime": bson.M{"$gte": date1,"$lte": date2},
 				"$or" :[]bson.M{bson.M{"channelid" : 34},bson.M{"channelid" : 35}},
 			},&info)
+			count,_ := db.C(tableName.DBT_T_USER).Count(bson.M{
+				"regtime": bson.M{"$gte": date1,"$lte": date2},
+				"$or" :[]bson.M{bson.M{"channelid" : 34},bson.M{"channelid" : 35}},
+			})
+			ctx.Data["count"] = count
 		}
 	}
 	//四川
 	if(ChannelId == 3){
-		if(date1 == date2){
+		if(date1.String() == "0001-01-01 00:00:00 +0000 UTC"){
 			db.C(tableName.DBT_T_USER).FindAll(bson.M{
 				"$or" :[]bson.M{bson.M{"channelid" : 1},bson.M{"channelid" : 2},bson.M{"channelid" : 3},bson.M{"channelid" : 11},bson.M{"channelid" : 12},bson.M{"channelid" : 41},bson.M{"channelid" : 21},bson.M{"channelid" : 22}},
 			},&info)
+			count,_ := db.C(tableName.DBT_T_USER).Count(bson.M{
+				"$or" :[]bson.M{bson.M{"channelid" : 1},bson.M{"channelid" : 2},bson.M{"channelid" : 3},bson.M{"channelid" : 11},bson.M{"channelid" : 12},bson.M{"channelid" : 41},bson.M{"channelid" : 21},bson.M{"channelid" : 22}},
+			})
+			ctx.Data["count"] = count
 		}else{
 			db.C(tableName.DBT_T_USER).FindAll(bson.M{
 				"regtime": bson.M{"$gte": date1,"$lte": date2},
 				"$or" :[]bson.M{bson.M{"channelid" : 1},bson.M{"channelid" : 2},bson.M{"channelid" : 3},bson.M{"channelid" : 11},bson.M{"channelid" : 12},bson.M{"channelid" : 41},bson.M{"channelid" : 21},bson.M{"channelid" : 22}},
 			},&info)
+			count,_ := db.C(tableName.DBT_T_USER).Count(bson.M{
+				"regtime": bson.M{"$gte": date1,"$lte": date2},
+				"$or" :[]bson.M{bson.M{"channelid" : 1},bson.M{"channelid" : 2},bson.M{"channelid" : 3},bson.M{"channelid" : 11},bson.M{"channelid" : 12},bson.M{"channelid" : 41},bson.M{"channelid" : 21},bson.M{"channelid" : 22}},
+			})
+			ctx.Data["count"] = count
 		}
 	}
 	//白山
 	if(ChannelId == 4){
-		if(date1 == date2){
+		if(date1.String() == "0001-01-01 00:00:00 +0000 UTC"){
 			db.C(tableName.DBT_T_USER).FindAll(bson.M{
 				"$or" :[]bson.M{bson.M{"channelid" : 61},bson.M{"channelid" : 62}},
 			},&info)
+			count,_ := db.C(tableName.DBT_T_USER).Count(bson.M{
+				"$or" :[]bson.M{bson.M{"channelid" : 61},bson.M{"channelid" : 62}},
+			})
+			ctx.Data["count"] = count
 		}else{
 			db.C(tableName.DBT_T_USER).FindAll(bson.M{
 				"regtime": bson.M{"$gte": date1,"$lte": date2},
 				"$or" :[]bson.M{bson.M{"channelid" : 61},bson.M{"channelid" : 62}},
 			},&info)
+			count,_ := db.C(tableName.DBT_T_USER).Count(bson.M{
+				"regtime": bson.M{"$gte": date1,"$lte": date2},
+				"$or" :[]bson.M{bson.M{"channelid" : 61},bson.M{"channelid" : 62}},
+			})
+			ctx.Data["count"] = count
 		}
 	}
 	ctx.Data["info"] = info
@@ -214,10 +254,16 @@ func UserActiveOneHandler(ctx *modules.Context) {
 	info := []*User{}
 	if (date1.String() == "0001-01-01 00:00:00 +0000 UTC") {
 		db.C(tableName.DBT_T_USER).FindAll(bson.M{},&info)
+		count,_ := db.C(tableName.DBT_T_USER).Count(bson.M{})
+		ctx.Data["count"] = count
 	}else {
 		db.C(tableName.DBT_T_USER).FindAll(bson.M{
 			"lasttime": bson.M{"$gte": date1,"$lte": date2},
 		},&info)
+		count,_ := db.C(tableName.DBT_T_USER).Count(bson.M{
+			"lasttime": bson.M{"$gte": date1,"$lte": date2},
+		})
+		ctx.Data["count"] = count
 	}
 
 
