@@ -96,6 +96,13 @@ func Regist(m *macaron.Macaron) {
 				m.Post("/addServerInfo",binding.Bind(configService.LoginServerInfo{}), config.GameServerInfoAddPost)
 				m.Get("/gameList", config.GameListHandler)
 				m.Get("/gameListEdit", config.GameListEditHandler)
+
+			})
+
+			//Notice配置
+			m.Group("/notice", func() {
+				m.Get("/list", config.NoticeListHandler)
+				m.Post("/edit", binding.Bind(config.NoticeForm{}), config.NoticeEditHandler)
 			})
 		})
 
