@@ -37,6 +37,21 @@ common = {
             });
         });
     },
+    showBox: function (tpl_obj) {       //渲染一个弹出框
+        var width = $(tpl_obj).data("width");
+        var height = $(tpl_obj).data("height");
+        var html = $(tpl_obj).html();
+
+        layui.layer.open({
+            type: 1 //Page层类型
+            ,area: [width, height]
+            ,title: $(tpl_obj).data("title")
+            ,shade: 0.6 //遮罩透明度
+            ,maxmin: true //允许全屏最小化
+            ,anim: 1 //0-6的动画形式，-1不开启
+            ,content: html
+        });
+    },
     bindAjax: function (bind_event, bind_dom, event_func, ajax_func) {
         $(document).on(bind_event, bind_dom, function (event) {
             var event_obj = this;
