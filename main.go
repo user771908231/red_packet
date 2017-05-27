@@ -1,10 +1,10 @@
 package main
 
 import (
-	"casino_admin/conf"
-	"casino_admin/conf/config"
-	"casino_admin/modules"
-	"casino_admin/routers"
+	"casino_game/conf"
+	"casino_game/conf/config"
+	"casino_game/modules"
+	"casino_game/routers"
 	"casino_common/common/sys"
 	"casino_common/proto/ddproto"
 	"github.com/go-macaron/cache"

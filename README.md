@@ -1,2 +1,2 @@
-# casino_admin
-管理后台
+# casino_game
+发牌工具

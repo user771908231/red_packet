@@ -1,7 +1,7 @@
 package game
 
 import (
-	"casino_admin/modules"
+	"casino_game/modules"
 	"fmt"
 	"os"
 	"bufio"
