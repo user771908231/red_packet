@@ -1,0 +1,7 @@
+CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o gamemj
+
+tar -zcvf gamemj.tgz templates public gamemj
+
+mv gamemj.tgz ~/gopath/casino/binlinux
+
+
