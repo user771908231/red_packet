@@ -20,8 +20,8 @@ type User struct {
 }
 type Online struct {
 	Id          bson.ObjectId   	`bson:"_id"`		//用户ID
-	Count      int32   		`bson:"count"`		//在线数
-	Time        time.Time     	 `bson:"time"`		//进入时间
+	OnlineCount      int32   		`bson:"OnlineCount"`		//在线数
+	Time        int64     	 `bson:"Time"`		//记录时间
 }
 func AtHome() []*User{
 	info := []*User{}
@@ -39,17 +39,18 @@ func AtHomeList(GameID string) []*User{
 }
 
 //在线统计列表--(小时)
-func OnlineStaticList(Time_start time.Time,Time_end time.Time) []*Online{
+func OnlineStaticList(Time_start int64,Time_end int64) []*Online{
 	info := []*Online{}
-	db.C(tableName.ADMIN_USER_ONLINEHOUR).FindAll(bson.M{"time": bson.M{"$gte": Time_start,"$lte": Time_end}},&info)
+	db.C(tableName.ADMIN_USER_ONLINEHOUR).FindAll(bson.M{"Time": bson.M{"$gte": Time_start,"$lte": Time_end}},&info)
 	return info
 }
 //在线统计列表--(天)
-func OnlineStaticDay(Time_start time.Time,Time_end time.Time) []*Online{
+func OnlineStaticDay(Time_start int64,Time_end int64) []*Online{
 	info := []*Online{}
 	db.C(tableName.ADMIN_USER_ONLINEDAY).FindAll(bson.M{"time": bson.M{"$gte": Time_start,"$lte": Time_end}},&info)
 	return info
 }
+
 
 
 
