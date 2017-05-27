@@ -8,7 +8,6 @@ import (
 	"casino_common/utils/db"
 	"fmt"
 	"casino_common/common/service/statisticsService"
-	"casino_common/common/consts/tableName"
 )
 type User struct {
 	RoomCard            int64   `protobuf:"varint,1,opt,name=RoomCard" json:"RoomCard,omitempty"`
