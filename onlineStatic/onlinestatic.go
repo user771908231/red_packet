@@ -12,7 +12,6 @@ import (
 	"gopkg.in/mgo.v2/bson"
 	"casino_common/utils/db"
 	"casino_common/common/consts/tableName"
-	"casino_common/common/db"
 )
 
 func init() {
@@ -54,11 +53,11 @@ func timer() {
 	for {
 		select {
 		case <-timer1.C:
+			Time := time.Now().Format("2006-01-02 15:04:05")
 			a :=statisticsService.OnlineCountAll()
-			fmt.Println(a)
 			db.C(ADMIN_ONLINE_COUNT).Insert(bson.M{
 				"OnlineCount" : a,
-				"Time" : time.Now().Unix(),
+				"Time" : Time,
 			})
 		}
 	}

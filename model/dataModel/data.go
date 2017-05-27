@@ -37,6 +37,10 @@ func AtHomeList(GameID string) []*User{
 	},&info)
 	return info
 }
+//
+//func OnlineStatic() {
+//
+//}
 
 //在线统计列表--(小时)
 func OnlineStaticList(Time_start int64,Time_end int64) []*Online{

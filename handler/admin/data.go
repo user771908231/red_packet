@@ -8,7 +8,6 @@ import (
 	"casino_common/utils/db"
 	"fmt"
 	"casino_common/common/service/statisticsService"
-	"casino_common/common/consts/tableName"
 )
 type User struct {
 	RoomCard            int64   `protobuf:"varint,1,opt,name=RoomCard" json:"RoomCard,omitempty"`
@@ -67,8 +66,7 @@ func AtHomeList(ctx *modules.Context) {
 
 //在线统计
 func OnlineStatic(ctx *modules.Context) {
-	a :=statisticsService.OnlineCountAll()
-	fmt.Println(a)
+	//OnlineStatic()
 	ctx.HTML(200,"admin/data/onlineStatic")
 }
 
@@ -118,8 +116,23 @@ func RoomCard(ctx *modules.Context) {
 	info := []*T_statistics_roomcard{}
 	db.C(T_STATISTICS_ROOMCARD).FindAll(bson.M{},&info)
 	count,_ := db.C(T_STATISTICS_ROOMCARD).Count(bson.M{})
+
+	//房卡使用总数
+	resp := struct {
+		Sum int64
+	}{}
+	query := []bson.M{
+		bson.M{"$group":bson.M{
+			"_id": nil,
+			"sum": bson.M{"$sum": "$roomcardcount"},
+		}},
+	}
+	db.C(T_STATISTICS_ROOMCARD).Pipe(query, &resp)
+
+
 	ctx.Data["count"] = count
 	ctx.Data["info"] = info
+	ctx.Data["sum"] = resp.Sum
 	ctx.HTML(200,"admin/data/roomCard")
 }
 
@@ -142,7 +155,23 @@ func RoomCardDay(ctx *modules.Context) {
 	db.C(T_STATISTICS_ROOMCARD_DAY_DETAILS).FindAll(bson.M{
 		"time": bson.M{"$gte": date1},
 	},&info)
+
+	//房卡使用总数
+	resp := struct {
+		Sum int64
+	}{}
+	query := []bson.M{
+		bson.M{"$match":bson.M{
+			"time": bson.M{"$gte": date1},
+		}},
+		bson.M{"$group":bson.M{
+			"_id": nil,
+			"sum": bson.M{"$sum": "$roomcardcount"},
+		}},
+	}
+	db.C(T_STATISTICS_ROOMCARD_DAY_DETAILS).Pipe(query, &resp)
 	ctx.Data["info"] = info
+	ctx.Data["sum"] = resp.Sum
 	ctx.HTML(200,"admin/data/roomCardDay")
 }
 
@@ -155,18 +184,59 @@ func RoomCardOne(ctx *modules.Context) {
 	date2,_ := time.Parse("2006-01-02",date_end)
 	date2 =date2.AddDate(0,0,+1)
 	info := []*T_statistics_roomcard{}
+	resp := struct {
+		Sum int64
+	}{}
+
 	if(Gid == 0){
 		db.C(T_STATISTICS_ROOMCARD).FindAll(bson.M{},&info)
+
+		//房卡使用总数
+		query := []bson.M{
+			bson.M{"$group":bson.M{
+				"_id": nil,
+				"sum": bson.M{"$sum": "$roomcardcount"},
+			}},
+		}
+		db.C(T_STATISTICS_ROOMCARD).Pipe(query, &resp)
+		ctx.Data["sum"] = resp.Sum
 	}else{
 		if(date1.String() == "0001-01-01 00:00:00 +0000 UTC"){
 			db.C(T_STATISTICS_ROOMCARD).FindAll(bson.M{
 				"$or" :[]bson.M{bson.M{"gid" : Gid}},
 			},&info)
+
+			//房卡使用总数
+			query := []bson.M{
+				bson.M{"$match":bson.M{
+					"$or" :[]bson.M{bson.M{"gid" : Gid}},
+				}},
+				bson.M{"$group":bson.M{
+					"_id": nil,
+					"sum": bson.M{"$sum": "$roomcardcount"},
+				}},
+			}
+			db.C(T_STATISTICS_ROOMCARD).Pipe(query, &resp)
+			ctx.Data["sum"] = resp.Sum
 		}else {
 			db.C(T_STATISTICS_ROOMCARD).FindAll(bson.M{
 				"time": bson.M{"$gte": date1,"$lte": date2},
 				"$or" :[]bson.M{bson.M{"gid" : Gid}},
 			},&info)
+
+			//房卡使用总数
+			query := []bson.M{
+				bson.M{"$match":bson.M{
+					"time": bson.M{"$gte": date1,"$lte": date2},
+					"$or" :[]bson.M{bson.M{"gid" : Gid}},
+				}},
+				bson.M{"$group":bson.M{
+					"_id": nil,
+					"sum": bson.M{"$sum": "$roomcardcount"},
+				}},
+			}
+			db.C(T_STATISTICS_ROOMCARD).Pipe(query, &resp)
+			ctx.Data["sum"] = resp.Sum
 		}
 	}
 
@@ -187,10 +257,37 @@ func RoomCardDayOne(ctx *modules.Context) {
 
 	if(date1.String() == "0001-01-01 00:00:00 +0000 UTC"){
 		db.C(T_STATISTICS_ROOMCARD_DAY_DETAILS).FindAll(bson.M{},&info)
+		//房卡使用总数
+		resp := struct {
+			Sum int64
+		}{}
+		query := []bson.M{
+			bson.M{"$group":bson.M{
+				"_id": nil,
+				"sum": bson.M{"$sum": "$roomcardcount"},
+			}},
+		}
+		db.C(T_STATISTICS_ROOMCARD_DAY_DETAILS).Pipe(query, &resp)
+		ctx.Data["sum"] = resp.Sum
 	}else {
 		db.C(T_STATISTICS_ROOMCARD_DAY_DETAILS).FindAll(bson.M{
 			"time": bson.M{"$gte": date1,"$lte": date2},
 		},&info)
+		//房卡使用总数
+		resp := struct {
+			Sum int64
+		}{}
+		query := []bson.M{
+			bson.M{"$match":bson.M{
+				"time": bson.M{"$gte": date1,"$lte": date2},
+			}},
+			bson.M{"$group":bson.M{
+				"_id": nil,
+				"sum": bson.M{"$sum": "$roomcardcount"},
+			}},
+		}
+		db.C(T_STATISTICS_ROOMCARD_DAY_DETAILS).Pipe(query, &resp)
+		ctx.Data["sum"] = resp.Sum
 	}
 
 
