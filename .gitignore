@@ -1,3 +1,6 @@
+<<<<<<< HEAD
+.idea/
+=======
 .idea
 conf/doudizhu.json
 conf/hall.json
@@ -18,3 +21,4 @@ tcp_client_test.go
 casino_xxxx
 casino_demo
 casino_hall.zip
+>>>>>>> f14df465de13a9cd66ed9f71d7e2522f3dd95c63
