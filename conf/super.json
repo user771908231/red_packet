@@ -1,1 +1,5 @@
-{"LogLevel": "debug","LogPath": "./log","WSAddr": "","MaxConnNum": 20000,"MongoIp": "192.168.2.29:27017","RedisAddr": "192.168.2.29:6379","CurVersion": 3,"HttpIp": "0.0.0.0","OutIp": "192.168.2.188","HttpPort": 8080,"HallTcpAddr": "192.168.2.188:2801","RebateMan": 100,"RebateSong": 10}
+<<<<<<< HEAD
+{"LogLevel": "debug","LogPath": "./log","WSAddr": "","MaxConnNum": 20000,"MongoIp": "192.168.2.29:27017","RedisAddr": "192.168.2.29:6379","CurVersion": 3,"HttpIp": "0.0.0.0","OutIp": "192.168.2.188","HttpPort": 8080,"HallTcpAddr": "192.168.2.188:2801","RebateMan": 100,"RebateSong": 10}
+=======
+{  "LogLevel": "debug",  "LogPath": "./log",  "WSAddr": "",  "MaxConnNum": 20000,  "MongoIp": "192.168.2.188",  "MongoPort": 27017,  "RedisAddr": "192.168.2.188:6379",  "CurVersion": 3,  "HttpIp": "0.0.0.0",  "OutIp": "192.168.2.188",  "HttpPort": 9090,  "HallTcpAddr": "192.168.2.188:2801",  "RebateMan": 100,  "RebateSong": 10}
+>>>>>>> f14df465de13a9cd66ed9f71d7e2522f3dd95c63

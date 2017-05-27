@@ -1,0 +1,163 @@
+<html class="js cssanimations"><head>
+		<meta charset="utf-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge">
+		<meta name="description" content="">
+		<meta name="keywords" content="">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<title>来一圈棋牌</title>
+		<meta name="renderer" content="webkit">
+		<meta http-equiv="Cache-Control" content="no-siteapp">
+		<link rel="icon" type="/mmd/image/png" href="/mmd/assets/i/favicon.png">
+		<meta name="mobile-web-app-capable" content="yes">
+		<link rel="icon" sizes="192x192" href="/mmd/assets/i/app-icon72x72@2x.png">
+		<meta name="apple-mobile-web-app-capable" content="yes">
+		<meta name="apple-mobile-web-app-status-bar-style" content="black">
+		<meta name="apple-mobile-web-app-title" content="MMD UI">
+		<link rel="apple-touch-icon-precomposed" href="/mmd/assets/i/app-icon72x72@2x.png">
+		<meta name="msapplication-TileImage" content="assets/i/app-icon72x72@2x.png">
+		<meta name="msapplication-TileColor" content="#0e90d2">
+
+		<link rel="stylesheet" href="/static/admin/plugins/layui/css/amazeui.min.css">
+    	<link rel="stylesheet" href="/static/admin/plugins/layui/css/app.css">
+		<style type="text/css">
+			<style type="text/css">
+				.boxes {
+				  width: 400px;
+				}
+				
+				.boxes .box {
+				  height: 120px;
+				  border:1px;
+				  color: #eee;
+				  line-height: 120px;
+				  text-align: center;
+				  /*font-weight: bold;*/
+				  transition: all .2s ease;
+				  border-bottom:1px solid;
+				  border-style:solid;
+				  /*font-weight: normal;*/
+				  font-color:red;
+				}
+		</style>
+		<script src="//cdn.bootcss.com/jquery/1.12.4/jquery.min.js"></script>
+		<script src="/static/weixin/amazeui/assets/js/amazeui.min.js"></script>
+		
+		<script type="text/javascript">
+		function sumbitMoneyWj(){
+	  		var addChrId = $("#addChrId").val();
+	  		var addtradNumber = $("#addtradNumber").val();
+	  		if("" == addChrId){
+	  			alert("请填写玩家的数字ID");
+	  			$("#addChrId").focus();
+	  			return;
+	  		}
+	  		var reg = new RegExp("^[0-9]*[1-9][0-9]*$");
+	  		if(!reg.test(addChrId)){
+	  			alert("您填写的数字ID格式不正确，请重新填写！");
+	  			$("#addChrId").focus();
+	  			return;
+	  		}
+		  	$.ajax({ 
+				url: "/mmd/cardTradByGameUser.action", 
+				data: {
+					addChrId: addChrId,
+					addtradNumber: addtradNumber
+				},
+				type: "POST",
+				success: function(data){
+					var results = jQuery.parseJSON(data); 
+					if("0" == results.status){
+						window.location.href="/mmd/pay/success.html";
+					}else{
+						window.location.href="/mmd/pay/error.html";
+					}
+				}
+			});
+  	}
+  	
+  	//中秋活动
+	 function sumbitMoneydl(){
+	  		var agentaddChrId = $("#agentaddChrId").val();
+	  		var agentaddtradNumber = $("#agentaddtradNumber").val();
+	  		if("" == agentaddChrId){
+	  			alert("请代理的数字ID");
+	  			$("#agentaddChrId").focus();
+	  			return;
+	  		}
+	  		if("" == agentaddtradNumber){
+	  			alert("请需要充值的房卡");
+	  			$("#agentaddtradNumber").focus();
+	  			return;
+	  		}
+		  	$.ajax({ 
+				url: "/mmd/cardTradByAgent.action", 
+				data: {
+					agentaddChrId: agentaddChrId,
+					agentaddtradNumber:agentaddtradNumber
+				},
+				type: "POST",
+				success: function(data){
+					if("0" == data.status){
+						window.location.href="/mmd/pay/success.html";
+					}else{
+						window.location.href="/mmd/pay/error.html";
+					}
+				}
+			});
+  	}
+  		
+  		var mymoble = "18692268606";
+  		var level = "1";
+  		var enter = "2";
+	  	function showAlertGG(){
+	  		 if(level == "1" && enter == 1){
+		  		$('#my-alert').modal('open');
+		  	 }  
+	  	} 
+	  	
+	  	function closeAlertGG(){
+	  		$('#my-alert').modal('close');
+	  	}
+	  	
+	  	function openBuyCard(){
+	  		window.location.href="http://www.weixin.mmd88888.com:80/mmd/pay/agentBuyCard";
+	  	}
+	  	
+	  	
+		</script>
+	</head>
+	<body onload="showAlertGG()">
+		<div style="text-align: center; padding: 0px;">
+			<img src="/img/icon/indexlogo.jpg" width="100%" height="150">
+		</div>
+		
+		<div align="center">
+			<ul class="am-avg-sm-3 boxes">
+				<li class="box"><a href="/weixin/agent/sales"><img height="110px" width="110px" src="/img/icon/sales.png"></a></li>
+
+				<li class="box"><a href="/weixin/agent/sales/log"><img height="110px" width="110px" src="/img/icon/sales_log.png"></a></li>
+				
+				<li class="box"><a href="/weixin/agent/recharge"><img height="110px" width="110px" src="/img/icon/recharge.png"></a></li>
+
+				<li class="box"><a href="/weixin/agent/recharge/log"><img height="110px" width="110px" src="/img/icon/recharge_log.png"></a></li>
+				
+				<li class="box"><a href="/weixin/agent/customers"><img height="110px" width="110px" src="/img/icon/customers.png"></a></li>
+
+				<li class="box"><a href="/weixin/agent/apply/log"><img height="110px" width="110px" src="/img/icon/icon5.png"></a></li>
+
+				<li class="box"><a href="/weixin/agent/my_agents"><img height="110px" width="110px" src="/img/icon/my_agents.png"></a></li>
+				
+				<li class="box"><a href="/weixin/agent/rebate/log"><img height="110px" width="110px" src="/img/icon/rebate_log.png"></a></li>
+
+				<li class="box"><a href="/weixin/agent/info"><img height="110px" width="110px" src="/img/icon/icon2.png"></a></li>
+			</ul>
+		</div>
+		<br>
+		<footer data-am-widget="footer" class="am-footer am-footer-default am-no-layout" data-am-footer="{  }" style="background:#3099eb; color:#FFF;">
+		<div>
+				©来一圈棋牌
+		</div>
+		</footer>
+	
+
+</body></html>

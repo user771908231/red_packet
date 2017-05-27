@@ -1,0 +1,160 @@
+{
+	"1": [
+		{
+			"title": "用户管理",
+			"icon": "fa-cogs",
+			"spread": true,
+			"children": [
+				{
+					"title": "游戏用户",
+					"icon": "fa-users",
+					"href": "/admin/manage/user/"
+				},{
+					"title": "管理员",
+					"icon": "fa-users",
+					"href": "/button"
+				}
+			]
+		},{
+			"title": "红包兑换审核",
+			"icon": "fa-sliders",
+			"spread": true,
+			"children": [
+				{
+					"title": "红包-待审核",
+					"icon": "fa-slider",
+					"href": "/admin/manage/exchange?status=1&page=1"
+				},{
+					"title": "红包-已被拒",
+					"icon": "fa-slider",
+					"href": "/admin/manage/exchange?status=2&page=1"
+				},{
+					"title": "红包-已发放",
+					"icon": "fa-slider",
+					"href": "/admin/manage/exchange?status=3&page=1"
+				}
+			]
+		},{
+			"title": "代理商申请",
+			"icon": "fa-sliders",
+			"spread": true,
+			"children": [
+				{
+					"title": "代理-待审核",
+					"icon": "fa-slider",
+					"href": "/admin/manage/apply?status=1&page=1"
+				},{
+					"title": "代理-已被拒",
+					"icon": "fa-slider",
+					"href": "/admin/manage/apply?status=2&page=1"
+				},{
+					"title": "代理-已通过",
+					"icon": "fa-slider",
+					"href": "/admin/manage/apply?status=3&page=1"
+				},{
+					"title": "全部代理",
+					"icon": "fa-slider",
+					"href": "/admin/manage/agent?pid=0&page=1"
+				}
+			]
+		},{
+			"title": "配置管理",
+			"icon": "fa-sliders",
+			"spread": true,
+			"children": [
+				{
+					"title": "商城配置",
+					"icon": "fa-slider",
+					"href": "/admin/config/goods/list"
+				},{
+					"title": "任务配置",
+					"icon": "fa-slider",
+					"href": "/admin/config/task/list"
+				},{
+					"title": "登陆服配置",
+					"icon": "fa-slider",
+					"href": "/admin/config/game/list?t=t_game_config_login"
+				},{
+					"title": "登陆服服务器列表配置",
+					"icon": "fa-slider",
+					"href": "/admin/config/game/list?t=t_game_config_login_list"
+				}
+			]
+		}
+	],
+	"2": [
+		{
+			"title": "文章管理",
+			"icon": "fa-th",
+			"spread": true,
+			"children": [
+				{
+					"title": "文章列表",
+					"icon": "fa-list",
+					"href": "button.html"
+				},
+				{
+					"title": "文章回收站",
+					"icon": "fa-trash",
+					"href": "form.html"
+				}
+			]
+		},{
+			"title": "基础信息",
+			"icon": "fa-info",
+			"spread": true,
+			"children": [
+				{
+					"title": "标签管理",
+					"icon": "fa-tag",
+					"href": "button.html"
+				},
+				{
+					"title": "类别管理",
+					"icon": "fa-tag",
+					"href": "form.html"
+				},
+				{
+					"title": "其他设置",
+					"icon": "fa-cog",
+					"href": "form.html"
+				}
+			]
+		}
+	],
+	"3": [
+		{
+			"title": "审核管理",
+			"icon": "fa-cubes",
+			"spread": true,
+			"children": [
+				{
+					"title": "用户信息",
+					"icon": "fa-users",
+					"href": "button.html"
+				},
+				{
+					"title": "评论管理",
+					"icon": "fa-list",
+					"href": "form.html"
+				}
+			]
+		},{
+			"title": "支付管理",
+			"icon": "fa-paypal",
+			"spread": true,
+			"children": [
+				{
+					"title": "订单管理",
+					"icon": "fa-money",
+					"href": "button.html"
+				},
+				{
+					"title": "产品管理",
+					"icon": "fa-product-hunt",
+					"href": "form.html"
+				}
+			]
+		}
+	]
+}

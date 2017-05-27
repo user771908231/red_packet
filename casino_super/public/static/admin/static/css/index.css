@@ -1,0 +1,132 @@
+body {
+    margin: 0;
+    font-family: "Lato", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size: 14px;
+    line-height: 20px;
+    color: #2c3e50;
+    background-color: #fff;
+}
+
+/* 头部 */
+.header-demo {
+    height: 45px;
+    border-bottom: 1px solid #404553;
+    background-color: #2c3e50;
+    color: #fff;
+    padding-right: 20px;
+    padding-left: 20px;
+}
+
+.logo, .logo:hover {
+    float: left;
+    width: 190px;
+    padding: 10px 10px 10px;
+    margin-left: -30px;
+    font-size: 20px;
+    font-weight: 200;
+    color: #fff;
+    text-shadow: 0 1px 0 #2c3e50;
+    text-align: center;
+}
+
+.myTabs a {
+    position: relative;
+    max-height: 45px;
+    line-height: 45px;
+    background: #2c3e50;
+    height: 45px;
+    cursor: pointer;
+    padding-left: 10px;
+    padding-right: 10px;
+    color: #fff9ec;
+    float: left;
+}
+.rightT{
+    float: right;
+}
+
+.rightT .info{
+    display: none;
+    margin-top: 42px;
+    border-radius: 6px;
+    padding: 5px 0;
+}
+.rightT .info li,.rightT .info li a{
+    width: 76px;
+}
+.rightT  li:first-child a{
+    border-top-left-radius: 6px;
+    border-top-right-radius: 6px;
+}
+.rightT  li:last-child a{
+    border-bottom-left-radius: 6px;
+    border-bottom-right-radius: 6px;
+}
+.myTabs a:hover, .myTabs a:focus,.myTabs .active>a {
+    color: #1abc9c;
+    text-decoration: none;
+    background-color: #233140;
+}
+
+.layui-bg-black{
+    margin-top: 45px;
+    background: #f2f2f2;
+    border-right: 1px solid #ccc;
+}
+
+.sidebar-shortcuts {
+    max-height: 40px;
+    margin-bottom: 0;
+    line-height: 40px;
+    text-align: center;
+    background-color: #fafafa;
+    border-bottom: 1px solid #ddd;
+}
+.sidebar-shortcuts i{
+    padding: 2px 6px;
+}
+
+/* 侧边导航 */
+.layui-nav-tree .layui-nav-item a:hover,.layui-nav-itemed>a, .layui-nav-tree .layui-nav-title a, .layui-nav-tree .layui-nav-title a:hover,
+.layui-nav-tree .layui-nav-child dd.layui-this, .layui-nav-tree .layui-this, .layui-nav-tree .layui-this>a, .layui-nav-tree .layui-this>a:hover{
+    color: #1AA094!important;
+    background-color: #ecf0f1!important;
+}
+.layui-nav .layui-nav-item a{
+    color: #000;
+}
+dl.layui-nav-child dd a{margin-left: 15px}
+
+/*#f2f2f2*/
+.layui-nav-child dd{
+    border-bottom: 1px solid #f2f2f2;
+}
+.layui-nav-tree .layui-nav-item,.layui-nav-child dd{
+    background-color: #F2F2F2;
+    border-top: 1px solid #fcfcfc;
+    border-bottom: 1px solid #e5e5e5;
+}
+
+
+/* body */
+.layui-body{
+    margin-top:45px;
+}
+.layui-tab-title{
+    position: relative;
+}
+.layui-tab{
+    margin: 0px;
+}
+
+.layui-tab-brief>.layui-tab-more li.layui-this:after, .layui-tab-brief>.layui-tab-title .layui-this:after{
+    border: 0px;
+    text-align: center;
+    cursor: pointer;
+
+}
+.layui-tab-brief>.layui-tab-title .layui-this{
+    color: #000;
+    background: #ecf0f1;
+}
+

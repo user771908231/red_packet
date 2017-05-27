@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+    {{template "header" .}}
+    <title>{{.desk.GetPassword}}号房间玩家账单</title>
+</head>
+<body>
+
+<div class="container-fluid">
+    <br>
+    <div class="table-responsive panel panel-default">
+        <div class="panel-heading">
+            <p>{{.desk.GetPassword}}号房 ( {{.desk.GetCurrPlayCount}} / {{.desk.GetTotalPlayCount}} ) </p>
+        </div>
+        <div class="panel-body">
+            <p>打印时间 {{.renderTime}}</p>
+        </div>
+        <table class="table table-hover table-bordered">
+            <thead>
+            <tr>
+                <th>＃</th>
+                <th>玩家Id</th>
+                <th>nickname</th>
+                <th>玩家状态</th>
+                <th>网络状态</th>
+                <th>统计信息</th>
+                <th>账单</th>
+            </tr>
+            </thead>
+            <tbody>
+            {{range $key, $user := .users}}
+            <tr>
+                <td>{{$key}}</td>
+                <td>{{$user.GetUserId}}</td>
+                <td>{{$user.GetNickName}}</td>
+                <td>{{$user.GetTransferredStatus}}</td>
+
+                {{if $user.GetIsBreak }}
+                <td>掉线...</td>
+                {{else}}
+                <td>在线...</td>
+                {{end}}
+
+                <td>{{$user|$.desk.GetCardTitle4WinCoinInfo}}</td>
+                <td>
+                    <p>{{$user.WinAmount2String}}</p>
+                    {{range $key, $bb := $user.GetBill.GetBills}}
+                    <p>{{$bb|$user.Bill2String}}</p>
+                    {{end}}
+
+                </td>
+            </tr>
+            {{end}}
+            </tbody>
+        </table>
+    </div>
+    <div class="col-md-3"></div>
+    <div class="col-md-3"></div>
+    <div class="col-md-3"></div>
+    <div class="col-md-3">
+        <nav>
+            <ul class="pagination">
+                <li><a href="#">&laquo;</a></li>
+                <li><a href="#">1</a></li>
+                <li><a href="#">2</a></li>
+                <li><a href="#">3</a></li>
+                <li><a href="#">4</a></li>
+                <li><a href="#">5</a></li>
+                <li><a href="#">&raquo;</a></li>
+            </ul>
+        </nav>
+    </div>
+</div>
+</body>
+</html>
+
+
+<!-- 设置当前页面才有的状态 -->
+<script>
+    $("#nav-li-golang").addClass("active")
+</script>
+

@@ -1,0 +1,1 @@
+{  "LogLevel": "debug",  "LogPath": "",  "TCPAddr": "192.168.199.152:3797",  "MaxConnNum": 20000,  "MongoIp": "127.0.0.1",  "MongoPort": 27017,  "RedisAddr": "127.0.0.1:6379",  "CurVersion":3,  "OutIp": "171.221.137.148"}
