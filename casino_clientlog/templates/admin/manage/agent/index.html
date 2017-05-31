@@ -1,0 +1,156 @@
+{{template "manage_header" }}
+
+            <form id="form_list" action="" method="get">
+                <input type="hidden" name="page" value="{{.page.page}}">
+                <input type="hidden" name="pid" value="{{.pid}}">
+            </form>
+            <h1 style="font-size: +18px">
+                {{if .agent_info}}
+                &nbsp;&nbsp;“{{.agent_info.RealName}}” 的代理：
+                {{else}}
+                一级代理：
+                {{end}}
+            </h1>
+            <table class="layui-table">
+                <thead>
+                <tr>
+                    <th>Id</th>
+                    <th>类型</th>
+                    <th>昵称</th>
+                    <th>姓名</th>
+                    <th>电话</th>
+                    <th>下级代理</th>
+                    <th>操作</th>
+                </tr>
+                </thead>
+                <tbody>
+                {{range $k,$v := .list}}
+                <tr>
+                    <td>{{$v.UserId}}</td>
+                    <td>
+                        {{if eq $v.Type 1}}总代理{{end}}
+                        {{if eq $v.Type 2}}普通代理{{end}}
+                        {{if eq $v.Type 3}}{{$v.Level}}级代理{{end}}
+                    </td>
+                    <td>{{$v.NickName}}</td>
+                    <td>{{$v.RealName}}</td>
+                    <td>{{$v.Phone}}</td>
+                    <td><a href="/admin/manage/agent?pid={{$v.UserId}}">点击查看</a></td>
+                    <td>
+                        <form class="layui-form" action="">
+                            <div class="layui-form-item">
+                                <div class="layui-input-inline">
+                                    <select class="select_status" lay-filter="status" data-id="{{$v.UserId}}" name="types">
+                                        <option value="">设为总代理</option>
+                                        <option value="1">设为一级总代理</option>
+                                        <option value="2">设为一级普通代理</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </form>
+                        <a class="agent_del_btn" href="/admin/manage/agent/del?id={{$v.UserId}}">删除</a>
+                    </td>
+                </tr>
+                {{end}}
+                </tbody>
+            </table>
+            <div style="height: 35px;width: 750px;">
+                <div id="view_page"></div>
+            </div>
+
+<script>
+    layui.use(['form','laypage','laydate','element'], function(){
+        var form = layui.form();
+
+        //切换代理商上级
+        form.on('select(status)', function (data) {
+            var val = data.value;
+            var elem = data.elem;
+            var id = $(elem).data("id");
+            if(window.confirm("确定执行该操作吗？")){
+                $.ajax({
+                    url:"/admin/manage/agent/switch",
+                    type:"get",
+                    data:{"id": id, "types": val},
+                    success: function (res) {
+                        if(window.confirm(res.msg)){
+                            window.location.reload();
+                        }
+                    }
+                });
+            }
+        });
+
+        common.bindAjax("click", ".agent_del_btn", function(e){
+            e.preventDefault();
+            return window.confirm("确定删除该代理？")
+        },function(req, res){
+            if(res.code > 0){
+                if(window.confirm(res.msg)) {
+                    window.location.reload();
+                }
+            }else {
+                common.msg("消息", res.msg)
+            }
+        });
+
+        $("#form_list_btn").on("click", function (e) {
+            e.preventDefault();
+            var page = $("#form_list").find("[name=page]");
+            page.val(1);
+            $("#form_list").submit();
+        });
+
+
+
+        layui.laypage({
+            cont: 'view_page',
+            pages: {{.page.page_count}}, //总页数
+        curr: {{.page.page}},
+        skip:true, //连续显示分页数
+            jump: function (obj) {
+            var page = $("#form_list").find("[name=page]");
+            if(page.val() != obj.curr) {
+                page.val(obj.curr);
+                $("#form_list").submit();
+            }
+        }
+    });
+
+        var laydate = layui.laydate;
+
+        var start = {
+//        min: laydate.now(),
+//        max: '2099-06-16 23:59:59',
+            min: '2017-01-01 00:00:00',
+            max: laydate.now(),
+            istoday: false
+            ,choose: function(datas){
+                end.min = datas; //开始日选好后，重置结束日的最小日期
+                end.start = datas; //将结束日的初始值设定为开始日
+            }
+        };
+
+        var end = {
+//        min: laydate.now()
+//        ,max: '2099-06-16 23:59:59'
+            min: '2017-01-01 00:00:00',
+            max: laydate.now()
+            ,istoday: false
+            ,choose: function(datas){
+                start.max = datas; //结束日选好后，重置开始日的最大日期
+            }
+        };
+        document.getElementById('LAY_demorange_s').onclick = function(){
+            start.elem = this;
+            laydate(start);
+        };
+        document.getElementById('LAY_demorange_e').onclick = function(){
+            end.elem = this;
+            laydate(end);
+        }
+
+    });
+</script>
+
+{{template "manage_footer" }}
