@@ -1,8 +1,8 @@
 package modules
 
 import (
-	"gopkg.in/macaron.v1"
 	"github.com/go-macaron/session"
+	"gopkg.in/macaron.v1"
 )
 
 //自定义Context模块
