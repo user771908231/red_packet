@@ -2,7 +2,7 @@ package game
 
 import (
 	"bufio"
-	"casino_testtools/modules"
+	"casino_server/casino_testtools/modules"
 	"fmt"
 	"os"
 )
@@ -12,7 +12,7 @@ func GameTest(ctx *modules.Context) {
 }
 
 func GameEdit(ctx *modules.Context) {
-	outputFile, outputError := os.OpenFile("/usr/local/gametest/gameid/test.json",
+	outputFile, outputError := os.OpenFile("./usr/local/gametest/gameid/test.json",
 		os.O_WRONLY|os.O_CREATE, 0666) //0666是标准的权限掩码,关于打开标识看下面
 	if outputError != nil {
 		fmt.Printf("An error occurred with file creation\n")
