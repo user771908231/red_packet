@@ -1,8 +1,8 @@
 package main
 
 import (
-	"casino_server/casino_testtools/modules"
-	"casino_server/casino_testtools/routers"
+	"casino_testtools/modules"
+	"casino_testtools/routers"
 	"github.com/go-macaron/session"
 	"gopkg.in/macaron.v1"
 )
@@ -25,6 +25,6 @@ func main() {
 		ctx.Error("对不起未找到该页面！", "", 0)
 	})
 
-	m.Run(9094)
+	m.Run(9093)
 
 }
