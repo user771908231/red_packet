@@ -12,6 +12,17 @@ import (
 )
 
 func GameTest(ctx *modules.Context) {
+	sorce := ctx.Query("source")
+	if sorce == ""{
+		userFile := "./4/xipai.json"
+		fout,err := os.Create(userFile)
+		defer fout.Close()
+		if err != nil {
+			fmt.Println(userFile,err)
+			return
+		}
+		fout.WriteString("")
+	}
 	ctx.HTML(200, "game/game")
 }
 
@@ -41,5 +52,5 @@ func GameEdit(ctx *modules.Context) {
 	outputWriter := bufio.NewWriter(outputFile)
 	outputWriter.Write(b)
 	outputWriter.Flush()
-	ctx.Success("提交成功！", "/game", 1)
+	ctx.Success("提交成功！", "/game?source=1", 1)
 }
