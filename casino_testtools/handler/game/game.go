@@ -12,25 +12,21 @@ import (
 )
 
 func GameTest(ctx *modules.Context) {
-	sorce := ctx.Query("source")
-	if sorce == ""{
-		userFile := "./4/xipai.json"
-		fout,err := os.Create(userFile)
-		defer fout.Close()
-		if err != nil {
-			fmt.Println(userFile,err)
-			return
-		}
-		fout.WriteString("")
-	}
 	ctx.HTML(200, "game/game")
 }
 
 func GameEdit(ctx *modules.Context) {
 	gameId := ctx.Query("gameid")
+	fileName := "./" + gameId + "/xipai.json"
+	fmt.Printf("开始编辑文件:%v\n", fileName)
+	err := os.Remove(fileName)
+	if err != nil {
+		fmt.Printf("删除文件的时候，失败:%v\n", fileName)
+	}
 
-	outputFile, outputError := os.OpenFile("./"+gameId+"/xipai.json",
-		os.O_WRONLY|os.O_CREATE, 0666) //0666是标准的权限掩码,关于打开标识看下面
+	fmt.Printf("开始打开文件:%v\n", fileName)
+
+	outputFile, outputError := os.OpenFile(fileName, os.O_WRONLY|os.O_CREATE, 0666) //0666是标准的权限掩码,关于打开标识看下面
 	if outputError != nil {
 		fmt.Printf("An error occurred with file creation:%v\n", outputError)
 		return
