@@ -41,6 +41,10 @@ func GameEdit(ctx *modules.Context) {
 		xipai.Ids = append(xipai.Ids, numUtils.String2Int(s2))
 	}
 
+	if len(xipai.Ids) < 10 {
+		xipai.Ids = nil
+	}
+
 	b, e := json.Marshal(xipai)
 	if e != nil {
 		return
