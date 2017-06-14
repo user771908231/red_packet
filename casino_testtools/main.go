@@ -11,7 +11,8 @@ func main() {
 	m := macaron.Classic()
 	//注册模板
 	m.Use(macaron.Renderer(macaron.RenderOptions{Directory: "templates", IndentJSON: true}))
-
+	//注册Session
+	m.Use(session.Sessioner())
 	//注册Context
 	m.Use(func(ctx *macaron.Context, session session.Store) {
 		ctx.Map(&modules.Context{Context: ctx, Session: session})
