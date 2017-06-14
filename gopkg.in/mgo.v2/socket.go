@@ -525,10 +525,10 @@ func (socket *mongoSocket) Query(ops ...interface{}) (err error) {
 		switch op.(type) {
 		case *updateOp:
 			op_v := op.(*updateOp)
-			myLog("%s Update Query:%v data %d byte", op_v.Collection, op_v.Selector, data_len)
+			myLog("Update %s Query:%v data %d byte", op_v.Collection, op_v.Selector, data_len)
 		case *insertOp:
 			op_v := op.(*insertOp)
-			myLog("%s Insert data: %d byte", op_v.collection, data_len)
+			myLog("Insert %s data: %d byte", op_v.collection, data_len)
 		}
 	}
 	// --end
