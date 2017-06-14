@@ -3057,7 +3057,7 @@ func (q *Query) One(result interface{}) (err error) {
 		data = findReply.Cursor.FirstBatch[0].Data
 	}
 	// todo 外加的log FindOne --start
-	myLog("%s FindOne Query:%v data %d byte", q.op.collection, q.op.selector, len(data))
+	myLog("FindOne %s Query:%v data %d byte", q.op.collection, q.op.selector, len(data))
 	// --end
 	if result != nil {
 		err = bson.Unmarshal(data, result)
@@ -3621,7 +3621,7 @@ func (iter *Iter) Next(result interface{}) bool {
 				item_len++
 			}
 		}
-		myLog("%s FindAll item %d data %d byte", iter.op.collection, item_len, data_len)
+		myLog("FindAll %s item %d data %d byte", iter.op.collection, item_len, data_len)
 		//end
 	}
 	// Exhaust available data before reporting any errors.
