@@ -102,6 +102,18 @@ func logf(format string, v ...interface{}) {
 	}
 }
 
+// todo 外加的log --start
+func myLog(format string, v ...interface{}) {
+	if raceDetector {
+		globalMutex.Lock()
+		defer globalMutex.Unlock()
+	}
+	if globalLogger != nil {
+		globalLogger.Output(3, fmt.Sprintf(format, v...))
+	}
+}
+//  --end
+
 func debug(v ...interface{}) {
 	if raceDetector {
 		globalMutex.Lock()

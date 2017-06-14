@@ -3056,6 +3056,9 @@ func (q *Query) One(result interface{}) (err error) {
 		}
 		data = findReply.Cursor.FirstBatch[0].Data
 	}
+	// todo 外加的log FindOne --start
+	myLog("%s FindOne Query:%v data %d byte", q.op.collection, q.op.selector, len(data))
+	// --end
 	if result != nil {
 		err = bson.Unmarshal(data, result)
 		if err == nil {
@@ -3607,8 +3610,20 @@ func (iter *Iter) Next(result interface{}) bool {
 			}
 		}
 		iter.gotReply.Wait()
-	}
 
+		//todo 外加的log FindAll  --start
+		var data_len int = 0
+		var item_len int = 0
+		for _, item := range iter.docData.elems {
+			if item != nil {
+				iter_arr := item.([]byte)
+				data_len += len(iter_arr)
+				item_len++
+			}
+		}
+		myLog("%s FindAll item %d data %d byte", iter.op.collection, item_len, data_len)
+		//end
+	}
 	// Exhaust available data before reporting any errors.
 	if docData, ok := iter.docData.Pop().([]byte); ok {
 		close := false
