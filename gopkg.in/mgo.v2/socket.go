@@ -519,6 +519,19 @@ func (socket *mongoSocket) Query(ops ...interface{}) (err error) {
 	}
 
 	debugf("Socket %p to %s: sending %d op(s) (%d bytes)", socket, socket.addr, len(ops), len(buf))
+	// todo 外加的log --start
+	data_len := len(buf)
+	for _, op := range ops {
+		switch op.(type) {
+		case *updateOp:
+			op_v := op.(*updateOp)
+			myLog("Update %s Query:%v data %d byte", op_v.Collection, op_v.Selector, data_len)
+		case *insertOp:
+			op_v := op.(*insertOp)
+			myLog("Insert %s data: %d byte", op_v.collection, data_len)
+		}
+	}
+	// --end
 	stats.sentOps(len(ops))
 
 	socket.updateDeadline(writeDeadline)
