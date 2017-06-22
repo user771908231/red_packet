@@ -24,6 +24,7 @@ func init() {
 		conf.Server.LogPath,
 		"super",
 		conf.Server.MongoIp,
+		conf.Server.MongoLogIp,
 		config.SUPER_DBNAM,
 		[]string{
 			config.DBT_SUPER_LOGS,

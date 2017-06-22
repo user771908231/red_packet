@@ -18,6 +18,7 @@ var Server struct {
 
 	//mongo数据库相关的配置
 	MongoIp   string
+	MongoLogIp   string
 	MongoPort int
 
 	//redis配置
