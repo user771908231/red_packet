@@ -1103,7 +1103,7 @@ func main() {
 	//	return
 	//}
 	//AssetFile:= os.Args[1]
-	//redisHost := "127.0.0.1:6379"
+	//redisHost := "10.173.2.97:6939"
 	//mode := "正式发布"
 	//isGrey := false
 	//if len(os.Args) > 2 {
@@ -1111,6 +1111,9 @@ func main() {
 	//	if isGrey {
 	//		mode = "灰度发布"
 	//	}
+	//} else {
+	//	isGrey = true
+	//	mode = "灰度发布"
 	//}
 	//if len(os.Args) > 3 {
 	//	redisHost = os.Args[3]
