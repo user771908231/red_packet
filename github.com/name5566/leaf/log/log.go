@@ -67,10 +67,10 @@ func New(strLevel string, pathname string) (*Logger, error) {
 			return nil, err
 		}
 
-		baseLogger = log.New(file, "", log.LstdFlags)
+		baseLogger = log.New(file, "", log.Ldate | log.Lmicroseconds)
 		baseFile = file
 	} else {
-		baseLogger = log.New(os.Stdout, "", log.LstdFlags)
+		baseLogger = log.New(os.Stdout, "", log.Ldate | log.Lmicroseconds)
 	}
 
 	// new
