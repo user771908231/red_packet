@@ -1048,6 +1048,10 @@ func getFileId(globalFid *int32, filePath *string) (fileId int32) {
 	return *globalFid
 }
 
+var UserPathConf struct {
+	RootPath	   string //用户的本地路径
+}
+
 var ConfData struct {
 	ChannelId	   int32
 	CurrVersion	   int32
@@ -1059,8 +1063,28 @@ var ConfData struct {
 
 }
 
+
+func LoadUserPathConfig() {
+	filename := "./UserPath.json"
+
+	data, err := ioutil.ReadFile( filename )
+	if err != nil {
+		log.Fatal("%v", err)
+	}
+	//log.Printf("配置文件信息:%v\n", string(data))
+
+	err = json.Unmarshal(data, &UserPathConf)
+	if err != nil {
+		log.Fatal("%v", err)
+	}
+
+	log.Printf("配置RootPath: %v\n", UserPathConf.RootPath)
+}
+
 //载入配置
 func LoadJsonConfig(cid string) {
+	LoadUserPathConfig()
+
 	filename := "conf.json"
 	if cid != "" {
 		filename = "./conf."+cid+".json"
@@ -1076,6 +1100,10 @@ func LoadJsonConfig(cid string) {
 		log.Fatal("%v", err)
 	}
 
+	ConfData.AssetHost = ConfData.AssetHost + ".v" + strconv.Itoa(int(ConfData.CurrVersion)) + "/"
+	ConfData.ProjectPath = UserPathConf.RootPath + ConfData.ProjectPath
+	ConfData.OutputPath = UserPathConf.RootPath + ConfData.OutputPath
+
 	log.Printf("========================\n")
 	log.Printf("配置信息: \nChannelId: %v\nCurrVersion: %v\nLastVersion:%v\nRedisAddr: %v\nProjectPath:%v\nOUTPUT_PATH:%v\nAssetHost: %v\n",
 		ConfData.ChannelId, ConfData.CurrVersion, ConfData.LastVersion, ConfData.RedisAddr,
@@ -1084,8 +1112,76 @@ func LoadJsonConfig(cid string) {
 }
 
 
+//压缩多个文件/目录
+func zipFilesForUpdate(srcFiles []string, basePath string, dstZip string) {
+	fw, err := os.Create( dstZip )
+	if err != nil {
+		panic(err)
+	}
+	defer fw.Close()
+
+	w:=zip.NewWriter(fw)
+
+	for _, srcFile := range srcFiles {
+		//log.Printf("[%d] zipFiles >>> srcFile: %v base(srcFile):%v\n", i, srcFile, filepath.Base(srcFile))
+
+		if isDir(srcFile) { // 目录
+			realBasePath := basePath
+			if basePath == "import" {
+				realBasePath = filepath.Base(srcFile)
+			}
+
+			innerZipdir(srcFile, realBasePath, w)
+
+		} else { // 文件
+			fr, err := os.Open( srcFile )
+			if err != nil {
+				panic(err)
+			}
+			defer fr.Close()
+
+			fd,err := ioutil.ReadAll(fr)
+			//filename := basePath + filepath.Base( srcFile )
+			filename := "" + filepath.Base( srcFile ) //单个文件不加basePath了（临时方便update打包)
+
+			f, err := w.Create(filename)
+			if err != nil {
+				log.Fatal(err)
+			}
+			_, err = f.Write([]byte(fd))
+			if err != nil {
+				log.Fatal(err)
+			}
+		}
+	}
+
+	defer w.Close()
+}
+
+func packUpdateZip() {
+	fmt.Printf("====>> 正在打包(上传服务器所用.zip)..\n")
+
+	destFile := ConfData.OutputPath
+	currver := strconv.Itoa(int(ConfData.CurrVersion))
+	channelId := strconv.Itoa(int(ConfData.ChannelId))
+
+	files := []string {
+		destFile+"AssetsInfo"+channelId+"_v"+currver+".dat",
+		destFile+"print_AssetsInfo"+channelId+"_v"+currver+".txt",
+		destFile+"FileIdList"+channelId+"_v"+currver+".json",
+		destFile+"src.zip",
+		destFile+"res/"}
+
+	pathname := filepath.Base(ConfData.OutputPath)
+
+	destFile = ConfData.OutputPath + "/"+pathname+"_v"+currver+".zip"
+
+	zipFilesForUpdate(files, "res", destFile)
+	fmt.Printf("====>> 已完成打包，保存至文件："+destFile+"\n")
+}
 
 func main() {
+
 	if len(os.Args) < 2 {
 		fmt.Printf("用法1： 输入 channelId 打包资源，生成 AssetsInfo. \n")
 		fmt.Printf("用法2： 输入 -print {AssetsInfoFile} 来打印 \n")
@@ -1119,7 +1215,46 @@ func main() {
 	//	redisHost = os.Args[3]
 	//}
 	//
+	////文件名格式如：Asseif len(os.Args) < 2 {
+	//	fmt.Printf("用法： 输入AssetsInfo{cid}_{ver}.dat {gray/release} {redishost}\n")
+	//	return
+	//}
+	//AssetFile:= os.Args[1]
+	//redisHost := "10.173.2.97:6939"
+	//mode := "正式发布"
+	//isGrey := false
+	//if len(os.Args) > 2 {
+	//	isGrey = (os.Args[2]!="release") //(os.Args[2]=="gray" || os.Args[2]=="grey")
+	//	if isGrey {
+	//		mode = "灰度发布"
+	//	}
+	//} else {
+	//	isGrey = true
+	//	mode = "灰度发布"
+	//}
+	//if len(os.Args) > 3 {
+	//	redisHost = os.Args[3]
+	//}
+	//
 	////文件名格式如：AssetsInfo3_v23.dat (其中的23为cid）
+	//ss1 := strings.Split(AssetFile, "_")
+	////ss2 := strings.Split(ss1[1], ".")
+	////cid = ss2[0][1:]
+	//cid = ss1[0][10:]
+	//
+	//log.Printf("【"+mode+"】 cid="+ cid + " AssetFile=" + AssetFile + " redisHost="+redisHost+"\n")
+	//
+	//_, error := strconv.Atoi( cid )
+	//if error != nil{
+	//	log.Fatalf("[%v] 非法文件名格式，无法识别cid：%v\n", AssetFile, cid)
+	//}
+	//
+	//
+	//setAssetsFileToRedis( AssetFile, cid, redisHost, isGrey )
+	//
+	//log.Printf("【"+mode+"】已导入 cid="+ cid + " AssetFile=" + AssetFile + " redisHost="+redisHost+"\n")
+	//
+	//returntsInfo3_v23.dat (其中的23为cid）
 	//ss1 := strings.Split(AssetFile, "_")
 	////ss2 := strings.Split(ss1[1], ".")
 	////cid = ss2[0][1:]
@@ -1256,6 +1391,10 @@ func main() {
 	//log.Printf( logSaveFileId )
 
 	printAssetInfoFile( newAssetFile, logSaveFileId )
+
+	// 打包给上传服务器用
+	packUpdateZip()
+
 
 	//写入redis
 	//setAssetsFileToRedis( newAssetFile, cid, "127.0.0.1:6379")
