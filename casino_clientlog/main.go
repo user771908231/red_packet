@@ -23,6 +23,8 @@ func init() {
 		"test",
 		conf.Server.LogPath,
 		"super",
+		conf.Server.LogFileSize,
+		conf.Server.LogFileCount,
 		conf.Server.MongoIp,
 		conf.Server.MongoLogIp,
 		config.SUPER_DBNAM,

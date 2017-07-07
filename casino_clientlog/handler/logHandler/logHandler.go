@@ -2,8 +2,7 @@ package logHandler
 
 import (
 	"gopkg.in/macaron.v1"
-	//"casino_common/utils/db"
-	"casino_clientlog/model/logDao"
+	"casino_super/model/logDao"
 	"gopkg.in/mgo.v2/bson"
 	"fmt"
 	"time"
@@ -11,6 +10,8 @@ import (
 	"math"
 	"casino_common/common/log"
 	"casino_common/utils/timeUtils"
+	"casino_super/conf/config"
+	//"casino_common/utils/db"
 )
 
 type SearchParams struct {
@@ -19,7 +20,6 @@ type SearchParams struct {
 	Level            string
 	DataSearch       string
 	DataFilter       string
-	CreatedAt        string
 	CreatedStartedAt string
 	CreatedEndedAt   string
 }
@@ -36,7 +36,7 @@ type CallBack struct {
 var limiter = time.Tick(time.Millisecond * 200) //post请求的频率控制 200毫秒
 
 func init() {
-	//db.Oninit("127.0.0.1", 51668, "test", "id")
+	//db.Oninit("127.0.0.1:51668", "test", "id")
 }
 
 func Post(reqLog logDao.ReqLog, ctx *macaron.Context) {
@@ -89,36 +89,28 @@ func Get(ctx *macaron.Context) {
 		m["level"] = bson.M{"$gte" : level}
 	}
 
-	createdAt := ctx.Query("createdAt")
-	if createdAt != "" {
-		timeBegin := timeUtils.StringYYYYMMDD2time(createdAt)
-		timeEnd := timeBegin.AddDate(0, 0, 1)
-		timeBeginS := timeUtils.FormatYYYYMMDD(timeBegin)
-		timeEndS := timeUtils.FormatYYYYMMDD(timeEnd)
-		println(fmt.Sprintf("begin %v end %v", timeBeginS, timeEndS))
-		m["createdat"] = bson.M{
-			"$gte" : timeBeginS,
-			"$lt" : timeEndS,
-		}
-	}
-
+	tableName := ""
 	createdStartedAt := ctx.Query("createdStartedAt")
 	createdEndedAt := ctx.Query("createdEndedAt")
 	if createdStartedAt != "" {
 		timeBegin := timeUtils.String2YYYYMMDDHHMMSS(createdStartedAt)
+		tableName = logDao.GetTableName(config.DBT_SUPER_LOGS, timeBegin, userId)
 		timeEnd := time.Time{}
 		if createdEndedAt != "" {
 			timeEnd = timeUtils.String2YYYYMMDDHHMMSS(createdEndedAt)
 		}else {
-			timeEnd = time.Now()
+			str := timeUtils.Format(time.Now())
+			timeEnd = timeUtils.String2YYYYMMDDHHMMSS(str)
 		}
-		timeBeginS := timeUtils.Format(timeBegin)
-		timeEndS := timeUtils.Format(timeEnd)
-		println(fmt.Sprintf("begin %v end %v", timeBeginS, timeEndS))
+		//timeBeginS := timeUtils.Format(timeBegin)
+		//timeEndS := timeUtils.Format(timeEnd)
+		println(fmt.Sprintf("begin %v end %v", timeBegin, timeEnd))
 		m["createdat"] = bson.M{
-			"$gte" : timeBeginS,
-			"$lt" : timeEndS,
+			"$gte" : timeBegin,
+			"$lt" : timeEnd,
 		}
+	}else {
+		tableName = logDao.GetTableName(config.DBT_SUPER_LOGS, timeUtils.String2YYYYMMDDHHMMSS(timeUtils.Format(time.Now())), userId)
 	}
 
 	searchParams := SearchParams{
@@ -127,19 +119,18 @@ func Get(ctx *macaron.Context) {
 		DataSearch:dataSearch,
 		DataFilter:dataFilter,
 		Level:level,
-		CreatedAt:createdAt,
 		CreatedStartedAt:createdStartedAt,
 		CreatedEndedAt:createdEndedAt,
 	}
 	ctx.Data["searchParams"] = searchParams
-	log.T("查询条件 userId[%v] deskId[%v] level[%v] dataSearch[%v] dataFilter[%v] createAt[%v] createdStartedAt[%v] createdEndedAt[%v]", searchParams.UserId, searchParams.DeskId, searchParams.Level, searchParams.DataSearch, searchParams.DataFilter, searchParams.CreatedAt, searchParams.CreatedStartedAt, searchParams.CreatedEndedAt)
+	log.T("查询条件 userId[%v] deskId[%v] level[%v] dataSearch[%v] dataFilter[%v] createdStartedAt[%v] createdEndedAt[%v]", searchParams.UserId, searchParams.DeskId, searchParams.Level, searchParams.DataSearch, searchParams.DataFilter, searchParams.CreatedStartedAt, searchParams.CreatedEndedAt)
 
 
 	//分页控件
 	page := ctx.Params("page")
 	limit := ctx.Query("limit")
 	if limit == "" {
-		limit = "500" //默认每页100条数据
+		limit = "5000" //默认每页5000条数据
 	}
 	limitInt64, _ := strconv.ParseInt(limit, 10, 64)
 
@@ -157,12 +148,12 @@ func Get(ctx *macaron.Context) {
 	//	ctx.Data["logs"] = []logDao.LogData{}
 	//} else {}
 
-	log.T("开始查找, 查找条件userId[%v] deskId[%v] dataSearch[%v] dataFilter[%v] level[%v] createAt[%v]", userId, deskId, dataSearch, dataFilter, level, createdAt)
-	logs := logDao.FindLogsByMap(m, int(skip), int(limitInt64))
+	logs := logDao.FindLogsByMap(tableName, m, int(skip), int(limitInt64))
+	log.T(fmt.Sprintf("已从表[%v]中找到[%v]条数据", tableName, len(logs)))
 	ctx.Data["logs"] = logs
 
-	count, _ := logDao.FindLogsByMapCount(m) //总数
-	log.T(fmt.Sprintf("已找到[%v]条记录", count))
+	count, _ := logDao.FindLogsByMapCount(tableName, m) //总数
+	log.T(fmt.Sprintf("已从表[%v]中找到共[%v]条数据", tableName, count))
 
 	paginator := Paginator(int(pageInt64), int(limitInt64), int64(count))
 
@@ -179,7 +170,6 @@ func Get(ctx *macaron.Context) {
 		"&level=" + level +
 		"&data=" + dataSearch +
 		"&dataFilter=" + dataFilter +
-		"&createdAt=" + createdAt +
 		"&limit=" + limit +
 		"&createdStartedAt=" + createdStartedAt +
 		"&createdEndedAt=" + createdEndedAt
