@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <title></title>
+    <link rel="stylesheet" href="plugins/layui/css/layui.css" media="all"/>
+    <link rel="stylesheet" href="./static/css/main.css"/>
+</head>
+
+<body>
+<div class="admin-main">
+    <div class="layui-tab">
+        <ul class="layui-tab-title">
+            <li class="layui-this">网站设置</li>
+            <li>用户管理</li>
+            <li>权限分配</li>
+            <li>商品管理</li>
+            <li>订单管理</li>
+        </ul>
+        <div class="layui-tab-content">
+            <div class="layui-tab-item layui-show">
+                <form class="layui-form" action="">
+                    <div class="layui-form-item">
+                        <label class="layui-form-label">网站名称 </label>
+                        <div class="layui-input-block">
+                            <input type="text" name="title" required lay-verify="required" placeholder="请输入网站名称"
+                                   autocomplete="off" class="layui-input" value="演示站点-静态页面">
+                        </div>
+                    </div>
+                    <div class="layui-form-item">
+                        <label class="layui-form-label">备案信息</label>
+                        <div class="layui-input-inline">
+                            <input type="password" name="password" required lay-verify="required" placeholder="沪ICP备13000000号-8"
+                                   autocomplete="off" class="layui-input">
+                        </div>
+                        <div class="layui-form-mid layui-word-aux">请备案信息</div>
+                    </div>
+                    <div class="layui-form-item layui-form-text">
+                        <label class="layui-form-label">统计代码</label>
+                        <div class="layui-input-block">
+                            <textarea name="desc" placeholder="请输入统计代码" class="layui-textarea"></textarea>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="layui-tab-item">内容2</div>
+            <div class="layui-tab-item">内容3</div>
+            <div class="layui-tab-item">内容4</div>
+            <div class="layui-tab-item">内容5</div>
+        </div>
+    </div>
+</div>
+<script src="./plugins/layui/layui.js"></script>
+<script>
+    layui.use(['jquery', 'element', 'layer'], function () {
+        var $ = layui.jquery,
+                element = layui.element,
+                layer = layui.layer;
+
+    });
+</script>
+</body>
+</html>
