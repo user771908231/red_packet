@@ -2,7 +2,6 @@ package logHandler
 
 import (
 	"gopkg.in/macaron.v1"
-	"casino_super/model/logDao"
 	"gopkg.in/mgo.v2/bson"
 	"fmt"
 	"time"
@@ -10,8 +9,8 @@ import (
 	"math"
 	"casino_common/common/log"
 	"casino_common/utils/timeUtils"
-	"casino_super/conf/config"
-	//"casino_common/utils/db"
+	"casino_clientlog/conf/config"
+	"casino_clientlog/model/logDao"
 )
 
 type SearchParams struct {
