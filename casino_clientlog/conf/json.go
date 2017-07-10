@@ -10,6 +10,8 @@ import (
 var Server struct {
 	LogLevel   string
 	LogPath    string
+	LogFileSize int32
+	LogFileCount int32
 	WSAddr     string
 	TCPAddr    string
 	HttpIp     string
