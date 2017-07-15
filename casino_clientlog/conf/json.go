@@ -10,6 +10,8 @@ import (
 var Server struct {
 	LogLevel   string
 	LogPath    string
+	LogFileSize int32
+	LogFileCount int32
 	WSAddr     string
 	TCPAddr    string
 	HttpIp     string
@@ -18,6 +20,7 @@ var Server struct {
 
 	//mongo数据库相关的配置
 	MongoIp   string
+	MongoLogIp   string
 	MongoPort int
 
 	//redis配置

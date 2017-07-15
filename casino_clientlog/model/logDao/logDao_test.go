@@ -6,6 +6,8 @@ import (
 	"fmt"
 	"gopkg.in/mgo.v2/bson"
 	"casino_common/utils/timeUtils"
+	"casino_super/conf/config"
+	"strconv"
 )
 
 func TestSaveLogs2Mgo(t *testing.T) {
@@ -99,10 +101,34 @@ func TestFindLogsByMap(t *testing.T) {
 		"$lt" : timeEnd,
 	}
 
-	logs := FindLogsByMap(bson.M{}, 0, 100)
+	logs := FindLogsByMap(GetTableName(config.DBT_SUPER_LOGS, time.Now(), "10001"), bson.M{}, 0, 100)
 	for _, log := range logs {
 		println(fmt.Sprintf("%v", log))
 	}
 	println(2)
 	time.Sleep(time.Duration(2) * time.Second)
 }
+
+func TestGetTableName(t *testing.T) {
+	println(GetTableName(config.DBT_SUPER_LOGS, timeUtils.String2YYYYMMDDHHMMSS(timeUtils.Format(time.Now())), "10751"))
+}
+
+func TestParseUnixTime(t *testing.T) {
+	uploadUnixTime := "1493279902363"
+
+	sec, _ := strconv.ParseInt(uploadUnixTime[0:10], 10, 64)
+	nsec, _ := strconv.ParseInt(uploadUnixTime[10:], 10, 64)
+	println(sec)
+	println(nsec)
+	println(timeUtils.Format(time.Unix(sec, nsec)))
+}
+
+//{
+//"_id": ObjectId("5901a4ff4522023bcfdbf78f"),
+//"time": NumberLong(1493279902363),
+//"deskid": "null",
+//"userid": "undefined",
+//"level": "1",
+//"data": "[15:58:22.363]ZXZMJEventManager.getInstance >> this.eventManager=null, new ZXZMJEventManager",
+//"createdat": "2017-04-27 16:00:48"
+//}
