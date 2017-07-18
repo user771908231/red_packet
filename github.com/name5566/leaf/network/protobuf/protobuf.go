@@ -7,7 +7,6 @@ import (
 	"github.com/golang/protobuf/proto"
 	"github.com/name5566/leaf/chanrpc"
 	"github.com/name5566/leaf/log"
-	clog "casino_common/common/log"
 	"math"
 	"reflect"
 	"time"
@@ -99,10 +98,11 @@ func (p *Processor) Route(msg interface{}, userData interface{}) error {
 		time_start := time.Now()
 		i.msgHandler([]interface{}{msg, userData})
 		time_spend := time.Now().Sub(time_start).Seconds() * 1e3
-		log.Debug("Processor.Route(): 执行msgHandler()：%T spend:[%.2f ms]", msg, time_spend)  //TODO: 临时调试log
+		tag := ""
 		if time_spend >= 100 {
-			clog.E("Processor.Route(): 执行msgHandler()：%T spend:[%.2f ms]", msg, time_spend)
+			tag = "[慢]"
 		}
+		log.Debug("Processor.Route(): 执行msgHandler()：%T spend:[%.2f ms] %s", msg, time_spend, tag)  //TODO: 临时调试log
 	}
 
 	if i.msgRouter != nil {
