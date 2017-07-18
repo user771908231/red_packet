@@ -21,6 +21,7 @@ func init() {
 		conf.Server.ProdMod,
 		conf.Server.RedisAddr,
 		"test",
+		conf.Server.RedisPwd,
 		conf.Server.LogPath,
 		"super",
 		conf.Server.LogFileSize,

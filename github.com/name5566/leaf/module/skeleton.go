@@ -41,26 +41,32 @@ func (s *Skeleton) Init() {
 
 func (s *Skeleton) Run(closeSig chan bool) {
 	for {
+
 		select {
 		case <-closeSig:
+			log.Debug("Skeleton.Run(): 取出<-closeSig")  //TODO: 临时调试log
 			s.commandServer.Close()
 			s.server.Close()
 			s.g.Close()
 			return
 		case ci := <-s.server.ChanCall:
+			log.Debug("Skeleton.Run(): 取出<-s.server.ChanCall去Exec")  //TODO: 临时调试log
 			err := s.server.Exec(ci)
 			if err != nil {
 				log.Error("%v", err)
 				clog.E("%v",err)
 			}
 		case ci := <-s.commandServer.ChanCall:
+			log.Debug("Skeleton.Run(): 取出<-s.commandServer.ChanCall")  //TODO: 临时调试log
 			err := s.commandServer.Exec(ci)
 			if err != nil {
 				log.Error("%v", err)
 			}
 		case cb := <-s.g.ChanCb:
+			log.Debug("Skeleton.Run(): 取出s.g.ChanCb")  //TODO: 临时调试log
 			s.g.Cb(cb)
 		case t := <-s.dispatcher.ChanTimer:
+			log.Debug("Skeleton.Run(): 取出s.dispatcher.ChanTimer执行")  //TODO: 临时调试log
 			t.Cb()
 		}
 	}
