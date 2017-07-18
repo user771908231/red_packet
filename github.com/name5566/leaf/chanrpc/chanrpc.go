@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"github.com/name5566/leaf/conf"
 	"runtime"
+	"time"
+	"github.com/name5566/leaf/log"
 )
 
 // one server per goroutine (goroutine not safe)
@@ -103,6 +105,7 @@ func (s *Server) Exec(ci *CallInfo) (err error) {
 		}
 	}()
 
+	time_start := time.Now()
 	// execute
 	switch ci.f.(type) {
 	case func([]interface{}):
@@ -114,6 +117,12 @@ func (s *Server) Exec(ci *CallInfo) (err error) {
 	case func([]interface{}) []interface{}:
 		ret := ci.f.(func([]interface{}) []interface{})(ci.args)
 		return s.ret(ci, &RetInfo{ret: ret})
+	}
+
+	time_spend := time.Now().Sub(time_start).Seconds() * 1e3
+	log.Debug("Processor.Route(): 执行msgRouter()：%T spend:[%.2f ms]", ci.args[0], time_spend)  //TODO: 临时调试log
+	if time_spend >= 100 {
+		log.Error("Processor.Route(): 执行msgRouter()：%T spend:[%.2f ms]", ci.args[0], time_spend)
 	}
 
 	panic("bug")

@@ -25,6 +25,7 @@ var Server struct {
 
 	//redis配置
 	RedisAddr string
+	RedisPwd  string
 
 	//curVersion的配置
 	CurVersion int32
