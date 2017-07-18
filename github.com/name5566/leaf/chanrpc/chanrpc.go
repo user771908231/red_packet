@@ -120,10 +120,11 @@ func (s *Server) Exec(ci *CallInfo) (err error) {
 	}
 
 	time_spend := time.Now().Sub(time_start).Seconds() * 1e3
-	log.Debug("Processor.Route(): 执行msgRouter()：%T spend:[%.2f ms]", ci.args[0], time_spend)  //TODO: 临时调试log
+	tag := ""
 	if time_spend >= 100 {
-		log.Error("Processor.Route(): 执行msgRouter()：%T spend:[%.2f ms]", ci.args[0], time_spend)
+		tag = "[慢]"
 	}
+	log.Debug("Processor.Route(): 执行msgRouter()：%T spend:[%.2f ms] %s", ci.args[0], time_spend, tag)  //TODO: 临时调试log
 
 	panic("bug")
 }

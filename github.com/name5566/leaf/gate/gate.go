@@ -148,7 +148,7 @@ func (a *agent) WriteMsg(msg interface{}) {
 		a.conn.WriteMsg(data...)
 		time_end := time.Now()
 		time_sub := time_end.Sub(time_start)
-		log.Debug("agent[%p]发送的信息 type[%v],id[%v] len[%v] spend[%f],\t\t content[%v]", a, typeString, data[0], len(data[1]), time_sub.Seconds(), msg)
+		log.Debug("agent[%p]发送的信息 type[%v],id[%v] len[%v] spend[%.2f ms],\t\t content[%v]", a, typeString, data[0], len(data[1]), time_sub.Seconds() * 1e3, msg)
 	}
 }
 
