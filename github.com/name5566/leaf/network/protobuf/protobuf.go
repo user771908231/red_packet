@@ -100,9 +100,9 @@ func (p *Processor) Route(msg interface{}, userData interface{}) error {
 		time_spend := time.Now().Sub(time_start).Seconds() * 1e3
 		tag := ""
 		if time_spend >= 100 {
-			tag = "[慢]"
+			tag = "[SLOW]"
 		}
-		log.Debug("Processor.Route(): 执行msgHandler()：%T spend:[%.2f ms] %s", msg, time_spend, tag)  //TODO: 临时调试log
+		log.Debug("Processor.Route(): 执行msgHandler()：%v spend:[%.2f ms] %s", msg, time_spend, tag)  //TODO: 临时调试log
 	}
 
 	if i.msgRouter != nil {
