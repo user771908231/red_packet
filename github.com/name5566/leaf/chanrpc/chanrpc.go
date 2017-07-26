@@ -123,7 +123,7 @@ func (s *Server) Exec(ci *CallInfo) (err error) {
 	time_spend := time.Now().Sub(time_start).Seconds() * 1e3
 	tag := ""
 	if time_spend >= 100 {
-		tag = "[慢]"
+		tag = "[SLOW]"
 	}
 	log.Debug("Processor.Route(): 执行msgRouter()：%T spend:[%.2f ms] %s", ci.args[0], time_spend, tag)  //TODO: 临时调试log
 
