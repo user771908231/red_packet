@@ -109,6 +109,7 @@ func (s *Server) Exec(ci *CallInfo) (err error) {
 	// execute
 	switch ci.f.(type) {
 	case func([]interface{}):
+		log.Debug("Processor.Route(): 开始执行msgRouter()：%T", ci.args[0])  //TODO: 临时调试log
 		ci.f.(func([]interface{}))(ci.args)
 		return s.ret(ci, &RetInfo{})
 	case func([]interface{}) interface{}:
