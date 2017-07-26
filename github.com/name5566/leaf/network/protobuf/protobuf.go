@@ -94,7 +94,7 @@ func (p *Processor) Route(msg interface{}, userData interface{}) error {
 	i := p.msgInfo[id]
 
 	if i.msgHandler != nil {
-		//log.Debug("Processor.Route(): 执行msgHandler()：%v", msg)  //TODO: 临时调试log
+		log.Debug("Processor.Route(): 开始执行msgHandler()：%T", msg)  //TODO: 临时调试log
 		time_start := time.Now()
 		i.msgHandler([]interface{}{msg, userData})
 		time_spend := time.Now().Sub(time_start).Seconds() * 1e3

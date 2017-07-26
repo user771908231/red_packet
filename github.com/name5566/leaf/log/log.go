@@ -132,10 +132,23 @@ func (logger *Logger) Fatal(format string, a ...interface{}) {
 
 var gLogger, _ = New("debug", "")
 
+//todo --外加的全局log记录器，为gLogger的指针引用
+var GLogger *Logger
+//todo --end
+
+//todo --外加-暴露baseLogger
+func (logger *Logger) GetBaseLogger() *log.Logger {
+	return logger.baseLogger
+}
+//todo --end
+
 // It's dangerous to call the method on logging
 func Export(logger *Logger) {
 	if logger != nil {
 		gLogger = logger
+		//todo --外加
+		GLogger = logger
+		//todo --end
 	}
 }
 
