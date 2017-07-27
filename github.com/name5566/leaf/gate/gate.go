@@ -9,6 +9,8 @@ import (
 	"reflect"
 	"strings"
 	"time"
+	"casino_common/common/Error"
+	"fmt"
 )
 
 type Gate struct {
@@ -118,7 +120,10 @@ func (a *agent) Run() {
 				clog.T("a[%p]解析出来的数据type[%v],m[%v]", a, reflect.TypeOf(msg).String(), msg)
 			}
 
-			err = a.gate.Processor.Route(msg, a)
+			err = func(err error) error {
+				defer Error.ErrorRecovery(fmt.Sprintf("a.gate.Processor.Route(%v, %p)", typeString, a))
+				return a.gate.Processor.Route(msg, a)
+			}(err)
 			if err != nil {
 				log.Debug("route message error: %v", err)
 				break
@@ -148,7 +153,7 @@ func (a *agent) WriteMsg(msg interface{}) {
 		a.conn.WriteMsg(data...)
 		time_end := time.Now()
 		time_sub := time_end.Sub(time_start)
-		log.Debug("agent[%p]发送的信息 type[%v],id[%v] len[%v] spend[%.2f ms],\t\t content[%v]", a, typeString, data[0], len(data[1]), time_sub.Seconds() * 1e3, msg)
+		log.Debug("agent[%p]发送的信息 type[%v],id[%v] len[%v] spend[%.2f ms],\t\t content[%v]", a, typeString, data[0], len(data[1]), time_sub.Seconds()*1e3, msg)
 	}
 }
 
