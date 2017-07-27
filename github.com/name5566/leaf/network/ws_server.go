@@ -117,6 +117,9 @@ func (server *WSServer) Start() {
 		Handler:        server.handler,
 		ReadTimeout:    server.HTTPTimeout,
 		WriteTimeout:   server.HTTPTimeout,
+		//todo --外加 实现http recover logger
+		ErrorLog: log.GLogger.GetBaseLogger(),
+		//todo --end
 		MaxHeaderBytes: 1024,
 	}
 
