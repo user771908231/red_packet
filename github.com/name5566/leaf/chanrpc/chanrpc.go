@@ -109,7 +109,7 @@ func (s *Server) Exec(ci *CallInfo) (err error) {
 	// execute
 	switch ci.f.(type) {
 	case func([]interface{}):
-		log.Debug("Processor.Route(): 开始执行msgRouter()：%T", ci.args[0])  //TODO: 临时调试log
+		log.Debug("Processor.Route(): 开始执行msgRouter()：%T %v", ci.args[0], ci.args[0])  //TODO: 临时调试log
 		ci.f.(func([]interface{}))(ci.args)
 		return s.ret(ci, &RetInfo{})
 	case func([]interface{}) interface{}:
@@ -125,7 +125,7 @@ func (s *Server) Exec(ci *CallInfo) (err error) {
 	if time_spend >= 100 {
 		tag = "[SLOW]"
 	}
-	log.Debug("Processor.Route(): 执行msgRouter()：%T spend:[%.2f ms] %s", ci.args[0], time_spend, tag)  //TODO: 临时调试log
+	log.Debug("Processor.Route(): 结束执行msgRouter()：%T %v spend:[%.2f ms] %s", ci.args[0], ci.args[0], time_spend, tag)  //TODO: 临时调试log
 
 	panic("bug")
 }

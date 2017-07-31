@@ -13,6 +13,10 @@ import (
 	"fmt"
 )
 
+func init() {
+	agentList = map[*agent]bool{}
+}
+
 type Gate struct {
 	MaxConnNum      int
 	PendingWriteNum int
@@ -30,6 +34,9 @@ type Gate struct {
 	LittleEndian bool
 }
 
+//连接上次接收消息的时间
+var agentList map[*agent]bool
+
 func (gate *Gate) Run(closeSig chan bool) {
 	var wsServer *network.WSServer
 	if gate.WSAddr != "" {
@@ -41,6 +48,8 @@ func (gate *Gate) Run(closeSig chan bool) {
 		wsServer.HTTPTimeout = gate.HTTPTimeout
 		wsServer.NewAgent = func(conn *network.WSConn) network.Agent {
 			a := &agent{conn: conn, gate: gate}
+			a.lastReceiveTime = time.Now()
+			agentList[a] = true
 			if gate.AgentChanRPC != nil {
 				gate.AgentChanRPC.Go("NewAgent", a)
 			}
@@ -72,6 +81,30 @@ func (gate *Gate) Run(closeSig chan bool) {
 	if tcpServer != nil {
 		tcpServer.Start()
 	}
+	//自动销毁超时的agent
+	go func() {
+		for {
+			//每次循环延时60秒
+			<-time.After(60 * time.Second)
+
+			time_now := time.Now()
+			log.Debug("start clean timeout agent, curr agentlist [len: %d]", len(agentList))
+			for a, _ := range agentList {
+				if a == nil {
+					continue
+				}
+				timeCost := time_now.Sub(a.lastReceiveTime)
+				if timeCost > time.Second * 60 {
+					log.Debug("agent:%p close [timeout: %.2f s]", a, timeCost.Seconds())
+					//超时则关闭链接，并从列表中删除
+					a.Close()
+					a.Destroy()
+					delete(agentList, a)
+				}
+			}
+			log.Debug("end clean timeout agent, curr agentlist [len: %d]", len(agentList))
+		}
+	}()
 	<-closeSig
 	if wsServer != nil {
 		wsServer.Close()
@@ -87,6 +120,7 @@ type agent struct {
 	conn     network.Conn
 	gate     *Gate
 	userData interface{}
+	lastReceiveTime time.Time
 }
 
 func (a *agent) Run() {
@@ -97,6 +131,9 @@ func (a *agent) Run() {
 			log.Debug("read message: %v", err)
 			break
 		}
+
+		//更新上次收到数据的时间
+		a.lastReceiveTime = time.Now()
 
 		if a.gate.Processor != nil {
 			//增加一层校验md5的方法
