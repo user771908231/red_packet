@@ -1,6 +1,7 @@
-// Protocol Buffers - Google's data interchange format
-// Copyright 2008 Google Inc.  All rights reserved.
-// https://developers.google.com/protocol-buffers/
+// Go support for Protocol Buffers - Google's data interchange format
+//
+// Copyright 2010 The Go Authors.  All rights reserved.
+// https://github.com/golang/protobuf
 //
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions are
@@ -28,25 +29,57 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-syntax = "proto3";
+// +build go1.7
 
-package google.protobuf;
+package proto_test
 
-option csharp_namespace = "Google.Protobuf.WellKnownTypes";
-option go_package = "github.com/golang/protobuf/ptypes/empty";
-option java_package = "com.google.protobuf";
-option java_outer_classname = "EmptyProto";
-option java_multiple_files = true;
-option objc_class_prefix = "GPB";
-option cc_enable_arenas = true;
+import (
+	"strconv"
+	"testing"
 
-// A generic empty message that you can re-use to avoid defining duplicated
-// empty messages in your APIs. A typical example is to use it as the request
-// or the response type of an API method. For instance:
-//
-//     service Foo {
-//       rpc Bar(google.protobuf.Empty) returns (google.protobuf.Empty);
-//     }
-//
-// The JSON representation for `Empty` is empty JSON object `{}`.
-message Empty {}
+	"github.com/golang/protobuf/proto"
+	tpb "github.com/golang/protobuf/proto/proto3_proto"
+	"github.com/golang/protobuf/ptypes"
+)
+
+var (
+	blackhole []byte
+)
+
+// BenchmarkAny creates increasingly large arbitrary Any messages.  The type is always the
+// same.
+func BenchmarkAny(b *testing.B) {
+	data := make([]byte, 1<<20)
+	quantum := 1 << 10
+	for i := uint(0); i <= 10; i++ {
+		b.Run(strconv.Itoa(quantum<<i), func(b *testing.B) {
+			for k := 0; k < b.N; k++ {
+				inner := &tpb.Message{
+					Data: data[:quantum<<i],
+				}
+				outer, err := ptypes.MarshalAny(inner)
+				if err != nil {
+					b.Error("wrong encode", err)
+				}
+				raw, err := proto.Marshal(&tpb.Message{
+					Anything: outer,
+				})
+				if err != nil {
+					b.Error("wrong encode", err)
+				}
+				blackhole = raw
+			}
+		})
+	}
+}
+
+// BenchmarkEmpy measures the overhead of doing the minimal possible encode.
+func BenchmarkEmpy(b *testing.B) {
+	for i := 0; i < b.N; i++ {
+		raw, err := proto.Marshal(&tpb.Message{})
+		if err != nil {
+			b.Error("wrong encode", err)
+		}
+		blackhole = raw
+	}
+}

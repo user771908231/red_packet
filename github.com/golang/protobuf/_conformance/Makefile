@@ -1,6 +1,6 @@
 # Go support for Protocol Buffers - Google's data interchange format
 #
-# Copyright 2010 The Go Authors.  All rights reserved.
+# Copyright 2016 The Go Authors.  All rights reserved.
 # https://github.com/golang/protobuf
 #
 # Redistribution and use in source and binary forms, with or without
@@ -29,16 +29,5 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-# Not stored here, but plugin.proto is in https://github.com/google/protobuf/
-# at src/google/protobuf/compiler/plugin.proto
-# Also we need to fix an import.
 regenerate:
-	@echo WARNING! THIS RULE IS PROBABLY NOT RIGHT FOR YOUR INSTALLATION
-	protoc --go_out=Mgoogle/protobuf/descriptor.proto=github.com/golang/protobuf/protoc-gen-go/descriptor:../../../../.. \
-		-I$(HOME)/src/protobuf/include $(HOME)/src/protobuf/include/google/protobuf/compiler/plugin.proto
-
-restore:
-	cp plugin.pb.golden plugin.pb.go
-
-preserve:
-	cp plugin.pb.go plugin.pb.golden
+	protoc --go_out=Mgoogle/protobuf/any.proto=github.com/golang/protobuf/ptypes/any,Mgoogle/protobuf/duration.proto=github.com/golang/protobuf/ptypes/duration,Mgoogle/protobuf/struct.proto=github.com/golang/protobuf/ptypes/struct,Mgoogle/protobuf/timestamp.proto=github.com/golang/protobuf/ptypes/timestamp,Mgoogle/protobuf/wrappers.proto=github.com/golang/protobuf/ptypes/wrappers,Mgoogle/protobuf/field_mask.proto=google.golang.org/genproto/protobuf:. conformance_proto/conformance.proto
