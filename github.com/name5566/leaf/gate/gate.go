@@ -95,7 +95,7 @@ func (gate *Gate) Run(closeSig chan bool) {
 				}
 				timeCost := time_now.Sub(a.lastReceiveTime)
 				if timeCost > time.Second * 60 {
-					log.Debug("agent:%p close [timeout: %.2f s]", a, timeCost.Seconds())
+					log.Debug("clean agent:%p close [timeout: %.2f s]", a, timeCost.Seconds())
 					//超时则关闭链接，并从列表中删除
 					a.Close()
 					a.Destroy()
