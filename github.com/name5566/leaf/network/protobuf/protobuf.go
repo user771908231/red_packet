@@ -6,7 +6,8 @@ import (
 	"fmt"
 	"github.com/golang/protobuf/proto"
 	"github.com/name5566/leaf/chanrpc"
-	"github.com/name5566/leaf/log"
+	//"github.com/name5566/leaf/log"
+	"casino_common/common/log"
 	"math"
 	"reflect"
 	"time"
@@ -94,7 +95,7 @@ func (p *Processor) Route(msg interface{}, userData interface{}) error {
 	i := p.msgInfo[id]
 
 	if i.msgHandler != nil {
-		log.Debug("Processor.Route(): 开始执行msgHandler()：%T %v", msg, msg)  //TODO: 临时调试log
+		log.G("Processor.Route(): 开始执行msgHandler()：%T %v", msg, msg)  //TODO: 临时调试log
 		time_start := time.Now()
 		i.msgHandler([]interface{}{msg, userData})
 		time_spend := time.Now().Sub(time_start).Seconds() * 1e3
@@ -102,7 +103,7 @@ func (p *Processor) Route(msg interface{}, userData interface{}) error {
 		if time_spend >= 100 {
 			tag = "[SLOW]"
 		}
-		log.Debug("Processor.Route(): 结束执行msgHandler()：%T %v spend:[%.2f ms] %s", msg, msg, time_spend, tag)  //TODO: 临时调试log
+		log.G("Processor.Route(): 结束执行msgHandler()：%T %v spend:[%.2f ms] %s", msg, msg, time_spend, tag)  //TODO: 临时调试log
 	}
 
 	if i.msgRouter != nil {
