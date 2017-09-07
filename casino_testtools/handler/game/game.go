@@ -1,56 +1,52 @@
 package game
 
 import (
-	"bufio"
-	"casino_common/utils/numUtils"
 	"casino_common/utils/testUtils"
 	"casino_testtools/modules"
-	"encoding/json"
 	"fmt"
-	"os"
-	"strings"
+	"encoding/json"
 )
 
 func GameTest(ctx *modules.Context) {
+	desk_pwd := ctx.Query("desk_pwd")
+	room_type := 16
+	if ctx.QueryInt("room_type") == 15 {
+		room_type = 15
+	}
+
+	ctx.Data["desk_pwd"] = desk_pwd
+	ctx.Data["room_type"] = room_type
 	ctx.HTML(200, "game/game")
 }
 
 func GameEdit(ctx *modules.Context) {
-	gameId := ctx.Query("gameid")
-	fileName := "./" + gameId + "/xipai.json"
-	fmt.Printf("开始编辑文件:%v\n", fileName)
-	err := os.Remove(fileName)
+	gameId := ctx.QueryInt("gameid")
+	deskPws := ctx.Query("deskpwd")
+
+	if gameId <= 0 || deskPws == "" {
+		ctx.Ajax(-1, "表单数据异常", nil)
+		return
+	}
+
+	json_str := ctx.Query("data")
+	fmt.Println(json_str)
+
+	pokers := map[uint32][]int{}
+	err := json.Unmarshal([]byte(json_str), &pokers)
+
 	if err != nil {
-		fmt.Printf("删除文件的时候，失败:%v\n", fileName)
-	}
-
-	fmt.Printf("开始打开文件:%v\n", fileName)
-
-	outputFile, outputError := os.OpenFile(fileName, os.O_WRONLY|os.O_CREATE, 0666) //0666是标准的权限掩码,关于打开标识看下面
-	if outputError != nil {
-		fmt.Printf("An error occurred with file creation:%v\n", outputError)
+		ctx.Ajax(-2, "表单数据异常", nil)
 		return
 	}
-	defer outputFile.Close()
 
-	outputString := ctx.Query("game")
-	s := strings.Split(outputString, ",")
+	fmt.Println(err, pokers)
 
-	xipai := &testUtils.XiPai{}
-	for _, s2 := range s {
-		xipai.Ids = append(xipai.Ids, numUtils.String2Int(s2))
-	}
+	err = testUtils.SetDeskPreSendPokers(int32(gameId), deskPws, pokers)
 
-	if len(xipai.Ids) < 10 {
-		xipai.Ids = nil
-	}
-
-	b, e := json.Marshal(xipai)
-	if e != nil {
+	if err != nil {
+		ctx.Ajax(-3, "调牌失败！Err:"+err.Error(), nil)
 		return
 	}
-	outputWriter := bufio.NewWriter(outputFile)
-	outputWriter.Write(b)
-	outputWriter.Flush()
-	ctx.Success("提交成功！", "/game?source=1", 1)
+
+	ctx.Ajax(1, "调牌成功！", nil)
 }

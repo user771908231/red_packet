@@ -99,6 +99,8 @@ func (gate *Gate) Run(closeSig chan bool) {
 					//超时则关闭链接，并从列表中删除
 					a.Close()
 					a.Destroy()
+					//触发上层断线事件
+					a.gate.AgentChanRPC.Go("CloseAgent", a)
 					delete(agentList, a)
 				}
 			}
