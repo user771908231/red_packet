@@ -9,8 +9,8 @@ import (
 func Regist(m *macaron.Macaron) {
 	//日志
 	m.Group("/game", func() {
-		m.Get("", game.GameTest)
-		m.Post("/edit", game.GameEdit)
+		m.Get("/pdk", game.GameTest)
+		m.Get("/edit", game.GameEdit)
 	})
 
 }

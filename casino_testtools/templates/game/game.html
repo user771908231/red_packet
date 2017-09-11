@@ -8,131 +8,298 @@
     <script src="/layui/js/jquery-ui.js"></script>
     <!--<link rel="stylesheet" href="/resources/demos/style.css">-->
     <style>
-        #sortable {
-            margin: 0;
+        .sortable img {
+            width: 40px;
+            margin: 0px;
+            padding: 0px;
+            float: left;
+        }
+        .sortable div {
+            width: 600px;
+            height: 58px;
+            display: block;
+        }
+        .sortable{
+            margin: 0px;
+            padding: 0px;
+        }
+        .item-selected {
+            border: 2px solid red;
+        }
+        .item-can-select {
+            border: 2px solid antiquewhite;
+        }
+        #table-users td {
+            border: 1px solid black;
             padding: 0;
-            width: 80%;
-            height: 270px
-        }
-
-        #sortable .ui-state-default {
-            margin: 0 13px 3px 33px;
-            padding-left: 1.5em;
-            font-size: 1.4em;
-            height: 38px;
-            padding-bottom: 1.5em;
-            display: inline-block
-        }
-
-        #sortable .ui-state-default img {
-            position: absolute;
-            margin-left: -1.3em;
-            width: 50px;
+            margin: 0;
         }
     </style>
     <script>
         $(function () {
-            $("#sortable").sortable();
-            $("#sortable").disableSelection();
+            $(".sortable").sortable({
+                items: "img",
+                connectWith: ".sortable"
+            });
         });
     </script>
 </head>
 <body>
 
-<div id="sortable" style="width: 100%;height: 100%">
-    <span class="ui-state-default"><img src='/img/dezou/blackspades2.png'><span style="display: none">1,</span></span>
-    <span class="ui-state-default"><img src='/img/dezou/blackspades3.png'><span style="display: none">2,</span></span>
-    <span class="ui-state-default"><img src='/img/dezou/blackspades4.png'><span style="display: none">3,</span></span>
-    <span class="ui-state-default"><img src='/img/dezou/blackspades5.png'><span style="display: none">4,</span></span>
-    <span class="ui-state-default"><img src='/img/dezou/blackspades6.png'><span style="display: none">5,</span></span>
-    <span class="ui-state-default"><img src='/img/dezou/blackspades7.png'><span style="display: none">6,</span></span>
-    <span class="ui-state-default"><img src='/img/dezou/blackspades8.png'><span style="display: none">7,</span></span>
-    <span class="ui-state-default"><img src='/img/dezou/blackspades9.png'><span style="display: none">8,</span></span>
-    <span class="ui-state-default"><img src='/img/dezou/blackspades10.png'><span style="display: none">9,</span></span>
-    <span class="ui-state-default"><img src='/img/dezou/blackspades11.png'><span style="display: none">10,</span></span>
-    <span class="ui-state-default"><img src='/img/dezou/blackspades12.png'><span style="display: none">11,</span></span>
-    <span class="ui-state-default"><img src='/img/dezou/blackspades0.png'><span style="display: none">12,</span></span>
-    <span class="ui-state-default"><img src='/img/dezou/blackspades1.png'><span style="display: none">13,</span></span>
-
-    <span class="ui-state-default"><img src='/img/dezou/redhearts2.png'><span style="display: none">14,</span></span>
-    <span class="ui-state-default"><img src='/img/dezou/redhearts3.png'><span style="display: none">15,</span></span>
-    <span class="ui-state-default"><img src='/img/dezou/redhearts4.png'><span style="display: none">16,</span></span>
-    <span class="ui-state-default"><img src='/img/dezou/redhearts5.png'><span style="display: none">17,</span></span>
-    <span class="ui-state-default"><img src='/img/dezou/redhearts6.png'><span style="display: none">18,</span></span>
-    <span class="ui-state-default"><img src='/img/dezou/redhearts7.png'><span style="display: none">19,</span></span>
-    <span class="ui-state-default"><img src='/img/dezou/redhearts8.png'><span style="display: none">20,</span></span>
-    <span class="ui-state-default"><img src='/img/dezou/redhearts9.png'><span style="display: none">21,</span></span>
-    <span class="ui-state-default"><img src='/img/dezou/redhearts10.png'><span style="display: none">22,</span></span>
-    <span class="ui-state-default"><img src='/img/dezou/redhearts11.png'><span style="display: none">23,</span></span>
-    <span class="ui-state-default"><img src='/img/dezou/redhearts12.png'><span style="display: none">24,</span></span>
-    <span class="ui-state-default"><img src='/img/dezou/redhearts0.png'><span style="display: none">25,</span></span>
-    <span class="ui-state-default"><img src='/img/dezou/redhearts1.png'><span style="display: none">26,</span></span>
-
-    <span class="ui-state-default"><img src='/img/dezou/blackclubs2.png'><span style="display: none">27,</span></span>
-    <span class="ui-state-default"><img src='/img/dezou/blackclubs3.png'><span style="display: none">28,</span></span>
-    <span class="ui-state-default"><img src='/img/dezou/blackclubs4.png'><span style="display: none">29,</span></span>
-    <span class="ui-state-default"><img src='/img/dezou/blackclubs5.png'><span style="display: none">30,</span></span>
-    <span class="ui-state-default"><img src='/img/dezou/blackclubs6.png'><span style="display: none">31,</span></span>
-    <span class="ui-state-default"><img src='/img/dezou/blackclubs7.png'><span style="display: none">32,</span></span>
-    <span class="ui-state-default"><img src='/img/dezou/blackclubs8.png'><span style="display: none">33,</span></span>
-    <span class="ui-state-default"><img src='/img/dezou/blackclubs9.png'><span style="display: none">34,</span></span>
-    <span class="ui-state-default"><img src='/img/dezou/blackclubs10.png'><span style="display: none">35,</span></span>
-    <span class="ui-state-default"><img src='/img/dezou/blackclubs11.png'><span style="display: none">36,</span></span>
-    <span class="ui-state-default"><img src='/img/dezou/blackclubs12.png'><span style="display: none">37,</span></span>
-    <span class="ui-state-default"><img src='/img/dezou/blackclubs0.png'><span style="display: none">38,</span></span>
-    <span class="ui-state-default"><img src='/img/dezou/blackclubs1.png'><span style="display: none">39,</span></span>
-
-    <span class="ui-state-default"><img src='/img/dezou/reddiamonds2.png'><span style="display: none">40,</span></span>
-    <span class="ui-state-default"><img src='/img/dezou/reddiamonds3.png'><span style="display: none">41,</span></span>
-    <span class="ui-state-default"><img src='/img/dezou/reddiamonds4.png'><span style="display: none">42,</span></span>
-    <span class="ui-state-default"><img src='/img/dezou/reddiamonds5.png'><span style="display: none">43,</span></span>
-    <span class="ui-state-default"><img src='/img/dezou/reddiamonds6.png'><span style="display: none">44,</span></span>
-    <span class="ui-state-default"><img src='/img/dezou/reddiamonds7.png'><span style="display: none">45,</span></span>
-    <span class="ui-state-default"><img src='/img/dezou/reddiamonds8.png'><span style="display: none">46,</span></span>
-    <span class="ui-state-default"><img src='/img/dezou/reddiamonds9.png'><span style="display: none">47,</span></span>
-    <span class="ui-state-default"><img src='/img/dezou/reddiamonds10.png'><span style="display: none">48,</span></span>
-    <span class="ui-state-default"><img src='/img/dezou/reddiamonds11.png'><span style="display: none">49,</span></span>
-    <span class="ui-state-default"><img src='/img/dezou/reddiamonds12.png'><span style="display: none">50,</span></span>
-    <span class="ui-state-default"><img src='/img/dezou/reddiamonds0.png'><span style="display: none">51,</span></span>
-    <span class="ui-state-default"><img src='/img/dezou/reddiamonds1.png'><span style="display: none">52,</span></span>
-
-    <span class="ui-state-default"><img src='/img/dezou/big.png'><span style="display: none">53,</span></span>
-    <span class="ui-state-default"><img src='/img/dezou/small.png'><span style="display: none">54,</span></span>
-</div>
-<form action="/game/edit" id="form1" method="post">
+<div class="sortable poker-base" style="">
     <div>
-        <a id="demo" class="demo">查看</a>
-        <input type="text" id="demo1" style="margin-bottom: 20px;border: none;width: 920px" name="game">
-        <br>
-        游戏: <select name="gameid">
-        <option value="7">跑得快</option>
-        <option value="4">斗地主</option>
-    </select>
+        <img class="item" data-index="1" data-val="3" src='/img/dezou/blackspades2.png'>
+        <img class="item" data-index="2" data-val="4" src='/img/dezou/blackspades3.png'>
+        <img class="item" data-index="3" data-val="5" src='/img/dezou/blackspades4.png'>
+        <img class="item" data-index="4" data-val="6" src='/img/dezou/blackspades5.png'>
+        <img class="item" data-index="5" data-val="7" src='/img/dezou/blackspades6.png'>
+        <img class="item" data-index="6" data-val="8" src='/img/dezou/blackspades7.png'>
+        <img class="item" data-index="7" data-val="9" src='/img/dezou/blackspades8.png'>
+        <img class="item" data-index="8" data-val="10" src='/img/dezou/blackspades9.png'>
+        <img class="item" data-index="9" data-val="11" src='/img/dezou/blackspades10.png'>
+        <img class="item" data-index="10" data-val="12" src='/img/dezou/blackspades11.png'>
+        <img class="item" data-index="11" data-val="13" src='/img/dezou/blackspades12.png'>
+        <img class="item" data-index="12" data-val="14" src='/img/dezou/blackspades0.png'>
+        <img class="item" data-index="13" data-val="15" src='/img/dezou/blackspades1.png'>
     </div>
-    <button>提交</button>
-</form>
+    <div>
+        <img class="item" data-index="14" data-val="3" src='/img/dezou/redhearts2.png'>
+        <img class="item" data-index="15" data-val="4" src='/img/dezou/redhearts3.png'>
+        <img class="item" data-index="16" data-val="5" src='/img/dezou/redhearts4.png'>
+        <img class="item" data-index="17" data-val="6" src='/img/dezou/redhearts5.png'>
+        <img class="item" data-index="18" data-val="7" src='/img/dezou/redhearts6.png'>
+        <img class="item" data-index="19" data-val="8" src='/img/dezou/redhearts7.png'>
+        <img class="item" data-index="20" data-val="9" src='/img/dezou/redhearts8.png'>
+        <img class="item" data-index="21" data-val="10" src='/img/dezou/redhearts9.png'>
+        <img class="item" data-index="22" data-val="11" src='/img/dezou/redhearts10.png'>
+        <img class="item" data-index="23" data-val="12" src='/img/dezou/redhearts11.png'>
+        <img class="item" data-index="24" data-val="13" src='/img/dezou/redhearts12.png'>
+        <img class="item" data-index="25" data-val="14" src='/img/dezou/redhearts0.png'>
+        <img class="item" data-index="26" data-val="15" src='/img/dezou/redhearts1.png'>
+    </div>
+    <div>
+        <img class="item" data-index="27" data-val="3" src='/img/dezou/blackclubs2.png'>
+        <img class="item" data-index="28" data-val="4" src='/img/dezou/blackclubs3.png'>
+        <img class="item" data-index="29" data-val="5" src='/img/dezou/blackclubs4.png'>
+        <img class="item" data-index="30" data-val="6" src='/img/dezou/blackclubs5.png'>
+        <img class="item" data-index="31" data-val="7" src='/img/dezou/blackclubs6.png'>
+        <img class="item" data-index="32" data-val="8" src='/img/dezou/blackclubs7.png'>
+        <img class="item" data-index="33" data-val="9" src='/img/dezou/blackclubs8.png'>
+        <img class="item" data-index="34" data-val="10" src='/img/dezou/blackclubs9.png'>
+        <img class="item" data-index="35" data-val="11" src='/img/dezou/blackclubs10.png'>
+        <img class="item" data-index="36" data-val="12" src='/img/dezou/blackclubs11.png'>
+        <img class="item" data-index="37" data-val="13" src='/img/dezou/blackclubs12.png'>
+        <img class="item" data-index="38" data-val="14" src='/img/dezou/blackclubs0.png'>
+        <img class="item" data-index="39" data-val="15" src='/img/dezou/blackclubs1.png'>
+    </div>
+    <div>
+        <img class="item" data-index="40" data-val="3" src='/img/dezou/reddiamonds2.png'>
+        <img class="item" data-index="41" data-val="4" src='/img/dezou/reddiamonds3.png'>
+        <img class="item" data-index="42" data-val="5" src='/img/dezou/reddiamonds4.png'>
+        <img class="item" data-index="43" data-val="6" src='/img/dezou/reddiamonds5.png'>
+        <img class="item" data-index="44" data-val="7" src='/img/dezou/reddiamonds6.png'>
+        <img class="item" data-index="45" data-val="8" src='/img/dezou/reddiamonds7.png'>
+        <img class="item" data-index="46" data-val="9" src='/img/dezou/reddiamonds8.png'>
+        <img class="item" data-index="47" data-val="10" src='/img/dezou/reddiamonds9.png'>
+        <img class="item" data-index="48" data-val="11" src='/img/dezou/reddiamonds10.png'>
+        <img class="item" data-index="49" data-val="12" src='/img/dezou/reddiamonds11.png'>
+        <img class="item" data-index="50" data-val="13" src='/img/dezou/reddiamonds12.png'>
+        <img class="item" data-index="51" data-val="14" src='/img/dezou/reddiamonds0.png'>
+        <img class="item" data-index="52" data-val="15" src='/img/dezou/reddiamonds1.png'>
+    </div>
+    <div>
+        <img class="item" data-index="53" data-val="16" src='/img/dezou/small.png'>
+        <img class="item" data-index="54" data-val="17" src='/img/dezou/big.png'>
+    </div>
+
+</div>
+
+<div style="clear: both"></div>
+
+<input id="text-userid" style="display: none" type="text" value="" placeholder="用户id">
+<input id="btn-add" type="button" value="点击新增"/>
+<input id="btn-submit" style="display: none" type="button" value="确定"/>
+<input id="btn-cancel" style="display: none" type="button" value="取消"/>
+
+<table id="table-users" style="">
+    <tr>
+        <th>用户ID</th><th width="800px">手牌</th>
+    </tr>
+</table>
+<input title="房间号" id="text-desk-pwd" type="text" placeholder="房间号" value="{{if ne .desk_pwd ""}}{{.desk_pwd}}{{end}}" style="">
+<input style="" id="btn-post" type="button" value="提交">
 
 <script>
-    function removeAllSpace(str) {
-        return str.replace(/\s+/g, "");
+
+    //新增
+    $("#btn-add").on("click", function () {
+        $("#btn-add").hide();
+        $("#text-userid").show().val("");
+        $("#btn-submit").show();
+        $("#btn-cancel").show();
+        $(".poker-base .item").addClass("item-can-select");
+    });
+
+    //确定
+    $("#btn-submit").on("click", function (e) {
+        var text = $("#text-userid");
+        var user_id = text.val();
+
+        //已选的
+        var select_item = $(".item-selected");
+
+        if(select_item.length == 0) {
+            alert("请选择手牌");
+            return;
+        }
+
+        //验证用户id
+        if(isNaN(user_id) || user_id<=0){
+            alert("请输入正确的用户ID");
+            return;
+        }
+
+        user_poker_add(user_id, select_item);
+
+        $("#table-users").show();
+        $("#text-desk-pwd").show();
+        $("#btn-post").show();
+        //取消
+        $("#btn-cancel").click();
+    });
+
+    //给用户新增牌方法
+    function user_poker_add(user_id, items) {
+        if($("#table-users td[data-userid="+user_id+"]").length == 0){
+            $("#table-users").append("<tr><td align='center'>"+"<input type='text' data-userid='"+user_id+"' value='"+ user_id +"'>"+"</td><td data-userid='"+user_id+"' class='sortable table-users-item' id='user-items-"+user_id+"'"+"></td><tr/>");
+        }
+        $("#user-items-"+user_id).append(items);
+        $(".sortable").sortable({
+            connectWith: ".sortable"
+        });
+        user_poker_sort(user_id)
     }
 
-    $(".demo").click(function () {
-
-        var test = '';
-
-
-        $("#sortable").each(function () {
-            test = $(this).text()
-            test = removeAllSpace(test)
-            test = test.substr(0, test.length - 1)
-        })
-
-
-        $('#demo1').val(test);
+    //取消
+    $("#btn-cancel").on("click", function (e) {
+        //隐藏按钮
+        $("#btn-add").show();
+        $("#text-userid").hide();
+        $("#btn-submit").hide();
+        $("#btn-cancel").hide();
+        //取消选择状态
+        $(".item").removeClass("item-can-select").removeClass("item-selected");
+    });
 
 
+    //选择
+    $(document).on("click", ".item", function (e) {
+        if($(this).hasClass("item-can-select")){
+            $(this).removeClass("item-can-select").addClass("item-selected");
+            return;
+        }
+        if($(this).hasClass("item-selected")){
+            $(this).removeClass("item-selected").addClass("item-can-select");
+        }
+    });
+
+    //提交
+    $("#btn-post").on("click", function (e) {
+        var list = $(".table-users-item");
+        var json_obj = {};
+        $.each(list, function (i, v) {
+            var json_list = [];
+            $.each($(v).children("img"), function (k1, v1) {
+                json_list.push($(v1).data("index"))
+            });
+            json_obj[$(v).data("userid")] = json_list
+        });
+        var deskpwd = $("#text-desk-pwd").val();
+        if(isNaN(deskpwd) || deskpwd <= 0){
+            alert("请输入正确的房间号");
+            return
+        }
+        if(!confirm("确定提交吗？")){
+            return
+        }
+        $.ajax({
+            url: "/game/edit",
+            method: "get",
+            data: {
+                "gameid": 7,
+                "deskpwd": deskpwd,
+                "data": JSON.stringify(json_obj)
+            },
+            success: function (res) {
+                alert(res.msg);
+            },
+            error: function (err) {
+                alert("网络错误！")
+            }
+        });
+        console.log(json_obj)
+    });
+
+    //用户的牌重新排序
+    function user_poker_sort(user_id){
+        var sort_func = function (a, b) {
+            return $(a).data("val") - $(b).data("val")
+        };
+
+        var user_items = $("#user-items-"+user_id+" .item");
+        user_items.sort(sort_func);
+
+        $("#user-items-"+user_id).html(user_items);
+    }
+
+    var room_type = "{{.room_type}}";
+    //自动生成三个人的牌
+    $(document).ready(function () {
+        //根据房间类型过滤无效的牌
+        var fillt_index = [];
+        switch(room_type){
+            case "15":
+                fillt_index = [12, 38, 51, 26, 39, 52, 53, 54, 11];
+                break;
+            case "16":
+                fillt_index = [12, 39, 26, 52, 53, 54];
+                break
+        }
+        //过滤
+        $.each(fillt_index, function (k,v) {
+            $(".poker-base .item[data-index="+v+"]").remove()
+        });
+
+        //发牌
+        for(var i=0;i<3;i++){
+            for(var j=0;j<room_type;j++){
+                var poker_base_items = $(".poker-base .item");
+                var index = parseInt(Math.random()*poker_base_items.length);
+                user_poker_add(i+1, poker_base_items[index])
+            }
+        }
+    });
+
+    //自动重新设置userid
+    $(document).on("change", "#table-users input[type=text]", function (e) {
+        var old_user = $(this).data("userid");
+        var new_user = $(this).val();
+        //验证合法性
+        if(isNaN(new_user) || new_user<=0){
+            alert("用户id非法");
+            $(this).val(old_user);
+            return;
+        }
+        if($("#user-items-"+new_user).length > 0){
+            alert("用户"+new_user+"已存在，请重新设置！");
+            $(this).val(old_user);
+            return;
+        }
+        //替换新用户id
+        $(this).data("userid", new_user);
+        $("#user-items-"+old_user).data("userid", new_user).attr("id", "user-items-"+new_user);
     })
+
 </script>
 
 </body>
