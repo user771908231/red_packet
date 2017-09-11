@@ -79,6 +79,61 @@ func GetUserInfoFromJc(jc *rrconfig.JsonConfig) (*User, error) {
 	return u, nil
 }
 
+//获取WxInit memberList
+func GetWxInitGroupList(jc *rrconfig.JsonConfig) ([]*User, error) {
+	contact_list,_ := jc.GetInterfaceSlice("ContactList")
+	user_list := []*User{}
+	for _, user := range contact_list {
+		u := &User{}
+		fields := reflect.ValueOf(u).Elem()
+		for k, v := range user.(map[string]interface{}) {
+			field := fields.FieldByName(k)
+			if k == "MemberList" {
+				for _,user2 := range v.([]interface{}) {
+					u2 := &User{}
+					fields2 := reflect.ValueOf(u2).Elem()
+					for k2, v2 := range user2.(map[string]interface{}) {
+						field2 := fields2.FieldByName(k2)
+						switch field2.Kind() {
+						case reflect.Uint32:
+							if vv, ok := v2.(float64); ok {
+								field2.Set(reflect.ValueOf(uint32(vv)))
+							}
+						case reflect.Int:
+							if vv, ok := v2.(float64); ok {
+								field2.Set(reflect.ValueOf(int(vv)))
+							}
+						case reflect.String:
+							if vv, ok := v2.(string); ok {
+								field2.Set(reflect.ValueOf(string(vv)))
+							}
+						}
+					}
+					u.MemberList = append(u.MemberList, u2)
+				}
+				continue
+			}
+
+			switch field.Kind() {
+			case reflect.Uint32:
+				if vv, ok := v.(float64); ok {
+					field.Set(reflect.ValueOf(uint32(vv)))
+				}
+			case reflect.Int:
+				if vv, ok := v.(float64); ok {
+					field.Set(reflect.ValueOf(int(vv)))
+				}
+			case reflect.String:
+				if vv, ok := v.(string); ok {
+					field.Set(reflect.ValueOf(string(vv)))
+				}
+			}
+		}
+		user_list = append(user_list, u)
+	}
+	return user_list, nil
+}
+
 func RealTargetUserName(session *Session, msg *ReceivedMessage) string {
 	if session.Bot.UserName == msg.FromUserName {
 		return msg.ToUserName

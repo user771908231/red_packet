@@ -223,6 +223,12 @@ func (s *Session) LoginAndServe(useCache bool) error {
 	// for v2
 	s.Cm.AddUser(s.Bot)
 
+	//初始化讨论组
+	group_list,_ := GetWxInitGroupList(jc)
+	for _,group := range group_list {
+		s.Cm.AddUser(group)
+	}
+
 	if err := s.serve(); err != nil {
 		return err
 	}
@@ -288,6 +294,33 @@ func (s *Session) consumer(msg []byte) {
 		// no msg details
 		return
 	}
+
+	//新增联系人、群
+	modContactList,_ := jc.GetInterfaceSlice("ModContactList")
+	logs.Alert("ModContactList:%#v", modContactList)
+	for _,contact := range modContactList {
+		new_contact := contact.(map[string]interface{})
+
+		ex_contact := s.Cm.GetContactByUserName(new_contact["UserName"].(string))
+		if ex_contact == nil {
+			new_user := &User{}
+			new_user.UserName = new_contact["UserName"].(string)
+			new_user.MemberCount = int(new_contact["MemberCount"].(float64))
+			new_user.HeadImgUrl = new_contact["HeadImgUrl"].(string)
+			new_user.NickName = new_contact["NickName"].(string)
+
+			s.Cm.AddUser(new_user)
+			logs.Alert("ModContactList Added.%#v", new_user)
+		}else {
+			ex_contact.UserName = new_contact["UserName"].(string)
+			ex_contact.MemberCount = int(new_contact["MemberCount"].(float64))
+			ex_contact.HeadImgUrl = new_contact["HeadImgUrl"].(string)
+			ex_contact.NickName = new_contact["NickName"].(string)
+			logs.Alert("ModContactList Updated.%#v:", ex_contact)
+		}
+	}
+
+
 	msgis, _ := jc.GetInterfaceSlice("AddMsgList")
 	for _, v := range msgis {
 		rmsg := s.analize(v.(map[string]interface{}))
