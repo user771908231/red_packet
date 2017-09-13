@@ -50,7 +50,6 @@ func (s *Skeleton) Run(closeSig chan bool) {
 			s.g.Close()
 			return
 		case ci := <-s.server.ChanCall:
-			log.Debug("Skeleton.Run(): 取出<-s.server.ChanCall去Exec")  //TODO: 临时调试log
 			err := s.server.Exec(ci)
 			if err != nil {
 				log.Error("%v", err)

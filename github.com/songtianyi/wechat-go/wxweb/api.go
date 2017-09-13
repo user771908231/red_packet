@@ -402,6 +402,56 @@ func WebWxSendMsg(common *Common, ce *XmlConfig, cookies []*http.Cookie,
 	return body, nil
 }
 
+func WebWxSendLink(common *Common, ce *XmlConfig, cookies []*http.Cookie,
+	from, to string, msg string) ([]byte, error) {
+
+	km := url.Values{}
+	km.Add("pass_ticket", ce.PassTicket)
+
+	uri := common.CgiUrl + "/webwxsendmsg?" + km.Encode()
+
+	js := InitReqBody{
+		BaseRequest: &BaseRequest{
+			ce.Wxuin,
+			ce.Wxsid,
+			ce.Skey,
+			common.DeviceID,
+		},
+		Msg: &LinkMessage{
+			Type:         int(MSG_LINK),
+			Content:      msg,
+			FromUserName: from,
+			ToUserName:   to,
+			LocalID:      int(time.Now().Unix() * 1e4),
+			ClientMsgId:  int(time.Now().Unix() * 1e4),
+
+			AppMsgType: 5,
+			FileName: "来一圈跑得快",
+			Url: "http://d.tondeen.com/app/hunan.html",
+		},
+	}
+
+	b, _ := json.Marshal(js)
+	req, err := http.NewRequest("POST", uri, bytes.NewReader(b))
+	if err != nil {
+		return nil, err
+	}
+	req.Header.Add("Content-Type", "application/json; charset=UTF-8")
+	req.Header.Add("User-Agent", common.UserAgent)
+
+	jar, _ := cookiejar.New(nil)
+	u, _ := url.Parse(uri)
+	jar.SetCookies(u, cookies)
+	client := &http.Client{Jar: jar}
+	resp, err := client.Do(req)
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+	body, _ := ioutil.ReadAll(resp.Body)
+	return body, nil
+}
+
 // WebWxUploadMedia: webwxuploadmedia api
 func WebWxUploadMedia(common *Common, ce *XmlConfig, cookies []*http.Cookie,
 	filename string, content []byte) (string, error) {

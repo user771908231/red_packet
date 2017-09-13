@@ -208,6 +208,25 @@ type TextMessage struct {
 	ClientMsgId  int
 }
 
+type LinkMessage struct {
+	Type         int
+	Content      string
+	FromUserName string
+	ToUserName   string
+	LocalID      int
+	ClientMsgId  int
+
+	AppMsgType int
+	FileName string
+	FileSize string
+	ForwardFlag string
+	AppInfo struct{
+		AppID string
+		Type int
+	}
+	Url string
+}
+
 // MediaMessage
 type MediaMessage struct {
 	Type         int
