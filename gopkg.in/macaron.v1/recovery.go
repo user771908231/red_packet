@@ -24,6 +24,7 @@ import (
 	"runtime"
 
 	"github.com/go-macaron/inject"
+	llog "casino_common/common/log"
 )
 
 const (
@@ -138,7 +139,7 @@ func Recovery() Handler {
 		defer func() {
 			if err := recover(); err != nil {
 				stack := stack(3)
-				log.Printf("PANIC: %s\n%s", err, stack)
+				llog.E("PANIC: %s\n%s", err, stack)
 
 				// Lookup the current responsewriter
 				val := c.GetVal(inject.InterfaceOf((*http.ResponseWriter)(nil)))

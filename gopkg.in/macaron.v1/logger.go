@@ -21,6 +21,7 @@ import (
 	"net/http"
 	"runtime"
 	"time"
+	llog "casino_common/common/log"
 )
 
 var (
@@ -37,7 +38,7 @@ func Logger() Handler {
 	return func(ctx *Context, log *log.Logger) {
 		start := time.Now()
 
-		log.Printf("%s: Started %s %s for %s", time.Now().Format(LogTimeFormat), ctx.Req.Method, ctx.Req.RequestURI, ctx.RemoteAddr())
+		llog.G("%s: Started %s %s for %s", time.Now().Format(LogTimeFormat), ctx.Req.Method, ctx.Req.RequestURI, ctx.RemoteAddr())
 
 		rw := ctx.Resp.(ResponseWriter)
 		ctx.Next()
@@ -59,6 +60,6 @@ func Logger() Handler {
 				content = fmt.Sprintf("\033[1;36m%s\033[0m", content)
 			}
 		}
-		log.Println(content)
+		llog.G(content)
 	}
 }
