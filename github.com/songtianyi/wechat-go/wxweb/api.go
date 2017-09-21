@@ -55,7 +55,7 @@ func JsLogin(common *Common) (string, error) {
 	km.Add("_", strconv.FormatInt(time.Now().Unix(), 10))
 	uri := common.LoginUrl + "/jslogin?" + km.Encode()
 
-	req, err := http.NewRequest("GET", uri, nil)
+	req, err := common.NewRequest("GET", uri, nil)
 	req.Header.Add("User-Agent", common.UserAgent)
 
 	client := &http.Client{}
@@ -155,9 +155,9 @@ func WebWxInit(common *Common, ce *XmlConfig) ([]byte, error) {
 
 	b, _ := json.Marshal(js)
 	client := &http.Client{}
-	req, err := http.NewRequest("POST", uri, bytes.NewReader(b))
-	req.Header.Add("Content-Type", "application/json; charset=UTF-8")
-	req.Header.Add("User-Agent", common.UserAgent)
+	req, err := common.NewRequest("POST", uri, bytes.NewReader(b))
+	req.Header.Set("Content-Type", "application/json; charset=UTF-8")
+	req.Header.Set("User-Agent", common.UserAgent)
 
 	resp, err := client.Do(req)
 	if err != nil {
@@ -195,13 +195,13 @@ func SyncCheck(common *Common, ce *XmlConfig, cookies []*http.Cookie,
 	u, _ := url.Parse(uri)
 	jar.SetCookies(u, cookies)
 	client := &http.Client{Jar: jar, Timeout: time.Duration(30) * time.Second}
-	req, err := http.NewRequest("GET", uri, bytes.NewReader(b))
+	req, err := common.NewRequest("GET", uri, bytes.NewReader(b))
 	if err != nil {
 		return 0, 0, err
 	}
 
-	req.Header.Add("Content-Type", "application/json; charset=UTF-8")
-	req.Header.Add("User-Agent", common.UserAgent)
+	req.Header.Set("Content-Type", "application/json; charset=UTF-8")
+	req.Header.Set("User-Agent", common.UserAgent)
 
 	resp, err := client.Do(req)
 	if err != nil {
@@ -248,9 +248,9 @@ func WebWxSync(common *Common,
 	u, _ := url.Parse(uri)
 	jar.SetCookies(u, cookies)
 	client := &http.Client{Jar: jar, Timeout: time.Duration(10) * time.Second}
-	req, err := http.NewRequest("POST", uri, bytes.NewReader(b))
-	req.Header.Add("Content-Type", "application/json; charset=UTF-8")
-	req.Header.Add("User-Agent", common.UserAgent)
+	req, err := common.NewRequest("POST", uri, bytes.NewReader(b))
+	req.Header.Set("Content-Type", "application/json; charset=UTF-8")
+	req.Header.Set("User-Agent", common.UserAgent)
 
 	resp, err := client.Do(req)
 	if err != nil {
@@ -302,9 +302,9 @@ func WebWxStatusNotify(common *Common, ce *XmlConfig, bot *User) (int, error) {
 
 	b, _ := json.Marshal(js)
 	client := &http.Client{}
-	req, err := http.NewRequest("POST", uri, bytes.NewReader(b))
-	req.Header.Add("Content-Type", "application/json; charset=UTF-8")
-	req.Header.Add("User-Agent", common.UserAgent)
+	req, err := common.NewRequest("POST", uri, bytes.NewReader(b))
+	req.Header.Set("Content-Type", "application/json; charset=UTF-8")
+	req.Header.Set("User-Agent", common.UserAgent)
 
 	resp, err := client.Do(req)
 	if err != nil {
@@ -335,12 +335,12 @@ func WebWxGetContact(common *Common, ce *XmlConfig, cookies []*http.Cookie) ([]b
 	}
 
 	b, _ := json.Marshal(js)
-	req, err := http.NewRequest("POST", uri, bytes.NewReader(b))
+	req, err := common.NewRequest("POST", uri, bytes.NewReader(b))
 	if err != nil {
 		return nil, err
 	}
-	req.Header.Add("Content-Type", "application/json; charset=UTF-8")
-	req.Header.Add("User-Agent", common.UserAgent)
+	req.Header.Set("Content-Type", "application/json; charset=UTF-8")
+	req.Header.Set("User-Agent", common.UserAgent)
 
 	jar, _ := cookiejar.New(nil)
 	u, _ := url.Parse(uri)
@@ -382,12 +382,12 @@ func WebWxSendMsg(common *Common, ce *XmlConfig, cookies []*http.Cookie,
 	}
 
 	b, _ := json.Marshal(js)
-	req, err := http.NewRequest("POST", uri, bytes.NewReader(b))
+	req, err := common.NewRequest("POST", uri, bytes.NewReader(b))
 	if err != nil {
 		return nil, err
 	}
-	req.Header.Add("Content-Type", "application/json; charset=UTF-8")
-	req.Header.Add("User-Agent", common.UserAgent)
+	req.Header.Set("Content-Type", "application/json; charset=UTF-8")
+	req.Header.Set("User-Agent", common.UserAgent)
 
 	jar, _ := cookiejar.New(nil)
 	u, _ := url.Parse(uri)
@@ -432,12 +432,12 @@ func WebWxSendLink(common *Common, ce *XmlConfig, cookies []*http.Cookie,
 	}
 
 	b, _ := json.Marshal(js)
-	req, err := http.NewRequest("POST", uri, bytes.NewReader(b))
+	req, err := common.NewRequest("POST", uri, bytes.NewReader(b))
 	if err != nil {
 		return nil, err
 	}
-	req.Header.Add("Content-Type", "application/json; charset=UTF-8")
-	req.Header.Add("User-Agent", common.UserAgent)
+	req.Header.Set("Content-Type", "application/json; charset=UTF-8")
+	req.Header.Set("User-Agent", common.UserAgent)
 
 	jar, _ := cookiejar.New(nil)
 	u, _ := url.Parse(uri)
@@ -527,12 +527,12 @@ func WebWxUploadMedia(common *Common, ce *XmlConfig, cookies []*http.Cookie,
 	fw.Write([]byte(ce.PassTicket))
 	w.Close()
 
-	req, err := http.NewRequest("POST", common.UploadUrl, &b)
+	req, err := common.NewRequest("POST", common.UploadUrl, &b)
 	if err != nil {
 		return "", err
 	}
-	req.Header.Add("Content-Type", w.FormDataContentType())
-	req.Header.Add("User-Agent", common.UserAgent)
+	req.Header.Set("Content-Type", w.FormDataContentType())
+	req.Header.Set("User-Agent", common.UserAgent)
 
 	jar, _ := cookiejar.New(nil)
 	u, _ := url.Parse(common.UploadUrl)
@@ -588,12 +588,12 @@ func WebWxSendMsgImg(common *Common, ce *XmlConfig, cookies []*http.Cookie,
 	}
 
 	b, _ := json.Marshal(js)
-	req, err := http.NewRequest("POST", uri, bytes.NewReader(b))
+	req, err := common.NewRequest("POST", uri, bytes.NewReader(b))
 	if err != nil {
 		return -1, err
 	}
-	req.Header.Add("Content-Type", "application/json; charset=UTF-8")
-	req.Header.Add("User-Agent", common.UserAgent)
+	req.Header.Set("Content-Type", "application/json; charset=UTF-8")
+	req.Header.Set("User-Agent", common.UserAgent)
 
 	jar, _ := cookiejar.New(nil)
 	u, _ := url.Parse(uri)
@@ -618,12 +618,12 @@ func WebWxGetMsgImg(common *Common, ce *XmlConfig, cookies []*http.Cookie, msgId
 	km.Add("type", "slave")
 
 	uri := common.CgiUrl + "/webwxgetmsgimg?" + km.Encode()
-	req, err := http.NewRequest("GET", uri, nil)
+	req, err := common.NewRequest("GET", uri, nil)
 	if err != nil {
 		return nil, err
 	}
-	req.Header.Add("Content-Type", "image/jpeg")
-	req.Header.Add("User-Agent", common.UserAgent)
+	req.Header.Set("Content-Type", "image/jpeg")
+	req.Header.Set("User-Agent", common.UserAgent)
 
 	jar, _ := cookiejar.New(nil)
 	u, _ := url.Parse(uri)
@@ -668,12 +668,12 @@ func WebWxSendEmoticon(common *Common, ce *XmlConfig, cookies []*http.Cookie,
 	}
 
 	b, _ := json.Marshal(js)
-	req, err := http.NewRequest("POST", uri, bytes.NewReader(b))
+	req, err := common.NewRequest("POST", uri, bytes.NewReader(b))
 	if err != nil {
 		return -1, err
 	}
-	req.Header.Add("Content-Type", "application/json; charset=UTF-8")
-	req.Header.Add("User-Agent", common.UserAgent)
+	req.Header.Set("Content-Type", "application/json; charset=UTF-8")
+	req.Header.Set("User-Agent", common.UserAgent)
 
 	jar, _ := cookiejar.New(nil)
 	u, _ := url.Parse(uri)
@@ -702,12 +702,12 @@ func WebWxGetIcon(common *Common, ce *XmlConfig, cookies []*http.Cookie,
 	km.Add("skey", ce.Skey)
 	uri := common.CgiUrl + "/webwxgeticon?" + km.Encode()
 
-	req, err := http.NewRequest("GET", uri, nil)
+	req, err := common.NewRequest("GET", uri, nil)
 	if err != nil {
 		return nil, err
 	}
-	req.Header.Add("Content-Type", "image/jpeg")
-	req.Header.Add("User-Agent", common.UserAgent)
+	req.Header.Set("Content-Type", "image/jpeg")
+	req.Header.Set("User-Agent", common.UserAgent)
 
 	jar, _ := cookiejar.New(nil)
 	u, _ := url.Parse(uri)
@@ -726,12 +726,12 @@ func WebWxGetIcon(common *Common, ce *XmlConfig, cookies []*http.Cookie,
 func WebWxGetIconByHeadImgUrl(common *Common, ce *XmlConfig, cookies []*http.Cookie, headImgUrl string) ([]byte, error) {
 	uri := common.CgiDomain + headImgUrl
 
-	req, err := http.NewRequest("GET", uri, nil)
+	req, err := common.NewRequest("GET", uri, nil)
 	if err != nil {
 		return nil, err
 	}
-	req.Header.Add("Content-Type", "image/jpeg")
-	req.Header.Add("User-Agent", common.UserAgent)
+	req.Header.Set("Content-Type", "image/jpeg")
+	req.Header.Set("User-Agent", common.UserAgent)
 
 	jar, _ := cookiejar.New(nil)
 	u, _ := url.Parse(uri)
@@ -765,12 +765,12 @@ func WebWxBatchGetContact(common *Common, ce *XmlConfig, cookies []*http.Cookie,
 	}
 
 	b, _ := json.Marshal(js)
-	req, err := http.NewRequest("POST", uri, bytes.NewReader(b))
+	req, err := common.NewRequest("POST", uri, bytes.NewReader(b))
 	if err != nil {
 		return nil, err
 	}
-	req.Header.Add("Content-Type", "application/json; charset=UTF-8")
-	req.Header.Add("User-Agent", common.UserAgent)
+	req.Header.Set("Content-Type", "application/json; charset=UTF-8")
+	req.Header.Set("User-Agent", common.UserAgent)
 
 	jar, _ := cookiejar.New(nil)
 	u, _ := url.Parse(uri)
@@ -808,12 +808,12 @@ func WebWxVerifyUser(common *Common, ce *XmlConfig, cookies []*http.Cookie, opco
 		skey:               ce.Skey,
 	}
 	b, _ := json.Marshal(js)
-	req, err := http.NewRequest("POST", uri, bytes.NewReader(b))
+	req, err := common.NewRequest("POST", uri, bytes.NewReader(b))
 	if err != nil {
 		return nil, err
 	}
-	req.Header.Add("Content-Type", "application/json; charset=UTF-8")
-	req.Header.Add("User-Agent", common.UserAgent)
+	req.Header.Set("Content-Type", "application/json; charset=UTF-8")
+	req.Header.Set("User-Agent", common.UserAgent)
 
 	jar, _ := cookiejar.New(nil)
 	u, _ := url.Parse(uri)
@@ -847,12 +847,12 @@ func WebWxCreateChatroom(common *Common, ce *XmlConfig, cookies []*http.Cookie, 
 		Topic:       topic,
 	}
 	b, _ := json.Marshal(js)
-	req, err := http.NewRequest("POST", uri, bytes.NewReader(b))
+	req, err := common.NewRequest("POST", uri, bytes.NewReader(b))
 	if err != nil {
 		return nil, err
 	}
-	req.Header.Add("Content-Type", "application/json; charset=UTF-8")
-	req.Header.Add("User-Agent", common.UserAgent)
+	req.Header.Set("Content-Type", "application/json; charset=UTF-8")
+	req.Header.Set("User-Agent", common.UserAgent)
 
 	jar, _ := cookiejar.New(nil)
 	u, _ := url.Parse(uri)
@@ -885,12 +885,12 @@ func WebWxRevokeMsg(common *Common, ce *XmlConfig, cookies []*http.Cookie, clien
 		ToUserName:  toUserName,
 	}
 	b, _ := json.Marshal(js)
-	req, err := http.NewRequest("POST", uri, bytes.NewReader(b))
+	req, err := common.NewRequest("POST", uri, bytes.NewReader(b))
 	if err != nil {
 		return err
 	}
-	req.Header.Add("Content-Type", "application/json; charset=UTF-8")
-	req.Header.Add("User-Agent", common.UserAgent)
+	req.Header.Set("Content-Type", "application/json; charset=UTF-8")
+	req.Header.Set("User-Agent", common.UserAgent)
 
 	jar, _ := cookiejar.New(nil)
 	u, _ := url.Parse(uri)
@@ -926,12 +926,12 @@ func WebWxLogout(common *Common, ce *XmlConfig, cookies []*http.Cookie) error {
 		sid: ce.Wxsid,
 	}
 	b, _ := json.Marshal(js)
-	req, err := http.NewRequest("POST", uri, bytes.NewReader(b))
+	req, err := common.NewRequest("POST", uri, bytes.NewReader(b))
 	if err != nil {
 		return err
 	}
-	req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
-	req.Header.Add("User-Agent", common.UserAgent)
+	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+	req.Header.Set("User-Agent", common.UserAgent)
 
 	jar, _ := cookiejar.New(nil)
 	u, _ := url.Parse(uri)

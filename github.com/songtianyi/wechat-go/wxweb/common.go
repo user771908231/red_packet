@@ -29,6 +29,8 @@ import (
 	"encoding/xml"
 	"strconv"
 	"strings"
+	"net/http"
+	"io"
 )
 
 const (
@@ -67,6 +69,20 @@ type Common struct {
 	UploadUrl   string
 	MediaCount  uint32
 	RedirectUri string
+}
+
+func (c *Common) NewRequest(method, urlStr string, body io.Reader) (*http.Request, error) {
+	req, err := http.NewRequest(method, urlStr, body)
+	req.Header.Add("User-Agent", c.UserAgent)
+	req.Header.Add("Host", "wx.qq.com")
+	req.Header.Add("Referer", "https://wx.qq.com/")
+	req.Header.Add("Origin", "https://wx.qq.com")
+	req.Header.Add("Content-Type", "application/json;charset=UTF-8")
+	req.Header.Add("Connection", "keep-alive")
+	req.Header.Add("Accept-Language", "zh-CN,zh;q=0.8")
+	req.Header.Add("Accept-Encoding", "")
+	req.Header.Add("Accept", "application/json, text/plain, */*")
+	return req, err
 }
 
 type UrlGroup struct {

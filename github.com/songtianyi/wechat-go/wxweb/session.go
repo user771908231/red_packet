@@ -37,6 +37,8 @@ import (
 	"github.com/songtianyi/rrframework/config"
 	"github.com/songtianyi/rrframework/logs"
 	"github.com/songtianyi/rrframework/storage"
+	"casino_common/common/log"
+	"casino_common/utils/dingding"
 )
 
 const (
@@ -53,7 +55,7 @@ var (
 		LoginUrl:   "https://login.weixin.qq.com",
 		Lang:       "zh_CN",
 		DeviceID:   "e" + GetRandomStringFromNum(15),
-		UserAgent:  "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/48.0.2564.109 Safari/537.36",
+		UserAgent:  "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/60.0.3112.113 Safari/537.36",
 		SyncSrv:    "webpush.wx.qq.com",
 		UploadUrl:  "https://file.wx.qq.com/cgi-bin/mmwebwx-bin/webwxuploadmedia?f=json",
 		MediaCount: 0,
@@ -236,6 +238,11 @@ func (s *Session) LoginAndServe(useCache bool) error {
 }
 
 func (s *Session) serve() error {
+	//登录成功了，开始监听消息,打印日志
+	success_msg := fmt.Sprintf("机器人'%v登陆成功，开始监听消息。", s.Bot.NickName)
+	log.T(success_msg)
+	utils.WxRobot.SendTxt(success_msg)
+
 	msg := make(chan []byte, 1000)
 	// syncheck
 	errChan := make(chan error)
@@ -408,9 +415,13 @@ func (s *Session) SendText(msg, from, to string) (string, string, error) {
 		return "", "", err
 	}
 	jc, _ := rrconfig.LoadJsonConfigFromBytes(b)
+	jc_dump,_ := jc.Dump()
+	log.T("SendMsgTo:%v Content:%v Jc:%v", to, msg, jc_dump)
 	ret, _ := jc.GetInt("BaseResponse.Ret")
 	if ret != 0 {
 		errMsg, _ := jc.GetString("BaseResponse.ErrMsg")
+		log.T("SendMsgTo Err:%v Content:%v Jc:%v", to, msg, jc_dump)
+		utils.WxRobot.SendTxt(fmt.Sprintf("机器人'%v'发送消息'to:%v msg:%v'失败:%v", s.Bot.NickName, s.Cm.GetContactByUserName(to).NickName, msg, jc_dump))
 		return "", "", fmt.Errorf("WebWxSendMsg Ret=%d, ErrMsg=%s", ret, errMsg)
 	}
 	msgID, _ := jc.GetString("MsgID")
