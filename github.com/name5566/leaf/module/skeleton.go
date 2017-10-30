@@ -44,7 +44,7 @@ func (s *Skeleton) Run(closeSig chan bool) {
 
 		select {
 		case <-closeSig:
-			log.Debug("Skeleton.Run(): 取出<-closeSig")  //TODO: 临时调试log
+			//log.Debug("Skeleton.Run(): 取出<-closeSig")  //TODO: 临时调试log
 			s.commandServer.Close()
 			s.server.Close()
 			s.g.Close()
@@ -65,7 +65,7 @@ func (s *Skeleton) Run(closeSig chan bool) {
 			log.Debug("Skeleton.Run(): 取出s.g.ChanCb")  //TODO: 临时调试log
 			s.g.Cb(cb)
 		case t := <-s.dispatcher.ChanTimer:
-			log.Debug("Skeleton.Run(): 取出s.dispatcher.ChanTimer执行")  //TODO: 临时调试log
+			//log.Debug("Skeleton.Run(): 取出s.dispatcher.ChanTimer执行")  //TODO: 临时调试log
 			t.Cb()
 		}
 	}
