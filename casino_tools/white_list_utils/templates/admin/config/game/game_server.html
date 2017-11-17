@@ -1,0 +1,103 @@
+{{template "manage_header" }}
+<div class="layui-tab" style="overflow: visible" lay-filter="goods_tab">
+
+    <div class="layui-tab-content">
+        <div class="layui-tab-item layui-show">
+
+            <table class="layui-table">
+                <thead>
+                <tr>
+                    <td>游戏ID</td>
+                    <td>游戏</td>
+                    <td>维护信息</td>
+                    <td>是否在维护中</td>
+                    <td>操作</td>
+                </tr>
+                </thead>
+                <tbody>
+                    <tr><td>1</td><td {{if eq .info_1 1}}style="color: red"{{end}}>德州扑克</td><td>{{.maintian_info_1}}</td><td>{{if eq .info_1 0}}否{{else}}是{{end}}</td><td>{{if eq .info_1 0}} <button class="layui-btn maintian" type="submit" data-code="1" data-info="{{.maintian_info_1}}">维护</button>{{else}}<a href="/admin/config/game/gameListEdit?code=1&edit=0&maintianInfo={{.maintian_info_1}}" class="layui-btn complete" type="submit">取消维护</a>{{end}}</td></tr>
+                    <tr><td>2</td><td {{if eq .info_2 1}}style="color: red"{{end}}>麻将</td><td>{{.maintian_info_2}}</td><td>{{if eq .info_2 0}}否{{else}}是{{end}}</td><td>{{if eq .info_2 0}} <button class="layui-btn maintian" type="submit" data-code="2" data-info="{{.maintian_info_2}}">维护</button>{{else}}<a href="/admin/config/game/gameListEdit?code=2&edit=0&maintianInfo={{.maintian_info_2}}" class="layui-btn complete" type="submit">取消维护</a>{{end}}</td></tr>
+                    <tr><td>3</td><td {{if eq .info_3 1}}style="color: red"{{end}}>斗地主</td><td>{{.maintian_info_3}}</td><td>{{if eq .info_3 0}}否{{else}}是{{end}}</td><td>{{if eq .info_3 0}} <button class="layui-btn maintian" type="submit" data-code="3"  data-info="{{.maintian_info_3}}">维护</button>{{else}}<a href="/admin/config/game/gameListEdit?code=3&edit=0&maintianInfo={{.maintian_info_3}}" class="layui-btn complete" type="submit">取消维护</a>{{end}}</td></tr>
+                    <tr><td>4</td><td {{if eq .info_4 1}}style="color: red"{{end}}>炸金花</td><td>{{.maintian_info_4}}</td><td>{{if eq .info_4 0}}否{{else}}是{{end}}</td><td>{{if eq .info_4 0}} <button class="layui-btn maintian" type="submit" data-code="4"  data-info="{{.maintian_info_4}}">维护</button>{{else}}<a href="/admin/config/game/gameListEdit?code=4&edit=0&maintianInfo={{.maintian_info_4}}" class="layui-btn complete" type="submit">取消维护</a>{{end}}</td></tr>
+                    <tr><td>5</td><td {{if eq .info_5 1}}style="color: red"{{end}}>大厅</td><td>{{.maintian_info_5}}</td><td>{{if eq .info_5 0}}否{{else}}是{{end}}</td><td>{{if eq .info_5 0}} <button class="layui-btn maintian" type="submit" data-code="5"  data-info="{{.maintian_info_5}}">维护</button>{{else}}<a href="/admin/config/game/gameListEdit?code=5&edit=0&maintianInfo={{.maintian_info_5}}" class="layui-btn complete" type="submit">取消维护</a>{{end}}</td></tr>
+                    <tr><td>7</td><td {{if eq .info_7 1}}style="color: red"{{end}}>跑得快</td><td>{{.maintian_info_7}}</td><td>{{if eq .info_7 0}}否{{else}}是{{end}}</td><td>{{if eq .info_7 0}} <button class="layui-btn maintian" type="submit" data-code="7"  data-info="{{.maintian_info_7}}">维护</button>{{else}}<a href="/admin/config/game/gameListEdit?code=7&edit=0&maintianInfo={{.maintian_info_7}}" class="layui-btn complete" type="submit">取消维护</a>{{end}}</td></tr>
+                    <tr><td>8</td><td {{if eq .info_8 1}}style="color: red"{{end}}>捉虾子</td><td>{{.maintian_info_8}}</td><td>{{if eq .info_8 0}}否{{else}}是{{end}}</td><td>{{if eq .info_8 0}} <button class="layui-btn maintian" type="submit" data-code="8"  data-info="{{.maintian_info_8}}">维护</button>{{else}}<a href="/admin/config/game/gameListEdit?code=8&edit=0&maintianInfo={{.maintian_info_8}}" class="layui-btn complete" type="submit">取消维护</a>{{end}}</td></tr>
+                    <tr><td>9</td><td {{if eq .info_9 1}}style="color: red"{{end}}>白山麻将</td><td>{{.maintian_info_9}}</td><td>{{if eq .info_9 0}}否{{else}}是{{end}}</td><td>{{if eq .info_9 0}} <button class="layui-btn maintian" type="submit" data-code="9"  data-info="{{.maintian_info_9}}">维护</button>{{else}}<a href="/admin/config/game/gameListEdit?code=9&edit=0&maintianInfo={{.maintian_info_9}}" class="layui-btn complete" type="submit">取消维护</a>{{end}}</td></tr>
+                    <tr><td>10</td><td {{if eq .info_10 1}}style="color: red"{{end}}>长春麻将</td><td>{{.maintian_info_10}}</td><td>{{if eq .info_10 0}}否{{else}}是{{end}}</td><td>{{if eq .info_10 0}} <button class="layui-btn maintian" type="submit" data-code="10"  data-info="{{.maintian_info_10}}">维护</button>{{else}}<a href="/admin/config/game/gameListEdit?code=10&edit=0&maintianInfo={{.maintian_info_10}}" class="layui-btn complete" type="submit">取消维护</a>{{end}}</td></tr>
+                    <tr><td>11</td><td {{if eq .info_11 1}}style="color: red"{{end}}>经典牛牛</td><td>{{.maintian_info_11}}</td><td>{{if eq .info_11 0}}否{{else}}是{{end}}</td><td>{{if eq .info_11 0}} <button class="layui-btn maintian" type="submit" data-code="11"  data-info="{{.maintian_info_11}}">维护</button>{{else}}<a href="/admin/config/game/gameListEdit?code=11&edit=0&maintianInfo={{.maintian_info_11}}" class="layui-btn complete" type="submit">取消维护</a>{{end}}</td></tr>
+                    <tr><td>12</td><td {{if eq .info_12 1}}style="color: red"{{end}}>搬坨子（拼二张）</td><td>{{.maintian_info_12}}</td><td>{{if eq .info_12 0}}否{{else}}是{{end}}</td><td>{{if eq .info_12 0}} <button class="layui-btn maintian" type="submit" data-code="12"  data-info="{{.maintian_info_12}}">维护</button>{{else}}<a href="/admin/config/game/gameListEdit?code=12&edit=0&maintianInfo={{.maintian_info_12}}" class="layui-btn complete" type="submit">取消维护</a>{{end}}</td></tr>
+                    <tr><td>13</td><td {{if eq .info_13 1}}style="color: red"{{end}}>二人斗地主</td><td>{{.maintian_info_13}}</td><td>{{if eq .info_13 0}}否{{else}}是{{end}}</td><td>{{if eq .info_13 0}} <button class="layui-btn maintian" type="submit" data-code="13"  data-info="{{.maintian_info_13}}">维护</button>{{else}}<a href="/admin/config/game/gameListEdit?code=13&edit=0&maintianInfo={{.maintian_info_13}}" class="layui-btn complete" type="submit">取消维护</a>{{end}}</td></tr>
+                    <tr><td>14</td><td {{if eq .info_14 1}}style="color: red"{{end}}>东北经典斗地主</td><td>{{.maintian_info_14}}</td><td>{{if eq .info_14 0}}否{{else}}是{{end}}</td><td>{{if eq .info_14 0}} <button class="layui-btn maintian" type="submit" data-code="14"  data-info="{{.maintian_info_14}}">维护</button>{{else}}<a href="/admin/config/game/gameListEdit?code=14&edit=0&maintianInfo={{.maintian_info_14}}" class="layui-btn complete" type="submit">取消维护</a>{{end}}</td></tr>
+                    <tr><td>15</td><td {{if eq .info_15 1}}style="color: red"{{end}}>填大坑</td><td>{{.maintian_info_15}}</td><td>{{if eq .info_15 0}}否{{else}}是{{end}}</td><td>{{if eq .info_15 0}} <button class="layui-btn maintian" type="submit" data-code="15"  data-info="{{.maintian_info_15}}">维护</button>{{else}}<a href="/admin/config/game/gameListEdit?code=15&edit=0&maintianInfo={{.maintian_info_15}}" class="layui-btn complete" type="submit">取消维护</a>{{end}}</td></tr>
+                    <tr><td>16</td><td {{if eq .info_16 1}}style="color: red"{{end}}>松江河麻将</td><td>{{.maintian_info_16}}</td><td>{{if eq .info_16 0}}否{{else}}是{{end}}</td><td>{{if eq .info_16 0}} <button class="layui-btn maintian" type="submit" data-code="16"  data-info="{{.maintian_info_16}}">维护</button>{{else}}<a href="/admin/config/game/gameListEdit?code=16&edit=0&maintianInfo={{.maintian_info_16}}" class="layui-btn complete" type="submit">取消维护</a>{{end}}</td></tr>
+                    <tr><td>17</td><td {{if eq .info_17 1}}style="color: red"{{end}}>百人牛牛</td><td>{{.maintian_info_17}}</td><td>{{if eq .info_17 0}}否{{else}}是{{end}}</td><td>{{if eq .info_17 0}} <button class="layui-btn maintian" type="submit" data-code="17"  data-info="{{.maintian_info_17}}">维护</button>{{else}}<a href="/admin/config/game/gameListEdit?code=17&edit=0&maintianInfo={{.maintian_info_17}}" class="layui-btn complete" type="submit">取消维护</a>{{end}}</td></tr>
+                    <tr><td>18</td><td {{if eq .info_18 1}}style="color: red"{{end}}>至尊五张</td><td>{{.maintian_info_18}}</td><td>{{if eq .info_18 0}}否{{else}}是{{end}}</td><td>{{if eq .info_18 0}} <button class="layui-btn maintian" type="submit" data-code="18"  data-info="{{.maintian_info_18}}">维护</button>{{else}}<a href="/admin/config/game/gameListEdit?code=18&edit=0&maintianInfo={{.maintian_info_18}}" class="layui-btn complete" type="submit">取消维护</a>{{end}}</td></tr>
+                    <tr><td>19</td><td {{if eq .info_19 1}}style="color: red"{{end}}>宜宾麻将</td><td>{{.maintian_info_19}}</td><td>{{if eq .info_19 0}}否{{else}}是{{end}}</td><td>{{if eq .info_19 0}} <button class="layui-btn maintian" type="submit" data-code="19"  data-info="{{.maintian_info_19}}">维护</button>{{else}}<a href="/admin/config/game/gameListEdit?code=19&edit=0&maintianInfo={{.maintian_info_19}}" class="layui-btn complete" type="submit">取消维护</a>{{end}}</td></tr>
+                    <tr><td>20</td><td {{if eq .info_20 1}}style="color: red"{{end}}>彭州麻将</td><td>{{.maintian_info_20}}</td><td>{{if eq .info_20 0}}否{{else}}是{{end}}</td><td>{{if eq .info_20 0}} <button class="layui-btn maintian" type="submit" data-code="20"  data-info="{{.maintian_info_20}}">维护</button>{{else}}<a href="/admin/config/game/gameListEdit?code=20&edit=0&maintianInfo={{.maintian_info_20}}" class="layui-btn complete" type="submit">取消维护</a>{{end}}</td></tr>
+                    <tr><td>22</td><td {{if eq .info_22 1}}style="color: red"{{end}}>转转/红中麻将</td><td>{{.maintian_info_22}}</td><td>{{if eq .info_22 0}}否{{else}}是{{end}}</td><td>{{if eq .info_22 0}} <button class="layui-btn maintian" type="submit" data-code="22"  data-info="{{.maintian_info_22}}">维护</button>{{else}}<a href="/admin/config/game/gameListEdit?code=22&edit=0&maintianInfo={{.maintian_info_22}}" class="layui-btn complete" type="submit">取消维护</a>{{end}}</td></tr>
+
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<form class="layui-form" action="/admin/config/game/gameListEdit?edit=1" method="get" id="form" style="display: none">
+    <input type="hidden" name="code" id="Code" value="">
+    <div class="layui-form-item">
+        <label class="layui-form-label" style="width: 120px">游戏维护信息</label>
+        <div class="layui-input-inline">
+            <textarea type="text" name="maintianInfo" id="maintianInfo" autocomplete="off" placeholder="请输入维护信息" class="layui-textarea" value="" style="width: 490px;height: 300px"></textarea>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <div class="layui-input-block">
+            <button class="layui-btn" lay-submit="" lay-filter="demo1" type="submit">立即提交</button>
+        </div>
+    </div>
+</form>
+
+<script>
+
+    $(document).ready(function () {
+        var ids = {{.ids}}
+        ids = eval('('+ids+')');
+
+        for(var i=0; i<ids.length; i++ ){
+            $(".input_id_"+i).val(ids[i].Id);
+        }
+    });
+
+    $(".jump_btn").on("click", function (e) {
+        var id = $(this).data("id");
+        $(".table_item").hide();
+        $("#table_"+id).show();
+    });
+    common.bindAjax("submit", ".layui-form", function (e) {
+        e.preventDefault();
+        return window.confirm("确定更新该条配置吗？");
+    }, function (req, res) {
+        common.msg("消息", res.msg);
+        window.location.reload();
+    });
+
+    layui.use('layer', function() {
+
+        var layer = layui.layer;
+        $(".layui-table td .maintian").click(function () {
+            $("#maintianInfo").val(this.dataset.info)
+            $("#Code").val(this.dataset.code)
+            layer.open({
+                type: 1,
+                skin: 'layui-layer-rim', //加上边框
+                area: ['720px', '540px'], //宽高
+                content: $("#form")
+            });
+        })
+
+
+
+    })
+</script>
+
+{{template "manage_footer" }}

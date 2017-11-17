@@ -1,0 +1,254 @@
+{{template "manage_header" }}
+<fieldset class="layui-elem-field layui-field-title" style="margin-top: 50px;">
+    <legend style="margin-left: 100px">用户游戏中实际房卡消耗统计</legend>
+</fieldset>
+
+<form class="layui-form" action="" method="get" id="form_list">
+    <input type="hidden" name="page" value="{{.page.page}}">
+    <div class="layui-form-item">
+        <div class="layui-inline">
+            <label class="layui-form-label">用户ID&nbsp;&nbsp;&nbsp;</label>
+            <div class="layui-input-inline">
+                <input type="text" name="userId" value="{{.page.userID}}" autocomplete="off" class="layui-input">
+            </div>
+        </div>
+        <div class="layui-inline">
+            <label class="layui-form-label">游戏选择</label>
+            <div class="layui-input-block">
+                <input type="radio" name="Gid" title="全部" value="0" {{if eq .page.gid 0}}checked=""{{end}}>
+                <input type="radio" name="Gid" title="跑得快" value="7" {{if eq .page.gid 7}}checked=""{{end}}>
+                <input type="radio" name="Gid" title="转转&红中麻将" value="22" {{if eq .page.gid 22}}checked=""{{end}}>
+                <input type="radio" name="Gid" title="四川麻将&长沙麻将" value="2" {{if eq .page.gid 2}}checked=""{{end}}>
+                <input type="radio" name="Gid" title="牛牛" value="11" {{if eq .page.gid 11}}checked=""{{end}}>
+                <input type="radio" name="Gid" title="跑胡子" value="23" {{if eq .page.gid 23}}checked=""{{end}}>
+                <input type="radio" name="Gid" title="斗地主" value="3" {{if eq .page.gid 3}}checked=""{{end}}>
+                    <!--<input type="radio" name="Gid" title="炸金花" value="4" {{if eq .page.gid 4}}checked=""{{end}}>-->
+                    <!--<input type="radio" name="Gid" title="大厅" value="5" {{if eq .page.gid 5}}checked=""{{end}}>-->
+                <input type="radio" name="Gid" title="捉虾子" value="8" {{if eq .page.gid 8}}checked=""{{end}}>
+                <input type="radio" name="Gid" title="拼二张" value="12" {{if eq .page.gid 12}}checked=""{{end}}>
+                <input type="radio" name="Gid" title="白山麻将" value="9" {{if eq .page.gid 9}}checked=""{{end}}>
+                <input type="radio" name="Gid" title="松江河麻将" value="16" {{if eq .page.gid 16}}checked=""{{end}}>
+                    <!--<input type="radio" name="Gid" title="长春麻将" value="10" {{if eq .page.gid 10}}checked=""{{end}}>-->
+                    <!--<input type="radio" name="Gid" title="二人斗地主" value="13" {{if eq .page.gid 13}}checked=""{{end}}>-->
+                    <!--<input type="radio" name="Gid" title="东北经典斗地主" value="14" {{if eq .page.gid 14}}checked=""{{end}}>-->
+                    <!--<input type="radio" name="Gid" title="填大坑" value="15" {{if eq .page.gid 15}}checked=""{{end}}>-->
+
+                    <!--<input type="radio" name="Gid" title="百人牛牛" value="17" {{if eq .page.gid 17}}checked=""{{end}}>-->
+                    <!--<input type="radio" name="Gid" title="至尊五张" value="18" {{if eq .page.gid 18}}checked=""{{end}}>-->
+                    <!--<input type="radio" name="Gid" title="宜宾麻将" value="19" {{if eq .page.gid 19}}checked=""{{end}}>-->
+                    <!--<input type="radio" name="Gid" title="彭州麻将" value="20" {{if eq .page.gid 20}}checked=""{{end}}>-->
+                    <!--<input type="radio" name="Gid" title="三打一" value="21" {{if eq .page.gid 21}}checked=""{{end}}>-->
+            </div>
+        </div>
+        <div class="layui-inline">
+            <label class="layui-form-label">开始日期</label>
+            <div class="layui-input-inline">
+                <input type="text" name="start" id="LAY_demorange_s" value="{{.start_time}}" placeholder="请选择时间" autocomplete="off" class="layui-input" onclick="layui.laydate({elem: this})">
+            </div>
+            <label class="layui-form-label">结束日期</label>
+            <div class="layui-input-inline">
+                <input type="text" name="end" id="LAY_demorange_e" value="{{.end_time}}" placeholder="请选择时间" autocomplete="off" class="layui-input" onclick="layui.laydate({elem: this})">
+            </div>
+        </div>
+        <div class="layui-inline">
+            <div class="layui-input-block">
+                <button class="layui-btn" lay-submit="" type="submit">查询</button>
+            </div>
+        </div>
+    </div>
+    <div id="chart" style="width: 99%"></div>
+    <div class="layui-form-item">
+        <div class="layui-inline">
+            <label class="layui-form-label" style="width: 90px">房卡消耗总数</label>
+            <div class="layui-input-inline">
+                <input type="text" name="user_reg" id="user_reg" placeholder="请选择时间" autocomplete="off" class="layui-input" value="{{.sum}}" style="border: none">
+            </div>
+        </div>
+    </div>
+
+</form>
+<table class="layui-table" lay-even="" lay-skin="row">
+    <colgroup>
+        <col width="250">
+        <col width="250">
+        <col width="200">
+        <col width="200">
+    </colgroup>
+    <thead>
+    <tr>
+        <th>用户ID</th>
+        <th>房卡消耗数</th>
+        <th>游戏</th>
+        <th>房卡使用时间</th>
+    </tr>
+    </thead>
+
+    <tbody id="biuuu_city_list">
+    {{range $k,$v := .info}}
+    <tr>
+        <td>{{.UserId}}</td>
+        <td>{{.RoomCardCount}}</td>
+        <td>
+            {{if eq .Gid 2.0}}麻将
+            {{else if eq .Gid 3.0}}斗地主
+            {{else if eq .Gid 4.0}}炸金花
+            {{else if eq .Gid 5.0}}大厅
+            {{else if eq .Gid 7.0}}跑得快
+            {{else if eq .Gid 8.0}}抓瞎子
+            {{else if eq .Gid 9.0}}白山麻将
+            {{else if eq .Gid 10.0}}长春麻将
+            {{else if eq .Gid 11.0}}经典牛牛
+            {{else if eq .Gid 12.0}}搬坨子（拼二张）
+            {{else if eq .Gid 13.0}}二人斗地主
+            {{else if eq .Gid 14.0}}东北经典斗地主
+            {{else if eq .Gid 15.0}}填大坑
+            {{else if eq .Gid 16.0}}松江河麻将
+            {{else if eq .Gid 17.0}}百人牛牛
+            {{else if eq .Gid 18.0}}至尊五张
+            {{else if eq .Gid 19.0}}宜宾麻将
+            {{else if eq .Gid 20.0}}彭州麻将
+            {{else if eq .Gid 21.0}}三打一
+            {{else if eq .Gid 23.0}}跑胡子
+            {{else if eq .Gid 22.0}}湖南转转麻将{{end}}</td>
+        <td>{{.Time.Format "2006-01-02 15:04:05"}}</td>
+        </tr>
+    {{end}}
+    </tbody>
+</table>
+
+<!--分页-->
+<div style="height: 35px;width: 950px;">
+    <div id="view_page"></div>
+</div>
+
+<script>
+    layui.use(['form','laypage','laydate'], function(){
+        var form = layui.form();
+
+        $("#form_list_btn").on("click", function (e) {
+            e.preventDefault();
+            var page = $("#form_list").find("[name=page]");
+            page.val(1);
+            $("#form_list").submit();
+        });
+
+        layui.laypage({
+            cont: 'view_page',
+            pages: {{.page.page_count}}, //总页数
+        curr: {{.page.page}},
+        skip:true, //连续显示分页数
+            jump: function (obj) {
+            var page = $("#form_list").find("[name=page]");
+            if(page.val() != obj.curr) {
+                page.val(obj.curr);
+                $("#form_list").submit();
+            }
+        }
+    });
+        var laydate = layui.laydate;
+
+        var start = {
+//        min: laydate.now(),
+//        max: '2099-06-16 23:59:59',
+            min: '2017-01-01 00:00:00',
+            max: laydate.now(),
+            istoday: false
+            ,choose: function(datas){
+                end.min = datas; //开始日选好后，重置结束日的最小日期
+                end.start = datas; //将结束日的初始值设定为开始日
+            }
+        };
+
+        var end = {
+//        min: laydate.now()
+//        ,max: '2099-06-16 23:59:59'
+            min: '2017-01-01 00:00:00',
+            max: laydate.now()
+            ,istoday: false
+            ,choose: function(datas){
+                start.max = datas; //结束日选好后，重置开始日的最大日期
+            }
+        };
+        document.getElementById('LAY_demorange_s').onclick = function(){
+            start.elem = this;
+            laydate(start);
+        };
+        document.getElementById('LAY_demorange_e').onclick = function(){
+            end.elem = this;
+            laydate(end);
+        }
+    })
+</script>
+<script>
+    $(document).ready(function() {
+
+        //获得日期
+        function Todo(begin, end)
+        {
+            var ab = begin.split("-");
+            var ae = end.split("-");
+            var db = new Date();
+            db.setFullYear(ab[0], ab[1]-1, ab[2]);
+            var de = new Date();
+            de.setFullYear(ae[0], ae[1]-1, ae[2]);
+            var a = [];
+            for (var i=0,temp=db;temp < de;i++)
+            {
+                a[i] = GetDate(temp);
+                temp.setTime(temp.getTime() + 24*60*60*1000);
+            }
+            a[i] = GetDate(de);
+            return a.join();
+        }
+        //返回1900-01-01格式的字符串
+        function GetDate(d)
+        {
+            return d.getFullYear() + "-" + (d.getMonth()+1) + "-" +  d.getDate();
+        }
+//		当选择一天的时候，数据变为这一天的数据
+
+        function skipEmptyElementForArray(arr){
+            var a = [];
+            $.each(arr,function(i,v){
+                var data = $.trim(v);//$.trim()函数来自jQuery
+                if('' != data){
+                    a.push(data);
+                }
+            });
+            return a;
+        }
+        str=Todo("{{.start_time}}", "{{.end_time}}"); //这是一字符串
+        var strs= new Array(); //定义一数组
+        strs=str.split(","); //字符分割
+        var x_label = "时间(天)"; //X轴标题
+
+        var count1 = [
+            '{{range $k,$v := .info2}}',
+            '{{$v}}',
+            '{{end}}'
+        ];
+//        var count1 = [14,23,32,122,122,4,5];
+
+        for (i = count1.length-1 ;  i >0; i--) {
+            if (count1[i] === '') {
+                count1.splice(i, 1);
+            }
+        }
+
+        count =[skipEmptyElementForArray(count1)]
+        var max_y = Math.max.apply(null, count1)
+        data_y = Math.floor(max_y * 1.3)
+
+
+
+        var data = count;
+        var data_max = data_y; //Y轴最大刻度
+        var line_title = ["房卡消耗数"]; //曲线名称
+        var y_label = "房卡数"; //Y轴标题
+        var x = strs; //定义X轴刻度值
+        j.jqplot.diagram.base("chart", data, line_title, "游戏中实际房卡消耗", x, x_label, y_label, data_max, 1);
+    });
+</script>
+{{template "manage_footer" }}
+
+

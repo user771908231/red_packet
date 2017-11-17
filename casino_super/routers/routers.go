@@ -9,7 +9,7 @@ import (
 	"casino_super/modules"
 	"casino_super/handler/admin/manage"
 	"casino_super/handler/weixin"
-	"casino_super/model/weixinModel"
+	"casino_common/common/model/weixinModel"
 	"casino_super/handler/admin/config"
 	"casino_common/common/model"
 	"casino_super/handler/qrLoginHandler"

@@ -7,7 +7,7 @@ import (
 	"casino_common/utils/db"
 	"casino_common/common/consts/tableName"
 	"gopkg.in/mgo.v2/bson"
-	"casino_super/model/weixinModel"
+	"casino_common/common/model/weixinModel"
 	"fmt"
 )
 

@@ -5,7 +5,7 @@ import (
 	"github.com/chanxuehong/wechat.v2/mch/core"
 	"github.com/chanxuehong/wechat.v2/mch/mmpaymkttransfers"
 	"gopkg.in/mgo.v2/bson"
-	"casino_super/model/weixinModel"
+	"casino_common/common/model/weixinModel"
 )
 
 //微信红包测试

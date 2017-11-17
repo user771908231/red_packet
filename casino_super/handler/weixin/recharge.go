@@ -8,7 +8,7 @@ import (
 	"gopkg.in/mgo.v2/bson"
 	"time"
 	"math"
-	"casino_super/model/weixinModel"
+	"casino_common/common/model/weixinModel"
 )
 
 //充值列表

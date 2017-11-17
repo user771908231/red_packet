@@ -1,0 +1,111 @@
+{{template "manage_header" }}
+
+<div class="layui-tab" style="overflow: visible" lay-filter="goods_tab">
+    <ul class="layui-tab-title">
+        <li data-gid="22"{{if eq .gid 22}}class="layui-this"{{end}}>红中麻将</li>
+        <li data-gid="7"{{if eq .gid 7}}class="layui-this"{{end}}>跑得快</li>
+        <li data-gid="11"{{if eq .gid 11}}class="layui-this"{{end}}>牛牛</li>
+        <li data-gid="23"{{if eq .gid 23}}class="layui-this"{{end}}>跑胡子</li>
+    </ul>
+    <div class="layui-tab-content">
+        <div class="layui-tab-item layui-show">
+            <button class="btn-add layui-btn" lay-submit >新增</button>
+            <table class="layui-table" id="list_table">
+                <thead>
+                    <tr>
+                        <th>用户id</th>
+                        <th>胜率</th>
+                        <th>操作</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {{range $k,$v := .list}}
+                <tr class="list_item_tr">
+                    <td><input class="layui-input" name="userId" type="text" value="{{$v.UserId}}"></td>
+                    <td><input class="layui-input" name="winRate" type="text" value="{{$v.WinRate}}"></td>
+                    <td>
+                        <div class="layui-btn-group">
+                            <button title="删除" data-userid="{{$v.UserId}}" data-winrate="{{$v.WinRate}}" class="btn-remove layui-btn layui-btn-primary layui-btn-small"><i class="layui-icon"></i></button>
+                        </div>
+                    </td>
+                </tr>
+                {{end}}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+
+</div>
+
+<script type="text/html">
+
+</script>
+<form id="form" class="layui-form" action="">
+    <div class="layui-form-item">
+        <div class="layui-input-block">
+            <button class="btn-submit layui-btn" lay-submit lay-filter="formDemo">立即提交</button>
+        </div>
+    </div>
+</form>
+<script>
+
+    layui.use(["element"], function () {
+        //选项卡
+        layui.element.on("tab(goods_tab)", function(ele){
+            var gid = this.getAttribute("data-gid");
+            window.location.href = "./white_list?gid="+gid;
+        });
+    });
+
+    //新增
+    $(document).on("click", ".btn-add", function (e) {
+        $("#list_table tbody").append("<tr class=\"list_item_tr\">\n" +
+            "                    <td><input class=\"layui-input\" name=\"userId\" type=\"text\" value=\"\"></td>\n" +
+            "                    <td><input class=\"layui-input\" name=\"winRate\" type=\"text\" value=\"\"></td>\n" +
+            "                    <td>\n" +
+            "                        <div class=\"layui-btn-group\">\n" +
+            "                            <button title=\"删除\" data-userid=\"\" data-winrate=\"\" class=\"btn-remove layui-btn layui-btn-primary layui-btn-small\"><i class=\"layui-icon\"></i></button>\n" +
+            "                        </div>\n" +
+            "                    </td>\n" +
+            "                </tr>")
+    });
+
+    //删除
+    $(document).on("click", ".btn-remove", function (e) {
+        e.preventDefault();
+        $(this).parent().parent().parent().remove();
+    });
+
+    //提交
+    $(document).on("click", ".btn-submit", function (e) {
+       e.preventDefault();
+
+       var arr=[];
+       $(".list_item_tr").each(function (k, v) {
+           arr.push($(v).find("input[name=userId]").val() + "=" + $(v).find("input[name=winRate]").val())
+       });
+
+       var data = {
+           "gid": "{{.gid}}",
+           "data": arr.join()
+       };
+
+       console.log(data);
+
+        $.ajax({
+            url: "./white_list_post",
+            type: "get",
+            data: data,
+            async: false,
+            success: function (res) {
+                layui.layer.open({title: "消息", content: res.msg});
+            },
+            error: function () {
+                layui.layer.open({title: "消息", content: "网络异常！"});
+            }
+        });
+    });
+</script>
+
+{{template "manage_footer" }}

@@ -1,0 +1,124 @@
+{{template "manage_header" }}
+
+<div class="layui-tab" style="overflow: visible" lay-filter="goods_tab">
+    <ul class="layui-tab-title">
+        <li data-channel_id="" {{if eq .channel_id ""}}class="layui-this"{{end}}>默认</li>
+        <li data-channel_id="weixin" {{if eq .channel_id "weixin"}}class="layui-this"{{end}}>微信weixin</li>
+        <li data-channel_id="34" {{if eq .channel_id "34"}}class="layui-this"{{end}}>岳阳ios34</li>
+        <li data-channel_id="35" {{if eq .channel_id "35"}}class="layui-this"{{end}}>岳阳安卓35</li>
+        <li data-channel_id="3" {{if eq .channel_id "3"}}class="layui-this"{{end}}>湖南安卓3</li>
+        <li data-channel_id="32" {{if eq .channel_id "32"}}class="layui-this"{{end}}>湖南ios32</li>
+        <li data-channel_id="61" {{if eq .channel_id "61"}}class="layui-this"{{end}}>白山棋牌ios61</li>
+        <li data-channel_id="62" {{if eq .channel_id "62"}}class="layui-this"{{end}}>白山棋牌安卓62</li>
+
+    </ul>
+    <div class="layui-tab-content">
+        <div class="layui-tab-item layui-show">
+            <table class="layui-table">
+                <thead>
+                <tr>
+                    <th>类型</th>
+                    <th>标题</th>
+                    <th>内容</th>
+                    <th>其他字段</th>
+                    <th>操作</th>
+                </tr>
+                </thead>
+                <tbody>
+                    {{range $k,$v := .list}}
+                    <tr>
+                            <td>
+                                {{$v.NoticeType}}
+                            </td>
+                            <td>
+                                {{$v.NoticeTitle}}
+                            </td>
+                            <td>
+                                {{$v.NoticeContent}}
+                            </td>
+                            <td>
+                                {{$v.Noticefileds}}
+                            </td>
+                            <td>
+                                <button type="button" data-form="#form_{{$v.ObjId}}" class="layui-btn btn-edit" >编辑</button>
+                            </td>
+                    </tr>
+                    <script style="display: none" id="form_{{$v.ObjId}}" data-title="编辑配置" data-width="800px" data-height="500px" type="text/html">
+                        <form class="post_form" action="/admin/config/notice/edit" method="POST">
+                            <input type="hidden" name="ObjId" value="{{$v.ObjId}}">
+                            <input type="hidden" name="Id" value="{{$v.Id}}">
+                            <input type="hidden" name="NoticeMemo" value="{{$v.NoticeMemo}}">
+                            <input type="hidden" name="ChannelId" value="{{$v.ChannelId}}">
+
+                            <div class="layui-form-item">
+                                <label class="layui-form-label">NoticeType</label>
+                                <div class="layui-input-block">
+                                    <input type="text" title="" name="NoticeType" class="layui-input" value="{{$v.NoticeType}}">
+                                </div>
+                            </div>
+
+                            <div class="layui-form-item layui-form-text">
+                                <label class="layui-form-label">NoticeTitle</label>
+                                <div class="layui-input-block">
+                                    <textarea placeholder="" name="NoticeTitle" class="layui-textarea">{{$v.NoticeTitle}}</textarea>
+                                </div>
+                            </div>
+
+                            <div class="layui-form-item layui-form-text">
+                                <label class="layui-form-label">NoticeContent</label>
+                                <div class="layui-input-block">
+                                    <textarea placeholder="" name="NoticeContent" class="layui-textarea">{{$v.NoticeContent}}</textarea>
+                                </div>
+                            </div>
+
+                            <div class="layui-form-item layui-form-text">
+                                <label class="layui-form-label">Noticefileds</label>
+                                <div class="layui-input-block">
+                                    <textarea placeholder="" name="Noticefileds" class="layui-textarea">{{$v.Noticefileds}}</textarea>
+                                </div>
+                            </div>
+
+                            <div class="layui-form-item">
+                                <div class="layui-input-block">
+                                    <input type="submit" class="layui-btn" value="立即提交"/>
+                                    <input type="reset" class="layui-btn layui-btn-primary" value="重置" />
+                                </div>
+                            </div>
+
+                        </form>
+                    </script>
+                    {{end}}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+
+</div>
+
+<script>
+    layui.use(['form', 'layedit', 'laydate'], function(){})
+    layui.use(["element"], function () {
+        //选项卡
+        layui.element().on("tab(goods_tab)", function(ele){
+            var channel_id = this.getAttribute("data-channel_id");
+            window.location.href = "./list?channel_id="+channel_id;
+        });
+    });
+
+    common.bindAjax("submit", ".post_form", function (e) {
+        e.preventDefault();
+        return window.confirm("确定更新配置吗？");
+    }, function (req, res) {
+        common.msg("消息", res.msg);
+    });
+
+    //编辑表单
+    $(".btn-edit").on("click", function (e) {
+        common.showBox($(this).data("form"))
+    });
+
+
+</script>
+
+{{template "manage_footer" }}
