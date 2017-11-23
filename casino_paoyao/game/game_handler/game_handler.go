@@ -35,6 +35,32 @@ func HandlerReadyReq(args []interface{})  {
 	paoyaoService.ReadyHandler(m, a)
 }
 
+//加倍请求
+func HandlerJiabeiReq(args []interface{})  {
+	m := args[0].(*ddproto.PaoyaoJiabeiReq)
+	a := args[1].(gate.Agent)
+	paoyaoService.JiabeiHandler(m, a)
+}
+
+//出牌
+func HandlerChupaiReq(args []interface{})  {
+	m := args[0].(*ddproto.PaoyaoChupaiReq)
+	a := args[1].(gate.Agent)
+	paoyaoService.ChupaiHandler(m, a)
+}
+
+//过牌
+func HandlerGuopaiReq(args []interface{})  {
+	m := args[0].(*ddproto.PaoyaoGuopaiReq)
+	a := args[1].(gate.Agent)
+	paoyaoService.GuopaiHandler(m, a)
+}
+
+
+
+
+
+//============================非游戏流程协议========================
 
 //申请解散房间
 func HandlerApplyDissolveReq(args []interface{})  {

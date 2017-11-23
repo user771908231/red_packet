@@ -159,18 +159,49 @@ func flower2clientFlower(f string) ddproto.CommonEnumPokerColor {
 
 //将服务器的牌型转换成客户端的
 func GetClientPoker(srv *ddproto.PaoyaoSrvPoker) *ddproto.PaoyaoClientPoker {
-	if srv == nil {
-		log.E("poker nil")
-		return nil
-	}
-	server_pais := srv.Pais
 	clent_poker := &ddproto.PaoyaoClientPoker{
 		Pais: []int32{},
+		PokerType: ddproto.PaoyaoEnumPokerType(srv.GetType()).Enum(),
+	}
+	if srv == nil {
+		log.E("poker nil")
+		return clent_poker
 	}
 
-	for _,s_pai := range server_pais {
+	for _,s_pai := range srv.Pais {
 		clent_poker.Pais = append(clent_poker.Pais, s_pai.GetId())
 	}
 
 	return clent_poker
+}
+
+//牌型合法性验证
+func GetLostPokersByOutpai(out_pai *ddproto.PaoyaoSrvPoker, all_poker *ddproto.PaoyaoSrvPoker) (*ddproto.PaoyaoSrvPoker) {
+	lost_poker := &ddproto.PaoyaoSrvPoker{
+		Pais: []*ddproto.CommonSrvPokerPai{},
+		Type: ddproto.PaoyaoEnumPokerType_PAOYAO_POKER_TYPE_OTHER.Enum(),
+	}
+
+	for _, pa := range all_poker.Pais {
+		for _, pi := range out_pai.Pais {
+			if pa.GetId() != pi.GetId() {
+				lost_poker.Pais = append(lost_poker.Pais, pa)
+			}
+		}
+	}
+
+	return lost_poker
+}
+
+//计算出牌的分数
+func GetOutpaiScore(out_pai *ddproto.PaoyaoSrvPoker) (score int32) {
+	for _,p := range out_pai.Pais {
+		switch p.GetName() {
+		case "5":
+			score += 5
+		case "10", "K":
+			score += 10
+		}
+	}
+	return
 }

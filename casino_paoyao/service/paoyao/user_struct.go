@@ -5,7 +5,6 @@ import (
 	"casino_common/proto/ddproto"
 	"casino_common/common/sessionService"
 	"github.com/golang/protobuf/proto"
-	"casino_common/common/userService"
 	"errors"
 	"casino_common/common/log"
 	"casino_common/common/service/whiteListService"
@@ -69,24 +68,18 @@ func (user *User) ClearSession() error {
 
 //获取客户端user
 func (user *User) GetClientUser() *ddproto.PaoyaoClientUser {
-	user_info := userService.GetUserById(user.GetUserId())
-	wx_info := &ddproto.WeixinInfo{}
-	if user_info != nil {
-		wx_info.City = user_info.City
-		wx_info.HeadUrl = proto.String(userService.GetUserHeadImg(user_info))
-		wx_info.NickName = user_info.NickName
-		wx_info.OpenId = user_info.OpenId
-		wx_info.Sex = user_info.Sex
-		wx_info.UnionId = user_info.UnionId
-	}
 	client_user := &ddproto.PaoyaoClientUser{
 		UserId: proto.Uint32(user.GetUserId()),
 		IsOnline: proto.Bool(user.GetIsOnline()),
 		Index: proto.Int32(user.GetIndex()),
-		//Pokers: GetClientPoker(user.Pokers),
-		IsReady: proto.Bool(user.GetIsReady()),
-		WxInfo: wx_info,
+		Pokers: nil,  //牌默认隐藏
+		OutPai: GetClientPoker(user.GetOutPai()),
+		SurplusPokerNum: proto.Int32(int32(len(user.GetPokers().GetPais()))),
+		IsPass: user.IsPass,
+		IsReady: user.IsReady,
 		LastScore: user.LastScore,
+		AllScore: user.Bill.Score,
+		WxInfo: user.WxInfo,
 		DissolveState: user.DissolveState,
 	}
 	return client_user
@@ -100,6 +93,11 @@ func (user *User) IsOwner() bool {
 	return false
 }
 
+//获取队友
+func (user *User) GetTeamMateUser() *User {
+	mate,_ := user.Desk.GetUserByUid(user.GetTeamMate())
+	return mate
+}
 
 //更新链接
 func (user *User) UpdateAgent(agent gate.Agent) error {
@@ -120,4 +118,17 @@ func (user *User) CheckWhiteList() {
 		*user.IsOnWhiteList = true
 		*user.WhiteWinRate = whiteUser.WinRate
 	}
+}
+
+//获取对方队伍分数
+func (user *User) GetTeamScore() (oppsite_score, ourside_score int32) {
+	for _,u := range user.Desk.Users {
+		switch u.GetUserId() {
+		case user.GetUserId(), user.GetTeamMate():
+			ourside_score += u.GetDeskScore()
+		default:
+			oppsite_score += u.GetDeskScore()
+		}
+	}
+	return
 }

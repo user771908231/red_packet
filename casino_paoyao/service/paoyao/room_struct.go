@@ -162,15 +162,23 @@ func (room *Room) CreateFriendDesk(desk_option *ddproto.PaoyaoDeskOption, owner 
 		log.E("create user is nil.")
 		return nil, errors.New("user is nil.")
 	}
-	//验证配置正确性，及设默认值
-	desk_option.MaxUser = proto.Int32(4)
 
-	if desk_option.GetMaxCircle() < 1 {
-		desk_option.MaxCircle = proto.Int32(1)
+	//验证配置正确性，及设默认值
+	switch desk_option.GetGammerNum() {
+	case 2, 4:
+	default:
+		desk_option.GammerNum = proto.Int32(4)
 	}
 
-	//强制禁止中途加入
-	desk_option.DenyHalfJoin = proto.Bool(true)
+	switch desk_option.GetBoardsCout() {
+	case 4, 8, 12:
+	default:
+		desk_option.BoardsCout = proto.Int32(4)
+	}
+
+	if desk_option.GetBaseChip() <= 0 {
+		desk_option.BaseChip = proto.Int32(1)
+	}
 
 	new_desk_id,err := db.GetNextSeq(config.DBT_PAOYAO_DESK)
 	if err != nil {
@@ -207,16 +215,22 @@ func (room *Room) CreateFriendDesk(desk_option *ddproto.PaoyaoDeskOption, owner 
 			Pwd: proto.String(desk_number),
 			GameNumber: proto.Int32(new_game_number),
 			RoomId: proto.Int32(room.GetRoomId()),
-			LastWiner: proto.Uint32(0),
 			Status: ddproto.PaoyaoEnumDeskStatus_PAOYAO_DESK_STATUS_WAIT_READY.Enum(),
-			DeskOption: desk_option,
 			CircleNo: proto.Int32(1),
+			CurrDeskScore: proto.Int32(0),
 			Owner: proto.Uint32(owner),
-			IsStart: proto.Bool(false),
+			IsDaikai: proto.Bool(false),
+			DaikaiUser: proto.Uint32(0),
+			DeskOption: desk_option,
+			LastActUser:proto.Uint32(0),
+			LastChupaiUser:proto.Uint32(0),
+			CurrActUser:proto.Uint32(0),
 			IsOnDissolve: proto.Bool(false),
 			DissolveTime: proto.Int64(0),
-			DaikaiUser: proto.Uint32(0),
-			IsDaikai: proto.Bool(false),
+			IsStart: proto.Bool(false),
+			OneStartTime:proto.Int64(0),
+			AllStartTime:proto.Int64(0),
+			DissolveUser:proto.Uint32(0),
 			IsCoinRoom: proto.Bool(false),
 			SurplusTime: proto.Int32(0),
 		},
@@ -254,7 +268,7 @@ func (room *Room) RemoveFriendDesk(desk_id int32) error {
 
 	//如果未开局，则返还房主/代开人房费
 	if desk.GetCircleNo() == 1 && desk.GetStatus() == ddproto.PaoyaoEnumDeskStatus_PAOYAO_DESK_STATUS_WAIT_READY {
-		ownerFee := int64(GetOwnerFee(desk.DeskOption.GetMaxCircle()))
+		ownerFee := int64(GetOwnerFee(desk.DeskOption.GetBoardsCout()))
 		create_user_id := desk.GetOwner()
 		//如果是代开
 		if desk.GetIsDaikai() {
@@ -269,7 +283,7 @@ func (room *Room) RemoveFriendDesk(desk_id int32) error {
 		userService.INCRUserRoomcard(create_user_id, ownerFee, int32(ddproto.CommonEnumGame_GID_PAOYAO), "刨幺朋友桌，未开始游戏，解散房间归还房主房卡")
 	}else {
 		//已开局，则统计真实房卡消耗
-		countService.AddFriendRoomCardTrueConsume(desk.GetOwner(), int64(GetOwnerFee(desk.DeskOption.GetMaxCircle())), int32(ddproto.CommonEnumGame_GID_PAOYAO))
+		countService.AddFriendRoomCardTrueConsume(desk.GetOwner(), int64(GetOwnerFee(desk.DeskOption.GetBoardsCout())), int32(ddproto.CommonEnumGame_GID_PAOYAO))
 		if desk.GetIsDaikai() {
 			//同步代开状态
 			go func() {
@@ -280,7 +294,7 @@ func (room *Room) RemoveFriendDesk(desk_id int32) error {
 	}
 
 	//中途退出，更新全局统计
-	if desk.GetCircleNo() > 1 && desk.GetCircleNo() < desk.DeskOption.GetMaxCircle() {
+	if desk.GetCircleNo() > 1 && desk.GetCircleNo() < desk.DeskOption.GetBoardsCout() {
 		//更新全局统计
 		go func() {
 			defer Error.ErrorRecovery("RemoveFriendDesk->InsertAllCounter()")
@@ -339,6 +353,5 @@ func FindUserById(user_id uint32) (*User, error) {
 		}
 	}
 
-	log.E("朋友桌牌桌列表中未找到未找到用户%d", user_id)
 	return nil, errors.New("未找到该用户。")
 }

@@ -25,7 +25,6 @@ func (u *User) DoReadyFriend() {
 		} else {
 			log.T("用户%d在第%d圈,准备成功！", u.GetUserId(), u.Desk.GetCircleNo())
 			*u.IsReady = true
-			u.SendReadyAck(1, "准备成功！")
 			u.SendReadyBC()
 			//尝试开局
 			if err := u.Desk.IsAllReady(); err == nil {
@@ -65,9 +64,147 @@ func (user *User) DoLeaveDesk() error {
 
 //开始比赛
 func (desk *Desk) DoStart() error {
-
+	//发牌
+	desk.DoSendPoker()
+	//让下一个人出牌
+	desk.DoNextUserActChu()
 
 	return nil
+}
+
+//让下个人出牌
+func (desk *Desk) DoNextUserActChu() error {
+	next_user := desk.GetNextChupaiUser()
+
+	//出牌overturn
+	msg := &ddproto.PaoyaoChupaiOt{
+		Header: commonNewPorot.NewHeader(),
+		CurrActUser: next_user.UserId,
+		CanGuo: proto.Bool(true),
+		TipsPoker: nil,  //提示牌型
+		DeskTime: proto.Int32(10),
+	}
+
+	//如果为第一次出牌或者下个出牌的用户就是上个出牌用户则必须出牌
+	if desk.GetLastActUser() == 0 || next_user.GetUserId() == desk.GetLastChupaiUser() {
+		*msg.CanGuo = false
+	}
+
+	//为每个用户发
+	for _,u := range desk.Users {
+		if u == nil {
+			continue
+		}
+		*msg.Header.UserId = u.GetUserId()
+		u.WriteMsg(msg)
+	}
+
+	//更新当前出牌用户
+	desk.CurrActUser = proto.Uint32(next_user.GetUserId())
+	return nil
+}
+
+//出牌
+func (user *User) DoChupai(out_pai *ddproto.PaoyaoSrvPoker) {
+	//已经出过牌、过的人不能重复出牌
+	if user.OutPai != nil || len(user.OutPai.Pais) > 0 || user.GetIsPass() == true {
+		//已出过牌了，无法继续出牌
+		user.SendChupaiAck(-4, "已经出过牌了，不能再出牌了！")
+		return
+	}
+
+	if user.Desk.GetCurrActUser() != user.GetUserId() {
+		user.SendChupaiAck(-5, "还没轮到你出牌！")
+		return
+	}
+
+	//验证牌型合法性
+	lost_poker := GetLostPokersByOutpai(out_pai, user.Pokers)
+	if len(lost_poker.Pais) + len(out_pai.Pais) != len(user.Pokers.Pais) {
+		user.SendChupaiAck(-7, "你出的牌型在手牌中找不到！")
+		return
+	}
+
+	var add_score int32 = 0
+
+	//是否必出比上家大的牌
+	if user.Desk.GetLastActUser() == 0 || user.Desk.GetLastChupaiUser() == user.GetUserId() {
+		//可自由出牌时
+		if out_pai.GetType() == ddproto.PaoyaoEnumPokerType_PAOYAO_POKER_TYPE_OTHER {
+			user.SendChupaiAck(-6, "未知牌型!")
+			return
+		}
+		//出牌加分
+		*user.DeskScore += user.Desk.GetCurrDeskScore()
+		add_score = user.Desk.GetCurrDeskScore()
+		//牌面分数清空
+		user.Desk.CurrDeskScore = proto.Int32(0)
+	}else {
+		//必须必上家牌大
+		last_chupai_user,_ := user.Desk.GetUserByUid(user.Desk.GetLastChupaiUser())
+		if !IsBigThanPoker(last_chupai_user.OutPai, out_pai) {
+			user.SendChupaiAck(-8, "你出的牌型必须必上家的牌型大！")
+			return
+		}
+	}
+
+
+
+	//更新出牌用户的手牌和余牌
+	user.OutPai = out_pai
+	user.Pokers = lost_poker
+
+	//更新上个出牌用户
+	user.Desk.LastActUser = proto.Uint32(user.GetUserId())
+	user.Desk.LastChupaiUser = proto.Uint32(user.GetUserId())
+
+	//更新其他人的手牌和过牌状态
+	for _,u := range user.Desk.Users {
+		if u == nil {
+			continue
+		}
+		u.IsPass = proto.Bool(false)
+		if u.GetUserId() != user.GetUserId() {
+			//删除其他人的手牌
+			u.OutPai = &ddproto.PaoyaoSrvPoker{
+				Pais: []*ddproto.CommonSrvPokerPai{},
+				Type: ddproto.PaoyaoEnumPokerType_PAOYAO_POKER_TYPE_OTHER.Enum(),
+			}
+		}
+	}
+
+	//出牌广播
+	user.SendChupaiBc(add_score)
+
+	//让下个人出牌
+	user.Desk.DoNextUserActChu()
+}
+
+//过牌
+func (user *User) DoGuopai() {
+	//已经出过牌、过的人不能重复出牌
+	if user.OutPai != nil || len(user.OutPai.Pais) > 0 || user.GetIsPass() == true {
+		//已出过牌了，无法继续出牌
+		user.SendGuopaiAck(-4, "已经出过牌了，不能再出牌了！")
+		return
+	}
+
+	if user.Desk.GetCurrActUser() != user.GetUserId() {
+		user.SendChupaiAck(-5, "还没轮到你出牌！")
+		return
+	}
+
+	//更新出牌用户的手牌和余牌
+	user.IsPass = proto.Bool(true)
+
+	//更新上个出牌用户
+	user.Desk.LastActUser = proto.Uint32(user.GetUserId())
+
+	//过牌广播
+	user.SendGuopaiBc()
+
+	//让下个人出牌
+	user.Desk.DoNextUserActChu()
 }
 
 //牌桌--10圈比赛打完初始化
@@ -228,7 +365,7 @@ func (desk *Desk) DoCountEnd() {
 	if !desk.GetIsCoinRoom() {
 		//朋友桌
 		//插入10局记录
-		if desk.GetCircleNo() == desk.DeskOption.GetMaxCircle() {
+		if desk.GetCircleNo() == desk.DeskOption.GetBoardsCout() {
 			go func(){
 				defer Error.ErrorRecovery("DoCountEnd()->all")
 				desk.InsertAllCounter()

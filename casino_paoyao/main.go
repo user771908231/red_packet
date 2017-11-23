@@ -6,7 +6,7 @@ import (
 	"casino_paoyao/login"
 	"github.com/name5566/leaf"
 	"casino_paoyao/conf"
-	//"casino_paoyao/service/paoyao"
+	"casino_paoyao/service/paoyao"
 	//"casino_common/proto/ddproto"
 	//"casino_common/common/service/rpcService"
 	//"casino_common/common/service/robotService"
@@ -17,8 +17,8 @@ func main() {
 	//初始化配置
 	conf.LoadConfig()
 
-	//todo 先初始化房间列表
-	//paoyao.InitRoomList()
+	//先初始化房间列表
+	paoyao.InitRoomList()
 
 	//todo 监听刨幺rpc
 	//rpc_handler.LisenAndServeNiuniuRpc(conf.Server.PaoyaoRpcAddr)

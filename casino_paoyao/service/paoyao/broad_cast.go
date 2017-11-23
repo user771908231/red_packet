@@ -53,7 +53,11 @@ func (user *User) SendEnterDeskAck() error {
 func (user *User) SendEnterDeskBC() error {
 	msg := &ddproto.PaoyaoEnterDeskBc{
 		Header: commonNewPorot.NewHeader(),
-		User: user.GetClientUser(),
+		PlayerInfo: []*ddproto.PaoyaoClientUser{},
+	}
+
+	for _,u := range user.Desk.Users {
+		msg.PlayerInfo = append(msg.PlayerInfo, u.GetClientUser())
 	}
 
 	return user.BroadExclude(msg, user.GetUserId())
@@ -63,6 +67,8 @@ func (user *User) SendEnterDeskBC() error {
 func (user *User) SendReadyAck(code int32, err string) error {
 	msg := &ddproto.PaoyaoSwitchReadyBc{
 		Header: commonNewPorot.NewHeader(),
+		UserId: proto.Uint32(user.GetUserId()),
+		IsReady: proto.Bool(user.GetIsReady()),
 	}
 	*msg.Header.Code = code
 	*msg.Header.Error = err
@@ -74,10 +80,108 @@ func (user *User) SendReadyBC() error {
 	msg := &ddproto.PaoyaoSwitchReadyBc{
 		Header: commonNewPorot.NewHeader(),
 		UserId: proto.Uint32(user.GetUserId()),
-		IsReady: proto.Bool(true),
+		IsReady: proto.Bool(user.GetIsReady()),
 	}
+	*msg.Header.Code = 0
+	*msg.Header.Error = "准备成功"
 	return user.BroadCast(msg)
 }
+
+//发牌overturn
+func (desk *Desk) SendFapaiOt() error {
+	msg := &ddproto.PaoyaoFapaiOt{
+		Header: commonNewPorot.NewHeader(),
+		Pokers: nil,
+		CurrCircle: desk.CircleNo,
+	}
+
+	for _,u := range desk.Users {
+		if u == nil {
+			continue
+		}
+		*msg.Header.UserId = u.GetUserId()
+		msg.Pokers = GetClientPoker(u.Pokers)
+		u.WriteMsg(msg)
+	}
+
+	return nil
+}
+
+//出牌ack
+func (user *User) SendChupaiAck(code int32, err string) error {
+	msg := &ddproto.PaoyaoChupaiBc{
+		Header: commonNewPorot.NewHeader(),
+	}
+	*msg.Header.Code = code
+	*msg.Header.Error = err
+	return user.WriteMsg(msg)
+}
+
+//出牌广播
+func (user *User) SendChupaiBc(add_score int32) error {
+	surplus_poker_num := int32(len(user.Pokers.Pais))
+	msg := &ddproto.PaoyaoChupaiBc{
+		Header: commonNewPorot.NewHeader(),
+		OutPai:GetClientPoker(user.OutPai),
+		SurplusPokerNum:proto.Int32(surplus_poker_num),
+		FriendPoker: GetClientPoker(nil),
+		DeskScore: user.Desk.CurrDeskScore,
+		OppositeScore: proto.Int32(0),
+		OurSideScore: proto.Int32(0),
+		AddScore: &add_score,
+	}
+	*msg.Header.Code = 0
+	*msg.Header.Error = "出牌成功！"
+
+	//查看队友余牌
+	mate := user.GetTeamMateUser()
+	if surplus_poker_num == 0 && mate != nil {
+		msg.FriendPoker = GetClientPoker(mate.GetPokers())
+	}
+	//双方分数
+	*msg.OppositeScore, *msg.OurSideScore = user.GetTeamScore()
+	//先给自己发
+	user.WriteMsg(msg)
+
+	//再给其他人发
+	for _,u := range user.Desk.Users {
+		if u == nil {
+			continue
+		}
+		//双方分数
+		*msg.OppositeScore, *msg.OurSideScore = u.GetTeamScore()
+		u.WriteMsg(msg)
+	}
+
+	return nil
+}
+
+//过牌ack
+func (user *User) SendGuopaiAck(code int32, err string) error {
+	msg := &ddproto.PaoyaoGuopaiBc{
+		Header: commonNewPorot.NewHeader(),
+		UserId: user.UserId,
+	}
+	*msg.Header.Code = code
+	*msg.Header.Error = err
+	*msg.Header.UserId = user.GetUserId()
+	return user.WriteMsg(msg)
+}
+
+//过牌bc
+func (user *User) SendGuopaiBc() error {
+	msg := &ddproto.PaoyaoGuopaiBc{
+		Header: commonNewPorot.NewHeader(),
+		UserId: user.UserId,
+	}
+	*msg.Header.Code = 0
+	*msg.Header.Error = "过牌成功！"
+
+	//广播
+	return user.BroadCast(msg)
+}
+
+
 
 //游戏结束统计数据广播
 func (desk *Desk) SendGameEndResultBc() {

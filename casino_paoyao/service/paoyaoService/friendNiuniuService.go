@@ -53,7 +53,7 @@ func CreateDeskHandler(req *ddproto.PaoyaoCreateDeskReq, agent gate.Agent) *ddpr
 	var ownerFee int64 = 0
 	//朋友桌扣除房卡
 	roomCard := userService.GetUserRoomCard(req.Header.GetUserId())
-	ownerFee = int64(paoyao.GetOwnerFee(req.GetOption().GetMaxCircle()))
+	ownerFee = int64(paoyao.GetOwnerFee(req.GetOption().GetBoardsCout()))
 	if roomCard < ownerFee {
 		log.E("用户%d创建房间失败，原因：房卡不足", req.Header.GetUserId())
 		*msg.Header.Code = -4
@@ -84,7 +84,7 @@ func CreateDeskHandler(req *ddproto.PaoyaoCreateDeskReq, agent gate.Agent) *ddpr
 		*desk.IsDaikai = true
 		*desk.DaikaiUser = daikai_user
 		//更新代开列表
-		err := roomAgent.CreateDesk(int32(ddproto.CommonEnumGame_GID_PAOYAO), desk.GetPwd(), desk.GetDeskId(), daikai_user, desk.GetTips(), time.Now().Unix(), desk.DeskOption.GetMaxCircle(), desk.DeskOption.GetMaxUser(), 0)
+		err := roomAgent.CreateDesk(int32(ddproto.CommonEnumGame_GID_PAOYAO), desk.GetPwd(), desk.GetDeskId(), daikai_user, desk.GetTips(), time.Now().Unix(), desk.DeskOption.GetBoardsCout(), desk.DeskOption.GetGammerNum(), 0)
 		if err != nil {
 			//返还房费
 			userService.INCRUserRoomcard(daikai_user, ownerFee, int32(ddproto.CommonEnumGame_GID_PAOYAO), "刨幺朋友桌，代开失败房费返还")
@@ -98,14 +98,14 @@ func CreateDeskHandler(req *ddproto.PaoyaoCreateDeskReq, agent gate.Agent) *ddpr
 		*msg.Header.Error = "代开房间成功！"
 		return msg
 	}
-	_,err = desk.AddUser(req.Header.GetUserId(), agent)
+	user,err = desk.AddUser(req.Header.GetUserId(), agent)
 	if err != nil {
 		log.E("用户%d创建房间失败，原因：%s", req.Header.GetUserId(), err.Error())
 		*msg.Header.Code = -3
 		*msg.Header.Error = "创建房间失败"
 		return msg
 	}
-	msg.DeskState = desk.GetClientDesk()
+	msg.DeskState = user.GetClientDesk()
 	*msg.Header.Code = 1
 	return msg
 }
@@ -195,7 +195,7 @@ func EnterDeskHandler(req *ddproto.PaoyaoEnterDeskReq, agent gate.Agent) {
 		}
 	}
 
-	_,err = desk.AddUser(req.Header.GetUserId(), agent)
+	user,err = desk.AddUser(req.Header.GetUserId(), agent)
 	if err != nil {
 		log.E("用户%d进房pwd:%v roomId:%v失败，原因：%s", req.Header.GetUserId(), req.GetDeskPwd(), req.GetRoomId(), err.Error())
 		*msg.Header.Code = -3
@@ -205,7 +205,7 @@ func EnterDeskHandler(req *ddproto.PaoyaoEnterDeskReq, agent gate.Agent) {
 	}
 
 	log.E("用户%d进房pwd:%v roomId:%v成功。", req.Header.GetUserId(), req.GetDeskPwd(), req.GetRoomId())
-	msg.DeskState = desk.GetClientDesk()
+	msg.DeskState = user.GetClientDesk()
 	*msg.Header.Code = 1
 	*msg.Header.Error = "新玩家加入房间成功！"
 	agent.WriteMsg(msg)
@@ -266,6 +266,70 @@ func ReadyHandler(req *ddproto.PaoyaoSwitchReadyReq, agent gate.Agent) {
 		user.SendReadyAck(-1, "您当前未在房间中")
 	}
 }
+
+//加倍
+func JiabeiHandler(req *ddproto.PaoyaoJiabeiReq, agent gate.Agent) {
+	user, err := paoyao.FindUserById(req.Header.GetUserId())
+	if err == nil {
+		user.Desk.ReqLock.Lock()
+		defer user.Desk.ReqLock.Unlock()
+		user.UpdateAgent(agent)
+		//todo
+
+	}else {
+		user = &paoyao.User{
+			Agent: agent,
+			PaoyaoSrvUser: nil,
+		}
+		user.SendReadyAck(-1, "您当前未在房间中")
+	}
+}
+
+//出牌
+func ChupaiHandler(req *ddproto.PaoyaoChupaiReq, agent gate.Agent) {
+	user, err := paoyao.FindUserById(req.Header.GetUserId())
+	if err == nil {
+		user.Desk.ReqLock.Lock()
+		defer user.Desk.ReqLock.Unlock()
+		user.UpdateAgent(agent)
+		if req.Pokers == nil {
+			log.E("out poker is nil %v", req)
+			user.SendChupaiAck(-2, "poker 为空")
+			return
+		}
+		//解析牌型
+		out_poker := paoyao.ParseOutPai(req.GetPokers().Pais)
+		//出牌
+		user.DoChupai(out_poker)
+	}else {
+		user = &paoyao.User{
+			Agent: agent,
+			PaoyaoSrvUser: nil,
+		}
+		user.SendChupaiAck(-1, "您当前未在房间中")
+	}
+}
+
+//过牌
+func GuopaiHandler(req *ddproto.PaoyaoGuopaiReq, agent gate.Agent) {
+	user, err := paoyao.FindUserById(req.Header.GetUserId())
+	if err == nil {
+		user.Desk.ReqLock.Lock()
+		defer user.Desk.ReqLock.Unlock()
+		user.UpdateAgent(agent)
+		//todo
+
+	}else {
+		user = &paoyao.User{
+			Agent: agent,
+			PaoyaoSrvUser: nil,
+		}
+		user.SendReadyAck(-1, "您当前未在房间中")
+	}
+}
+
+
+
 
 //申请解散房间
 func ApplyDissolveReqHandler(req *ddproto.CommonReqApplyDissolve, agent gate.Agent)  {

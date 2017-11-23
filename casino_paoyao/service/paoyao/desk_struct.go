@@ -16,6 +16,8 @@ import (
 	//"casino_common/common/service/whiteListService"
 	"casino_common/proto/funcsInit"
 	"casino_common/common/service/userGameBillService"
+	"casino_common/utils/chessUtils"
+	"casino_common/common/log"
 )
 
 type Desk struct {
@@ -60,12 +62,12 @@ func (desk *Desk) AddUser(user_id uint32, agent gate.Agent) (*User, error) {
 	}
 
 	free_site_index,err := desk.GetFreeSiteIndex()
-	if user_num >= desk.GetDeskOption().GetMaxUser() || err != nil {
+	if user_num >= desk.GetDeskOption().GetGammerNum() || err != nil {
 		return nil, errors.New("该房间人数已满！")
 	}
 
 	//是否允许中途加入
-	if !desk.GetIsCoinRoom() && desk.DeskOption.GetDenyHalfJoin() && desk.GetIsStart() {
+	if !desk.GetIsCoinRoom() && desk.GetIsStart() {
 		//如果是朋友桌，且选项为不能中途加入，则开局后不能加入
 		return nil, errors.New("该房间已开局，进房失败。")
 	}
@@ -91,17 +93,27 @@ func (desk *Desk) AddUser(user_id uint32, agent gate.Agent) (*User, error) {
 			Pokers: &ddproto.PaoyaoSrvPoker{
 				Pais: []*ddproto.CommonSrvPokerPai{},
 			},
+			OutPai: nil,
+			IsPass:proto.Bool(false),
+			DeskScore:proto.Int32(0),
 			IsReady: proto.Bool(false),
 			LastScore: proto.Int32(0),
+			WxInfo: &ddproto.WeixinInfo{
+				OpenId: user_info.OpenId,
+				NickName: user_info.NickName,
+				HeadUrl: proto.String(userService.GetUserHeadImg(user_info)),
+				Sex:user_info.Sex,
+				City: user_info.City,
+				UnionId:user_info.UnionId,
+			},
 			DissolveState: proto.Int32(0),
+			IsRobot:proto.Bool(false),
+			IsOnWhiteList:proto.Bool(false),
+			WhiteWinRate:proto.Int32(0),
+			IsLeave:proto.Bool(false),
 		},
 		Desk: desk,
 	}
-
-	//朋友桌，给中途加入房间的用户自动准备
-	//if !desk.GetIsCoinRoom() && !desk.DeskOption.GetDenyHalfJoin() && desk.GetIsStart() {
-	//	*new_user.IsReady = true
-	//}
 
 	//刷新白名单
 	new_user.CheckWhiteList()
@@ -180,8 +192,44 @@ func (desk *Desk) GetUserByUid(user_id uint32) (*User, error) {
 
 //给游戏中用户发牌
 func (desk *Desk) DoSendPoker() error {
+	//洗牌
+	rand_index := chessUtils.Xipai(0, 108)
+	for i,v := range rand_index {
+		if v > 53 {
+			rand_index[i] -= 54
+		}
+	}
+
+	//发牌
+	for _,u := range desk.Users {
+		if u == nil {
+			continue
+		}
+		pais_index := rand_index[:27]
+		rand_index = rand_index[27:]
+
+		u.Pokers = ParseOutPai(pais_index)
+	}
+
+	//发牌overturn
+	desk.SendFapaiOt()
 
 	return nil
+}
+
+//获取下个说话的人
+func (desk *Desk) GetNextChupaiUser() *User {
+	//第一局让房主
+	if desk.GetCircleNo() == 1 || desk.GetLastActUser() == 0 {
+		next_user,_ := desk.GetUserByUid(desk.GetOwner())
+		return next_user
+	}
+
+	//让下一个玩家出牌
+	last_user,_ := desk.GetUserByUid(desk.GetLastActUser())
+	next_user := desk.Users[int(last_user.GetIndex()+1)%len(desk.Users)]
+
+	return next_user
 }
 
 
@@ -222,44 +270,55 @@ func (desk *Desk) IsAllReady() error {
 			}
 		}
 	}
-	if i >= 4 {
+	if i >= desk.DeskOption.GetGammerNum() {
 		return nil
 	}
 	return errors.New(fmt.Sprintf("未达到%d人最小开局条件！", 4))
 }
 
 
-//客户端牌桌
-func (desk *Desk) GetClientDesk() *ddproto.PaoyaoClientDesk {
+//客户端牌桌，参数表示是否显示某人的牌
+func (user *User) GetClientDesk() *ddproto.PaoyaoClientDesk {
+	if user == nil {
+		log.E("user is nil")
+		return nil
+	}
 	users := []*ddproto.PaoyaoClientUser{}
 
-	for _,u := range desk.Users {
-		users =append(users, u.GetClientUser())
+	for _,u := range user.Users {
+		if u == nil {
+			continue
+		}
+		new_user := u.GetClientUser()
+		//显示某个人的牌
+		if  u.GetUserId() == user.GetUserId() {
+			new_user.Pokers = GetClientPoker(u.Pokers)
+		}
+		users =append(users, new_user)
 	}
 
 	client_desk := &ddproto.PaoyaoClientDesk{
-		DeskId: proto.Int32(desk.GetDeskId()),
-		Pwd: proto.String(desk.GetPwd()),
-		GameNumber: proto.Int32(desk.GetGameNumber()),
-		RoomId: proto.Int32(desk.GetRoomId()),
-		Status: desk.Status,
-		LastWiner: proto.Uint32(desk.GetLastWiner()),
-		CircleNo: proto.Int32(desk.GetCircleNo()),
-		Owner: proto.Uint32(desk.GetOwner()),
-		DeskOption: desk.DeskOption,
-		Users: users,
-		IsStart: desk.IsStart,
-		IsOnDissolve: desk.IsOnDissolve,
+		DeskId:       proto.Int32(user.GetDeskId()),
+		Pwd:          proto.String(user.GetPwd()),
+		GameNumber:   proto.Int32(user.GetGameNumber()),
+		RoomId:       proto.Int32(user.GetRoomId()),
+		Status:       user.Status,
+		CircleNo:     proto.Int32(user.GetCircleNo()),
+		Owner:        proto.Uint32(user.GetOwner()),
+		DeskOption:   user.DeskOption,
+		PlayerInfo:   users,
+		IsStart:      user.IsStart,
+		IsOnDissolve: user.IsOnDissolve,
 		DissolveTime: proto.Int64(0),
-		IsDaikai: proto.Bool(desk.GetIsDaikai()),
-		DaikaiUser: proto.Uint32(desk.GetDaikaiUser()),
-		IsCoinRoom: proto.Bool(desk.GetIsCoinRoom()),
-		SurplusTime: proto.Int32(1),
+		IsDaikai:     proto.Bool(user.GetIsDaikai()),
+		DaikaiUser:   proto.Uint32(user.GetDaikaiUser()),
+		IsCoinRoom:   proto.Bool(user.GetIsCoinRoom()),
+		SurplusTime:  proto.Int32(1),
 	}
 
 	//投票剩余时间
-	if desk.GetIsOnDissolve() && desk.GetDissolveTime() > 0 {
-		last_time := time.Now().Unix() - desk.GetDissolveTime()
+	if user.GetIsOnDissolve() && user.GetDissolveTime() > 0 {
+		last_time := time.Now().Unix() - user.GetDissolveTime()
 		client_desk.DissolveTime = proto.Int64(int64(last_time))
 	}
 
@@ -268,12 +327,13 @@ func (desk *Desk) GetClientDesk() *ddproto.PaoyaoClientDesk {
 
 //房费计算
 func GetOwnerFee(circle int32) int32 {
+	//4局 1张 8局 2张 12局 3张
 	switch  {
-	case circle > 0 && circle <= 10 :
+	case circle > 0 && circle <= 4 :
 		return 1
-	case circle > 10 && circle <= 20:
+	case circle > 4 && circle <= 8:
 		return 2
-	case circle > 20:
+	case circle > 8:
 		return 3
 	default:
 		return 0
@@ -337,7 +397,7 @@ func (desk *Desk)InsertAllCounter() error {
 		BeginTime: time.Unix(desk.GetAllStartTime(), 0),
 		DeskId: desk.GetDeskId(),
 		UserIds: users_str,
-		TotalRound: desk.DeskOption.GetMaxCircle(),
+		TotalRound: desk.DeskOption.GetBoardsCout(),
 		GameNumber: desk.GetGameNumber(),
 		Password: desk.GetPwd(),
 		EndTime: time.Now(),
@@ -362,14 +422,14 @@ func (desk *Desk) GetTips() string {
 		room_type = "经典刨幺"
 	}
 
-	tips := fmt.Sprintf("%s %d人%d局", room_type, desk.DeskOption.GetMaxUser(), desk.DeskOption.GetMaxCircle())
+	tips := fmt.Sprintf("%s %d人%d局", room_type, desk.DeskOption.GetBoardsCout(), desk.DeskOption.GetBoardsCout())
 
 	return tips
 }
 
 //获取空余的位置索引
 func (desk *Desk)GetFreeSiteIndex() (int, error)  {
-	for i:=0;i<int(desk.DeskOption.GetMaxUser());i++ {
+	for i:=0;i<int(desk.DeskOption.GetGammerNum());i++ {
 		has_gammer := false
 		for _,u := range desk.Users {
 			if int(u.GetIndex()) == i+1 {

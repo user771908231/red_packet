@@ -18,7 +18,7 @@ func (room *Room) GetFreeCoinDesk() (*Desk, error) {
 			continue
 		}
 
-		if len(desk.Users) < int(desk.DeskOption.GetMaxUser()) {
+		if len(desk.Users) < int(desk.DeskOption.GetGammerNum()) {
 			return desk, nil
 		}
 	}
@@ -45,7 +45,7 @@ func (room *Room) NewCoinDesk() (*Desk, error) {
 		return nil, errors.New("get gamenumber seq id fail.")
 	}
 	desk_option := &ddproto.PaoyaoDeskOption{
-		MaxCircle: proto.Int32(0),
+		BoardsCout: proto.Int32(0),
 		HasAnimation:proto.Bool(true),
 	}
 
@@ -56,7 +56,6 @@ func (room *Room) NewCoinDesk() (*Desk, error) {
 			Pwd: proto.String(""),
 			GameNumber: proto.Int32(new_game_number),
 			RoomId: proto.Int32(room.GetRoomId()),
-			LastWiner: proto.Uint32(0),
 			Status: ddproto.PaoyaoEnumDeskStatus_PAOYAO_DESK_STATUS_WAIT_READY.Enum(),
 			DeskOption: desk_option,
 			CircleNo: proto.Int32(1),

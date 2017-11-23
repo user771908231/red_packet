@@ -9,20 +9,32 @@ var Processor = protobuf.NewProcessor()
 
 func init() {
 	Processor.Register(&ddproto.Heartbeat{}) //0-连接服务器
-	Processor.Register(&ddproto.QuickConn{})       //1-连接服务器
-	Processor.Register(&ddproto.AckQuickConn{})    //2-连接服务器
 
-	Processor.Register(&ddproto.CommonReqGameLogin{})           //3-连接服务器
-	Processor.Register(&ddproto.CommonAckGameLogin{})        //4登录游戏,登录返回
+	Processor.Register(&ddproto.PaoyaoCreateDeskReq{}) //1 创建房间
 
-	Processor.Register(&ddproto.PaoyaoCreateDeskReq{}) //5创建房间
+	Processor.Register(&ddproto.PaoyaoEnterDeskReq{}) //2进入房间
+	Processor.Register(&ddproto.PaoyaoEnterDeskAck{})  //3 进入房间ack
+	Processor.Register(&ddproto.PaoyaoEnterDeskBc{}) //4 进入房间广播
 
-	Processor.Register(&ddproto.PaoyaoEnterDeskReq{}) //6进入房间
-	Processor.Register(&ddproto.PaoyaoEnterDeskAck{})  //7 进入房间ack
-	Processor.Register(&ddproto.PaoyaoEnterDeskBc{}) //8 进入房间广播
+	Processor.Register(&ddproto.PaoyaoSwitchReadyReq{})  //5 准备req
+	Processor.Register(&ddproto.PaoyaoSwitchReadyBc{})  //6 准备bc
 
-	Processor.Register(&ddproto.PaoyaoSwitchReadyReq{})  //9 准备req
-	Processor.Register(&ddproto.PaoyaoSwitchReadyBc{})  //11 准备bc
+	Processor.Register(&ddproto.PaoyaoFapaiOt{})  //7 开局发牌overturn
+
+	Processor.Register(&ddproto.PaoyaoJiabeiReq{})  //8 加倍req
+	Processor.Register(&ddproto.PaoyaoJiabeiBc{})  //9 加倍bc
+
+	Processor.Register(&ddproto.PaoyaoChupaiOt{})  //10 出牌overturn
+	Processor.Register(&ddproto.PaoyaoChupaiReq{})  //11 出牌req
+	Processor.Register(&ddproto.PaoyaoChupaiBc{})  //12 出牌bc
+
+	Processor.Register(&ddproto.PaoyaoGuopaiReq{})  //13 过牌req
+	Processor.Register(&ddproto.PaoyaoGuopaiBc{})  //14 过牌bc
+
+	Processor.Register(&ddproto.PaoyaoGameEndOneBc{})  //15 单局结束
+	Processor.Register(&ddproto.PaoyaoGameEndAllBc{})  //16 全局结算
+
+	//========================非游戏流程协议=======================
 
 	Processor.Register(&ddproto.CommonReqApplyDissolve{})  //23 申请解散房间
 	Processor.Register(&ddproto.CommonBcApplyDissolve{})  //24 申请解散房间广播
