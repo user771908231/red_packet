@@ -92,7 +92,6 @@ func CreateDeskHandler(req *ddproto.PaoyaoCreateDeskReq, agent gate.Agent) *ddpr
 			*msg.Header.Error = err.Error()
 			return msg
 		}
-		//msg.DeskState = desk.GetClientDesk()
 		log.T("用户%d代开房间%s成功！", daikai_user, desk.GetPwd())
 		*msg.Header.Code = 2
 		*msg.Header.Error = "代开房间成功！"

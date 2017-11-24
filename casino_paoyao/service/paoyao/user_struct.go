@@ -121,7 +121,7 @@ func (user *User) CheckWhiteList() {
 }
 
 //获取对方队伍分数
-func (user *User) GetTeamScore() (oppsite_score, ourside_score int32) {
+func (user *User) GetTeamScore() (ourside_score, oppsite_score int32) {
 	for _,u := range user.Desk.Users {
 		switch u.GetUserId() {
 		case user.GetUserId(), user.GetTeamMate():

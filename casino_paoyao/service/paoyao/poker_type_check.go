@@ -159,7 +159,7 @@ func ParseOutPai(client_pai []int32) *ddproto.PaoyaoSrvPoker  {
 	}
 
 	for _,pai_id := range client_pai {
-		if pai_id < 0 || pai_id > 53 {
+		if pai_id < 0 || pai_id > 107 {
 			log.E("ParseOutPai %v id=%v is nil.", client_pai, pai_id)
 			continue
 		}
@@ -167,6 +167,9 @@ func ParseOutPai(client_pai []int32) *ddproto.PaoyaoSrvPoker  {
 		pai_item := PokerList[int32(pai_id)]
 		out_pai.Pais = append(out_pai.Pais, pai_item)
 	}
+
+	//牌值排序
+	out_pai.Pais = SortPokers(out_pai.Pais)
 
 	if len(client_pai) != 27 {
 		out_pai.Type = ParsePokerType(out_pai.Pais).Enum()

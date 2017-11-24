@@ -61,8 +61,8 @@ func (desk *Desk) AddUser(user_id uint32, agent gate.Agent) (*User, error) {
 		}
 	}
 
-	free_site_index,err := desk.GetFreeSiteIndex()
-	if user_num >= desk.GetDeskOption().GetGammerNum() || err != nil {
+	free_site_index := len(desk.Users)
+	if user_num >= desk.GetDeskOption().GetGammerNum() {
 		return nil, errors.New("该房间人数已满！")
 	}
 
@@ -89,7 +89,7 @@ func (desk *Desk) AddUser(user_id uint32, agent gate.Agent) (*User, error) {
 				CountLost: proto.Int32(0),
 			},
 			IsOnline: proto.Bool(true),
-			Index: proto.Int32(int32(free_site_index+1)),
+			Index: proto.Int32(int32(free_site_index)),
 			Pokers: &ddproto.PaoyaoSrvPoker{
 				Pais: []*ddproto.CommonSrvPokerPai{},
 			},
@@ -111,6 +111,7 @@ func (desk *Desk) AddUser(user_id uint32, agent gate.Agent) (*User, error) {
 			IsOnWhiteList:proto.Bool(false),
 			WhiteWinRate:proto.Int32(0),
 			IsLeave:proto.Bool(false),
+			TeamMate:proto.Uint32(0),
 		},
 		Desk: desk,
 	}
@@ -194,11 +195,6 @@ func (desk *Desk) GetUserByUid(user_id uint32) (*User, error) {
 func (desk *Desk) DoSendPoker() error {
 	//洗牌
 	rand_index := chessUtils.Xipai(0, 108)
-	for i,v := range rand_index {
-		if v > 53 {
-			rand_index[i] -= 54
-		}
-	}
 
 	//发牌
 	for _,u := range desk.Users {
@@ -220,7 +216,7 @@ func (desk *Desk) DoSendPoker() error {
 //获取下个说话的人
 func (desk *Desk) GetNextChupaiUser() *User {
 	//第一局让房主
-	if desk.GetCircleNo() == 1 || desk.GetLastActUser() == 0 {
+	if desk.GetLastActUser() == 0 {
 		next_user,_ := desk.GetUserByUid(desk.GetOwner())
 		return next_user
 	}
@@ -432,7 +428,10 @@ func (desk *Desk)GetFreeSiteIndex() (int, error)  {
 	for i:=0;i<int(desk.DeskOption.GetGammerNum());i++ {
 		has_gammer := false
 		for _,u := range desk.Users {
-			if int(u.GetIndex()) == i+1 {
+			if u == nil {
+				continue
+			}
+			if int(u.GetIndex()) == i {
 				has_gammer = true
 				break
 			}
@@ -442,4 +441,24 @@ func (desk *Desk)GetFreeSiteIndex() (int, error)  {
 		}
 	}
 	return 0, errors.New("not free site")
+}
+
+//确定队友关系
+func (desk *Desk)InitTeamRelation() {
+	switch desk.DeskOption.GetAllyType() {
+	case 1:
+		//对门
+		for i,u := range desk.Users {
+			if u == nil {
+				continue
+			}
+			*u.TeamMate = 0
+			if u.Desk.GetGameNumber() == 4 {
+				*u.TeamMate = desk.Users[(i+2)%4].GetUserId()
+			}
+		}
+	case 2:
+		//todo 转幺
+	}
+
 }

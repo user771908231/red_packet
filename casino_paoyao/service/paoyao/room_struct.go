@@ -170,14 +170,23 @@ func (room *Room) CreateFriendDesk(desk_option *ddproto.PaoyaoDeskOption, owner 
 		desk_option.GammerNum = proto.Int32(4)
 	}
 
+	//圈数
 	switch desk_option.GetBoardsCout() {
 	case 4, 8, 12:
 	default:
 		desk_option.BoardsCout = proto.Int32(4)
 	}
 
+	//筹码
 	if desk_option.GetBaseChip() <= 0 {
 		desk_option.BaseChip = proto.Int32(1)
+	}
+
+	//转幺模式
+	switch desk_option.GetAllyType() {
+	case 1, 2:
+	default:
+		desk_option.AllyType = proto.Int32(1)
 	}
 
 	new_desk_id,err := db.GetNextSeq(config.DBT_PAOYAO_DESK)
@@ -224,7 +233,6 @@ func (room *Room) CreateFriendDesk(desk_option *ddproto.PaoyaoDeskOption, owner 
 			DeskOption: desk_option,
 			LastActUser:proto.Uint32(0),
 			LastChupaiUser:proto.Uint32(0),
-			CurrActUser:proto.Uint32(0),
 			IsOnDissolve: proto.Bool(false),
 			DissolveTime: proto.Int64(0),
 			IsStart: proto.Bool(false),

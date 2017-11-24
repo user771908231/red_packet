@@ -24,7 +24,7 @@ func (room *Room) GetSnapShotIdList() *ddproto.PaoyaoSrvDeskSnapshotIdIndex {
 
 //牌桌创建快照
 func (desk *Desk) NewSnapShot() error {
-	//return nil
+	return nil
 	if desk == nil {
 		return errors.New("desk nil.")
 	}
@@ -46,6 +46,7 @@ func (desk *Desk) NewSnapShot() error {
 
 //牌桌删除快照
 func (desk *Desk) RemoveSnapShot() error {
+	return  nil
 	log.T("开始删除牌桌pwd:%v id:%v快照.", desk.GetPwd(), desk.GetDeskId())
 	if desk == nil {
 		return errors.New("desk nil.")
@@ -103,7 +104,7 @@ func (desk *Desk) WipeSnapShot() error {
 
 //恢复牌桌快照
 func (room *Room) RecoveryDeskSnapShot(desk_id int32) {
-	//return
+	return
 	log.T("正在恢复房间%d的快照。", desk_id)
 	desk_snap_key := redisUtils.K_STRING(consts.RKEY_PAOYAO_SNAPSHOT_DATA, numUtils.Int2String2(desk_id))
 

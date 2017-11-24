@@ -112,24 +112,23 @@ func (user *User) SendChupaiAck(code int32, err string) error {
 	msg := &ddproto.PaoyaoChupaiBc{
 		Header: commonNewPorot.NewHeader(),
 	}
+	*msg.Header.UserId = user.GetUserId()
 	*msg.Header.Code = code
 	*msg.Header.Error = err
 	return user.WriteMsg(msg)
 }
 
 //出牌广播
-func (user *User) SendChupaiBc(add_score int32) error {
+func (user *User) SendChupaiBc() error {
 	surplus_poker_num := int32(len(user.Pokers.Pais))
 	msg := &ddproto.PaoyaoChupaiBc{
 		Header: commonNewPorot.NewHeader(),
 		OutPai:GetClientPoker(user.OutPai),
 		SurplusPokerNum:proto.Int32(surplus_poker_num),
-		FriendPoker: GetClientPoker(nil),
+		FriendPoker: GetClientPoker(&ddproto.PaoyaoSrvPoker{}),
 		DeskScore: user.Desk.CurrDeskScore,
-		OppositeScore: proto.Int32(0),
-		OurSideScore: proto.Int32(0),
-		AddScore: &add_score,
 	}
+	*msg.Header.UserId = user.GetUserId()
 	*msg.Header.Code = 0
 	*msg.Header.Error = "出牌成功！"
 
@@ -138,20 +137,12 @@ func (user *User) SendChupaiBc(add_score int32) error {
 	if surplus_poker_num == 0 && mate != nil {
 		msg.FriendPoker = GetClientPoker(mate.GetPokers())
 	}
-	//双方分数
-	*msg.OppositeScore, *msg.OurSideScore = user.GetTeamScore()
+
 	//先给自己发
 	user.WriteMsg(msg)
-
 	//再给其他人发
-	for _,u := range user.Desk.Users {
-		if u == nil {
-			continue
-		}
-		//双方分数
-		*msg.OppositeScore, *msg.OurSideScore = u.GetTeamScore()
-		u.WriteMsg(msg)
-	}
+	msg.FriendPoker = nil
+	user.Desk.BroadExclude(msg, user.GetUserId())
 
 	return nil
 }
@@ -169,16 +160,29 @@ func (user *User) SendGuopaiAck(code int32, err string) error {
 }
 
 //过牌bc
-func (user *User) SendGuopaiBc() error {
+func (user *User) SendGuopaiBc(add_score int32) error {
 	msg := &ddproto.PaoyaoGuopaiBc{
 		Header: commonNewPorot.NewHeader(),
 		UserId: user.UserId,
+		OppositeScore: proto.Int32(0),
+		OurSideScore: proto.Int32(0),
+		AddScore: &add_score,
 	}
 	*msg.Header.Code = 0
 	*msg.Header.Error = "过牌成功！"
 
+
+	//双方分数
+	for _,u := range user.Desk.Users {
+		if u == nil {
+			continue
+		}
+		//双方分数
+		*msg.OurSideScore, *msg.OppositeScore = u.GetTeamScore()
+		u.WriteMsg(msg)
+	}
 	//广播
-	return user.BroadCast(msg)
+	return nil
 }
 
 
