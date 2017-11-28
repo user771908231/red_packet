@@ -64,6 +64,9 @@ func (user *User) DoLeaveDesk() error {
 
 //开始比赛
 func (desk *Desk) DoStart() error {
+	if desk.GetStatus() == ddproto.PaoyaoEnumDeskStatus_PAOYAO_DESK_STATUS_ON_GAMMING {
+		return errors.New("在游戏中")
+	}
 	//更新牌桌状态
 	desk.Status = ddproto.PaoyaoEnumDeskStatus_PAOYAO_DESK_STATUS_ON_GAMMING.Enum()
 	//发牌
@@ -111,6 +114,11 @@ func (desk *Desk) DoNextUserActChu() error {
 
 //出牌
 func (user *User) DoChupai(out_pai *ddproto.PaoyaoSrvPoker) {
+	if user.Desk.GetStatus() != ddproto.PaoyaoEnumDeskStatus_PAOYAO_DESK_STATUS_ON_GAMMING {
+		user.SendChupaiAck(-1, "当前牌桌不在游戏中，出牌失败！")
+
+		return
+	}
 	//已经出过牌、过的人不能重复出牌
 	if user.OutPai != nil || user.GetIsPass() == true {
 		//已出过牌了，无法继续出牌
@@ -160,23 +168,127 @@ func (user *User) DoChupai(out_pai *ddproto.PaoyaoSrvPoker) {
 	//出牌广播
 	user.SendChupaiBc()
 
-	//检查结束状态
+	//1.我方扛旗
 	if len(lost_poker.Pais) == 0 {
-
+		if !user.Desk.HasOneKangQi() {
+			*user.IsKangQi = true
+		}
+		//一个人出完牌时，检测牌局结束
+		if user.CheckEnd() {
+			return
+		}
 	}
-
 
 	//让下个人出牌
 	user.Desk.DoNextUserActChu()
 }
 
-//检查结束状态
-func (user *User) CheckEnd() {
+//小局结算
+func (desk *Desk) BillScore(win_user *User, snow_type ddproto.PaoyaoSnowType) {
+	log.T("牌局结束，胜者%d, %v", win_user.GetUserId(), snow_type)
+}
 
+//检测结束(一个用户打完牌、或者一个用户得分时检测)
+func (user *User)CheckEnd() bool {
+	our_side_score, opp_side_score := user.GetTeamScore()
+	our_side_chupai_done := user.IsOurSideUserChupaiDone()
+
+	//我方是否已扛旗
+	our_side_is_kangqi := user.IsOurSideKangQi()
+
+	//默认无雪
+	snow_type := ddproto.PaoyaoSnowType_PAOYAO_SNOW_WU_XUE
+	switch {
+	case our_side_score >= 140:
+		//我方分数大于等于140，并且对面分数大于25
+		log.T("玩家%d分数大于等于140分，获胜", user.GetUserId())
+	case our_side_score >= 90 && our_side_is_kangqi:
+		//我方分数大于等于90，且我方扛旗
+		log.T("玩家%d扛旗且大于等于90分，获胜", user.GetUserId())
+	case our_side_chupai_done:
+		//我方两个人已出完牌
+		log.T("玩家%d双飞，获胜", user.GetUserId())
+	default:
+		return false
+	}
+
+	switch {
+	case our_side_score >= 180 && opp_side_score > 0:
+		//一方大于等于180分，另一方大于0，小雪
+		snow_type = ddproto.PaoyaoSnowType_PAOYAO_SNOW_XIAO_XUE
+	case our_side_score == 200 && opp_side_score == 0:
+		//一方大于等于200分，另一方等于0，大雪
+		snow_type = ddproto.PaoyaoSnowType_PAOYAO_SNOW_DA_XUE
+	case our_side_chupai_done && opp_side_score == 0:
+		//对方分数等于0，双飞玩家获胜，视为大雪
+		snow_type = ddproto.PaoyaoSnowType_PAOYAO_SNOW_DA_XUE
+	case our_side_chupai_done && opp_side_score <= 20:
+		//对方分数小于等于20，双飞玩家获胜，视为小雪
+		snow_type = ddproto.PaoyaoSnowType_PAOYAO_SNOW_XIAO_XUE
+	case our_side_chupai_done && opp_side_score > 20:
+		//对方分数大于20，双飞玩家获胜，视为无雪
+		snow_type = ddproto.PaoyaoSnowType_PAOYAO_SNOW_WU_XUE
+	}
+	//小局结算
+	user.Desk.BillScore(user, snow_type)
+
+	//每一局结束
+	if user.Desk.GetCircleNo() != user.Desk.DeskOption.GetBoardsCout() {
+		//每一圈结束，初始化牌桌状态
+		user.Desk.Status = ddproto.PaoyaoEnumDeskStatus_PAOYAO_DESK_STATUS_WAIT_READY.Enum()
+		*user.Desk.CurrDeskScore = 0
+		*user.Desk.LastChupaiUser = 0
+		*user.Desk.LastActUser = 0
+		*user.Desk.CircleNo++
+	}else {
+		//最后一局,删除房间
+		user.Desk.RemoveDesk()
+		return true
+	}
+
+	//初始化用户状态
+	for _,u := range user.Desk.Users{
+		if u == nil {
+			continue
+		}
+		*u.IsReady = false
+		u.Pokers = nil
+		u.OutPai = nil
+		u.IsPass = proto.Bool(false)
+		*u.DeskScore = 0
+		*u.TeamMate = 0
+		*u.IsKangQi = false
+		*u.LastScore = 0
+	}
+
+	return true
+}
+
+//删除房间
+func (desk *Desk) RemoveDesk() {
+	log.T("牌局结束开始删除房间%v！", desk.GetPwd())
+}
+
+//是否有人已经扛旗
+func (desk *Desk) HasOneKangQi() bool {
+	for _,u := range desk.Users {
+		if u == nil {
+			continue
+		}
+		if u.GetIsKangQi() {
+			return true
+		}
+	}
+
+	return false
 }
 
 //过牌
 func (user *User) DoGuopai() {
+	if user.Desk.GetStatus() != ddproto.PaoyaoEnumDeskStatus_PAOYAO_DESK_STATUS_ON_GAMMING {
+		user.SendGuopaiAck(-1, "当前牌桌不在游戏中，出牌失败！")
+		return
+	}
 	//已经出过牌、过的人不能重复出牌
 	if user.OutPai != nil || user.GetIsPass() == true {
 		//已出过牌了，无法继续出牌
@@ -198,6 +310,8 @@ func (user *User) DoGuopai() {
 
 	//计算得分,如果下个出牌的玩家正是上次出牌的用户，说明其他人全部过牌了
 	var add_score int32 = 0
+	//更新下个出牌人
+	next_user = user.Desk.GetNextChupaiUser()
 	if next_user.GetUserId() == user.Desk.GetLastChupaiUser() {
 		add_score = user.Desk.GetCurrDeskScore()
 		//更新赢家分数
@@ -209,29 +323,13 @@ func (user *User) DoGuopai() {
 	//过牌广播
 	user.SendGuopaiBc(add_score)
 
+	//得分时，检测牌局结束
+	if add_score > 0 && next_user.CheckEnd() {
+		return
+	}
+
 	//让下个人出牌
 	user.Desk.DoNextUserActChu()
-}
-
-//牌桌--10圈比赛打完初始化
-func (desk *Desk) DoEnd() error {
-	//每一圈结束
-	//所有用户标记为处于游戏结束
-	for _,u := range desk.Users{
-		*u.IsReady = false
-	}
-
-	//朋友桌
-	if !desk.GetIsCoinRoom() {
-
-		//结束统计
-		desk.DoCountEnd()
-
-	}else {
-
-	}
-
-	return nil
 }
 
 //发起解散房间

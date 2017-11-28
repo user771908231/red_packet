@@ -45,7 +45,7 @@ func IsDanshun(pais []*ddproto.CommonSrvPokerPai) bool {
 //是否为双顺
 func IsShuangshun(pais []*ddproto.CommonSrvPokerPai) bool {
 	//必须为长度大于4的偶数牌
-	if len(pais) < 4 || len(pais)%2 == 1 {
+	if len(pais) < 6 || len(pais)%2 == 1 {
 		return false
 	}
 
@@ -59,7 +59,7 @@ func IsShuangshun(pais []*ddproto.CommonSrvPokerPai) bool {
 			continue
 		}
 
-		if p.GetValue() - pais[i-1].GetValue() != int32(i%2) {
+		if p.GetValue() - pais[i-1].GetValue() != int32((i+1)%2) {
 			return false
 		}
 	}
@@ -91,7 +91,7 @@ func IsLu(pais []*ddproto.CommonSrvPokerPai) bool {
 func IsYao(pais []*ddproto.CommonSrvPokerPai) bool {
 	map_num := map[string]int32 {}
 	for _,p := range pais {
-		if p.GetName() != "A" || p.GetName() != "4" {
+		if p.GetName() != "A" && p.GetName() != "4" {
 			return false
 		}
 		if _,ok := map_num[p.GetName()];ok {

@@ -217,6 +217,7 @@ func EnterDeskHandler(req *ddproto.PaoyaoEnterDeskReq, agent gate.Agent) {
 
 //断线重连处理
 func ReconnectProcess(user *paoyao.User) {
+	return
 	//更新离开状态
 	user.IsLeave = proto.Bool(false)
 	//刷新白名单
@@ -298,6 +299,10 @@ func ChupaiHandler(req *ddproto.PaoyaoChupaiReq, agent gate.Agent) {
 		}
 		//解析牌型
 		out_poker := paoyao.ParseOutPai(req.GetPokers().Pais)
+		if out_poker.GetType() == ddproto.PaoyaoEnumPokerType_PAOYAO_POKER_TYPE_OTHER {
+			user.SendChupaiAck(-6, "未知牌型!")
+			return
+		}
 		//出牌
 		user.DoChupai(out_poker)
 	}else {
@@ -316,8 +321,7 @@ func GuopaiHandler(req *ddproto.PaoyaoGuopaiReq, agent gate.Agent) {
 		user.Desk.ReqLock.Lock()
 		defer user.Desk.ReqLock.Unlock()
 		user.UpdateAgent(agent)
-		//todo
-
+		user.DoGuopai()
 	}else {
 		user = &paoyao.User{
 			Agent: agent,

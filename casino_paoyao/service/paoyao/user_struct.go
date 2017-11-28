@@ -132,3 +132,38 @@ func (user *User) GetTeamScore() (ourside_score, oppsite_score int32) {
 	}
 	return
 }
+
+//对方已出完牌
+func (user *User) IsOppoSideUserChupaiDone() bool {
+	for _,u := range user.Desk.Users {
+		switch u.GetUserId() {
+		case user.GetUserId(), user.GetTeamMate():
+		default:
+			if u.Pokers != nil && len(u.Pokers.Pais) > 0 {
+				return false
+			}
+		}
+	}
+	return true
+}
+
+//我方已出完牌
+func (user *User) IsOurSideUserChupaiDone() bool {
+	for _,u := range user.Desk.Users {
+		switch u.GetUserId() {
+		case user.GetUserId(), user.GetTeamMate():
+			if u.Pokers != nil && len(u.Pokers.Pais) > 0 {
+				return false
+			}
+		}
+	}
+	return true
+}
+
+//我方已扛旗
+func (user *User) IsOurSideKangQi() bool {
+	if user.GetIsKangQi() || user.GetTeamMateUser().GetIsKangQi() {
+		return true
+	}
+	return false
+}

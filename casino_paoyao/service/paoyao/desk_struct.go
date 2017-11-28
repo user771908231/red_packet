@@ -112,6 +112,7 @@ func (desk *Desk) AddUser(user_id uint32, agent gate.Agent) (*User, error) {
 			WhiteWinRate:proto.Int32(0),
 			IsLeave:proto.Bool(false),
 			TeamMate:proto.Uint32(0),
+			IsKangQi: proto.Bool(false),
 		},
 		Desk: desk,
 	}
@@ -221,11 +222,24 @@ func (desk *Desk) GetNextChupaiUser() *User {
 		return next_user
 	}
 
-	//让下一个玩家出牌
-	last_user,_ := desk.GetUserByUid(desk.GetLastActUser())
-	next_user := desk.Users[int(last_user.GetIndex()+1)%len(desk.Users)]
+	i := 0
+	for {
+		//让下一个玩家出牌
+		last_user,_ := desk.GetUserByUid(desk.GetLastActUser())
+		next_user := desk.Users[int(last_user.GetIndex()+1)%len(desk.Users)]
+		i++
+		if i == 4 {
+			log.E("死循环了！")
+			break
+		}
+		if next_user.Pokers == nil || len(next_user.Pokers.Pais) == 0 {
+			desk.LastActUser = proto.Uint32(next_user.GetUserId())
+		}else {
+			return next_user
+		}
+	}
 
-	return next_user
+	return nil
 }
 
 
@@ -310,7 +324,14 @@ func (user *User) GetClientDesk() *ddproto.PaoyaoClientDesk {
 		DaikaiUser:   proto.Uint32(user.GetDaikaiUser()),
 		IsCoinRoom:   proto.Bool(user.GetIsCoinRoom()),
 		SurplusTime:  proto.Int32(1),
+		LastChupaiUser: proto.Uint32(user.Desk.GetLastChupaiUser()),
+		CurrActUser: proto.Uint32(user.Desk.GetNextChupaiUser().GetUserId()),
+		CurrDeskScore: proto.Int32(user.GetDeskScore()),
+		OurSideScore:proto.Int32(0),
+		OppositeScore:proto.Int32(0),
 	}
+
+	*client_desk.OurSideScore, *client_desk.OppositeScore = user.GetTeamScore()
 
 	//投票剩余时间
 	if user.GetIsOnDissolve() && user.GetDissolveTime() > 0 {
@@ -453,7 +474,7 @@ func (desk *Desk)InitTeamRelation() {
 				continue
 			}
 			*u.TeamMate = 0
-			if u.Desk.GetGameNumber() == 4 {
+			if u.Desk.DeskOption.GetGammerNum() == 4 {
 				*u.TeamMate = desk.Users[(i+2)%4].GetUserId()
 			}
 		}
