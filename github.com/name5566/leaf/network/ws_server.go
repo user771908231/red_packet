@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"sync"
 	"time"
+	"github.com/gorilla/context"
 )
 
 type WSServer struct {
@@ -114,7 +115,7 @@ func (server *WSServer) Start() {
 
 	httpServer := &http.Server{
 		Addr:           server.Addr,
-		Handler:        server.handler,
+		Handler:        context.ClearHandler(server.handler),
 		ReadTimeout:    server.HTTPTimeout,
 		WriteTimeout:   server.HTTPTimeout,
 		//todo --外加 实现http recover logger
