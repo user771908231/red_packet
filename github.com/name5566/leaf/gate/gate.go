@@ -11,11 +11,8 @@ import (
 	"time"
 	"casino_common/common/Error"
 	"fmt"
+	"sync"
 )
-
-func init() {
-	agentList = map[*agent]bool{}
-}
 
 type Gate struct {
 	MaxConnNum      int
@@ -35,7 +32,15 @@ type Gate struct {
 }
 
 //连接上次接收消息的时间
-var agentList map[*agent]bool
+var agentList sync.Map
+
+func agentListLength() (len int) {
+	agentList.Range(func(key, value interface{}) bool {
+		len++
+		return true
+	})
+	return
+}
 
 func (gate *Gate) Run(closeSig chan bool) {
 	var wsServer *network.WSServer
@@ -49,7 +54,7 @@ func (gate *Gate) Run(closeSig chan bool) {
 		wsServer.NewAgent = func(conn *network.WSConn) network.Agent {
 			a := &agent{conn: conn, gate: gate}
 			a.lastReceiveTime = time.Now()
-			agentList[a] = true
+			agentList.Store(a, true)
 			if gate.AgentChanRPC != nil {
 				gate.AgentChanRPC.Go("NewAgent", a)
 			}
@@ -88,10 +93,11 @@ func (gate *Gate) Run(closeSig chan bool) {
 			<-time.After(60 * time.Second)
 
 			time_now := time.Now()
-			log.T("start clean timeout agent, curr agentlist [len: %d]", len(agentList))
-			for a, _ := range agentList {
+			log.T("start clean timeout agent, curr agentlist [len: %d]", agentListLength())
+			agentList.Range(func(key, _ interface{}) bool {
+				a := key.(*agent)
 				if a == nil {
-					continue
+					return false
 				}
 				timeCost := time_now.Sub(a.lastReceiveTime)
 				if timeCost > time.Second * 60 {
@@ -99,10 +105,11 @@ func (gate *Gate) Run(closeSig chan bool) {
 					//超时则关闭链接，并从列表中删除
 					a.Close()
 					a.Destroy()
-					delete(agentList, a)
+					agentList.Delete(a)
 				}
-			}
-			log.T("end clean timeout agent, curr agentlist [len: %d]", len(agentList))
+				return true
+			})
+			log.T("end clean timeout agent, curr agentlist [len: %d]", agentListLength())
 		}
 	}()
 	<-closeSig
