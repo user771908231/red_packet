@@ -1,0 +1,97 @@
+{{define "weixin_header"}}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="screen-orientation" content="portrait">
+
+    <title>子页面</title>
+
+    <link title="" href="/static/weixin/css/newcss/style.css" rel="stylesheet" type="text/css"  />
+    <link title="blue" href="/static/weixin/css/newcss/dermadefault.css" rel="stylesheet" type="text/css"/>
+    <link href="/static/weixin/css/newcss/templatecss.css" rel="stylesheet" title="" type="text/css" />
+    <link rel="stylesheet" href="/static/weixin/css/newcss/reset.css">
+    <link rel="stylesheet" href="/static/admin/plugins/layui/css/layui.css" media="all">
+
+    <link rel="stylesheet" href="//cdn.bootcss.com/bootstrap/3.3.7/css/bootstrap.css">
+
+    <link rel="stylesheet" href="/static/admin/plugins/layui/css/amazeui.min.css">
+    <link rel="stylesheet" href="/static/admin/plugins/layui/css/app.css">
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+    <script src="https://cdn.bootcss.com/html5shiv/3.7.3/html5shiv.min.js"></script>
+    <script src="https://cdn.bootcss.com/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+    <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+    <script src="//cdn.bootcss.com/jquery/1.12.4/jquery.min.js"></script>
+    <!-- Include all compiled plugins (below), or include individual files as needed -->
+    <script src="//cdn.bootcss.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <script src="/static/admin/plugins/layui/layui.js"></script>
+    <style>
+        table{width:100%;border:1px solid #999;}
+        table td{word-break: keep-all;white-space:nowrap;}
+        table th{word-break: keep-all;white-space:nowrap;}
+        .boxes {
+                  width: 400px;
+                }
+                
+                .boxes .box {
+                  height: 120px;
+                  border:1px;
+                  color: #eee;
+                  line-height: 120px;
+                  text-align: center;
+                  /*font-weight: bold;*/
+                  transition: all .2s ease;
+                  border-bottom:1px solid;
+                  border-style:solid;
+                  /*font-weight: normal;*/
+                  font-color:red;
+                }
+        #back-btn {
+          float:left;
+          width:44px;
+          height:30px;
+          margin-left:15px;
+          margin-top:8px;
+          margin-bottom:8px;
+          background-color:transparent;
+          display:block;
+          border:1px darkgrey solid;
+          border-radius:4px;
+          text-decoration:none;
+        }
+
+        #back-text {
+          /*margin:5px 9px; */
+          text-align: center;
+          background-color:transparent;
+          color:darkgrey;
+          font-size:1rem;
+          line-height: 30px;
+          width:44px;
+          height:30px;
+          display:block;
+        }
+
+        #logo-text {
+          font-family: 微软雅黑;
+          font-size: 2rem;
+          line-height: 50px;
+          margin-left: 2rem;
+          font-weight: bold;
+          color: darkgrey;
+          text-align:center;
+        }
+    </style>
+    <script src="/static/admin/static/js/manage.js"></script>
+</head>
+<body>
+{{end}}
+{{define "weixin_footer"}}
+</body>
+</html>
+{{end}}

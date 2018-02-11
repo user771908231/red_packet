@@ -1,0 +1,488 @@
+{{ template "weixin_header" }}
+<style>
+    .layui-form-label {
+        width: 100px;
+        text-align: right;
+    }
+    .layui-form-item {
+        /*border: solid red 1px;*/
+    }
+</style>
+<div style="margin-top: 50px">
+    <h3 style="text-align: center">俱乐部设置</h3>
+</div>
+
+<form class="layui-form" id="post-form" method="post" action="group_edit.html">
+    <div class="layui-form-item layui-form-text">
+        <label class="layui-form-label">1.名称:</label>
+        <div class="layui-input-block">
+            <input placeholder="请输入内容" name="name" class="layui-input" value="{{.group_info.GetName}}" />
+        </div>
+    </div>
+    <div class="layui-form-item layui-form-text" style="display: none">
+        <label class="layui-form-label">2.描述:</label>
+        <div class="layui-input-block">
+            <input placeholder="请输入内容" name="info" class="layui-input" value="{{.group_info.GetInfo}}" />
+        </div>
+    </div>
+
+    <div class="layui-form-item layui-form-text">
+        <label class="layui-form-label">2.邀请码:</label>
+        <div class="layui-input-block">
+            <input placeholder="请输入8位邀请码" name="group_id" class="layui-input" {{if eq .group_info.GetId 0}} {{else}}readonly value="{{.group_info.GetId}}"{{end}} />
+        </div>
+    </div>
+
+    <div class="layui-form-item  layui-form-text">
+        <label class="layui-form-label" style="width: 210px">3.开房配置(可设置多条):</label>
+        <div id="game_opts" class="layui-form-block layui-form-text">
+            {{range $i,$v := .group_info.GetGameOpts}}
+            <div class="layui-form-item" style="border: grey solid 1px">
+                <div class="layui-form-item">
+                    <label class="layui-form-label" style="width: 110px">所属游戏:</label>
+                    <div class="layui-form-inline ">
+                        <select name="gameId" style="display: block;">
+                            <option value="0">请选择所属游戏</option>
+                            <option value="22" {{if eq $v.GetGameId 22}}selected{{end}}>红中/转转麻将</option>
+                            <option value="7" {{if eq $v.GetGameId 7}}selected{{end}}>跑得快</option>
+                            <option value="16" {{if eq $v.GetGameId 16}}selected{{end}}>松江河麻将</option>
+                            <option value="2" {{if eq $v.GetGameId 2}}selected{{end}}>四川麻将</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="layui-form-item" style="display: none">
+                    <label class="layui-form-label" style="">描述:</label>
+                    <div class="layui-input-block">
+                        <input placeholder="请输入内容" name="remark" class="layui-input" value="{{$v.GetRemark}}" />
+                    </div>
+                </div>
+                <div class="layui-form-item" style="display: none">
+                    <label class="layui-form-label" style="width: 100px;">房间选项:</label>
+                    <div class="layui-input-block">
+                        <input placeholder="请输入内容" name="option" class="layui-input" value="{{$v.GetOption}}" />
+                    </div>
+                </div>
+
+                <div class="game_opt_item" data-gameid="{{$v.GetGameId}}" data-option="{{$v.GetOption}}"></div>
+
+                <div class="layui-form-item">
+                    <label class="layui-form-label" style="width: 120px">删除该配置:</label>
+                    <div class="layui-input-block">
+                        <button type="button" class="layui-btn layui-btn-primary btn-opt-del">点击删除</button>
+                    </div>
+                </div>
+            </div>
+            {{end}}
+        </div>
+
+    </div>
+
+    <div class="layui-form-item">
+        <label class="layui-form-label" style="width: 140px">添加游戏配置:</label>
+        <div class="layui-input-block">
+            <button type="button" class="layui-btn layui-btn-primary btn-opt-add">点击添加</button>
+        </div>
+    </div>
+
+    <div class="layui-form-item">
+        <div class="layui-input-block">
+            <button class="layui-btn" type="submit" >确定</button>
+            <button type="reset" class="layui-btn layui-btn-primary">重置</button>
+        </div>
+    </div>
+</form>
+
+<!--游戏选项前端js模板-->
+<script id="option_tpl" type="text/javascript">
+    <{# layui.each(d.options, function(index, item){ }>
+        <{# var randInt=parseInt(Math.random()*10000000000); }>
+        <label class="layui-form-label" style="font-weight: bold"><{ item.label }>:</label>
+        <{# layui.each(item.options, function(index2, item2){ }>
+            <label style="height: 38px;line-height: 38px;font-weight: normal"><input class="option_item" name="index<{randInt}>" type="<{ item.type }>" <{ item2.selected }> value="<{ item2.name }>" style="display:inline;" /><{ item2.name }>&nbsp;</label>
+        <{# }); }>
+        <span style="display:block"></span><br/>
+    <{# }); }>
+</script>
+
+<script>
+    $("title").html("代理后台-棋牌代理申请");
+
+    //删除选项
+    $(document).on("click", ".btn-opt-del", function (e) {
+        $(this).parent().parent().parent().remove();
+    });
+
+    //新增选项
+    $(".btn-opt-add").on("click", function (e) {
+        $("#game_opts").append('<div class="layui-form-item" style="border: grey solid 1px">\n' +
+            '                <div class="layui-form-item">\n' +
+            '                    <label class="layui-form-label" style="width: 110px">所属游戏:</label>\n' +
+            '                    <div class="layui-form-inline">\n' +
+            '                        <select name="gameId" style="display: block;">\n' +
+            '                            <option value="0">请选择所属游戏</option>\n' +
+            '                            <option value="22">红中/转转麻将</option>\n' +
+            '                            <option value="7">跑得快</option>\n' +
+            '                            <option value="16">松江河麻将</option>\n' +
+            '                             <option value="2">四川麻将</option>\n' +
+            '                        </select>\n' +
+            '                    </div>\n' +
+            '                </div>\n' +
+            '                <div class="layui-form-item" style="display: none">\n' +
+            '                    <label class="layui-form-label" style="">描述:</label>\n' +
+            '                    <div class="layui-input-block">\n' +
+            '                        <input placeholder="请输入内容" name="remark" class="layui-input" value="" />\n' +
+            '                    </div>\n' +
+            '                </div>\n' +
+            '                <div class="layui-form-item" style="display: none">\n' +
+            '                    <label class="layui-form-label" style="width: 100px">房间选项:</label>\n' +
+            '                    <div class="layui-input-block">\n' +
+            '                        <input placeholder="请输入内容" name="option" class="layui-input" value="" />\n' +
+            '                    </div>\n' +
+            '                </div>\n' +
+
+            '               <div class="game_opt_item" data-gameid="" data-option=""></div>\n' +
+
+            '                <div class="layui-form-item">\n' +
+            '                    <label class="layui-form-label" style="width: 120px">删除该配置:</label>\n' +
+            '                    <div class="layui-input-block">\n' +
+            '                        <button type="button" class="layui-btn layui-btn-primary btn-opt-del">点击删除</button>\n' +
+            '                    </div>\n' +
+            '                </div>\n' +
+            '            </div>');
+    });
+
+    //提交表单
+    $(document).on("submit", "#post-form", function (e) {
+        e.preventDefault();
+
+        var form_id = $("#post-form input[name=group_id]").val();
+        var form_name = $("#post-form input[name=name]").val();
+        var form_info = $("#post-form input[name=info]").val();
+
+        form_id = parseInt(form_id);
+        if(isNaN(form_id) || form_id<10000000 || form_id>99999999){
+            alert("邀请码必须为8位整数！");
+            return
+        }
+
+        if(form_name === ""){
+            alert("请填写俱乐部名称！");
+            return
+        }
+        // if(form_info == ""){
+        //     alert("请填写俱乐部描述！");
+        //     return
+        // }
+
+
+        var post_form = {
+            "id": form_id,
+            "name": form_name,
+            "info": form_info,
+            "gameOpts": []
+        };
+
+        var has_fail = false;
+        $("#game_opts > div").each(function (k, v) {
+            var opt_input = $(v).find("input[name=option]");
+            opt_input.val("");
+            $(v).find(".game_opt_item input:checked").each(function (k2, v2) {
+                console.log($(v2).val());
+                opt_input.val(opt_input.val() + " " + $(v2).val());
+            });
+
+            var opt_gameId = $(v).find("select[name=gameId]").val();
+            var opt_remark = $(v).find("input[name=remark]").val();
+            var opt_option = $(v).find("input[name=option]").val();
+            opt_gameId = parseInt(opt_gameId);
+            if(opt_gameId <= 0) {
+                alert("请选择游戏！");
+                has_fail = true;
+                return
+            }
+            // if(opt_remark == ""){
+            //     alert("请填写配置描述！");
+            //     has_fail = true;
+            //     return
+            // }
+            if(opt_option == ""){
+                alert("请填写房间选项！");
+                has_fail = true;
+                return
+            }
+
+            if(hasContent(opt_option, "红中麻将") && hasContent(opt_option, "可接炮")){
+                alert("红中麻将不能选择可接炮！");
+                has_fail = true;
+                return
+            }
+
+            if(hasContent(opt_option, "转转麻将") && hasContent(opt_option, "八红中")){
+                alert("转转麻将不能选择八红中！");
+                has_fail = true;
+                return
+            }
+
+            //对选项进行处理
+            switch (opt_gameId){
+                case 16:
+                    //松江河
+                    if(!hasContent(opt_option, "松江河麻将")){
+                        opt_option = "松江河麻将 " + opt_option;
+                    }
+                    break;
+            }
+
+            post_form["gameOpts"].push({
+                "id": k+1,
+                "gameId": parseInt(opt_gameId),
+                "remark": opt_remark,
+                "option": opt_option
+            });
+        });
+
+        if(has_fail){
+           return
+        }
+        //提交表单
+        $.ajax({
+            url: "edit_post",
+            type: "get",
+            data: {
+                "type": "{{.type}}",
+                "data": JSON.stringify(post_form)
+            },
+            async: true,
+            success: function (res) {
+                alert(res.msg);
+                //成功则跳转
+                if(res.code >= 0){
+                    window.location.href = "/weixin/agent/group/list"
+                }
+            },
+            error: function () {
+                layui.layer.open({title: "消息", content: "网络异常！"});
+            }
+        });
+    });
+
+    //重置时刷新配置
+    $(document).on("reset", "#post-form", function (e) {
+        setTimeout(function () {
+            $("#post-form select[name=gameId]").change();
+        }, 100)
+    });
+
+    //是否匹配
+    function hasContent(src, str) {
+        return src.match(str) != null
+    }
+
+    //显示选项
+    $(document).on("change", "#post-form select[name=gameId]", function (e) {
+        var gameid = parseInt($(this).val());
+
+        var game_opt_item = $(this).parent().parent().siblings(".game_opt_item");
+        game_opt_item.html("");
+
+        var option = "";
+
+        if(game_opt_item.data("option") === undefined){
+            option = ""
+        }else {
+            option = game_opt_item.data("option")
+        }
+
+        var data = {options:[]};
+        switch (gameid){
+            case 22:
+                //红中
+                data = {options:[
+                    {"type": "radio", "label":"玩法", "options": [
+                        {"name":"红中麻将"},
+                        {"name": "转转麻将"}
+                    ]},{"type": "radio", "label":"局数", "options": [
+                        {"name":"八局"},
+                        {"name": "十六局"}
+                    ]},
+                    {"type": "radio", "label":"人数", "options": [
+                        {"name":"四人"},
+                        {"name": "三人"},
+                        {"name": "二人"}
+                    ]},
+                    {"type": "radio", "label":"抓鸟", "options": [
+                        {"name":"一码全中"},
+                        {"name": "抓2鸟"},
+                        {"name": "抓4鸟"},
+                        {"name": "抓6鸟"}
+                    ]},
+                    {"type": "checkbox", "label":"玩法", "options": [
+                        {"name":"金鸟"},
+                        {"name": "抓鸟翻倍"},
+                        {"name": "飘分"},
+                        {"name": "自由飘分"}
+                    ]},
+                    {"type": "checkbox", "label":"红中麻将", "options": [
+                        {"name": "八红中"}
+                    ]},
+                    {"type": "checkbox", "label":"转转麻将", "options": [
+                        {"name": "可接炮"}
+                    ]}
+                ]};
+                break;
+            case 7:
+                //跑得快
+                data = {options:[
+                    {"type": "radio", "label":"玩法", "options": [
+                        {"name":"十五张跑得快"},
+                        {"name": "经典跑得快"}
+                    ]},{"type": "radio", "label":"局数", "options": [
+                        {"name":"20局"},
+                        {"name": "10局"}
+                    ]},
+                    {"type": "radio", "label":"人数", "options": [
+                        {"name":"2人"},
+                        {"name": "3人"}
+                    ]},
+                    {"type": "radio", "label":"首出黑桃3", "options": [
+                        {"name":"首出黑桃3"},
+                        {"name": "不出黑桃3"}
+                    ]},
+                    {"type": "radio", "label":"是否抓鸟", "options": [
+                        {"name":"不抓鸟"},
+                        {"name": "红桃10抓鸟"}
+                    ]},
+                    {"type": "checkbox", "label":"是否显示余牌", "options": [
+                        {"name": "显示余牌"}
+                    ]}
+                ]};
+                break;
+            case 16:
+                //松江河
+                data = {options:[
+                    {"type": "radio", "label":"局数", "options": [
+                        {"name": "2圈"},
+                        {"name": "4圈"},
+                        {"name": "8圈"}
+                    ]},{"type": "radio", "label":"玩法", "options": [
+                        {"name": "点炮包三家"},
+                        {"name": "坐车也输分"},
+                        {"name": "点炮自己拿"}
+                    ]},
+                    {"type": "radio", "label":"封顶", "options": [
+                        {"name":"16封顶"},
+                        {"name": "32封顶"}
+                    ]}
+                ]};
+                break;
+            case 2:
+                //四川麻将
+                data = {options:[
+                        {"type": "radio", "label":"游戏类型", "options": [
+                                // {"name": "长沙麻将"},
+                                {"name": "血战到底"},
+                                {"name": "两人两房"},
+                                {"name": "三人两房"},
+                                {"name": "四人两房"},
+                                {"name": "两人三房"},
+                                {"name": "三人三房"},
+                                // {"name": "德阳麻将"},
+                                {"name": "倒倒胡"},
+                                {"name": "血流成河"}
+                            ]
+                        },
+                        {"type": "radio", "label":"底分", "options": [
+                                {"name":"底分1"},
+                                {"name": "底分2"},
+                                {"name": "底分5"},
+                                {"name": "底分10"}
+                            ]
+                        },
+                        {"type": "radio", "label":"局数", "options": [
+                                {"name":"4局"},
+                                {"name":"8局"},
+                                {"name":"12局"}
+                            ]
+                        },
+                        {"type": "radio", "label":"人数", "options": [
+                                {"name":""},
+                                {"name":"2人"},
+                                {"name": "3人"},
+                                {"name": "4人"}
+                            ]
+                        },
+                        {"type": "radio", "label":"封顶", "options": [
+                                {"name":"2番封顶"},
+                                {"name": "3番封顶"},
+                                {"name": "4番封顶"}
+                            ]
+                        },
+                        {"type": "radio", "label":"自摸加分", "options": [
+                                {"name":""},
+                                {"name":"自摸加底"},
+                                {"name": "自摸加番"}
+                            ]
+                        },
+                        {"type": "radio", "label":"点杠", "options": [
+                                {"name":""},
+                                {"name":"点杠花"},
+                                {"name": "点杠炮"}
+                            ]
+                        },
+                        {"type": "checkbox", "label":"附加玩法", "options": [
+                                {"name":"幺九将对"},
+                                {"name": "天地胡"},
+                                {"name":"换三张"},
+                                {"name":"门清中张"},
+                                {"name":"卡二条"}
+                            ]
+                        },
+                        {"type": "checkbox", "label":"牌数(三人四人玩法时可选)", "options": [
+                                {"name":"7张牌"},
+                                {"name":"10张牌"},
+                                {"name":"13张牌"}
+                            ]
+                        }
+                    ]};
+                break;
+            default:
+                return;
+        }
+        //渲染选项
+        $.each(data.options, function (k1, v1) {
+
+            var has_valid = false;
+            $.each(v1.options, function (k2, v2) {
+                if(hasContent(option, v2.name)){
+                    v2.selected = "checked";
+                    has_valid = true;
+                    return;
+                }else {
+                    v2.selected = ""
+                }
+            });
+            //给单选按钮默认值
+            if(v1.type == "radio" && !has_valid && v1.options.length > 0){
+                v1.options[0].selected = "checked";
+            }
+        });
+        common.render(data, "#option_tpl", game_opt_item);
+    });
+
+    //触发默认选项
+    $(document).ready(function () {
+        setTimeout(function () {
+            $("#post-form select[name=gameId]").change();
+        }, 100);
+
+        if("{{.type}}" == "add"){
+            $("title").html("创建俱乐部");
+        }
+        if("{{.type}}" == "edit"){
+            $("title").html("编辑俱乐部");
+        }
+
+    });
+
+</script>
+{{ template "weixin_footer" }}

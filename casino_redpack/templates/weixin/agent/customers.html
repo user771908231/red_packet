@@ -1,0 +1,137 @@
+{{ template "weixin_header" }}
+<div class="alert alert-info alert-dismissable" role="alert">
+    <button class="close" type="button" onclick="$('.alert').eq(0).hide();">&times;</button>
+    <span></span>
+</div>
+<!--顶部 导航栏部分-->
+<nav class="nav navbar-default navbar-mystyle navbar-fixed-top">
+    <div class="navbar-header">
+        <a id="back-btn" href="javascript:history.go(-1);">
+            <span id="back-text">返回</span>
+        </a>
+            <span><a id="logo-text" href="/weixin/agent">代理后台</a></span>
+        <button class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+        </button>
+        <!--<a class="navbar-brand mystyle-brand" href="#"><span class="glyphicon glyphicon-home"></span></a>-->
+    </div>
+    <div class="collapse navbar-collapse" style="background-color: #394555;">
+        <ul class="nav navbar-nav pull-right">
+            <!--<li class="dropdown li-border" id="oSpan"><a href="#" class="dropdown-toggle mystyle-color" data-toggle="dropdown">选择游戏后台<span class="caret"></span></a>-->
+            <!--<ul class="dropdown-menu" id="choseGame">-->
+            <!--</ul>-->
+            <!--</li>-->
+            <li class="dropdown li-border"><a href="#" class="dropdown-toggle mystyle-color" data-toggle="dropdown"><span id="userNick">{{.wx_user.Nickname}}</span><span class="caret"></span></a>
+                <ul class="dropdown-menu">
+                    <li><a href="#" id="logout">退出</a></li>
+                </ul>
+            </li>
+        </ul>
+    </div>
+</nav>
+
+    <!--右侧主体部分-->
+    <div class="my-index">
+        <div class="container-fluid">
+            <div class="info-center">
+                <div class="page-header">
+                    <div class="pull-left">
+                        <h4>我的朋友桌客户<small id="gameName">四川麻将会员代理后台</small></h4>
+                    </div>
+                </div>
+            </div>
+            <form id="form_list" action="" method="get">
+                <input type="hidden" name="page" value="{{.page.page}}">
+            </form>
+
+            <table class="layui-table">
+                <thead>
+                <tr>
+                    <th>昵称</th>
+                    <th>一共购买(张房卡)</th>
+                    <th>操作</th>
+                    <!--<th>返利</th>-->
+                </tr>
+                </thead>
+                <tbody>
+                {{range $k,$v := .list}}
+                <tr id="">
+                    <td>{{$v.NickName}}</td>
+                    <td>{{$v.AllSalesCount}}</td>
+                    <td><a href="/weixin/agent/sales?uid={{$v.Id}}">出售</a></td>
+                    <!--<td>{{$v.RebateCount}}</td>-->
+                </tr>
+                {{end}}
+                </tbody>
+            </table>
+            <div style="height: 35px;width: auto;">
+                <div id="view_page"></div>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="/static/weixin/js/slide_menu.js"></script>
+<script src="/static/weixin/js/share.js"></script>
+<script type="text/javascript">
+    $("title").html("我的客户");
+    $("#form_list_btn").on("click", function (e) {
+        e.preventDefault();
+        var page = $("#form_list").find("[name=page]");
+        page.val(1);
+        $("#form_list").submit();
+    });
+    layui.use(["laypage","laydate"], function () {
+        layui.laypage({
+            cont: 'view_page',
+            pages: {{.page.page_count}}, //总页数
+        curr: {{.page.page}},
+        skip:true, //连续显示分页数
+            jump: function (obj) {
+            var page = $("#form_list").find("[name=page]");
+            if(page.val() != obj.curr) {
+                page.val(obj.curr);
+                $("#form_list").submit();
+            }
+        }
+    });
+
+        var laydate = layui.laydate;
+
+        var start = {
+//        min: laydate.now(),
+//        max: '2099-06-16 23:59:59',
+            min: '2017-01-01 00:00:00',
+            max: laydate.now(),
+            istoday: false
+            ,choose: function(datas){
+                end.min = datas; //开始日选好后，重置结束日的最小日期
+                end.start = datas; //将结束日的初始值设定为开始日
+            }
+        };
+
+        var end = {
+//        min: laydate.now()
+//        ,max: '2099-06-16 23:59:59'
+            min: '2017-01-01 00:00:00',
+            max: laydate.now()
+            ,istoday: false
+            ,choose: function(datas){
+                start.max = datas; //结束日选好后，重置开始日的最大日期
+            }
+        };
+        document.getElementById('LAY_demorange_s').onclick = function(){
+            start.elem = this;
+            laydate(start);
+        };
+        document.getElementById('LAY_demorange_e').onclick = function(){
+            end.elem = this;
+            laydate(end);
+        }
+    });
+
+</script>
+
+
+{{ template "weixin_footer" }}

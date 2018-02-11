@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="zh-cmn-Hans">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=0">
+    <title>开个手机麻将馆，这钱挣得爽...</title>
+    <link rel="stylesheet" href="./bootstrap.min.css"/>
+        <script>
+        var _hmt = _hmt || [];
+        (function() {
+            var hm = document.createElement("script");
+            hm.src = "https://hm.baidu.com/hm.js?e5979b727dcc682f816f1bef14bfa166";
+            var s = document.getElementsByTagName("script")[0];
+            s.parentNode.insertBefore(hm, s);
+        })();
+
+
+        function onload (){  
+            //手机端
+            document.addEventListener('touchend', ontouch, false);
+            
+            var moveCount = 0;  //滑动次数
+            function ontouch (event) {
+                var e = event || window.event;  
+                switch(e.type){
+                    case  "touchend":
+                        moveCount += 1;
+                        _hmt.push(['_trackEvent', '手机滑动', '滑动结束', '滑动次数:'+moveCount]);
+                        break;
+                }
+            }
+            //_hmt.push(['_trackEvent', '初始化onload', 'click', '标签']);
+        }  
+        window.addEventListener('load', onload, false);
+
+    </script>
+</head>
+<body ontouchstart>
+    <div class="container-fluid">
+    <style type="text/css">
+        body,html {
+            overflow-x: hidden;     
+            background-color: #bababa;       
+        }
+        img {
+            width: 100%;
+        }
+        .row {
+            width: 1190px;
+            margin: 0 auto;
+            background-color: #fff;
+        }
+    </style>
+        <div class="row">
+            <img src="./images/pc/tu_01.jpg"/>
+        </div>
+        <div class="row">
+            <img src="./images/pc/tu_02.jpg"/>
+        </div>
+        <div class="row">
+            <img src="./images/pc/tu_03.jpg"/>
+        </div>
+        <div class="row">
+            <img src="./images/pc/tu_04.jpg"/>
+        </div>
+        <div class="row">
+            <img src="./images/pc/tu_05.jpg"/>
+        </div>
+        <div class="row">
+            <img src="./images/pc/tu_06.jpg"/>
+        </div>
+        <div class="row">
+            <img src="./images/pc/tu_07.jpg"/>
+        </div>
+        <div class="row">
+            <img src="./images/pc/tu_08.jpg"/>
+        </div>
+        <div class="row">
+            <img src="./images/pc/tu_09.jpg"/>
+        </div>
+        <div class="row">
+            <img src="./images/pc/tu_10.jpg"/>
+        </div>
+        <div class="row">
+            <img src="./images/pc/tu_11.jpg"/>
+        </div>
+        <div class="row">
+            <img src="./images/pc/tu_12.jpg"/>
+        </div>
+        <div class="row">
+            <img src="./images/pc/tu_13.jpg"/>
+        </div>
+        <div class="row">
+            <img src="./images/pc/tu_14.jpg"/>
+        </div>
+        <div class="row">
+            <img src="./images/pc/tu_15.jpg"/>
+        </div>
+        <div class="row">
+            <img src="./images/pc/tu_16.jpg"/>
+        </div>
+        <div class="row">
+            <img src="./images/pc/tu_17.jpg"/>
+        </div>
+
+<!-- join-us dialog -->
+        <div class="row">
+            <form class="form-horizontal">
+                  <div class="form-group">
+                    <label for="name" class="control-label col-sm-1">姓名:</label>
+                    <div class="col-sm-5">
+                        <input type="text" class="form-control" id="name" placeholder="" tabindex="1" required>
+                    </div>
+                    <div class="col-sm-5">
+                        <label class="control-label"><span style="color: #999; font-size: 0.8em">&nbsp请填写您的真实姓名</span></label>
+                    </div>
+                  </div>
+                  <div class="form-group">
+                    <label for="telphone" class="control-label col-sm-1">电话:</label>
+                    <div class="col-sm-5">
+                        <input type="text" class="form-control" id="telphone" placeholder="" tabindex="2" required>
+                    </div>
+                    <div class="col-sm-5">
+                        <label class="control-label"><span style="color: #999; font-size: 0.8em">&nbsp请填写正确的手机</span></label>
+                    </div>
+                  </div>
+                  <div class="form-group">
+                    <label for="wxid" class="control-label col-sm-1">微信:</label>
+                    <div class="col-sm-5">
+                        <input type="wxid" class="form-control" id="wxid" placeholder="" tabindex="4" required>
+                    </div>
+                    <div class="col-sm-5">
+                        <label class="control-label"><span style="color: #999; font-size: 0.8em">&nbsp请填写正确的微信id</span></label>
+                    </div>
+                  </div>
+                  <div class="form-group">
+                    <label for="comment" class="control-label col-sm-1">留言:</label>
+                    <div class="col-sm-5">
+                        <textarea class="form-control" id="comment" placeholder="" tabindex="5" rows="6"></textarea>
+                    </div>
+                    <style type="text/css">
+                        ul {
+                            display: block;
+                            list-style-type: disc;
+                            margin: 0;
+                            padding: 0;
+                            -webkit-margin-before: 1em;
+                            -webkit-margin-after: 1em;
+                            -webkit-margin-start: 0px;
+                            -webkit-margin-end: 0px;
+                            -webkit-padding-start: 40px;
+                        }
+                        p {
+                            margin-top: 0px !important;
+                            margin-bottom: 0px !important;
+                        }
+                        .textBox {
+                            font-size: 12px;
+                            border: 1px solid #ebebeb;
+                            width: 242px;
+                            margin-left: 15px;
+                            padding-left: 0px;
+                            padding-right: 0px;
+                        }
+                        .textBox p {
+                            width: 250px;
+                            height: 25px;
+                            line-height: 25px;
+                            margin: 0px 0px;
+                            padding-top: 0px;
+                            padding-bottom: 0px;
+                            padding-right: 0px;
+                            padding-left: 15px;
+                            color: #fff;
+                            background: url('./images/red.gif') no-repeat;
+                            position:absolute;
+                            left: -9px;
+                            top: -2px;
+                            display: block;
+                            -webkit-margin-before: 1em;
+                            -webkit-margin-after: 1em;
+                            -webkit-margin-start: 0px;
+                            -webkit-margin-end: 0px;
+                        }
+                        .textBox ul {
+                            padding: 0px;
+                            margin-left: 0px;
+                            margin-bottom: 0px;
+                            margin-right: 0px;
+                            margin-top: 25px;
+                        }
+                        .textBox ul li {
+                            width: 225px;
+                            height: 24px;
+                            line-height: 24px;
+                            margin: 0 auto;
+                            padding: 0px;
+                            overflow: hidden;
+                            border-bottom: 1px dotted #dedede;
+                            cursor: pointer;
+                            list-style-type: none;
+                            display: list-item;
+                            text-align: -webkit-match-parent;
+                        }
+                        .textBox ul li:hover {
+                            color: #d81e08;
+                        }
+                    </style>
+                    <div class="col-sm-6 textBox">
+                        <p>请您填写留言或选择快捷留言</p>
+                        <ul>
+                            <li onclick="listClick(this, event)">我想加盟，请来电告诉我具体细节</li>
+                            <li onclick="listClick(this, event)">怎么开手机麻将馆</li>
+                            <li onclick="listClick(this, event)">房卡怎么操作</li>
+                            <li onclick="listClick(this, event)">很感兴趣，想知道加盟细节</li>
+                        </ul>
+                    </div>
+                  </div>
+                  <div class="form-group">
+                    <div class="col-sm-11 col-sm-offset-1">
+                        <button type="button" class="btn btn-primary btn-lg" onclick="submitForm()">提交</button>
+                    </div>
+                  </div>
+                </form>
+        </div>
+
+    </div>
+
+    <script type="text/javascript" src="./ad.js"></script>
+    <script type="text/javascript">
+        function listClick(obj, evt) {
+            var comment = document.getElementById("comment");
+            if (comment.value != '') {
+                comment.value += '\n' + obj.textContent
+            }else {
+                comment.value = obj.textContent
+            }
+        }
+
+        var imgs = document.getElementsByTagName("img")
+        for (var i=0;i<imgs.length;i++) {
+            imgs[i].isOnScreen = function() {
+                var win = $(window);
+                var viewport = {
+                    top : win.scrollTop(),
+                    left : win.scrollLeft()
+                };
+                viewport.right = viewport.left + win.width();
+                viewport.bottom = viewport.top + win.height();
+                
+                var bounds = this.offset();
+                bounds.right = bounds.left + this.outerWidth();
+                bounds.bottom = bounds.top + this.outerHeight();
+                   
+                return (!(viewport.right < bounds.left || viewport.left > bounds.right || viewport.bottom < bounds.top || viewport.top > bounds.bottom));
+            }
+        }
+        document.addEventListener('', ontouch, false);
+    </script>
+
+</body>
+</html>
