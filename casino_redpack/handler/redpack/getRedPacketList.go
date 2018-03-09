@@ -3,6 +3,7 @@ package redpack
 import (
 	"casino_redpack/modules"
 	"gopkg.in/mgo.v2/bson"
+	"casino_redpack/model/redModel"
 )
 
 //五人对战->房间列表
@@ -13,17 +14,22 @@ func GetRedPacketListHandler(ctx *modules.Context) {
 		"request": []bson.M{},
 	}
 
-	list := []bson.M{
-		bson.M{
-			"id": 25287,
-			"type": 1,
-			"money": "10.00",
-			"all_membey": 5,
-			"has_member": 5,
-			"tail_number": 0,
-			"nickname": "郑细弟",
-			"headimgurl": "http://wx.qlogo.cn/mmopen/ajNVdqHZLLDR9YkFYEz0XhumSbNtrpn98PlbDp7K87CxAGYMhkRwV6LEiaYPNRftBoktV2yXTQlodYEUA7SpZkg/0",
-		},
+	req_type := ctx.QueryInt("type")
+
+	list := []bson.M{}
+
+	room := redModel.GetRoomByType(redModel.RoomType(req_type))
+	for _,item := range room.RedpackList {
+		list = append(list, bson.M{
+			"id": item.Id,
+			"type": item.Type,
+			"money": item.Money,
+			"all_membey": item.Piece,
+			"has_member": item.Piece - len(item.OpenRecord),
+			"tail_number": item.TailNumber,
+			"nickname": item.CreatorName,
+			"headimgurl": item.CreatorHead,
+		})
 	}
 
 	res["request"] = list

@@ -14,6 +14,12 @@ func SaoleiJLAddHandler(ctx *modules.Context) {
 	ctx.HTML(200, "redpack/home/saoleijl_add")
 }
 
+//扫雷红包领取记录
+func SaoleiRedOpenRecordHandler(ctx *modules.Context) {
+	ctx.Data["redId"] = ctx.QueryInt("redId")
+	ctx.HTML(200, "redpack/home/saoleijl_open_record")
+}
+
 //炸弹接龙-红包列表
 func SaoleiPackListHandler(ctx *modules.Context) {
 	list := `{

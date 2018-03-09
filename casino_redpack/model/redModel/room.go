@@ -8,29 +8,131 @@ import (
 	"sync"
 )
 
-type RoomType string
+type RoomType int
 
 const (
 	//五人房红包
-	RoomTypeWurenDZ RoomType = "wurendz"
-	//炸弹接龙
-	RoomTypeZhandanJL RoomType = "zhadanjl"
+	RoomTypeWurenDZ RoomType = 1
+	//扫雷（炸弹接龙）
+	RoomTypeSaoLei RoomType = 5
+
+	//牛牛
+	RoomTypeNiuniu RoomType = 2
+
+	//二八杠
+	RoomTypeErBaGang RoomType = 4
 )
 
 func init() {
+
+	//炸弹接龙
+	Rooms = append(Rooms, &Room{
+		ObjId:       bson.NewObjectId(),
+		Type:        RoomTypeSaoLei,
+		Id:          10000,
+		CreatorId:   10000,
+		CreatorName: "管理员",
+		CreatorHead: "",
+		Money:       15,
+		MaxUser:     99999,
+		Users:       []uint32{},
+		CreateTime:  time.Now(),
+		RedpackList: []*Redpack{},
+	})
+
+	//五人对战
 	Rooms = append(Rooms, &Room{
 		ObjId: bson.NewObjectId(),
-		Type: RoomTypeZhandanJL,
-		Id: 10000,
+		Type: RoomTypeWurenDZ,
+		Id: 10001,
 		CreatorId: 10000,
 		CreatorName: "管理员",
 		CreatorHead: "",
 		Money: 15,
-		MaxUser: 999,
+		MaxUser: 99999,
 		Users: []uint32{},
 		CreateTime: time.Now(),
-		RedpackList: []*Redpack{},
+		RedpackList: []*Redpack{
+			&Redpack{
+				ObjId: bson.NewObjectId(),
+				CreatorUser: 10001,
+				CreatorName: "郑秀娣",
+				CreatorHead: "http://wx.qlogo.cn/mmopen/ajNVdqHZLLDR9YkFYEz0XhumSbNtrpn98PlbDp7K87CxAGYMhkRwV6LEiaYPNRftBoktV2yXTQlodYEUA7SpZkg/0",
+				Id: 100004,
+				Money: 5,
+				Lost: 5,
+				Piece: 5,
+				Type: RoomTypeWurenDZ,
+				TailNumber: 0,
+				RoomId: 10001,
+				OpenRecord: []*OpenRecordItem{},
+				Time: time.Now(),
+			},
+		},
 	})
+
+	//牛牛
+	Rooms = append(Rooms, &Room{
+		ObjId: bson.NewObjectId(),
+		Type: RoomTypeNiuniu,
+		Id: 10002,
+		CreatorId: 10000,
+		CreatorName: "管理员",
+		CreatorHead: "",
+		Money: 15,
+		MaxUser: 99999,
+		Users: []uint32{},
+		CreateTime: time.Now(),
+		RedpackList: []*Redpack{
+			&Redpack{
+				ObjId: bson.NewObjectId(),
+				CreatorUser: 10001,
+				CreatorName: "李易峰",
+				CreatorHead: "http://wx.qlogo.cn/mmopen/ajNVdqHZLLDR9YkFYEz0XhumSbNtrpn98PlbDp7K87CxAGYMhkRwV6LEiaYPNRftBoktV2yXTQlodYEUA7SpZkg/0",
+				Id: 100005,
+				Money: 5,
+				Lost: 5,
+				Piece: 5,
+				Type: RoomTypeNiuniu,
+				TailNumber: 0,
+				RoomId: 10002,
+				OpenRecord: []*OpenRecordItem{},
+				Time: time.Now(),
+			},
+		},
+	})
+
+	//二八杠
+	Rooms = append(Rooms, &Room{
+		ObjId: bson.NewObjectId(),
+		Type: RoomTypeErBaGang,
+		Id: 10003,
+		CreatorId: 10000,
+		CreatorName: "管理员",
+		CreatorHead: "",
+		Money: 15,
+		MaxUser: 99999,
+		Users: []uint32{},
+		CreateTime: time.Now(),
+		RedpackList: []*Redpack{
+			&Redpack{
+				ObjId: bson.NewObjectId(),
+				CreatorUser: 10005,
+				CreatorName: "啦啦啦",
+				CreatorHead: "http://wx.qlogo.cn/mmopen/ajNVdqHZLLDR9YkFYEz0XhumSbNtrpn98PlbDp7K87CxAGYMhkRwV6LEiaYPNRftBoktV2yXTQlodYEUA7SpZkg/0",
+				Id: 100009,
+				Money: 5,
+				Lost: 5,
+				Piece: 5,
+				Type: RoomTypeErBaGang,
+				TailNumber: 0,
+				RoomId: 10003,
+				OpenRecord: []*OpenRecordItem{},
+				Time: time.Now(),
+			},
+		},
+	})
+
 }
 
 //房间抽象
@@ -62,30 +164,14 @@ func GetRoomById(roomId int32) *Room {
 	return nil
 }
 
-//单个红包
-type Redpack struct {
-	ObjId       bson.ObjectId `bson:"_id"`
-	CreatorUser uint32            //发包的人id
-	CreatorName string            //发包人昵称
-	CreatorHead string            //发包人头像
-	Id          int32             //红包id
-	Money       float64           //红包大小
-	Lost        float64           //剩余大小
-	Piece       int             //分成几份
-	Type        RoomType          //红包类型
-	TailNumber  int             //尾数 0-9, 默认-1
-	RoomId      int32             //房间id
-	OpenRecord  []*OpenRecordItem //开红包记录
-	Time        time.Time         //发红包时间
-}
-
-//开红包记录
-type OpenRecordItem struct {
-	UserId uint32  //领红包的人id
-	NickName string  //领红包的人的昵称
-	Head string  //领红包的人的头像
-	Money float64  //领了多少钱
-	Time time.Time  //时间
+//通过房间类型查找
+func GetRoomByType(roomType RoomType) *Room {
+	for _,r := range Rooms {
+		if r.Type == roomType {
+			return r
+		}
+	}
+	return nil
 }
 
 //新建房间
@@ -135,17 +221,35 @@ func (room *Room) SendRedpack(creator *userModel.User, money float64, piece int,
 		Time: time.Now(),
 	}
 
+	//广播消息
+	BroadCast(bson.M{TagRoomId: room.Id}, func(conn WsConn) []byte {
+		userId := conn.Get(TagUserId).(uint32)
+		return GetClientRedpackListJson([]*Redpack{new_redpack}, userId)
+	})
+
 	//上锁
 	room.Lock()
 	defer room.Unlock()
+	//更新到mongo
+	defer new_redpack.Upsert()
 
-	//加入列表
+	//加入列表,保存100条缓存
 	room.RedpackList = append(room.RedpackList, new_redpack)
-	if length := len(room.RedpackList); length > 10 {
-		room.RedpackList = room.RedpackList[length-10:]
+	if length := len(room.RedpackList); length > 100 {
+		room.RedpackList = room.RedpackList[length-100:]
 	}
 
-	//广播消息
-	BroadCast(GetClientRedpackListJson([]*Redpack{new_redpack}), bson.M{TagRoomId: room.Id})
 	return new_redpack, nil
+}
+
+//查找红包
+func (room *Room) GetRedpackById(red_id int32) *Redpack {
+	//先从内存找
+	for _,r := range room.RedpackList {
+		if r.Id == red_id {
+			return r
+		}
+	}
+
+	return nil
 }

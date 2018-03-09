@@ -2,11 +2,8 @@ package weixinModel
 
 import (
 	"casino_redpack/modules"
-	"github.com/chanxuehong/rand"
 	mpoauth2 "github.com/chanxuehong/wechat.v2/mp/oauth2"
 	"github.com/chanxuehong/wechat.v2/oauth2"
-	"log"
-	"strings"
 )
 
 const (
@@ -21,17 +18,20 @@ var (
 //oauth验证第一步发起认证
 func OauthLogin(ctx *modules.Context) {
 	//微信浏览器
-	if strings.Contains(ctx.Req.Header.Get("User-Agent"), "MicroMessenger"){
-		state := string(rand.NewHex())
-		ctx.Session.Set("state", state)
-		AuthCodeURL := mpoauth2.AuthCodeURL(WX_APP_ID, "http://" + ctx.Req.Host + oauth2RedirectURI, oauth2Scope, state)
-		log.Println("AuthCodeURL:", AuthCodeURL)
+	//if strings.Contains(ctx.Req.Header.Get("User-Agent"), "MicroMessenger"){
+	//	state := string(rand.NewHex())
+	//	ctx.Session.Set("state", state)
+	//	AuthCodeURL := mpoauth2.AuthCodeURL(WX_APP_ID, "http://" + ctx.Req.Host + oauth2RedirectURI, oauth2Scope, state)
+	//	log.Println("AuthCodeURL:", AuthCodeURL)
+	//
+	//	ctx.Redirect(AuthCodeURL, 302)
+	//}else {
+	//	//普通浏览器
+	//	ctx.HTML(200, "weixin/agent/login")
+	//}
 
-		ctx.Redirect(AuthCodeURL, 302)
-	}else {
-		//普通浏览器
-		ctx.HTML(200, "weixin/agent/login")
-	}
+	//只允许用户名密码登陆
+	ctx.HTML(200, "weixin/agent/login")
 }
 
 //oauth验证第二步回调，获取用户信息并存入session

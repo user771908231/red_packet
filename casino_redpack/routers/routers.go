@@ -101,6 +101,7 @@ func Regist(m *macaron.Macaron) {
 		m.Group("/home", func() {
 			//首页
 			m.Get("/", redpack.HomeHandler)
+
 			m.Group("/member", func() {
 				//充值
 				m.Get("/recharge", redpack.RechargeHandler)
@@ -129,11 +130,30 @@ func Regist(m *macaron.Macaron) {
 
 				m.Any("/getGaameRedPacketList", redpack.GetGaameRedPacketListHandler)   //todo 需要重构
 
-				//发红包
+				//发红包(五人对战、牛牛、二八杠)
 				m.Get("/add_red_packet", redpack.SendWurenRedPacketHandler)
 
 				//加入红包列表
 				m.Get("/join_red_packet", redpack.JoinWurenRedPacketHandler)
+			})
+
+			//牛牛
+			m.Group("/niuniu", func() {
+				//牛牛首页
+				m.Get("/", redpack.NiuniuHandler)
+
+				//发红包页面
+				m.Get("/add", redpack.NiuniuAddHandler)
+
+			})
+
+			//二八杠
+			m.Group("/gang", func() {
+				//二八杠首页
+				m.Get("/", redpack.GangHandler)
+
+				//二八杠 发红包 页面
+				m.Get("/add", redpack.GangAddHandler)
 			})
 
 			//扫雷接龙
@@ -145,6 +165,12 @@ func Regist(m *macaron.Macaron) {
 
 				//发红包
 				m.Get("/add_red_packet", redpack.SendZhadanRedPacketHandler)
+
+				//开红包（按钮）
+				m.Get("/join_open_red_packet", redpack.SaoleiJLOpenRedButtonAjaxHandler)
+
+				//开红包记录
+				m.Get("/open_red_packet", redpack.SaoleiRedOpenRecordAjaxHandler)
 			})
 
 			//登录
@@ -165,10 +191,11 @@ func Regist(m *macaron.Macaron) {
 				m.Get("/", redpack.SaoleiJLHandler)
 				m.Get("/add", redpack.SaoleiJLAddHandler)
 
+				m.Get("/kai_ok", redpack.SaoleiRedOpenRecordHandler)
 			})
 
 
-		})
+		}, admin.NeedLogin)
 
 		//代理申请
 		m.Get("/weixin/agent/apply", weixin.NeedWxLogin, weixin.ApplyHandler)
@@ -192,12 +219,19 @@ func Regist(m *macaron.Macaron) {
 		})
 
 		//websocket处理
-		m.Get("/ws/redpack/room/:id", func(ctx *macaron.Context) {
+		m.Get("/ws/redpack/room/:id", func(ctx *modules.Context) {
 			roomId := ctx.ParamsInt(":id")
+			user := ctx.IsLogin()
 
 			keys := map[string]interface{}{
 				redModel.TagRoomId: int32(roomId),
+				redModel.TagUserId: uint32(0),
 			}
+
+			if user != nil {
+				keys[redModel.TagUserId] = user.Id
+			}
+
 			redModel.WsServer.HandleRequestWithKeys(ctx.Resp, ctx.Req.Request, keys)
 		})
 	}, weixin.RootMidware)

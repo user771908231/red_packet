@@ -61,5 +61,11 @@ func (conn WsConn) HandConnect() {
 	if room == nil {
 		return
 	}
-	conn.WriteMsg(GetClientRedpackListJson(room.RedpackList))
+	userId := conn.Get(TagUserId).(uint32)
+	switch room.Type {
+	case RoomTypeSaoLei:
+		//炸弹接龙（扫雷）
+		conn.WriteMsg(GetClientRedpackListJson(room.RedpackList, userId))
+	}
+
 }

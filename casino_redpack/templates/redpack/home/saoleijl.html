@@ -161,9 +161,10 @@
                         content: dataObj.request.msg
                         ,btn: '我知道了'
                     });
-                    $("#item").html('');
-                    ids='00';
-                    shuju();
+                    //todo 修改点
+                    // $("#item").html('');
+                    // ids='00';
+                    // shuju();
                     return;
                 }
                 if(code=='0'){
@@ -293,6 +294,13 @@
         var dataObj=eval("("+data+")");//转换为json对象
         var request=dataObj.request;
         if(request!=='0'){
+
+            var need_score = false;
+            //滚动到最底部
+            if($("#item").html() == ""){
+                need_score = true;
+            }
+
             $.each(dataObj.request,function(i,item){
                 ids=ids+','+item.id;
                 var hbzt,hbpic,hbys,xszt;
@@ -307,8 +315,8 @@
                     hbys=' blur';
                     xszt='0';
                 }
-                if(xszt=='1'){
-                    if(item.xianshi=='0'){
+                if(true){
+                    if(item.is_self=='0'){
                         $("#item").append('<li class="content">' +
                                 '<img src="'+item.headimgurl+'" alt="" class="tx"/>' +
                                 '<div onclick=add('+item.id+',"'+item.headimgurl+'","'+encodeURI(item.nickname)+'","'+item.moneyfa+'","'+item.tail_number+'","'+item.jiaru+'") class="content-r">' +
@@ -333,6 +341,12 @@
                     }
                 }
             });
+
+            //滚动到最底部
+            if(need_score){
+                console.log(need_score);
+                // $(document).scrollTop($(document).height());
+            }
         }
     };
     var ws_on_close = function () {

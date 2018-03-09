@@ -1,10 +1,11 @@
+
 <!DOCTYPE HTML>
 <html>
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
     <meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
-    <title>发红包</title>
+    <title>牛牛</title>
     <link rel="stylesheet" type="text/css" href="/static/home/css/aui.css" />
     <link rel="stylesheet" type="text/css" href="/static/home/css/member.css" />
 
@@ -39,7 +40,7 @@
 <body>
 <div class="gonggao" style="z-index: 999999">
     <marquee behavior="scroll" contenteditable="true" onstart="this.firstChild.innerHTML+=this.firstChild.innerHTML;" scrollamount="3" width="100%" onmouseover="this.stop();" onmouseout="this.start();">
-        本游戏仅供测试、仅供娱乐，严禁赌博，如出现赌博行为，将封停账号并向公安机关举报 ！
+        尊敬的玩家您好： 请关注我们的公众号：硕风国际！  以便了解最新的游戏状况及活动；惊喜不断！
     </marquee>
 </div>
 <img src="/static/home/image/big-bg.png" style="width: 100%;height: 100%;position: fixed;z-index: -5;">
@@ -71,46 +72,23 @@
 </div>
 
 
-<div class="aui-content">
-    <ul class="aui-list-view aui-grid-view" style="padding: 20px 20px 0 20px; text-align: center;">
-        <li  style="text-align: center; float: left; width: 200px; margin-left: 24%; font-family: 'Microsoft YaHei' ! important; font-weight: bold; font-size: larger; ">
-            游戏登录
-        </li>
-    </ul>
-</div>
-<div class="aui-content" style="padding: 0 20px;">
-    金币数量：
-</div>
-<div class="aui-content" style="padding: 0 20px;">
+<div class="aui-content" style="padding: 20px;">
     <ul class="jinbi">
-        <li class="aui-btn aui-btn-danger aui-btn-block" tag="10">10金币</li>
-        <li class="aui-btn aui-btn-danger aui-btn-block aui-btn-outlined" tag="20">20金币</li>
+        <li class="aui-btn aui-btn-danger aui-btn-block" tag="5">5金币</li>
+        <li class="aui-btn aui-btn-danger aui-btn-block aui-btn-outlined" tag="10">10金币</li>
+        <li class="aui-btn aui-btn-danger aui-btn-block aui-btn-outlined" tag="30">30金币</li>
         <li class="aui-btn aui-btn-danger aui-btn-block aui-btn-outlined" tag="50">50金币</li>
         <li class="aui-btn aui-btn-danger aui-btn-block aui-btn-outlined" tag="100">100金币</li>
+        <li class="aui-btn aui-btn-danger aui-btn-block aui-btn-outlined" tag="200">200金币</li>
+        <li class="aui-btn aui-btn-danger aui-btn-block aui-btn-outlined" tag="300">300金币</li>
+        <li class="aui-btn aui-btn-danger aui-btn-block aui-btn-outlined" tag="400">400金币</li>
         <li class="aui-btn aui-btn-danger aui-btn-block aui-btn-outlined" tag="500">500金币</li>
-        <li class="aui-btn aui-btn-danger aui-btn-block aui-btn-outlined" tag="0.00">最大</li>
     </ul>
 </div>
-<input id="moneys" type="number" value="10" style=" width: 200px;margin: 10px auto; border-radius: 0.2rem" class="aui-btn aui-btn-danger aui-btn-block aui-btn-outlined" />
-<input id="lrq" type="hidden" value="app" />
-<div style="margin:0 auto;text-align: center; margin-top: 20px;">
-    <img style="margin: 0 auto;" id="fabu" src="/static/home/image/qrfs-btn.png" height="50" />
+<div style="margin:0 auto;text-align: center; margin-top: 20px;padding-bottom: 3rem;">
+    <img style="margin: 0 auto;" id="fabu" src="/static/home/image/cjhb-btn.png" height="50" />
 </div>
-
-<div class="aui-form">
-    <div class="aui-input-row">
-        <label class="aui-input-addon">name</label>
-        <input type="text" class="aui-input" placeholder="name" />
-    </div>
-    <div class="aui-input-row">
-        <span class="aui-input-addon">pass</span>
-        <input type="password" class="aui-input" placeholder="password" />
-    </div>
-</div>
-
-<div style="margin:0 auto;text-align: center; margin-top: 20px; padding-bottom: 5.5rem">
-    <a style="color: #fff" href="yhk">绑定银行卡</a>
-</div>
+<input name="money" id="moneys" type="hidden" value="5"  />
 
 
 
@@ -118,7 +96,7 @@
     <div class="aui-bar-tab-item aui-active" tapmode>
         <a href="/home">
             <i class="aui-iconfont aui-img-21"><img src="/static/home/image/qhh-icon.png" /></i>
-            <div class="aui-bar-tab-label aui-text-huangs">抢红包</div>
+            <div class="aui-bar-tab-label aui-text-huangs">抢包</div>
         </a>
     </div>
     <div class="aui-bar-tab-item" tapmode>
@@ -130,7 +108,7 @@
     <div class="aui-bar-tab-item" tapmode>
         <a href="/home/member/outred">
             <i class="aui-iconfont aui-img-21"><img src="/static/home/image/fhb-icon.png" /></i>
-            <div class="aui-bar-tab-label aui-text-huangs">微信提现</div>
+            <div class="aui-bar-tab-label aui-text-huangs">金币兑换</div>
         </a>
     </div>
     <div class="aui-bar-tab-item" tapmode>
@@ -151,65 +129,36 @@
 
 <script type="text/javascript" src="/static/home/script/jquery-3.2.1.min.js" ></script>
 <script type="text/javascript" src="/static/home/script/layer.js" ></script>
-<script type="text/javascript" src="/static/home/script/aui-toast.js" ></script>
 <script type="text/javascript">
-    apiready = function(){api.parseTapmode();}
-    var toast = new auiToast({})
-    var money;
-    $(".jinbi li").click(function(){
-        $(".jinbi li").addClass("aui-btn-outlined");
-        $(this).removeClass("aui-btn-outlined");
-        money=$(this).attr("tag");
-        $("#moneys").val(money);
-    });
-
-    $("#fabu").click(function(){
-        toast.loading({
-            title:"处理中",
-            duration:2000
-        },function(ret){
-            console.log(ret);
+    $(document).ready(function(){
+        $(".jinbi li").click(function(){
+            $(".jinbi li").addClass("aui-btn-outlined");
+            $(this).removeClass("aui-btn-outlined");
+            $("#moneys").val($(this).attr("tag"));
         });
-        var val = $("#moneys").val(); //获取
-        var lrq = $("#lrq").val(); //获取
-        if (val==''){ val=10;}
-        if(lrq=='wx'){
-            $.get("/home/member/audit?"+'totalFee='+val,function(data,status){
+
+        $("#fabu").click(function(){
+            var val = $("#moneys").val(); //获取
+            if (val==''){
+                val=5;
+            }
+            $.get("../index/add_red_packet?type=2"+'&money='+val,function(data,status){
                 if(status=='success'){
-                    toast.hide();
-                    var data=eval("("+data+")");//转换为json对象
-                    layer.open({
-                        content: data.msg
-                        ,btn: '我知道了'
-                    });
-                }
-            });
-        }else{
-            $.get("/home/pay/add_bank_log?"+'totalFee='+val,function(data,status){
-                if(status=='success'){
-                    toast.hide();
                     var dataObj=eval("("+data+")");//转换为json对象
-                    var codes=dataObj.request.code;
-                    if(codes=='0'){
+                    var code=dataObj.request.code;
+                    if(code=='0'){
                         layer.open({
                             content: dataObj.request.msg
                             ,btn: '我知道了'
                         });
                     }else{
-                        layer.open({
-                            content: '已提交，等待财务处理'
-                            ,btn: ['我知道了']
-                            ,yes: function(index){
-                                $(location).attr('href', '/home/member/outred');
-                            }
-                        });
+                        var redId=dataObj.request.redInfo.id;
+                        $(location).attr('href', '/home/niuniu/index/index?redId='+redId);
                     }
-
                 }
             });
-        }
+        });
     });
-
 </script>
 
 

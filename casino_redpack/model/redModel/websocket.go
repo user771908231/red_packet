@@ -20,9 +20,11 @@ func init() {
 }
 
 //广播方法
-func BroadCast(data []byte, filter bson.M) {
-	WsServer.BroadcastFilter(data, func(session *melody.Session) bool {
+func BroadCast(filter bson.M, dataFun func(conn WsConn)[]byte) {
+	WsServer.BroadcastFilter([]byte{}, func(session *melody.Session) bool {
+		conn := WsConn(*session)
 		if len(filter) == 0 {
+			session.Write(dataFun(conn))
 			return true
 		}
 		for k, v := range filter {
@@ -31,6 +33,7 @@ func BroadCast(data []byte, filter bson.M) {
 				return false
 			}
 		}
+		session.Write(dataFun(conn))
 		return true
 	})
 }
@@ -63,7 +66,9 @@ func (conn WsConn) getWsSession() melody.Session {
 //广播给房间
 func (conn WsConn) BroadToCurrRoom(msg []byte) {
 	cur_roomId := conn.Get(TagRoomId)
-	BroadCast(msg, bson.M{TagRoomId: cur_roomId})
+	BroadCast(bson.M{TagRoomId: cur_roomId}, func(conn WsConn) []byte {
+		return msg
+	})
 }
 
 //给单个连接发消息
