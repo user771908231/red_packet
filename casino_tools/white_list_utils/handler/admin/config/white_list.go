@@ -13,7 +13,7 @@ import (
 func WhiteListHandler(ctx *modules.Context) {
 	game_id := ctx.QueryInt("gid")
 	if game_id == 0 {
-		game_id = 22
+		game_id = 27
 	}
 
 	list := whiteListService.GetWhiteListByGid(int32(game_id))
