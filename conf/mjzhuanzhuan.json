@@ -1,0 +1,14 @@
+{
+        "LogLevel": "debug",
+        "LogPath": "../log",
+        "WSAddr": "0.0.0.0:3818",
+        "MaxConnNum": 20000,
+        "MongoIp": "127.0.0.1:27017",
+        "MongoLogIp": "127.0.0.1:27017",
+        "MongoPort": 27017,
+        "RedisAddr": "127.0.0.1:6379",
+        "CurVersion":3,
+        "ConsolePort": 33818,
+        "HallTcpAddr":"182.92.179.230:2801",
+        "MjZzHzRpcAddr":"127.0.0.1:3918"
+}

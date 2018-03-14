@@ -1,0 +1,22 @@
+{
+  "LogLevel": "debug",
+  "LogPath": "",
+  "WSAddr": "0.0.0.0:3801",
+  "MaxConnNum": 20000,
+  "MongoIp": "127.0.0.1",
+  "MongoPort": 27017,
+  "RedisAddr": "127.0.0.1:6379",
+  "CurVersion": 3,
+  "BaseDownloadUrl": "",
+  "ProdMode": false,
+  "WXPAY_NOTIFYURL": "",
+  "ReleaseTag": 1,
+  "ConsolePort": 33801,
+  "IOS_ReleaseTag": 1,
+  "Android_ReleaseTag": 1,
+  "TcpAddr": "0.0.0.0:2801",
+  "WxAppid": "wx968f1e52358d6a29",
+  "WxMchid": "1426502002",
+  "WxApikey": "SjDDze834Or9Lndw3FeNoj4IqPoda330",
+  "HallRpcAddr": "3901"
+}

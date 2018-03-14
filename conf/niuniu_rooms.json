@@ -1,0 +1,43 @@
+[
+  {
+    "RoomId": 0,
+    "RoomType": 1,
+    "BankRule": 1,
+    "RoomLevel": 1,
+    "RoomTitle": "牛牛朋友桌",
+    "BaseChip": 1,
+    "EnterCoin": 0,
+    "MaxDeskGammer": 6,
+    "CoinFee": 0
+  },{
+    "RoomId": 1,
+    "RoomType": 2,
+    "BankRule": 3,
+    "RoomLevel": 0,
+    "RoomTitle": "贫民匹配场",
+    "BaseChip": 5000,
+    "EnterCoin": 150000,
+    "MaxDeskGammer": 5,
+    "CoinFee": 240
+  },{
+    "RoomId": 2,
+    "RoomType": 2,
+    "BankRule": 3,
+    "RoomLevel": 1,
+    "RoomTitle": "小资匹配场",
+    "BaseChip": 10000,
+    "EnterCoin": 300000,
+    "MaxDeskGammer": 5,
+    "CoinFee": 900
+  },{
+    "RoomId": 3,
+    "RoomType": 2,
+    "BankRule": 3,
+    "RoomLevel": 2,
+    "RoomTitle": "土豪匹配场",
+    "BaseChip": 20000,
+    "EnterCoin": 600000,
+    "MaxDeskGammer": 5,
+    "CoinFee": 3000
+  }
+]

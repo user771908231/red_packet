@@ -1,0 +1,13 @@
+{
+  "LogLevel": "debug",
+  "LogPath": "../log",
+  "WSAddr": "127.0.0.1:3802",
+  "MaxConnNum": 20000,
+  "MongoIp": "127.0.0.1:27017",
+  "TEST02-MongoLogIp": "10.170.194.234:27018",
+  "MongoLogIp": "root:mdbGOsjsj2017@dds-2ze3387225fc40742.mongodb.rds.aliyuncs.com:3717",
+  "RedisAddr": "127.0.0.1:6379",
+  "CurVersion": 3,
+  "ConsolePort": 33802,
+  "HallTcpAddr": "182.92.179.230:2801"
+}

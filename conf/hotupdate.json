@@ -1,0 +1,8 @@
+{
+  "MongoIp": "127.0.0.1:27017",
+  "MongoLogIp":"127.0.0.1:27017",
+  "RedisAddr": "127.0.0.1:6379",
+  "HttpIp": "0.0.0.0",
+  "HttpPort": 9091,
+  "UploadPath": "/Users/yons/upload"
+}
