@@ -26,7 +26,8 @@ func ShowPanel(ctx *modules.Context) {
 }
 //注册
 func SignHandler(ctx *modules.Context) {
-	ctx.Write([]byte("用户注册"))
+	//ctx.Write([]byte("用户注册"))
+	ctx.HTML(200, "admin/sign")
 }
 //验证码
 func NeedCaptcha(ctx *modules.Context, cpt *captcha.Captcha) {
@@ -48,13 +49,14 @@ func LogoutHandler(ctx *modules.Context) {
 type LoginForm struct {
 	Name string `binding:"Required;MinSize(3);MaxSize(12)"`
 	Passwd string `binding:"Required;MinSize(4);MaxSize(24)"`
-	//Captcha string `binding:"Required;Size(4)"`
+	captcha_id string `binding:"Required;Size(15)"`
+	Captcha string `binding:"Required;Size(4)"`
 }
 
 func (form LoginForm)Error(ctx *macaron.Context, errs binding.Errors) {
 	if len(errs)>0 {
 		my_ctx := modules.Context{Context:ctx}
-		my_ctx.Error("登录失败！请检查用户名或密码。", "", 1)
+		my_ctx.Error("登录失败！请检查用户名或密码。", "", 5)
 	}
 }
 //登录POST
@@ -67,3 +69,31 @@ func LoginPostHandler(form LoginForm, ctx *modules.Context) {
 		ctx.Success("登录失败！", "", 1)
 	}
 }
+
+//注册验证
+type SiginTable struct {
+	Name string `binding:"Required;MinSize(6);MaxSize(12)"`
+	PasswdOne string `binding:"Required;MinSize(6);MaxSize(24)"`
+	PasswdTwo string `binding:"Required;MinSize(6);MaxSize(24)"`
+	//captchaId string `binding:"Required;Size(15)"`
+	Captcha string `binding:"Required;Size(4)"`
+}
+
+//func (sign SiginTable)Error(ctx *macaron.Context,errs binding.Errors) {
+//	if len(errs) > 0 {
+//		my_ctx := modules.Context{Context:ctx}
+//		my_ctx.Error("注册失败！请检查用户名或密码。","",50)
+//	}
+//}
+
+func SignTableValuesHandler(sign SiginTable,ctx *modules.Context) {
+	user := userModel.TableValues(sign.Name,sign.PasswdOne,sign.PasswdTwo)
+	if user != nil {
+		ctx.Session.Set("user", &user)
+		ctx.Success("注册成功！", "/admin", 5)
+	}else {
+		ctx.Success("注册失败！", "", 100)
+	}
+
+}
+

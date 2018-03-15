@@ -7,14 +7,14 @@ import (
 
 //是否登录
 func (ctx *Context) IsLogin() *userModel.User {
-	return &userModel.User{
-		Id: 10000,
-		NickName: "娃哈哈啊娃哈哈",
-		HeadUrl: "http://wx.qlogo.cn/mmopen/ajNVdqHZLLDR9YkFYEz0XhumSbNtrpn98PlbDp7K87CxAGYMhkRwV6LEiaYPNRftBoktV2yXTQlodYEUA7SpZkg/0",
-		OpenId: "oKKIfxDEIIkZVftBs9F1Yn8hzMCg",
-		UnionId: "oKKIfxDEIIkZVftBs9F1Yn8hzMCg",
-		PassWd: "123456",
-	}
+	//return &userModel.User{
+	//	Id: 10000,
+	//	NickName: "娃哈哈啊娃哈哈",
+	//	HeadUrl: "http://wx.qlogo.cn/mmopen/ajNVdqHZLLDR9YkFYEz0XhumSbNtrpn98PlbDp7K87CxAGYMhkRwV6LEiaYPNRftBoktV2yXTQlodYEUA7SpZkg/0",
+	//	OpenId: "oKKIfxDEIIkZVftBs9F1Yn8hzMCg",
+	//	UnionId: "oKKIfxDEIIkZVftBs9F1Yn8hzMCg",
+	//	PassWd: "123456",
+	//}
 	user := ctx.Session.Get("user")
 	if user == nil {
 		return nil

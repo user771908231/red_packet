@@ -1,10 +1,62 @@
-<!DOCTYPE html>
-<html lang="en">
+<!doctype html>
+<html lang="zh-cn">
 <head>
     <meta charset="UTF-8">
-    <title>登录</title>
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>用户注册</title>
+    <link rel="stylesheet" href="/static/admin/plugins/layui/css/layui.css">
+    <script src="//cdn.bootcss.com/jquery/3.1.1/jquery.min.js"></script>
+    <script src="/static/admin/plugins/layui/layui.js"></script>
+    <script src="/static/admin/static/js/manage.js"></script>
+    <style>
+        img {width:100px;height:30px;}
+    </style>
 </head>
 <body>
-{{.Flash.InfoMsg}}
+<div style="width: 350px;height:315px; position:relative; margin: 10% auto 0 auto; border: solid 3px darkgrey; padding-top: 20px">
+    <form class="layui-form" action="/admin/sign" method="post">
+        <div class="layui-form-item">
+            <label class="layui-form-label">用户名：</label>
+            <div class="layui-input-inline">
+                <input type="text" name="name" value="" lay-verify="phone" autocomplete="off" class="layui-input">
+            </div>
+        </div>
+        <!--<input type="text" name="name" placeholder="用户名" value="">-->
+        <div class="layui-form-item">
+            <label class="layui-form-label">密码：</label>
+            <div class="layui-input-inline">
+                <input type="password" name="passwd_one" value="" lay-verify="phone" autocomplete="off" class="layui-input">
+            </div>
+        </div>
+
+        <div class="layui-form-item">
+            <label class="layui-form-label">密码：</label>
+            <div class="layui-input-inline">
+                <input type="password" name="passwd_two" value="" lay-verify="phone" autocomplete="off" class="layui-input">
+            </div>
+        </div>
+        <!--<input type="password" name="passwd" placeholder="密码" value="">-->
+        <div class="layui-form-item" align="center">
+        {{.Captcha.CreateHtml}}
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">验证码：</label>
+            <div class="layui-input-inline">
+                <input type="text" name="captcha" value="" lay-verify="phone" autocomplete="off" class="layui-input">
+            </div>
+        </div>
+        <!--<input type="text" name="captcha" placeholder="验证码" value="">-->
+        <div class="layui-form-item">
+            <div class="layui-input-block">
+                <button class="layui-btn" lay-submit lay-filter="*">登录</button>
+                <button type="reset" class="layui-btn layui-btn-primary">重置</button>
+            </div>
+        </div>
+        <!--<input type="submit" value="登录">-->
+    </form>
+</div>
+
 </body>
 </html>

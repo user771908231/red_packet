@@ -97,6 +97,18 @@ func Regist(m *macaron.Macaron) {
 
 		})
 
+		m.Group("/admin", func() {
+			m.Get("/", func() {})
+
+			m.Get("/login",admin.LoginHandler)
+			m.Post("/login",binding.Bind(admin.LoginForm{}), admin.LoginPostHandler)
+
+			m.Get("/sign",admin.SignHandler)
+			m.Post("/sign",binding.Bind(admin.SiginTable{}),admin.SignTableValuesHandler)
+
+			m.Get("/outlogin", func() {})
+		})
+
 		//红包项目
 		m.Group("/home", func() {
 			//首页
@@ -193,7 +205,6 @@ func Regist(m *macaron.Macaron) {
 
 				m.Get("/kai_ok", redpack.SaoleiRedOpenRecordHandler)
 			})
-
 
 		}, admin.NeedLogin)
 

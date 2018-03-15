@@ -7,6 +7,7 @@ import (
 	"encoding/hex"
 	"errors"
 	"gopkg.in/mgo.v2/bson"
+	"regexp"
 )
 
 const USER_TABLE_NAME string = "t_redpack_user"
@@ -48,6 +49,30 @@ func Login(user_name string, passwd string) *User {
 		return nil
 	}
 	return user_row
+}
+
+//验证帐户 密码
+func TableValues(user_name string , passwd_one string , passwd_two string) error {
+	var err error = nil
+
+	if VerificationRegexp(user_name) {
+		return err
+	}
+	if passwd_one != passwd_two {
+		return err
+	}
+	return err
+}
+
+//正则
+
+func VerificationRegexp(str string)  bool{
+	r,_:=regexp.Compile("[^A-Za-z0-9]")
+	b:=r.MatchString(str)
+	if b {
+		return true
+	}
+	return false
 }
 
 //插入一个新用户
