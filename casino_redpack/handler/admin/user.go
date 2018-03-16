@@ -25,7 +25,7 @@ func ShowPanel(ctx *modules.Context) {
 	ctx.Data["User"] = user
 }
 //注册
-func SignHandler(ctx *modules.Context) {
+func SignUpHandler(ctx *modules.Context) {
 	//ctx.Write([]byte("用户注册"))
 	ctx.HTML(200, "admin/sign")
 }
@@ -41,7 +41,7 @@ func LoginHandler(ctx *modules.Context) {
 	ctx.HTML(200, "admin/user/login")
 }
 //登出
-func LogoutHandler(ctx *modules.Context) {
+func LoginOutHandler(ctx *modules.Context) {
 	ctx.Session.Set("user", nil)
 	ctx.Success("登出成功！", "/admin", 1)
 }
@@ -60,23 +60,27 @@ func (form LoginForm)Error(ctx *macaron.Context, errs binding.Errors) {
 	}
 }
 //登录POST
-func LoginPostHandler(form LoginForm, ctx *modules.Context) {
+func LoginPostHandler(form LoginForm, ctx *modules.Context , VerificationCode *captcha.Captcha) {
+	if !VerificationCode.VerifyReq(ctx.Req) {
+		ctx.Error("验证码错误！", "", 1)
+		return
+	}
 	user := userModel.Login(form.Name, form.Passwd)
 	if user != nil {
 		ctx.Session.Set("user", *user)
-		ctx.Success("登录成功！", "/admin", 1)
+		ctx.Success("登录成功！", "/home", 1)
 	}else {
-		ctx.Success("登录失败！", "", 1)
+		ctx.Success("登录失败！", "/admin/login", 1)
 	}
 }
 
 //注册验证
-type SiginTable struct {
-	Name string `binding:"Required;MinSize(6);MaxSize(12)"`
-	PasswdOne string `binding:"Required;MinSize(6);MaxSize(24)"`
-	PasswdTwo string `binding:"Required;MinSize(6);MaxSize(24)"`
-	//captchaId string `binding:"Required;Size(15)"`
-	Captcha string `binding:"Required;Size(4)"`
+type SiginUpTable struct {
+	Name string `binding:"Required;MinSize(6);MaxSize(12)"`			//帐户名
+	PasswdOne string `binding:"Required;MinSize(6);MaxSize(24)"`	//密码
+	PasswdTwo string `binding:"Required;MinSize(6);MaxSize(24)"`	//重复密码
+	captchaId string `binding:"Required;Size(15)"`				//验证id
+	Captcha string `binding:"Required;Size(4)"`						//验证码
 }
 
 //func (sign SiginTable)Error(ctx *macaron.Context,errs binding.Errors) {
@@ -86,13 +90,19 @@ type SiginTable struct {
 //	}
 //}
 
-func SignTableValuesHandler(sign SiginTable,ctx *modules.Context) {
-	user := userModel.TableValues(sign.Name,sign.PasswdOne,sign.PasswdTwo)
-	if user != nil {
-		ctx.Session.Set("user", &user)
-		ctx.Success("注册成功！", "/admin", 5)
+func SignUpTableValuesHandler(sign SiginUpTable,ctx *modules.Context, VerificationCode *captcha.Captcha) {
+	if !VerificationCode.VerifyReq(ctx.Req) {
+		ctx.Error("验证码错误！", "", 1)
+		return
+	}
+	err,msg := userModel.TableValues(sign.Name,sign.PasswdOne,sign.PasswdTwo)
+	if err == nil && msg == ""{
+		user := userModel.Login(sign.Name,sign.PasswdOne)
+		ctx.Session.Set("user",*user)
+		//ctx.Redirect("/home",302)
+		ctx.Success("注册成功！", "/home", 5)
 	}else {
-		ctx.Success("注册失败！", "", 100)
+		ctx.Success(msg, "/admin/sign_up", 10)
 	}
 
 }

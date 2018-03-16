@@ -16,9 +16,9 @@
 </head>
 <body>
 <div style="width: 350px;height:315px; position:relative; margin: 10% auto 0 auto; border: solid 3px darkgrey; padding-top: 20px">
-    <form class="layui-form" action="/admin/sign" method="post">
+    <form class="layui-form" action="/admin/sign_up" method="post">
         <div class="layui-form-item">
-            <label class="layui-form-label">用户名：</label>
+            <label class="layui-form-label">手机号：</label>
             <div class="layui-input-inline">
                 <input type="text" name="name" value="" lay-verify="phone" autocomplete="off" class="layui-input">
             </div>
@@ -32,7 +32,7 @@
         </div>
 
         <div class="layui-form-item">
-            <label class="layui-form-label">密码：</label>
+            <label class="layui-form-label">重复密码：</label>
             <div class="layui-input-inline">
                 <input type="password" name="passwd_two" value="" lay-verify="phone" autocomplete="off" class="layui-input">
             </div>
@@ -50,13 +50,13 @@
         <!--<input type="text" name="captcha" placeholder="验证码" value="">-->
         <div class="layui-form-item">
             <div class="layui-input-block">
-                <button class="layui-btn" lay-submit lay-filter="*">登录</button>
+                <button class="layui-btn" lay-submit lay-filter="*">提交</button>
                 <button type="reset" class="layui-btn layui-btn-primary">重置</button>
             </div>
         </div>
         <!--<input type="submit" value="登录">-->
     </form>
 </div>
-
 </body>
+<script src="/static/admin/static/js/validation_rules.js"></script>
 </html>

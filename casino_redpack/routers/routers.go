@@ -98,15 +98,17 @@ func Regist(m *macaron.Macaron) {
 		})
 
 		m.Group("/admin", func() {
-			m.Get("/", func() {})
-
+			m.Get("/", func() string{return "admin"})
+			//登陆页面
 			m.Get("/login",admin.LoginHandler)
+			//登陆提交地址
 			m.Post("/login",binding.Bind(admin.LoginForm{}), admin.LoginPostHandler)
-
-			m.Get("/sign",admin.SignHandler)
-			m.Post("/sign",binding.Bind(admin.SiginTable{}),admin.SignTableValuesHandler)
-
-			m.Get("/outlogin", func() {})
+			//注册页面
+			m.Get("/sign_up",admin.SignUpHandler)
+			//注册提交地址
+			m.Post("/sign_up",binding.Bind(admin.SiginUpTable{}),admin.SignUpTableValuesHandler)
+			//退出地址
+			m.Get("/outlogin", admin.LoginOutHandler)
 		})
 
 		//红包项目
