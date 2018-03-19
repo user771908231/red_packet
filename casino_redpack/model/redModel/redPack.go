@@ -121,3 +121,18 @@ func getOpenRedMoney(lost_money float64, lost_person int) float64 {
 
 	return float64(res_score)/100
 }
+
+//根据ID获取用户记录
+func getRedPacketRecord (Id int32) *Redpack{
+	var err error = nil
+	Redpack := new(Redpack)
+	err = db.C(TABLE_NAME_REDPACK_INFO).FindAll(bson.M{
+		"id": Id,
+	}, Redpack)
+	if err != nil {
+		return Redpack
+	}
+	return nil
+
+}
+

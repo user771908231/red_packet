@@ -6,6 +6,7 @@ import (
 	"gopkg.in/macaron.v1"
 	"casino_redpack/model/userModel"
 	"github.com/go-macaron/captcha"
+	"fmt"
 )
 
 //面板数据注入
@@ -91,8 +92,11 @@ type SiginUpTable struct {
 //}
 
 func SignUpTableValuesHandler(sign SiginUpTable,ctx *modules.Context, VerificationCode *captcha.Captcha) {
+
+	fmt.Println(sign.Captcha)
 	if !VerificationCode.VerifyReq(ctx.Req) {
-		ctx.Error("验证码错误！", "", 1)
+		//ctx.Error("验证码错误！", "", 1)
+		ctx.Ajax(500,"验证码错误！",nil)
 		return
 	}
 	err,msg := userModel.TableValues(sign.Name,sign.PasswdOne,sign.PasswdTwo)
@@ -100,9 +104,11 @@ func SignUpTableValuesHandler(sign SiginUpTable,ctx *modules.Context, Verificati
 		user := userModel.Login(sign.Name,sign.PasswdOne)
 		ctx.Session.Set("user",*user)
 		//ctx.Redirect("/home",302)
-		ctx.Success("注册成功！", "/home", 5)
+		ctx.Ajax(304,"注册成功！",nil)
+		//ctx.Success("注册成功！", "/home", 5)
 	}else {
-		ctx.Success(msg, "/admin/sign_up", 10)
+		//ctx.Success(msg, "/admin/sign_up", 10)
+		ctx.Ajax(500,msg,nil)
 	}
 
 }

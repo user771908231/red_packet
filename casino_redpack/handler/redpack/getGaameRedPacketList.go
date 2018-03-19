@@ -1,9 +1,12 @@
 package redpack
 
-import "casino_redpack/modules"
+import (
+	"casino_redpack/modules"
+)
 
 //获取房间列表
 func GetGaameRedPacketListHandler(ctx *modules.Context) {
+	//user := ctx.Session.Get("user")
 	list := `{
 	"code": 1,
 	"message": "success",
