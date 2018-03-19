@@ -3,21 +3,21 @@ package gate
 import (
 	"casino_laowangye/msg"
 	"casino_common/proto/ddproto"
-	"casino_common/common/handlers"
 	"casino_laowangye/game/game_handler"
 )
 
 func init() {
 	msg.Processor.SetHandler(&ddproto.Heartbeat{}, game_handler.HandlerHeartbeat) //心跳
-	msg.Processor.SetHandler(&ddproto.CommonReqGameLogin{}, handlers.HandlerGame_Login)          //登录
-
 	msg.Processor.SetHandler(&ddproto.LwyCreateDeskReq{}, game_handler.HandlerCreateDesk) //创建房间
+
 	msg.Processor.SetHandler(&ddproto.LwyEnterDeskReq{}, game_handler.HandlerEnterDesk) //进入房间
 
 	msg.Processor.SetHandler(&ddproto.LwySwitchReadyReq{}, game_handler.HandlerReadyReq)  //准备
 
 	msg.Processor.SetHandler(&ddproto.LwyQiangzhuangReq{}, game_handler.HandlerQiangzhuangReq)  //抢庄
 	msg.Processor.SetHandler(&ddproto.LwyYazhuReq{}, game_handler.HandlerYazhuReq)  //押注
+
+	msg.Processor.SetHandler(&ddproto.LwyYaoshaiziReq{}, game_handler.HandlerYaoshaiziReq)  //摇色子
 
 	msg.Processor.SetHandler(&ddproto.CommonReqApplyDissolve{}, game_handler.HandlerApplyDissolveReq)  //解散房间申请
 	msg.Processor.SetHandler(&ddproto.CommonReqApplyDissolveBack{}, game_handler.HandlerDissolveBackReq)  //确定、取消解散房间请求
@@ -28,10 +28,5 @@ func init() {
 
 	msg.Processor.SetHandler(&ddproto.LwyOwnerDissolveReq{}, game_handler.HandlerOwnerDissolveReq)  //房主解散房间不扣房卡
 
-	msg.Processor.SetHandler(&ddproto.LwyCoinRoomListReq{}, game_handler.HandlerCoinRoomList)  //金币场进房列表
-
 	msg.Processor.SetHandler(&ddproto.LwySiteDownReq{}, game_handler.HandlerSiteDownReq)  //入座
-	//msg.Processor.SetHandler(&ddproto.LwySiteUpReq{}, game_handler.HandlerSiteUpReq)  //站起
-
-	msg.Processor.SetHandler(&ddproto.CommonReqListCoinInfo{}, game_handler.HandlerCoinDeskList)  //金币场房间列表
 }

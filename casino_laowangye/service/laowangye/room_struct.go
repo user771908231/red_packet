@@ -212,9 +212,9 @@ func (room *Room) RemoveFriendDesk(desk_id int32) error {
 		desk.QiangzhuangTimer.Stop()
 		desk.QiangzhuangTimer = nil
 	}
-	if desk.JiaBeiTimer != nil {
-		desk.JiaBeiTimer.Stop()
-		desk.JiaBeiTimer = nil
+	if desk.YazhuTimer != nil {
+		desk.YazhuTimer.Stop()
+		desk.YazhuTimer = nil
 	}
 
 	//发送牌局总结算

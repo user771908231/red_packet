@@ -387,10 +387,14 @@ func (desk *Desk) DoEnd() error {
 			//初始化用户状态
 			for _, u := range desk.Users {
 				if u != nil {
-					//初始化手牌
-					//u.Pokers = nil  不清理手牌，以便前端断线处理
 					*u.BankerScore = 0
-					//*u.DoubleScore = 0
+					*u.Chi7 = 0
+					*u.Chi8 = 0
+					*u.Mai7 = 0
+					*u.Mai8 = 0
+					*u.Mai7Lost = 0
+					*u.Mai8Lost = 0
+					u.ChizhuDetail = []*ddproto.LwySrvChizhuDetailItem{}
 				}
 			}
 		}
@@ -511,213 +515,195 @@ func (u *User) DoQiangzhuang(qiangzhuang_score int64) error {
 }
 
 //押注
-func (u *User) DoYazhu(yazhuType ddproto.LwyYazhuType, yazhuScore int64) error {
-	log.T("用户%d在房间%d发起加倍请求。", u.GetUserId(), u.Desk.GetPassword())
+func (user *User) DoYazhu(yazhuType ddproto.LwyYazhuType, yazhuScore int64) error {
+	log.T("用户%d在房间%d发起加倍请求。", user.GetUserId(), user.Desk.GetPassword())
 	// 加倍
-	if u.Desk.GetStatus() != ddproto.LwyEnumDeskStatus_LWY_DESK_STATUS_WAIT_YAZHU {
-		log.E("用户%d加倍失败，原因：房间状态为%s", u.GetUserId(), u.Desk.GetStatus().String())
-		u.SendYazhuAck(-1, "该桌面状态下不能加倍!")
+	if user.Desk.GetStatus() != ddproto.LwyEnumDeskStatus_LWY_DESK_STATUS_WAIT_YAZHU {
+		log.E("用户%d加倍失败，原因：房间状态为%s", user.GetUserId(), user.Desk.GetStatus().String())
+		user.SendYazhuAck(-1, "该桌面状态下不能加倍!")
 		return errors.New("该桌面状态下不能加倍!")
 	}
-	if !u.GetIsOnGamming() {
-		log.E("用户%d加倍失败，原因：isOnGamming状态为%s", u.GetUserId(), u.GetIsOnGamming())
-		u.SendYazhuAck(-4, "您未在游戏中，无法加倍!")
+	if !user.GetIsOnGamming() {
+		log.E("用户%d加倍失败，原因：isOnGamming状态为%s", user.GetUserId(), user.GetIsOnGamming())
+		user.SendYazhuAck(-4, "您未在游戏中，无法加倍!")
 		return errors.New("为在游戏中不能加倍!")
 	}
-	defer u.Desk.WipeSnapShot()
+	defer user.Desk.WipeSnapShot()
 
+
+	if can_mai_score := 200 - (user.GetMai7() + user.GetMai8()); yazhuScore > can_mai_score {
+		yazhuScore = can_mai_score
+	}
+	switch yazhuType {
+	case ddproto.LwyYazhuType_LWY_MAI_7:
+		//卖7
+		*user.Mai7 += yazhuScore
+	case ddproto.LwyYazhuType_LWY_MAI_8:
+		//卖8
+		*user.Mai8 += yazhuScore
+	case ddproto.LwyYazhuType_LWY_CHI_7:
+		//吃7
+		for _,u := range user.GetCanChiYours() {
+			chi_score := yazhuScore
+			if u.GetMai7Lost() < chi_score {
+				chi_score = u.GetMai7Lost()
+			}
+
+			if user.GetChi7() + user.GetChi8() + chi_score > 200 {
+				chi_score = 200 - user.GetChi7() - user.GetChi8()
+			}
+
+			if chi_score > 0 {
+				//更新chizhuDetail
+				ex_user := false
+				for _,item := range user.ChizhuDetail{
+					if item.GetFrom() == u.GetUserId() {
+						ex_user = true
+						*item.Chi7Score += chi_score
+					}
+				}
+				if ex_user == false {
+					user.ChizhuDetail = append(user.ChizhuDetail, &ddproto.LwySrvChizhuDetailItem{
+						From: proto.Uint32(u.GetUserId()),
+						Chi7Score: proto.Int64(chi_score),
+						Chi8Score: proto.Int64(0),
+					})
+				}
+				//更新吃7
+				*user.Chi7 += chi_score
+				*u.Mai7Lost -= chi_score
+			}
+
+			if u.GetMai7Lost() > chi_score {
+				break
+			}
+		}
+	case ddproto.LwyYazhuType_LWY_CHI_8:
+		//吃8
+		for _,u := range user.GetCanChiYours() {
+			chi_score := yazhuScore
+			if u.GetMai8() < chi_score {
+				chi_score = u.GetMai8()
+			}
+
+			if user.GetChi7() + user.GetChi8() + chi_score > 200 {
+				chi_score = 200 - user.GetChi7() - user.GetChi8()
+			}
+
+			if chi_score > 0 {
+				//更新chizhuDetail
+				ex_user := false
+				for _,item := range user.ChizhuDetail{
+					if item.GetFrom() == u.GetUserId() {
+						ex_user = true
+						*item.Chi8Score += chi_score
+					}
+				}
+				if ex_user == false {
+					user.ChizhuDetail = append(user.ChizhuDetail, &ddproto.LwySrvChizhuDetailItem{
+						From: proto.Uint32(u.GetUserId()),
+						Chi7Score: proto.Int64(0),
+						Chi8Score: proto.Int64(chi_score),
+					})
+				}
+				//更新吃8
+				*user.Chi8 += chi_score
+				*u.Mai8Lost -= chi_score
+			}
+
+			if u.GetMai8Lost() > chi_score {
+				break
+			}
+		}
+	}
 
 	return nil
 }
 
-//开始比牌
-func (desk *Desk) DoBipai() error {
-	log.T("牌桌%d开始比牌", desk.GetPassword())
-	//if desk.GetStatus() != ddproto.LwyEnumDeskState_NIU_DESK_STATUS_WAIT_BIPAI {
-	//	log.E("牌桌%d比牌失败，原因：该房间状态为%s", desk.GetPassword(), desk.GetStatus().String())
-	//	return errors.New("未达到比牌条件！")
-	//}
-	////开始比牌
-	//banker, err := desk.GetUserByUid(desk.GetCurrBanker())
-	//if err != nil {
-	//	log.E("牌桌%d获取房主%d失败！", desk.GetPassword(), desk.GetCurrBanker())
-	//	return nil
-	//}
-	//
-	//var banker_score int64 = 0
-	//var max_user_id uint32 = 0
-	//var max_user_poker *ddproto.LwySrvPoker = nil
-	//
-	//poker_score_list := []*ddproto.LwyBipaiResultItem{}
-	//
-	////初始化计分参数
-	//for _, u := range desk.Users {
-	//	if u.GetBankerScore() == 0 {
-	//		*u.BankerScore = 1
-	//	}
-	//	if u.GetBankerScore() == -1 {
-	//		*u.BankerScore = 1
-	//	}
-	//	if u.GetDoubleScore() == 0 {
-	//		*u.DoubleScore = 1
-	//	}
-	//	if u.GetDoubleScore() == -1 {
-	//		*u.DoubleScore = 1
-	//	}
-	//}
-	//
-	//for _, u := range desk.Users {
-	//	if u != nil && !u.IsBanker() && u.GetIsOnGamming() {
-	//		var user_score int64 = 0
-	//		//比庄家大
-	//		if IsBigThanBanker(banker.GetPokers(), u.GetPokers()) {
-	//			user_score = banker.GetBankerScore() * u.GetDoubleScore() * GetPokerScore(u.GetPokers(), desk.DeskOption)
-	//			//如果游戏模式为顶庄，且该玩家比庄家牌大，且牌型大于等于老王爷;则下局该玩家成为庄家
-	//			if desk.GetDeskOption().GetBankRule() == ddproto.LwyEnumBankerRule_DING_ZHUANG && u.GetPokers().GetType() >= ddproto.LwyEnum_PokerType_NIU_NIU {
-	//				if max_user_poker == nil {
-	//					max_user_poker = u.GetPokers()
-	//					max_user_id = u.GetUserId()
-	//				}
-	//				if IsBigThanBanker(max_user_poker, u.GetPokers()) {
-	//					max_user_poker = u.GetPokers()
-	//					max_user_id = u.GetUserId()
-	//				}
-	//			}
-	//
-	//			//闲家比庄家大，则下把可推注，不允许连续推注
-	//			if desk.DeskOption.GetTuizhuScore() > 0 && desk.GetCircleNo() - u.GetLastTuizhuCircleNo() > 1 {
-	//				tuizhu_score := int32(desk.DeskOption.GetBaseScore()) * 2 + int32(u.GetDoubleScore())
-	//				if tuizhu_score > desk.DeskOption.GetTuizhuScore() {
-	//					tuizhu_score = desk.DeskOption.GetTuizhuScore()
-	//				}
-	//				*u.TuizhuScore = tuizhu_score
-	//			}
-	//
-	//		} else {
-	//			user_score = banker.GetBankerScore() * u.GetDoubleScore() * GetPokerScore(banker.GetPokers(), desk.DeskOption) * -1
-	//		}
-	//		//金币场结算
-	//		user_score = user_score * u.DeskOption.GetBaseScore()
-	//		banker_score = banker_score - user_score
-	//		//更新非庄家玩家总积分
-	//		if !desk.GetIsCoinRoom() {
-	//			//朋友桌
-	//			*u.Bill.Score += user_score
-	//		}else {
-	//			//金币场
-	//			var surplus_coin int64 = 0
-	//			if user_score > 0 {
-	//				surplus_coin,_ = userService.INCRUserCOIN(u.GetUserId(), int64(user_score), "老王爷金币场，单局结算")
-	//			}else if user_score < 0 {
-	//				ex_coin := userService.GetUserCoin(u.GetUserId())
-	//				if ex_coin < int64(-user_score) {
-	//					surplus_coin,_ = userService.DECRUserCOIN(u.GetUserId(), ex_coin, "老王爷金币场，单局结算")
-	//				}else {
-	//					surplus_coin,_ = userService.DECRUserCOIN(u.GetUserId(), int64(-user_score), "老王爷金币场，单局结算")
-	//				}
-	//			}
-	//			*u.Bill.Score = surplus_coin
-	//		}
-	//		//更新非庄家上局得分
-	//		*u.LastScore = user_score
-	//		//非庄家输赢
-	//		poker_score_list = append(poker_score_list, &ddproto.LwyBipaiResultItem{
-	//			Poker:    GetClientPoker(u.GetPokers()),
-	//			Score:    &user_score,
-	//			UserId:   u.UserId,
-	//			AllScore: u.Bill.Score,
-	//		})
-	//		log.T("[比牌结算]:房号:%v 牌桌id:%v 圈数:%v 用户%d 为闲家 QzScore:%d JbScore:%d Score:%d AllScore:%d Poker:%v",u.Desk.GetPassword(), u.GetDeskId(), u.Desk.GetCircleNo(), u.GetUserId(), u.GetBankerScore(), u.GetDoubleScore(), user_score, u.Bill.GetScore(), u.Pokers.GetType())
-	//		//朋友桌总输赢统计
-	//		if !desk.GetIsCoinRoom() {
-	//			//统计非庄家输赢
-	//			if user_score > 0 {
-	//				*u.Bill.CountWin++
-	//			} else {
-	//				*u.Bill.CountLost++
-	//			}
-	//			//统计非庄家是否有牛
-	//			if u.GetPokers().GetType() > ddproto.LwyEnum_PokerType_NO_NIU {
-	//				*u.Bill.CountHasNiu++
-	//			} else {
-	//				*u.Bill.CountNoNiu++
-	//			}
-	//		}
-	//	}
-	//}
-	////更新庄家总积分
-	//if !desk.GetIsCoinRoom() {
-	//	//朋友桌
-	//	*banker.Bill.Score += banker_score
-	//}else {
-	//	//金币场 庄家剩余金币数
-	//	var surplus_coin int64 = 0
-	//	if banker_score > 0 {
-	//		surplus_coin,_ = userService.INCRUserCOIN(banker.GetUserId(), int64(banker_score), "老王爷金币场，单局结算")
-	//	}else if banker_score < 0 {
-	//		ex_coin := userService.GetUserCoin(banker.GetUserId())
-	//		if ex_coin < int64(-banker_score) {
-	//			surplus_coin,_ = userService.DECRUserCOIN(banker.GetUserId(), ex_coin, "老王爷金币场，单局结算")
-	//		}else {
-	//			surplus_coin,_ = userService.DECRUserCOIN(banker.GetUserId(), int64(-banker_score), "老王爷金币场，单局结算")
-	//		}
-	//	}
-	//	*banker.Bill.Score = surplus_coin
-	//}
-	////更新庄家上局得分
-	//*banker.LastScore = banker_score
-	//
-	////朋友桌总输赢统计
-	//if !desk.GetIsCoinRoom() {
-	//	//统计庄家输赢
-	//	if banker_score > 0 {
-	//		*banker.Bill.CountWin++
-	//	} else {
-	//		*banker.Bill.CountLost++
-	//	}
-	//	//统计庄家是否有牛
-	//	if banker.GetPokers().GetType() > ddproto.LwyEnum_PokerType_NO_NIU {
-	//		*banker.Bill.CountHasNiu++
-	//	} else {
-	//		*banker.Bill.CountNoNiu++
-	//	}
-	//}
-	//
-	////庄家输赢
-	//poker_score_list = append(poker_score_list, &ddproto.LwyBipaiResultItem{
-	//	Poker:    GetClientPoker(banker.GetPokers()),
-	//	Score:    &banker_score,
-	//	UserId:   banker.UserId,
-	//	AllScore: banker.Bill.Score,
-	//})
-	//log.T("[比牌结算]:房号:%v 牌桌id:%v 圈数:%v 用户%d 为庄家 QzScore:%d JbScore:%d Score:%d AllScore:%d oker:%v",banker.Desk.GetPassword(), banker.GetDeskId(), banker.Desk.GetCircleNo(), banker.GetUserId(), banker.GetBankerScore(), banker.GetDoubleScore(), banker_score, banker.Bill.GetScore(), banker.Pokers.GetType())
-	////插入非游戏中玩家空数据，使其兼容客户端处理
-	//for _,u := range desk.Users {
-	//	if u.GetIsOnGamming() {
-	//		continue
-	//	}
-	//	poker_score_list = append(poker_score_list, &ddproto.LwyBipaiResultItem{
-	//		Poker:    GetClientPoker(u.GetPokers()),
-	//		Score:    proto.Int64(0),
-	//		UserId:   u.UserId,
-	//		AllScore: u.Bill.Score,
-	//	})
-	//}
-	//
-	////如果是定庄模式，则判断是否有新庄家产生
-	//if desk.GetDeskOption().GetBankRule() == ddproto.LwyEnumBankerRule_DING_ZHUANG && max_user_id != 0 {
-	//	*desk.CurrBanker = max_user_id
-	//}
-	//
-	////发送比牌结果广播
-	//bipai_bc := &ddproto.LwyBipaiResultBc{
-	//	UserState: poker_score_list,
-	//}
-	//desk.BroadCast(bipai_bc)
-	//
-	////牌局结束
-	//desk.DoEnd()
-	return nil
+//摇色子
+func (user *User) DoYaoshaizi() {
+	if user.Desk.GetStatus() != ddproto.LwyEnumDeskStatus_LWY_DESK_STATUS_WAIT_YAOSHAIZI {
+		user.SendYaoshaiziAck(-2, "当前牌桌不在摇色子状态！")
+		return
+	}
+	//更改状态为等待准备
+	user.Desk.Status = ddproto.LwyEnumDeskStatus_LWY_DESK_STATUS_WAIT_RESULT.Enum()
+
+	if !user.IsOwner() {
+		user.SendYaoshaiziAck(-3, "您不是房主，无法摇色子！")
+		return
+	}
+
+	//摇色子
+	list := make([]int32, 4)
+	for i:=0; i<4; i++ {
+		list[i] = rand.New(rand.NewSource(time.Now().UnixNano())).Int31n(6) + 1
+	}
+	shaizi_type, _ := ParseShaiziType(list)
+
+	msg := &ddproto.LwyGameEndOne{
+		Header: commonNewPorot.NewHeader(),
+		Type: shaizi_type.Enum(),
+		UserScore: []*ddproto.LwyShaiziResultItem{},
+	}
+
+	//烂点，则重新摇
+	if shaizi_type == ddproto.LwyShaiziType_LWY_SHAIZI_TYPE_LAN_DIAN {
+		//广播出去
+		user.SendGameEndResultBc()
+		user.Desk.BroadCast(msg)
+
+		//重新摇色子
+		user.DoYaoshaizi()
+		return
+	}
+
+	//开始算分
+	user_map :=  map[uint32]int64{}
+	for _,u := range user.Desk.Users {
+		user_map[u.GetUserId()] = 0
+	}
+	for _,u := range user.Users {
+		for _, item := range u.ChizhuDetail {
+			if shaizi_type == ddproto.LwyShaiziType_LWY_SHAIZI_TYPE_7_DIAN {
+				//摇到7点，则吃7输，吃8赢
+				user_map[u.GetUserId()] -= item.GetChi7Score()
+				user_map[item.GetFrom()] += item.GetChi7Score()
+
+				user_map[u.GetUserId()] += item.GetChi8Score()
+				user_map[item.GetFrom()] -= item.GetChi8Score()
+			}else {
+				//摇到8点，则吃8输，吃7赢
+				user_map[u.GetUserId()] += item.GetChi7Score()
+				user_map[item.GetFrom()] -= item.GetChi7Score()
+
+				user_map[u.GetUserId()] -= item.GetChi8Score()
+				user_map[item.GetFrom()] += item.GetChi8Score()
+			}
+		}
+	}
+
+	//算分结果
+	for _,u := range user.Desk.Users {
+		if u == nil || !u.GetIsOnGamming() {
+			continue
+		}
+
+		score := user_map[u.GetUserId()]
+		*u.Bill.Score += score
+
+		msg.UserScore = append(msg.UserScore, &ddproto.LwyShaiziResultItem{
+			UserId: proto.Uint32(u.GetUserId()),
+			Score: proto.Int64(score),
+			AllScore: proto.Int64(u.Bill.GetScore()),
+		})
+	}
+
+	//将结果广播出去
+	user.Desk.BroadCast(msg)
+
+	//单局牌局结束
+	user.Desk.DoEnd()
 }
 
 //发起解散房间

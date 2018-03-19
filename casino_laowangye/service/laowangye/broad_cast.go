@@ -168,6 +168,16 @@ func (desk *Desk) SendQiangzhuangOt() error {
 
 //发起加倍overturn
 func (desk *Desk) SendYazhuOt() error {
+	//设置倒计时
+	if desk.YazhuTimer != nil {
+		desk.YazhuTimer.Stop()
+	}
+	desk.YazhuTimer = time.AfterFunc(50 * time.Second, func() {
+		//更改桌面状态为等待摇色子
+		desk.Status = ddproto.LwyEnumDeskStatus_LWY_DESK_STATUS_WAIT_YAOSHAIZI.Enum()
+		//发送摇色子overturn
+		desk.SendYaoshaiziOt()
+	})
 	//发广播
 	for _,u := range desk.Users {
 		if u != nil {
@@ -190,6 +200,34 @@ func (desk *Desk) SendYazhuOt() error {
 //押注ack
 func (user *User) SendYazhuAck(code int32, err string) error {
 	msg := &ddproto.LwyYazhuBc{
+		Header: commonNewPorot.NewHeader(),
+	}
+	*msg.Header.Code = code
+	*msg.Header.Error = err
+	return user.WriteMsg(msg)
+}
+
+//发起摇色子overturn
+func (desk *Desk) SendYaoshaiziOt() error {
+	//设置倒计时
+	if desk.YaoshaiziTimer != nil {
+		desk.YaoshaiziTimer.Stop()
+	}
+	desk.YaoshaiziTimer = time.AfterFunc(10 * time.Second, func() {
+		//超时自动摇色子
+		owner, _ := desk.GetUserByUid(desk.GetOwner())
+		owner.DoYaoshaizi()
+	})
+	msg := &ddproto.LwyYaoshaiziOt{
+		Header: commonNewPorot.NewHeader(),
+		Banker: proto.Uint32(desk.GetOwner()),
+	}
+	return desk.BroadCast(msg)
+}
+
+//摇色子ack
+func (user *User) SendYaoshaiziAck(code int32, err string) error {
+	msg := &ddproto.LwyGameEndOne{
 		Header: commonNewPorot.NewHeader(),
 	}
 	*msg.Header.Code = code

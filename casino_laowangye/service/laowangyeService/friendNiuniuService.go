@@ -456,6 +456,24 @@ func YazhuHandler(req *ddproto.LwyYazhuReq, agent gate.Agent) {
 	}
 }
 
+//摇色子
+func YaoshaiziHandler(req *ddproto.LwyYaoshaiziReq, agent gate.Agent) {
+	user, err := laowangye.FindUserById(req.Header.GetUserId())
+	if err == nil {
+		user.Desk.ReqLock.Lock()
+		defer user.Desk.ReqLock.Unlock()
+		user.UpdateAgent(agent)
+
+		user.DoYaoshaizi()
+	}else {
+		user = &laowangye.User{
+			Agent: agent,
+			LwySrvUser: nil,
+		}
+		user.SendYaoshaiziAck(-1, "您当前未在房间中")
+	}
+}
+
 //申请解散房间
 func ApplyDissolveReqHandler(req *ddproto.CommonReqApplyDissolve, agent gate.Agent)  {
 	user, err := laowangye.FindUserById(req.Header.GetUserId())

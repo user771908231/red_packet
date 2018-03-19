@@ -63,11 +63,18 @@ func HandlerQiangzhuangReq(args []interface{})  {
 	laowangyeService.QiangzhuangHandler(m, a)
 }
 
-//加倍
+//押注
 func HandlerYazhuReq(args []interface{})  {
 	m := args[0].(*ddproto.LwyYazhuReq)
 	a := args[1].(gate.Agent)
 	laowangyeService.YazhuHandler(m, a)
+}
+
+//摇色子
+func HandlerYaoshaiziReq(args []interface{})  {
+	m := args[0].(*ddproto.LwyYaoshaiziReq)
+	a := args[1].(gate.Agent)
+	laowangyeService.YaoshaiziHandler(m, a)
 }
 
 //申请解散房间

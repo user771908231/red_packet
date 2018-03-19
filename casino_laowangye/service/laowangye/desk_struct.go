@@ -16,13 +16,14 @@ import (
 type Desk struct {
 	*Room
 	*ddproto.LwySrvDesk
-	Users      []*User
-	UserLock   sync.Mutex
-	ReqLock    sync.Mutex
-	DissolveTimer *time.Timer  //解散倒计时，定时器
-	ReadyTimer *time.Timer
-	QiangzhuangTimer *time.Timer  //抢庄倒计时，计时器
-	JiaBeiTimer *time.Timer  //加倍倒计时，计时器
+	Users            []*User
+	UserLock         sync.Mutex
+	ReqLock          sync.Mutex
+	DissolveTimer    *time.Timer  //解散倒计时，定时器
+	ReadyTimer       *time.Timer
+	QiangzhuangTimer *time.Timer //抢庄倒计时，计时器
+	YazhuTimer       *time.Timer //押注倒计时，计时器
+	YaoshaiziTimer   *time.Timer //摇色子倒计时，计时器
 }
 
 //得到玩家列表，用户message
@@ -90,6 +91,13 @@ func (desk *Desk) AddUser(user_id uint32, agent gate.Agent) (*User, error) {
 			AsideWatchTime:proto.Int64(time.Now().Unix()),
 			TuizhuScore: proto.Int32(0),
 			LastTuizhuCircleNo: proto.Int32(-1),
+			Mai7Lost: proto.Int64(0),
+			Mai8Lost: proto.Int64(0),
+			Mai7: proto.Int64(0),
+			Mai8: proto.Int64(0),
+			Chi7: proto.Int64(0),
+			Chi8: proto.Int64(0),
+			ChizhuDetail: []*ddproto.LwySrvChizhuDetailItem{},
 		},
 		Desk: desk,
 	}
@@ -185,6 +193,18 @@ func (desk *Desk) GetUserRankByBill() []*User {
 	return users
 }
 
+//获取可吃的用户
+func (user *User) GetCanChiYours() (list []*User) {
+	owner,_ := user.Desk.GetUserByUid(user.Desk.GetOwner())
+	list = append(list, owner)
+	for _,u := range user.Users {
+		if u == nil || !u.GetIsOnGamming() || u.IsOwner() || u.GetUserId() == user.GetUserId() {
+			continue
+		}
+		list = append(list, u)
+	}
+	return
+}
 
 //是否都准备了-除了房主
 func (desk *Desk) IsAllReadyExcludeOwner() error {
