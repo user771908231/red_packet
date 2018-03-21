@@ -143,7 +143,8 @@ func Regist(m *macaron.Macaron) {
 				m.Get("/getRedPacketList", redpack.GetRedPacketListHandler)
 
 				m.Any("/getGaameRedPacketList", redpack.GetGaameRedPacketListHandler)   //todo 需要重构
-
+				//发包记录
+				m.Get("/getGaameRedPacketjlSendList",redpack.GetGaameRedPacketjlSendListHandler)
 				//发红包(五人对战、牛牛、二八杠)
 				m.Get("/add_red_packet", redpack.SendWurenRedPacketHandler)
 
@@ -185,6 +186,8 @@ func Regist(m *macaron.Macaron) {
 
 				//开红包记录
 				m.Get("/open_red_packet", redpack.SaoleiRedOpenRecordAjaxHandler)
+				//开包详情
+				m.Get("/open_red_packets",redpack.OpenPacketDetailsHandler)
 			})
 
 			//登录
