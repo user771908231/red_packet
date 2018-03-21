@@ -39,7 +39,7 @@ func NeedCaptcha(ctx *modules.Context, cpt *captcha.Captcha) {
 
 //登录
 func LoginHandler(ctx *modules.Context) {
-	ctx.HTML(200, "admin/user/login")
+	ctx.HTML(200, "admin/user/login_2")
 }
 //登出
 func LoginOutHandler(ctx *modules.Context) {
