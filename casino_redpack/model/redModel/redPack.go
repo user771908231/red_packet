@@ -52,6 +52,7 @@ type OpenPacketlist struct {
 	Time time.Time  //时间
 	GameType RoomType//游戏类型
 	CreatorId uint32 //发红包人的ID
+	Tail	int //雷号
 }
 //红包锁
 var redLock sync.Map
@@ -117,6 +118,7 @@ func (redInfo *Redpack) Open(user *userModel.User) float64 {
 		Head :user.HeadUrl,
 		Money :open_money,
 		Time:time.Now(),
+		Tail:redInfo.TailNumber,
 	}
 	//更新到mongodb
 	db.C(TABLE_NAME_OPEN_PACKET_LISTS).Insert(data)
@@ -215,7 +217,12 @@ func GetLists(list []*OpenPacketlist) []byte {
 		if i == lenth {
 			continue
 		}
-
+		var str string
+		if item.Tail == int(item.Money * 100)%10 {
+			str = "中雷"
+		}else {
+			str = "未中雷"
+		}
 		new_item := bson.M{
 			"id": item.RedpackId,
 			"GameType": item.GameType,
@@ -223,10 +230,8 @@ func GetLists(list []*OpenPacketlist) []byte {
 			"nickname": item.NickName,
 			"headimgurl": item.Head,
 			"Time":item.Time.Unix(),
-			"win_money":"",
+			"win_money":str,
 		}
-
-
 		res_list = append(res_list, new_item)
 	}
 
@@ -234,7 +239,7 @@ func GetLists(list []*OpenPacketlist) []byte {
 	data,_ := json.Marshal(res)
 	return data
 }
-
+//根据ID获取单个红包信息
 func getdata(Id int32) *Redpack{
 	Redpack := new(Redpack)
 	err := db.C(TABLE_NAME_REDPACK_INFO).Find(bson.M{
@@ -246,7 +251,7 @@ func getdata(Id int32) *Redpack{
 	return Redpack
 
 }
-
+//序列化红包信息
 func redpackListJson(list []*Redpack, userId uint32) []byte {
 	res := bson.M{
 		"code": 1,
@@ -260,6 +265,7 @@ func redpackListJson(list []*Redpack, userId uint32) []byte {
 		if i == lenth {
 			continue
 		}
+
 		new_item := bson.M{
 			"id": item.Id,
 			"GameType": item.Type,
@@ -269,6 +275,7 @@ func redpackListJson(list []*Redpack, userId uint32) []byte {
 			"nickname": item.CreatorName,
 			"headimgurl": item.CreatorHead,
 			"Time":item.Time.Unix(),
+			"win_money": len(item.OpenRecord),
 		}
 		res_list = append(res_list, new_item)
 	}
