@@ -191,7 +191,7 @@ func SaoleiRedOpenRecordAjaxHandler(ctx *modules.Context) {
 	//开红包
 	open_money := red_info.Open(user_info)
 	open_tail_num := int(open_money * 100)%10
-
+	fmt.Println("用户开的尾号",open_tail_num)
 	//开红包的玩家信息
 	res["request"].(bson.M)["user"] = bson.M{
 		"id": user_info.Id,

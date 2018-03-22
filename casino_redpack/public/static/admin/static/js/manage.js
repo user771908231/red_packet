@@ -12,11 +12,17 @@ $(document).ready(function () {
 
 common = {
     msg: function (title, content) {
-        layui.layer.open({
-            title: title,
-            content: content
-        });
+        if(content == ''){
+            layui.layer.msg(title);
+        }else{
+            layui.layer.open({
+                title: title,
+                content: content
+            });
+        }
+
     },
+
     render: function (data, tpl_obj, view_obj) {
         layui.laytpl($(tpl_obj).html()).render(data, function (html) {
             $(view_obj).html(html)

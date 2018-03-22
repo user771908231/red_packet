@@ -97,6 +97,20 @@ func Regist(m *macaron.Macaron) {
 
 		})
 
+		m.Group("/admin", func() {
+			m.Get("/", func() string{return "admin"})
+			//登陆页面
+			m.Get("/login",admin.LoginHandler)
+			//登陆提交地址
+			m.Post("/login",binding.Bind(admin.LoginForm{}), admin.LoginPostHandler)
+			//注册页面
+			m.Get("/sign_up",admin.SignUpHandler)
+			//注册提交地址
+			m.Post("/sign_up",binding.Bind(admin.SiginUpTable{}),admin.SignUpTableValuesHandler)
+			//退出地址
+			m.Get("/outlogin", admin.LoginOutHandler)
+		})
+
 		//红包项目
 		m.Group("/home", func() {
 			//首页
@@ -129,7 +143,8 @@ func Regist(m *macaron.Macaron) {
 				m.Get("/getRedPacketList", redpack.GetRedPacketListHandler)
 
 				m.Any("/getGaameRedPacketList", redpack.GetGaameRedPacketListHandler)   //todo 需要重构
-
+				//发包记录
+				m.Get("/getGaameRedPacketjlSendList",redpack.GetGaameRedPacketjlSendListHandler)
 				//发红包(五人对战、牛牛、二八杠)
 				m.Get("/add_red_packet", redpack.SendWurenRedPacketHandler)
 
@@ -171,6 +186,8 @@ func Regist(m *macaron.Macaron) {
 
 				//开红包记录
 				m.Get("/open_red_packet", redpack.SaoleiRedOpenRecordAjaxHandler)
+				//开包详情
+				m.Get("/open_red_packets",redpack.OpenPacketDetailsHandler)
 			})
 
 			//登录
@@ -193,7 +210,6 @@ func Regist(m *macaron.Macaron) {
 
 				m.Get("/kai_ok", redpack.SaoleiRedOpenRecordHandler)
 			})
-
 
 		}, admin.NeedLogin)
 

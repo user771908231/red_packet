@@ -173,9 +173,9 @@
         var urls;
         if(fblx=='1'){
             var filename='getGaameRedPacketList';
-            if(tag=='5'){
-                filename='getGaameRedPacketjlList';
-            }
+            // if(tag=='5'){
+            //     filename='getGaameRedPacketjlList';
+            // }
         }else{
             var filename='getGaameRedPacketSendList';
             if(tag=='5'){
@@ -187,6 +187,7 @@
             if(status=='success'){
                 var dataObj=eval("("+data+")");//转换为json对象
                 var code=dataObj.code;
+                console.log("a",dataObj)
                 if(code=='0'){
                     layer.open({
                         content: dataObj.message
@@ -195,9 +196,9 @@
                 }else{
                     $("#item").html('');
                     $.each(dataObj.request,function(i,item){
-                        var leixing=item.type;
+                        var leixing=item.GameType;
                         var leixings='';
-                        var timess=item.creation_time;
+                        var timess=item.Time;
                         switch(leixing){
                             case 1:
                                 leixings='五人对战';
@@ -213,21 +214,21 @@
                                 break;
                             case 5:
                                 leixings='扫雷';
-                                timess=item.open_time;
                                 break;
                         }
                         if(fblx=='1'){
-                            $("#item").append('<li onclick=look('+leixing+',"'+item.id+'") class="aui-list-view-cell">'+
+                            $("#item").append(
+                                    '<li onclick=look('+leixing+',"'+item.id+'") class="aui-list-view-cell">'+
                                     '<div class="aui-text-center aui-col-4" style="background-color: #e98731;color: #f5e9e9;">'+leixings+'</div>'+
                                     '<div class="aui-text-center aui-col-4" style="background-color: #e98731;color: #f5e9e9;">' +formatDate(timess,2)+'</div>'+
-                                    '<div class="aui-text-center aui-col-4" style="background-color: #e98731;color: #f5e9e9;">'+item.money+'</div>'+
+                                    '<div class="aui-text-center aui-col-4" style="background-color: #e98731;color: #f5e9e9;">'+item.Money+'</div>'+
                                     '<div class="aui-text-center aui-col-4" style="background-color: #e98731;color: #f5e9e9;">'+item.win_money+'</div>'+
                                     '</li>');
                         }else{
                             $("#item").append('<li onclick=look('+leixing+',"'+item.id+'") class="aui-list-view-cell">'+
                                     '<div class="aui-text-center aui-col-4" style="background-color: #e98731;color: #f5e9e9;">'+leixings+'</div>'+
                                     '<div class="aui-text-center aui-col-4" style="background-color: #e98731;color: #f5e9e9;">' +formatDate(timess,2)+'</div>'+
-                                    '<div class="aui-text-center aui-col-4" style="background-color: #e98731;color: #f5e9e9;">'+item.money+'</div>'+
+                                    '<div class="aui-text-center aui-col-4" style="background-color: #e98731;color: #f5e9e9;">'+item.Money+'</div>'+
                                     '<div class="aui-text-center aui-col-4" style="background-color: #e98731;color: #f5e9e9;">'+item.win_money+'</div>'+
                                     '</li>');
                         }
@@ -288,6 +289,7 @@
         $.get(url,function(data1,status1){
             if(status1=='success'){
                 var dataObj1=eval("("+data1+")");//转换为json对象
+                console.log("c",dataObj1)
                 var status=dataObj1.request.redInfo.status;
                 var tail_number=dataObj1.request.redInfo.tail_number;
                 $("#headimgurlfz").attr('src',dataObj1.request.redInfo.headimgurl);
@@ -323,10 +325,11 @@
             if(status1=='success'){
                 var dataObj1=eval("("+data1+")");//转换为json对象
                 var code1=dataObj1.code;
+                console.log("d",dataObj1)
                 if(code1=='1'){
                     $("#headimgurlfz").attr('src',dataObj1.request.redInfo.headimgurl);
                     $("#nicknamefz").html(dataObj1.request.redInfo.nickname+'的红包');
-                    $("#conte").html(dataObj1.request.redInfo.money+'金币');
+                    $("#conte").html(dataObj1.request.redInfo.Money+'金币');
                     $("#has_member").html(dataObj1.request.redInfo.has_member);
                     $("#all_membey").html(dataObj1.request.redInfo.all_membey);
                     var all_membey=dataObj1.request.redInfo.all_membey;
@@ -339,7 +342,7 @@
                         var styles,primordial_money,deduct_money,lin_q,kui,open_status,jieguo,jg_code;
                         open_status=item.open_status;
                         if(open_status=='1'){
-                            lin_q=item.money;
+                            lin_q=item.Money;
                             jieguo=item.code;
                         }else{
                             lin_q='???';
@@ -379,6 +382,8 @@
     function closes() {
         $("#xiangxi").hide();
     }
+
+
 </script>
 
 
