@@ -315,7 +315,7 @@ func RechargeHandler(ctx *modules.Context, form RechargeForm, errs binding.Error
 	}
 	var err error = nil
 	if form.Coin != 0 {
-		_, err = userService.INCRUserCOIN(form.Id, form.Coin)
+		_, err = userService.INCRUserCOIN(form.Id, form.Coin, "代理后台充值")
 		if err != nil {
 			ctx.Ajax(-2, "充值金币失败！", nil)
 			return
@@ -323,7 +323,7 @@ func RechargeHandler(ctx *modules.Context, form RechargeForm, errs binding.Error
 		//userService.UpdateUser2MgoById()
 	}
 	if form.Diamond != 0 {
-		_, err = userService.INCRUserDiamond(form.Id, form.Diamond)
+		_, err = userService.INCRUserDiamond(form.Id, form.Diamond, "代理后台充值")
 		if err != nil {
 			ctx.Ajax(-3, "充值钻石失败！", nil)
 			return
@@ -337,14 +337,14 @@ func RechargeHandler(ctx *modules.Context, form RechargeForm, errs binding.Error
 		}
 	}
 	if form.Bonus != 0 {
-		_, err = userService.INCRUserBonus(form.Id, form.Bonus)
+		_, err = userService.INCRUserBonus(form.Id, form.Bonus, "代理后台充值")
 		if err != nil {
 			ctx.Ajax(-4, "充值红包失败！", nil)
 			return
 		}
 	}
 	if form.Ticket != 0 {
-		_, err = userService.INCRUserTicket(form.Id, form.Ticket)
+		_, err = userService.INCRUserTicket(form.Id, form.Ticket, "代理后台充值")
 		if err != nil {
 			ctx.Ajax(-4, "充值奖券失败！", nil)
 			return

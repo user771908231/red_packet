@@ -3,11 +3,11 @@ package manage
 import (
 	"casino_redpack/modules"
 	"gopkg.in/mgo.v2/bson"
-	"casino_redpack/model/agentModel"
 	"casino_common/common/consts/tableName"
 	"casino_common/utils/db"
 	"math"
 	"fmt"
+	"casino_common/common/model/agentModel"
 )
 
 //代理商管理

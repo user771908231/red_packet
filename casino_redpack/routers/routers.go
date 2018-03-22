@@ -12,7 +12,8 @@ import (
 	"casino_redpack/model/weixinModel"
 	"casino_redpack/handler/redpack"
 	"casino_redpack/model/redModel"
-	"casino_redpack/handler/pay"
+	"github.com/chanxuehong/wechat.v2/mch/pay"
+	"casino_redpack/handler/admin/manage"
 )
 
 //注册路由
@@ -98,7 +99,32 @@ func Regist(m *macaron.Macaron) {
 
 		})
 
+		//管理后台
+		m.Group("/admin", func() {
+			//主页
+			m.Get("/", admin.IndexHandler)
+
+			//登录
+			m.Get("/login", admin.LoginHandler)
+			m.Get("/logout", admin.LoginOutHandler)
+			m.Post("/login", admin.NeedCaptcha, binding.Bind(admin.LoginForm{}), admin.LoginPostHandler)
+
+			//管理
+			m.Group("/manage", func() {
+				//红包兑换相关
+				m.Group("/exchange", func() {
+					//m.Get("/", manage.ExchangeListHandler)
+					//m.Get("/switch", manage.ExchangeSwitchState)
+				})
+			})
+		}, admin.NeedLogin(0))
+
+
+		//红包项目
 		m.Group("/home", func() {
+			//首页
+			m.Get("/", redpack.HomeHandler)
+			
 			//登陆页面
 			m.Get("/login",admin.LoginHandler)
 			//登陆提交地址
@@ -109,12 +135,6 @@ func Regist(m *macaron.Macaron) {
 			m.Post("/sign_up",binding.Bind(admin.SiginUpTable{}),admin.SignUpTableValuesHandler)
 			//退出地址
 			m.Get("/outlogin", admin.LoginOutHandler)
-		})
-
-		//红包项目
-		m.Group("/home", func() {
-			//首页
-			m.Get("/", redpack.HomeHandler)
 
 			m.Group("/member", func() {
 				//充值
