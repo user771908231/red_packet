@@ -8,8 +8,8 @@ import (
 	"casino_common/common/service/exchangeService"
 	"time"
 	"math"
-	"casino_redpack/model/agentModel"
 	"casino_common/common/userService"
+	"casino_common/common/model/agentModel"
 )
 
 //红包与实物兑换

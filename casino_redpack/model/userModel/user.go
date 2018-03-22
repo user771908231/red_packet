@@ -16,6 +16,7 @@ const USER_TABLE_NAME string = "t_redpack_user"
 
 type User struct {
 	Id       uint32
+	Level    int32
 	NickName string
 	HeadUrl  string
 	OpenId   string
