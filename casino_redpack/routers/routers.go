@@ -227,6 +227,12 @@ func Regist(m *macaron.Macaron) {
 		//代理密码登陆
 		m.Get("/weixin/agent/login", weixin.LoginPostHandler)
 
+		//旺实富支付页面接口
+		m.Get("/weixin/paywap/paymethod", weixin.PayWapPaymethodHandler)
+		m.Post("/weixin/paywap/pay", weixin.PayWapPayHandler)
+		m.Get("/weixin/paywap/return_page", weixin.PayWapReturnPageHandler)
+		m.Post("/weixin/paywap/notify", weixin.PayWapNotifyHandler)
+
 		//首页
 		m.Get("/", func(ctx *modules.Context) {
 			//ctx.Success("即将跳转至后台！", "/admin", 3)

@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" style="font-size: 164.267px;">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=0">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="format-detection" content="telephone=no">
+    <meta http-equiv="pragma" content="no-cache">
+    <meta http-equiv="cache-control" content="must-revalidate">
+    <meta http-equiv="cache-control" content="no-cache">
+    <meta http-equiv="cache-control" content="no-store">
+    <meta http-equiv="expires" content="0">
+    <script src="/paywap/paymethod/js/jquery-2.2.4.js"></script>
+    <link rel="shortcut icon" type="image/x-icon" href="/paywap/paymethod/img/favicon.ico">
+    <script>
+        var js_path = "";
+        var pub_path = "";
+    </script>
+    <noscript>
+        &lt;h1 style="color: red"&gt;您的浏览器不支持JavaScript，请更换浏览器或开启JavaScript设置!&lt;/h1&gt;
+    </noscript>
+    <script src="/paywap/paymethod/js/fastclick-1.0.5.js"></script>
+    <script src="/paywap/paymethod/js/BigInt.js"></script>
+    <script src="/paywap/paymethod/js/RSA_Stripped.js"></script>
+    <script src="/paywap/paymethod/js/iscroll-4.2.5.js"></script>
+    <script src="/paywap/paymethod/js/global.js"></script>
+    <script src="/paywap/paymethod/js/ipay-common.js"></script>
+    <script src="/paywap/paymethod/js/pay.js"></script>
+    <script src="/paywap/paymethod/js/password.js"></script>
+    <script src="/paywap/paymethod/js/home.js"></script>
+    <link rel="stylesheet" href="/paywap/paymethod/css/style.css">
+    <title>收银台</title>
+</head>
+<!-- svn 38572 -->
+<body class="homeBody lBody" style="padding-bottom: 0;" data-cpurl="http://scmj.happyplaygame.net/chargeTip.html"
+      data-tt="kgEBLgABABQzMjAxMTgwMjA5MTEyMTI4OTMzNgEACjMwMDcwMDI0MTEAAAFheJUV3AERnnd5VdGr3TYiOqcicuIO2w"
+      data-billprice="{{$.p3_money}}" data-appid="3007002411" data-cpid="511796" data-userid=""
+      data-tid="{{$.p2_order}}" data-autopay="">
+<header class="clearfix">
+{{/*<a class="right" href="">登录</a>*/}}
+    <a class="icon_back ac_back"></a>
+    <p>收银台</p>
+</header>
+<div class="acBox msg" style="display: block;">
+    <ul>
+    {{/*<li>24小时客服QQ公众号/电话: 微信公众号</li>*/}}
+    </ul>
+</div>
+<div class="bill">
+    <div class="billn">
+        <h2>
+            ¥ <span>{{$.p3_money}}</span>
+        </h2>
+        <p class="billName current" style="color: #767676;">
+        {{$.bill_name}}</p>
+        <p style="color: #b9b9b9">
+        {{$.p2_order}}</p>
+        <div class="footer">
+        {{/*客服QQ公众号/电话：&nbsp;*/}}
+				{{/*<a href="/help.html">帮助中心</a>*/}}
+        </div>
+    </div>
+</div>
+<div class="borderTop"></div>
+<!-- 支付方式列表 -->
+<div id="wrapper-w">
+    <div id="wrapper" style="overflow: hidden; height: 309px;">
+        <div id="scroller"
+             style="transition-property: transform; transform-origin: 0px 0px 0px; transform: translate(0px, 0px) translateZ(0px);">
+            <ul class="paymentList marginT15">
+                {{/*<li><font data-realfee="{{$.p3_money}}"*/}}
+                          {{/*data-payex="6BC4v29fhmt_0Vy7UFirgx4BIYBIJL-X2mnxrGyyI560tV1SV8IafYvLG2ZchXK9vTHeAREDKWs4pGK5b8OooerDqreE"*/}}
+                          {{/*data-key="up" data-paytype="4" data-name="银联卡" data-app="" class="up topay"> <span*/}}
+                        {{/*class="current"> <em>银联卡</em>*/}}
+											{{/*</span> <span class="secbtn current"></span>*/}}
+                {{/*</font></li>*/}}
+                <li><font data-realfee="{{$.p3_money}}"
+                          data-payex="YUzSzbTqe_FWBU6tA5qC4R4BIYBIJL-X2mnxrGyyI560tV2KkEweofinAN0pQc-AnM0bARGmjCWkEFNrzUpePECX5P_r"
+                          data-key="ali" data-paytype="4" data-name="支付宝" data-app="支付宝"
+                          class="ali topay"> <span> <em>支付宝</em>
+											</span> <span class="secbtn"></span>
+                </font></li>
+                <li><font data-realfee="{{$.p3_money}}"
+                          data-payex="HgCpUUhMtdp7g7qPGPPaMR4BIYBIJL-X2mnxrGyyI560tV098mtdAhdGIb215X6YQMCLARGtATdinAMrScnmiwW4Fe_o"
+                          data-key="wx" data-paytype="3" data-name="微信支付" data-app="微信" class="wx topay"> <span> <em>微信支付</em>
+											</span> <span class="secbtn"></span>
+                </font></li>
+                {{/*<li class="disabledPay"><font data-key="qq" class="qq topay"><span class="addDb"> <em> QQ钱包</em>*/}}
+											{{/*</span>*/}}
+                    {{/*<p class="desc">*/}}
+                        {{/*当前浏览器不支持该支付方式</p> <span class="secbtn"></span></font></li>*/}}
+
+                <p class="ac_togglePayment morePay">
+                    <span class="icon_down_n">其他支付方式</span>
+                </p>
+                <div class="footer">
+                {{/*客服QQ公众号/电话：&nbsp;*/}}
+				{{/*<a href="/help.html">帮助中心</a>*/}}
+                </div>
+            </ul>
+        </div>
+    </div>
+</div>
+<div class="btnPayBg"></div>
+<div class="btnPay">
+    <p>
+        确认支付&nbsp;<span>¥{{$.p3_money}}</span>
+    </p>
+</div>
+
+<form name='formpay' action='{{$.pay_url}}' method='post'>
+    <input type='hidden' name='p2_order' value='{{$.p2_order}}'>
+    <input type='hidden' name='p3_money' value='{{$.p3_money}}'>
+    <input type='hidden' name='p6_ordertime' value='{{$.p6_ordertime}}'>
+    <input type='hidden' class="p9_paymethod" name='p9_paymethod' value='4'>
+    <input type='hidden' name='p14_customname' value='{{$.p14_customname}}'>
+</form>
+
+<div class="footer">
+{{/*客服QQ公众号/电话：&nbsp;*/}}
+				{{/*<a href="/help.html">帮助中心</a>*/}}
+</div>
+
+</body>
+</html>
