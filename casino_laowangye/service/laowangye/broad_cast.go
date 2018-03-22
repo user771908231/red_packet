@@ -8,6 +8,7 @@ import (
 	"errors"
 	"casino_common/common/userService"
 	//"casino_common/gameManager/roomService"
+	"casino_common/gameManager/roomService"
 )
 
 //发送消息
@@ -172,6 +173,7 @@ func (desk *Desk) SendYazhuOt() error {
 	if desk.YazhuTimer != nil {
 		desk.YazhuTimer.Stop()
 	}
+	//50秒后摇色子
 	desk.YazhuTimer = time.AfterFunc(50 * time.Second, func() {
 		//更改桌面状态为等待摇色子
 		desk.Status = ddproto.LwyEnumDeskStatus_LWY_DESK_STATUS_WAIT_YAOSHAIZI.Enum()
@@ -201,6 +203,39 @@ func (desk *Desk) SendYazhuOt() error {
 func (user *User) SendYazhuAck(code int32, err string) error {
 	msg := &ddproto.LwyYazhuBc{
 		Header: commonNewPorot.NewHeader(),
+	}
+	*msg.Header.Code = code
+	*msg.Header.Error = err
+	return user.WriteMsg(msg)
+}
+
+//押注bc
+func (user *User) SendYazhuBC(yazhuType ddproto.LwyYazhuType, yazhuScore int64) error {
+	msg := &ddproto.LwyYazhuBc{
+		Header: commonNewPorot.NewHeader(),
+		YazhuType: yazhuType.Enum(),
+		YazhuScore: proto.Int64(yazhuScore),
+		YazhuDetail: user.YazhuDetail,
+		DeskMai7: proto.Int64(0),
+		DeskMai8: proto.Int64(0),
+	}
+
+	for _,u := range user.Desk.Users {
+		if u == nil {
+			continue
+		}
+		*msg.DeskMai7 += u.YazhuDetail.GetMai7()
+		*msg.DeskMai8 += u.YazhuDetail.GetMai8()
+	}
+
+	return user.Desk.BroadCast(msg)
+}
+
+//押注详情ack
+func (user *User) SendChizhuDetailAck(code int32, err string) error {
+	msg := &ddproto.LwyChizhuDetailAck{
+		Header: commonNewPorot.NewHeader(),
+		ChizhuDetail: user.ChizhuDetail,
 	}
 	*msg.Header.Code = code
 	*msg.Header.Error = err
@@ -261,51 +296,61 @@ func (user *User) SendQiangzhuangAck(code int32, err string) error {
 
 //游戏结束统计数据广播
 func (desk *Desk) SendGameEndResultBc() {
-	//item_list := []*ddproto.LwyUserBill{}
-	//var max_score int64 = 0
-	//var max_user uint32 = 0
-	//for _,u := range desk.Users {
-	//	if u != nil {
-			//item_list = append(item_list, u.Bill)
-			//if max_score == 0 {
-			//	max_score = u.Bill.GetScore()
-			//	max_user = u.GetUserId()
-			//}
-			//if u.Bill.GetScore() > max_score {
-			//	max_score = u.Bill.GetScore()
-			//	max_user = u.GetUserId()
-			//}
-		//}
-	//}
+	item_list := []*ddproto.LwyUserBill{}
+	var max_score int64 = 0
+	var max_user uint32 = 0
 
-	//allUsers, winUsers := []uint32{}, []uint32{}
-	//for _,u := range desk.Users {
-	//	if u == nil {
-	//		continue
-	//	}
+	var min_score int64 = -999
+	var min_user uint32 = 0
+	for _,u := range desk.Users {
+		if u != nil || !u.GetIsOnGamming() {
+			item_list = append(item_list, u.Bill)
+			if max_score == 0 {
+				max_score = u.Bill.GetScore()
+				max_user = u.GetUserId()
+				min_score = u.Bill.GetScore()
+				min_user = u.GetUserId()
+			}
+			if u.Bill.GetScore() > max_score {
+				max_score = u.Bill.GetScore()
+				max_user = u.GetUserId()
+			}
+			if u.Bill.GetScore() < min_score {
+				min_score = u.Bill.GetScore()
+				min_user = u.GetUserId()
+			}
+		}
+	}
 
-		//allUsers = append(allUsers, u.GetUserId())
-		//if u.Bill.GetScore() == max_score {
-		//	winUsers = append(winUsers, u.GetUserId())
-		//}
-	//}
+	allUsers, winUsers := []uint32{}, []uint32{}
+	for _,u := range desk.Users {
+		if u == nil || !u.GetIsOnGamming() {
+			continue
+		}
 
-	//create_user_id := desk.GetOwner()
-	////如果是代开
-	//if desk.GetIsDaikai() {
-	//	create_user_id = desk.GetDaikaiUser()
-	//}
-	////AA扣房卡
-	//roomService.DoDecUsersRoomcard(desk.DeskOption.GetRoomCardBillType(), ddproto.CommonEnumGame_GID_LAOWANGYE, desk.DeskOption.GetBoardsCout(), desk.DeskOption.GetMaxUser(), desk.DeskOption.GetChanelId(), allUsers, winUsers, desk.GetCircleNo(), create_user_id)
-	//
-	////发送10局牌局结束后的统计数据
-	//msg := &ddproto.LwyGameEnd{
-	//	Header: commonNewPorot.NewHeader(),
-	//	Data: item_list,
-	//	EndTime: proto.Int64(time.Now().Unix()),
-	//	BigWiner: &max_user,
-	//}
-	//desk.BroadCast(msg)
+		allUsers = append(allUsers, u.GetUserId())
+		if u.Bill.GetScore() == max_score {
+			winUsers = append(winUsers, u.GetUserId())
+		}
+	}
+
+	create_user_id := desk.GetOwner()
+	//如果是代开
+	if desk.GetIsDaikai() {
+		create_user_id = desk.GetDaikaiUser()
+	}
+	//AA扣房卡
+	roomService.DoDecUsersRoomcard(desk.DeskOption.GetRoomCardBillType(), ddproto.CommonEnumGame_GID_LAOWANGYE, desk.DeskOption.GetBoardsCout(), desk.DeskOption.GetMaxUser(), desk.DeskOption.GetChanelId(), allUsers, winUsers, desk.GetCircleNo(), create_user_id)
+
+	//发送10局牌局结束后的统计数据
+	msg := &ddproto.LwyGameEndAll{
+		Header: commonNewPorot.NewHeader(),
+		Data: item_list,
+		EndTime: proto.Int64(time.Now().Unix()),
+		BigWiner: &max_user,
+		BigTuhao: &min_user,
+	}
+	desk.BroadCast(msg)
 }
 
 

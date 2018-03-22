@@ -70,6 +70,13 @@ func HandlerYazhuReq(args []interface{})  {
 	laowangyeService.YazhuHandler(m, a)
 }
 
+//吃注详情
+func HandlerChizhuDetailReq(args []interface{})  {
+	m := args[0].(*ddproto.LwyChizhuDetailReq)
+	a := args[1].(gate.Agent)
+	laowangyeService.ChizhuDetailHandler(m, a)
+}
+
 //摇色子
 func HandlerYaoshaiziReq(args []interface{})  {
 	m := args[0].(*ddproto.LwyYaoshaiziReq)

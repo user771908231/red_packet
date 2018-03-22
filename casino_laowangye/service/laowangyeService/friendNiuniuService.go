@@ -456,6 +456,22 @@ func YazhuHandler(req *ddproto.LwyYazhuReq, agent gate.Agent) {
 	}
 }
 
+//吃注详情
+func ChizhuDetailHandler(req *ddproto.LwyChizhuDetailReq, agent gate.Agent) {
+	user, err := laowangye.FindUserById(req.Header.GetUserId())
+	if err == nil {
+		user.UpdateAgent(agent)
+
+		user.SendChizhuDetailAck(0, "返回吃注详情成功！")
+	}else {
+		user = &laowangye.User{
+			Agent: agent,
+			LwySrvUser: nil,
+		}
+		user.SendChizhuDetailAck(-1, "您当前未在房间中")
+	}
+}
+
 //摇色子
 func YaoshaiziHandler(req *ddproto.LwyYaoshaiziReq, agent gate.Agent) {
 	user, err := laowangye.FindUserById(req.Header.GetUserId())

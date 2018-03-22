@@ -95,7 +95,7 @@ func (u *User) DoReadyFriend() {
 		return
 	}
 
-	//如果是第一局，则等待所有非房主玩家准备，然后房主点击"开始游戏"，开始抢庄或加倍
+	//如果是第一局，则等待所有非房主玩家准备，然后房主点击"开始游戏"，开始抢庄或押注
 	if u.Desk.GetCircleNo() == 1 {
 		//玩家准备
 		if u.Desk.GetStatus() == ddproto.LwyEnumDeskStatus_LWY_DESK_STATUS_WAIT_READY {
@@ -143,7 +143,7 @@ func (u *User) DoReadyFriend() {
 			u.SendReadyAck(-3, "当前不在准备阶段。")
 		}
 	} else {
-		//如果是第二局及以后，则等所有玩家都点"继续游戏(准备协议)" 后，开始抢庄或加倍。
+		//如果是第二局及以后，则等所有玩家都点"继续游戏(准备协议)" 后，开始抢庄或押注。
 		if u.Desk.GetStatus() == ddproto.LwyEnumDeskStatus_LWY_DESK_STATUS_WAIT_READY {
 			if u.GetIsReady() == true {
 				log.E("用户%d在第%d圈，重复准备!", u.GetUserId(), u.Desk.GetCircleNo())
@@ -299,6 +299,11 @@ func (desk *Desk) DoStart() error {
 
 //开始玩游戏
 func (desk *Desk)DoPlay() {
+	//关闭准备倒计时
+	if desk.ReadyTimer != nil {
+		desk.ReadyTimer.Stop()
+		desk.ReadyTimer = nil
+	}
 	//确定庄家
 	switch desk.GetDeskOption().GetBankRule() {
 	case ddproto.LwyEnumBankerRule_LWY_LUN_LIU_ZUO_ZHUANG:
@@ -388,13 +393,15 @@ func (desk *Desk) DoEnd() error {
 			for _, u := range desk.Users {
 				if u != nil {
 					*u.BankerScore = 0
-					*u.Chi7 = 0
-					*u.Chi8 = 0
-					*u.Mai7 = 0
-					*u.Mai8 = 0
+					u.YazhuDetail = &ddproto.LwyYazhuDetail{
+						Mai7: proto.Int64(0),
+						Mai8: proto.Int64(0),
+						Chi7: proto.Int64(0),
+						Chi8: proto.Int64(0),
+					}
 					*u.Mai7Lost = 0
 					*u.Mai8Lost = 0
-					u.ChizhuDetail = []*ddproto.LwySrvChizhuDetailItem{}
+					u.ChizhuDetail = []*ddproto.LwyChizhuDetailItem{}
 				}
 			}
 		}
@@ -463,7 +470,7 @@ func (u *User) DoQiangzhuang(qiangzhuang_score int64) error {
 			log.T("用户%d抢庄成功。", u.GetUserId())
 			*u.BankerScore = qiangzhuang_score
 			u.SendQiangzhuangAck(1, "抢庄成功！")
-			//尝试发起加倍
+			//尝试发起押注
 			if err := u.Desk.IsAllQiangzhuang(); err == nil {
 				//清除抢庄计时器
 				if u.Desk.QiangzhuangTimer != nil {
@@ -491,9 +498,6 @@ func (u *User) DoQiangzhuang(qiangzhuang_score int64) error {
 				//切换新庄家
 				*u.Desk.CurrBanker = new_banker.GetUserId()
 
-				//发送抢庄结果广播
-				//u.Desk.SendQiangzhuangResBc()
-
 				//更改牌桌状态为押注
 				u.Desk.Status = ddproto.LwyEnumDeskStatus_LWY_DESK_STATUS_WAIT_YAZHU.Enum()
 				//开始发送押注overturn
@@ -516,107 +520,135 @@ func (u *User) DoQiangzhuang(qiangzhuang_score int64) error {
 
 //押注
 func (user *User) DoYazhu(yazhuType ddproto.LwyYazhuType, yazhuScore int64) error {
-	log.T("用户%d在房间%d发起加倍请求。", user.GetUserId(), user.Desk.GetPassword())
-	// 加倍
+	log.T("用户%d在房间%d发起押注请求。", user.GetUserId(), user.Desk.GetPassword())
+	// 押注
 	if user.Desk.GetStatus() != ddproto.LwyEnumDeskStatus_LWY_DESK_STATUS_WAIT_YAZHU {
-		log.E("用户%d加倍失败，原因：房间状态为%s", user.GetUserId(), user.Desk.GetStatus().String())
-		user.SendYazhuAck(-1, "该桌面状态下不能加倍!")
-		return errors.New("该桌面状态下不能加倍!")
+		log.E("用户%d押注失败，原因：房间状态为%s", user.GetUserId(), user.Desk.GetStatus().String())
+		user.SendYazhuAck(-1, "该桌面状态下不能押注!")
+		return errors.New("该桌面状态下不能押注!")
 	}
 	if !user.GetIsOnGamming() {
-		log.E("用户%d加倍失败，原因：isOnGamming状态为%s", user.GetUserId(), user.GetIsOnGamming())
-		user.SendYazhuAck(-4, "您未在游戏中，无法加倍!")
-		return errors.New("为在游戏中不能加倍!")
+		log.E("用户%d押注失败，原因：isOnGamming状态为%s", user.GetUserId(), user.GetIsOnGamming())
+		user.SendYazhuAck(-4, "您未在游戏中，无法押注!")
+		return errors.New("为在游戏中不能押注!")
 	}
 	defer user.Desk.WipeSnapShot()
 
-
-	if can_mai_score := 200 - (user.GetMai7() + user.GetMai8()); yazhuScore > can_mai_score {
-		yazhuScore = can_mai_score
+	if yazhuType == ddproto.LwyYazhuType_LWY_MAI_7 || yazhuType == ddproto.LwyYazhuType_LWY_MAI_8 {
+		if can_mai_score := 200 - (user.YazhuDetail.GetMai7() + user.YazhuDetail.GetMai8()); yazhuScore > can_mai_score {
+			yazhuScore = can_mai_score
+		}
+		if yazhuScore <= 0 {
+			user.SendYazhuAck(-5, "最多卖200！")
+			return nil
+		}
 	}
+
+	//总吃分
+	chi_score := yazhuScore
+	//已吃分
+	var ex_chi_score int64 = 0
+	if yazhuType == ddproto.LwyYazhuType_LWY_CHI_7 || yazhuType == ddproto.LwyYazhuType_LWY_CHI_8 {
+		if user.YazhuDetail.GetChi7() + user.YazhuDetail.GetChi8() + chi_score > 200 {
+			chi_score = 200 - user.YazhuDetail.GetChi7() - user.YazhuDetail.GetChi8()
+		}
+		if chi_score <= 0 {
+			user.SendYazhuAck(-6, "最多吃200！")
+			return nil
+		}
+	}
+
+
 	switch yazhuType {
 	case ddproto.LwyYazhuType_LWY_MAI_7:
 		//卖7
-		*user.Mai7 += yazhuScore
+		*user.YazhuDetail.Mai7 += yazhuScore
 	case ddproto.LwyYazhuType_LWY_MAI_8:
 		//卖8
-		*user.Mai8 += yazhuScore
+		*user.YazhuDetail.Mai8 += yazhuScore
 	case ddproto.LwyYazhuType_LWY_CHI_7:
-		//吃7
+		//开始吃7
 		for _,u := range user.GetCanChiYours() {
-			chi_score := yazhuScore
+			can_chi_score := chi_score
 			if u.GetMai7Lost() < chi_score {
-				chi_score = u.GetMai7Lost()
+				can_chi_score = u.GetMai7Lost()
 			}
 
-			if user.GetChi7() + user.GetChi8() + chi_score > 200 {
-				chi_score = 200 - user.GetChi7() - user.GetChi8()
-			}
-
-			if chi_score > 0 {
+			if can_chi_score > 0 {
 				//更新chizhuDetail
 				ex_user := false
 				for _,item := range user.ChizhuDetail{
 					if item.GetFrom() == u.GetUserId() {
 						ex_user = true
-						*item.Chi7Score += chi_score
+						*item.Chi7Score += can_chi_score
 					}
 				}
 				if ex_user == false {
-					user.ChizhuDetail = append(user.ChizhuDetail, &ddproto.LwySrvChizhuDetailItem{
+					user.ChizhuDetail = append(user.ChizhuDetail, &ddproto.LwyChizhuDetailItem{
 						From: proto.Uint32(u.GetUserId()),
-						Chi7Score: proto.Int64(chi_score),
+						Chi7Score: proto.Int64(can_chi_score),
 						Chi8Score: proto.Int64(0),
 					})
 				}
 				//更新吃7
-				*user.Chi7 += chi_score
-				*u.Mai7Lost -= chi_score
+				*user.YazhuDetail.Chi7 += can_chi_score
+				*u.Mai7Lost -= can_chi_score
+
+				//更新chi_score
+				chi_score -= can_chi_score
+				ex_chi_score += can_chi_score
 			}
 
-			if u.GetMai7Lost() > chi_score {
+			if chi_score == 0 {
 				break
 			}
 		}
 	case ddproto.LwyYazhuType_LWY_CHI_8:
-		//吃8
+		//开始吃8
 		for _,u := range user.GetCanChiYours() {
-			chi_score := yazhuScore
-			if u.GetMai8() < chi_score {
-				chi_score = u.GetMai8()
+			can_chi_score := chi_score
+			if u.GetMai8Lost() < chi_score {
+				can_chi_score = u.GetMai8Lost()
 			}
 
-			if user.GetChi7() + user.GetChi8() + chi_score > 200 {
-				chi_score = 200 - user.GetChi7() - user.GetChi8()
-			}
-
-			if chi_score > 0 {
+			if can_chi_score > 0 {
 				//更新chizhuDetail
 				ex_user := false
 				for _,item := range user.ChizhuDetail{
 					if item.GetFrom() == u.GetUserId() {
 						ex_user = true
-						*item.Chi8Score += chi_score
+						*item.Chi8Score += can_chi_score
 					}
 				}
 				if ex_user == false {
-					user.ChizhuDetail = append(user.ChizhuDetail, &ddproto.LwySrvChizhuDetailItem{
+					user.ChizhuDetail = append(user.ChizhuDetail, &ddproto.LwyChizhuDetailItem{
 						From: proto.Uint32(u.GetUserId()),
 						Chi7Score: proto.Int64(0),
-						Chi8Score: proto.Int64(chi_score),
+						Chi8Score: proto.Int64(can_chi_score),
 					})
 				}
 				//更新吃8
-				*user.Chi8 += chi_score
-				*u.Mai8Lost -= chi_score
+				*user.YazhuDetail.Chi8 += can_chi_score
+				*u.Mai8Lost -= can_chi_score
+
+				//更新chi_score
+				chi_score -= can_chi_score
+				ex_chi_score += can_chi_score
 			}
 
-			if u.GetMai8Lost() > chi_score {
+			if chi_score == 0 {
 				break
 			}
 		}
 	}
 
+	if ex_chi_score == 0 {
+		user.SendYazhuAck(-7, "没有分可吃了！")
+		return nil
+	}
+
+	//押注广播出去
+	user.SendYazhuBC(yazhuType, yazhuScore)
 	return nil
 }
 
@@ -632,6 +664,12 @@ func (user *User) DoYaoshaizi() {
 	if !user.IsOwner() {
 		user.SendYaoshaiziAck(-3, "您不是房主，无法摇色子！")
 		return
+	}
+
+	//停止倒计时timer
+	if user.Desk.YaoshaiziTimer != nil {
+		user.Desk.YaoshaiziTimer.Stop()
+		user.Desk.YaoshaiziTimer = nil
 	}
 
 	//摇色子
@@ -650,7 +688,6 @@ func (user *User) DoYaoshaizi() {
 	//烂点，则重新摇
 	if shaizi_type == ddproto.LwyShaiziType_LWY_SHAIZI_TYPE_LAN_DIAN {
 		//广播出去
-		user.SendGameEndResultBc()
 		user.Desk.BroadCast(msg)
 
 		//重新摇色子

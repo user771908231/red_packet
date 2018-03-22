@@ -93,11 +93,13 @@ func (desk *Desk) AddUser(user_id uint32, agent gate.Agent) (*User, error) {
 			LastTuizhuCircleNo: proto.Int32(-1),
 			Mai7Lost: proto.Int64(0),
 			Mai8Lost: proto.Int64(0),
-			Mai7: proto.Int64(0),
-			Mai8: proto.Int64(0),
-			Chi7: proto.Int64(0),
-			Chi8: proto.Int64(0),
-			ChizhuDetail: []*ddproto.LwySrvChizhuDetailItem{},
+			YazhuDetail: &ddproto.LwyYazhuDetail{
+				Mai7: proto.Int64(0),
+				Mai8: proto.Int64(0),
+				Chi7: proto.Int64(0),
+				Chi8: proto.Int64(0),
+			},
+			ChizhuDetail: []*ddproto.LwyChizhuDetailItem{},
 		},
 		Desk: desk,
 	}

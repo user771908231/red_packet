@@ -17,6 +17,8 @@ func init() {
 	msg.Processor.SetHandler(&ddproto.LwyQiangzhuangReq{}, game_handler.HandlerQiangzhuangReq)  //抢庄
 	msg.Processor.SetHandler(&ddproto.LwyYazhuReq{}, game_handler.HandlerYazhuReq)  //押注
 
+	msg.Processor.SetHandler(&ddproto.LwyChizhuDetailReq{}, game_handler.HandlerChizhuDetailReq)  //吃注详情
+
 	msg.Processor.SetHandler(&ddproto.LwyYaoshaiziReq{}, game_handler.HandlerYaoshaiziReq)  //摇色子
 
 	msg.Processor.SetHandler(&ddproto.CommonReqApplyDissolve{}, game_handler.HandlerApplyDissolveReq)  //解散房间申请
