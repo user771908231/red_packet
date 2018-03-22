@@ -72,7 +72,7 @@ func GetGaameRedPacketListHandler(ctx *modules.Context) {
 //	ctx.Write([]byte(list))
 }
 
-func user_info (ctx *modules.Context) userModel.User{
+func User_info (ctx *modules.Context) userModel.User{
 	user := ctx.Session.Get("user")
 
 	var user_info userModel.User
@@ -84,7 +84,7 @@ func  GetGaameRedPacketjlSendListHandler(ctx *modules.Context)  {
 	typeCode := ctx.Query("type")
 	switch typeCode {
 	case "5":
-		SendLists := redModel.GetPacketSendRecord(user_info(ctx).Id)
+		SendLists := redModel.GetPacketSendRecord(User_info(ctx).Id)
 		if SendLists != nil {
 			ctx.Write([]byte(SendLists))
 		}else{
@@ -100,7 +100,7 @@ func  GetGaameRedPacketjlSendListHandler(ctx *modules.Context)  {
 }
 
 func OpenPacketDetailsHandler(ctx *modules.Context)  {
-	user := user_info(ctx)
+	user := User_info(ctx)
 	redId := ctx.QueryInt("redId")
 	Id :=int32(redId)
 	fmt.Println("ID",Id)

@@ -15,7 +15,7 @@ func NeedLogin(ctx *modules.Context) {
 	//return
 	user := ctx.IsLogin()
 	if user == nil {
-		ctx.Redirect("/admin/login", 302)
+		ctx.Redirect("/home/login", 302)
 		return
 	}
 	ctx.Data["User"] = user
