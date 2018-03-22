@@ -6,7 +6,7 @@ import (
 	"casino_laowangye/login"
 	"github.com/name5566/leaf"
 	"casino_laowangye/conf"
-	//"casino_laowangye/service/laowangye"
+	"casino_laowangye/service/laowangye"
 	//"casino_common/proto/ddproto"
 	"casino_common/common/service/rpcService"
 	//"casino_common/common/service/robotService"
@@ -18,7 +18,7 @@ func main() {
 	//初始化配置
 	conf.LoadConfig()
 	//先初始化房间列表
-	//laowangye.InitRoomList()
+	laowangye.InitRoomList()
 
 	//监听老王爷rpc
 	//rpc_handler.LisenAndServeNiuniuRpc(conf.Server.LwyRpcAddr)
