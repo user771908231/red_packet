@@ -12,6 +12,7 @@ import (
 	"casino_redpack/model/weixinModel"
 	"casino_redpack/handler/redpack"
 	"casino_redpack/model/redModel"
+	"casino_redpack/handler/pay"
 )
 
 //注册路由
@@ -69,16 +70,16 @@ func Regist(m *macaron.Macaron) {
 					m.Get("/withdraw_post", weixin.CoinFeeRebateWithdrawPost)
 				})
 
-				//登录-登出
-				m.Group("/user", func() {
-					m.Get("/login", func(ctx *modules.Context) {
-						ctx.Redirect("/weixin/oauth/login", 200)
-					})
-					m.Get("/logout", func(ctx *modules.Context) {
-						ctx.Session.Delete("wx_user")
-						ctx.Success("退出成功！", "/weixin/", 3)
-					})
-				})
+				////登录-登出
+				//m.Group("/user", func() {
+				//	m.Get("/login", func(ctx *modules.Context) {
+				//		ctx.Redirect("/admin/login_2", 200)
+				//	})
+				//	m.Get("/logout", func(ctx *modules.Context) {
+				//		ctx.Session.Delete("wx_user")
+				//		ctx.Success("退出成功！", "/weixin/", 3)
+				//	})
+				//})
 				//俱乐部管理
 				m.Group("/group", func() {
 					//代理俱乐部列表
@@ -97,8 +98,7 @@ func Regist(m *macaron.Macaron) {
 
 		})
 
-		m.Group("/admin", func() {
-			m.Get("/", func() string{return "admin"})
+		m.Group("/home", func() {
 			//登陆页面
 			m.Get("/login",admin.LoginHandler)
 			//登陆提交地址
@@ -209,6 +209,10 @@ func Regist(m *macaron.Macaron) {
 				m.Get("/add", redpack.SaoleiJLAddHandler)
 
 				m.Get("/kai_ok", redpack.SaoleiRedOpenRecordHandler)
+			})
+
+			m.Group("/pay", func() {
+				m.Get("/wxPay",pay.GoldRechargeHandler)
 			})
 
 		}, admin.NeedLogin)
