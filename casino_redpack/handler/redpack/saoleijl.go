@@ -1,6 +1,8 @@
 package redpack
 
-import "casino_redpack/modules"
+import (
+	"casino_redpack/modules"
+)
 
 //扫雷接龙
 func SaoleiJLHandler(ctx *modules.Context) {
