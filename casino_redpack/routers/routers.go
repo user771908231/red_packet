@@ -104,6 +104,11 @@ func Regist(m *macaron.Macaron) {
 			//主页
 			m.Get("/", admin.IndexHandler)
 
+			//登录
+			m.Get("/login", admin.LoginHandler)
+			m.Get("/logout", admin.LoginOutHandler)
+			m.Post("/login", admin.NeedCaptcha, binding.Bind(admin.LoginForm{}), admin.LoginPostHandler)
+
 			//管理
 			m.Group("/manage", func() {
 				//红包兑换相关
@@ -119,7 +124,7 @@ func Regist(m *macaron.Macaron) {
 		m.Group("/home", func() {
 			//首页
 			m.Get("/", redpack.HomeHandler)
-
+			
 			//登陆页面
 			m.Get("/login",admin.LoginHandler)
 			//登陆提交地址
