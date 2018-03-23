@@ -89,10 +89,10 @@ func (form LoginForm)Error(ctx *macaron.Context, errs binding.Errors) {
 }
 //登录POST
 func LoginPostHandler(form LoginForm, ctx *modules.Context , VerificationCode *captcha.Captcha) {
-	if !VerificationCode.VerifyReq(ctx.Req) {
-		ctx.Error("验证码错误！", "", 1)
-		return
-	}
+	//if !VerificationCode.VerifyReq(ctx.Req) {
+	//	ctx.Error("验证码错误！", "", 1)
+	//	return
+	//}
 	user := userModel.Login(form.Name, form.Passwd)
 	if user != nil {
 		ctx.Session.Set("user", *user)

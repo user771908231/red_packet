@@ -16,11 +16,15 @@ import (
 	"casino_redpack/handler/redpack"
 	"net/url"
 	"net/http"
+	"casino_common/utils/db"
+	"casino_redpack/conf/config"
+	"casino_common/common/consts"
+	"errors"
+	"casino_common/common/consts/tableName"
+	"gopkg.in/mgo.v2/bson"
 )
 
 ////旺实富支付接口相关方法
-//
-//const (
 //	PAYWAP_USERCODE    = "5010206923"                       //旺实富分配的商户号
 //	PAYWAP_COMPKEY     = "BBF056CFF745452292E3A2C9DEDBCD6B" //旺实富分配的密钥
 //	PAYWAP_OFFICIALIP1 = "59.110.175.55"                    //旺实富官方ip
@@ -30,10 +34,6 @@ import (
 //	PAYWAP_URL_PAY    = "/weixin/paywap/pay"         //调起旺实富支付跳转
 //	PAYWAP_URL_RETURN = "/weixin/paywap/return_page" //旺实富支付结果展示页面
 //	PAYWAP_URL_NOTIFY = "/weixin/paywap/notify"      //旺实富支付结果回调页面 发货以此为准
-//
-//)
-
-//type PayWapKey struct {
 //	p1_usercode				string		//旺实富分配的商户号 必填
 //	p2_order				string		//(29)用户订单号，建议商户号+14 位时 间 yyyymmddhhmmss+5 位流水 号，中间用“-”分隔。例如: 12345678-20150728132430-12 345。 (只是建议，商户的订单号也可以 不采用这种格式) 必填
 //	p3_money				string		//订单金额，精确到分。例如 99.99 必填
@@ -60,7 +60,7 @@ import (
 //	p24_remark				string		//(256)备注。此参数我们会在下行过程中原样返回。您可以在此参数中记录一些数据，方便在下行过程中直接读取。可空
 //	p25_terminal			string		//(5终端设备固定值 2。 必填
 //	p26_iswappay			string		//(5)支付场景固定值 3。必填
-//}
+
 
 //充值订单
 type RechargeOrder struct {
@@ -69,19 +69,59 @@ type RechargeOrder struct {
 	OrderNumber		string		//订单号
 	OrderMoney		float64		//订单价格
 	OrderTime		time.Time	//订单生成时间
-	OrderStatus		int64		//订单状态
-	OrderType		int64		//订单类型
-	OrderGoods		int			//订单物品
-	OrderDeleteStatus	int64
+	OrderStatus		int64		//订单状态	0 未支付 1 支付
+	OrderType		int64		//订单类型	1 充值
+	OrderGoods		string		//订单物品
+	GoodsNunber		int64		//物品数量
+	OrderDeleteStatus	int64	//是否删除 0 删除 1 未删除
 }
 
-func PayWapMoney(numerical_value float64,ctx *modules.Context) bool{
-	val := Paywap(numerical_value,redpack.User_info(ctx).Id,ctx)
-	err := Post(val)
-	if err == nil {
-		return true
+//插入一个新订单
+func (Order *RechargeOrder) Insert() error{
+	id,err := db.GetNextIncrementID(config.ORDER_KEY_ID,consts.RKEY_ORDER_ID_KEY)
+	if err != nil {
+		return errors.New("获取充值订单id自增键失败！")
 	}
-	return false
+	Order.Id = int64(id)
+	Order.OrderTime = time.Now()
+	Order.OrderStatus = int64(0)
+	Order.OrderDeleteStatus = int64(1)
+	err = db.C(tableName.TABLE_ORDER_LISTS).Insert(Order)
+	return err
+}
+
+//更新订单信息
+func (Order *RechargeOrder) Update() error{
+	err := db.C(tableName.TABLE_ORDER_LISTS).Update(bson.M{"id": Order.Id}, Order)
+	return err
+}
+//订单删除
+func (Order *RechargeOrder) Delete()  error{
+	Order.OrderDeleteStatus = int64(0)
+	err := db.C(tableName.TABLE_ORDER_LISTS).Update(bson.M{"id": Order.Id}, Order)
+	return err
+}
+
+func PayWapMoney(numerical_value float64,ctx *modules.Context) (error,string){
+	val := Paywap(numerical_value,redpack.User_info(ctx).Id,ctx)
+	OrderData := RechargeOrder{
+		UserId:redpack.User_info(ctx).Id,
+		OrderNumber:string(val.Get("p2_order")),
+		OrderMoney:numerical_value,
+		OrderType:	int64(1),
+		OrderGoods:"金币",
+		GoodsNunber:int64(20),
+	}
+	err := OrderData.Insert()
+	if err != nil {
+		return nil,"新建用户失败"
+	}
+	err1 := Post(val)
+	if err1 == nil {
+		errs := errors.New("1")
+		return errs,"请求成功！"
+	}
+	return nil,"请求失败！"
 }
 
 func Paywap(numerical float64,userId uint32,ctx *modules.Context) url.Values{
@@ -89,9 +129,9 @@ func Paywap(numerical float64,userId uint32,ctx *modules.Context) url.Values{
 	data["p1_usercode"] = []string{PAYWAP_USERCODE}
 	data["p2_order"] = []string{service.GetWxpayTradeNo(1, uint32(userId), int32(numerical), time.Now())}
 	data["p3_money"] = []string{fmt.Sprintf("%.0f", numerical)}
-	data["p4_returnurl"] = []string{"http://" + HOST_IP + PAYWAP_URL_RETURN}
+	data["p4_returnurl"] = []string{"http://" + ctx.Req.Host + PAYWAP_URL_RETURN}
 	log.T("旺实富支付结果展示页面地址：%d",data["p4_returnurl"])
-	data["p5_notifyurl"] = []string{"http://" + HOST_IP + PAYWAP_URL_NOTIFY}
+	data["p5_notifyurl"] = []string{"http://" + ctx.Req.Host + PAYWAP_URL_NOTIFY}
 	log.T("旺实富支付回调地址：%d",data["p5_notifyurl"])
 	data["p6_ordertime"] = []string{getOrderTime()}
 	mixSignString := fmt.Sprintf("%s&%s&%s&%s&%s&%s%s",data["p1_usercode"],data["p2_order"],data["p3_money"],data["p4_returnurl"],data["p5_notifyurl"],data["p6_ordertime"], PAYWAP_COMPKEY)
@@ -118,6 +158,37 @@ func Paywap(numerical float64,userId uint32,ctx *modules.Context) url.Values{
 	return data
 }
 
+func ReturnData(numerical float64,userId uint32) bson.M{
+	p2_order := service.GetWxpayTradeNo(1, uint32(userId), int32(numerical), time.Now())
+	p3_money:= fmt.Sprintf("%.0f", numerical)
+	//p4_returnurl:= "http://" + ctx.Req.Host + PAYWAP_URL_RETURN
+	//log.T("旺实富支付结果展示页面地址：%d",p4_returnurl)
+	//p5_notifyurl:= "http://" + ctx.Req.Host + PAYWAP_URL_NOTIFY
+	//log.T("旺实富支付回调地址：%d",p5_notifyurl)
+	p6_ordertime:= getOrderTime()
+	OrderData := RechargeOrder{
+		UserId:userId,
+		OrderNumber:string(p2_order),
+		OrderMoney:float64(numerical),
+		OrderType:	int64(1),
+		OrderGoods:"金币",
+		GoodsNunber:int64(20),
+	}
+	err := OrderData.Insert()
+	if err != nil {
+		return nil
+	}
+	data := bson.M{
+		"p2_order":p2_order,
+		"p3_money":p3_money,
+		"return_url":PAYWAP_RETURN_URL,
+		"p6_ordertime":p6_ordertime,
+	}
+	return data
+
+}
+
+//post提交
 func Post(data url.Values) error{
 	//把post表单发送给目标服务器
 	res, err := http.PostForm(PAYWAP_URL_FORMPAY, data)
@@ -127,7 +198,7 @@ func Post(data url.Values) error{
 	defer res.Body.Close()
 	return nil
 }
-
+//md5加密
 func MD5M(mixSignString string) string {
 	h := md5.New()
 	h.Write([]byte(mixSignString)) // 需要加密的字符串为 123456
@@ -419,4 +490,16 @@ func getOrderTime() string {
 	now := time.Now()
 	year, month, day := now.Date()
 	return fmt.Sprintf("%d%d%d%d%d%d", year, int(month), day, now.Hour(), now.Minute(), now.Second())
+}
+
+func GetOrderId(OrderNumber string) *RechargeOrder{
+	var err error = nil
+	Order_row := new(RechargeOrder)
+	err = db.C(tableName.TABLE_ORDER_LISTS).Find(bson.M{
+		"id": OrderNumber,
+	}, Order_row)
+	if err != nil {
+		return Order_row
+	}
+	return nil
 }

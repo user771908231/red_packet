@@ -13,5 +13,6 @@ const (
 	PAYWAP_URL_NOTIFY = "/weixin/paywap/notify"      		//旺实富支付结果回调页面 发货以此为准
 	PAYWAP_ORDER_INVALID_TIME = "" 							//订单失效时间
 	HOST_IP = "182.150.164.207:9091"
+	PAYWAP_RETURN_URL = "/home/member/recharge/confirm"		//用户确认返回
 
 )

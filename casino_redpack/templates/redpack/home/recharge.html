@@ -141,7 +141,7 @@
     </div>
 </footer>
 
-<script type="text/javascript" src="/static/home/script/jquery-3.2.1.min.js" ></script>
+{{/*<script type="text/javascript" src="/static/home/script/jquery-3.2.1.min.js" ></script>*/}}
 
 <script type="text/javascript" src="/static/home/script/jquery-3.2.1.min.js" ></script>
 <script type="text/javascript" src="/static/home/script/layer.js" ></script>
@@ -157,59 +157,78 @@
         var val = $("#moneys").val(); //获取
         if (val==''){ val=20;}
         toast.loading({
-            title:"与银行通讯中",
+            title:"请稍后...",
             duration:2000
         },function(ret){
             console.log(ret);
         });
-
-        $.get("/home/pay/wxPay?"+'totalFee='+val,function(data,status){
-            if(status=='success'){
-                var dataObj=eval("("+data+")");//转换为json对象
-                var code=dataObj.request.code;
-                var payType=dataObj.request.payType;
-                if(code=='0'){
+        $.post("/home/member/recharge?"+'totalFee='+val,function(data,status){
+            if(status == "success"){
+                var DataObj = eval("("+data+")");//转换为json对象
+                console.log(DataObj);
+                var code = DataObj.request.code;
+                if(code == "0"){
                     toast.hide();
                     layer.open({
-                        content: dataObj.request.msg
-                        ,btn: '我知道了'
+                        content: DataObj.request.msg,btn: '我知道了'
                     });
-                }else{
+                }else {
                     toast.hide();
-                    switch (payType){
-                        case 1:
-                            appId=dataObj.request.wxRequest.appId;
-                            timeStamp=dataObj.request.wxRequest.timeStamp;
-                            nonceStr=dataObj.request.wxRequest.nonceStr;
-                            package=dataObj.request.wxRequest.package;
-                            signType=dataObj.request.wxRequest.signType;
-                            paySign=dataObj.request.wxRequest.paySign;
-                            callpay(appId,timeStamp,nonceStr,package,signType,paySign);
-                            break;
-                        case 2:
-                            var yfRequest=dataObj.request.wxRequest.data;
-                            $("#yffanhui").html(yfRequest);
-                            break;
-                        case 3:
-                        case 4:
-                            var yfRequest=dataObj.request.wxRequest.data;
-                            $(location).attr('href', yfRequest);
-                            break;
-                        case 5:
-                            var Request=dataObj.request.wxRequest;
-                            $(location).attr('href', Request);
-                            break;
-                        case 6:
-                            $('#price').val(dataObj.request.orderData.total_fee);
-                            $('#user').val(dataObj.request.orderData.order_sn);
-                            $('#payfrom').submit();
-                            break;
-                    }
-
-
+                    //询问框
+                    
+                    console.log("dddd")
                 }
             }
-        });
+        })
+
+        // $.get("/home/pay/wxPay?"+'totalFee='+val,function(data,status){
+        //     if(status=='success'){
+        //         var dataObj=eval("("+data+")");//转换为json对象
+        //         console.log(dataObj)
+        //         var code=dataObj.request.code;
+        //         var payType=dataObj.request.payType;
+        //         if(code=='0'){
+        //             toast.hide();
+        //             layer.open({
+        //                 content: dataObj.request.msg
+        //                 ,btn: '我知道了'
+        //             });
+        //         }else{
+        //             toast.hide();
+        //             switch (payType){
+        //                 case 1:
+        //                     appId=dataObj.request.wxRequest.appId;
+        //                     timeStamp=dataObj.request.wxRequest.timeStamp;
+        //                     nonceStr=dataObj.request.wxRequest.nonceStr;
+        //                     package=dataObj.request.wxRequest.package;
+        //                     signType=dataObj.request.wxRequest.signType;
+        //                     paySign=dataObj.request.wxRequest.paySign;
+        //                     callpay(appId,timeStamp,nonceStr,package,signType,paySign);
+        //                     break;
+        //                 case 2:
+        //                     var yfRequest=dataObj.request.wxRequest.data;
+        //                     $("#yffanhui").html(yfRequest);
+        //                     break;
+        //                 case 3:
+        //                 case 4:
+        //                     var yfRequest=dataObj.request.wxRequest.data;
+        //                     $(location).attr('href', yfRequest);
+        //                     break;
+        //                 case 5:
+        //                     var Request=dataObj.request.wxRequest;
+        //                     $(location).attr('href', Request);
+        //                     break;
+        //                 case 6:
+        //                     $('#price').val(dataObj.request.orderData.total_fee);
+        //                     $('#user').val(dataObj.request.orderData.order_sn);
+        //                     $('#payfrom').submit();
+        //                     break;
+        //             }
+        //
+        //
+        //         }
+        //     }
+        // });
 
 
 

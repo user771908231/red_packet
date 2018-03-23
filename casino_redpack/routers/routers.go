@@ -112,7 +112,7 @@ func Regist(m *macaron.Macaron) {
 				})
 			})
 		}, admin.NeedLogin(0))
-		m.Post("/login", admin.NeedCaptcha, binding.Bind(admin.LoginForm{}), admin.LoginPostHandler)
+		m.Post("/admin/login", admin.NeedCaptcha, binding.Bind(admin.LoginForm{}), admin.LoginPostHandler)
 		//管理登录
 		m.Get("/admin/login", admin.LoginHandler)
 		//红包项目
@@ -124,6 +124,10 @@ func Regist(m *macaron.Macaron) {
 			m.Group("/member", func() {
 				//充值
 				m.Get("/recharge", redpack.RechargeHandler)
+				//充值订单
+				m.Post("/recharge",pay.PostRechargeHandler)
+				//充值确认
+				//m.Get("/recharge/confirm",redpack.RechargeConfirmHandler)
 				//提现
 				m.Get("/outred", redpack.OutredHandler)
 				//游戏记录
@@ -217,8 +221,14 @@ func Regist(m *macaron.Macaron) {
 			})
 
 			m.Group("/pay", func() {
-				m.Get("/wxPay",pay.GoldRechargeHandler)
+				//充值金币
+				//m.Get("/wxPay",pay.GoldRechargeHandler)
+
+				m.Get("/weixin")
+
 			})
+
+
 
 		}, admin.UserNeedLogin)
 
