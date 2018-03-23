@@ -12,8 +12,7 @@ import (
 	"casino_redpack/model/weixinModel"
 	"casino_redpack/handler/redpack"
 	"casino_redpack/model/redModel"
-	"github.com/chanxuehong/wechat.v2/mch/pay"
-	"casino_redpack/handler/admin/manage"
+	"casino_redpack/handler/pay"
 )
 
 //注册路由
@@ -103,12 +102,7 @@ func Regist(m *macaron.Macaron) {
 		m.Group("/admin", func() {
 			//主页
 			m.Get("/", admin.IndexHandler)
-
-			//登录
-			m.Get("/login", admin.LoginHandler)
 			m.Get("/logout", admin.LoginOutHandler)
-			m.Post("/login", admin.NeedCaptcha, binding.Bind(admin.LoginForm{}), admin.LoginPostHandler)
-
 			//管理
 			m.Group("/manage", func() {
 				//红包兑换相关
@@ -118,24 +112,15 @@ func Regist(m *macaron.Macaron) {
 				})
 			})
 		}, admin.NeedLogin(0))
-
-
+		m.Post("/login", admin.NeedCaptcha, binding.Bind(admin.LoginForm{}), admin.LoginPostHandler)
+		//管理登录
+		m.Get("/admin/login", admin.LoginHandler)
 		//红包项目
 		m.Group("/home", func() {
 			//首页
 			m.Get("/", redpack.HomeHandler)
-			
-			//登陆页面
-			m.Get("/login",admin.LoginHandler)
-			//登陆提交地址
-			m.Post("/login",binding.Bind(admin.LoginForm{}), admin.LoginPostHandler)
-			//注册页面
-			m.Get("/sign_up",admin.SignUpHandler)
-			//注册提交地址
-			m.Post("/sign_up",binding.Bind(admin.SiginUpTable{}),admin.SignUpTableValuesHandler)
 			//退出地址
 			m.Get("/outlogin", admin.LoginOutHandler)
-
 			m.Group("/member", func() {
 				//充值
 				m.Get("/recharge", redpack.RechargeHandler)
@@ -235,7 +220,17 @@ func Regist(m *macaron.Macaron) {
 				m.Get("/wxPay",pay.GoldRechargeHandler)
 			})
 
-		}, admin.NeedLogin)
+		}, admin.UserNeedLogin)
+
+			//登陆页面
+			m.Get("/home/login",admin.UserLoginHandler)
+			//登陆提交地址
+			m.Post("/home/login",binding.Bind(admin.LoginForm{}), admin.UserLoginPostHandler)
+			//注册页面
+			m.Get("/home/sign_up",admin.SignUpHandler)
+			//注册提交地址
+			m.Post("/home/sign_up",binding.Bind(admin.SiginUpTable{}),admin.SignUpTableValuesHandler)
+
 
 		//代理申请
 		m.Get("/weixin/agent/apply", weixin.NeedWxLogin, weixin.ApplyHandler)
@@ -261,7 +256,7 @@ func Regist(m *macaron.Macaron) {
 		m.Get("/", func(ctx *modules.Context) {
 			//ctx.Success("即将跳转至后台！", "/admin", 3)
 			//ctx.Redirect("/admin", 302)
-			ctx.Redirect("/home/", 302)
+			ctx.Redirect("/home", 302)
 		})
 
 		//websocket处理

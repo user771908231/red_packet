@@ -34,7 +34,14 @@ func NeedLogin(level int32) macaron.Handler {
 		}
 	}
 }
-
+//判断用户登陆 没有登陆直接到home/loginss
+func UserNeedLogin(ctx *modules.Context){
+		user := ctx.IsLogin()
+		if user == nil {
+			ctx.Redirect("/home/login", 302)
+			return
+		}
+}
 //显示面板数据
 func ShowPanel(ctx *modules.Context) {
 	user := ctx.IsLogin()
@@ -54,6 +61,11 @@ func NeedCaptcha(ctx *modules.Context, cpt *captcha.Captcha) {
 
 //登录
 func LoginHandler(ctx *modules.Context) {
+	ctx.HTML(200, "admin/user/login")
+}
+
+//登录
+func UserLoginHandler(ctx *modules.Context) {
 	ctx.HTML(200, "admin/user/login_2")
 }
 //登出
@@ -77,6 +89,21 @@ func (form LoginForm)Error(ctx *macaron.Context, errs binding.Errors) {
 }
 //登录POST
 func LoginPostHandler(form LoginForm, ctx *modules.Context , VerificationCode *captcha.Captcha) {
+	if !VerificationCode.VerifyReq(ctx.Req) {
+		ctx.Error("验证码错误！", "", 1)
+		return
+	}
+	user := userModel.Login(form.Name, form.Passwd)
+	if user != nil {
+		ctx.Session.Set("user", *user)
+		ctx.Success("登录成功！", "/admin", 1)
+	}else {
+		ctx.Success("登录失败！", "/admin/login", 1)
+	}
+}
+
+//用户登录POST
+func UserLoginPostHandler(form LoginForm, ctx *modules.Context , VerificationCode *captcha.Captcha) {
 	if !VerificationCode.VerifyReq(ctx.Req) {
 		ctx.Error("验证码错误！", "", 1)
 		return
