@@ -9,6 +9,13 @@ import (
 	"gopkg.in/mgo.v2/bson"
 	"net/http"
 	"casino_common/common/model/agentModel"
+	"casino_redpack/modules"
+	"casino_common/utils/db"
+	"casino_common/common/consts"
+	"casino_redpack/conf/config"
+	"casino_common/common/consts/tableName"
+	"errors"
+	"encoding/json"
 )
 
 var (
@@ -107,4 +114,53 @@ func notifyHanlder(ctx *core.Context) {
 func WxNotifyHandler(r *http.Request, w http.ResponseWriter) {
 	payServer.ServeHTTP(w, r, nil)
 }
+//提现
+type Withdrawals struct {
+	Id 				int32	//id
+	UserId 			uint32	//user id
+	Number			float64 //提现数量
+	Time 			time.Time	//	时间
+	Status  		int			//状态 0 未受理 1 受理 3 拒绝
+	AcceptanceID 	uint32		//处理人ID
+	DeleteStatus 	int			//删除状态 0 未删除 1 删除
+}
 
+func (W *Withdrawals) Insert() error{
+	id,_ := db.GetNextIncrementID(config.WITHDRAWALS_KEY_ID,consts.RKEY_WITHSRAWALS_ID_KEY)
+	W.Id = id
+	W.Time = time.Now()
+	W.Status = int(0)
+	W.DeleteStatus = 0
+	err := db.C(tableName.TABLE_WITHDRAWALS_LISTS).Insert(W)
+	if err != nil {
+		return errors.New("插入一条记录失败！")
+	}
+	return  nil
+
+}
+
+func WithdrawalsHandler(ctx *modules.Context)  {
+	res := bson.M{
+		"code": 0,
+		"message": "fail",
+		"request": bson.M{},
+		"msg" : "申请提现失败！请联系客服！",
+	}
+
+	val := ctx.QueryFloat64("totalFee")
+	Data := Withdrawals{
+		UserId:ctx.IsLogin().Id,
+		Number:val,
+	}
+	err := Data.Insert()
+	if err == nil {
+		res["code"] = 1
+		res["message"] = "success"
+		data,_ := json.Marshal(res)
+		ctx.Write([]byte(data))
+	}else{
+		data,_ := json.Marshal(res)
+		ctx.Write([]byte(data))
+	}
+
+}

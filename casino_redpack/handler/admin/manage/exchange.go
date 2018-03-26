@@ -8,6 +8,8 @@ import (
 	"casino_common/common/service/exchangeService"
 	"time"
 	"math"
+	"casino_redpack/model/agentProModel"
+
 )
 
 //红包与实物兑换
@@ -80,4 +82,52 @@ func ExchangeSwitchState(ctx *modules.Context) {
 		return
 	}
 	ctx.Ajax(1, "切换状态成功！", nil)
+}
+
+func PostalHandle(ctx *modules.Context)  {
+	status := ctx.QueryInt("status")
+	page := ctx.QueryInt("page")
+	switch status {
+	case 1:
+		query := bson.M{}
+		data := agentProModel.GetOrderLists(query,page)
+		ctx.Write([]byte(data))
+	}
+
+
+}
+//提现申请
+func WithdrawalsHandle(ctx *modules.Context)  {
+
+	status := ctx.QueryInt("status")
+	pages := ctx.QueryInt("page")
+	switch status {
+	case 1:
+		query := bson.M{
+			"acceptanceid" : 0,
+			"status":0,
+		}
+		data := agentProModel.GetWithdrawalsList(query,pages)
+		ctx.Write([]byte(data))
+	case 2:
+		query := bson.M{
+			"acceptanceid" : bson.M{"$gt":0},
+			"status":3,
+		}
+		data := agentProModel.GetWithdrawalsList(query,pages)
+		ctx.Write([]byte(data))
+	case 3:
+		query := bson.M{
+			"acceptanceid" :bson.M{"$gt":0},
+			"status":2,
+		}
+		data := agentProModel.GetWithdrawalsList(query,pages)
+		ctx.Write([]byte(data))
+	default:
+		query := bson.M{
+			"deletestatus" : 0,
+		}
+		data := agentProModel.GetWithdrawalsList(query,pages)
+		ctx.Write([]byte(data))
+	}
 }

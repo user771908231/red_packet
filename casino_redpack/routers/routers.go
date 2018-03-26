@@ -112,7 +112,7 @@ func Regist(m *macaron.Macaron) {
 					//m.Get("/switch", manage.ExchangeSwitchState)
 				})
 				m.Get("/Withdrawals",manage.WithdrawalsHandle)
-				m.Get("/postal",manage.Postal)
+				m.Get("/postal",manage.PostalHandle)
 			})
 		}, admin.NeedLogin(2))
 		m.Post("/admin/login", admin.NeedCaptcha, binding.Bind(admin.LoginForm{}), admin.LoginPostHandler)
