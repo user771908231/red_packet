@@ -34,32 +34,32 @@ import (
 //	PAYWAP_URL_PAY    = "/weixin/paywap/pay"         //调起旺实富支付跳转
 //	PAYWAP_URL_RETURN = "/weixin/paywap/return_page" //旺实富支付结果展示页面
 //	PAYWAP_URL_NOTIFY = "/weixin/paywap/notify"      //旺实富支付结果回调页面 发货以此为准
-//	p1_usercode				string		//旺实富分配的商户号 必填
-//	p2_order				string		//(29)用户订单号，建议商户号+14 位时 间 yyyymmddhhmmss+5 位流水 号，中间用“-”分隔。例如: 12345678-20150728132430-12 345。 (只是建议，商户的订单号也可以 不采用这种格式) 必填
-//	p3_money				string		//订单金额，精确到分。例如 99.99 必填
-//	p4_returnurl			string		//(190) 用户明文跳转地址，用于告知付款 人支付结果。必须包含 http://或 https://。 必填
-//	p5_notifyurl			string		//(190)服务器异步通知地址，用于通知商 户系统处理业务(数据库更新等)。 必须包含 http://或 https://。 必填
-//	p6_ordertime			string		//商户订单时间，格式 yyyymmddhhmmss 必填
-//	p7_sign					string		//(256)商户传递参数加密值，约定 p1_ usercode + "&" +p2_ order + 必填"&" +p3_ money + "&" +p4_returnurl + "&" +p5_notifyurl+ "&" +p6_ordertime +CompKey 连 接起来进行 MD5 加密后 32 位大 写字符串，(参数之间必须添加& 符号，最后 p6_ordertime 和 CompKey 之间不加&符号。 CompKey 为商户的秘钥)目前只 限定 md5 加密。
-//	p8_signtype				string		//(5)签名验证方式:1、MD5，传固定 值 1。如果用户传递参数为空，则 默认 MD5 验证。 可空
-//	p9_paymethod			string		//(5)商户支付方式:固定值 3。如果用 户传递参数为空，则默认网银支付。 可空
-//	p10_paychannelnum		string		//(12)支付通道编码。可空
-//	p11_cardtype			string		//(5)为空 可空
-//	p12_channel				string		//(5)为空 可空
-//	p13_orderfailertime		string		//(14)订单失效时间，格式为 14 位时间格 式，精确到秒 yyyymmddhhmmss。超时则此订 单失效。可空
-//	p14_customname			string		//(128)客户、或者玩家所在平台账号。请务必填写真实信息，否则将影响后续查单结果。必填
-//	p15_customcontacttype	string		//(10)客户联系方式类型:1、email，2、 phone，3、地址	可空
-//	p16_customcontact		string		//(200)	客户联系方式 可空
-//	p17_customip			string		//(128) 客户 ip 地址，规定以 192_168_0_253 格式，如果以 “192.168.0.253”可能会发生签名 错误。 必填
-//	p18_product				string		//(256)\商品名称 可空
-//	p19_productcat			string		//(200)商品种类可空
-//	p20_productnum			string		//(10)商品数量，不传递参数默认 0	可空
-//	p21_pdesc				string		//(200)商品描述	可空
-//	p22_version				string		//(5)接口版本，目前默认 2.0可空
-//	p23_charset				string		//(5)提交的编码格式，1、UTF-8，2、 GBK/GB2312，默认 UTF-8可空
-//	p24_remark				string		//(256)备注。此参数我们会在下行过程中原样返回。您可以在此参数中记录一些数据，方便在下行过程中直接读取。可空
-//	p25_terminal			string		//(5终端设备固定值 2。 必填
-//	p26_iswappay			string		//(5)支付场景固定值 3。必填
+var p1_usercode				string	= PAYWAP_USERCODE	//旺实富分配的商户号 必填
+var p2_order				string		//(29)用户订单号，建议商户号+14 位时 间 yyyymmddhhmmss+5 位流水 号，中间用“-”分隔。例如: 12345678-20150728132430-12 345。 (只是建议，商户的订单号也可以 不采用这种格式) 必填
+var p3_money				string		//订单金额，精确到分。例如 99.99 必填
+var p4_returnurl			string	=PAYWAP_URL_RETURN	//(190) 用户明文跳转地址，用于告知付款 人支付结果。必须包含 http://或 https://。 必填
+var p5_notifyurl			string	=PAYWAP_URL_NOTIFY	//(190)服务器异步通知地址，用于通知商 户系统处理业务(数据库更新等)。 必须包含 http://或 https://。 必填
+var p6_ordertime			string		//商户订单时间，格式 yyyymmddhhmmss 必填
+var p7_sign					string		//(256)商户传递参数加密值，约定 p1_ usercode + "&" +p2_ order + 必填"&" +p3_ money + "&" +p4_returnurl + "&" +p5_notifyurl+ "&" +p6_ordertime +CompKey 连 接起来进行 MD5 加密后 32 位大 写字符串，(参数之间必须添加& 符号，最后 p6_ordertime 和 CompKey 之间不加&符号。 CompKey 为商户的秘钥)目前只 限定 md5 加密。
+var p8_signtype				string		//(5)签名验证方式:1、MD5，传固定 值 1。如果用户传递参数为空，则 默认 MD5 验证。 可空
+var p9_paymethod			string		//(5)商户支付方式:固定值 3。如果用 户传递参数为空，则默认网银支付。 可空
+var p10_paychannelnum		string		//(12)支付通道编码。可空
+var p11_cardtype			string		//(5)为空 可空
+var p12_channel				string		//(5)为空 可空
+var p13_orderfailertime		string		//(14)订单失效时间，格式为 14 位时间格 式，精确到秒 yyyymmddhhmmss。超时则此订 单失效。可空
+var p14_customname			string		//(128)客户、或者玩家所在平台账号。请务必填写真实信息，否则将影响后续查单结果。必填
+var p15_customcontacttype	string		//(10)客户联系方式类型:1、email，2、 phone，3、地址	可空
+var p16_customcontact		string		//(200)	客户联系方式 可空
+var p17_customip			string		//(128) 客户 ip 地址，规定以 192_168_0_253 格式，如果以 “192.168.0.253”可能会发生签名 错误。 必填
+var p18_product				string		//(256)\商品名称 可空
+var p19_productcat			string		//(200)商品种类可空
+var p20_productnum			string		//(10)商品数量，不传递参数默认 0	可空
+var p21_pdesc				string		//(200)商品描述	可空
+var p22_version				string		//(5)接口版本，目前默认 2.0可空
+var p23_charset				string		//(5)提交的编码格式，1、UTF-8，2、 GBK/GB2312，默认 UTF-8可空
+var p24_remark				string		//(256)备注。此参数我们会在下行过程中原样返回。您可以在此参数中记录一些数据，方便在下行过程中直接读取。可空
+var p25_terminal			string		//(5终端设备固定值 2。 必填
+var p26_iswappay			string		//(5)支付场景固定值 3。必填
 
 
 //充值订单
@@ -156,6 +156,57 @@ func Paywap(numerical float64,userId uint32,ctx *modules.Context) url.Values{
 	data["p25_terminal"] = []string{"2"}
 	data["p26_iswappay"] =[]string{"3"}
 	return data
+}
+
+func ReturnData1(numerical float64,userId uint32) bson.M{
+	p2_order  = service.GetWxpayTradeNo(1, uint32(userId), int32(numerical), time.Now())
+	p3_money = fmt.Sprintf("%.0f", numerical)
+
+	p6_ordertime = getOrderTime()
+	OrderData := RechargeOrder{
+		UserId:userId,
+		OrderNumber:string(p2_order),
+		OrderMoney:float64(numerical),
+		OrderType:	int64(1),
+		OrderGoods:"金币",
+		GoodsNunber:int64(20),
+	}
+	err := OrderData.Insert()
+	if err != nil {
+		return nil
+	}
+	data := bson.M{
+		"p1_usercode":p1_usercode,
+		"p2_order":p2_order,
+		"p3_money":p3_money,
+		"p4_returnurl":p4_returnurl,
+		"p5_notifyurl":p5_notifyurl,
+		//"return_url":PAYWAP_RETURN_URL,
+		"p6_ordertime":p6_ordertime,
+		"p7_sign":MD5M(fmt.Sprintf("%s&%s&%s&%s&%s&%s%s",p1_usercode,p2_order,p3_money,p4_returnurl,p5_notifyurl,p6_ordertime, PAYWAP_COMPKEY)),
+		"p8_signtype":1,
+		"p9_paymethod":3,
+		"p10_paychannelnum":"",
+		"p11_cardtype": "",
+		"p12_channel" :"",
+		"p13_orderfailertime":PAYWAP_ORDER_INVALID_TIME,
+		"p14_customname":userId,
+		"p15_customcontacttype":"",
+		"p16_customcontact":"",
+		"p17_customip":"192_168_0_253",
+		"p18_product": "",
+		"p19_productcat":1,
+		"p20_productnum":"",
+		"p21_pdesc":"充值",
+		"p22_version":"",
+		"p23_charset":"UTF-8",
+		"p24_remark":"",
+		"p25_terminal": "2",
+		"p26_iswappay":"3",
+		"post":PAYWAP_URL_FORMPAY,
+	}
+	return data
+
 }
 
 func ReturnData(numerical float64,userId uint32) bson.M{
@@ -478,7 +529,13 @@ func PayWapNotifyHandler(ctx *modules.Context) {
 	err := service.DoAsynCb(p2_order, numUtils.String2Float64(p3_money))
 	if err == nil {
 		log.T("支付回调成功[%v:%v]！", p2_order, p3_money)
-		ctx.Write([]byte("success"))
+		//记录订单
+		err := NewOrder(ctx.IsLogin().Id,p2_order, numUtils.String2Float64(p3_money))
+		if err == nil {
+			ctx.Write([]byte("success"))
+		}
+		log.E("支付回调失败[%v:%v] err:%v！", p2_order, p3_money, err)
+		ctx.Error("回调 code:-5", "", 0)
 	}else {
 		log.E("支付回调失败[%v:%v] err:%v！", p2_order, p3_money, err)
 		ctx.Error("回调 code:-5", "", 0)
@@ -502,4 +559,20 @@ func GetOrderId(OrderNumber string) *RechargeOrder{
 		return Order_row
 	}
 	return nil
+}
+//生成一条订单支付记录
+func NewOrder(userid uint32,OrderNumber string,numerical float64) error{
+	data := RechargeOrder{
+		UserId: userid,
+		OrderNumber:OrderNumber,
+		OrderMoney:numerical,
+		OrderType:	int64(1),
+		OrderGoods:"金币",
+		GoodsNunber:int64(20),
+	}
+	err := data.Insert()
+	if err == nil {
+		return nil
+	}
+	return errors.New("生成订单支付记录失败")
 }

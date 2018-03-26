@@ -12,9 +12,10 @@ func  PostRechargeHandler(ctx *modules.Context)  {
 		"code": 0,
 		"message": "faild",
 		"request": bson.M{},
+
 	}
 	valtype := ctx.QueryInt("totalFee")
-	data := weixin.ReturnData(float64(valtype),ctx.IsLogin().Id)
+	data := weixin.ReturnData1(float64(valtype),ctx.IsLogin().Id)
 	if data != nil {
 		list["code"] = 1
 		list["request"] = data
