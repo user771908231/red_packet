@@ -13,25 +13,27 @@ import (
 func NeedLogin(level int32) macaron.Handler {
 	return func(ctx *modules.Context) {
 		user := ctx.IsLogin()
-		if user == nil {
-			ctx.Redirect("/admin/login", 302)
-			return
-		}
-		user = userModel.GetUserById(user.Id)
-		if user == nil {
-			ctx.Redirect("/admin/login", 302)
-			return
-		}
-		ctx.Data["User"] = user
 
-		if user.Level < level {
-			const err_msg = "权限不足，操作失败！"
-			if ctx.Req.Method == "POST" {
-				ctx.Ajax(-1, err_msg, nil)
-			}else {
-				ctx.Error(err_msg,"", 0)
-			}
+		if user == nil {
+			ctx.Redirect("/admin/login", 302)
+			return
 		}
+		//user = userModel.GetUserById(uint32(1))
+		//if user == nil {
+		//	fmt.Println("user nil")
+		//	ctx.Redirect("/admin/login", 302)
+		//	return
+		//}
+		//ctx.Data["User"] = user
+		//
+		//if user.Level < level {
+		//	const err_msg = "权限不足，操作失败！"
+		//	if ctx.Req.Method == "POST" {
+		//		ctx.Ajax(-1, err_msg, nil)
+		//	}else {
+		//		ctx.Error(err_msg,"", 0)
+		//	}
+		//}
 	}
 }
 //判断用户登陆 没有登陆直接到home/loginss

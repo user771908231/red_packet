@@ -177,10 +177,10 @@
                 if(status=='success'){
                     toast.hide();
                     var dataObj=eval("("+data+")");//转换为json对象
-                    var codes=dataObj.request.code;
+                    var codes=dataObj.code;
                     if(codes=='0'){
                         layer.open({
-                            content: dataObj.request.msg
+                            content: dataObj.msg
                             ,btn: '我知道了'
                         });
                     }else{

@@ -38,6 +38,7 @@ func init() {
 			"redpack_room_id",
 			"redpack_redpack_id",
 			config.ORDER_KEY_ID,
+			config.WITHDRAWALS_KEY_ID,
 		})
 
 	//判断初始化是否成功

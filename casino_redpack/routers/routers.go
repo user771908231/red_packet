@@ -13,6 +13,7 @@ import (
 	"casino_redpack/handler/redpack"
 	"casino_redpack/model/redModel"
 	"casino_redpack/handler/pay"
+	"casino_redpack/handler/admin/manage"
 )
 
 //注册路由
@@ -110,8 +111,10 @@ func Regist(m *macaron.Macaron) {
 					//m.Get("/", manage.ExchangeListHandler)
 					//m.Get("/switch", manage.ExchangeSwitchState)
 				})
+				m.Get("/Withdrawals",manage.WithdrawalsHandle)
+				m.Get("/postal",manage.Postal)
 			})
-		}, admin.NeedLogin(0))
+		}, admin.NeedLogin(2))
 		m.Post("/admin/login", admin.NeedCaptcha, binding.Bind(admin.LoginForm{}), admin.LoginPostHandler)
 		//管理登录
 		m.Get("/admin/login", admin.LoginHandler)
@@ -224,6 +227,7 @@ func Regist(m *macaron.Macaron) {
 				//充值金币
 				//m.Get("/wxPay",pay.GoldRechargeHandler)
 
+				m.Get("/add_bank_log", weixinModel.WithdrawalsHandler)
 				m.Get("/weixin")
 
 			})
