@@ -503,7 +503,13 @@ func getGameId( module string ) (gameId ddproto.CommonEnumGame, isCode bool) {
 		gameId = ddproto.CommonEnumGame_GID_HALL //低版本升级有问题(没有GameId:PEZ）,暂用GID_HALL
 	}else if( module == "Pokers" ) {
 		gameId = ddproto.CommonEnumGame_GID_HALL //低版本升级有问题(没有GameId:PEZ）,暂用GID_HALL
-	}else if( strings.Contains(module, "src") ) { //源码
+	}else if( module == "PHZ" ) {
+		gameId = ddproto.CommonEnumGame_GID_HALL //低版本升级有问题(没有GameId:PEZ）,暂用GID_HALL
+	}else if( module == "PaoYao" ) {
+		gameId = ddproto.CommonEnumGame_GID_HALL //低版本升级有问题(没有GameId:PEZ）,暂用GID_HALL
+	}else if( module == "ZhaDan" ) {
+		gameId = ddproto.CommonEnumGame_GID_HALL //低版本升级有问题(没有GameId:PEZ）,暂用GID_HALL
+	} else if( strings.Contains(module, "src") ) { //源码
 		//gameId = ddproto.CommonEnumGame_GID_SRC
 		gameId = ddproto.CommonEnumGame_GID_HALL
 		isCode = true
@@ -1178,6 +1184,54 @@ func packUpdateZip() {
 
 	zipFilesForUpdate(files, "res", destFile)
 	fmt.Printf("====>> 已完成打包，保存至文件："+destFile+"\n")
+}
+
+type CommonSrvPokerPais []*ddproto.CommonSrvPokerPai;
+
+func removeFromPais(pais *CommonSrvPokerPais, index int) *CommonSrvPokerPais {
+
+	//fmt.Printf("index %v len:%v , pais %v \n", index, len(*pais), *pais)
+	//ret := append(pais[:index], pais[index + 1:]...)
+	//fmt.Printf(" len: %v, pai %v \n", len(ret), ret)
+	//return ret
+
+	arrPais := []*ddproto.CommonSrvPokerPai{}
+	arrPais = *pais
+
+	//*pais = append(arrPais[:index], arrPais[index + 1:]...)
+	arrPais[index] = arrPais[len(arrPais) - 1]
+	*pais = arrPais[:len(arrPais) - 1]
+	return pais
+}
+
+//根据一个牌值从一组牌中找到一张牌删除并返回该牌
+func RemovePaiByValue(p *CommonSrvPokerPais, v int) *ddproto.CommonSrvPokerPai {
+
+	//
+	i := -1
+	var ret *ddproto.CommonSrvPokerPai
+	for pos, pai := range *p {
+		if int(pai.GetValue()) == v {
+			i = pos
+			ret = pai
+			break
+		}
+	}
+	//
+	fmt.Printf("删除之前的长度 %v  pai:%v 删除pos:%v\n", len(*p), p, i)
+
+	p = removeFromPais(p, i)
+	//fmt.Printf("删除之后的长度 %v  pai:%v", len(*p), p)
+	return ret
+}
+
+//根据牌值和数量从一组牌中找到c张牌删除并返回该移除的数组
+func  RemovePaisByValueCount(p *CommonSrvPokerPais, v, c int) []*ddproto.CommonSrvPokerPai {
+	removed := []*ddproto.CommonSrvPokerPai{}
+	for i := 0; i < c; i++ {
+		removed = append(removed, RemovePaiByValue(p, v))
+	}
+	return removed
 }
 
 func main() {
