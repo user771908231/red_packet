@@ -10,6 +10,9 @@ import (
 	"math"
 	"casino_redpack/model/agentProModel"
 
+	"casino_redpack/model/weixinModel"
+	"encoding/json"
+	"fmt"
 )
 
 //红包与实物兑换
@@ -87,14 +90,16 @@ func ExchangeSwitchState(ctx *modules.Context) {
 func PostalHandle(ctx *modules.Context)  {
 	status := ctx.QueryInt("status")
 	page := ctx.QueryInt("page")
+	fmt.Println("status:",status,"page:",page)
 	switch status {
 	case 1:
 		query := bson.M{}
 		data := agentProModel.GetOrderLists(query,page)
-		ctx.Write([]byte(data))
+		ctx.Data["Postal"] = data
+	default:
 	}
 
-
+	ctx.HTML(200, "admin/block/postal/index")
 }
 //提现申请
 func WithdrawalsHandle(ctx *modules.Context)  {
@@ -107,27 +112,108 @@ func WithdrawalsHandle(ctx *modules.Context)  {
 			"acceptanceid" : 0,
 			"status":0,
 		}
-		data := agentProModel.GetWithdrawalsList(query,pages)
-		ctx.Write([]byte(data))
+		data,user := agentProModel.GetWithdrawalsList(ctx,query,pages)
+		ctx.Data["withdrawals"] = data
+		ctx.Data["User_info"] = user
+
 	case 2:
 		query := bson.M{
 			"acceptanceid" : bson.M{"$gt":0},
-			"status":3,
+			"status":2,
 		}
-		data := agentProModel.GetWithdrawalsList(query,pages)
-		ctx.Write([]byte(data))
+		data,user := agentProModel.GetWithdrawalsList(ctx,query,pages)
+		ctx.Data["withdrawals"] = data
+		ctx.Data["User_info"] = user
 	case 3:
 		query := bson.M{
 			"acceptanceid" :bson.M{"$gt":0},
-			"status":2,
+			"status":1,
 		}
-		data := agentProModel.GetWithdrawalsList(query,pages)
-		ctx.Write([]byte(data))
+		data,user := agentProModel.GetWithdrawalsList(ctx,query,pages)
+		ctx.Data["withdrawals"] = data
+		ctx.Data["User_info"] = user
 	default:
 		query := bson.M{
 			"deletestatus" : 0,
+			"status":bson.M{
+				"$gte" : 0,
+				"$lte" : 2,
+			},
 		}
-		data := agentProModel.GetWithdrawalsList(query,pages)
+		data,user := agentProModel.GetWithdrawalsList(ctx,query,pages)
+		ctx.Data["withdrawals"] = data
+		ctx.Data["User_info"] = user
+	}
+	ctx.HTML(200, "admin/block/withdrawals/index")
+}
+
+func WithdrawalsOperationHandle(ctx *modules.Context){
+	Types := ctx.Query("types")
+	Id := ctx.QueryInt("id")
+	list := bson.M{
+		"code":0,
+		"massage":"faild",
+		"msg":"错误！",
+	}
+	switch Types {
+	case "ok":
+		fmt.Println("ok" )
+		val := weixinModel.GetWithdrawalsId(int32(Id))
+		if val == nil{
+			data,_ := json.Marshal(list)
+			ctx.Write([]byte(data))
+		}
+		//减去用户金币方法
+		err := val.UpdateStatus(1,ctx.IsLogin().Id)
+		if err != nil {
+			list["msg"] ="修改失败！"
+			data,_ := json.Marshal(list)
+			ctx.Write([]byte(data))
+		}
+		list["msg"] ="修改成功！"
+		list["code"] = 1
+		list["massage"] = "success"
+		data,_ := json.Marshal(list)
+		ctx.Write([]byte(data))
+	case "no":
+		fmt.Println("no" )
+		val := weixinModel.GetWithdrawalsId(int32(Id))
+		if val == nil{
+			data,_ := json.Marshal(list)
+			ctx.Write([]byte(data))
+		}
+		err := val.UpdateStatus(2,ctx.IsLogin().Id)
+		if err != nil {
+			list["msg"] ="修改失败！"
+			data,_ := json.Marshal(list)
+			ctx.Write([]byte(data))
+		}
+		list["msg"] ="修改成功！"
+		list["code"] = 1
+		list["massage"] = "success"
+		data,_ := json.Marshal(list)
+		ctx.Write([]byte(data))
+	case "del":
+		val := weixinModel.GetWithdrawalsId(int32(Id))
+		if val == nil{
+			data,_ := json.Marshal(list)
+			ctx.Write([]byte(data))
+		}
+		err := val.Delete(1,ctx.IsLogin().Id)
+		if err != nil {
+			list["msg"] ="删除失败！"
+			data,_ := json.Marshal(list)
+			ctx.Write([]byte(data))
+		}
+		list["msg"] ="删除成功！"
+		list["code"] = 1
+		list["massage"] = "success"
+		data,_ := json.Marshal(list)
+		ctx.Write([]byte(data))
+	default:
+		list["msg"] =fmt.Sprint("意料之外的参数[types:%d]",Types)
+		data,_ := json.Marshal(list)
 		ctx.Write([]byte(data))
 	}
+
 }

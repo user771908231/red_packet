@@ -111,7 +111,11 @@ func Regist(m *macaron.Macaron) {
 					//m.Get("/", manage.ExchangeListHandler)
 					//m.Get("/switch", manage.ExchangeSwitchState)
 				})
-				m.Get("/Withdrawals",manage.WithdrawalsHandle)
+				m.Group("/Withdrawals", func() {
+					m.Get("/",manage.WithdrawalsHandle)
+					m.Get("/operation",manage.WithdrawalsOperationHandle)
+				})
+
 				m.Get("/postal",manage.PostalHandle)
 			})
 		}, admin.NeedLogin(2))

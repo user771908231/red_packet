@@ -120,7 +120,7 @@ type Withdrawals struct {
 	UserId 			uint32	//user id
 	Number			float64 //提现数量
 	Time 			time.Time	//	时间
-	Status  		int			//状态 0 未受理 1 受理 3 拒绝
+	Status  		int			//状态 0 未受理 1 受理 2 拒绝
 	AcceptanceID 	uint32		//处理人ID
 	DeleteStatus 	int			//删除状态 0 未删除 1 删除
 }
@@ -163,4 +163,26 @@ func WithdrawalsHandler(ctx *modules.Context)  {
 		ctx.Write([]byte(data))
 	}
 
+}
+
+func (Withdrawals *Withdrawals) UpdateStatus(status int,AcceptanceID uint32) error{
+	Withdrawals.Status = status
+	Withdrawals.AcceptanceID = AcceptanceID
+	err := db.C(tableName.TABLE_WITHDRAWALS_LISTS).Update(bson.M{"id": Withdrawals.Id},Withdrawals)
+	return err
+}
+func (Withdrawals *Withdrawals) Delete(status int,AcceptanceID 	uint32) error{
+	Withdrawals.DeleteStatus = status
+	Withdrawals.AcceptanceID = AcceptanceID
+	err := db.C(tableName.TABLE_WITHDRAWALS_LISTS).Update(bson.M{"id": Withdrawals.Id},Withdrawals)
+	return err
+}
+
+func GetWithdrawalsId(id int32) *Withdrawals {
+	Withdrawals := new(Withdrawals)
+	err := db.C(tableName.TABLE_WITHDRAWALS_LISTS).Find(bson.M{"id":id},Withdrawals)
+	if err != nil {
+		return nil
+	}
+	return Withdrawals
 }
