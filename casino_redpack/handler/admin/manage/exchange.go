@@ -146,7 +146,7 @@ func WithdrawalsHandle(ctx *modules.Context)  {
 	}
 	ctx.HTML(200, "admin/block/withdrawals/index")
 }
-
+//后台申请提现方法
 func WithdrawalsOperationHandle(ctx *modules.Context){
 	Types := ctx.Query("types")
 	Id := ctx.QueryInt("id")
@@ -162,19 +162,25 @@ func WithdrawalsOperationHandle(ctx *modules.Context){
 		if val == nil{
 			data,_ := json.Marshal(list)
 			ctx.Write([]byte(data))
+			return
 		}
-		//减去用户金币方法
+		//减去用户金币方法 准备
+		weixinModel.GetReady(val)
 		err := val.UpdateStatus(1,ctx.IsLogin().Id)
 		if err != nil {
 			list["msg"] ="修改失败！"
 			data,_ := json.Marshal(list)
 			ctx.Write([]byte(data))
+			return
 		}
+		//结束
+		weixinModel.Implement()
 		list["msg"] ="修改成功！"
 		list["code"] = 1
 		list["massage"] = "success"
 		data,_ := json.Marshal(list)
 		ctx.Write([]byte(data))
+		return
 	case "no":
 		fmt.Println("no" )
 		val := weixinModel.GetWithdrawalsId(int32(Id))
@@ -182,38 +188,45 @@ func WithdrawalsOperationHandle(ctx *modules.Context){
 			data,_ := json.Marshal(list)
 			ctx.Write([]byte(data))
 		}
+
 		err := val.UpdateStatus(2,ctx.IsLogin().Id)
 		if err != nil {
 			list["msg"] ="修改失败！"
 			data,_ := json.Marshal(list)
 			ctx.Write([]byte(data))
+			return
 		}
 		list["msg"] ="修改成功！"
 		list["code"] = 1
 		list["massage"] = "success"
 		data,_ := json.Marshal(list)
 		ctx.Write([]byte(data))
+		return
 	case "del":
 		val := weixinModel.GetWithdrawalsId(int32(Id))
 		if val == nil{
 			data,_ := json.Marshal(list)
 			ctx.Write([]byte(data))
+			return
 		}
 		err := val.Delete(1,ctx.IsLogin().Id)
 		if err != nil {
 			list["msg"] ="删除失败！"
 			data,_ := json.Marshal(list)
 			ctx.Write([]byte(data))
+			return
 		}
 		list["msg"] ="删除成功！"
 		list["code"] = 1
 		list["massage"] = "success"
 		data,_ := json.Marshal(list)
 		ctx.Write([]byte(data))
+		return
 	default:
 		list["msg"] =fmt.Sprint("意料之外的参数[types:%d]",Types)
 		data,_ := json.Marshal(list)
 		ctx.Write([]byte(data))
+		return
 	}
 
 }
