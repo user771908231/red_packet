@@ -50,10 +50,10 @@ func (desk *Desk) AddUser(user_id uint32, agent gate.Agent) (*User, error) {
 	}
 
 	//是否有空余座位
-	free_site_index,err := desk.GetFreeSiteIndex()
-	if err != nil {
-		return nil, errors.New("该房间人数已满！")
-	}
+	//free_site_index,err := desk.GetFreeSiteIndex()
+	//if err != nil {
+	//	return nil, errors.New("该房间人数已满！")
+	//}
 
 	//是否允许中途加入
 	if !desk.GetIsCoinRoom() && desk.DeskOption.GetDenyHalfJoin() && desk.GetIsStart() {
@@ -76,7 +76,7 @@ func (desk *Desk) AddUser(user_id uint32, agent gate.Agent) (*User, error) {
 				Score: proto.Int64(0),
 			},
 			IsOnline: proto.Bool(true),
-			Index: proto.Int32(int32(free_site_index)),
+			Index: proto.Int32(-1),
 			BankerScore: proto.Int64(0),
 			IsReady: proto.Bool(false),
 			LastScore: proto.Int64(0),
@@ -94,6 +94,7 @@ func (desk *Desk) AddUser(user_id uint32, agent gate.Agent) (*User, error) {
 			Mai7Lost: proto.Int64(0),
 			Mai8Lost: proto.Int64(0),
 			YazhuDetail: &ddproto.LwyYazhuDetail{
+				UserId: proto.Uint32(user_id),
 				Mai7: proto.Int64(0),
 				Mai8: proto.Int64(0),
 				Chi7: proto.Int64(0),
@@ -197,8 +198,10 @@ func (desk *Desk) GetUserRankByBill() []*User {
 
 //获取可吃的用户
 func (user *User) GetCanChiYours() (list []*User) {
-	owner,_ := user.Desk.GetUserByUid(user.Desk.GetOwner())
-	list = append(list, owner)
+	if !user.IsBanker() {
+		banker,_ := user.Desk.GetUserByUid(user.Desk.GetCurrBanker())
+		list = append(list, banker)
+	}
 	for _,u := range user.Users {
 		if u == nil || !u.GetIsOnGamming() || u.IsOwner() || u.GetUserId() == user.GetUserId() {
 			continue
@@ -307,12 +310,23 @@ func (desk *Desk) GetClientDesk() *ddproto.LwyClientDesk {
 		IsCoinRoom: proto.Bool(desk.GetIsCoinRoom()),
 		IsOnGamming: proto.Bool(desk.GetIsOnGamming()),
 		SurplusTime: proto.Int32(1),
+		Mai7: proto.Int64(0),
+		Mai8: proto.Int64(0),
 	}
 
 	//投票剩余时间
 	if desk.GetIsOnDissolve() && desk.GetDissolveTime() > 0 {
 		last_time := time.Now().Unix() - desk.GetDissolveTime()
 		client_desk.DissolveTime = proto.Int32(int32(last_time))
+	}
+
+	//卖7 卖8
+	for _,u := range desk.Users {
+		if u == nil || !u.GetIsOnGamming() {
+			continue
+		}
+		*client_desk.Mai7 += u.YazhuDetail.GetMai7()
+		*client_desk.Mai8 += u.YazhuDetail.GetMai8()
 	}
 
 	return client_desk
