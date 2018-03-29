@@ -173,7 +173,7 @@ func PayWapPayHandler(ctx *modules.Context) {
 	ctx.Data["p5_notifyurl"] = "http://" + ctx.Req.Host + PAYWAP_URL_NOTIFY
 	ctx.Data["p6_ordertime"] = getOrderTime()
 	ctx.Data["p14_customname"] = p14_customname //终端客户
-	ctx.Data["p17_customip"] = "192_168_0_253"  //提交ip 需改为自动获取
+	ctx.Data["p17_customip"] = strings.Replace(ctx.RemoteAddr(), ".", "_", 3)  //用户真实ip
 	ctx.Data["p25_terminal"] = "2"
 	ctx.Data["p26_iswappay"] = "3"
 	mixSignString := fmt.Sprintf("%s&%s&%s&%s&%s&%s%s", ctx.Data["p1_usercode"], ctx.Data["p2_order"], ctx.Data["p3_money"], ctx.Data["p4_returnurl"], ctx.Data["p5_notifyurl"], ctx.Data["p6_ordertime"], PAYWAP_COMPKEY)
