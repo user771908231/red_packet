@@ -18,6 +18,9 @@ import (
 	"casino_common/common/consts/tableName"
 	"gopkg.in/mgo.v2/bson"
 	"casino_redpack/model/userModel"
+	"casino_common/common/Error"
+	"github.com/golang/protobuf/proto"
+	"casino_common/common/model/wxpayDao"
 )
 
 ////旺实富支付接口相关方法
@@ -335,21 +338,23 @@ func PayWapNotifyHandler(ctx *modules.Context) {
 
 	//异步回调不需要返回页面
 	//todo 增加货币
-	err := service.DoAsynCb(p2_order, numUtils.String2Float64(p3_money))
+	//err := service.DoAsynCb(p2_order, numUtils.String2Float64(p3_money))
+	err := GenerateOtder(p2_order, numUtils.String2Float64(p3_money))
 	if err == nil {
 		log.T("支付回调成功[%v:%v]！", p2_order, p3_money)
-		//根据id获取用户
-		user := userModel.GetUserById(ctx.IsLogin().Id)
-		err := user.CapitalUplete("+",numUtils.String2Float64(p3_money))
-		if err != nil {
-			//记录充值订单
-			err := NewOrder(ctx.IsLogin().Id,p2_order, numUtils.String2Float64(p3_money))
-			if err == nil {
-				ctx.Write([]byte("success"))
-			}
-			ctx.Error("回调 code:-5", "", 0)
-		}
-
+		////根据id获取用户
+		//user := userModel.GetUserById(ctx.IsLogin().Id)
+		//err := user.CapitalUplete("+",numUtils.String2Float64(p3_money))
+		//if err != nil {
+		//	//记录充值订单
+		//	err := NewOrder(ctx.IsLogin().Id,p2_order, numUtils.String2Float64(p3_money))
+		//	if err == nil {
+		//
+		//	}
+		//	ctx.Error("回调 code:-5", "", 0)
+		//
+		//}
+		ctx.Write([]byte("success"))
 	}else {
 		log.E("支付回调失败[%v:%v] err:%v！", p2_order, p3_money, err)
 		ctx.Error("回调 code:-5", "", 0)
@@ -389,5 +394,45 @@ func NewOrder(userid uint32,OrderNumber string,numerical float64) error{
 		return nil
 	}
 	return errors.New("生成订单支付记录失败")
+}
+//生成订单信息
+func  GenerateOtder(OrderNumber string,total_fee float64) error{
+	detail := service.GetDetailsByTradeNo(OrderNumber)
+	if detail == nil {
+		msg := fmt.Sprintf("没有在数据中找到订单号[%v]对应的套餐..", OrderNumber)
+		log.E(msg)
+		return errors.New(msg)
+	}
+
+	//判断是否是重复回调
+	if detail.GetStatus() == ddproto.PayEnumTradeStatus_PAY_S_SUCC {
+		log.E("tradeNo[%v]重复回调", OrderNumber)
+		return nil
+	}
+
+	log.T("更新订单[%v]的回调信息，detail[%v]", OrderNumber, detail)
+
+	//找到套餐
+	meal := service.GetMealById(detail.GetProductId())
+	User := userModel.GetUserById(detail.GetUserId())
+	if User == nil {
+		msg := fmt.Sprintf("没有在数据中找到用户ID：【%d】..", detail.GetUserId())
+		log.E(msg)
+		return errors.New(msg)
+	}
+	User.CapitalUplete("+",float64(meal.Amount))
+	//更新订单状态
+	service.UpdateDetailsStatus(OrderNumber, ddproto.PayEnumTradeStatus_PAY_S_SUCC)
+	//保存订单到数据库...
+	log.T("微信支付成功，为用户%d充值%d钻石。", detail.GetUserId(), int64(meal.Amount))
+
+	go func() {
+		defer Error.ErrorRecovery("UpdateUserByMeal wxpayDao.UpsertDetail")
+		detail.Status = ddproto.PayEnumTradeStatus_PAY_S_SUCC.Enum()
+		detail.Money = proto.Float64(total_fee)
+		wxpayDao.UpsertDetail(detail) //保存到数据库
+		//DelDetails(tradeNo)           //保存到数据库之后删除//	app收到回复之后再删除
+	}()
+	return nil
 }
 

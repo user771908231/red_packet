@@ -31,7 +31,7 @@ func GetMemberInfo(ctx *modules.Context) {
 	}
 }`
 
-	res = fmt.Sprintf(res, user_info.Id, user_info.NickName, user_info.NickName, user_info.HeadUrl, user_info.Capital)
+	res = fmt.Sprintf(res, user_info.Id, user_info.NickName, user_info.NickName, user_info.HeadUrl, user_info.Coin)
 	ctx.Write([]byte(res))
 	return
 }

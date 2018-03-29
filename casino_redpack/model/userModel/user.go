@@ -15,41 +15,41 @@ import (
 const USER_TABLE_NAME string = "t_redpack_user"
 
 type User struct {
-	Id       uint32
-	Level    int32
-	NickName string
-	HeadUrl  string
-	OpenId   string
-	UnionId  string
-	PassWd   string
-	SignUpTime	time.Time
-	Capital	 float64 //资产
+	Id         uint32
+	Level      int32
+	NickName   string
+	HeadUrl    string
+	OpenId     string
+	UnionId    string
+	PassWd     string
+	SignUpTime time.Time
+	Coin       float64 //金币
 }
 
 func (User *User) CapitalUplete(action string ,munber float64) error{
 	if action == "-" {
-		User.Capital = User.Capital - munber
+		User.Coin = User.Coin - munber
 		err := NextReturn(User)
 		if err != nil{
 			return err
 		}
 		return nil
 	}else if action == "+" {
-		User.Capital = User.Capital + munber
+		User.Coin = User.Coin + munber
 		err := NextReturn(User)
 		if err != nil{
 			return err
 		}
 		return nil
 	}else if action == "/" {
-		User.Capital = User.Capital / munber
+		User.Coin = User.Coin / munber
 		err := NextReturn(User)
 		if err != nil{
 			return err
 		}
 		return nil
 	}else if action == "*" {
-		User.Capital = User.Capital * munber
+		User.Coin = User.Coin * munber
 		err := NextReturn(User)
 		if err != nil{
 			return err
