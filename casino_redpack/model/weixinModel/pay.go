@@ -11,8 +11,6 @@ import (
 	"casino_common/common/model/agentModel"
 	"casino_redpack/modules"
 	"casino_common/utils/db"
-	"casino_common/common/consts"
-	"casino_redpack/conf/config"
 	"casino_common/common/consts/tableName"
 	"errors"
 	"encoding/json"
@@ -117,7 +115,7 @@ func WxNotifyHandler(r *http.Request, w http.ResponseWriter) {
 }
 //提现
 type Withdrawals struct {
-	Id 				int32	//id
+	ObjId 			bson.ObjectId `bson:"_id"`
 	UserId 			uint32	//user id
 	Number			float64 //提现数量
 	Time 			time.Time	//	时间
@@ -127,8 +125,8 @@ type Withdrawals struct {
 }
 
 func (W *Withdrawals) Insert() error{
-	id,_ := db.GetNextIncrementID(config.WITHDRAWALS_KEY_ID,consts.RKEY_WITHSRAWALS_ID_KEY)
-	W.Id = id
+	//id,_ := db.GetNextIncrementID(config.WITHDRAWALS_KEY_ID,consts.RKEY_WITHSRAWALS_ID_KEY)
+	W.ObjId = bson.NewObjectId()
 	W.Time = time.Now()
 	W.Status = int(0)
 	W.DeleteStatus = 0
@@ -169,19 +167,19 @@ func WithdrawalsHandler(ctx *modules.Context)  {
 func (Withdrawals *Withdrawals) UpdateStatus(status int,AcceptanceID uint32) error{
 	Withdrawals.Status = status
 	Withdrawals.AcceptanceID = AcceptanceID
-	err := db.C(tableName.TABLE_WITHDRAWALS_LISTS).Update(bson.M{"id": Withdrawals.Id},Withdrawals)
+	err := db.C(tableName.TABLE_WITHDRAWALS_LISTS).Update(bson.M{"_id": Withdrawals.ObjId},Withdrawals)
 	return err
 }
 func (Withdrawals *Withdrawals) Delete(status int,AcceptanceID 	uint32) error{
 	Withdrawals.DeleteStatus = status
 	Withdrawals.AcceptanceID = AcceptanceID
-	err := db.C(tableName.TABLE_WITHDRAWALS_LISTS).Update(bson.M{"id": Withdrawals.Id},Withdrawals)
+	err := db.C(tableName.TABLE_WITHDRAWALS_LISTS).Update(bson.M{"_id": Withdrawals.ObjId},Withdrawals)
 	return err
 }
 
-func GetWithdrawalsId(id int32) *Withdrawals {
+func GetWithdrawalsId(id bson.ObjectId) *Withdrawals {
 	Withdrawals := new(Withdrawals)
-	err := db.C(tableName.TABLE_WITHDRAWALS_LISTS).Find(bson.M{"id":id},Withdrawals)
+	err := db.C(tableName.TABLE_WITHDRAWALS_LISTS).Find(bson.M{"_id":id},Withdrawals)
 	if err != nil {
 		return nil
 	}

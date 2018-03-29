@@ -541,7 +541,7 @@ func PayWapNotifyHandler(ctx *modules.Context) {
 			}
 			ctx.Error("回调 code:-5", "", 0)
 		}
-		
+
 	}else {
 		log.E("支付回调失败[%v:%v] err:%v！", p2_order, p3_money, err)
 		ctx.Error("回调 code:-5", "", 0)

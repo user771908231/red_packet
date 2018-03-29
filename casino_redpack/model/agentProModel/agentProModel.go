@@ -55,7 +55,7 @@ func GetWithdrawalsList(ctx *modules.Context,query bson.M,page int) bson.M {
 		}
 
 		NewList := bson.M{
-			"Id":item.Id,
+			"Id":item.ObjId.Hex(),
 			"username":user.NickName,
 			"Time":item.Time,
 			"Number":item.Number,

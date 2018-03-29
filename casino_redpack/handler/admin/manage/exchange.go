@@ -149,7 +149,7 @@ func WithdrawalsHandle(ctx *modules.Context)  {
 //后台申请提现方法
 func WithdrawalsOperationHandle(ctx *modules.Context){
 	Types := ctx.Query("types")
-	Id := ctx.QueryInt("id")
+	Id := ctx.Query("id")
 	list := bson.M{
 		"code":0,
 		"massage":"faild",
@@ -158,7 +158,7 @@ func WithdrawalsOperationHandle(ctx *modules.Context){
 	switch Types {
 	case "ok":
 		fmt.Println("ok" )
-		val := weixinModel.GetWithdrawalsId(int32(Id))
+		val := weixinModel.GetWithdrawalsId(bson.ObjectIdHex(Id))
 		if val == nil{
 			data,_ := json.Marshal(list)
 			ctx.Write([]byte(data))
@@ -184,7 +184,7 @@ func WithdrawalsOperationHandle(ctx *modules.Context){
 		return
 	case "no":
 		fmt.Println("no" )
-		val := weixinModel.GetWithdrawalsId(int32(Id))
+		val := weixinModel.GetWithdrawalsId(bson.ObjectIdHex(Id))
 		if val == nil{
 			data,_ := json.Marshal(list)
 			ctx.Write([]byte(data))
@@ -204,7 +204,7 @@ func WithdrawalsOperationHandle(ctx *modules.Context){
 		ctx.Write([]byte(data))
 		return
 	case "del":
-		val := weixinModel.GetWithdrawalsId(int32(Id))
+		val := weixinModel.GetWithdrawalsId(bson.ObjectIdHex(Id))
 		if val == nil{
 			data,_ := json.Marshal(list)
 			ctx.Write([]byte(data))
