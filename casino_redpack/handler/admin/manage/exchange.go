@@ -166,6 +166,7 @@ func WithdrawalsOperationHandle(ctx *modules.Context){
 		}
 		//减去用户金币方法 准备
 		weixinModel.GetReady(val)
+		//修改申请状态
 		err := val.UpdateStatus(1,ctx.IsLogin().Id)
 		if err != nil {
 			list["msg"] ="修改失败！"
