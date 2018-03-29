@@ -93,6 +93,7 @@ func PayWapPaymethodHandler(ctx *modules.Context) {
 	ctx.Data["p2_order"] = order
 
 	//todo money 只保留小数点后两位 若没有小数 也要显示 如 50.00
+	//获取商品价
 	goods_info := goodsRowDao.GetGoodsInfo(int32(comboId))
 	if goods_info == nil {
 		log.E("商品id(%d)不存在!", comboid)
