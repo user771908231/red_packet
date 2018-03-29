@@ -16,6 +16,7 @@ import (
 	"casino_common/common/consts/tableName"
 	"errors"
 	"encoding/json"
+	"casino_redpack/model/userModel"
 )
 
 var (
@@ -185,4 +186,31 @@ func GetWithdrawalsId(id int32) *Withdrawals {
 		return nil
 	}
 	return Withdrawals
+}
+var withdrawals *Withdrawals
+func GetReady(w *Withdrawals) {
+	withdrawals = w
+}
+func GetOver()  {
+	withdrawals = nil
+}
+
+func Implement() error{
+
+	if (withdrawals.AcceptanceID != uint32(0)) && (withdrawals.Status == 1) {
+		User := userModel.GetUserById(withdrawals.UserId)
+		if User != nil {
+			err := User.CapitalUplete("-",withdrawals.Number)
+			if err != nil {
+				GetOver()
+				return err
+			}
+			GetOver()
+			return nil
+		}
+		GetOver()
+		return nil
+	}
+	GetOver()
+	return nil
 }
