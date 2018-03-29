@@ -424,7 +424,7 @@ func  GenerateOtder(OrderNumber string,total_fee float64) error{
 	//更新订单状态
 	service.UpdateDetailsStatus(OrderNumber, ddproto.PayEnumTradeStatus_PAY_S_SUCC)
 	//保存订单到数据库...
-	log.T("微信支付成功，为用户%d充值%d钻石。", detail.GetUserId(), int64(meal.Amount))
+	log.T("微信支付成功，为用户%d充值%d金币。", detail.GetUserId(), int64(meal.Amount))
 
 	go func() {
 		defer Error.ErrorRecovery("UpdateUserByMeal wxpayDao.UpsertDetail")
