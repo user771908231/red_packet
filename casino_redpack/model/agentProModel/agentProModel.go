@@ -29,32 +29,43 @@ func (t *AgentProRecordRow) Insert() error {
 	return db.C(tableName.DBT_APPLY_AGENTPRO_RECORD).Insert(t)
 }
 
-func GetWithdrawalsList(ctx *modules.Context,query bson.M,page int) ([]*weixinModel.Withdrawals,[]*userModel.User) {
+func GetWithdrawalsList(ctx *modules.Context,query bson.M,page int) bson.M {
 
 	Data := []*weixinModel.Withdrawals{}
-	_,count := db.C(tableName.TABLE_WITHDRAWALS_LISTS).Page(query,&Data, "-endtime", page, 20)
+	_,count := db.C(tableName.TABLE_WITHDRAWALS_LISTS).Page(query,&Data, "endtime", page, 20)
 
-	ctx.Data["page"] = bson.M{
+	list := bson.M{
 		"count":      count,
 		"list_count": len(Data),
 		"limit":      20,
 		"page":       page,
 		"page_count": math.Ceil(float64(count) / float64(20)),
+		"data":[]bson.M{},
 	}
-	UserList := []*userModel.User{}
+	listData := []bson.M{}
 	for i,item := range Data {
 		if i == count {
 			continue
 		}
+
 		user := new(userModel.User)
 		err := db.C(userModel.USER_TABLE_NAME).Find(bson.M{"id":item.UserId,},user)
 		if err != nil {
 			fmt.Println("null",err)
 		}
-		UserList = append(UserList,user)
+
+		NewList := bson.M{
+			"Id":item.Id,
+			"username":user.NickName,
+			"Time":item.Time,
+			"Number":item.Number,
+			"Status":item.Status,
+		}
+		listData = append(listData,NewList)
 	}
+	list["data"] = listData
 	//ctx.Data["user"] = UserList
-	return Data,UserList
+	return list
 
 }
 

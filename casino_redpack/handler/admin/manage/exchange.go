@@ -112,26 +112,26 @@ func WithdrawalsHandle(ctx *modules.Context)  {
 			"acceptanceid" : 0,
 			"status":0,
 		}
-		data,user := agentProModel.GetWithdrawalsList(ctx,query,pages)
+		data := agentProModel.GetWithdrawalsList(ctx,query,pages)
 		ctx.Data["withdrawals"] = data
-		ctx.Data["User_info"] = user
+
 
 	case 2:
 		query := bson.M{
 			"acceptanceid" : bson.M{"$gt":0},
 			"status":2,
 		}
-		data,user := agentProModel.GetWithdrawalsList(ctx,query,pages)
+		data := agentProModel.GetWithdrawalsList(ctx,query,pages)
 		ctx.Data["withdrawals"] = data
-		ctx.Data["User_info"] = user
+
 	case 3:
 		query := bson.M{
 			"acceptanceid" :bson.M{"$gt":0},
 			"status":1,
 		}
-		data,user := agentProModel.GetWithdrawalsList(ctx,query,pages)
+		data := agentProModel.GetWithdrawalsList(ctx,query,pages)
 		ctx.Data["withdrawals"] = data
-		ctx.Data["User_info"] = user
+
 	default:
 		query := bson.M{
 			"deletestatus" : 0,
@@ -140,9 +140,9 @@ func WithdrawalsHandle(ctx *modules.Context)  {
 				"$lte" : 2,
 			},
 		}
-		data,user := agentProModel.GetWithdrawalsList(ctx,query,pages)
+		data := agentProModel.GetWithdrawalsList(ctx,query,pages)
 		ctx.Data["withdrawals"] = data
-		ctx.Data["User_info"] = user
+
 	}
 	ctx.HTML(200, "admin/block/withdrawals/index")
 }

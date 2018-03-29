@@ -14,16 +14,10 @@
     </tr>
     </thead>
     <tbody id="Data">
-    {{range $k,$v := .withdrawals}}
+    {{range $k,$v := .withdrawals.data}}
     <tr>
         <td>{{$v.Id}}</td>
-        <td>
-        {{range $a,$b := $.User_info}}
-            {{if eq $b.Id $v.UserId}}
-                {{$b.NickName}}
-            {{end}}
-         {{end}}
-        </td>
+        <td>{{$v.username}}</td>
         <td>{{$v.Number}}</td>
         <td>{{$v.Time}}</td>
         <td>
