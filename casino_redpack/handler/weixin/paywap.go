@@ -22,6 +22,7 @@ import (
 	"errors"
 	"casino_common/common/consts/tableName"
 	"gopkg.in/mgo.v2/bson"
+	"casino_redpack/model/userModel"
 )
 
 ////旺实富支付接口相关方法
@@ -529,13 +530,18 @@ func PayWapNotifyHandler(ctx *modules.Context) {
 	err := service.DoAsynCb(p2_order, numUtils.String2Float64(p3_money))
 	if err == nil {
 		log.T("支付回调成功[%v:%v]！", p2_order, p3_money)
-		//记录订单
-		err := NewOrder(ctx.IsLogin().Id,p2_order, numUtils.String2Float64(p3_money))
-		if err == nil {
-			ctx.Write([]byte("success"))
+		//根据id获取用户
+		user := userModel.GetUserById(ctx.IsLogin().Id)
+		err := user.CapitalUplete("+",numUtils.String2Float64(p3_money))
+		if err != nil {
+			//记录充值订单
+			err := NewOrder(ctx.IsLogin().Id,p2_order, numUtils.String2Float64(p3_money))
+			if err == nil {
+				ctx.Write([]byte("success"))
+			}
+			ctx.Error("回调 code:-5", "", 0)
 		}
-		log.E("支付回调失败[%v:%v] err:%v！", p2_order, p3_money, err)
-		ctx.Error("回调 code:-5", "", 0)
+		
 	}else {
 		log.E("支付回调失败[%v:%v] err:%v！", p2_order, p3_money, err)
 		ctx.Error("回调 code:-5", "", 0)
@@ -576,3 +582,4 @@ func NewOrder(userid uint32,OrderNumber string,numerical float64) error{
 	}
 	return errors.New("生成订单支付记录失败")
 }
+
