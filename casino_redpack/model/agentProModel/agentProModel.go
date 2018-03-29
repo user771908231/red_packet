@@ -81,7 +81,7 @@ func GetOrderLists(query bson.M,page int)  bson.M {
 		list["code"] = 1
 		list["message"] = "success"
 		list["count"] = count
-		list["request"] = Data
+		list["request"] = bson.M{}
 	}
 	return list
 }
