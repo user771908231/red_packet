@@ -17,8 +17,6 @@ import (
 	"net/url"
 	"net/http"
 	"casino_common/utils/db"
-	"casino_redpack/conf/config"
-	"casino_common/common/consts"
 	"errors"
 	"casino_common/common/consts/tableName"
 	"gopkg.in/mgo.v2/bson"
@@ -65,7 +63,7 @@ var p26_iswappay			string		//(5)支付场景固定值 3。必填
 
 //充值订单
 type RechargeOrder struct {
-	Id				int64		//订单ID
+	Id				bson.ObjectId	`bson:"_id"`	//订单ID
 	UserId			uint32		//充值用户ID
 	OrderNumber		string		//订单号
 	OrderMoney		float64		//订单价格
@@ -79,15 +77,11 @@ type RechargeOrder struct {
 
 //插入一个新订单
 func (Order *RechargeOrder) Insert() error{
-	id,err := db.GetNextIncrementID(config.ORDER_KEY_ID,consts.RKEY_ORDER_ID_KEY)
-	if err != nil {
-		return errors.New("获取充值订单id自增键失败！")
-	}
-	Order.Id = int64(id)
+	Order.Id = bson.NewObjectId()
 	Order.OrderTime = time.Now()
 	Order.OrderStatus = int64(0)
 	Order.OrderDeleteStatus = int64(1)
-	err = db.C(tableName.TABLE_ORDER_LISTS).Insert(Order)
+	err := db.C(tableName.TABLE_ORDER_LISTS).Insert(Order)
 	return err
 }
 
