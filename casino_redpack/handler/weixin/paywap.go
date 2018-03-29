@@ -86,19 +86,19 @@ func (Order *RechargeOrder) Insert() error{
 	Order.OrderTime = time.Now()
 	Order.OrderStatus = int64(0)
 	Order.OrderDeleteStatus = int64(1)
-	err = db.C(tableName.TABLE_NAME_OPEN_PACKET_LISTS).Insert(Order)
+	err = db.C(tableName.TABLE_ORDER_LISTS).Insert(Order)
 	return err
 }
 
 //更新订单信息
 func (Order *RechargeOrder) Update() error{
-	err := db.C(tableName.TABLE_NAME_OPEN_PACKET_LISTS).Update(bson.M{"id": Order.Id}, Order)
+	err := db.C(tableName.TABLE_ORDER_LISTS).Update(bson.M{"id": Order.Id}, Order)
 	return err
 }
 //订单删除
 func (Order *RechargeOrder) Delete()  error{
 	Order.OrderDeleteStatus = int64(0)
-	err := db.C(tableName.TABLE_NAME_OPEN_PACKET_LISTS).Update(bson.M{"id": Order.Id}, Order)
+	err := db.C(tableName.TABLE_ORDER_LISTS).Update(bson.M{"id": Order.Id}, Order)
 	return err
 }
 
