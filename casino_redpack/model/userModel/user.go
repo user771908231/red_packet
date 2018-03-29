@@ -23,6 +23,49 @@ type User struct {
 	UnionId  string
 	PassWd   string
 	SignUpTime	time.Time
+	Capital	 float64 //资产
+}
+
+func (User *User) CapitalUplete(action string ,munber float64) error{
+	if action == "-" {
+		User.Capital = User.Capital - munber
+		err := NextReturn(User)
+		if err != nil{
+			return err
+		}
+		return nil
+	}else if action == "+" {
+		User.Capital = User.Capital + munber
+		err := NextReturn(User)
+		if err != nil{
+			return err
+		}
+		return nil
+	}else if action == "/" {
+		User.Capital = User.Capital / munber
+		err := NextReturn(User)
+		if err != nil{
+			return err
+		}
+		return nil
+	}else if action == "*" {
+		User.Capital = User.Capital * munber
+		err := NextReturn(User)
+		if err != nil{
+			return err
+		}
+		return nil
+	}else {
+		return nil
+	}
+}
+
+func NextReturn(User *User)error  {
+	err := db.C(USER_TABLE_NAME).Update(bson.M{"id":User.Id},User)
+	if err != nil {
+		return nil
+	}
+	return errors.New("资产修改成功！")
 }
 
 //通过id获取用户信息
@@ -30,7 +73,7 @@ func GetUserById(id uint32) *User {
 	var err error = nil
 	user_row := new(User)
 	err = db.C(USER_TABLE_NAME).Find(bson.M{
-		"id": 1,
+		"id": id,
 	}, user_row)
 	if err != nil {
 		return user_row
@@ -142,3 +185,5 @@ func (user *User) Save() error {
 	err := db.C(USER_TABLE_NAME).Update(bson.M{"id": user.Id}, user)
 	return err
 }
+
+
