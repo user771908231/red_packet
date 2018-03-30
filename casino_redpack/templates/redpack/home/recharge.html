@@ -186,24 +186,27 @@
         },function(ret){
             console.log(ret);
         });
-        $.get("/weixin/paywap/paymethod?"+'totalFee='+val+'&userid='+user_id,function(data,status){
-            if(status == "success"){
-                var DataObj = eval("("+data+")");//转换为json对象
-                console.log(DataObj);
-                var code = DataObj.request.code;
-                if(code == "0"){
-                    toast.hide();
-                    layer.open({
-                        content: DataObj.request.msg,btn: '我知道了'
-                    });
-                }else {
-                    toast.hide();
-                    //询问框
 
-                    console.log("dddd")
-                }
-            }
-        })
+        window.location = "/weixin/paywap/paymethod?"+'totalFee='+val+'&userid='+user_id
+
+        // $.get("/weixin/paywap/paymethod?"+'totalFee='+val+'&userid='+user_id,function(data,status){
+        //     if(status == "success"){
+        //         var DataObj = eval("("+data+")");//转换为json对象
+        //         console.log(DataObj);
+        //         var code = DataObj.request.code;
+        //         if(code == "0"){
+        //             toast.hide();
+        //             layer.open({
+        //                 content: DataObj.request.msg,btn: '我知道了'
+        //             });
+        //         }else {
+        //             toast.hide();
+        //             //询问框
+        //
+        //             console.log("dddd")
+        //         }
+        //     }
+        // })
 
         // $.get("/home/pay/wxPay?"+'totalFee='+val,function(data,status){
         //     if(status=='success'){
