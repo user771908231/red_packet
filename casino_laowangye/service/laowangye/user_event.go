@@ -686,6 +686,7 @@ func (user *User) DoYaoshaizi() {
 		Header: commonNewPorot.NewHeader(),
 		Type: shaizi_type.Enum(),
 		UserScore: []*ddproto.LwyShaiziResultItem{},
+		ShaiziScore: list,
 	}
 
 	//烂点，则重新摇
