@@ -83,6 +83,30 @@
 				}
 			]
 		},{
+			"title": "物品价格设置",
+			"icon": "fa-sliders",
+			"spread": true,
+			"children": [
+				{
+					"title": "物品全部",
+					"icon": "fa-slider",
+					"href": "/admin/manage/goods?status=0&page=1"
+				},
+				{
+					"title": "正在使用物品",
+					"icon": "fa-slider",
+					"href": "/admin/manage/goods?status=1&page=1"
+				},{
+					"title": "未使用的物品",
+					"icon": "fa-slider",
+					"href": "/admin/manage/goods?status=2&page=1"
+				},{
+					"title": "新增物品",
+					"icon": "fa-slider",
+					"href": "/admin/manage/goods/add"
+				}
+			]
+		},{
 			"title": "代理商申请",
 			"icon": "fa-sliders",
 			"spread": true,
