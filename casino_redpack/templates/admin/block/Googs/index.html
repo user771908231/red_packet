@@ -1,10 +1,58 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>$Title$</title>
-</head>
-<body>
-$END$
-</body>
-</html>
+
+{{template "manage_header" }}
+<form id="form_list" action="" method="get">
+    <input type="hidden" name="page" value="{{.page.page}}">
+</form>
+<table class="layui-table">
+    <thead>
+    <tr>
+        <th>ID</th>
+        <th>名称</th>
+        <th>数量</th>
+        <th>折扣</th>
+        <th>状态</th>
+        <th>操作</th>
+    </tr>
+    </thead>
+    <tbody id="Data">
+    {{if ne .GoogsCoin.count 0}}
+    {{range $k,$v := $.GoogsCoin.data}}
+    <tr>
+        <td>{{$v.Id}}</td>
+        <td>{{$v.username}}</td>
+        <td>{{$v.Number}}</td>
+        <td>{{$v.Discount}}</td>
+        <td>
+            {{if eq $v.Status 0}}
+            <a href='/admin/manage/goods/operation?id={{$v.Id}}&types=ok' class="layui-btn layui-btn-sm agree-btn" type="button">使用</a>
+            {{end}}
+             {{if  eq $v.Status 1}}
+            <a class="layui-btn layui-btn-sm layui-btn-normal agree-btn" href='/admin/manage/goods/operation?id={{$v.Id}}&types=no' type="button">不使用</a>
+              {{end}}
+            <a class="layui-btn layui-btn-sm layui-btn-danger agree-btn" href='/admin/manage/goods/operation?id={{$v.Id}}&types=del' type="button">删除</a>
+        </td>
+    </tr>
+    {{end}}
+    {{end}}
+    </tbody>
+</table>
+<div style="height: 35px;width: 750px;">
+    <div id="view_page"></div>
+</div>
+
+<script>
+    common.bindAjax("click", ".agree-btn", function (e) {
+        e.preventDefault();
+        return window.confirm("是否同意？")
+    }, function (req, res) {
+        var data = eval("("+res+")");
+        if (data.code == 1) {
+            common.msg("提示", data.msg)
+            window.location.reload()
+        }else {
+            common.msg("提示", data.msg)
+        }
+    })
+</script>
+
+{{template "manage_footer" }}
