@@ -10,7 +10,6 @@ import (
 	"casino_common/common/log"
 	"crypto/md5"
 	"encoding/hex"
-	"casino_common/common/model/goodsRowDao"
 	"casino_common/proto/ddproto"
 	"casino_common/utils/numUtils"
 	"casino_common/utils/db"
@@ -21,6 +20,7 @@ import (
 	"casino_common/common/Error"
 	"github.com/golang/protobuf/proto"
 	"casino_common/common/model/wxpayDao"
+	"casino_redpack/model/googsModel"
 )
 
 ////旺实富支付接口相关方法
@@ -73,15 +73,11 @@ func (Order *RechargeOrder) Delete()  error{
 
 //处理客户端提交支付金额 返回选择支付方式的页面
 func PayWapPaymethodHandler(ctx *modules.Context) {
-	return
-	comboid := ctx.Query("comboid")
+	comboid := ctx.Query("totalFee")
 	//todo 根据comboid套餐信息得到money
 	userid := ctx.Query("userid")
-
 	var err error
-	var comboId int = 0
 	var userId int = 0
-	comboId, err = strconv.Atoi(comboid)
 	userId, err = strconv.Atoi(userid)
 	if err != nil {
 		log.E("请求旺实富支付方式页面 参数错误 comboid[%v] userid[%v]", comboid, userid)
@@ -89,14 +85,17 @@ func PayWapPaymethodHandler(ctx *modules.Context) {
 		return
 	}
 
-	//这里生成订单号 传给选择页面展示
-	order := service.GetWxpayTradeNo(1, uint32(userId), int32(comboId), time.Now())
+	//这里生成订单号 传给选择页面展示 新写的
+	//order := googsModel.GetWxpayTradeNo(1, uint32(userId), comboid, time.Now())
+	order := service.GetWxpayTradeNo(1, uint32(userId), int32(userId), time.Now())
 	/**************************请求参数**************************/
 	ctx.Data["p2_order"] = order
-
+	//fmt.Println("id:",comboid,"userid:",userid,comboid,userId,order)
+	//return
 	//todo money 只保留小数点后两位 若没有小数 也要显示 如 50.00
 	//获取商品价
-	goods_info := goodsRowDao.GetGoodsInfo(int32(comboId))
+	goods_info := googsModel.GetGoog(bson.ObjectIdHex(comboid))
+	//goods_info := goodsRowDao.GetGoodsInfo(int32(comboId))
 	if goods_info == nil {
 		log.E("商品id(%d)不存在!", comboid)
 		ctx.Error("参数错误 code:-2", "", 0)
@@ -104,7 +103,7 @@ func PayWapPaymethodHandler(ctx *modules.Context) {
 	}
 
 	//生成充值的明细，此数据是要保存到数据库的
-	_, err = service.NewAndSavePayDetails(uint32(userId), int32(comboId), 1, order, int64(goods_info.Amount))
+	 err = NewAndSavePayDetails(uint32(userId), comboid, int64(1), order, int64(goods_info.Number),goods_info.Price)
 	if err != nil {
 		log.E("订单插入数据库失败！err:%v", err)
 		ctx.Error("参数错误 code:-2", "", 0)
@@ -116,17 +115,17 @@ func PayWapPaymethodHandler(ctx *modules.Context) {
 	ctx.Data["p14_customname"] = userid //终端客户
 
 	//todo 根据套餐信息得到账单名 金币、钻石 and so on
-	bill_name := "钻石"
-	switch goods_info.GoodsType {
-	case ddproto.HallEnumTradeType_TRADE_COIN:
-		bill_name = "金币"
-	case ddproto.HallEnumTradeType_TRADE_DIAMOND:
-		bill_name = "钻石"
-	case ddproto.HallEnumTradeType_PROPS_FANGKA:
-		bill_name = "房卡"
-	default:
-		bill_name = "其他"
-	}
+	bill_name := "金币"
+	//switch goods_info.GoodsType {
+	//case ddproto.HallEnumTradeType_TRADE_COIN:
+	//	bill_name = "金币"
+	//case ddproto.HallEnumTradeType_TRADE_DIAMOND:
+	//	bill_name = "钻石"
+	//case ddproto.HallEnumTradeType_PROPS_FANGKA:
+	//	bill_name = "房卡"
+	//default:
+	//	bill_name = "其他"
+	//}
 	ctx.Data["bill_name"] = bill_name
 	ctx.Data["pay_url"] = "http://" + ctx.Req.Host + PAYWAP_URL_PAY
 
@@ -272,7 +271,7 @@ func PayWapReturnPageHandler(ctx *modules.Context) {
 //下行第二步:旺实富微信支付平台将支付结果传递给 p5_notifyurl(用户在上行过程 中提交的参数),此部分用于通知商户的系统处理业务(包括数据库更新,在系统
 //中为付款人增加虚拟货币等),传递方式为 post。
 func PayWapNotifyHandler(ctx *modules.Context) {
-	return 
+	return
 	paywapIp := ctx.RemoteAddr()
 
 	if paywapIp != PAYWAP_OFFICIALIP1 && paywapIp != PAYWAP_OFFICIALIP2 {
@@ -343,7 +342,7 @@ func PayWapNotifyHandler(ctx *modules.Context) {
 	//异步回调不需要返回页面
 	//todo 增加货币
 	//err := service.DoAsynCb(p2_order, numUtils.String2Float64(p3_money))
-	err := GenerateOtder(p2_order, numUtils.String2Float64(p3_money))
+	err := CheckOrder(p2_order, numUtils.String2Float64(p3_money))
 	if err == nil {
 		log.T("支付回调成功[%v:%v]！", p2_order, p3_money)
 		////根据id获取用户
@@ -375,7 +374,7 @@ func getOrderTime() string {
 func GetOrderId(OrderNumber string) *RechargeOrder{
 	var err error = nil
 	Order_row := new(RechargeOrder)
-	err = db.C(tableName.TABLE_NAME_OPEN_PACKET_LISTS).Find(bson.M{
+	err = db.C(tableName.TABLE_ORDER_LISTS).Find(bson.M{
 		"id": OrderNumber,
 	}, Order_row)
 	if err != nil {
@@ -437,6 +436,66 @@ func  GenerateOtder(OrderNumber string,total_fee float64) error{
 		wxpayDao.UpsertDetail(detail) //保存到数据库
 		//DelDetails(tradeNo)           //保存到数据库之后删除//	app收到回复之后再删除
 	}()
+	return nil
+}
+
+//得到一个支付明细
+func NewAndSavePayDetails(userId uint32, mealId string, payModelId int64, tradeNo string, diamond int64,Price float64)  error{
+	R := new(RechargeOrder)
+	R.UserId = userId
+	R.OrderNumber = tradeNo
+	R.OrderMoney = Price
+	R.OrderType = payModelId
+	R.GoodsNunber = diamond
+	R.OrderGoods = mealId
+	err := R.Insert()
+	if err != nil {
+		return err
+	}
+	return err
+}
+
+func CheckOrder(OrderNumber string,total_fee float64) error{
+	//找到订单信息
+	R := GetOrderId(OrderNumber)
+	if R == nil {
+		msg := fmt.Sprintf("没有在数据中找到订单号[%v]对应的套餐..", OrderNumber)
+		log.E(msg)
+		return errors.New(msg)
+	}
+
+	if R.OrderMoney != total_fee {
+		msg := fmt.Sprintf("订单号[%v]对应的的金额与支付金额不一致[%s]", OrderNumber,total_fee )
+		log.E(msg)
+		return errors.New(msg)
+	}
+
+	//判断是否是重复回调
+	if R.OrderStatus == 1 {
+		log.E("tradeNo[%v]重复回调", OrderNumber)
+		return nil
+	}
+	log.T("更新订单[%v]的回调信息，detail[%v]", OrderNumber, R)
+	//找到套餐
+	G := googsModel.GetGoog(bson.ObjectIdHex(R.OrderGoods))
+	User := userModel.GetUserById(R.UserId)
+	//更新订单状态
+	if User == nil {
+		msg := fmt.Sprintf("没有在数据中找到用户ID：【%d】..", R.UserId)
+		log.E(msg)
+		return errors.New(msg)
+	}
+	User.CapitalUplete("+",float64(G.Number))
+	//更新订单状态
+	R.OrderStatus = int64(1)
+	err := R.Update()
+	if err != nil {
+		User.CapitalUplete("-",float64(G.Number))
+		msg := fmt.Sprintf("更新订单tradeNo[%v]支付状态失败", OrderNumber)
+		log.E(msg)
+		return errors.New(msg)
+	}
+	log.T("微信支付成功，为用户%d充值%d金币。", User.Id, int64(G.Number))
 	return nil
 }
 

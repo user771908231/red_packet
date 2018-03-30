@@ -2,11 +2,13 @@ package redpack
 
 import (
 	"casino_redpack/modules"
+	"casino_redpack/model/googsModel"
 )
 
 //充值
 func RechargeHandler(ctx *modules.Context) {
-
+	data := googsModel.GetGoogs()
+	ctx.Data["Googs"] = data
 	ctx.HTML(200, "redpack/home/recharge")
 }
 //

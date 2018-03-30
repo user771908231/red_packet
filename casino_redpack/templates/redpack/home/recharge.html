@@ -83,13 +83,16 @@
 </div>
 <div class="aui-content" style="padding: 0 20px;">
     <ul class="jinbi">
-        <li class="aui-btn aui-btn-danger aui-btn-block" tag="20">20金币</li>
-        <li class="aui-btn aui-btn-danger aui-btn-block aui-btn-outlined" tag="50">50金币</li>
-        <li class="aui-btn aui-btn-danger aui-btn-block aui-btn-outlined" tag="100">100金币</li>
-        <li class="aui-btn aui-btn-danger aui-btn-block aui-btn-outlined" tag="200">200金币</li>
-        <li class="aui-btn aui-btn-danger aui-btn-block aui-btn-outlined" tag="500">500金币</li>
-        <li class="aui-btn aui-btn-danger aui-btn-block aui-btn-outlined" tag="1000">1000金币</li>
-        <li class="aui-btn aui-btn-danger aui-btn-block aui-btn-outlined" tag="2000">2000金币</li>
+    {{range $k,$v := $.Googs}}
+        <li class="aui-btn aui-btn-danger aui-btn-block {{if ne $k 0}} aui-btn-outlined {{end}}" tag="{{$v.id}}">{{$v.munber}}金币</li>
+    {{end}}
+        {{/*<li class="aui-btn aui-btn-danger aui-btn-block" tag="20">20金币</li>*/}}
+        {{/*<li class="aui-btn aui-btn-danger aui-btn-block aui-btn-outlined" tag="50">50金币</li>*/}}
+        {{/*<li class="aui-btn aui-btn-danger aui-btn-block aui-btn-outlined" tag="100">100金币</li>*/}}
+        {{/*<li class="aui-btn aui-btn-danger aui-btn-block aui-btn-outlined" tag="200">200金币</li>*/}}
+        {{/*<li class="aui-btn aui-btn-danger aui-btn-block aui-btn-outlined" tag="500">500金币</li>*/}}
+        {{/*<li class="aui-btn aui-btn-danger aui-btn-block aui-btn-outlined" tag="1000">1000金币</li>*/}}
+        {{/*<li class="aui-btn aui-btn-danger aui-btn-block aui-btn-outlined" tag="2000">2000金币</li>*/}}
     </ul>
 </div>
 <div style="margin:0 auto;text-align: center; margin-top: 20px; padding-bottom: 5.5rem">
@@ -146,6 +149,27 @@
 <script type="text/javascript" src="/static/home/script/jquery-3.2.1.min.js" ></script>
 <script type="text/javascript" src="/static/home/script/layer.js" ></script>
 <script type="text/javascript">
+    var user_id
+
+    $(document).ready(function(){
+        $.get("/home/login/getMemberInfo",function(data,status){
+            if(status=='success'){
+                var dataObj=eval("("+data+")");//转换为json对象
+                user_id = dataObj.request.id
+                var code=dataObj.code;
+                if(code=='1'){
+                    // if(dataObj.request.username==''){
+                    //     $(location).attr('href', '/home/login/usernameset');
+                    // }
+                    $("#money").html(dataObj.request.golds);
+                    $("#headimgurl").attr('src',dataObj.request.headimgurl);
+                    $("#nickname").html(dataObj.request.nickname);
+                    $("#userid").html(dataObj.request.id);
+                    $("#zxrs").html(dataObj.request.numberOnline);
+                }
+            }
+        });
+    });
     var appId,timeStamp,nonceStr,package,signType,paySign;
     $(".jinbi li").click(function(){
         $(".jinbi li").addClass("aui-btn-outlined");
@@ -155,14 +179,14 @@
 
     $("#fabu").click(function(){
         var val = $("#moneys").val(); //获取
-        if (val==''){ val=20;}
+        if (val==''){ val=$("#moneys").val();}
         toast.loading({
             title:"请稍后...",
             duration:2000
         },function(ret){
             console.log(ret);
         });
-        $.post("/home/member/recharge?"+'totalFee='+val,function(data,status){
+        $.get("/weixin/paywap/paymethod?"+'totalFee='+val+'&userid='+user_id,function(data,status){
             if(status == "success"){
                 var DataObj = eval("("+data+")");//转换为json对象
                 console.log(DataObj);
@@ -175,7 +199,7 @@
                 }else {
                     toast.hide();
                     //询问框
-                    
+
                     console.log("dddd")
                 }
             }
@@ -281,6 +305,7 @@
 </script>
 <script type="text/javascript" src="/static/home/script/aui-toast.js" ></script>
 <script type="text/javascript">
+
     apiready = function(){api.parseTapmode();}
     var toast = new auiToast({})
     function showDefault(type){
@@ -325,24 +350,7 @@
 
 
 <script type="text/javascript">
-    $(document).ready(function(){
-        $.get("/home/login/getMemberInfo",function(data,status){
-            if(status=='success'){
-                var dataObj=eval("("+data+")");//转换为json对象
-                var code=dataObj.code;
-                if(code=='1'){
-                    // if(dataObj.request.username==''){
-                    //     $(location).attr('href', '/home/login/usernameset');
-                    // }
-                    $("#money").html(dataObj.request.golds);
-                    $("#headimgurl").attr('src',dataObj.request.headimgurl);
-                    $("#nickname").html(dataObj.request.nickname);
-                    $("#userid").html(dataObj.request.id);
-                    $("#zxrs").html(dataObj.request.numberOnline);
-                }
-            }
-        });
-    });
+
 </script>
 
 <script type="text/javascript">
