@@ -14,6 +14,7 @@ import (
 	"casino_redpack/model/redModel"
 	"casino_redpack/handler/pay"
 	"casino_redpack/handler/admin/manage"
+	"casino_redpack/handler/admin/gooods"
 )
 
 //注册路由
@@ -114,6 +115,10 @@ func Regist(m *macaron.Macaron) {
 				m.Group("/Withdrawals", func() {
 					m.Get("/",manage.WithdrawalsHandle)
 					m.Get("/operation",manage.WithdrawalsOperationHandle)
+				})
+
+				m.Group("/gooods", func() {
+					m.Get("/",goods.IndexHandler)
 				})
 
 				m.Get("/postal",manage.PostalHandle)

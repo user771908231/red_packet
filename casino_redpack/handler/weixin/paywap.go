@@ -73,9 +73,11 @@ func (Order *RechargeOrder) Delete()  error{
 
 //处理客户端提交支付金额 返回选择支付方式的页面
 func PayWapPaymethodHandler(ctx *modules.Context) {
+	return
 	comboid := ctx.Query("comboid")
 	//todo 根据comboid套餐信息得到money
 	userid := ctx.Query("userid")
+
 	var err error
 	var comboId int = 0
 	var userId int = 0
@@ -93,6 +95,7 @@ func PayWapPaymethodHandler(ctx *modules.Context) {
 	ctx.Data["p2_order"] = order
 
 	//todo money 只保留小数点后两位 若没有小数 也要显示 如 50.00
+	//获取商品价
 	goods_info := goodsRowDao.GetGoodsInfo(int32(comboId))
 	if goods_info == nil {
 		log.E("商品id(%d)不存在!", comboid)
@@ -269,6 +272,7 @@ func PayWapReturnPageHandler(ctx *modules.Context) {
 //下行第二步:旺实富微信支付平台将支付结果传递给 p5_notifyurl(用户在上行过程 中提交的参数),此部分用于通知商户的系统处理业务(包括数据库更新,在系统
 //中为付款人增加虚拟货币等),传递方式为 post。
 func PayWapNotifyHandler(ctx *modules.Context) {
+	return 
 	paywapIp := ctx.RemoteAddr()
 
 	if paywapIp != PAYWAP_OFFICIALIP1 && paywapIp != PAYWAP_OFFICIALIP2 {
