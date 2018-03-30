@@ -59,7 +59,7 @@ func (u *User) DoSiteDown() {
 			desk.CurrBanker = proto.Uint32(u.GetUserId())
 		}
 		//同步代开状态
-		roomAgent.DoAddUser(desk.GetDaikaiUser(), int32(ddproto.CommonEnumGame_GID_LAOWANGYE), desk.GetDeskId(), u.GetNickName())
+		go roomAgent.DoAddUser(desk.GetDaikaiUser(), int32(ddproto.CommonEnumGame_GID_LAOWANGYE), desk.GetDeskId(), u.GetNickName())
 	}
 
 	//发送入座广播
@@ -394,6 +394,7 @@ func (desk *Desk) DoEnd() error {
 				if u != nil {
 					*u.BankerScore = 0
 					u.YazhuDetail = &ddproto.LwyYazhuDetail{
+						UserId: proto.Uint32(u.GetUserId()),
 						Mai7: proto.Int64(0),
 						Mai8: proto.Int64(0),
 						Chi7: proto.Int64(0),
@@ -563,9 +564,11 @@ func (user *User) DoYazhu(yazhuType ddproto.LwyYazhuType, yazhuScore int64) erro
 	case ddproto.LwyYazhuType_LWY_MAI_7:
 		//卖7
 		*user.YazhuDetail.Mai7 += yazhuScore
+		*user.Mai7Lost += yazhuScore
 	case ddproto.LwyYazhuType_LWY_MAI_8:
 		//卖8
 		*user.YazhuDetail.Mai8 += yazhuScore
+		*user.Mai8Lost += yazhuScore
 	case ddproto.LwyYazhuType_LWY_CHI_7:
 		//开始吃7
 		for _,u := range user.GetCanChiYours() {
@@ -642,9 +645,11 @@ func (user *User) DoYazhu(yazhuType ddproto.LwyYazhuType, yazhuScore int64) erro
 		}
 	}
 
-	if ex_chi_score == 0 {
-		user.SendYazhuAck(-7, "没有分可吃了！")
-		return nil
+	if yazhuType == ddproto.LwyYazhuType_LWY_CHI_7 || yazhuType == ddproto.LwyYazhuType_LWY_CHI_8 {
+		if ex_chi_score == 0 {
+			user.SendYazhuAck(-7, "没有分可吃了！")
+			return nil
+		}
 	}
 
 	//押注广播出去
@@ -658,8 +663,6 @@ func (user *User) DoYaoshaizi() {
 		user.SendYaoshaiziAck(-2, "当前牌桌不在摇色子状态！")
 		return
 	}
-	//更改状态为等待准备
-	user.Desk.Status = ddproto.LwyEnumDeskStatus_LWY_DESK_STATUS_WAIT_RESULT.Enum()
 
 	if !user.IsOwner() {
 		user.SendYaoshaiziAck(-3, "您不是房主，无法摇色子！")
@@ -683,6 +686,7 @@ func (user *User) DoYaoshaizi() {
 		Header: commonNewPorot.NewHeader(),
 		Type: shaizi_type.Enum(),
 		UserScore: []*ddproto.LwyShaiziResultItem{},
+		ShaiziScore: list,
 	}
 
 	//烂点，则重新摇
@@ -694,6 +698,9 @@ func (user *User) DoYaoshaizi() {
 		user.DoYaoshaizi()
 		return
 	}
+
+	//更改状态为等待准备
+	user.Desk.Status = ddproto.LwyEnumDeskStatus_LWY_DESK_STATUS_WAIT_RESULT.Enum()
 
 	//开始算分
 	user_map :=  map[uint32]int64{}
