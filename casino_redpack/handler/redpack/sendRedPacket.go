@@ -101,7 +101,7 @@ func JoinWurenRedPacketHandler(ctx *modules.Context) {
 //炸弹接龙发红包
 func SendZhadanRedPacketHandler(ctx *modules.Context) {
 	res_code := 0
-	res_msg := "金币不足，最低需要10金币。"
+	res_msg := "金币不足，最低需要14金币。"
 
 	defer func() {
 		data := fmt.Sprintf(`{
@@ -120,6 +120,10 @@ func SendZhadanRedPacketHandler(ctx *modules.Context) {
 	if user_info == nil {
 		res_msg = "清先登录！"
 		return
+	}
+	//检查用户金币数
+	if user_info.Coin < float64(14) {
+		return 
 	}
 
 	req_type := ctx.QueryInt("type")
