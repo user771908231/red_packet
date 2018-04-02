@@ -47,24 +47,51 @@ func SendWurenRedPacketHandler(ctx *modules.Context) {
 
 //五人对战：加入红包对战
 func JoinWurenRedPacketHandler(ctx *modules.Context) {
+	redId := ctx.QueryInt("redId")
+	fmt.Println(redId)
+	lists := redModel.GetPacketDetails(int32(redId))
+	//res := bson.M{
+	//	"code": 1,
+	//	"message": "success",
+	//	"request": bson.M{
+	//		"msg": "加入成功！",
+	//		"redInfo": bson.M{
+	//			"nickname": "郑细弟",
+	//			"headimgurl": "http://wx.qlogo.cn/mmopen/ajNVdqHZLLDR9YkFYEz0XhumSbNtrpn98PlbDp7K87CxAGYMhkRwV6LEiaYPNRftBoktV2yXTQlodYEUA7SpZkg/0",
+	//			"money": 10,
+	//			"all_membey": 5,
+	//			"has_member": 5,
+	//		},
+	//		"redItemList": []bson.M{
+	//			bson.M{
+	//				"headimgurl": "http://wx.qlogo.cn/mmopen/ajNVdqHZLLDR9YkFYEz0XhumSbNtrpn98PlbDp7K87CxAGYMhkRwV6LEiaYPNRftBoktV2yXTQlodYEUA7SpZkg/0",
+	//			},
+	//		},
+	//	},
+	//}
 	res := bson.M{
-		"code": 1,
-		"message": "success",
-		"request": bson.M{
+		"code": 0,
+		"message": "faid",
+		"request":bson.M{},
+	}
+	if lists != nil {
+		res["code"] = 1
+		res["message"] = "success"
+		res["request"] = bson.M{
 			"msg": "加入成功！",
 			"redInfo": bson.M{
-				"nickname": "郑细弟",
-				"headimgurl": "http://wx.qlogo.cn/mmopen/ajNVdqHZLLDR9YkFYEz0XhumSbNtrpn98PlbDp7K87CxAGYMhkRwV6LEiaYPNRftBoktV2yXTQlodYEUA7SpZkg/0",
-				"money": 10,
-				"all_membey": 5,
-				"has_member": 5,
+				"nickname": lists.CreatorName,
+				"headimgurl": lists.CreatorHead,
+				"money": lists.Money,
+				"all_membey": lists.Piece,
+				"has_member": len(lists.OpenRecord),
 			},
 			"redItemList": []bson.M{
 				bson.M{
 					"headimgurl": "http://wx.qlogo.cn/mmopen/ajNVdqHZLLDR9YkFYEz0XhumSbNtrpn98PlbDp7K87CxAGYMhkRwV6LEiaYPNRftBoktV2yXTQlodYEUA7SpZkg/0",
 				},
 			},
-		},
+		}
 	}
 
 	json_str,_ := ctx.JSONString(res)
