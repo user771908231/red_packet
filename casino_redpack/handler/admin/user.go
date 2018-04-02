@@ -128,18 +128,11 @@ type SiginUpTable struct {
 	Captcha string `binding:"Required;Size(4)"`						//验证码
 }
 
-//func (sign SiginTable)Error(ctx *macaron.Context,errs binding.Errors) {
-//	if len(errs) > 0 {
-//		my_ctx := modules.Context{Context:ctx}
-//		my_ctx.Error("注册失败！请检查用户名或密码。","",50)
-//	}
-//}
 
 func SignUpTableValuesHandler(sign SiginUpTable,ctx *modules.Context, VerificationCode *captcha.Captcha) {
 
 	fmt.Println(sign.Captcha)
 	if !VerificationCode.VerifyReq(ctx.Req) {
-		//ctx.Error("验证码错误！", "", 1)
 		ctx.Ajax(500,"验证码错误！",nil)
 		return
 	}
@@ -147,11 +140,8 @@ func SignUpTableValuesHandler(sign SiginUpTable,ctx *modules.Context, Verificati
 	if err == nil && msg == ""{
 		user := userModel.Login(sign.Name,sign.PasswdOne)
 		ctx.Session.Set("user",*user)
-		//ctx.Redirect("/home",302)
 		ctx.Ajax(304,"注册成功！",nil)
-		//ctx.Success("注册成功！", "/home", 5)
 	}else {
-		//ctx.Success(msg, "/admin/sign_up", 10)
 		ctx.Ajax(500,msg,nil)
 	}
 
