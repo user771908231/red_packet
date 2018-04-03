@@ -8,6 +8,9 @@ import (
 	"casino_common/common/log"
 	"time"
 	"encoding/json"
+	"casino_redpack/model/userModel"
+	"math"
+	"errors"
 )
 
 //五人对战：发红包
@@ -139,8 +142,7 @@ func SendZhadanRedPacketHandler(ctx *modules.Context) {
 		//减去用户的金币
 
 	}
-	err := GetUserUplate(user_info,req_money,0)
-	fmt.Println(err)
+	GetUserUplate(user_info,req_money,0)
 	res_code = 1
 	res_msg = fmt.Sprintf("发红包成功！")
 }
@@ -215,7 +217,7 @@ func SaoleiRedOpenRecordAjaxHandler(ctx *modules.Context) {
 	user_info := ctx.IsLogin()
 
 	//开红包
-	open_money := red_info.Open(user_info)
+	bools,open_money := red_info.Open(user_info)
 	open_tail_num := int(open_money * 100)%10
 	//开红包的玩家信息
 	res["request"].(bson.M)["user"] = bson.M{
@@ -238,6 +240,13 @@ func SaoleiRedOpenRecordAjaxHandler(ctx *modules.Context) {
 		"nickname": user_info.NickName,
 		"headimgurl": user_info.HeadUrl,
 	}
+	//判断是否记录过
+	if bools {
+		//判断用户是否中雷
+		JudgeInMine(open_tail_num,red_info.TailNumber,open_money,red_info.Piece,user_info.Id,red_info.CreatorUser)
+
+
+	}
 
 	//开红包记录
 	recore_list := []bson.M{}
@@ -250,7 +259,7 @@ func SaoleiRedOpenRecordAjaxHandler(ctx *modules.Context) {
 			"open_time": item.Time.Unix(),
 			//"open_status": 1,
 			//"winning": 1,
-			"deduct_money": item.Money * 0.03,  //扣除的钱
+			"deduct_money": FloatValue(item.Money * 0.03,2),  //扣除的钱
 			//"if_banker": 0,
 			//"join_money": "14.00",
 			//"win_money": "1.21",
@@ -297,4 +306,75 @@ func GetRedPacketInfoHandler(ctx *modules.Context) {
 
 	json_str,_ := ctx.JSONString(res)
 	ctx.Write([]byte(json_str))
+}
+/*
+open_tail_num 开包的尾数
+tailnumber 发包人设置的尾数
+money		开了多少钱
+number		几人包
+Odds      	赔率
+ThisUserID	当前开包人ID
+SendPacketUserId 	发包人ID
+ */
+func JudgeInMine(open_tail_num int,tailnumber int,money float64,number int,ThisUserID uint32,SendPacketUserId uint32) error{
+	var err error
+	//判断几人包设置赔率
+	//7人包赔率1.6倍，8人包赔率1.4倍，9人包1.2 10人包赔率1倍
+	var Odds float64
+	switch number {
+	case 7:
+		Odds = 1.6
+	case 8:
+		Odds = 1.4
+	case 9:
+		Odds = 1.2
+	case 10:
+		Odds = 1
+	default:
+		Odds = 1
+	}
+
+	//判断用户是否中雷
+	if  open_tail_num == tailnumber {
+		//--中雷---
+		this_user := userModel.GetUserById(ThisUserID)
+		//open_record_multiple = 0.03 //百分之三的扣费率
+		//要给开包玩家的金币数
+		money1 := money - FloatValue(money * 0.03,2)
+		//要给的发包玩家的金币数
+		money0 := FloatValue(money * Odds,2)
+		//因为要赔给发包玩家金币大于开包玩家得到的金币 不做金币加 减去开包玩家的差值金币
+		money2 := money0 - money1
+		err = this_user.CapitalUplete("-",money2)
+		//赔给发红包的玩家
+		money3 := money1 + money2
+		//获取发包人的信息
+		SendUser := userModel.GetUserById(SendPacketUserId)
+		err := SendUser.CapitalUplete("+",money3)
+		return err
+		//---end
+	}else{
+		//--没中雷---
+		//open_record_multiple = 0.03 //百分之三的扣费率
+		this_user := userModel.GetUserById(ThisUserID)
+		if this_user == nil {
+			return errors.New("没有找到此用户！")
+		}
+		money0 := money - FloatValue(money * 0.03,2)
+		err = this_user.CapitalUplete("+",money0)
+		//---end
+		if err != nil {
+			return err
+			log.E("➕操作错误")
+		}
+		return nil
+	}
+	//扣费记录
+	//。。。
+
+}
+
+func FloatValue(f float64,n int) float64 {
+	pow10_n := math.Pow10(n)
+	return math.Trunc((f+0.5/pow10_n)*pow10_n) / pow10_n
 }
