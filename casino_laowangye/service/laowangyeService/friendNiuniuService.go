@@ -35,9 +35,6 @@ func CreateDeskHandler(req *ddproto.LwyCreateDeskReq, agent gate.Agent) *ddproto
 	req.Option.BaseScore = proto.Int64(0)
 	req.Option.IsCoinRoom = proto.Bool(false)
 	req.Option.DenyHalfJoin = proto.Bool(true)
-	if req.Option.GetBoardsCout() < 4 {
-		req.Option.BoardsCout = proto.Int32(10)
-	}
 
 	user, err := laowangye.FindUserById(req.Header.GetUserId())
 	if err == nil {
@@ -360,7 +357,6 @@ func ReconnectProcess(user *laowangye.User) {
 
 //入座
 func SiteDownHandler(req *ddproto.LwySiteDownReq, agent gate.Agent) {
-	return
 	user, err := laowangye.FindUserById(req.Header.GetUserId())
 	if err == nil {
 		user.Desk.ReqLock.Lock()

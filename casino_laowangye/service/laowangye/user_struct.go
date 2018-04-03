@@ -89,6 +89,8 @@ func (user *User) GetClientUser() *ddproto.LwyClientUser {
 		WxInfo: wx_info,
 		BankerScore: user.BankerScore,
 		DissolveState: user.DissolveState,
+		IsOnGamming: user.IsOnGamming,
+		YazhuDetail: user.YazhuDetail,
 	}
 	if user.Desk.GetIsCoinRoom() {
 		client_user.WxInfo.OpenId = proto.String(fmt.Sprintf("%d", user.GetUserId()))

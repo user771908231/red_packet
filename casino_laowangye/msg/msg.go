@@ -46,24 +46,26 @@ func init() {
 	Processor.Register(&ddproto.CommonReqApplyDissolveBack{})  //23 确定、拒绝解散房间请求
 	Processor.Register(&ddproto.CommonAckApplyDissolveBack{})  //24 确定、拒绝解散房间广播
 
-	Processor.Register(&ddproto.LwyOwnerDissolveReq{})  //25 房主解散房间不扣房卡req
-	Processor.Register(&ddproto.LwyOwnerDissolveAck{})  //26 房主解散房间不扣房卡ack
+	Processor.Register(&ddproto.LwyDeskDissolveDoneBc{})  //25 解散成功广播
 
-	Processor.Register(&ddproto.CommonReqMessage{})  //27 聊天请求
-	Processor.Register(&ddproto.CommonBcMessage{})  //28 聊天广播
+	Processor.Register(&ddproto.LwyOwnerDissolveReq{})  //26 房主解散房间不扣房卡req
+	Processor.Register(&ddproto.LwyOwnerDissolveAck{})  //27 房主解散房间不扣房卡ack
 
-	Processor.Register(&ddproto.CommonReqLeaveDesk{})  //29 退出房间req
-	Processor.Register(&ddproto.CommonAckLeaveDesk{})  //30 退出房间ack、bc
+	Processor.Register(&ddproto.CommonReqMessage{})  //28 聊天请求
+	Processor.Register(&ddproto.CommonBcMessage{})  //29 聊天广播
 
-	Processor.Register(&ddproto.LwyOfflineBc{})  //31 离线广播
+	Processor.Register(&ddproto.CommonReqLeaveDesk{})  //30 退出房间req
+	Processor.Register(&ddproto.CommonAckLeaveDesk{})  //31 退出房间ack、bc
 
-	//Processor.Register(&ddproto.CommonReqListCoinInfo{})  //39 金币场牌桌列表req
-	//Processor.Register(&ddproto.CommonAckListCoinInfo{})  //40 金币场牌桌列表ack
+	Processor.Register(&ddproto.LwyOfflineBc{})  //32 离线广播
+
+	//Processor.Register(&ddproto.CommonReqListCoinInfo{})  //33 金币场牌桌列表req
+	//Processor.Register(&ddproto.CommonAckListCoinInfo{})  //34 金币场牌桌列表ack
 	//
-	//Processor.Register(&ddproto.LwyDeskDissolveDoneBc{})  //22 老王爷解散房间广播
+	//Processor.Register(&ddproto.LwyDeskDissolveDoneBc{})  //35 老王爷解散房间广播
 	//
 	//
-	//Processor.Register(&ddproto.LwyCoinRoomListReq{})  //35房间列表req
-	//Processor.Register(&ddproto.LwyCoinRoomListAck{})  //36房间列表ack
+	//Processor.Register(&ddproto.LwyCoinRoomListReq{})  //36房间列表req
+	//Processor.Register(&ddproto.LwyCoinRoomListAck{})  //37房间列表ack
 
 }

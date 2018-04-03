@@ -78,6 +78,14 @@ func (redInfo *Redpack) Upsert() error {
 	}, redInfo)
 }
 
+func (R *Redpack) Find(Id int32) *Redpack{
+	err := db.C(TABLE_NAME_REDPACK_INFO).Find(bson.M{"id":Id},&R)
+	if err != nil {
+		return nil
+	}
+	return R
+}
+
 
 //拆红包
 func (redInfo *Redpack) Open(user *userModel.User) float64 {
@@ -318,5 +326,11 @@ func OpenPacketDetails(Id int32,user_id uint32) []byte{
 		data,_ := json.Marshal(res)
 		return data
 	}
+}
+
+func GetPacketDetails(Id int32) *Redpack {
+	R := new(Redpack)
+	val := R.Find(Id)
+	return val
 }
 

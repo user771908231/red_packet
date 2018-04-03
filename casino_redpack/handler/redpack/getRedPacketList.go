@@ -25,7 +25,7 @@ func GetRedPacketListHandler(ctx *modules.Context) {
 			"type": item.Type,
 			"money": item.Money,
 			"all_membey": item.Piece,
-			"has_member": item.Piece - len(item.OpenRecord),
+			"has_member": len(item.OpenRecord),
 			"tail_number": item.TailNumber,
 			"nickname": item.CreatorName,
 			"headimgurl": item.CreatorHead,

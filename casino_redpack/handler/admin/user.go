@@ -18,22 +18,22 @@ func NeedLogin(level int32) macaron.Handler {
 			ctx.Redirect("/admin/login", 302)
 			return
 		}
-		//user = userModel.GetUserById(uint32(1))
-		//if user == nil {
-		//	fmt.Println("user nil")
-		//	ctx.Redirect("/admin/login", 302)
-		//	return
-		//}
-		//ctx.Data["User"] = user
-		//
-		//if user.Level < level {
-		//	const err_msg = "权限不足，操作失败！"
-		//	if ctx.Req.Method == "POST" {
-		//		ctx.Ajax(-1, err_msg, nil)
-		//	}else {
-		//		ctx.Error(err_msg,"", 0)
-		//	}
-		//}
+		user = userModel.GetUserById(uint32(1))
+		if user == nil {
+			fmt.Println("user nil")
+			ctx.Redirect("/admin/login", 302)
+			return
+		}
+		ctx.Data["User"] = user
+
+		if user.Level < level {
+			const err_msg = "权限不足，操作失败！"
+			if ctx.Req.Method == "POST" {
+				ctx.Ajax(-1, err_msg, nil)
+			}else {
+				ctx.Error(err_msg,"", 0)
+			}
+		}
 	}
 }
 //判断用户登陆 没有登陆直接到home/loginss
@@ -115,7 +115,7 @@ func UserLoginPostHandler(form LoginForm, ctx *modules.Context , VerificationCod
 		ctx.Session.Set("user", *user)
 		ctx.Success("登录成功！", "/home", 1)
 	}else {
-		ctx.Success("登录失败！", "/admin/login", 1)
+		ctx.Success("登录失败！", "/home/login", 1)
 	}
 }
 
@@ -128,18 +128,11 @@ type SiginUpTable struct {
 	Captcha string `binding:"Required;Size(4)"`						//验证码
 }
 
-//func (sign SiginTable)Error(ctx *macaron.Context,errs binding.Errors) {
-//	if len(errs) > 0 {
-//		my_ctx := modules.Context{Context:ctx}
-//		my_ctx.Error("注册失败！请检查用户名或密码。","",50)
-//	}
-//}
 
 func SignUpTableValuesHandler(sign SiginUpTable,ctx *modules.Context, VerificationCode *captcha.Captcha) {
 
 	fmt.Println(sign.Captcha)
 	if !VerificationCode.VerifyReq(ctx.Req) {
-		//ctx.Error("验证码错误！", "", 1)
 		ctx.Ajax(500,"验证码错误！",nil)
 		return
 	}
@@ -147,11 +140,8 @@ func SignUpTableValuesHandler(sign SiginUpTable,ctx *modules.Context, Verificati
 	if err == nil && msg == ""{
 		user := userModel.Login(sign.Name,sign.PasswdOne)
 		ctx.Session.Set("user",*user)
-		//ctx.Redirect("/home",302)
 		ctx.Ajax(304,"注册成功！",nil)
-		//ctx.Success("注册成功！", "/home", 5)
 	}else {
-		//ctx.Success(msg, "/admin/sign_up", 10)
 		ctx.Ajax(500,msg,nil)
 	}
 

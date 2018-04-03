@@ -37,11 +37,11 @@
 
 </head>
 <body>
-<div class="gonggao" style="z-index: 999999">
-    <marquee behavior="scroll" contenteditable="true" onstart="this.firstChild.innerHTML+=this.firstChild.innerHTML;" scrollamount="3" width="100%" onmouseover="this.stop();" onmouseout="this.start();">
-        本游戏仅供测试、仅供娱乐，严禁赌博，如出现赌博行为，将封停账号并向公安机关举报 ！
-    </marquee>
-</div>
+{{/*<div class="gonggao" style="z-index: 999999">*/}}
+    {{/*<marquee behavior="scroll" contenteditable="true" onstart="this.firstChild.innerHTML+=this.firstChild.innerHTML;" scrollamount="3" width="100%" onmouseover="this.stop();" onmouseout="this.start();">*/}}
+        {{/*本游戏仅供测试、仅供娱乐，严禁赌博，如出现赌博行为，将封停账号并向公安机关举报 ！*/}}
+    {{/*</marquee>*/}}
+{{/*</div>*/}}
 <img src="/static/home/image/big-bg.png" style="width: 100%;height: 100%;position: fixed;z-index: -5;">
 
 
@@ -166,11 +166,12 @@
     }
     function add(redId) {
         $("#redIdaa").val(redId);
+        console.log("roomId:",redId)
         miao=60;
         Fen=3;
         stop_djs='0';
         huoqu_kai(redId);
-        setInterval("rentou("+redId+")", 2000);
+        setInterval(rentou(redId), 2000);
     }
     function shuju(){
         $.get("/home/index/getRedPacketList?type=1",function(data,status){
@@ -202,6 +203,7 @@
     shuju();
     setInterval("shuju()", 2000);
     function huoqu_kai(redId) {
+        console.log("huoqu_kai",redId)
         $.get("/home/index/join_red_packet?redId="+redId,function(data,status){
             if(status=='success'){
                 var dataObj=eval("("+data+")");//转换为json对象
