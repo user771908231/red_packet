@@ -105,23 +105,31 @@ func (R *Redpack) Find(Id int32) *Redpack{
 	}
 	return R
 }
-
+func (redInfo *Redpack) IsOpen(user *userModel.User) bool {
+	//是否已经拆过红包了
+	for _,item := range redInfo.OpenRecord {
+		if item.UserId == user.Id {
+			return false
+		}
+	}
+	return true
+}
 
 //拆红包
-func (redInfo *Redpack) Open(user *userModel.User) float64 {
+func (redInfo *Redpack) Open(user *userModel.User) (bool,float64) {
 	//加逻辑锁，保证线程
 	Lock(redInfo.Id)
 	defer UnLock(redInfo.Id)
 
 	//是否还有余额
 	if redInfo.Lost <= 0 || redInfo.Piece <= len(redInfo.OpenRecord) {
-		return 0
+		return false,0
 	}
 
 	//是否已经拆过红包了
 	for _,item := range redInfo.OpenRecord {
 		if item.UserId == user.Id {
-			return item.Money
+			return false,item.Money
 		}
 	}
 
@@ -152,7 +160,7 @@ func (redInfo *Redpack) Open(user *userModel.User) float64 {
 	db.C(TABLE_NAME_OPEN_PACKET_LISTS).Insert(data)
 	redInfo.Upsert()
 
-	return open_money
+	return true,open_money
 }
 
 //拆红包算法(剩余的钱、剩余的人)
