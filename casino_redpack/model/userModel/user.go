@@ -28,29 +28,27 @@ type User struct {
 
 func (User *User) CapitalUplete(action string ,munber float64) error{
 	if action == "-" {
-		User.Coin = User.Coin - munber
-		err := NextReturn(User)
+		err := User.findAndModify(bson.M{"coin": -munber})
 		if err != nil{
 			return err
 		}
 		return nil
 	}else if action == "+" {
-		User.Coin = User.Coin + munber
-		err := NextReturn(User)
+		err := User.findAndModify(bson.M{"coin": munber})
 		if err != nil{
 			return err
 		}
 		return nil
 	}else if action == "/" {
 		User.Coin = User.Coin / munber
-		err := NextReturn(User)
+		err :=  NextReturn(User)
 		if err != nil{
 			return err
 		}
 		return nil
 	}else if action == "*" {
 		User.Coin = User.Coin * munber
-		err := NextReturn(User)
+		err :=  NextReturn(User)
 		if err != nil{
 			return err
 		}
@@ -60,12 +58,28 @@ func (User *User) CapitalUplete(action string ,munber float64) error{
 	}
 }
 
+func(U *User) findAndModify(Update interface{}) error {
+	err := db.C(USER_TABLE_NAME).Update(bson.M{"id":U.Id},bson.M{"$inc": Update } )
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (U *User) Uplate() error {
+	err := db.C(USER_TABLE_NAME).Update(bson.M{"id":U.Id},U)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
 func NextReturn(User *User)error  {
 	err := db.C(USER_TABLE_NAME).Update(bson.M{"id":User.Id},User)
 	if err != nil {
-		return nil
+		return err
 	}
-	return errors.New("资产修改成功！")
+	return nil
 }
 
 //通过id获取用户信息
@@ -76,9 +90,9 @@ func GetUserById(id uint32) *User {
 		"id": id,
 	}, user_row)
 	if err != nil {
-		return user_row
+		return nil
 	}
-	return nil
+	return user_row
 }
 
 //验证密码密码

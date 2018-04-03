@@ -74,6 +74,10 @@ func (Order *RechargeOrder) Delete()  error{
 //处理客户端提交支付金额 返回选择支付方式的页面
 func PayWapPaymethodHandler(ctx *modules.Context) {
 	comboid := ctx.Query("totalFee")
+	//判断错误值 重新赋值
+	if len(comboid) < 14 {
+		comboid = "5abde8b56ca16d4822991b48"
+	}
 	//todo 根据comboid套餐信息得到money
 	userid := ctx.Query("userid")
 	var err error

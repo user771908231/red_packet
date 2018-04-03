@@ -192,7 +192,7 @@
                         $("#item").append('<li onclick="add('+item.id+')" class="aui-list-item aui-list-item-middle">' +
                                 '<div class="aui-media-list-item-inner">' +
                                 '<div class="aui-list-item-media" style="width: 3rem;">' +
-                                '<img src="'+item.headimgurl+'" class="aui-img-round">' +
+                                '<img src="'+item.headimgurl+'" class="aui-img-round" onerror="this.src=\'/static/home/image/noface.png\'">' +
                                 '</div>' +
                                 '<div class="aui-list-item-inner aui-list-item-arrow">' +
                                 '<div class="aui-list-item-text">' +

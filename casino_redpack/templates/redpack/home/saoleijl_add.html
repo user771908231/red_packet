@@ -70,7 +70,16 @@
         <img src="/static/home/image/head-bottom.png">
     </div>
 </div>
-
+<div class="aui-content" style="padding: 0 20px;">
+    <div  style="text-align: center; float: left; width: 100%; font-weight: bold; font-size: larger; ">
+        人数</div>
+    <ul class="jinbi number">
+        <li style="width: 17%" class="aui-btn aui-btn-danger aui-btn-sm aui-btn-block" tag="7">7</li>
+        <li style="width: 17%" class="aui-btn aui-btn-danger aui-btn-sm aui-btn-block aui-btn-outlined" tag="8">8</li>
+        <li style="width: 17%" class="aui-btn aui-btn-danger aui-btn-sm aui-btn-block aui-btn-outlined" tag="9">9</li>
+        <li style="width: 17%" class="aui-btn aui-btn-danger aui-btn-sm aui-btn-block aui-btn-outlined" tag="10">10</li>
+    </ul>
+</div>
 
 <div class="aui-content" style="padding: 0 20px;">
     <ul class="jinbi jj">
@@ -106,7 +115,7 @@
 </div>
 <input name="money" id="moneys" type="hidden" value="10"  />
 <input name="money" id="tailNumber" type="hidden" value="7"  />
-
+<input name="number" id="number" type="hidden" value="7"  />
 
 
 <footer class="aui-bar aui-bar-tab" id="footer" style="background-color: #fff;">
@@ -158,13 +167,19 @@
             $(this).removeClass("aui-btn-outlined");
             $("#tailNumber").val($(this).attr("tag"));
         });
+        $(".number li").click(function(){
+            $(".number li").addClass("aui-btn-outlined");
+            $(this).removeClass("aui-btn-outlined");
+            $("#number").val($(this).attr("tag"));
+        });
 
         $("#fabu").click(function(){
             var money = $("#moneys").val(); //获取
             var tailNumber = $("#tailNumber").val(); //获取
+            var number = $("#number").val(); //获取
             if (money==''){money=10;}
             if (tailNumber==''){tailNumber=7;}
-            $.get("../jlindex/add_red_packet?type=5"+'&money='+money+'&tailNumber='+tailNumber,function(data,status){
+            $.get("../jlindex/add_red_packet?type=5"+'&money='+money+'&tailNumber='+tailNumber+'&nuber='+number,function(data,status){
                 if(status=='success'){
                     var dataObj=eval("("+data+")");//转换为json对象
                     var code=dataObj.request.code;

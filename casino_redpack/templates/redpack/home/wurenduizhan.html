@@ -166,7 +166,6 @@
     }
     function add(redId) {
         $("#redIdaa").val(redId);
-        console.log("roomId:",redId)
         miao=60;
         Fen=3;
         stop_djs='0';
@@ -184,7 +183,7 @@
                         $("#item").append('<li onclick="add('+item.id+')" class="aui-list-item aui-list-item-middle">' +
                                 '<div class="aui-media-list-item-inner">' +
                                 '<div class="aui-list-item-media" style="width: 3rem;">' +
-                                '<img src="'+item.headimgurl+'" class="aui-img-round">' +
+                                '<img src="'+item.headimgurl+'" class="aui-img-round" onerror="this.src=\'/static/home/image/noface.png\'" >' +
                                 '</div>' +
                                 '<div class="aui-list-item-inner aui-list-item-arrow">' +
                                 '<div class="aui-list-item-text">' +
@@ -203,7 +202,6 @@
     shuju();
     setInterval("shuju()", 2000);
     function huoqu_kai(redId) {
-        console.log("huoqu_kai",redId)
         $.get("/home/index/join_red_packet?redId="+redId,function(data,status){
             if(status=='success'){
                 var dataObj=eval("("+data+")");//转换为json对象
@@ -233,7 +231,7 @@
                     $.each(dataObj.request.redItemList,function(i,item){
                         $("#alltx").append('<img src="'+item.headimgurl+'" onerror="this.src=/static/home/image/noface.png">');
                     });
-                    setInterval("djs()",1000);
+                    setInterval(djs(),1000);
                     $("#kaihongbao").show();
                 }
             }
@@ -247,7 +245,7 @@
         if(Fen==2&&miao==40){$.get("/home/Timer/addRobotToGame",function(data,status){});}
         if(Fen==0&&miao==1)//分钟数=0的时候
         {
-            $(location).attr('href', 'kai_ok?redId='+redId);
+            $(location).attr('href', '/home/wurenduizhan/kai_ok?redId='+redId);
         }
         if(Fen>=0&&Fen<=10)//分钟数0~10
         {
