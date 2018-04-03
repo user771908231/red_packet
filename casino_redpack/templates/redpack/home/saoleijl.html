@@ -270,12 +270,14 @@
             }
         })
     }
+    //判断客户端型号
     function tiaozhuan(redId,lq) {
         var u = navigator.userAgent;
         if(!!u.match(/\(i[^;]+;( U;)? CPU.+Mac OS X/)){
             $(location).attr('href', '/home/saoleijl/kai_ok?lq='+lq+'&redId='+redId);
         }else{
-            $(location).attr('href', '/home/saoleijl/kai_okaz?lq='+lq+'&redId='+redId);
+            $(location).attr('href', '/home/saoleijl/kai_ok?lq='+lq+'&redId='+redId);
+            // $(location).attr('href', '/home/saoleijl/kai_okaz?lq='+lq+'&redId='+redId);
         }
     }
 
