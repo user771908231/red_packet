@@ -177,10 +177,10 @@
             //     filename='getGaameRedPacketjlList';
             // }
         }else{
-            var filename='getGaameRedPacketSendList';
-            if(tag=='5'){
-                filename='getGaameRedPacketjlSendList';
-            }
+            var filename='getGaameRedPacketjlSendList';
+            // if(tag=='5'){
+            //     filename='getGaameRedPacketjlSendList';
+            // }
         }
         urls='/home/index/'+filename+'?type='+tag;
         $.get(urls,function(data,status){
@@ -218,14 +218,14 @@
                         }
                         if(fblx=='1'){
                             $("#item").append(
-                                    '<li onclick=look('+leixing+',"'+item.id+'") class="aui-list-view-cell">'+
+                                    '<li onclick=look('+leixing+','+item.id+') class="aui-list-view-cell">'+
                                     '<div class="aui-text-center aui-col-4" style="background-color: #e98731;color: #f5e9e9;">'+leixings+'</div>'+
                                     '<div class="aui-text-center aui-col-4" style="background-color: #e98731;color: #f5e9e9;">' +formatDate(timess,2)+'</div>'+
                                     '<div class="aui-text-center aui-col-4" style="background-color: #e98731;color: #f5e9e9;">'+item.Money+'</div>'+
                                     '<div class="aui-text-center aui-col-4" style="background-color: #e98731;color: #f5e9e9;">'+item.win_money+'</div>'+
                                     '</li>');
                         }else{
-                            $("#item").append('<li onclick=look('+leixing+',"'+item.id+'") class="aui-list-view-cell">'+
+                            $("#item").append('<li onclick=look('+leixing+','+item.id+') class="aui-list-view-cell">'+
                                     '<div class="aui-text-center aui-col-4" style="background-color: #e98731;color: #f5e9e9;">'+leixings+'</div>'+
                                     '<div class="aui-text-center aui-col-4" style="background-color: #e98731;color: #f5e9e9;">' +formatDate(timess,2)+'</div>'+
                                     '<div class="aui-text-center aui-col-4" style="background-color: #e98731;color: #f5e9e9;">'+item.Money+'</div>'+

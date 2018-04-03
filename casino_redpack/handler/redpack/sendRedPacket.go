@@ -29,71 +29,60 @@ func SendWurenRedPacketHandler(ctx *modules.Context) {
 }`, res_code, res_msg)
 		ctx.Write([]byte(data))
 	}()
-
+	user_info := ctx.IsLogin()
 	req_type := redModel.RoomType(ctx.QueryInt("type"))
 	req_money := float64(ctx.QueryInt("money"))
 
-	//switch req_type {
-
-	//}
-
+	if user_info.Coin < req_money {
+		return
+	}
 	//发红包五人
 	room := redModel.GetRoomByType(req_type)
-	room.SendRedpack(ctx.IsLogin(), req_money, 5, 0)
+	room.SendRedpack(user_info, req_money, 5, 0)
+	//减去用户的金币
+	GetUserUplate(user_info,req_money,0)
 
 	res_code = 1
 	res_msg = fmt.Sprintf("发红包成功")
+
+
 }
 
 //五人对战：加入红包对战
 func JoinWurenRedPacketHandler(ctx *modules.Context) {
 	redId := ctx.QueryInt("redId")
-	fmt.Println(redId)
-	lists := redModel.GetPacketDetails(int32(redId))
-	//res := bson.M{
-	//	"code": 1,
-	//	"message": "success",
-	//	"request": bson.M{
-	//		"msg": "加入成功！",
-	//		"redInfo": bson.M{
-	//			"nickname": "郑细弟",
-	//			"headimgurl": "http://wx.qlogo.cn/mmopen/ajNVdqHZLLDR9YkFYEz0XhumSbNtrpn98PlbDp7K87CxAGYMhkRwV6LEiaYPNRftBoktV2yXTQlodYEUA7SpZkg/0",
-	//			"money": 10,
-	//			"all_membey": 5,
-	//			"has_member": 5,
-	//		},
-	//		"redItemList": []bson.M{
-	//			bson.M{
-	//				"headimgurl": "http://wx.qlogo.cn/mmopen/ajNVdqHZLLDR9YkFYEz0XhumSbNtrpn98PlbDp7K87CxAGYMhkRwV6LEiaYPNRftBoktV2yXTQlodYEUA7SpZkg/0",
-	//			},
-	//		},
-	//	},
-	//}
+	user := ctx.IsLogin()
+	lists := redModel.GetRoomByType(redModel.RoomTypeWurenDZ).GetRedpackById(int32(redId))
 	res := bson.M{
 		"code": 0,
 		"message": "faid",
 		"request":bson.M{},
 	}
 	if lists != nil {
+		lists.OpenRecord = append(lists.OpenRecord,&redModel.OpenRecordItem{
+			UserId :user.Id, //领红包的人id
+			NickName:user.HeadUrl,
+		})
+
 		res["code"] = 1
 		res["message"] = "success"
 		res["request"] = bson.M{
 			"msg": "加入成功！",
 			"redInfo": bson.M{
+				"id":lists.Id,
 				"nickname": lists.CreatorName,
 				"headimgurl": lists.CreatorHead,
 				"money": lists.Money,
 				"all_membey": lists.Piece,
-				"has_member": len(lists.OpenRecord),
+				"has_member": len(lists.OpenRecord) + 1,
 			},
 			"redItemList": []bson.M{
 				bson.M{
-					"headimgurl": "http://wx.qlogo.cn/mmopen/ajNVdqHZLLDR9YkFYEz0XhumSbNtrpn98PlbDp7K87CxAGYMhkRwV6LEiaYPNRftBoktV2yXTQlodYEUA7SpZkg/0",
+					"headimgurl": user.HeadUrl,
 				},
 			},
 		}
 	}
-
 	json_str,_ := ctx.JSONString(res)
 	ctx.Write([]byte(json_str))
 }
@@ -123,13 +112,16 @@ func SendZhadanRedPacketHandler(ctx *modules.Context) {
 	}
 	//检查用户金币数
 	if user_info.Coin < float64(14) {
-		return 
+		return
 	}
 
 	req_type := ctx.QueryInt("type")
 	req_money := float64(ctx.QueryInt("money"))
 	req_tailNumber := ctx.QueryInt("tailNumber")
-
+	rep_number := ctx.QueryInt("nuber")
+	if rep_number < 7 {
+		rep_number = 7
+	}
 	switch req_type {
 	case 5:
 		//炸弹接龙（扫雷）
@@ -139,13 +131,16 @@ func SendZhadanRedPacketHandler(ctx *modules.Context) {
 			return
 		}
 
-		_,err := room.SendRedpack(user_info, req_money, 10, req_tailNumber)
+		_,err := room.SendRedpack(user_info, req_money, rep_number, req_tailNumber)
 		if err != nil {
 			res_msg = err.Error()
 			return
 		}
-	}
+		//减去用户的金币
 
+	}
+	err := GetUserUplate(user_info,req_money,0)
+	fmt.Println(err)
 	res_code = 1
 	res_msg = fmt.Sprintf("发红包成功！")
 }
@@ -222,7 +217,6 @@ func SaoleiRedOpenRecordAjaxHandler(ctx *modules.Context) {
 	//开红包
 	open_money := red_info.Open(user_info)
 	open_tail_num := int(open_money * 100)%10
-	fmt.Println("用户开的尾号",open_tail_num)
 	//开红包的玩家信息
 	res["request"].(bson.M)["user"] = bson.M{
 		"id": user_info.Id,
@@ -256,7 +250,7 @@ func SaoleiRedOpenRecordAjaxHandler(ctx *modules.Context) {
 			"open_time": item.Time.Unix(),
 			//"open_status": 1,
 			//"winning": 1,
-			"deduct_money": "0.02",  //扣除的钱
+			"deduct_money": item.Money * 0.03,  //扣除的钱
 			//"if_banker": 0,
 			//"join_money": "14.00",
 			//"win_money": "1.21",
@@ -275,4 +269,32 @@ func SaoleiRedOpenRecordAjaxHandler(ctx *modules.Context) {
 
 
 	res_code = 1
+}
+
+func GetRedPacketInfoHandler(ctx *modules.Context) {
+	redId := ctx.QueryInt("redId")
+	fmt.Println(redId)
+	val := redModel.GetRoomByType(redModel.RoomTypeWurenDZ).GetRedpackById(int32(redId))
+	res := bson.M{
+		"code": 0,
+		"message": "faid",
+		"request":bson.M{},
+	}
+	if val != nil {
+		res["code"] = 1
+		res["message"] = "success"
+		res["request"] = bson.M{
+			"redInfo": bson.M{
+				"id":val.Id,
+				"nickname": val.CreatorName,
+				"headimgurl": val.CreatorHead,
+				"Money": val.Money,
+				"all_membey": val.Piece,
+				"has_member": len(val.OpenRecord) ,
+			},
+		}
+	}
+
+	json_str,_ := ctx.JSONString(res)
+	ctx.Write([]byte(json_str))
 }

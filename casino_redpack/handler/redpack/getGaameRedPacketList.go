@@ -11,11 +11,6 @@ import (
 func GetGaameRedPacketListHandler(ctx *modules.Context) {
 	typeCode := ctx.Query("type")
 	user := ctx.Session.Get("user")
-	//	list := `{
-	//	"code": 1,
-	//	"message": "success",
-	//	"request": []
-	//}`
 	var user_info userModel.User
 	if user != nil {
 		user_info = user.(userModel.User)
@@ -34,7 +29,6 @@ func GetGaameRedPacketListHandler(ctx *modules.Context) {
 		case "5":
 			fmt.Println("typeCode:"+typeCode)
 			redpacketLists := redModel.GetRedPacketRecord(user_info.Id)
-			//Redpack := redModel.GetCreatorNameValues(user_info.Id)
 			if redpacketLists != nil {
 				list := redModel.GetLists(redpacketLists)
 				ctx.Write([]byte(list))
@@ -81,21 +75,18 @@ func User_info (ctx *modules.Context) userModel.User{
 
 }
 func  GetGaameRedPacketjlSendListHandler(ctx *modules.Context)  {
-	typeCode := ctx.Query("type")
-	switch typeCode {
-	case "5":
-		SendLists := redModel.GetPacketSendRecord(User_info(ctx).Id)
-		if SendLists != nil {
-			ctx.Write([]byte(SendLists))
-		}else{
-				list := `{
-				"code": 0,
+	typeCode := ctx.QueryInt("type")
+	fmt.Println(typeCode)
+	SendLists := redModel.GetPacketSendRecord(User_info(ctx).Id,typeCode)
+	if SendLists != nil {
+		ctx.Write([]byte(SendLists))
+	}else{
+		list := `{
+			"code": 0,
 				"message": "success",
-				"request": []
-			}`
-			ctx.Write([]byte(list))
-		}
-
+			"request": []
+		}`
+		ctx.Write([]byte(list))
 	}
 }
 

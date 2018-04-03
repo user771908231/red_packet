@@ -11,6 +11,7 @@ import (
 
 	"casino_common/common/consts/tableName"
 	"fmt"
+	"errors"
 )
 
 //红包详情表
@@ -53,6 +54,25 @@ type OpenPacketlist struct {
 	GameType RoomType//游戏类型
 	CreatorId uint32 //发红包人的ID
 	Tail	int //雷号
+}
+//金币加减记录
+type CoinAddSbtract struct {
+	ObjId  bson.ObjectId `bson:"_id"`
+	UserId uint32 //用户id
+	SendOrOpenPacket int //0 发红包 1 开红包
+	UserCoin float64 //用户总金币
+	AddOrSubtract	float64 //加减的金币
+	Time time.Time
+}
+
+func (C *CoinAddSbtract) Isert() error {
+	C.ObjId = bson.NewObjectId()
+	C.Time = time.Now()
+	err := db.C(tableName.TABLE_COIN_ADD_SUBTRACT_NOTES).Insert(C)
+	if err != nil {
+		return errors.New("插入一条记录失败！")
+	}
+	return nil
 }
 //红包锁
 var redLock sync.Map
@@ -177,7 +197,7 @@ func GetRedPacketRecordRow (Id uint32,RedpackId int32) *OpenPacketlist{
 	err = db.C(TABLE_NAME_OPEN_PACKET_LISTS).Find(bson.M{
 		"userid": Id,
 		"redpackid":RedpackId,
-	}, Redpack)
+	}, &Redpack)
 	if err == nil {
 		return Redpack
 	}
@@ -198,11 +218,12 @@ func GetUserNameValues(Id uint32) *Redpack{
 	return Redpack
 }
 
-func GetPacketSendRecord(Id uint32) []byte {
+func GetPacketSendRecord(Id uint32,Type int) []byte {
 	var err error = nil
 	Redpack := []*Redpack{}
 	err = db.C(TABLE_NAME_REDPACK_INFO).FindAll(bson.M{
 		"creatoruser":Id,
+		"type":Type,
 	},&Redpack)
 	if err == nil {
 		data := redpackListJson(Redpack,Id)
@@ -252,7 +273,7 @@ func getdata(Id int32) *Redpack{
 	Redpack := new(Redpack)
 	err := db.C(TABLE_NAME_REDPACK_INFO).Find(bson.M{
 		"id":Id,
-	},Redpack)
+	},&Redpack)
 	if err != nil {
 		return nil
 	}
@@ -328,9 +349,7 @@ func OpenPacketDetails(Id int32,user_id uint32) []byte{
 	}
 }
 
-func GetPacketDetails(Id int32) *Redpack {
-	R := new(Redpack)
-	val := R.Find(Id)
-	return val
-}
+
+
+
 
