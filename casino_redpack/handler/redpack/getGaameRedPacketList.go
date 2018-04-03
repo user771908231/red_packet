@@ -92,7 +92,7 @@ func  GetGaameRedPacketjlSendListHandler(ctx *modules.Context)  {
 
 func OpenPacketDetailsHandler(ctx *modules.Context)  {
 	user := User_info(ctx)
-	redId := ctx.QueryInt("redId")
+	redId := ctx.QueryInt("redid")
 	Id :=int32(redId)
 	fmt.Println("ID",Id)
 	value := redModel.OpenPacketDetails(Id,user.Id)
