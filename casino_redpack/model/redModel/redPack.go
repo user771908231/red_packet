@@ -12,6 +12,7 @@ import (
 	"casino_common/common/consts/tableName"
 	"fmt"
 	"errors"
+	"math"
 )
 
 //红包详情表
@@ -336,11 +337,29 @@ func OpenPacketDetails(Id int32,user_id uint32) []byte{
 			"moneyfa":user_Packet_row.Money,
 
 		}
+		redItemList := []bson.M{}
+		lengt := len(Details.OpenRecord)
+		for i,item := range Details.OpenRecord {
+			if i == lengt {
+				continue
+			}
+			List := bson.M{
+				"money":item.Money,
+				"code":int(item.Money * 100)%10,
+				"headimgurl":item.Head,
+				"nickname":item.NickName,
+				"open_time":item.Time.Unix(),
+				"deduct_money":FloatValue(item.Money*0.03,2),
+			}
+			redItemList = append(redItemList,List)
+
+		}
 		res := bson.M{
 			"code": 1,
 			"message": "success",
 			"request": bson.M{
 				"redInfo":redInfo,
+				"redItemList":redItemList,
 			},
 		}
 		data,_ := json.Marshal(res)
@@ -357,7 +376,10 @@ func OpenPacketDetails(Id int32,user_id uint32) []byte{
 	}
 }
 
-
+func FloatValue(f float64,n int) float64 {
+	pow10_n := math.Pow10(n)
+	return math.Trunc((f+0.5/pow10_n)*pow10_n) / pow10_n
+}
 
 
 
