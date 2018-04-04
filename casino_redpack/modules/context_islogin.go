@@ -41,3 +41,15 @@ func (ctx *Context) IsWxLogin() *oauth2.UserInfo {
 	//}
 	return ret
 }
+
+func (ctx *Context) CurrentUserInfo() *userModel.User {
+
+	user := ctx.Session.Get("user")
+	if user == nil {
+		return nil
+	}else {
+		user_info := user.(userModel.User)
+		User := userModel.GetUserById(user_info.Id)
+		return User
+	}
+}
