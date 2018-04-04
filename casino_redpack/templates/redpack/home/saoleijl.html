@@ -149,7 +149,7 @@
         kailo(redId);
     }
     function kailo(redId) {
-        $.get("/home/jlindex/join_open_red_packet?redId="+redId,function(data,status){
+        $.get("/home/jlindex/join_open_red_packet?redId="+redId+'&Type=5',function(data,status){
             if(status=='success'){
                 var dataObj=eval("("+data+")");//转换为json对象
                 var code=dataObj.code;
@@ -347,7 +347,7 @@
             //滚动到最底部
             if(need_score){
                 console.log(need_score);
-                // $(document).scrollTop($(document).height());
+                $(document).scrollTop($(document).height());
             }
         }
     };

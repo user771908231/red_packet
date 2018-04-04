@@ -108,7 +108,7 @@ func SendZhadanRedPacketHandler(ctx *modules.Context) {
 	}()
 
 	//------------------------------------------------
-	user_info := ctx.IsLogin()
+	user_info := ctx.CurrentUserInfo()
 	if user_info == nil {
 		res_msg = "清先登录！"
 		return
@@ -151,6 +151,7 @@ func SendZhadanRedPacketHandler(ctx *modules.Context) {
 func SaoleiJLOpenRedButtonAjaxHandler(ctx *modules.Context) {
 	res_code := 0
 	res_msg := "金币不足，最低需要10金币。"
+
 	defer func() {
 		data := fmt.Sprintf(`{
 	"code": 1,
@@ -162,6 +163,42 @@ func SaoleiJLOpenRedButtonAjaxHandler(ctx *modules.Context) {
 }`, res_code, res_msg)
 		ctx.Write([]byte(data))
 	}()
+	//红包Id
+	redId := ctx.QueryInt("redId")
+	//房间类型
+	Type := ctx.QueryInt("Type")
+	var Types redModel.RoomType
+	//判断放假类型
+	switch Type {
+	case 1:
+		Types = redModel.RoomTypeWurenDZ
+	case 2:
+		Types = redModel.RoomTypeNiuniu
+	case 4:
+		Types = redModel.RoomTypeErBaGang
+	case 5:
+		Types = redModel.RoomTypeSaoLei
+	}
+	//根基房间类型和红包ID获取红包信息
+	info := redModel.GetRoomByType(Types).GetRedpackById(int32(redId))
+	//判断用户的金币是否小于红包的金币大小
+	if ctx.CurrentUserInfo().Coin < info.Money {
+		var piece float64
+		//判断红包的份数 给出用户开红包需要的金币倍率
+		switch info.Piece {
+		case 7:
+			piece = 1.8
+		case 8:
+			piece = 1.6
+		case 9:
+			piece = 1.4
+		case 10:
+			piece = 1.2
+		}
+		val := FloatValue(info.Money*piece,0)
+		res_msg = fmt.Sprintf("金币不足，最低需要%d金币。",int(val))
+		return
+	}
 
 	res_code = 1
 	res_msg = "开红包成功！"
