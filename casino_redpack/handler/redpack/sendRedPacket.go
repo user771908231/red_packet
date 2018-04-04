@@ -62,10 +62,24 @@ func JoinWurenRedPacketHandler(ctx *modules.Context) {
 		"request":bson.M{},
 	}
 	if lists != nil {
+		//for _,item := range lists.OpenRecord{
+		//	if item.UserId == user.Id {
+		//		continue
+		//	}else{
+		//		lists.OpenRecord = append(lists.OpenRecord,&redModel.OpenRecordItem{
+		//			UserId :user.Id, //领红包的人id
+		//			NickName:user.HeadUrl,
+		//		})
+		//	}
+		//}
+		var redItemList []bson.M
 		lists.OpenRecord = append(lists.OpenRecord,&redModel.OpenRecordItem{
 			UserId :user.Id, //领红包的人id
 			NickName:user.HeadUrl,
 		})
+		redItemList = append(redItemList,bson.M{
+			"headimgurl": user.HeadUrl,
+		},)
 
 		res["code"] = 1
 		res["message"] = "success"
@@ -77,13 +91,14 @@ func JoinWurenRedPacketHandler(ctx *modules.Context) {
 				"headimgurl": lists.CreatorHead,
 				"money": lists.Money,
 				"all_membey": lists.Piece,
-				"has_member": len(lists.OpenRecord) + 1,
+				"has_member": len(lists.OpenRecord),
 			},
-			"redItemList": []bson.M{
-				bson.M{
-					"headimgurl": user.HeadUrl,
-				},
-			},
+			"redItemList": redItemList,
+				//[]bson.M{
+				//bson.M{
+				//	"headimgurl": user.HeadUrl,
+				//},
+			//},
 		}
 	}
 	json_str,_ := ctx.JSONString(res)
