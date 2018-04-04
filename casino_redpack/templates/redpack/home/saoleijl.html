@@ -68,8 +68,8 @@
 
 <div class="aui-content"  style="margin-top: 3.4rem;">
     <div class="header-bottom1">
-        <img src="/static/home/image/head-bottom1.png">
-        <img src="/static/home/image/saolei1.png" alt="">
+        <img src="/static/home/image/beijing.png">
+        <img src="/static/home/image/new_saolei.png" alt="">
     </div>
 </div>
 
@@ -94,8 +94,8 @@
 
 
 <div class="foot-top">
-    <div><a href="/home/saoleijl/add"><img src="/static/home/image/fhb1.png" alt=""></a></div>
-    <div><img onclick="openDialog()"  src="/static/home/image/yxgz.png" alt=""></div>
+    <div><a href="/home/saoleijl/add"><img src="/static/home/image/button-fhb.png" alt=""></a></div>
+    <div><img onclick="openDialog()"  src="/static/home/image/button-youxi.png" alt=""></div>
 </div>
 
 
@@ -149,7 +149,7 @@
         kailo(redId);
     }
     function kailo(redId) {
-        $.get("/home/jlindex/join_open_red_packet?redId="+redId,function(data,status){
+        $.get("/home/jlindex/join_open_red_packet?redId="+redId+'&Type=5',function(data,status){
             if(status=='success'){
                 var dataObj=eval("("+data+")");//转换为json对象
                 var code=dataObj.code;
@@ -347,7 +347,7 @@
             //滚动到最底部
             if(need_score){
                 console.log(need_score);
-                // $(document).scrollTop($(document).height());
+                $(document).scrollTop($(document).height());
             }
         }
     };

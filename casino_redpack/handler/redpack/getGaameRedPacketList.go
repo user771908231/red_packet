@@ -5,6 +5,7 @@ import (
 	"casino_redpack/model/userModel"
 	"casino_redpack/model/redModel"
 	"fmt"
+	"casino_common/common/log"
 )
 
 //获取房间列表
@@ -92,7 +93,8 @@ func  GetGaameRedPacketjlSendListHandler(ctx *modules.Context)  {
 
 func OpenPacketDetailsHandler(ctx *modules.Context)  {
 	user := User_info(ctx)
-	redId := ctx.QueryInt("redid")
+	redId := ctx.QueryInt("redId")
+	log.E("%s",user)
 	Id :=int32(redId)
 	fmt.Println("ID",Id)
 	value := redModel.OpenPacketDetails(Id,user.Id)
