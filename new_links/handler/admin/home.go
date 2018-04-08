@@ -1,13 +1,14 @@
 package admin
 
 import (
-	"casino_redpack/modules"
+	"new_links/modules"
 )
 
 /**
 	后台首页面板
  */
 func IndexHandler(ctx *modules.Context) {
+
 	ctx.HTML(200, "admin/index")
 }
 

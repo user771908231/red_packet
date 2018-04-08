@@ -1,7 +1,7 @@
 package userModel
 
 import (
-	"casino_redpack/conf/config"
+	"new_links/conf/config"
 	"casino_common/utils/db"
 	"crypto/md5"
 	"encoding/hex"

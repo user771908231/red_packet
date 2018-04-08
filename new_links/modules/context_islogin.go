@@ -1,7 +1,7 @@
 package modules
 
 import (
-	"casino_redpack/model/userModel"
+	"new_links/model/userModel"
 	"github.com/chanxuehong/wechat.v2/mp/oauth2"
 )
 

@@ -1,15 +1,15 @@
 package weixin
 
 import (
-	"casino_redpack/modules"
+	"new_links/modules"
 	"casino_common/common/model/agentModel"
 	"casino_common/common/service/exchangeService"
 	"casino_common/utils/db"
 	"casino_common/common/consts/tableName"
 	"gopkg.in/mgo.v2/bson"
 	"fmt"
-	"casino_redpack/conf"
-	"casino_redpack/model/weixinModel"
+	"new_links/conf"
+	"new_links/model/weixinModel"
 )
 
 //根中间件

@@ -31,3 +31,9 @@ func LinksIdDel(Id bson.ObjectId) error {
 	err := db.C(tableName.DB_LINKS_LISTS).Remove(bson.M{"_id":Id})
 	return err
 }
+
+func GetLinksAll(query bson.M,page int,number int) (int,[]*Links){
+	list := []*Links{}
+	_,count := db.C(tableName.DB_LINKS_LISTS).Page(query, &list, "-requesttime", page, number)
+	return count,list
+}

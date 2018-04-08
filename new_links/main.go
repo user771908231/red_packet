@@ -1,10 +1,10 @@
 package main
 
 import (
-	"casino_redpack/conf"
-	"casino_redpack/conf/config"
-	"casino_redpack/modules"
-	"casino_redpack/routers"
+	"new_links/conf"
+	"new_links/conf/config"
+	"new_links/modules"
+	"new_links/routers"
 	"casino_common/common/sys"
 	"casino_common/proto/ddproto"
 	"github.com/go-macaron/cache"
@@ -12,7 +12,7 @@ import (
 	"github.com/go-macaron/session"
 	"gopkg.in/macaron.v1"
 	"os"
-	"casino_redpack/model/weixinModel"
+	"new_links/model/weixinModel"
 	"html/template"
 	"casino_common/common/service/rpcService"
 )

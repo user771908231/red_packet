@@ -1,10 +1,10 @@
 package admin
 
 import (
-	"casino_redpack/modules"
+	"new_links/modules"
 	"github.com/go-macaron/binding"
 	"gopkg.in/macaron.v1"
-	"casino_redpack/model/userModel"
+	"new_links/model/userModel"
 	"github.com/go-macaron/captcha"
 	"fmt"
 )
@@ -18,7 +18,7 @@ func NeedLogin(level int32) macaron.Handler {
 			ctx.Redirect("/admin/login", 302)
 			return
 		}
-		user = userModel.GetUserById(uint32(1))
+
 		//if user == nil {
 		//	fmt.Println("user nil")
 		//	ctx.Redirect("/admin/login", 302)

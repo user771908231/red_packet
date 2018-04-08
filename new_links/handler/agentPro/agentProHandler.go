@@ -1,8 +1,8 @@
 package agentPro
 
 import (
-	"casino_redpack/modules"
-	"casino_redpack/model/agentProModel"
+	"new_links/modules"
+	"new_links/model/agentProModel"
 	"time"
 	"gopkg.in/mgo.v2/bson"
 	"casino_common/common/log"
