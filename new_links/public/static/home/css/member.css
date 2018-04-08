@@ -1,0 +1,203 @@
+/*会员中心*/
+.member-page {
+    background: #f3f3f3;
+    margin: 0;
+    position: absolute;
+
+}
+.member-page .headinfo {
+    position: relative;
+    height: auto;
+    padding-top: 1rem;
+    border-top: 1px #b2423f solid;
+    border-bottom: 1px #fa9d9d solid;
+    display: -webkit-box;
+    display: -webkit-flex;
+    display: -ms-flexbox;
+    display: flex;
+    -webkit-box-pack: justify;
+    -ms-flex-pack: justify;
+    -webkit-justify-content: space-between;
+    justify-content: space-between;
+    -webkit-box-align: center;
+    -ms-flex-align: center;
+    -webkit-align-items: center;
+}
+
+.member-page .headinfo .setbtn {
+    height: 1.2rem;
+    width: 1.2rem;
+    position: absolute;
+    top: 0.2rem;
+    right: 0.5rem;
+    font-size: 1.2rem;
+    color: #fff;
+    line-height: 1.2rem;
+    text-align: center;
+}
+.member-page .headinfo .child {
+    width: 30%;
+    height: auto;
+    padding-bottom: 1.2rem;
+    text-align: center;
+}
+.member-page .headinfo .child.userinfo {
+    width: 40%;
+    color: #fff;
+}
+
+.member-page .headinfo .child.userinfo .face {
+    height: 2.8rem;
+    width: 2.8rem;
+    background: #fff;
+    margin: auto;
+    border-radius: 2.8rem;
+    border: 0.1rem solid #fff;
+}
+.member-page .headinfo .child.userinfo .face img {
+    height: 2.6rem;
+    width: 2.6rem;
+    border-radius: 2.60rem;
+    display: block;
+}
+
+.member-page .headinfo .child.userinfo .face.radius{
+    border-radius: 0.5rem;
+}
+.member-page .headinfo .child.userinfo .face.radius img{
+    border-radius: 0.5rem;
+}
+
+.member-page .headinfo .child.userinfo .name {
+    height: 1.3rem;
+    padding-top: 0.2rem;
+    font-size: 0.7rem;
+    color: inherit;
+    text-align: center;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
+}
+
+.member-page .headinfo .child.userinfo .level {
+    font-size: 0.6rem;
+    color: inherit;
+    text-align: center;
+}
+
+
+.member-page .headinfo .child .title {
+    padding-top: 1.2rem;
+    font-size: 0.7rem;
+    color: #fff;
+    text-align: center;
+}
+.member-page .headinfo .child .num {
+    font-size: 0.7rem;
+    color: #fef31f;
+    text-align: center;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
+}
+
+.member-page .headinfo .child .btn {
+    width: 2.6rem;
+    height: 1rem;
+    padding: 0;
+    margin: 0.2rem auto 0;
+    color: #fff;
+    font-size: 0.6rem;
+    line-height: 0.9rem;
+    text-align: center;
+    border-radius: 1rem;
+    border: 1px solid #fff;
+}
+
+.member-page .headinfo.style-2 {
+    padding: 1rem;
+}
+
+.member-page .headinfo.style-2 .face {
+    height: 4rem;
+    width: 4rem;
+    border-radius: 4rem;
+    float: left;
+    position: relative;
+    display: -webkit-box;
+    display: -webkit-flex;
+    display: flex;
+    -webkit-flex-shrink: 0;
+    -ms-flex: 0 0 auto;
+    -webkit-flex-shrink: 0;
+    flex-shrink: 0;
+    -webkit-box-lines: single;
+    -moz-box-lines: single;
+    -webkit-flex-wrap: nowrap;
+    flex-wrap: nowrap;
+    box-sizing: border-box;
+    -webkit-box-align: center;
+    -webkit-align-items: center;
+    align-items: center;
+}
+.member-page .headinfo.style-2 .face img {
+    height: 4rem;
+    width: 4rem;
+    border-radius: 4rem;
+    display: block;
+}
+
+.member-page .headinfo.style-2 .face.radius {
+    border-radius: 0.5rem;
+}
+.member-page .headinfo.style-2 .face.radius img {
+    border-radius: 0.5rem;
+}
+
+.member-page .headinfo.style-2 .inner {
+    height: auto;
+    position: relative;
+    width: 100%;
+    overflow: hidden;
+    box-sizing: border-box;
+    display: -webkit-box;
+    display: -webkit-flex;
+    display: flex;
+    -webkit-box-flex: 1;
+    -ms-flex: 1;
+    display: block;
+    padding-left: 0.5rem;
+    color: #fff;
+}
+
+.member-page .headinfo.style-2 .inner .name {
+    font-size: 0.9rem;
+    line-height: 0.8rem;
+}
+
+.member-page .headinfo.style-2 .inner .level,
+.member-page .headinfo.style-2 .inner .credit {
+    font-size: 0.7rem;
+    line-height: 0.9rem;
+}
+
+.member-page .headinfo.style-2 .inner span {
+    color: #fef31f;
+}
+.member_header{
+    position: absolute;
+    width: 7rem;
+    height: 3rem;
+    background:#ff5555;
+    z-index: 80;
+    -webkit-border-radius:50%;
+    -moz-border-radius:50%;
+    border-radius:50%;
+    bottom: 0;
+    left: 50%;
+    margin-left: -3.5rem;
+    overflow: hidden;
+    transform: scale(10,10);
+    transform-origin: center bottom;
+    border: 2px solid #ff5555;
+}

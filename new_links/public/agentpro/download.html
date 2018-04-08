@@ -1,0 +1,286 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>来一圈四川棋牌下载</title>
+    <meta name="viewport" content="width=device-width,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no" />
+    <meta name="apple-mobile-web-app-capable" content="yes"/>
+    <meta name="apple-mobile-web-app-status-bar-style" content="blank"/>
+    <link rel="icon" href="favicon.ico">
+	   <link rel="stylesheet" href="assets/css/slidepage.css">
+
+	   <style type="text/css">
+	   	.page .pa11 {
+		    left: 20%;
+		}
+		.page .pa131 {
+			width: 64%;
+			bottom: 27%;
+		}
+		.page.fadeIn .pa132 {
+		    -webkit-animation: bounceIn .4s 1 ease .8s forwards;
+		    -moz-animation: bounceIn .4s 1 ease .8s forwards;
+		    animation: bounceIn .4s 1 ease .8s forwards;
+		}
+		.page .pa132 {
+		    width: 60%;
+		    bottom: 26%;
+		}
+		.page .pa132 {
+		    width: 40%;
+		    left: 54%;
+		    bottom: 25%;
+		    z-index: 300;
+		}
+	   </style>
+</head>
+<body>
+	<div class="loading_bg" id="loading" style="display:block;">
+		<div class="loading_wrap">
+			<div class="loading">
+				<div class="loading_bar"></div>
+			</div>
+			<b id="loading_text">0%</b>
+		</div>
+	</div>
+	<div class="lock_wrap" id="lock_wrap" style="display:none;">
+		<div class="lock">
+			<i></i><br> 为了更好的体验，请使用手机竖屏浏览
+		</div>
+	</div>
+	<div class="swiper-container">
+		<div class="swiper-wrapper">
+			<div class="swiper-slide page">
+				<div class="bg">
+					<img src="assets/images/mj-p11.png" class="pa pa11">
+					<img src="assets/images/p12.png" class="pa pa12">
+					<img src="assets/images/mj-p13.png" class="pa pa13">
+          <img src="assets/images/mj-p131.png" class="pa pa131">
+          <img src="assets/images/mj-p132.png" class="pa pa132">
+					<img src="assets/images/mj-p14.png" class="pa pa14">
+					<img src="assets/images/p12.png" class="pa pa121">
+          <img src="assets/images/p15.png" class="pa pa15">
+					<!-- <img src="assets/images/mj-logo.png" class="pa logo"> -->
+					<a href="apks/scmj/lyq_scmj2_1.0.7.45.apk" class="btn">
+						<img src="assets/images/download.png" class="pa download">
+					</a>
+          <div class="pa help-tips">
+            若需帮助，请联系来一圈游戏客服微信 lyqyouxi
+          </div>
+				</div>
+			</div>
+		</div>
+		<div class="pagination"></div>
+	</div>
+	<script src="assets/js/zepto.min.js"></script>
+	<script src="assets/js/idangerous.swiper.js"></script>
+	<script>
+		window.onload = function() {
+			var userAgentInfo = navigator.userAgent.toLowerCase();
+			var isWindows = (userAgentInfo.indexOf('windows') == -1) ? false:true; //是否是桌面环境
+			var isIOS = (userAgentInfo.indexOf('iphone os') == -1) ? false:true; //是否是IOS
+
+			/*if (!isWindows) { //兼容PC
+				var wrapper = $("#lock_wrap");
+				window.innerWidth > window.innerHeight ? wrapper.show() : wrapper.hide();
+			} else {
+				$('body').css("width", "600px");
+				$('body').css("margin-left", (window.innerWidth-600)/2);
+				$('#loading').css("width", "100%");
+			}*/
+
+			//如果是IOS系统直接跳到应用宝
+			if (isIOS) {
+				var downUrl = 'https://itunes.apple.com/cn/app/id1236413329';
+				$("a.btn").each(function(){
+					$(this).attr('href', downUrl);
+				});
+			}
+
+			var paginationClass = isWindows ? '.pagination':false;
+			var mySwiper = new Swiper('.swiper-container', {
+				pagination: paginationClass, //分页器
+				paginationClickable: true,
+				mode: 'vertical',
+				autoplay: false,
+				onSlideChangeEnd: function(){
+					var current = $(mySwiper.activeSlide());
+					$(".swiper-slide .text").css("opacity", 0);
+					current.find(".text").addClass("fadeIn");
+					if (current.hasClass("page")) {
+						current.addClass("fadeIn");
+					}
+					for (var i=0; i<mySwiper.slides.length; i++) {
+						if (i != mySwiper.activeIndex) {
+							var that = $(mySwiper.slides[i]);
+							if (that.hasClass("page")) {
+								that.removeClass("fadeIn");
+							}
+						}
+					}
+				}
+			});
+
+			if (isWindows) { //兼容PC
+				$(".pa_slide").click(function(){
+					mySwiper.swipeNext(true, true);
+				});
+
+				$(document).on('mousewheel', function(e) {  //响应鼠标滚轮
+					if (e.wheelDelta>0) {
+						mySwiper.swipePrev(true, true);
+					} else {
+						mySwiper.swipeNext(true, true);
+					}
+				});
+
+				if (document.addEventListener) { //响应鼠标滚轮(Firefox)
+					document.addEventListener("DOMMouseScroll", function(e){
+						if (e.detail<0) { //方向与chrome相反
+							mySwiper.swipePrev(true, true);
+						} else {
+							mySwiper.swipeNext(true, true);
+						}
+					});
+				}
+			}
+
+			(function(){
+				var images = ['assets/images/mj-p10.png', 'assets/images/download.png', 'assets/images/mj-logo.png', 'assets/images/mj-p11.png',
+            'assets/images/p12.png', 'assets/images/mj-p13.png', 'assets/images/mj-p14.png', 'assets/images/p15.png', 'assets/images/mj-p131.png'];
+				var loaded = [];
+				var t = images.length;
+				var firstTime = true;
+
+				//加载图片
+				for (var i=0; i<images.length; i++) {
+					var img = new Image;
+					img.onload = function() {
+						var that = this;
+						var n = loaded.length;
+						$("#loading_text").text(parseInt(n / t * 100) + "%");
+						loaded.push(that.src);
+						checkprogress();  //加载进度
+					};
+					img.src = images[i];
+				}
+
+				function checkprogress() {
+					var T = $("#loading_text");
+					var t = images.length;
+					var n = loaded.length;
+					T.text(parseInt(n / t * 100) + "%");
+					if (images.length==loaded.length) {//加载完图片
+						for (var i = 0; i < mySwiper.slides.length; i++) {
+							var slide = $(mySwiper.slides[i]);
+							slide.find(".bg").css('background-image', 'url('+images[i]+')');
+						}
+						$("#loading .loading").css('opacity', 0).addClass("opacity");
+						$("#loading").css('opacity', 0).addClass("opacity"); //Loading切换动画
+						$("#loading").get(0).addEventListener('webkitTransitionEnd', function(){
+							$("#loading").css({display: "none"}); //隐藏Loading页面
+							$(mySwiper.slides[0]).addClass("fadeIn");
+						});
+						$("#loading").get(0).addEventListener('transitionend', function(){ //兼容非webkit浏览器
+							$("#loading").css({display: "none"}); //隐藏Loading页面
+							$(mySwiper.slides[0]).addClass("fadeIn");
+						});
+            //
+            setTimeout(function() {
+              $('.pa.download').addClass('heart-beat');
+            }, 4000);
+					}
+				}
+
+				function checkOrientationChange() {
+					var wrapper = $("#lock_wrap");
+					var container = $(".swiper-container");
+					var pattern = new RegExp("os 8_|os 9_");
+
+					if (window.innerWidth > window.innerHeight) {
+						if(userAgentInfo.indexOf("iphone os 9_") != -1 || (userAgentInfo.indexOf("ipad") != -1 && pattern.test(userAgentInfo))) { //兼容iphone6,iphone4和高版本Pad
+							if (firstTime && window.innerWidth==568) {
+								wrapper.show();
+								container.hide();
+							} else {
+								container.show();
+								wrapper.hide();
+							}
+						} else {
+							wrapper.show();
+							container.hide();
+						}
+					} else {
+						if(userAgentInfo.indexOf("iphone os 9_") != -1 || (userAgentInfo.indexOf("ipad") != -1 && pattern.test(userAgentInfo))) { //兼容iphone6,iphone4和高版本Pad
+							wrapper.show();
+							container.hide();
+						} else {
+							container.show();
+							wrapper.hide();
+						}
+					}
+				}
+
+				if (!isWindows) { //兼容PC
+					window.addEventListener("orientationchange", function(){
+						checkOrientationChange();
+						firstTime = false;
+					});
+					window.addEventListener("resize", function(){
+						var pattern = new RegExp("ipad|ipod");
+						var pattern2 = new RegExp("os 6_|os 7_");
+
+						if (pattern.test(userAgentInfo) && pattern2.test(userAgentInfo)) {
+							window.location.reload();
+						}
+					});
+				} else {
+					//窗口缩放
+					window.addEventListener("resize", function(){
+						$('body').css("margin-left", (window.innerWidth-600)/2); //居中显示
+					});
+				}
+			})();
+			// Start: 判断如果是微信，则提示“在浏览器中打开”
+			(function() {
+				function is_weixin() {
+				    var ua = navigator.userAgent.toLowerCase();
+				    if (ua.match(/MicroMessenger/i) == "micromessenger") {
+				        return true;
+				    } else {
+				        return false;
+				    }
+				}
+				var isWeixin = is_weixin();
+				var winHeight = typeof window.innerHeight != 'undefined' ? window.innerHeight : document.documentElement.clientHeight;
+				console.log(winHeight);
+				function loadHtml(){
+					var div = document.createElement('div');
+					div.id = 'weixin-tip';
+					div.innerHTML = '<p><img src="assets/images/live_weixin.png" alt="微信打开" style="max-width: 100%; height: auto;"/></p>';
+					document.body.appendChild(div);
+				}
+				
+				function loadStyleText(cssText) {
+			        var style = document.createElement('style');
+			        style.rel = 'stylesheet';
+			        style.type = 'text/css';
+			        try {
+			            style.appendChild(document.createTextNode(cssText));
+			        } catch (e) {
+			            style.styleSheet.cssText = cssText; //ie9以下
+			        }
+		            var head=document.getElementsByTagName("head")[0]; //head标签之间加上style样式
+		            head.appendChild(style); 
+			    }
+			    var cssText = "#weixin-tip{position: fixed; left:0; top:0; background: rgba(0,0,0,0.8); filter:alpha(opacity=80); width: 100%; height:100%; z-index: 100;} #weixin-tip p{text-align: center; margin-top: 10%; padding:0 5%;}";
+				if(isWeixin){
+					loadHtml();
+					loadStyleText(cssText);
+				}
+			})();
+			// End  : 判断如果是微信，则提示“在浏览器中打开”
+	  }
+	</script>
+</body>
+</html>

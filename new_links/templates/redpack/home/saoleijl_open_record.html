@@ -1,0 +1,257 @@
+
+<!DOCTYPE HTML>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
+    <meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+    <title>扫雷</title>
+    <link rel="stylesheet" type="text/css" href="/static/home/css/aui.css" />
+    <link rel="stylesheet" type="text/css" href="/static/home/css/member.css" />
+
+    <link rel="stylesheet" type="text/css" href="/static/home/css/hbxq.css" />
+    <link rel="stylesheet" type="text/css" href="/static/home/css/layer.css" />
+
+    <style type="text/css">
+        .gonggao{
+            width: 100%;
+            height: 45px;
+            top: 6.5rem;
+            position: absolute;
+            background-color:rgba(0,0,0,0.5);
+        }
+        .gonggao>marquee{
+            color: #fff;
+            font-size: 18px;
+            line-height: 45px;
+        }
+        .kf{
+
+            height: 20px;
+            top: 6.5rem;
+            position: absolute;
+
+            color: #fff;
+            font-size: 18px;
+            line-height: 45px;
+        }
+    </style>
+
+</head>
+<body>
+<div class="gonggao" style="z-index: 999999">
+    <marquee behavior="scroll" contenteditable="true" onstart="this.firstChild.innerHTML+=this.firstChild.innerHTML;" scrollamount="3" width="100%" onmouseover="this.stop();" onmouseout="this.start();">
+        尊敬的玩家您好： 请关注我们的公众号：硕风国际！  以便了解最新的游戏状况及活动；惊喜不断！
+    </marquee>
+</div>
+
+
+
+
+<audio id="bgmusic" src="/static/home/image/123.mp3" autoplay></audio>
+<audio id="zlmusic" src="/static/home/image/456.mp3" autoplay></audio>
+<div class="aui-content">
+    <div class="hbxqtop-nav">
+        <div class="hbxqtop-navt">
+            <a href="/home/saoleijl" >关闭</a>
+            <p>红包</p>
+            <img id="headimgurlfz" src="" onerror="this.src='/static/home/image/noface.png'" />
+        </div>
+        <div class="hbxqtop-context">
+            <p id="nicknamefz"></p>
+            <p>恭喜发财，大吉大利!</p>
+            <p><span id="jingbiuser"></span>金币</p>
+            <p id="conte"></p>
+        </div>
+    </div>
+    <p class="hbxqlqrs">领取<span id="has_member"></span>/<span id="all_membey"></span>个</p>
+    <ul class="hbxqjexq" id="item">
+    </ul>
+</div>
+<div id="zltx" class="hbxq-zll" style="display: none;">
+    <img src="/static/home/image/zll.gif"/>
+</div>
+
+
+
+<script type="text/javascript" src="/static/home/script/jquery-3.2.1.min.js" ></script>
+
+<script src="http://res.wx.qq.com/open/js/jweixin-1.0.0.js"></script>
+<script type="text/javascript" src="/static/home/script/layer.js" ></script>
+<script type="text/javascript">
+    wx.config({
+        // 配置信息, 即使不正确也能使用 wx.ready
+        debug: false,
+        appId: '123123123',
+        timestamp: 1,
+        nonceStr: '123123123',
+        signature: '123123123123132',
+        jsApiList: ['hideOptionMenu']
+    });
+    $(function(){
+        pushHistory();
+        window.addEventListener("popstate", function(e) {
+            $(location).attr('href', '/home/index/index');
+        }, false);
+        function pushHistory() {
+            var state = {
+                title: "title",
+                url: "#"
+            };
+            window.history.pushState(state, "title", "#");
+        }
+    });
+    function autoPlayAudio1() {
+        wx.ready(function() {
+            document.getElementById('bgmusic').play();
+        });
+    }
+    function autoPlayAudio2() {
+        wx.ready(function() {
+            document.getElementById('zlmusic').play();
+        });
+    }
+    autoPlayAudio1();
+    var stop='0';
+    function shujus() {
+        if(stop=='1'){
+            return;
+        }
+        $.get("../jlindex/open_red_packet?redId={{.redId}}",function(data1,status1){
+            if(status1=='success'){
+                var dataObj1=eval("("+data1+")");//转换为json对象
+                var status=dataObj1.request.redInfo.status;
+                var tail_number=dataObj1.request.redInfo.tail_number;
+                $("#has_member").html(dataObj1.request.redInfo.has_member);
+                if(status==1){
+                    stop=1;
+                }
+                $("#item").html('');
+                $.each(dataObj1.request.redItemList,function(i,item){
+                    var lin_q,jieguo,jg_code,deduct_money;
+                    lin_q=item.money;
+                    deduct_money = item.deduct_money
+                    jg_code=item.code;
+                    if(jg_code==tail_number){
+                        jieguo='碰雷';
+                    }else{
+                        jieguo='';
+                    }
+                    $("#item").append('<li class="aui-padded-l-10 aui-padded-r-10 hbxqxq">' +
+                            '<img src="'+item.headimgurl+'" alt="" />' +
+                            '<div class="hbxqbottom-context">' +
+                            '<p>'+item.nickname+'</p>' +
+                            '<p>'+formatDate(item.open_time,1)+'</p>' +
+                            '</div>' +
+                            '<div class="hbxqbottom-context" style="float: right;"><p class=""><span>'+lin_q+'</span>金币</p>'+
+                            '<p class=""><span>'+deduct_money+'</span>金币</p>'+
+                            '</div>' +
+                            '</li>');
+                });
+            }
+        });
+    }
+    $.get("../jlindex/open_red_packet?redId={{.redId}}",function(data,status){
+        if(status=='success'){
+            var dataObj=eval("("+data+")");//转换为json对象
+            var code=dataObj.code;
+            if(code=='1'){
+                $("#headimgurlfz").attr('src',dataObj.request.redInfo.headimgurl);
+                $("#nicknamefz").html(dataObj.request.redInfo.nickname+'的红包');
+                $("#jingbiuser").html(dataObj.request.user.money);
+                $("#conte").html(dataObj.request.redInfo.moneyfa+'金币 | 雷：'+dataObj.request.redInfo.tail_number);
+                $("#has_member").html(dataObj.request.redInfo.has_member);
+                $("#all_membey").html(dataObj.request.redInfo.all_membey);
+                var tail_number=dataObj.request.redInfo.tail_number;
+                var user_code=dataObj.request.user.code;
+                var kui=dataObj.request.user.win_money;
+                if(user_code==tail_number){
+                    autoPlayAudio2();
+                    $("#zltx").show();
+                    setTimeout(function () {
+                        $("#zltx").hide();
+                    }, 2000);
+//                        layer.open({
+//                            content: '撞雷了'
+//                            ,btn: '我知道了'
+//                        });
+                }
+                $("#item").html('');
+                $.each(dataObj.request.redItemList,function(i,item){
+                    var lin_q,jieguo,jg_code;
+                    lin_q=item.money;
+                    $("#item").append('<li class="aui-padded-l-10 aui-padded-r-10 hbxqxq">' +
+                            '<img src="'+item.headimgurl+'" alt="" />' +
+                            '<div class="hbxqbottom-context">' +
+                            '<p>'+item.nickname+'</p>' +
+                            '<p>'+formatDate(item.open_time,1)+'</p>' +
+                            '</div>' +
+                            '<p class="hbxje"><span>'+lin_q+'</span>金币</p></li>');
+                });
+                if(dataObj.request.redInfo.status==0){
+                    var stop=1;
+                    setInterval("shujus()", 2000);
+                }
+            }else{
+
+                $(location).attr('href', '/home/saoleijl');
+            }
+        }
+    });
+</script>
+
+
+<script type="text/javascript">
+    $(document).ready(function(){
+        $.get("/home/login/getMemberInfo",function(data,status){
+            if(status=='success'){
+                var dataObj=eval("("+data+")");//转换为json对象
+                var code=dataObj.code;
+                if(code=='1'){
+                    // if(dataObj.request.username==''){
+                    //     $(location).attr('href', '/home/login/usernameset');
+                    // }
+                    $("#money").html(dataObj.request.golds);
+                    $("#headimgurl").attr('src',dataObj.request.headimgurl);
+                    $("#nickname").html(dataObj.request.nickname);
+                    $("#userid").html(dataObj.request.id);
+                    $("#zxrs").html(dataObj.request.numberOnline);
+                }
+            }
+        });
+    });
+</script>
+
+<script type="text/javascript">
+    /**
+     * 时间戳转换日期
+     * @param <int> unixTime  待时间戳(秒)
+     * @param <bool> isFull  返回完整时间(Y-m-d 或者 Y-m-d H:i:s)
+     */
+    function formatDate(unixTime, type) {
+        var time = new Date(unixTime * 1000);
+        var year=time.getUTCFullYear();
+        var month=time.getUTCMonth()+1;
+        var date=time.getUTCDate();
+        var hour=getzf(time.getHours());
+        var minute=getzf(time.getMinutes());
+        var second=getzf(time.getUTCSeconds());
+        switch(type){
+            case 1:
+                return hour+":"+minute+":"+second;
+            case 2:
+                return month+"-"+date+" "+hour+":"+minute;
+            default:
+                return year+"-"+month+"-"+date+" "+hour+":"+minute+":"+second;
+        }
+    }
+    //补0操作
+    function getzf(num){
+        if(parseInt(num) < 10){
+            num = '0'+num;
+        }
+        return num;
+    }
+</script>
+</body>
+</html>

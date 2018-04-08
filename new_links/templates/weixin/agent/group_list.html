@@ -1,0 +1,81 @@
+{{ template "weixin_header" }}
+<div class="alert alert-info alert-dismissable" role="alert">
+    <button class="close" type="button" onclick="$('.alert').eq(0).hide();">&times;</button>
+    <span></span>
+</div>
+<!--顶部 导航栏部分-->
+<nav class="nav navbar-default navbar-mystyle navbar-fixed-top">
+    <div class="navbar-header">
+        <a id="back-btn" href="javascript:history.go(-1);">
+            <span id="back-text">返回</span>
+        </a>
+        <span><a id="logo-text" href="/weixin/agent">代理后台</a></span>
+        <button class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+        </button>
+        <!--<a class="navbar-brand mystyle-brand" href="#"><span class="glyphicon glyphicon-home"></span></a>-->
+    </div>
+    <div class="collapse navbar-collapse" style="background-color: #394555;">
+        <ul class="nav navbar-nav pull-right">
+            <!--<li class="dropdown li-border" id="oSpan"><a href="#" class="dropdown-toggle mystyle-color" data-toggle="dropdown">选择游戏后台<span class="caret"></span></a>-->
+            <!--<ul class="dropdown-menu" id="choseGame">-->
+            <!--</ul>-->
+            <!--</li>-->
+            <li class="dropdown li-border"><a href="#" class="dropdown-toggle mystyle-color" data-toggle="dropdown"><span id="userNick">{{.wx_user.Nickname}}</span><span class="caret"></span></a>
+                <ul class="dropdown-menu">
+                    <li><a href="#" id="logout">退出</a></li>
+                </ul>
+            </li>
+        </ul>
+    </div>
+</nav>
+<!--右侧主体部分-->
+<div class="my-index">
+    <div class="container-fluid">
+        <div class="info-center">
+            <div class="page-header">
+                <div class="pull-left">
+                    <h4>我的俱乐部<small id="gameName">四川麻将会员代理后台</small></h4>
+                </div>
+            </div>
+        </div>
+
+        <table class="layui-table">
+            <thead>
+            <tr>
+                <td>
+                    <a class="layui-btn" href="/weixin/agent/group/edit?type=add">创建俱乐部</a>
+                </td><td></td><td></td><td></td><td></td>
+            </tr>
+            <tr>
+                <th>俱乐部邀请码</th>
+                <th>名称</th>
+                <th>描述</th>
+                <th>成员</th>
+                <th>操作</th>
+            </tr>
+            </thead>
+            <tbody>
+
+            {{range $k,$v := .list}}
+            <tr>
+                <td>{{$v.Id}}</td>
+                <td>{{$v.Name}}</td>
+                <td>{{$v.Info}}</td>
+                <td>{{len $v.Members}}</td>
+                <td><a href="/weixin/agent/group/edit?type=edit&id={{$v.Id}}">编辑</a></td>
+            </tr>
+            {{end}}
+            </tbody>
+        </table>
+    </div>
+</div>
+<script type="text/javascript">
+    $("title").html("代理系统-我的俱乐部");
+
+</script>
+
+
+{{ template "weixin_footer" }}

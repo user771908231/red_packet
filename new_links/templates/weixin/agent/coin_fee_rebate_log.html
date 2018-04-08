@@ -1,0 +1,279 @@
+{{ template "weixin_header" }}
+<div class="alert alert-info alert-dismissable" role="alert">
+    <button class="close" type="button" onclick="$('.alert').eq(0).hide();">&times;</button>
+    <span></span>
+</div>
+<!--顶部 导航栏部分-->
+<!--<nav class="nav navbar-default navbar-mystyle navbar-fixed-top">-->
+    <!--<div class="navbar-header">-->
+        <!--<a id="back-btn" href="javascript:history.go(-1);">-->
+            <!--<span id="back-text">返回</span>-->
+        <!--</a>-->
+        <!--<span><a id="logo-text" href="/weixin/agent">代理后台</a></span>-->
+        <!--<button class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">-->
+            <!--<span class="icon-bar"></span>-->
+            <!--<span class="icon-bar"></span>-->
+            <!--<span class="icon-bar"></span>-->
+        <!--</button>-->
+        <!--&lt;!&ndash;<a class="navbar-brand mystyle-brand" href="#"><span class="glyphicon glyphicon-home"></span></a>&ndash;&gt;-->
+    <!--</div>-->
+    <!--<div class="collapse navbar-collapse" style="background-color: #394555;">-->
+        <!--<ul class="nav navbar-nav pull-right">-->
+            <!--&lt;!&ndash;<li class="dropdown li-border" id="oSpan"><a href="#" class="dropdown-toggle mystyle-color" data-toggle="dropdown">选择游戏后台<span class="caret"></span></a>&ndash;&gt;-->
+            <!--&lt;!&ndash;<ul class="dropdown-menu" id="choseGame">&ndash;&gt;-->
+            <!--&lt;!&ndash;</ul>&ndash;&gt;-->
+            <!--&lt;!&ndash;</li>&ndash;&gt;-->
+            <!--<li class="dropdown li-border"><a href="#" class="dropdown-toggle mystyle-color" data-toggle="dropdown"><span id="userNick">{{.wx_user.Nickname}}</span><span class="caret"></span></a>-->
+                <!--<ul class="dropdown-menu">-->
+                    <!--<li><a href="#" id="logout">退出</a></li>-->
+                <!--</ul>-->
+            <!--</li>-->
+        <!--</ul>-->
+    <!--</div>-->
+<!--</nav>-->
+
+<!--右侧主体部分-->
+<div class="my-index right-off">
+    <div class="">
+        <div class="layui-tab layui-tab-brief" style="overflow: visible" lay-filter="rebate_type">
+            <ul class="layui-tab-title">
+                <li data-rebate_type="rebate_log"{{if eq .rebate_type "rebate_log"}}class="layui-this"{{end}}>佣金记录</li>
+                <li data-rebate_type="withdraw_log"{{if eq .rebate_type "withdraw_log"}}class="layui-this"{{end}}>提现记录</li>
+            </ul>
+            <div class="layui-tab-content">
+                <div class="layui-tab-item layui-show">
+                    <div class="layui-form layui-form-pane" style="margin-top: 15px;">
+                        <div class="layui-form-item">
+                            <div class="layui-form-item">
+                                <label class="layui-form-label" style="width: 110px">佣金账户</label>
+                                <div class="layui-input-inline">
+                                    <input class="layui-input" disabled value="{{.all_rebate}}">
+                                </div>
+
+                                <label class="layui-form-label" style="width: 110px">昨日佣金</label>
+                                <div class="layui-input-inline">
+                                    <input class="layui-input" disabled value="{{.yesterday_rebate}}">
+                                </div>
+
+                                <label class="layui-form-label" style="width: 110px">立即提现</label>
+                                    <div class="layui-input-inline">
+                                        <select id="withdraw-input" name="withdraw" lay-verify="required">
+                                            <option value="">请选择提现金额</option>
+                                            <option value="100">100</option>
+                                            <option value="200">200</option>
+                                            <option value="300">300</option>
+                                            <option value="500">500</option>
+                                            <option value="1000">1000</option>
+
+                                        </select>
+                                    </div>
+
+                                <div class="layui-input-inline">
+                                    <input id="withdraw-btn" class="layui-btn" type="submit" value="提现">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <form id="form_list" action="" method="get">
+                        <input type="hidden" name="page" value="{{.page.page}}">
+                        <input type="hidden" name="rebate_type" value="{{.rebate_type}}">
+                        <div class="layui-form-pane" style="margin-top: 15px;">
+                            <div class="layui-form-item">
+                                <label class="layui-form-label" style="width: 110px">开始日期</label>
+                                <div class="layui-input-inline">
+                                    <input class="layui-input" name="start" value="{{.start_time}}" placeholder="开始日" id="LAY_demorange_s">
+                                </div>
+                                <label class="layui-form-label" style="width: 110px">截止日期</label>
+                                <div class="layui-input-inline">
+                                    <input class="layui-input" name="end" value="{{.end_time}}" placeholder="截止日" id="LAY_demorange_e">
+                                </div>
+                                <div class="layui-input-inline">
+                                    <input id="form_list_btn" class="layui-btn" type="submit" value="查询">
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+
+                    {{if eq .rebate_type "rebate_log"}}
+                    <table class="layui-table">
+                        <thead>
+                        <tr>
+                            <th>用户id</th>
+                            <th>昵称</th>
+                            <th>游戏</th>
+                            <th>佣金</th>
+                            <th>时间</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {{range $k,$v := .list}}
+                        <tr>
+                            <td>{{$v.UserId}}</td>
+                            <td>{{$v.UserName}}</td>
+                            <td>
+                                {{if eq $v.GameId 2}}麻将
+                                {{else if eq $v.GameId 3}}斗地主
+                                {{else if eq $v.GameId 4}}炸金花
+                                {{else if eq $v.GameId 5}}大厅
+                                {{else if eq $v.GameId 7}}跑得快
+                                {{else if eq $v.GameId 8}}抓瞎子
+                                {{else if eq $v.GameId 9}}白山麻将
+                                {{else if eq $v.GameId 10}}长春麻将
+                                {{else if eq $v.GameId 11}}经典牛牛
+                                {{else if eq $v.GameId 12}}搬坨子（拼二张）
+                                {{else if eq $v.GameId 13}}二人斗地主
+                                {{else if eq $v.GameId 14}}东北经典斗地主
+                                {{else if eq $v.GameId 15}}填大坑
+                                {{else if eq $v.GameId 16}}松江河麻将
+                                {{else if eq $v.GameId 17}}百人牛牛
+                                {{else if eq $v.GameId 18}}至尊五张
+                                {{else if eq $v.GameId 19}}宜宾麻将
+                                {{else if eq $v.GameId 20}}彭州麻将
+                                {{else if eq $v.GameId 21}}三打一
+                                {{else if eq $v.GameId 22}}红中转转麻将
+                                {{else if eq $v.GameId 23}}跑胡子
+                                {{else if eq $v.GameId 24}}海南麻将
+                                {{end}}
+                            </td>
+                            <td>{{$v.Rebate}}</td>
+                            <td>{{$v.Time.Format "2006-01-02 15:04:05"}}</td>
+                        </tr>
+                        {{end}}
+                        </tbody>
+                    </table>
+                    {{end}}
+                    {{if eq .rebate_type "withdraw_log"}}
+                    <table class="layui-table">
+                        <thead>
+                        <tr>
+                            <th>编号</th>
+                            <th>代理id</th>
+                            <th>提现金额</th>
+                            <th>审核状态</th>
+                            <th>时间</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {{range $k,$v := .list}}
+                        <tr>
+                            <td>{{$v.Id.Hex}}</td>
+                            <td>{{$v.AgentId}}</td>
+                            <td>{{$v.Amount}}</td>
+                            <td>{{$v.Status.Name}}</td>
+                            <td>{{$v.Time.Format "2006-01-02 15:04:05"}}</td>
+                        </tr>
+                        {{end}}
+                        </tbody>
+                    </table>
+                    {{end}}
+
+                    <div style="height: 35px;width: auto;">
+                        <div id="view_page"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+    </div>
+</div>
+</div>
+<script src="/static/weixin/js/slide_menu.js"></script>
+<script src="/static/weixin/js/share.js"></script>
+<script type="text/javascript">
+    $("title").html("房费返利记录");
+
+
+    layui.use(["element", "form"], function () {
+        //选项卡
+        layui.element().on("tab(rebate_type)", function(ele){
+            var rebate_type = this.getAttribute("data-rebate_type");
+            window.location.href = "./rebate_log?rebate_type="+rebate_type;
+        });
+    });
+
+    $("#form_list_btn").on("click", function (e) {
+        e.preventDefault();
+        var page = $("#form_list").find("[name=page]");
+        page.val(1);
+        $("#form_list").submit();
+    });
+    layui.use(["laypage","laydate"], function () {
+        layui.laypage({
+            cont: 'view_page',
+            pages: {{.page.page_count}}, //总页数
+        curr: {{.page.page}},
+        skip:true, //连续显示分页数
+            jump: function (obj) {
+            var page = $("#form_list").find("[name=page]");
+            if(page.val() != obj.curr) {
+                page.val(obj.curr);
+                $("#form_list").submit();
+            }
+        }
+    });
+
+        var laydate = layui.laydate;
+
+        var start = {
+//        min: laydate.now(),
+//        max: '2099-06-16 23:59:59',
+            min: '2017-01-01 00:00:00',
+            max: laydate.now(),
+            istoday: false
+            ,choose: function(datas){
+                end.min = datas; //开始日选好后，重置结束日的最小日期
+                end.start = datas; //将结束日的初始值设定为开始日
+            }
+        };
+
+        var end = {
+//        min: laydate.now()
+//        ,max: '2099-06-16 23:59:59'
+            min: '2017-01-01 00:00:00',
+            max: laydate.now()
+            ,istoday: false
+            ,choose: function(datas){
+                start.max = datas; //结束日选好后，重置开始日的最大日期
+            }
+        };
+        document.getElementById('LAY_demorange_s').onclick = function(){
+            start.elem = this;
+            laydate(start);
+        };
+        document.getElementById('LAY_demorange_e').onclick = function(){
+            end.elem = this;
+            laydate(end);
+        }
+    });
+
+    //提现申请
+    $("#withdraw-btn").on("click", function(e){
+        e.preventDefault();
+        var withdraw = $("#withdraw-input").val();
+        if(withdraw === ""){
+            alert("请选择提现金额!");
+            return;
+        }
+        $.ajax({
+            url: "./withdraw_post",
+            method:"get",
+            data:{"withdraw": withdraw},
+            async: false,
+            success: function(res){
+                alert(res.msg);
+                if(res.code > 0){
+                    window.location.href = "./rebate_log?rebate_type=withdraw_log";
+                }
+            },
+            error: function(err){
+                alert("网络异常，请求失败！");
+            }
+        })
+    })
+
+</script>
+
+
+{{ template "weixin_footer" }}

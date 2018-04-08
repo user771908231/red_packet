@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="zh-cmn-Hans">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=0">
+    <title>开个手机麻将馆，这钱挣得爽...</title>
+    <link rel="stylesheet" href="./bootstrap.min.css"/>
+    
+        <script>
+        var _hmt = _hmt || [];
+        (function() {
+            var hm = document.createElement("script");
+            hm.src = "https://hm.baidu.com/hm.js?e5979b727dcc682f816f1bef14bfa166";
+            var s = document.getElementsByTagName("script")[0];
+            s.parentNode.insertBefore(hm, s);
+        })();
+
+
+        function onload (){  
+            //手机端
+            document.addEventListener('touchend', ontouch, false);
+            
+            var moveCount = 0;  //滑动次数
+            function ontouch (event) {
+                var e = event || window.event;  
+                switch(e.type){
+                    case  "touchend":
+                        moveCount += 1;
+                        _hmt.push(['_trackEvent', '手机滑动', '滑动结束', '滑动次数:'+moveCount]);
+                        break;
+                }
+            }
+            //_hmt.push(['_trackEvent', '初始化onload', 'click', '标签']);
+        }  
+        window.addEventListener('load', onload, false);
+
+    </script>
+</head>
+<body ontouchstart>
+    <div class="container-fluid">
+    <style type="text/css">
+        body,html {
+            overflow-x: hidden;
+        }
+        img {
+            width: 100%;
+        }
+    </style>
+        <div class="row">
+            <img src="./images/mobie/tu_01.png"/>
+        </div>
+        <div class="row">
+            <img src="./images/mobie/tu_02.png"/>
+        </div>
+        <div class="row">
+            <img src="./images/mobie/tu_03.png"/>
+        </div>
+        <div class="row">
+            <img src="./images/mobie/tu_04.png"/>
+        </div>
+        <div class="row">
+            <img src="./images/mobie/tu_05.png"/>
+        </div>
+        <div class="row">
+            <img src="./images/mobie/tu_06.png"/>
+        </div>
+        <div class="row">
+            <img src="./images/mobie/tu_07.png"/>
+        </div>
+        <div class="row">
+            <img src="./images/mobie/tu_08.png"/>
+        </div>
+        <div class="row">
+            <img src="./images/mobie/tu_09.png"/>
+        </div>
+        <div class="row">
+            <img src="./images/mobie/tu_10.png"/>
+        </div>
+        <div class="row">
+            <img src="./images/mobie/tu_11.png"/>
+        </div>
+        <div class="row">
+            <img src="./images/mobie/tu_12.png"/>
+        </div>
+        <div class="row">
+            <img src="./images/mobie/tu_13.png"/>
+        </div>
+        <div class="row">
+            <img src="./images/mobie/tu_14.png"/>
+        </div>
+        <div class="row">
+            <img src="./images/mobie/tu_15.png"/>
+        </div>
+        <div class="row">
+            <img src="./images/mobie/tu_16.png"/>
+        </div>
+        <div class="row">
+            <img src="./images/mobie/tu_17.png"/>
+        </div>
+    
+<!-- join-us dialog -->
+        <div class="row" style="margin-bottom: 68px;">
+            <form class="form-horizontal">
+                  <div class="form-group">
+                    <label for="name" class="control-label col-sm-1">姓名:</label>
+                    <div class="col-sm-5">
+                        <input type="text" class="form-control" id="name" placeholder="" tabindex="1" required>
+                    </div>
+                    <div class="col-sm-5">
+                        <label class="control-label"><span style="color: #999; font-size: 0.8em">&nbsp请填写您的真实姓名</span></label>
+                    </div>
+                  </div>
+                  <div class="form-group">
+                    <label for="telphone" class="control-label col-sm-1">电话:</label>
+                    <div class="col-sm-5">
+                        <input type="text" class="form-control" id="telphone" placeholder="" tabindex="2" required>
+                    </div>
+                    <div class="col-sm-5">
+                        <label class="control-label"><span style="color: #999; font-size: 0.8em">&nbsp请填写正确的手机</span></label>
+                    </div>
+                  </div>
+                  <div class="form-group">
+                    <label for="wxid" class="control-label col-sm-1">微信:</label>
+                    <div class="col-sm-5">
+                        <input type="wxid" class="form-control" id="wxid" placeholder="" tabindex="4" required>
+                    </div>
+                    <div class="col-sm-5">
+                        <label class="control-label"><span style="color: #999; font-size: 0.8em">&nbsp请填写正确的微信id</span></label>
+                    </div>
+                  </div>
+                  <div class="form-group">
+                    <label for="comment" class="control-label col-sm-1">留言:</label>
+                    <div class="col-sm-5">
+                        <textarea class="form-control" id="comment" placeholder="" tabindex="5" rows="6"></textarea>
+                    </div>
+                    <style type="text/css">
+                        ul {
+                            display: block;
+                            list-style-type: disc;
+                            margin: 0;
+                            padding: 0;
+                            -webkit-margin-before: 1em;
+                            -webkit-margin-after: 1em;
+                            -webkit-margin-start: 0px;
+                            -webkit-margin-end: 0px;
+                            -webkit-padding-start: 40px;
+                        }
+                        p {
+                            margin-top: 0px !important;
+                            margin-bottom: 0px !important;
+                        }
+                        .textBox {
+                            font-size: 12px;
+                            border: 1px solid #ebebeb;
+                            width: 242px;
+                            margin-left: 15px;
+                            padding-left: 0px;
+                            padding-right: 0px;
+                        }
+                        .textBox p {
+                            width: 250px;
+                            height: 25px;
+                            line-height: 25px;
+                            margin: 0px 0px;
+                            padding-top: 0px;
+                            padding-bottom: 0px;
+                            padding-right: 0px;
+                            padding-left: 15px;
+                            color: #fff;
+                            background: url('./images/red.gif') no-repeat;
+                            position:absolute;
+                            left: -9px;
+                            top: -2px;
+                            display: block;
+                            -webkit-margin-before: 1em;
+                            -webkit-margin-after: 1em;
+                            -webkit-margin-start: 0px;
+                            -webkit-margin-end: 0px;
+                        }
+                        .textBox ul {
+                            padding: 0px;
+                            margin-left: 0px;
+                            margin-bottom: 0px;
+                            margin-right: 0px;
+                            margin-top: 25px;
+                        }
+                        .textBox ul li {
+                            width: 225px;
+                            height: 24px;
+                            line-height: 24px;
+                            margin: 0 auto;
+                            padding: 0px;
+                            overflow: hidden;
+                            border-bottom: 1px dotted #dedede;
+                            cursor: pointer;
+                            list-style-type: none;
+                            display: list-item;
+                            text-align: -webkit-match-parent;
+                        }
+                        .textBox ul li:hover {
+                            color: #d81e08;
+                        }
+                    </style>
+                    <div class="col-sm-6 textBox">
+                        <p>请您填写留言或选择快捷留言</p>
+                        <ul>
+                            <li onclick="listClick(this, event)">我想加盟，请来电告诉我具体细节</li>
+                            <li onclick="listClick(this, event)">怎么开手机麻将馆</li>
+                            <li onclick="listClick(this, event)">房卡怎么操作</li>
+                            <li onclick="listClick(this, event)">很感兴趣，想知道加盟细节</li>
+                        </ul>
+                    </div>
+                  </div>
+                  <div class="form-group">
+                    <div class="col-sm-11 col-sm-offset-1">
+                        <button type="button" class="btn btn-primary btn-lg" onclick="submitForm()">提交</button>
+                    </div>
+                  </div>
+                </form>
+        </div>
+        <!-- download -->
+        <style type="text/css">
+            .download {
+                position: fixed;
+                bottom: 0px; 
+                width: 100%;
+                padding: 0px;   
+                min-height: 60px;
+                line-height: 60px;
+                text-align: center;
+                -webkit-box-shadow: 0 5px 15px rgba(0, 0, 0, 0.4);
+                box-shadow: 0 5px 15px rgba(0, 0, 0, 0.4);
+                border:1px solid #999;
+                border:1px solid rgba(0, 0, 0, 0.2);
+                border-bottom-width: 0px;
+                border-top-right-radius: 6px;
+                border-top-left-radius: 6px;
+                box-sizing: border-box;
+                font-size: 1.3em;
+                background-color: #ee5c61;
+            }
+            .download div:active {
+                -webkit-box-shadow: 0 5px 20px rgba(0, 0, 0, 0.7);
+                box-shadow: 0 5px 20px rgba(0, 0, 0, 0.7);
+            }
+        </style>
+        <div class="row">
+            
+        </div>
+        <div class="row download" onclick="_hmt.push(['_trackEvent', '游戏下载', '按钮点击', '']);self.location='./download.html'">
+            <div class="col-xs-12">
+                点击立即下载
+            </div>
+        </div>
+    </div>
+
+    <script type="text/javascript" src="./ad.js"></script>
+    <script type="text/javascript">
+        function listClick(obj, evt) {
+            var comment = document.getElementById("comment");
+            if (comment.value != '') {
+                comment.value += '\n' + obj.textContent
+            }else {
+                comment.value = obj.textContent
+            }
+        }
+    </script>
+
+</body>
+</html>

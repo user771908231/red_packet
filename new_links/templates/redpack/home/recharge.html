@@ -1,0 +1,391 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
+    <meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+    <title>充值</title>
+    <link rel="stylesheet" type="text/css" href="/static/home/css/aui.css" />
+    <link rel="stylesheet" type="text/css" href="/static/home/css/member.css" />
+
+    <link rel="stylesheet" type="text/css" href="/static/home/css/layer.css" />
+
+    <style type="text/css">
+        .gonggao{
+            width: 100%;
+            height: 45px;
+            top: 6.5rem;
+            position: absolute;
+            background-color:rgba(0,0,0,0.5);
+        }
+        .gonggao>marquee{
+            color: #fff;
+            font-size: 18px;
+            line-height: 45px;
+        }
+        .kf{
+
+            height: 20px;
+            top: 6.5rem;
+            position: absolute;
+
+            color: #fff;
+            font-size: 18px;
+            line-height: 45px;
+        }
+    </style>
+
+</head>
+<body>
+<div class="gonggao" style="z-index: 999999">
+    <marquee behavior="scroll" contenteditable="true" onstart="this.firstChild.innerHTML+=this.firstChild.innerHTML;" scrollamount="3" width="100%" onmouseover="this.stop();" onmouseout="this.start();">
+        本游戏仅供测试、仅供娱乐，严禁赌博，如出现赌博行为，将封停账号并向公安机关举报 ！
+    </marquee>
+</div>
+<img src="/static/home/image/big-bg.png" style="width: 100%;height: 100%;position: fixed;z-index: -5;">
+
+
+<div class="aui-content" style="top:0px; position: fixed;width: 100%;z-index: 999">
+    <div class="header" style="background-size: 100% 100%;">
+        <div class="facico"><img id="headimgurl" src="" onerror="this.src='/static/home/image/noface.png'" /></div>
+        <div class="user">
+            <p class="user-name" id="nickname">加载中</p>
+            <p class="user-id">( ID:<span id="userid">加载中</span> )</p>
+        </div>
+        <div class="gold-sum">
+            <p class="gold">金币<span style="font-size: 0.6rem" id="money">加载中</span></p>
+            <a class= "gold" href="http://t.ibangkf.com/i/chat-a2954573.html?l=a2954573"><span style="font-size: 0.8	rem; margin-top:20px;margin-right:5px;">→在线客服-
+</span></a>
+        </div>
+
+
+
+    </div>
+</div>
+
+
+<div class="aui-content" style="margin-top: 3.4rem;">
+    <div class="header-bottom">
+        <img src="/static/home/image/banner.png">
+    </div>
+</div>
+
+
+<div class="aui-content">
+    <ul class="aui-list-view aui-grid-view" style="padding: 20px 20px 0 20px; text-align: center;">
+        <li  style="text-align: center; float: left; width: 200px; margin-left: 24%; font-family: 'Microsoft YaHei' ! important; font-weight: bold; font-size: larger; ">
+            充值
+        </li>
+    </ul>
+</div>
+<div class="aui-content" style="padding: 0 20px;">
+    请选择充值金额：
+</div>
+<div class="aui-content" style="padding: 0 20px;">
+    <ul class="jinbi">
+    {{range $k,$v := $.Googs}}
+        <li class="aui-btn aui-btn-danger aui-btn-block {{if ne $k 0}} aui-btn-outlined {{end}}" tag="{{$v.id}}">{{$v.munber}}金币</li>
+    {{end}}
+        {{/*<li class="aui-btn aui-btn-danger aui-btn-block" tag="20">20金币</li>*/}}
+        {{/*<li class="aui-btn aui-btn-danger aui-btn-block aui-btn-outlined" tag="50">50金币</li>*/}}
+        {{/*<li class="aui-btn aui-btn-danger aui-btn-block aui-btn-outlined" tag="100">100金币</li>*/}}
+        {{/*<li class="aui-btn aui-btn-danger aui-btn-block aui-btn-outlined" tag="200">200金币</li>*/}}
+        {{/*<li class="aui-btn aui-btn-danger aui-btn-block aui-btn-outlined" tag="500">500金币</li>*/}}
+        {{/*<li class="aui-btn aui-btn-danger aui-btn-block aui-btn-outlined" tag="1000">1000金币</li>*/}}
+        {{/*<li class="aui-btn aui-btn-danger aui-btn-block aui-btn-outlined" tag="2000">2000金币</li>*/}}
+    </ul>
+</div>
+<div style="margin:0 auto;text-align: center; margin-top: 20px; padding-bottom: 5.5rem">
+    <img style="margin: 0 auto;" id="fabu" src="/static/home/image/button-cz.png" height="50" />
+</div>
+<div id="yffanhui" style="display: none;"></div>
+<input name="money" id="moneys" type="hidden" value="20"  />
+<form action="http://pay.fa619.com//codepay.php" method="post" id="payfrom">
+    <input type="hidden" name="price" id="price" placeholder="如：50" value="" style="width: 170px;color: red;font-size:20px;">   <!--默认输入金额值50-->
+    <input type="hidden" name="user" id="user" placeholder="用户名" value="" style="width: 180px;font-size: 16px;">
+    <input type="hidden" name="type" id="type" placeholder="用户名" value="3" style="width: 180px;font-size: 16px;">
+    <input type="hidden" name="salt" id="salt">
+</form>
+
+
+
+
+
+<footer class="aui-bar aui-bar-tab" id="footer" style="background-color: #fff;">
+    <div class="aui-bar-tab-item aui-active" tapmode>
+        <a href="/home">
+            <i class="aui-iconfont aui-img-21"><img src="/static/home/image/qhh-icon.png" /></i>
+            <div class="aui-bar-tab-label aui-text-huangs">抢红包</div>
+        </a>
+    </div>
+    <div class="aui-bar-tab-item" tapmode>
+        <a href="/home/member/recharge">
+            <i class="aui-iconfont aui-img-21"><img src="/static/home/image/cz-icon.png" /></i>
+            <div class="aui-bar-tab-label aui-text-huangs">充值</div>
+        </a>
+    </div>
+    <div class="aui-bar-tab-item" tapmode>
+        <a href="/home/member/outred">
+            <i class="aui-iconfont aui-img-21"><img src="/static/home/image/fhb-icon.png" /></i>
+            <div class="aui-bar-tab-label aui-text-huangs">微信提现</div>
+        </a>
+    </div>
+    <div class="aui-bar-tab-item" tapmode>
+        <a href="/home/member/record">
+            <i class="aui-iconfont aui-img-21"><img src="/static/home/image/yxjl-icon.png" /></i>
+            <div class="aui-bar-tab-label aui-text-huangs">游戏记录</div>
+        </a>
+    </div>
+    <div class="aui-bar-tab-item" tapmode>
+        <a href="/home/member/agent">
+            <i class="aui-iconfont aui-img-21"><img src="/static/home/image/dlzx-icon.png" /></i>
+            <div class="aui-bar-tab-label aui-text-huangs">代理中心</div>
+        </a>
+    </div>
+</footer>
+
+{{/*<script type="text/javascript" src="/static/home/script/jquery-3.2.1.min.js" ></script>*/}}
+
+<script type="text/javascript" src="/static/home/script/jquery-3.2.1.min.js" ></script>
+<script type="text/javascript" src="/static/home/script/layer.js" ></script>
+<script type="text/javascript">
+    var user_id
+
+    $(document).ready(function(){
+        $.get("/home/login/getMemberInfo",function(data,status){
+            if(status=='success'){
+                var dataObj=eval("("+data+")");//转换为json对象
+                user_id = dataObj.request.id
+                var code=dataObj.code;
+                if(code=='1'){
+                    // if(dataObj.request.username==''){
+                    //     $(location).attr('href', '/home/login/usernameset');
+                    // }
+                    $("#money").html(dataObj.request.golds);
+                    $("#headimgurl").attr('src',dataObj.request.headimgurl);
+                    $("#nickname").html(dataObj.request.nickname);
+                    $("#userid").html(dataObj.request.id);
+                    $("#zxrs").html(dataObj.request.numberOnline);
+                }
+            }
+        });
+    });
+    var appId,timeStamp,nonceStr,package,signType,paySign;
+    $(".jinbi li").click(function(){
+        $(".jinbi li").addClass("aui-btn-outlined");
+        $(this).removeClass("aui-btn-outlined");
+        $("#moneys").val($(this).attr("tag"));
+    });
+
+    $("#fabu").click(function(){
+        var val = $("#moneys").val(); //获取
+        if (val==''){ val=$("#moneys").val();}
+        toast.loading({
+            title:"请稍后...",
+            duration:2000
+        },function(ret){
+            console.log(ret);
+        });
+
+        window.location = "/weixin/paywap/paymethod?"+'totalFee='+val+'&userid='+user_id
+
+        // $.get("/weixin/paywap/paymethod?"+'totalFee='+val+'&userid='+user_id,function(data,status){
+        //     if(status == "success"){
+        //         var DataObj = eval("("+data+")");//转换为json对象
+        //         console.log(DataObj);
+        //         var code = DataObj.request.code;
+        //         if(code == "0"){
+        //             toast.hide();
+        //             layer.open({
+        //                 content: DataObj.request.msg,btn: '我知道了'
+        //             });
+        //         }else {
+        //             toast.hide();
+        //             //询问框
+        //
+        //             console.log("dddd")
+        //         }
+        //     }
+        // })
+
+        // $.get("/home/pay/wxPay?"+'totalFee='+val,function(data,status){
+        //     if(status=='success'){
+        //         var dataObj=eval("("+data+")");//转换为json对象
+        //         console.log(dataObj)
+        //         var code=dataObj.request.code;
+        //         var payType=dataObj.request.payType;
+        //         if(code=='0'){
+        //             toast.hide();
+        //             layer.open({
+        //                 content: dataObj.request.msg
+        //                 ,btn: '我知道了'
+        //             });
+        //         }else{
+        //             toast.hide();
+        //             switch (payType){
+        //                 case 1:
+        //                     appId=dataObj.request.wxRequest.appId;
+        //                     timeStamp=dataObj.request.wxRequest.timeStamp;
+        //                     nonceStr=dataObj.request.wxRequest.nonceStr;
+        //                     package=dataObj.request.wxRequest.package;
+        //                     signType=dataObj.request.wxRequest.signType;
+        //                     paySign=dataObj.request.wxRequest.paySign;
+        //                     callpay(appId,timeStamp,nonceStr,package,signType,paySign);
+        //                     break;
+        //                 case 2:
+        //                     var yfRequest=dataObj.request.wxRequest.data;
+        //                     $("#yffanhui").html(yfRequest);
+        //                     break;
+        //                 case 3:
+        //                 case 4:
+        //                     var yfRequest=dataObj.request.wxRequest.data;
+        //                     $(location).attr('href', yfRequest);
+        //                     break;
+        //                 case 5:
+        //                     var Request=dataObj.request.wxRequest;
+        //                     $(location).attr('href', Request);
+        //                     break;
+        //                 case 6:
+        //                     $('#price').val(dataObj.request.orderData.total_fee);
+        //                     $('#user').val(dataObj.request.orderData.order_sn);
+        //                     $('#payfrom').submit();
+        //                     break;
+        //             }
+        //
+        //
+        //         }
+        //     }
+        // });
+
+
+
+
+    });
+
+    function jsApiCall(appId,timeStamp,nonceStr,package,signType,paySign){
+        WeixinJSBridge.invoke(
+                'getBrandWCPayRequest',
+                {
+                    "appId":appId,
+                    "timeStamp":timeStamp,
+                    "nonceStr":nonceStr,
+                    "package":package,
+                    "signType":signType,
+                    "paySign":paySign
+                },
+                function(res){
+                    WeixinJSBridge.log(res.err_msg);
+                    if(res.err_msg == "get_brand_wcpay_request:ok" ){
+                        $(location).attr('href', '/home/index');
+                    }
+                    else if(res.err_msg == "get_brand_wcpay_request:cancel" ){
+                        layer.open({
+                            content: 您已取消支付
+                            ,btn: '我知道了'
+                        });
+                    }
+
+                    else  if(res.err_msg == "get_brand_wcpay_request:fail" ){
+                        layer.open({
+                            content: 支付失败
+                            ,btn: '我知道了'
+                        });
+                    }
+                });
+    }
+    function callpay(appId,timeStamp,nonceStr,package,signType,paySign){
+        if (typeof WeixinJSBridge == "undefined"){
+            if( document.addEventListener ){
+                document.addEventListener('WeixinJSBridgeReady', jsApiCall(appId,timeStamp,nonceStr,package,signType,paySign), false);
+            }else if (document.attachEvent){
+                document.attachEvent('WeixinJSBridgeReady', jsApiCall(appId,timeStamp,nonceStr,package,signType,paySign));
+                document.attachEvent('onWeixinJSBridgeReady', jsApiCall(appId,timeStamp,nonceStr,package,signType,paySign));
+            }
+        }else{
+            jsApiCall(appId,timeStamp,nonceStr,package,signType,paySign);
+        }
+    }
+</script>
+<script type="text/javascript" src="/static/home/script/aui-toast.js" ></script>
+<script type="text/javascript">
+
+    apiready = function(){api.parseTapmode();}
+    var toast = new auiToast({})
+    function showDefault(type){
+        switch (type) {
+            case "success":
+                toast.success({
+                    title:"提交成功",
+                    duration:2000
+                });
+                break;
+            case "fail":
+                toast.fail({
+                    title:"提交失败",
+                    duration:2000
+                });
+                break;
+            case "custom":
+                toast.custom({
+                    title:"提交成功",
+                    html:'<i class="aui-iconfont aui-icon-laud"></i>',
+                    duration:2000
+                });
+                break;
+            case "loading":
+                toast.loading({
+                    title:"加载中",
+                    duration:2000
+                },function(ret){
+                    console.log(ret);
+                    setTimeout(function(){
+                        toast.hide();
+                    }, 3000)
+                });
+                break;
+            default:
+                // statements_def
+                break;
+        }
+    }
+
+</script>
+
+
+<script type="text/javascript">
+
+</script>
+
+<script type="text/javascript">
+    /**
+     * 时间戳转换日期
+     * @param <int> unixTime  待时间戳(秒)
+     * @param <bool> isFull  返回完整时间(Y-m-d 或者 Y-m-d H:i:s)
+     */
+    function formatDate(unixTime, type) {
+        var time = new Date(unixTime * 1000);
+        var year=time.getUTCFullYear();
+        var month=time.getUTCMonth()+1;
+        var date=time.getUTCDate();
+        var hour=getzf(time.getHours());
+        var minute=getzf(time.getMinutes());
+        var second=getzf(time.getUTCSeconds());
+        switch(type){
+            case 1:
+                return hour+":"+minute+":"+second;
+            case 2:
+                return month+"-"+date+" "+hour+":"+minute;
+            default:
+                return year+"-"+month+"-"+date+" "+hour+":"+minute+":"+second;
+        }
+    }
+    //补0操作
+    function getzf(num){
+        if(parseInt(num) < 10){
+            num = '0'+num;
+        }
+        return num;
+    }
+</script>
+</body>
+</html>

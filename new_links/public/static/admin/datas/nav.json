@@ -1,0 +1,313 @@
+{
+	"1": [
+		{
+			"title": "用户管理",
+			"icon": "fa-cogs",
+			"spread": true,
+			"children": [
+				{
+					"title": "游戏用户",
+					"icon": "fa-users",
+					"href": "/admin/manage/user/"
+				},{
+					"title": "管理员",
+					"icon": "fa-users",
+					"href": "/button"
+				}
+			]
+		},{
+			"title": "链接管理",
+			"icon": "fa-sliders",
+			"spread": true,
+			"children": [
+				{
+					"title": "链接列表",
+					"icon": "fa-slider",
+					"href": "/admin/links?status=1&page=1"
+				},{
+					"title": "红包-已被拒",
+					"icon": "fa-slider",
+					"href": "/admin/links?status=2&page=1"
+				},{
+					"title": "红包-已发放",
+					"icon": "fa-slider",
+					"href": "/admin/links?status=3&page=1"
+				}
+			]
+		},{
+			"title": "提现记录列表",
+			"icon": "fa-sliders",
+			"spread": true,
+			"children": [
+				{
+					"title": "红包-全部",
+					"icon": "fa-slider",
+					"href": "/admin/manage/Withdrawals?status=0&page=1"
+				},
+				{
+					"title": "红包-待审核",
+					"icon": "fa-slider",
+					"href": "/admin/manage/Withdrawals?status=1&page=1"
+				},{
+					"title": "红包-已被拒",
+					"icon": "fa-slider",
+					"href": "/admin/manage/Withdrawals?status=2&page=1"
+				},{
+					"title": "红包-已发放",
+					"icon": "fa-slider",
+					"href": "/admin/manage/Withdrawals?status=3&page=1"
+				}
+			]
+		},{
+			"title": "充值订单列表",
+			"icon": "fa-sliders",
+			"spread": true,
+			"children": [
+				{
+					"title": "红包-全部",
+					"icon": "fa-slider",
+					"href": "/admin/manage/postal?status=0&page=1"
+				},
+				{
+					"title": "红包-待审核",
+					"icon": "fa-slider",
+					"href": "/admin/manage/postal?status=1&page=1"
+				},{
+					"title": "红包-已被拒",
+					"icon": "fa-slider",
+					"href": "/admin/manage/postal?status=2&page=1"
+				},{
+					"title": "红包-已发放",
+					"icon": "fa-slider",
+					"href": "/admin/manage/postal?status=3&page=1"
+				}
+			]
+		},{
+			"title": "物品价格设置",
+			"icon": "fa-sliders",
+			"spread": true,
+			"children": [
+				{
+					"title": "物品全部",
+					"icon": "fa-slider",
+					"href": "/admin/manage/goods?status=0&page=1"
+				},
+				{
+					"title": "正在使用物品",
+					"icon": "fa-slider",
+					"href": "/admin/manage/goods?status=1&page=1"
+				},{
+					"title": "未使用的物品",
+					"icon": "fa-slider",
+					"href": "/admin/manage/goods?status=2&page=1"
+				},{
+					"title": "新增物品",
+					"icon": "fa-slider",
+					"href": "/admin/manage/goods/add"
+				}
+			]
+		},{
+			"title": "代理商申请",
+			"icon": "fa-sliders",
+			"spread": true,
+			"children": [
+				{
+					"title": "代理-待审核",
+					"icon": "fa-slider",
+					"href": "/admin/manage/apply?status=1&page=1"
+				},{
+					"title": "代理-已被拒",
+					"icon": "fa-slider",
+					"href": "/admin/manage/apply?status=2&page=1"
+				},{
+					"title": "代理-已通过",
+					"icon": "fa-slider",
+					"href": "/admin/manage/apply?status=3&page=1"
+				},{
+					"title": "全部代理",
+					"icon": "fa-slider",
+					"href": "/admin/manage/agent?pid=0&page=1"
+				}
+			]
+		},{
+			"title": "配置管理",
+			"icon": "fa-sliders",
+			"spread": true,
+			"children": [
+				{
+					"title": "商城配置",
+					"icon": "fa-slider",
+					"href": "/admin/config/goods/list"
+				},{
+					"title": "任务配置",
+					"icon": "fa-slider",
+					"href": "/admin/config/task/list"
+				}
+			]
+		}
+	],
+	"2": [
+		{
+			"title": "文章管理",
+			"icon": "fa-th",
+			"spread": true,
+			"children": [
+				{
+					"title": "文章列表",
+					"icon": "fa-list",
+					"href": "button.html"
+				},
+				{
+					"title": "文章回收站",
+					"icon": "fa-trash",
+					"href": "form.html"
+				}
+			]
+		},{
+			"title": "基础信息",
+			"icon": "fa-info",
+			"spread": true,
+			"children": [
+				{
+					"title": "标签管理",
+					"icon": "fa-tag",
+					"href": "button.html"
+				},
+				{
+					"title": "类别管理",
+					"icon": "fa-tag",
+					"href": "form.html"
+				},
+				{
+					"title": "其他设置",
+					"icon": "fa-cog",
+					"href": "form.html"
+				}
+			]
+		},{
+			"title": "数据分析",
+			"icon": "fa-sliders",
+			"spread": true,
+			"children": [
+				{
+					"title": "充值统计",
+					"icon": "fa-slider",
+					"href": "/admin/manage/apply?status=1&page=1"
+				},{
+					"title": "注册用户统计",
+					"icon": "fa-slider",
+					"href": "/admin/data/user_reg"
+				},{
+					"title": "活跃用户统计",
+					"icon": "fa-slider",
+					"href": "/admin/data/user_active"
+				},{
+					"title": "在线统计",
+					"icon": "fa-slider",
+					"href": "/admin/data/onlineStatic"
+				},{
+					"title": "在房间玩家",
+					"icon": "fa-slider",
+					"href": "/admin/data/atHome"
+				},{
+					"title": "用户使用房卡统计",
+					"icon": "fa-slider",
+					"href": "/admin/data/roomCard"
+				},{
+					"title": "房卡每日消耗统计",
+					"icon": "fa-slider",
+					"href": "/admin/data/roomCardDay"
+				},{
+					"title": "金币分布",
+					"icon": "fa-slider",
+					"href": "/admin/manage/agent?pid=0&page=1"
+				},{
+					"title": "流失玩家",
+					"icon": "fa-slider",
+					"href": "/admin/manage/agent?pid=0&page=1"
+				},{
+					"title": "活跃玩家",
+					"icon": "fa-slider",
+					"href": "/admin/manage/agent?pid=0&page=1"
+				},{
+					"title": "系统统计",
+					"icon": "fa-slider",
+					"href": "/admin/manage/agent?pid=0&page=1"
+				},{
+					"title": "游戏记录",
+					"icon": "fa-slider",
+					"href": "/admin/manage/agent?pid=0&page=1"
+				},{
+					"title": "银行税收",
+					"icon": "fa-slider",
+					"href": "/admin/manage/agent?pid=0&page=1"
+				},{
+					"title": "游戏税收",
+					"icon": "fa-slider",
+					"href": "/admin/manage/agent?pid=0&page=1"
+				},{
+					"title": "清理表数据",
+					"icon": "fa-slider",
+					"href": "/admin/manage/agent?pid=0&page=1"
+				}
+			]
+		}
+	],
+	"3": [
+		{
+			"title": "审核管理",
+			"icon": "fa-cubes",
+			"spread": true,
+			"children": [
+				{
+					"title": "用户信息",
+					"icon": "fa-users",
+					"href": "button.html"
+				},
+				{
+					"title": "评论管理",
+					"icon": "fa-list",
+					"href": "form.html"
+				}
+			]
+		},{
+			"title": "支付管理",
+			"icon": "fa-paypal",
+			"spread": true,
+			"children": [
+				{
+					"title": "订单管理",
+					"icon": "fa-money",
+					"href": "button.html"
+				},
+				{
+					"title": "产品管理",
+					"icon": "fa-product-hunt",
+					"href": "form.html"
+				}
+			]
+		}
+	],
+	"4": [
+		{
+			"title": "登录服务器配置",
+			"icon": "fa-cubes",
+			"spread": true,
+			"children": [
+				{
+					"title": "登陆服配置",
+					"icon": "fa-slider",
+					"href": "/admin/config/game/listLogin"
+				},{
+					"title": "登陆服服务器列表配置",
+					"icon": "fa-slider",
+					"href": "/admin/config/game/listAll"
+				},{
+					"title": "游戏服务器列表配置",
+					"icon": "fa-slider",
+					"href": "/admin/config/game/gameList"
+				}
+			]
+		}
+	]
+}
