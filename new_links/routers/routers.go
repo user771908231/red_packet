@@ -29,9 +29,10 @@ func Regist(m *macaron.Macaron) {
 				m.Get("/add",keys.AddHandler)
 				m.Get("/edit",keys.EditHandler)
 				m.Post("/add",keys.PostAddHandler)
-				m.Post("/status",keys.StatusHandler)
+				m.Get("/status",keys.StatusHandler)
 				m.Post("/update",keys.UpdateHandler)
-				m.Post("/del",keys.DelHandler)
+				m.Get("/del",keys.DelHandler)
+				m.Get("/upload",keys.Uploadhandler)
 			})
 
 			//分组管理

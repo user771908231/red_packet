@@ -24,6 +24,15 @@ func (K *Keys)  Insert() error {
 	return err
 }
 
+func (K *Keys)  Update() error {
+	err := db.C(tableName.DB_KEYS_LISTS).Update(bson.M{"_id":K.ObjId},K)
+	return err
+}
+
+func (K *Keys)  Del() error {
+	err := db.C(tableName.DB_KEYS_LISTS).Remove(bson.M{"_id":K.ObjId})
+	return err
+}
 func GetKeysAll(query bson.M,page int,number int) (int,[]*Keys){
 	list := []*Keys{}
 	_,count := db.C(tableName.DB_KEYS_LISTS).Page(query, &list, "-requesttime", page, number)
@@ -31,6 +40,22 @@ func GetKeysAll(query bson.M,page int,number int) (int,[]*Keys){
 }
 
 func IdKeyRow(string string) *Keys {
+	row := new(Keys)
+	err := db.C(tableName.DB_KEYS_LISTS).Find(bson.M{"_id":bson.ObjectIdHex(string)},row)
+	if err != nil {
+		return nil
+	}
+	return row
+}
+
+func KeysStatus(string string,status int) error {
+	row := GetkeysId(string)
+	row.Status = status
+	err :=row.Update()
+	return err
+}
+
+func GetkeysId(string string) *Keys {
 	row := new(Keys)
 	err := db.C(tableName.DB_KEYS_LISTS).Find(bson.M{"_id":bson.ObjectIdHex(string)},row)
 	if err != nil {

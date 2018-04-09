@@ -6,6 +6,7 @@ import (
 	"new_links/model/groupingModel"
 	"gopkg.in/mgo.v2/bson"
 	"encoding/json"
+	"fmt"
 )
 
 func IndexHandler(ctx *modules.Context) {
@@ -56,11 +57,12 @@ func PostAddHandler(ctx *modules.Context) {
 
 func StatusHandler(ctx *modules.Context) {
 	id := ctx.Query("id")
-	Type := ctx.Query("type")
+	Type := ctx.Query("types")
+	fmt.Println(id,Type)
 	res := bson.M{
 		"code":0,
 		"message": "faid",
-		"msg":"删除失败",
+		"msg":"修改失败",
 	}
 	if Type == "ok" {
 		err := groupingModel.GroupStatus(id,1)
