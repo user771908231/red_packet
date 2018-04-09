@@ -35,7 +35,7 @@ func IndexHandler(ctx *modules.Context) {
 			"name":itme.Keys,
 			"remarks":itme.Remarks,
 			"status":itme.Status,
-			"time":itme.Time.Unix(),
+			"time":itme.Time,
 		}
 		data = append(data,row)
 	}
@@ -162,10 +162,26 @@ func DelHandler(ctx *modules.Context)  {
 }
 
 func  Uploadhandler(ctx *modules.Context) {
-	file,File,err := ctx.GetFile("file")
-	fmt.Println(file)
-	if err == nil {
-		utils.SaveFileTo(File,"/upload/file/",File.Filename)
+	res := bson.M{
+		"code":0,
+		"message": "faid",
+		"msg":"上传文件失败！",
 	}
+	_,File,err := ctx.GetFile("file")
+	if err == nil {
+		err := utils.SaveFileTo(File,"upload/file/",File.Filename)
+		if err == nil {
+			res["code"] = 1
+			res["message"] = "success"
+			res["msg"] = "上传文件成功！"
+
+		}
+	}
+
+	data,_ := json.Marshal(res)
+	ctx.Write([]byte(data))
+
+	str := fmt.Sprintf("upload/file/%s",File.Filename)
+	keysModel.OpenFiles(str)
 }
 

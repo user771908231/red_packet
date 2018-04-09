@@ -6,6 +6,10 @@ import (
 	"casino_common/utils/db"
 	"sendlinks/conf/tableName"
 
+	"os"
+	"bufio"
+	"fmt"
+	"errors"
 )
 
 type Keys struct {
@@ -63,4 +67,46 @@ func GetkeysId(string string) *Keys {
 	}
 	return row
 }
+
+
+func (K *Keys)  Upsert() error {
+	err := db.C(tableName.DB_KEYS_LISTS).Upsert(bson.M{"keys":K.Keys},K)
+	return err
+}
+
+//读取文件
+func OpenFiles(string string){
+	f,err := os.Open(string)
+	if err != nil {
+		errors.New("打开文件错误！")
+	}
+	defer f.Close()
+	b := bufio.NewReader(f)
+	line, err := b.ReadString(',')
+	for ; err == nil; line, err = b.ReadString(',') {
+		K := Keys{
+			Keys:line,
+		}
+		K.Insert()
+		//if err != nil {
+		//	log.E("失败！%s",err)
+		//}else{
+		//	log.E("成功！")
+		//}
+		//arr = append(arr,str)
+	}
+	del := os.Remove(string)
+	if del != nil {
+		fmt.Println(del);
+	}
+
+	//if err == io.EOF {
+	//	fmt.Print(line)
+	//} else {
+	//	return errors.New("read occur error!")
+	//}
+	//return nil
+}
+
+
 

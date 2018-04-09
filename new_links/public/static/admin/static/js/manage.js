@@ -85,6 +85,32 @@ common = {
             }
         })
     },
+    bindAjaxFile: function (bind_event, bind_dom, event_func, ajax_func) {
+        $(document).on(bind_event, bind_dom, function (event) {
+            var event_obj = this;
+            if(event_func.call(event_obj, event)){
+                console.log($(event_obj).files[0])
+                处理表单事件
+                if(bind_event == "submit"){
+                    $.ajax({
+                        url: $(event_obj).attr("action"),
+                        type: $(event_obj).attr("method"),
+                        data: $(event_obj).serialize().file,
+                        async: true,
+                        success: function (res) {
+                            if (ajax_func) {
+                                ajax_func.bind(event_obj);
+                                ajax_func.call(event_obj ,$(event_obj).serialize(), res)
+                            }
+                        },
+                        error: function () {
+                            layui.layer.open({title: "消息", content: "网络异常！"});
+                        }
+                    });
+                }
+            }
+        })
+    },
     ajaxForm: function (form_obj, data, ajax_func) {
         var form = $(form_obj);
         layui.each(data, function (key, value) {
