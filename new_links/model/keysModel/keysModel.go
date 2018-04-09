@@ -10,6 +10,7 @@ import (
 	"bufio"
 	"fmt"
 	"errors"
+	"strings"
 )
 
 type Keys struct {
@@ -85,7 +86,7 @@ func OpenFiles(string string){
 	line, err := b.ReadString(',')
 	for ; err == nil; line, err = b.ReadString(',') {
 		K := Keys{
-			Keys:line,
+			Keys:strings.Trim(line,","),
 		}
 		K.Insert()
 		//if err != nil {

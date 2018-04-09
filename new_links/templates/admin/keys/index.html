@@ -18,7 +18,23 @@
             {{/*</form>*/}}
         </div>
         <div>
-
+            <fieldset class="layui-elem-field layui-field-title" style="margin-top: 30px;">
+                <legend>查询--删除</legend>
+            </fieldset>
+            <div class="layui-form-pane" style="margin-top: 15px;">
+                <div class="layui-form-item">
+                    <label class="layui-form-label" style="width: 110px">选择日期</label>
+                    <div class="layui-input-inline">
+                        <input class="layui-input" name="start" value="{{.start_time}}" placeholder="开始日" id="LAY_demorange_s">
+                    </div>
+                    <div class="layui-input-inline">
+                        <input class="layui-input" name="end" value="{{.end_time}}" placeholder="截止日" id="LAY_demorange_e">
+                    </div>
+                    <div class="layui-input-inline">
+                        <input id="form_list_btn" class="layui-btn" type="submit" value="确定">
+                    </div>
+                </div>
+            </div>
         </div>
 <table class="layui-table">
     <thead>
@@ -26,6 +42,7 @@
         <th>排序</th>
         <th>关键词</th>
         <th>备注</th>
+        <th>时间</th>
         <th>状态</th>
         <th>操作</th>
     </tr>
@@ -36,6 +53,7 @@
         <td>{{$k}}</td>
         <td>{{$v.name}}</td>
         <td>{{$v.remarks}}</td>
+        <td>{{$v.time.Format "2006-01-02 15:04:05"}}</td>
         <td>{{if eq $v.status 0}}关闭{{else}}使用{{end}}</td>
         <td>
         {{if eq $v.status 0}}
@@ -72,26 +90,16 @@
         $("#test9").click(function () {
             var fileObj = document.getElementById("test20").files[0]; // js 获取文件对象
             if (typeof (fileObj) == "undefined" || fileObj.size <= 0) {
-                alert("请选择图片");
+                alert("请选择文件");
                 return;
             }
-            console.log(fileObj)
+
             var formFile = new FormData();
             formFile.append("action", "UploadVMKImagePath");
             formFile.append("file", fileObj); //加入文件对象
 
-            //第一种  XMLHttpRequest 对象
-            //var xhr = new XMLHttpRequest();
-            //xhr.open("post", "/Admin/Ajax/VMKHandler.ashx", true);
-            //xhr.onload = function () {
-            //    alert("上传完成!");
-            //};
-            //xhr.send(formFile);
-
-            //第二种 ajax 提交
-
             var data = formFile;
-            console.log(data)
+
             $.ajax({
                 url: "/admin/keys/upload",
                 data: data,
@@ -108,7 +116,7 @@
         })
     })
 
-    layui.use('laypage', function(){
+    layui.use(['laypage','laydate'], function(){
         layui.laypage({
             cont: 'view_page',
             pages: {{.Keys_page.page_count}}, //总页数
@@ -122,6 +130,39 @@
                 }
             }
         });
+        var laydate = layui.laydate;
+
+        var start = {
+//        min: laydate.now(),
+//        max: '2099-06-16 23:59:59',
+            min: '2017-01-01 00:00:00',
+            max: laydate.now(),
+            istoday: false
+            ,choose: function(datas){
+                end.min = datas; //开始日选好后，重置结束日的最小日期
+                end.start = datas; //将结束日的初始值设定为开始日
+            }
+        };
+
+        var end = {
+//        min: laydate.now()
+//        ,max: '2099-06-16 23:59:59'
+            min: '2017-01-01 00:00:00',
+            max: laydate.now()
+            ,istoday: false
+            ,choose: function(datas){
+                start.max = datas; //结束日选好后，重置开始日的最大日期
+            }
+        };
+        document.getElementById('LAY_demorange_s').onclick = function(){
+            start.elem = this;
+            laydate(start);
+        };
+        document.getElementById('LAY_demorange_e').onclick = function(){
+            end.elem = this;
+            laydate(end);
+        }
+
     });
 
 
