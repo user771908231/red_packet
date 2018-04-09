@@ -23,6 +23,8 @@ var Server struct {
 	MongoLogIp string
 	MongoPort int
 
+	DBName string  //数据库名
+
 	//redis配置
 	RedisAddr string
 	RedisPwd  string

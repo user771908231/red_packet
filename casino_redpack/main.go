@@ -32,7 +32,7 @@ func init() {
 		conf.Server.LogFileCount,
 		conf.Server.MongoIp,
 		conf.Server.MongoLogIp,
-		config.SUPER_DBNAM,
+		conf.Server.DBName,
 		[]string{
 			config.DBT_SUPER_LOGS,
 			config.DB_USER_SEQ,
