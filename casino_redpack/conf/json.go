@@ -51,6 +51,10 @@ var Server struct {
 
 	//站点相关
 	SiteName string
+
+	//旺实富支付配置
+	PaywapUserCode string  //旺实富分配的商户号
+	PaywapCompKey  string  //旺实富分配的密钥
 }
 
 func init() {

@@ -15,6 +15,7 @@ import (
 	"casino_redpack/model/weixinModel"
 	"html/template"
 	"casino_common/common/service/rpcService"
+	"casino_redpack/handler/weixin"
 )
 
 func init() {
@@ -83,6 +84,11 @@ func main() {
 	weixinModel.WX_MCH_ID = conf.Server.WxMchId
 	weixinModel.WX_API_KEY = conf.Server.WxApiKey
 	weixinModel.WX_APP_SECRET = conf.Server.WxAppSecret
+
+	//初始化旺实富支付配置
+	weixin.PAYWAP_COMPKEY = conf.Server.PaywapCompKey
+	weixin.PAYWAP_USERCODE = conf.Server.PaywapUserCode
+
 	//初始化微信回调
 	weixinModel.WxPayInit()
 
