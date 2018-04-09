@@ -25,13 +25,9 @@
 					"icon": "fa-slider",
 					"href": "/admin/links?status=1&page=1"
 				},{
-					"title": "红包-已被拒",
+					"title": "添加链接",
 					"icon": "fa-slider",
 					"href": "/admin/links/add"
-				},{
-					"title": "红包-已发放",
-					"icon": "fa-slider",
-					"href": "/admin/links?status=3&page=1"
 				}
 			]
 		},{
@@ -48,14 +44,6 @@
 					"title": "关键词添加",
 					"icon": "fa-slider",
 					"href": "/admin/keys/add"
-				},{
-					"title": "红包-已被拒",
-					"icon": "fa-slider",
-					"href": "/admin/manage/Withdrawals?status=2&page=1"
-				},{
-					"title": "红包-已发放",
-					"icon": "fa-slider",
-					"href": "/admin/manage/Withdrawals?status=3&page=1"
 				}
 			]
 		},{
@@ -72,76 +60,6 @@
 					"title": "新增分组",
 					"icon": "fa-slider",
 					"href": "/admin/group/add"
-				},{
-					"title": "红包-已被拒",
-					"icon": "fa-slider",
-					"href": "/admin/manage/postal?status=2&page=1"
-				},{
-					"title": "红包-已发放",
-					"icon": "fa-slider",
-					"href": "/admin/manage/postal?status=3&page=1"
-				}
-			]
-		},{
-			"title": "物品价格设置",
-			"icon": "fa-sliders",
-			"spread": true,
-			"children": [
-				{
-					"title": "物品全部",
-					"icon": "fa-slider",
-					"href": "/admin/manage/goods?status=0&page=1"
-				},
-				{
-					"title": "正在使用物品",
-					"icon": "fa-slider",
-					"href": "/admin/manage/goods?status=1&page=1"
-				},{
-					"title": "未使用的物品",
-					"icon": "fa-slider",
-					"href": "/admin/manage/goods?status=2&page=1"
-				},{
-					"title": "新增物品",
-					"icon": "fa-slider",
-					"href": "/admin/manage/goods/add"
-				}
-			]
-		},{
-			"title": "代理商申请",
-			"icon": "fa-sliders",
-			"spread": true,
-			"children": [
-				{
-					"title": "代理-待审核",
-					"icon": "fa-slider",
-					"href": "/admin/manage/apply?status=1&page=1"
-				},{
-					"title": "代理-已被拒",
-					"icon": "fa-slider",
-					"href": "/admin/manage/apply?status=2&page=1"
-				},{
-					"title": "代理-已通过",
-					"icon": "fa-slider",
-					"href": "/admin/manage/apply?status=3&page=1"
-				},{
-					"title": "全部代理",
-					"icon": "fa-slider",
-					"href": "/admin/manage/agent?pid=0&page=1"
-				}
-			]
-		},{
-			"title": "配置管理",
-			"icon": "fa-sliders",
-			"spread": true,
-			"children": [
-				{
-					"title": "商城配置",
-					"icon": "fa-slider",
-					"href": "/admin/config/goods/list"
-				},{
-					"title": "任务配置",
-					"icon": "fa-slider",
-					"href": "/admin/config/task/list"
 				}
 			]
 		}
