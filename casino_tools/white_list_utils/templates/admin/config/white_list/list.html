@@ -2,13 +2,14 @@
 
 <div class="layui-tab" style="overflow: visible" lay-filter="goods_tab">
     <ul class="layui-tab-title">
-        <li data-gid="22"{{if eq .gid 22}}class="layui-this"{{end}}>红中麻将</li>
-        <li data-gid="7"{{if eq .gid 7}}class="layui-this"{{end}}>跑得快</li>
-        <li data-gid="11"{{if eq .gid 11}}class="layui-this"{{end}}>牛牛</li>
-        <li data-gid="23"{{if eq .gid 23}}class="layui-this"{{end}}>跑胡子</li>
-        <li data-gid="31"{{if eq .gid 31}}class="layui-this"{{end}}>自贡麻将</li>
-        <li data-gid="31"{{if eq .gid 34}}class="layui-this"{{end}}>拼二筒</li>
-        <li data-gid="27"{{if eq .gid 27}}class="layui-this"{{end}}>炸弹</li>
+        {{/*<li data-gid="22"{{if eq .gid 22}}class="layui-this"{{end}}>红中麻将</li>*/}}
+        {{/*<li data-gid="7"{{if eq .gid 7}}class="layui-this"{{end}}>跑得快</li>*/}}
+        {{/*<li data-gid="11"{{if eq .gid 11}}class="layui-this"{{end}}>牛牛</li>*/}}
+        {{/*<li data-gid="23"{{if eq .gid 23}}class="layui-this"{{end}}>跑胡子</li>*/}}
+        {{/*<li data-gid="31"{{if eq .gid 31}}class="layui-this"{{end}}>自贡麻将</li>*/}}
+        {{/*<li data-gid="31"{{if eq .gid 34}}class="layui-this"{{end}}>拼二筒</li>*/}}
+        {{/*<li data-gid="27"{{if eq .gid 27}}class="layui-this"{{end}}>炸弹</li>*/}}
+        <li data-gid="32"{{if eq .gid 32}}class="layui-this"{{end}}>柳州麻将</li>
 
     </ul>
     <div class="layui-tab-content">
@@ -53,6 +54,10 @@
     </div>
 </form>
 <script>
+
+    if({{.gid}}==27){
+        window.location="?gid=32"
+    }
 
     layui.use(["element"], function () {
         //选项卡
