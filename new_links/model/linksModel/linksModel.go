@@ -71,7 +71,9 @@ type PostForm struct {
 }
 
 func Createlink(f PostForm) error{
-
+	defer func() {
+		LInskPush()
+	}()
 	link := fmt.Sprintf("%sfrom=%dn/s?word=%s",f.Url,f.Id,keysModel.GetkeysId(f.Keys).Keys)
 	L := Links{
 		GruopId:bson.ObjectIdHex(f.Group),
@@ -85,6 +87,11 @@ func Createlink(f PostForm) error{
 	err := L.Insert()
 	return err
 }
+
+func LInskPush(string string) {
+	fmt.Println()
+}
+
 //stringObjId 获取
 func GetLinkId(string string) *Links {
 	L := new(Links)
