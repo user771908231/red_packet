@@ -34,6 +34,7 @@
         {{if  eq $v.status 1}}
             <a class="layui-btn layui-btn-sm layui-btn-normal agree-btn" href='/admin/links/status?id={{$v.id}}&types=no' type="button">停用</a>
         {{end}}
+            <a class="layui-btn layui-btn-sm layui-btn-danger " href='/admin/links/edit?id={{$v.id}}' type="button">编辑</a>
             <a class="layui-btn layui-btn-sm layui-btn-danger agree-btn" href='/admin/links/del?id={{$v.id}}' type="button">删除</a>
         </td>
     </tr>

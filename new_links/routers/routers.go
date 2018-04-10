@@ -27,6 +27,8 @@ func Regist(m *macaron.Macaron) {
 				m.Post("/add",binding.Bind(linksModel.PostForm{}),links.PostAddHandler)
 				m.Get("/del",links.Delhandler)
 				m.Get("/status",links.Statushandler)
+				m.Get("/edit",links.Edithandler)
+				m.Post("/upload",binding.Bind(linksModel.PostUpload{}),links.Uploadhandler)
 			})
 			//关键词管理
 			m.Group("/keys", func() {

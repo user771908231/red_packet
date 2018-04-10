@@ -1,11 +1,20 @@
 package hyperlinkModel
 
+import (
+	"new_links/model/groupingModel"
+	"new_links/model/linksModel"
+)
 
-
-func GetGroup(string string)  {
-	//G := groupingModel.GetGroupHost(string)
-	////随机数
-	//rand :=	rand2.Rand(1,100)
+func GetGroup(string string) string {
+	G := groupingModel.GetGroupHost(string)
+	val := linksModel.RandLink(G.ObjId)
+	defer func() {
+		val.Visssts()
+	}()
+	if val == nil {
+		return ""
+	}
+	return val.LinkName
 }
 
 func RandMap()  {

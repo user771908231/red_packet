@@ -40,7 +40,7 @@ func (K *Keys)  Del() error {
 }
 func GetKeysAll(query bson.M,page int,number int) (int,[]*Keys){
 	list := []*Keys{}
-	_,count := db.C(tableName.DB_KEYS_LISTS).Page(query, &list, "-requesttime", page, number)
+	_,count := db.C(tableName.DB_KEYS_LISTS).Page(query, &list, "-_id", page, number)
 	return count,list
 }
 

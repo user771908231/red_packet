@@ -10,7 +10,7 @@ import (
 	"fmt"
 	"new_links/utils"
 )
-
+//列表页
 func IndexHandler(ctx *modules.Context) {
 	status := ctx.QueryInt("status")
 	page := ctx.QueryInt("page")
@@ -49,15 +49,14 @@ func IndexHandler(ctx *modules.Context) {
 	}
 	ctx.HTML(200,"admin/keys/index")
 }
-
+//新增
 func AddHandler(ctx *modules.Context) {
 	ctx.HTML(200,"admin/keys/add")
 }
-
+//编辑
 func EditHandler(ctx *modules.Context)  {
 	id := ctx.Query("id")
 	row := keysModel.IdKeyRow(id)
-	fmt.Println(row.Keys)
 	data := bson.M{
 		"id":row.ObjId.Hex(),
 		"name":row.Keys,
@@ -67,7 +66,7 @@ func EditHandler(ctx *modules.Context)  {
 	ctx.Data["Row"] = data
 	ctx.HTML(200,"admin/keys/add")
 }
-
+//POST提交
 func PostAddHandler(ctx *modules.Context)  {
 	Id := ctx.Query("id")
 	Name := ctx.Query("keys")
@@ -108,7 +107,7 @@ func PostAddHandler(ctx *modules.Context)  {
 	data,_ := json.Marshal(res)
 	ctx.Write([]byte(data))
 }
-
+//修改状态
 func StatusHandler(ctx *modules.Context){
 	id := ctx.Query("id")
 	Type := ctx.Query("types")
@@ -141,7 +140,7 @@ func StatusHandler(ctx *modules.Context){
 func UpdateHandler(ctx *modules.Context)  {
 
 }
-
+//删除
 func DelHandler(ctx *modules.Context)  {
 	id := ctx.Query("id")
 	K := keysModel.GetkeysId(id)
@@ -160,7 +159,7 @@ func DelHandler(ctx *modules.Context)  {
 	ctx.Write([]byte(data))
 
 }
-
+//文件上传
 func  Uploadhandler(ctx *modules.Context) {
 	res := bson.M{
 		"code":0,

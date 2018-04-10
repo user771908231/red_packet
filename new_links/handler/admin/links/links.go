@@ -27,7 +27,7 @@ func IndexHandler(ctx *modules.Context) {
 			"id":item.ObjId.Hex(),
 			"group":groupingModel.GetGroupObjId(item.GruopId).GroupName,
 			"link":item.LinkName,
-			"push":item.Push,
+			"push":item.Push*100,
 			"remarks":item.Remarks,
 			"time":item.Time,
 			"status":item.Status,
@@ -129,4 +129,79 @@ func Statushandler(ctx *modules.Context) {
 	}
 	data,_ := json.Marshal(res)
 	ctx.Write([]byte(data))
+}
+
+func Edithandler(ctx *modules.Context) {
+	id := ctx.Query("id")
+	query := bson.M{}
+	if id != "" {
+		L := linksModel.GetLinkId(id)
+		list := groupingModel.GetGroup(query)
+		data := []bson.M{}
+		for _,item := range list {
+			row := bson.M{
+				"id":item.ObjId.Hex(),
+				"name":item.GroupName,
+			}
+			data = append(data,row)
+		}
+		keys := linksModel.GetKeysStatus()
+		ctx.Data["Keys"] = keys
+		ctx.Data["Links"] =bson.M{
+			"obj_id":L.ObjId.Hex(),
+			"group_id":L.GruopId.Hex(),
+			"keys_id":L.KeysId.Hex(),
+			"url":L.Url,
+			"id":L.Id,
+			"weight":L.Weight,
+			"Remarks":L.Remarks,
+		}
+		ctx.Data["Gourps"] =data
+	}
+	ctx.HTML(200,"admin/links/edit")
+}
+
+func Uploadhandler(ctx *modules.Context ,Upload linksModel.PostUpload) {
+	res := bson.M{
+		"code":0,
+		"message": "faid",
+		"msg":"修改失败",
+	}
+	defer func() {
+		data,_ := json.Marshal(res)
+		ctx.Write([]byte(data))
+	}()
+	//link := linksModel.Links{
+	//	ObjId:bson.ObjectIdHex(Upload.ObjId),
+	//	GruopId:bson.ObjectIdHex(Upload.Group),
+	//	Id:Upload.Id,
+	//	Url:Upload.Url,
+	//	KeysId:bson.ObjectIdHex(Upload.Keys),
+	//	Weight:Upload.Push,
+	//	Remarks:Upload.Remarks,
+	//}
+	link := linksModel.GetLinkId(Upload.ObjId)
+	if link == nil {
+		fmt.Println("kong")
+		return
+	}
+	link.GruopId = bson.ObjectIdHex(Upload.Group)
+	link.KeysId = bson.ObjectIdHex(Upload.Keys)
+	link.Id = Upload.Id
+	link.Url = Upload.Url
+	link.Weight = Upload.Push
+	link.Remarks = Upload.Remarks
+
+
+	err := link.Update()
+	if err == nil {
+		defer func() {
+			linksModel.LInskPush(Upload.Group)
+		}()
+		res["code"] = 1
+		res["message"] = "success"
+		res["msg"] = "修改成功！"
+	}
+
+
 }
