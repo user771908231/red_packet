@@ -1,10 +1,10 @@
 {{template "manage_header" }}
-<form class="layui-form" action="/admin/group/add" method="post">
+<form class="layui-form" action="/admin/links/add" method="post">
     <div class="layui-form-item">
         <div class="layui-inline">
             <label class="layui-form-label">分组</label>
             <div class="layui-input-inline">
-                <select name="gruop_name" lay-filter="aihao">
+                <select name="group" lay-filter="aihao">
                         {{range $k,$v := $.Gourps}}
                     <option value="{{$v.id}}" selected="">{{$v.name}}</option>
                                 {{end}}
@@ -16,7 +16,7 @@
         <div class="layui-inline">
             <label class="layui-form-label">ID</label>
             <div class="layui-input-inline">
-                <input type="number" name="number" lay-verify="required|number" autocomplete="off" class="layui-input">
+                <input type="number" name="id" lay-verify="required|number" autocomplete="off" class="layui-input">
             </div>
         </div>
     </div>
@@ -24,37 +24,28 @@
         <div class="layui-inline">
             <label class="layui-form-label">URL</label>
             <div class="layui-input-inline">
-                <input type="text" name="number" lay-verify="required|url" autocomplete="off" class="layui-input" value="http://m.baidu.com/">
+                <input type="text" name="url" lay-verify="required|url" autocomplete="off" class="layui-input" value="http://m.baidu.com/">
             </div>
         </div>
     </div>
-    {{/*<div class="layui-form-item">*/}}
-        {{/*<div class="layui-inline">*/}}
-            {{/*<label class="layui-form-label">关键词</label>*/}}
-            {{/*<div class="layui-input-inline">*/}}
-                {{/*<select name="discount" lay-filter="aihao">*/}}
-                    {{/*<option value="1" selected="">全价</option>*/}}
-                    {{/*<option value="0.9" >9折</option>*/}}
-                    {{/*<option value="0.8">8折</option>*/}}
-                    {{/*<option value="0.7" >7折</option>*/}}
-                {{/*</select>*/}}
-            {{/*</div>*/}}
-        {{/*</div>*/}}
-    {{/*</div>*/}}
     <div class="layui-form-item">
         <div class="layui-inline">
             <label class="layui-form-label">关键词</label>
             <div class="layui-input-inline">
-                <input type="text" name="number" lay-verify="required|text" autocomplete="off" class="layui-input">
+                <select name="keys" lay-filter="aihao">
+                {{range $k,$v := $.Keys}}
+                    <option value="{{$v.id}}" selected="">{{$v.keys}}</option>
+                {{end}}
+                </select>
             </div>
         </div>
     </div>
 
     <div class="layui-form-item">
         <div class="layui-inline">
-            <label class="layui-form-label">推送率%</label>
+            <label class="layui-form-label">推送权重</label>
             <div class="layui-input-inline">
-                <input type="number" name="number" lay-verify="required|number" autocomplete="off" class="layui-input">
+                <input type="number" name="push" lay-verify="required|number" autocomplete="off" class="layui-input">
             </div>
         </div>
     </div>
@@ -62,7 +53,7 @@
         <div class="layui-inline">
             <label class="layui-form-label">备注</label>
             <div class="layui-input-inline">
-                <input type="text" name="price"  autocomplete="off" class="layui-input">
+                <input type="text" name="remarks"  autocomplete="off" class="layui-input">
             </div>
         </div>
     </div>
@@ -137,7 +128,8 @@
         e.preventDefault();
         return window.confirm("是否同意？")
     }, function (req, res) {
-        console.log("tagree ", res)
+        var data = eval("("+res+")");
+        common.msg("提示", data.msg)
     })
 </script>
 {{template "manage_footer" }}

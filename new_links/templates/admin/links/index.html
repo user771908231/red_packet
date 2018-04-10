@@ -6,30 +6,35 @@
 <table class="layui-table">
     <thead>
     <tr>
-        <th>ID</th>
-        <th>名称</th>
-        <th>数量</th>
-        <th>折扣</th>
+        <th>序号</th>
+        <th>分组</th>
+        <th>链接</th>
+        <th>推送率</th>
+        <th>推送次数</th>
         <th>状态</th>
+        <th>时间</th>
         <th>操作</th>
     </tr>
     </thead>
     <tbody id="Data">
-    {{if ne .page.count 0}}
+    {{if ne $.page.count 0}}
     {{range $k,$v := $.list}}
     <tr>
-        <td>{{$v.Id}}</td>
-        <td>{{$v.username}}</td>
-        <td>{{$v.Number}}</td>
-        <td>{{$v.Discount}}</td>
+        <td>{{$k}}</td>
+        <td>{{$v.group}}</td>
+        <td>{{$v.link}}</td>
+        <td>{{$v.push}}%</td>
+        <td>{{$v.visit}}</td>
+        <td>{{if eq $v.status 0}}停用{{else}}使用{{end}}</td>
+        <td>{{$v.time.Format "2006-01-02 15:04:05"}}</td>
         <td>
-        {{if eq $v.Status 0}}
-            <a href='/admin/manage/goods/operation?id={{$v.Id}}&types=ok' class="layui-btn layui-btn-sm agree-btn" type="button">使用</a>
+        {{if eq $v.status 0}}
+            <a href='/admin/links/status?id={{$v.id}}&types=ok' class="layui-btn layui-btn-sm agree-btn" type="button">使用</a>
         {{end}}
-        {{if  eq $v.Status 1}}
-            <a class="layui-btn layui-btn-sm layui-btn-normal agree-btn" href='/admin/manage/goods/operation?id={{$v.Id}}&types=no' type="button">不使用</a>
+        {{if  eq $v.status 1}}
+            <a class="layui-btn layui-btn-sm layui-btn-normal agree-btn" href='/admin/links/status?id={{$v.id}}&types=no' type="button">停用</a>
         {{end}}
-            <a class="layui-btn layui-btn-sm layui-btn-danger agree-btn" href='/admin/manage/goods/operation?id={{$v.Id}}&types=del' type="button">删除</a>
+            <a class="layui-btn layui-btn-sm layui-btn-danger agree-btn" href='/admin/links/del?id={{$v.id}}' type="button">删除</a>
         </td>
     </tr>
     {{end}}

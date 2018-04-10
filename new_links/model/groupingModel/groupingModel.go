@@ -56,3 +56,21 @@ func GetGroupId(string string) *Grouping {
 	}
 	return row
 }
+
+func GetGroupObjId(string bson.ObjectId) *Grouping {
+	row := new(Grouping)
+	err := db.C(tableName.DB_GROUPING_LISTS).Find(bson.M{"_id":string},row)
+	if err != nil {
+		return nil
+	}
+	return row
+}
+
+func GetGroupHost(string string) *Grouping {
+	row := new(Grouping)
+	err := db.C(tableName.DB_GROUPING_LISTS).Find(bson.M{"groupname":string},row)
+	if err != nil {
+		return nil
+	}
+	return row
+}

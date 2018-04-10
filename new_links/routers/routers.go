@@ -8,6 +8,8 @@ import (
 	"github.com/go-macaron/binding"
 	"new_links/handler/admin/group"
 	"new_links/handler/admin/keys"
+	"new_links/model/linksModel"
+	"new_links/handler/hyperlink"
 )
 
 //注册路由
@@ -22,6 +24,9 @@ func Regist(m *macaron.Macaron) {
 			m.Group("/links", func() {
 				m.Get("/",links.IndexHandler)
 				m.Get("/add",links.AddHandler)
+				m.Post("/add",binding.Bind(linksModel.PostForm{}),links.PostAddHandler)
+				m.Get("/del",links.Delhandler)
+				m.Get("/status",links.Statushandler)
 			})
 			//关键词管理
 			m.Group("/keys", func() {
@@ -49,7 +54,8 @@ func Regist(m *macaron.Macaron) {
 		//管理登录
 		m.Get("/admin/login", admin.LoginHandler)
 
-
+		//g
+		m.Get("/hyper_link",hyperlink.Indexhandler)
 
 	}, weixin.RootMidware)
 }

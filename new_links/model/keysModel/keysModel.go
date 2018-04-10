@@ -109,5 +109,12 @@ func OpenFiles(string string){
 	//return nil
 }
 
-
+func GetKeysLists(query bson.M) []*Keys {
+	row := []*Keys{}
+	err := db.C(tableName.DB_KEYS_LISTS).FindAll(query,&row)
+	if err != nil {
+		return nil
+	}
+	return row
+}
 
