@@ -18,12 +18,6 @@ func NeedLogin(level int32) macaron.Handler {
 			ctx.Redirect("/admin/login", 302)
 			return
 		}
-		user = userModel.GetUserById(uint32(1))
-		if user == nil {
-			fmt.Println("user nil")
-			ctx.Redirect("/admin/login", 302)
-			return
-		}
 		ctx.Data["User"] = user
 
 		if user.Level < level {
