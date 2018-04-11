@@ -1,0 +1,265 @@
+
+{{template "manage_header" }}
+<form id="form_list" action="" method="get">
+    <input type="hidden" name="page" value="{{$.Keys_page.page}}" data-count="{{$.Keys_page.count}}">
+
+</form>
+        <div>
+            <fieldset class="layui-elem-field layui-field-title" style="margin-top: 30px;">
+                <legend>查询</legend>
+            </fieldset>
+
+            <div class="layui-form-pane" style="margin-top: 15px;">
+                <div class="layui-form-item">
+                    <label class="layui-form-label" style="width: 110px">选择日期</label>
+                    <form id="form_time" action="" method="get">
+
+                    <div class="layui-input-inline">
+                        <input  class="layui-input" name="start" value="{{.start_time}}" placeholder="开始日" id="LAY_demorange_s">
+                    </div>
+                    <div class="layui-input-inline">
+                        <input  class="layui-input" name="end" value="{{.end_time}}" placeholder="截止日" id="LAY_demorange_e" >
+                    </div>
+
+                    <div class="layui-input-inline">
+                        <input class="layui-btn" type="submit"  id="submit_time" value="查询" >
+                    </div>
+                    </form>
+                    <form id="form_del" action="admin/keys/dels" method="post">
+                    <div class="layui-input-inline">
+                        <input  class="layui-input" name="del" value="{{.del}}" placeholder="删除条数" >
+                    </div>
+                    <div class="layui-input-inline">
+
+                            <input type="hidden" name="start" value="{{.start_time}}" >
+                            <input type="hidden" name="end" value="{{.end_time}}" >
+                            <button class="layui-btn layui-btn-danger" type="submit"  >删除</button>
+
+
+                    </div>
+                    </form>
+                </div>
+            </div>
+            <div>
+                <p>共{{$.Keys_page.count}}条</p>
+            </div>
+
+        </div>
+<div>
+    <fieldset class="layui-elem-field layui-field-title" style="margin-top: 30px;">
+        <legend>删除</legend>
+    </fieldset>
+
+    <div class="layui-form-pane" style="margin-top: 15px;">
+        <div class="layui-form-item">
+            <label class="layui-form-label" style="width: 110px">选择日期</label>
+            <form id="form_time" action="" method="get">
+
+                <div class="layui-input-inline">
+                    <input  class="layui-input" name="start" value="{{.start_time}}" placeholder="开始日" id="LAY_demorange_s">
+                </div>
+                <div class="layui-input-inline">
+                    <input  class="layui-input" name="end" value="{{.end_time}}" placeholder="截止日" id="LAY_demorange_e" >
+                </div>
+
+                <div class="layui-input-inline">
+                    <input class="layui-btn" type="submit"  id="submit_time" value="查询" >
+                </div>
+            </form>
+            <form id="form_del" action="admin/keys/dels" method="post">
+                <div class="layui-input-inline">
+                    <input  class="layui-input" name="del" value="{{.del}}" placeholder="删除条数" >
+                </div>
+                <div class="layui-input-inline">
+
+                    <input type="hidden" name="start" value="{{.start_time}}" >
+                    <input type="hidden" name="end" value="{{.end_time}}" >
+                    <button class="layui-btn layui-btn-danger" type="submit"  >删除</button>
+
+
+                </div>
+            </form>
+        </div>
+    </div>
+    <div>
+        <p>共{{$.Keys_page.count}}条</p>
+    </div>
+
+</div>
+<table class="layui-table">
+    <thead>
+    <tr>
+        <th>排序</th>
+        <th>关键词</th>
+        <th>备注</th>
+        <th>时间</th>
+        <th>状态</th>
+        <th>操作</th>
+    </tr>
+    </thead>
+    <tbody id="Data">
+    {{range $k,$v := $.Keys}}
+    <tr>
+        <td>{{$k}}</td>
+        <td>{{$v.name}}</td>
+        <td>{{$v.remarks}}</td>
+        <td>{{$v.time.Format "2006-01-02 15:04:05"}}</td>
+        <td>{{if eq $v.status 0}}关闭{{else}}使用{{end}}</td>
+        <td>
+        {{if eq $v.status 0}}
+            <a href='/admin/keys/status?id={{$v.id}}&types=ok' class="layui-btn layui-btn-sm agree-btn" type="button">使用</a>
+        {{end}}
+        {{if  eq $v.status 1}}
+            <a class="layui-btn layui-btn-sm layui-btn-normal agree-btn" href='/admin/keys/status?id={{$v.id}}&types=no' type="button">不使用</a>
+        {{end}}
+            <a class="layui-btn layui-btn-sm layui-btn-danger" href='/admin/keys/edit?id={{$v.id}}' type="button">编辑</a>
+            <a class="layui-btn layui-btn-sm layui-btn-danger agree-btn" href='/admin/keys/del?id={{$v.id}}' type="button">删除</a>
+        </td>
+    </tr>
+    {{end}}
+    </tbody>
+</table>
+<div style="height: 35px;width: 750px;">
+    <div id="view_page"></div>
+</div>
+<script>
+    common.bindAjax("click", ".agree-btn", function (e) {
+        e.preventDefault();
+        return window.confirm("是否同意？")
+    }, function (req, res) {
+        console.log(req)
+        var data = eval("("+res+")");
+        console.log(data)
+        if (data.code == 1) {
+            window.location.reload()
+        }else {
+            common.msg("提示", data.msg)
+        }
+    })
+    $(function () {
+        $("#test9").click(function () {
+            var fileObj = document.getElementById("test20").files[0]; // js 获取文件对象
+            if (typeof (fileObj) == "undefined" || fileObj.size <= 0) {
+                alert("请选择文件");
+                return;
+            }
+
+            var formFile = new FormData();
+            formFile.append("action", "UploadVMKImagePath");
+            formFile.append("file", fileObj); //加入文件对象
+
+            var data = formFile;
+
+            $.ajax({
+                url: "/admin/keys/upload",
+                data: data,
+                type: "Post",
+                dataType: "json",
+                cache: false,//上传文件无需缓存
+                processData: false,//用于对data参数进行序列化处理 这里必须false
+                contentType: false, //必须
+                success: function (result) {
+                    console.log(result)
+                    alert("上传完成!");
+                },
+            })
+        })
+    })
+
+    layui.use(['laypage','laydate'],function(){
+        layui.laypage({
+            cont: 'view_page',
+            pages: {{.Keys_page.page_count}}, //总页数
+            curr: {{.Keys_page.page}},
+            skip:true, //连续显示分页数
+            jump: function (obj) {
+                var page = $("#form_list").find("[name=page]");
+                // var status = $("#form_list").find("[name=status]");
+                if(page.val() != obj.curr) {
+                    page.val(obj.curr);
+                    $("#form_list").submit();
+                }
+            }
+        });
+
+        var laydate = layui.laydate;
+
+        var start = {
+//        min: laydate.now(),
+//        max: '2099-06-16 23:59:59',
+            min: '2017-01-01 00:00:00',
+            max: laydate.now(),
+            istoday: true
+            ,choose: function(datas){
+                end.min = datas; //开始日选好后，重置结束日的最小日期
+                end.start = datas; //将结束日的初始值设定为开始日
+            },
+            format: 'YYYY-MM-DD hh:mm:ss',
+            istime: true,
+        };
+
+        var end = {
+//        min: laydate.now()
+//        ,max: '2099-06-16 23:59:59'
+            min: '2017-01-01 00:00:00',
+            max: laydate.now()
+            ,istoday: true
+            ,choose: function(datas){
+                start.max = datas; //结束日选好后，重置开始日的最大日期
+            },
+            format: 'YYYY-MM-DD hh:mm:ss',
+            istime: true,
+        };
+        document.getElementById('LAY_demorange_s').onclick = function(){
+            start.elem = this;
+            laydate(start);
+        };
+        document.getElementById('LAY_demorange_e').onclick = function(){
+            end.elem = this;
+            laydate(end);
+        }
+
+    });
+    common.bindAjax("submit", "#form_del", function (e) {
+        e.preventDefault();
+        var start =$("#form_time").find("[name=start]").val()
+        var end = $("#form_time").find("[name=end]").val()
+        $("#form_del").find("[name=start]").val(start)
+        $("#form_del").find("[name=end]").val(end)
+
+        var s = $("#form_del").find("[name=start]").val()
+        var e = $("#form_del").find("[name=end]").val()
+        var n =  $("#form_del").find("[name=de]").val()
+        Isvalue (s,e,n)
+        return window.confirm("是否同意？")
+
+    }, function (req, res) {
+        console.log(req)
+        var data = eval("("+res+")");
+        console.log(data)
+        if (data.code == 1) {
+            window.location.reload()
+        }else {
+            common.msg("提示", data.msg)
+        }
+    })
+
+    function Isvalue (s,e,n) {
+        if (s != undefined) {
+            common.layer.msg("请选择开始时间")
+            return false
+        }
+        if (e != undefined) {
+            common.layer.msg("请选择结束时间")
+            return false
+        }
+        if (n != undefined) {
+            common.layer.msg("请输入删除条数")
+            return false
+        }
+    }
+
+
+</script>
+
+{{template "manage_footer" }}
