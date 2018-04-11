@@ -8,8 +8,8 @@
     <tr>
         <th>序号</th>
         <th>分组</th>
-        <th>链接</th>
-        <th>推送率</th>
+        <th>ID</th>
+        <th>（权重）推送率</th>
         <th>推送次数</th>
         <th>状态</th>
         <th>时间</th>
@@ -22,8 +22,8 @@
     <tr>
         <td>{{$k}}</td>
         <td>{{$v.group}}</td>
-        <td>{{$v.link}}</td>
-        <td>{{$v.push}}%</td>
+        <td>{{$v.id_number}}</td>
+        <td>（{{$v.weight}}){{$v.push}}%</td>
         <td>{{$v.visit}}</td>
         <td>{{if eq $v.status 0}}停用{{else}}使用{{end}}</td>
         <td>{{$v.time.Format "2006-01-02 15:04:05"}}</td>
@@ -59,6 +59,7 @@
             common.msg("提示", data.msg)
         }
     })
+
 </script>
 
 {{template "manage_footer" }}

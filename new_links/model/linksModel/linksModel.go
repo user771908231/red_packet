@@ -8,7 +8,6 @@ import (
 	"new_links/model/keysModel"
 	"fmt"
 	"math"
-
 	"math/rand"
 )
 
@@ -17,9 +16,7 @@ type Links struct {
 	GruopId	bson.ObjectId
 	Url	string
 	Id 		uint32
-	KeysId  bson.ObjectId
 	Push 	float64
-	LinkName	string			//链接
 	Remarks string
 	Weight  int
 	Visit	int	//访问次数
@@ -72,14 +69,11 @@ type PostForm struct {
 	Group	string `form:"group" binding:"Required"`
 	Id    uint32  `form:"id" binding:"Required"`
 	Url   string   `form:"url" binding:"Required"`
-	Keys  string `form:"keys" binding:"Required"`
 	Push 	int `form:"push" binding:"Required"`
 	Remarks string  `form:"remarks"`
 }
 
 func Createlink(f PostForm) error{
-
-	link := fmt.Sprintf("%sfrom=%dn/s?word=%s",f.Url,f.Id,keysModel.GetkeysId(f.Keys).Keys)
 
 	defer func() {
 		LInskPush(f.Group)
@@ -88,9 +82,7 @@ func Createlink(f PostForm) error{
 		GruopId:bson.ObjectIdHex(f.Group),
 		Url:f.Url,
 		Id:f.Id,
-		KeysId:bson.ObjectIdHex(f.Keys),
 		Weight:f.Push,
-		LinkName:link,		//链接
 		Remarks:f.Remarks,
 	}
 	err := L.Insert()
@@ -157,7 +149,7 @@ func LInskPush(string string) {
 
 func FloatValue(f float64,n int) float64 {
 	pow10_n := math.Pow10(n)
-	return math.Trunc((f/pow10_n)*pow10_n) / pow10_n
+	return math.Trunc((f+0.5/pow10_n)*pow10_n) / pow10_n
 }
 
 func LinksWeight(L []*Links) *Links {

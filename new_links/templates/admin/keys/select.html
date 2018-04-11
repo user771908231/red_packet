@@ -15,35 +15,18 @@
                     <form id="form_time" action="" method="get">
 
                     <div class="layui-input-inline">
-                        <input  class="layui-input" name="start" value="{{.start_time}}" placeholder="开始日" id="LAY_demorange_s">
+                        <input  class="layui-input " name="start" value="{{.start_time}}" placeholder="查询开始日期" id="LAY_demorange_s">
                     </div>
                     <div class="layui-input-inline">
-                        <input  class="layui-input" name="end" value="{{.end_time}}" placeholder="截止日" id="LAY_demorange_e" >
+                        <input  class="layui-input " name="end" value="{{.end_time}}" placeholder="查询结束日期" id="LAY_demorange_e" >
                     </div>
 
                     <div class="layui-input-inline">
                         <input class="layui-btn" type="submit"  id="submit_time" value="查询" >
                     </div>
                     </form>
-                    <form id="form_del" action="admin/keys/dels" method="post">
-                    <div class="layui-input-inline">
-                        <input  class="layui-input" name="del" value="{{.del}}" placeholder="删除条数" >
-                    </div>
-                    <div class="layui-input-inline">
-
-                            <input type="hidden" name="start" value="{{.start_time}}" >
-                            <input type="hidden" name="end" value="{{.end_time}}" >
-                            <button class="layui-btn layui-btn-danger" type="submit"  >删除</button>
-
-
-                    </div>
-                    </form>
                 </div>
             </div>
-            <div>
-                <p>共{{$.Keys_page.count}}条</p>
-            </div>
-
         </div>
 <div>
     <fieldset class="layui-elem-field layui-field-title" style="margin-top: 30px;">
@@ -53,27 +36,19 @@
     <div class="layui-form-pane" style="margin-top: 15px;">
         <div class="layui-form-item">
             <label class="layui-form-label" style="width: 110px">选择日期</label>
-            <form id="form_time" action="" method="get">
+            <form id="form_del" action="/admin/keys/del" method="post">
 
                 <div class="layui-input-inline">
-                    <input  class="layui-input" name="start" value="{{.start_time}}" placeholder="开始日" id="LAY_demorange_s">
+                    <input  class="layui-input " name="start" value="{{.start_time}}" placeholder="删除开始日期" id="LAY_demorange_s_d">
                 </div>
                 <div class="layui-input-inline">
-                    <input  class="layui-input" name="end" value="{{.end_time}}" placeholder="截止日" id="LAY_demorange_e" >
+                    <input  class="layui-input " name="end" value="{{.end_time}}" placeholder="删除结束日期" id="LAY_demorange_e_d" >
                 </div>
-
-                <div class="layui-input-inline">
-                    <input class="layui-btn" type="submit"  id="submit_time" value="查询" >
-                </div>
-            </form>
-            <form id="form_del" action="admin/keys/dels" method="post">
                 <div class="layui-input-inline">
                     <input  class="layui-input" name="del" value="{{.del}}" placeholder="删除条数" >
                 </div>
                 <div class="layui-input-inline">
 
-                    <input type="hidden" name="start" value="{{.start_time}}" >
-                    <input type="hidden" name="end" value="{{.end_time}}" >
                     <button class="layui-btn layui-btn-danger" type="submit"  >删除</button>
 
 
@@ -210,6 +185,7 @@
             format: 'YYYY-MM-DD hh:mm:ss',
             istime: true,
         };
+
         document.getElementById('LAY_demorange_s').onclick = function(){
             start.elem = this;
             laydate(start);
@@ -218,20 +194,24 @@
             end.elem = this;
             laydate(end);
         }
+        document.getElementById('LAY_demorange_s_d').onclick = function(){
+            start.elem = this;
+            laydate(start);
+        };
+        document.getElementById('LAY_demorange_e_d').onclick = function(){
+            end.elem = this;
+            laydate(end);
+        }
 
     });
     common.bindAjax("submit", "#form_del", function (e) {
         e.preventDefault();
-        var start =$("#form_time").find("[name=start]").val()
-        var end = $("#form_time").find("[name=end]").val()
-        $("#form_del").find("[name=start]").val(start)
-        $("#form_del").find("[name=end]").val(end)
 
         var s = $("#form_del").find("[name=start]").val()
-        var e = $("#form_del").find("[name=end]").val()
+        var o = $("#form_del").find("[name=end]").val()
         var n =  $("#form_del").find("[name=de]").val()
-        Isvalue (s,e,n)
-        return window.confirm("是否同意？")
+
+        return window.confirm(Isvalue (s,o,n))
 
     }, function (req, res) {
         console.log(req)
@@ -240,23 +220,28 @@
         if (data.code == 1) {
             window.location.reload()
         }else {
-            common.msg("提示", data.msg)
+            var str = '总数：'+data.count
+            +'删除：'+data.del_number+'条'
+            +'剩余：'+data.number+'条'
+            +'成功删除：'+data.ok_del_number+'条'
+            common.msg("提示", str)
         }
     })
 
     function Isvalue (s,e,n) {
-        if (s != undefined) {
-            common.layer.msg("请选择开始时间")
-            return false
+        if (s == undefined) {
+
+            return "请选择开始时间"
         }
-        if (e != undefined) {
-            common.layer.msg("请选择结束时间")
-            return false
+        if (e == undefined) {
+            return "请选择结束时间"
+
         }
-        if (n != undefined) {
-            common.layer.msg("请输入删除条数")
-            return false
+        if (n == 0) {
+            return "请输入删除条数"
+
         }
+        return "是否同意？"
     }
 
 

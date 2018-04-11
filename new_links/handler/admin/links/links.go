@@ -26,12 +26,14 @@ func IndexHandler(ctx *modules.Context) {
 		row := bson.M{
 			"id":item.ObjId.Hex(),
 			"group":groupingModel.GetGroupObjId(item.GruopId).GroupName,
-			"link":item.LinkName,
 			"push":item.Push*100,
 			"remarks":item.Remarks,
 			"time":item.Time,
 			"status":item.Status,
 			"visit":item.Visit,
+			"weight":item.Weight,
+			"id_number":item.Id,
+
 		}
 		data = append(data,row)
 	}
@@ -57,8 +59,6 @@ func AddHandler(ctx *modules.Context) {
 		}
 		data = append(data,row)
 	}
-	keys := linksModel.GetKeysStatus()
-	ctx.Data["Keys"] = keys
 	ctx.Data["Gourps"] =data
 	ctx.HTML(200,"admin/links/add")
 }
@@ -150,7 +150,6 @@ func Edithandler(ctx *modules.Context) {
 		ctx.Data["Links"] =bson.M{
 			"obj_id":L.ObjId.Hex(),
 			"group_id":L.GruopId.Hex(),
-			"keys_id":L.KeysId.Hex(),
 			"url":L.Url,
 			"id":L.Id,
 			"weight":L.Weight,
@@ -186,7 +185,6 @@ func Uploadhandler(ctx *modules.Context ,Upload linksModel.PostUpload) {
 		return
 	}
 	link.GruopId = bson.ObjectIdHex(Upload.Group)
-	link.KeysId = bson.ObjectIdHex(Upload.Keys)
 	link.Id = Upload.Id
 	link.Url = Upload.Url
 	link.Weight = Upload.Push

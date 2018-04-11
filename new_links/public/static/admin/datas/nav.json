@@ -44,6 +44,10 @@
 					"title": "关键词添加",
 					"icon": "fa-slider",
 					"href": "/admin/keys/add"
+				},{
+					"title": "查询--删除",
+					"icon": "fa-slider",
+					"href": "/admin/keys/select"
 				}
 			]
 		},{

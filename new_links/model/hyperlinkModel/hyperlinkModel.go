@@ -3,6 +3,10 @@ package hyperlinkModel
 import (
 	"new_links/model/groupingModel"
 	"new_links/model/linksModel"
+	"fmt"
+	"new_links/model/keysModel"
+	"math/rand"
+	"github.com/chanxuehong/time"
 )
 
 func GetGroup(string string) string {
@@ -14,9 +18,14 @@ func GetGroup(string string) string {
 	if val == nil {
 		return ""
 	}
-	return val.LinkName
+	return fmt.Sprintf(val.Url,val.Id,RandMap().Keys)
 }
 
-func RandMap()  {
-
+func RandMap() *keysModel.Keys {
+	lengt := 0
+	lengt = len(keysModel.Keyslist)
+	fmt.Println(lengt)
+	r := rand.New(rand.NewSource(time.Now().UnixNano()))
+	i := r.Intn(lengt)
+	return keysModel.Keyslist[i]
 }

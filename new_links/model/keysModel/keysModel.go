@@ -11,6 +11,7 @@ import (
 	"fmt"
 	"errors"
 	"strings"
+	"log"
 )
 
 type Keys struct {
@@ -40,7 +41,7 @@ func (K *Keys)  Del() error {
 }
 func GetKeysAll(query bson.M,page int,number int) (int,[]*Keys){
 	list := []*Keys{}
-	_,count := db.C(tableName.DB_KEYS_LISTS).Page(query, &list, "-_id", page, number)
+	_,count := db.C(tableName.DB_KEYS_LISTS).Page(query, &list,"-_id", page, number)
 	return count,list
 }
 
@@ -89,24 +90,11 @@ func OpenFiles(string string){
 			Keys:strings.Trim(line,","),
 		}
 		K.Insert()
-		//if err != nil {
-		//	log.E("失败！%s",err)
-		//}else{
-		//	log.E("成功！")
-		//}
-		//arr = append(arr,str)
 	}
 	del := os.Remove(string)
 	if del != nil {
 		fmt.Println(del);
 	}
-
-	//if err == io.EOF {
-	//	fmt.Print(line)
-	//} else {
-	//	return errors.New("read occur error!")
-	//}
-	//return nil
 }
 
 func GetKeysLists(query bson.M) []*Keys {
@@ -118,3 +106,48 @@ func GetKeysLists(query bson.M) []*Keys {
 	return row
 }
 
+func GetListAll() []*Keys {
+	row := []*Keys{}
+	err := db.C(tableName.DB_KEYS_LISTS).FindAll(bson.M{},&row)
+	if err != nil {
+		return nil
+	}
+	return row
+}
+var Keyslist []*Keys
+
+func init() {
+	list := GetListAll()
+	if list == nil {
+		log.Fatal("keys nil")
+	}
+	Keyslist = list
+
+}
+//条件删除
+func DelKeys(query bson.M,num int) bson.M {
+	ErrNUm := 0
+	list,_ := db.C(tableName.DB_KEYS_LISTS).FindAllId(query)
+	lengt := len(list)
+	for i,Id := range list{
+		if i > num {
+			continue
+		}
+		err := ObjIdDel(Id)
+		if err != nil {
+			ErrNUm++
+		}
+	}
+	res := bson.M{
+		"count":lengt,
+		"del_number":num,
+		"ok_del_number":num-ErrNUm,
+		"number":lengt-(num-ErrNUm),
+	}
+	return res
+}
+
+func ObjIdDel(id bson.ObjectId) error {
+	err := db.C(tableName.DB_KEYS_LISTS).Remove(bson.M{"_id":id})
+	return err
+}

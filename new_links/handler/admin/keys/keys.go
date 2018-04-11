@@ -9,21 +9,58 @@ import (
 
 	"fmt"
 	"new_links/utils"
+	"time"
 )
 //列表页
 func IndexHandler(ctx *modules.Context) {
 	status := ctx.QueryInt("status")
 	page := ctx.QueryInt("page")
+	start := ctx.Query("start")
+	end := ctx.Query("end")
+	A,_ :=  time.Parse("2006-01-02 15:04:05",start)
+	B,_ :=  time.Parse("2006-01-02 15:04:05",end)
 	query := bson.M{}
 	switch status {
 	case 1:
-		query = bson.M{}
-	case 2:
-		query = bson.M{
-			"status":1,
+		if (start != "") && (end != "") {
+			query = bson.M{
+				"time":bson.M{
+					"$gte":A,
+					"$lte":B,
+				},
+			}
+		}else {
+			query = bson.M{}
 		}
+	case 2:
+		if (start != "") && (end != "") {
+			query = bson.M{
+				"time":bson.M{
+					"$gte":A,
+					"$lte":B,
+				},
+				"status":1,
+			}
+		}else {
+			query = bson.M{
+				"status":1,
+			}
+		}
+
 	case 3:
-		query = bson.M{"status":0,}
+		if (start != "") && (end != "") {
+			query = bson.M{
+				"time":bson.M{
+					"$gte":A,
+					"$lte":B,
+				},
+				"status":0,
+			}
+		}else {
+			query = bson.M{
+				"status":0,
+			}
+		}
 	default:
 		query = bson.M{}
 	}
@@ -39,6 +76,9 @@ func IndexHandler(ctx *modules.Context) {
 		}
 		data = append(data,row)
 	}
+	ctx.Data["status"] = status
+	ctx.Data["start_time"] = start
+	ctx.Data["end_time"] = end
 	ctx.Data["Keys"] = data
 	ctx.Data["Keys_page"] = bson.M{
 		"count":      count,
@@ -183,4 +223,72 @@ func  Uploadhandler(ctx *modules.Context) {
 	str := fmt.Sprintf("upload/file/%s",File.Filename)
 	keysModel.OpenFiles(str)
 }
+
+func Selecthandler(ctx *modules.Context) {
+	start := ctx.Query("start")
+	end := ctx.Query("end")
+	page := ctx.QueryInt("page")
+	del := ctx.Query("del")
+	if page == 0 {
+		page = 1
+	}
+	A,_ :=  time.Parse("2006-01-02 15:04:05",start)
+	B,_ :=  time.Parse("2006-01-02 15:04:05",end)
+	fmt.Println(A,B)
+	query := bson.M{}
+	if (start != "") && (end != "") {
+		query = bson.M{
+			"time":bson.M{
+				"$gte":A,
+				"$lte":B,
+			},
+		}
+	}else {
+		query = bson.M{}
+	}
+
+	count,list := keysModel.GetKeysAll(query,page,10)
+	data := []bson.M{}
+	for _,itme := range list{
+		row := bson.M{
+			"id":itme.ObjId.Hex(),
+			"name":itme.Keys,
+			"remarks":itme.Remarks,
+			"status":itme.Status,
+			"time":itme.Time,
+		}
+		data = append(data,row)
+	}
+	ctx.Data["Keys"] = data
+	ctx.Data["start_time"] = start
+	ctx.Data["end_time"] = end
+	ctx.Data["del"] = del
+	ctx.Data["Keys_page"] = bson.M{
+		"count":      count,
+		"list_count": len(list),
+		"limit":      10,
+		"page":       page,
+		"page_count": math.Ceil(float64(count) / float64(10)),
+	}
+	ctx.HTML(200,"admin/keys/select")
+}
+
+func PostDelHandler(ctx *modules.Context) {
+	start := ctx.Query("start")
+	end := ctx.Query("end")
+	A,_ :=  time.Parse("2006-01-02 15:04:05",start)
+	B,_ :=  time.Parse("2006-01-02 15:04:05",end)
+	delNumber := ctx.QueryInt("del")
+	query := bson.M{
+		"time":bson.M{
+			"$gte":A,
+			"$lte":B,
+		},
+	}
+	err := keysModel.DelKeys(query,delNumber)
+	data,_ := json.Marshal(err)
+	ctx.Write([]byte(data))
+}
+
+
 

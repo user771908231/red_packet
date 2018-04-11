@@ -1,6 +1,7 @@
 
 {{template "manage_header" }}
 <form id="form_list" action="" method="get">
+    <input type="hidden" name="status" value="{{$.status}}" >
     <input type="hidden" name="page" value="{{$.Keys_page.page}}" data-count="{{$.Keys_page.count}}">
 </form>
         <div>
@@ -16,25 +17,6 @@
             <input type="file" name="file" id="test20">
                 <button type="sublit" class="layui-btn" id="test9">开始上传</button>
             {{/*</form>*/}}
-        </div>
-        <div>
-            <fieldset class="layui-elem-field layui-field-title" style="margin-top: 30px;">
-                <legend>查询--删除</legend>
-            </fieldset>
-            <div class="layui-form-pane" style="margin-top: 15px;">
-                <div class="layui-form-item">
-                    <label class="layui-form-label" style="width: 110px">选择日期</label>
-                    <div class="layui-input-inline">
-                        <input class="layui-input" name="start" value="{{.start_time}}" placeholder="开始日" id="LAY_demorange_s">
-                    </div>
-                    <div class="layui-input-inline">
-                        <input class="layui-input" name="end" value="{{.end_time}}" placeholder="截止日" id="LAY_demorange_e">
-                    </div>
-                    <div class="layui-input-inline">
-                        <input id="form_list_btn" class="layui-btn" type="submit" value="确定">
-                    </div>
-                </div>
-            </div>
         </div>
 <table class="layui-table">
     <thead>
@@ -71,6 +53,7 @@
 </table>
 <div style="height: 35px;width: 750px;">
     <div id="view_page"></div>
+    <p>共 {{$.Keys_page.count}} 条</p>
 </div>
 <script>
     common.bindAjax("click", ".agree-btn", function (e) {
@@ -116,7 +99,7 @@
         })
     })
 
-    layui.use(['laypage','laydate'], function(){
+    layui.use('laypage',function(){
         layui.laypage({
             cont: 'view_page',
             pages: {{.Keys_page.page_count}}, //总页数
@@ -124,50 +107,16 @@
             skip:true, //连续显示分页数
             jump: function (obj) {
                 var page = $("#form_list").find("[name=page]");
+                // var status = $("#form_list").find("[name=status]");
                 if(page.val() != obj.curr) {
                     page.val(obj.curr);
                     $("#form_list").submit();
                 }
             }
         });
-        var laydate = layui.laydate;
 
-        var start = {
-//        min: laydate.now(),
-//        max: '2099-06-16 23:59:59',
-            min: '2017-01-01 00:00:00',
-            max: laydate.now(),
-            istoday: false
-            ,choose: function(datas){
-                end.min = datas; //开始日选好后，重置结束日的最小日期
-                end.start = datas; //将结束日的初始值设定为开始日
-            }
-        };
-
-        var end = {
-//        min: laydate.now()
-//        ,max: '2099-06-16 23:59:59'
-            min: '2017-01-01 00:00:00',
-            max: laydate.now()
-            ,istoday: false
-            ,choose: function(datas){
-                start.max = datas; //结束日选好后，重置开始日的最大日期
-            }
-        };
-        document.getElementById('LAY_demorange_s').onclick = function(){
-            start.elem = this;
-            laydate(start);
-        };
-        document.getElementById('LAY_demorange_e').onclick = function(){
-            end.elem = this;
-            laydate(end);
-        }
 
     });
-
-
-
-
 
 
 </script>

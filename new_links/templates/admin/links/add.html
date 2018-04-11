@@ -24,23 +24,10 @@
         <div class="layui-inline">
             <label class="layui-form-label">URL</label>
             <div class="layui-input-inline">
-                <input type="text" name="url" lay-verify="required|url" autocomplete="off" class="layui-input" value="http://m.baidu.com/">
+                <input type="text" name="url" lay-verify="required|url" autocomplete="off" class="layui-input" value="https://m.baidu.com/from=%dn/s?word=%s">
             </div>
         </div>
     </div>
-    <div class="layui-form-item">
-        <div class="layui-inline">
-            <label class="layui-form-label">关键词</label>
-            <div class="layui-input-inline">
-                <select name="keys" lay-filter="aihao">
-                {{range $k,$v := $.Keys}}
-                    <option value="{{$v.id}}" selected="">{{$v.keys}}</option>
-                {{end}}
-                </select>
-            </div>
-        </div>
-    </div>
-
     <div class="layui-form-item">
         <div class="layui-inline">
             <label class="layui-form-label">推送权重</label>

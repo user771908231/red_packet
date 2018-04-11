@@ -130,6 +130,11 @@
         return window.confirm("是否同意？")
     }, function (req, res) {
         var data = eval("("+res+")");
+        if (data.code != 0) {
+
+            window.location.href = "/admin/links";
+            return
+        }
         common.msg("提示", data.msg)
     })
 </script>
