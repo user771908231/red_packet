@@ -27,16 +27,24 @@ func (K *Keys)  Insert() error {
 	K.Status = 1
 	K.Time = time.Now()
 	err := db.C(tableName.DB_KEYS_LISTS).Insert(K)
+	//新增一个关键词 加入内存
+	Keyslist = append(Keyslist,K)
 	return err
 }
 
 func (K *Keys)  Update() error {
 	err := db.C(tableName.DB_KEYS_LISTS).Update(bson.M{"_id":K.ObjId},K)
+	if err == nil {
+		UpdateInit()
+	}
 	return err
 }
 
 func (K *Keys)  Del() error {
 	err := db.C(tableName.DB_KEYS_LISTS).Remove(bson.M{"_id":K.ObjId})
+	if err == nil {
+		UpdateInit()
+	}
 	return err
 }
 func GetKeysAll(query bson.M,page int,number int) (int,[]*Keys){
@@ -122,7 +130,6 @@ func init() {
 		log.Fatal("keys nil")
 	}
 	Keyslist = list
-
 }
 //条件删除
 func DelKeys(query bson.M,num int) bson.M {
@@ -150,4 +157,12 @@ func DelKeys(query bson.M,num int) bson.M {
 func ObjIdDel(id bson.ObjectId) error {
 	err := db.C(tableName.DB_KEYS_LISTS).Remove(bson.M{"_id":id})
 	return err
+}
+
+func UpdateInit() {
+	list := GetListAll()
+	if list == nil {
+		log.Fatal("keys nil")
+	}
+	Keyslist = list
 }

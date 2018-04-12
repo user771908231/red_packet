@@ -38,6 +38,22 @@
     </div>
     <div class="layui-form-item">
         <div class="layui-inline">
+            <label class="layui-form-label">推送限额</label>
+            <div class="layui-input-inline">
+                <input type="number" name="quota" lay-verify="required|number" autocomplete="off" class="layui-input">
+            </div>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <div class="layui-inline">
+            <label class="layui-form-label">超额ID</label>
+            <div class="layui-input-inline">
+                <input type="number" name="push" lay-verify="required|number" autocomplete="off" class="layui-input">
+            </div>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <div class="layui-inline">
             <label class="layui-form-label">备注</label>
             <div class="layui-input-inline">
                 <input type="text" name="remarks"  autocomplete="off" class="layui-input">
@@ -61,19 +77,11 @@
 <script src="/layui/layui.js" charset="utf-8"></script>
 <!-- 注意：如果你直接复制所有代码到本地，上述js路径需要改成你本地的 -->
 <script>
-    layui.use(['form', 'layedit', 'laydate'], function(){
+    layui.use(['form', 'layedit'], function(){
         var form = layui.form
-                ,layer = layui.layer
+                // ,layer = layui.layer
                 ,layedit = layui.layedit
-                ,laydate = layui.laydate;
 
-        //日期
-        laydate.render({
-            elem: '#date'
-        });
-        laydate.render({
-            elem: '#date1'
-        });
 
         //创建一个编辑器
         // var editIndex = layedit.build('LAY_demo_editor');

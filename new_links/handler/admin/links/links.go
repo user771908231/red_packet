@@ -37,6 +37,17 @@ func IndexHandler(ctx *modules.Context) {
 		}
 		data = append(data,row)
 	}
+	Q := bson.M{}
+	grouping := groupingModel.GetGroup(Q)
+	grouping_data := []bson.M{}
+	for _,item := range grouping {
+		row := bson.M{
+			"id":item.ObjId.Hex(),
+			"name":item.GroupName,
+		}
+		grouping_data = append(data,row)
+	}
+	ctx.Data["Gourps"] =grouping_data
 	ctx.Data["list"] = data
 	ctx.Data["page"] = bson.M{
 		"count":      count,

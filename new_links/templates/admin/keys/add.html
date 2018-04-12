@@ -1,5 +1,5 @@
 {{template "manage_header" }}
-<form class="layui-form" action="/admin/keys/add" method="post">
+<form class="layui-form"  id="key_form" action="/admin/keys/add" method="post">
 
 {{if $.Row}}
     <input type="hidden" name="id" value="{{$.Row.id}}">
@@ -106,7 +106,7 @@
 
     });
 
-    common.bindAjax("submit", ".layui-form", function (e) {
+    common.bindAjax("submit", "#key_form", function (e) {
         e.preventDefault();
         return true;
     }, function (req, res) {
