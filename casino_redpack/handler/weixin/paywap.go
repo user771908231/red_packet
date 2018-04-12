@@ -275,13 +275,14 @@ func PayWapReturnPageHandler(ctx *modules.Context) {
 //下行第二步:旺实富微信支付平台将支付结果传递给 p5_notifyurl(用户在上行过程 中提交的参数),此部分用于通知商户的系统处理业务(包括数据库更新,在系统
 //中为付款人增加虚拟货币等),传递方式为 post。
 func PayWapNotifyHandler(ctx *modules.Context) {
-	paywapIp := ctx.RemoteAddr()
-
-	if paywapIp != PAYWAP_OFFICIALIP1 && paywapIp != PAYWAP_OFFICIALIP2 {
-		log.E("PayWapNotifyHandler ip地址错误 未经验证的请求ip[%v] 官方ip1[%v] 官方ip2[%v]", paywapIp, PAYWAP_OFFICIALIP1, PAYWAP_OFFICIALIP2)
-		ctx.Error("参数错误 code:-1", "", 0)
-		return
-	}
+	//暂时注释
+	//paywapIp := ctx.RemoteAddr()
+	//
+	//if paywapIp != PAYWAP_OFFICIALIP1 && paywapIp != PAYWAP_OFFICIALIP2 {
+	//	log.E("PayWapNotifyHandler ip地址错误 未经验证的请求ip[%v] 官方ip1[%v] 官方ip2[%v]", paywapIp, PAYWAP_OFFICIALIP1, PAYWAP_OFFICIALIP2)
+	//	ctx.Error("参数错误 code:-1", "", 0)
+	//	return
+	//}
 	p1_usercode := ctx.Query("p1_usercode")
 	compkey := ctx.Query("CompKey")
 	p2_order := ctx.Query("p2_order")
