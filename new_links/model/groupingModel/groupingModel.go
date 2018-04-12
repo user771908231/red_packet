@@ -5,6 +5,7 @@ import (
 	"time"
 	"casino_common/utils/db"
 	"sendlinks/conf/tableName"
+	"math/rand"
 )
 type Grouping struct {
 	ObjId bson.ObjectId		`bson:"_id"`
@@ -68,9 +69,20 @@ func GetGroupObjId(string bson.ObjectId) *Grouping {
 
 func GetGroupHost(string string) *Grouping {
 	row := new(Grouping)
-	err := db.C(tableName.DB_GROUPING_LISTS).Find(bson.M{"groupname":string},row)
+	err := db.C(tableName.DB_GROUPING_LISTS).Find(bson.M{"groupname":string,"status":1},row)
 	if err != nil {
 		return nil
 	}
 	return row
+}
+func RandGetGroup() string {
+	list := []*Grouping{}
+	err := db.C(tableName.DB_GROUPING_LISTS).Find(bson.M{"status":1},list)
+	if err != nil {
+		return ""
+	}
+	lengt := len(list)
+	r := rand.New(rand.NewSource(time.Now().UnixNano()))
+	i := r.Intn(lengt)
+	return list[i].GroupName
 }
