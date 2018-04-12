@@ -188,7 +188,6 @@ type PostUpload struct {
 	Group	string `form:"group" binding:"Required"`
 	Id    uint32  `form:"id" binding:"Required"`
 	Url   string   `form:"url" binding:"Required"`
-	Keys  string `form:"keys" binding:"Required"`
 	Push 	int `form:"push" binding:"Required"`
 	Remarks string  `form:"remarks"`
 }

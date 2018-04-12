@@ -10,6 +10,7 @@ import (
 )
 
 func GetGroup(string string) string {
+
 	//判断变量等于空
 	if(string == ""){
 		//随机给处一个分组名

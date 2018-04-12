@@ -29,18 +29,6 @@
             </div>
         </div>
     </div>
-    <div class="layui-form-item">
-        <div class="layui-inline">
-            <label class="layui-form-label">关键词</label>
-            <div class="layui-input-inline">
-                <select name="keys" lay-filter="aihao">
-                {{range $k,$v := $.Keys}}
-                    <option value="{{$v.id}}" {{if eq $v.id $.Links.keys_id}}selected=""{{end}}>{{$v.keys}}</option>
-                {{end}}
-                </select>
-            </div>
-        </div>
-    </div>
 
     <div class="layui-form-item">
         <div class="layui-inline">
