@@ -24,7 +24,7 @@ type Keys struct {
 
 func (K *Keys)  Insert() error {
 	K.ObjId = bson.NewObjectId()
-	K.Status = 0
+	K.Status = 1
 	K.Time = time.Now()
 	err := db.C(tableName.DB_KEYS_LISTS).Insert(K)
 	return err
