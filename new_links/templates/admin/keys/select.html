@@ -2,6 +2,8 @@
 {{template "manage_header" }}
 <form id="form_list" action="" method="get">
     <input type="hidden" name="page" value="{{$.Keys_page.page}}" data-count="{{$.Keys_page.count}}">
+    <input type="hidden" name="start" value="{{.start_time}}" >
+    <input type="hidden" name="end" value="{{.end_time}}" >
 
 </form>
         <div>
