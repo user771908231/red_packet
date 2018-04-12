@@ -33,11 +33,13 @@ func IndexHandler(ctx *modules.Context) {
 			"visit":item.Visit,
 			"weight":item.Weight,
 			"id_number":item.Id,
+			"quota":item.Quota,
+			"excess_id":item.ExcessId,
 
 		}
 		data = append(data,row)
 	}
-	Q := bson.M{}
+	Q := bson.M{"status":1}
 	grouping := groupingModel.GetGroup(Q)
 	grouping_data := []bson.M{}
 	for _,item := range grouping {

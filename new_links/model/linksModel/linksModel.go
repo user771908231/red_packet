@@ -22,6 +22,8 @@ type Links struct {
 	Visit	int	//访问次数
 	Time time.Time
 	Status int
+	Quota uint32
+	ExcessId uint32
 }
 
 func (L Links) Insert() error {
@@ -71,6 +73,8 @@ type PostForm struct {
 	Url   string   `form:"url" binding:"Required"`
 	Push 	int `form:"push" binding:"Required"`
 	Remarks string  `form:"remarks"`
+	Quota uint32 `form:"quota" binding:Required`
+	ExcessId uint32 `form:"excess_id" `
 }
 
 func Createlink(f PostForm) error{
@@ -84,6 +88,8 @@ func Createlink(f PostForm) error{
 		Id:f.Id,
 		Weight:f.Push,
 		Remarks:f.Remarks,
+		Quota :f.Quota,
+		ExcessId:f.ExcessId,
 	}
 	err := L.Insert()
 	return err
