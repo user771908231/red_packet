@@ -15,11 +15,6 @@ func Indexhandler(ctx *modules.Context) {
 		"code":0,
 		"url":"https://m.baidu.com/",
 	}
-	//defer func() {
-	//	ctx.Resp.Header().Add()
-	//	data,_ := json.Marshal(res)
-	//	ctx.Write([]byte(data))
-	//}()
 	if url != "" {
 		res["code"] = 1
 		res["url"] = url
