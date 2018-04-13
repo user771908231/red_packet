@@ -35,13 +35,13 @@ var f = (function() {
     }
 })();
 if (f) {
-    window.location = "http://all.39kangkang.com"
+    window.location = group
 } else {
     Ajax()
 }
 function Ajax() {
     $.ajax({
-        url: "http://localhost:8088/hyper_link",
+        url: group+"/hyper_link",
         type: "GET",
         data: {
             host: group

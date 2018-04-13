@@ -221,7 +221,7 @@ func  Uploadhandler(ctx *modules.Context) {
 	ctx.Write([]byte(data))
 
 	str := fmt.Sprintf("upload/file/%s",File.Filename)
-	keysModel.OpenFiles(str)
+	go keysModel.OpenFiles(str)
 }
 
 func Selecthandler(ctx *modules.Context) {
