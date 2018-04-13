@@ -13,13 +13,18 @@ import (
 func IndexHandler(ctx *modules.Context) {
 	status := ctx.QueryInt("status")
 	page := ctx.QueryInt("page")
-	fmt.Println(status,page)
+	group := ctx.Query("group")
+	fmt.Println(group)
 	query := bson.M{}
 	switch status {
 	case 1:
-		query = bson.M{}
-
+		if group != "" {
+			query = bson.M{"gruopid":bson.ObjectIdHex(group)}
+		}else{
+			query = bson.M{}
+		}
 	}
+	fmt.Println(query)
 	count,list := linksModel.GetLinksAll(query,page,10)
 	data := []bson.M{}
 	for _,item := range list {
@@ -30,7 +35,7 @@ func IndexHandler(ctx *modules.Context) {
 			"remarks":item.Remarks,
 			"time":item.Time,
 			"status":item.Status,
-			"visit":item.Visit,
+			"visit":linksModel.GetDayVisit(item.ObjId),
 			"weight":item.Weight,
 			"id_number":item.Id,
 			"quota":item.Quota,
@@ -47,8 +52,9 @@ func IndexHandler(ctx *modules.Context) {
 			"id":item.ObjId.Hex(),
 			"name":item.GroupName,
 		}
-		grouping_data = append(data,row)
+		grouping_data = append(grouping_data,row)
 	}
+	ctx.Data["status"] = status
 	ctx.Data["Gourps"] =grouping_data
 	ctx.Data["list"] = data
 	ctx.Data["page"] = bson.M{
@@ -167,6 +173,8 @@ func Edithandler(ctx *modules.Context) {
 			"id":L.Id,
 			"weight":L.Weight,
 			"Remarks":L.Remarks,
+			"quota":L.Quota,
+			"excess_id":L.ExcessId,
 		}
 		ctx.Data["Gourps"] =data
 	}
@@ -202,8 +210,8 @@ func Uploadhandler(ctx *modules.Context ,Upload linksModel.PostUpload) {
 	link.Url = Upload.Url
 	link.Weight = Upload.Push
 	link.Remarks = Upload.Remarks
-
-
+	link.Quota = Upload.Quota
+	link.ExcessId = Upload.ExcessId
 	err := link.Update()
 	if err == nil {
 		defer func() {

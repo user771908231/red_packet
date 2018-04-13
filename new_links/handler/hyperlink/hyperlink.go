@@ -11,7 +11,7 @@ func Indexhandler(ctx *modules.Context) {
 	url := hyperlinkModel.GetGroup(host)
 	res := bson.M{
 		"code":0,
-		"url":"",
+		"url":"https://m.baidu.com/",
 	}
 	//defer func() {
 	//	ctx.Resp.Header().Add()
@@ -25,5 +25,6 @@ func Indexhandler(ctx *modules.Context) {
 	ctx.JSON(200, res)
 
 }
+
 
 

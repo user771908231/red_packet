@@ -40,6 +40,22 @@
     </div>
     <div class="layui-form-item">
         <div class="layui-inline">
+            <label class="layui-form-label">推送限额</label>
+            <div class="layui-input-inline">
+                <input type="number" name="quota" lay-verify="required|number" autocomplete="off" class="layui-input" value="{{$.Links.quota}}">
+            </div>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <div class="layui-inline">
+            <label class="layui-form-label">超额ID</label>
+            <div class="layui-input-inline">
+                <input type="number" name="excess_id"  autocomplete="off" class="layui-input" value="{{$.Links.excess_id}}">
+            </div>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <div class="layui-inline">
             <label class="layui-form-label">备注</label>
             <div class="layui-input-inline">
                 <input type="text" name="remarks"  autocomplete="off" class="layui-input" value="{{$.Links.Remarks}}">

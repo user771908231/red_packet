@@ -19,7 +19,9 @@ func GetGroup(string string) string {
 	G := groupingModel.GetGroupHost(string)
 	val := linksModel.RandLink(G.ObjId)
 	defer func() {
-		val.Visssts()
+		if val != nil {
+			val.Visssts()
+		}
 	}()
 	if val == nil {
 		return ""

@@ -39,11 +39,6 @@
 					"title": "关键词列表",
 					"icon": "fa-slider",
 					"href": "/admin/keys?status=1&page=1"
-				},
-				{
-					"title": "关键词添加",
-					"icon": "fa-slider",
-					"href": "/admin/keys/add"
 				},{
 					"title": "查询--删除",
 					"icon": "fa-slider",

@@ -1,7 +1,8 @@
 
 {{template "manage_header" }}
 <form id="form_list" action="" method="get">
-    <input type="hidden" name="page" value="{{.page.page}}">
+    <input type="hidden" name="status" value="{{$.status}}" >
+    <input type="hidden" name="page" value="{{$.Keys_page.page}}" data-count="{{$.Keys_page.count}}">
 </form>
 <div>
     <fieldset class="layui-elem-field layui-field-title" style="margin-top: 30px;">
@@ -12,7 +13,8 @@
         <div class="layui-form-item">
 
             <form id="form_time" class="layui-form" action="" method="get">
-
+                <input type="hidden" name="status" value="{{$.status}}" >
+                <input type="hidden" name="page" value="{{$.page.page}}" data-count="{{$.page.count}}">
                 <div class="layui-inline">
                     <label class="layui-form-label">分组</label>
                     <div class="layui-input-inline">
@@ -23,7 +25,7 @@
                         </select>
                     </div>
                     <div class="layui-input-inline">
-                        <input class="layui-btn" type="submit"  id="submit_time" value="查询" >
+                        <input class="layui-btn" type="submit"  id="submit_time" value="查询" onclick="select()">
                     </div>
                 </div>
 
@@ -38,7 +40,9 @@
         <th>分组</th>
         <th>ID</th>
         <th>（权重）推送率</th>
+        <th>推送限额</th>
         <th>推送次数</th>
+        <th>超额ID</th>
         <th>状态</th>
         <th>时间</th>
         <th>操作</th>
@@ -52,7 +56,9 @@
         <td>{{$v.group}}</td>
         <td>{{$v.id_number}}</td>
         <td>（{{$v.weight}}){{$v.push}}%</td>
+        <td>{{$v.quota}}</td>
         <td>{{$v.visit}}</td>
+        <td>{{$v.excess_id}}</td>
         <td>{{if eq $v.status 0}}停用{{else}}使用{{end}}</td>
         <td>{{$v.time.Format "2006-01-02 15:04:05"}}</td>
         <td>
@@ -128,6 +134,22 @@
 
 
     });
+    function select() {
+        $("#form_time").submit();
+    }
+    // $("#form_time").submit();
+    // common.bindAjax("submit", "#form_time", function (e) {
+    //     e.preventDefault();
+    //     return window.confirm("是否同意？")
+    // }, function (req, res) {
+    //     var data = eval("("+res+")");
+    //     if (data.code == 1) {
+    //         common.msg("提示", data.msg)
+    //         window.location.reload()
+    //     }else {
+    //         common.msg("提示", data.msg)
+    //     }
+    // })
 </script>
 
 {{template "manage_footer" }}

@@ -9,6 +9,7 @@ import (
 	"fmt"
 	"math"
 	"math/rand"
+	"new_links/conf"
 )
 
 type Links struct {
@@ -19,16 +20,48 @@ type Links struct {
 	Push 	float64
 	Remarks string
 	Weight  int
-	Visit	int	//访问次数
+	//Visit	[]*DayVisit	//访问次数
 	Time time.Time
 	Status int
-	Quota uint32
+	Quota int
 	ExcessId uint32
+}
+//每日推送记录
+type DayVisit struct {
+	ObjId 	bson.ObjectId		`bson:"_id"` //DayVisit.ObjId == Links.ObjId
+	TimeUinx time.Time
+	Visit	int
+}
+
+func (DV DayVisit) Insert() error {
+	DV.TimeUinx = conf.Server.CurrentTime
+	err := db.C(tableName.DB_LINKS_VISIT).Insert(DV)
+	return err
+}
+
+func (DV DayVisit) Update() error {
+	err := db.C(tableName.DB_LINKS_VISIT).Update(bson.M{"_id":DV.ObjId},bson.M{"$inc":bson.M{"visit":1}})
+	return err
+}
+
+func GetDayVisit(ObjId bson.ObjectId) int {
+	V := DayVisit{}
+	err := db.C(tableName.DB_LINKS_VISIT).Find(bson.M{"_id":ObjId,"timeuinx":conf.Server.CurrentTime},&V)
+	if err == nil {
+		return V.Visit
+	}else {
+		fmt.Println("推送次数错误：",err)
+		return 0
+	}
 }
 
 func (L Links) Insert() error {
 	L.ObjId = bson.NewObjectId()
 	L.Time = time.Now()
+	L.Status = 1
+	V := new(DayVisit)
+	V.ObjId = L.ObjId
+	V.Insert()
 	err := db.C(tableName.DB_LINKS_LISTS).Insert(L)
 	return err
 }
@@ -73,7 +106,7 @@ type PostForm struct {
 	Url   string   `form:"url" binding:"Required"`
 	Push 	int `form:"push" binding:"Required"`
 	Remarks string  `form:"remarks"`
-	Quota uint32 `form:"quota" binding:Required`
+	Quota int `form:"quota" binding:Required`
 	ExcessId uint32 `form:"excess_id" `
 }
 
@@ -179,13 +212,75 @@ func LinksWeight(L []*Links) *Links {
 
 func RandLink(GruopId bson.ObjectId) *Links {
 	LL := GetGruopIdGroup(GruopId.Hex())
-	val := LinksWeight(LL)
-	return val
+	index := RemoveIndex(LL)
+	if index != nil {
+		val := LinksWeight(index)
+		return val
+	}
+
+	return nil
+}
+
+func RemoveIndex(L []*Links) []*Links {
+	list := []*Links{}
+	for i,item := range L {
+		V := DayVisit{}
+		err := db.C(tableName.DB_LINKS_VISIT).Find(bson.M{"_id":item.ObjId,"timeuinx":conf.Server.CurrentTime},&V)
+		if err != nil {
+			V := new(DayVisit)
+			V.ObjId = item.ObjId
+			V.Visit = 0
+			V.Insert()
+			db.C(tableName.DB_LINKS_VISIT).Find(bson.M{"_id":item.ObjId,"timeuinx":conf.Server.CurrentTime},&V)
+		}
+			//判断超过限额
+		if V.Visit < item.Quota {
+			list = append(list,L[i])
+		}
+
+	}
+	return list
 }
 
 func (L *Links) Visssts() error {
-	err := db.C(tableName.DB_LINKS_LISTS).Update(bson.M{"_id":L.ObjId},bson.M{"$inc":bson.M{"visit":1}})
+	err := db.C(tableName.DB_LINKS_VISIT).Update(bson.M{"_id":L.ObjId,"timeuinx":conf.Server.CurrentTime},bson.M{"$inc":bson.M{"visit":1}})
+	if err != nil {
+		V := new(DayVisit)
+		V.ObjId = L.ObjId
+		V.Visit = 1
+		err := V.Insert()
+		return err
+	}
 	return err
+}
+
+//根据ID号查找
+func GetIDSelcet(id uint32) *Links {
+	L := new(Links)
+	err := db.C(tableName.DB_LINKS_VISIT).Find(bson.M{"id":id},L)
+	if err == nil {
+		return L
+	}
+	return nil
+}
+
+
+//判断是否超过限额
+func IsExcess(L *Links) *Links{
+	fmt.Println(L.Id)
+	V := DayVisit{}
+	err := db.C(tableName.DB_LINKS_VISIT).Find(bson.M{"_id":L.ObjId,"timeuinx":conf.Server.CurrentTime},&V)
+	if err == nil {
+		if V.Visit >= L.Quota{
+			if L.ExcessId != 0 {
+				list_row := GetIDSelcet(L.ExcessId)
+				IsExcess(list_row)
+			}
+			return nil
+		}
+		return L
+	}
+	return nil
 }
 
 
@@ -196,4 +291,6 @@ type PostUpload struct {
 	Url   string   `form:"url" binding:"Required"`
 	Push 	int `form:"push" binding:"Required"`
 	Remarks string  `form:"remarks"`
+	Quota	int `form:"quota" binding:"Required"`
+	ExcessId uint32 `form:"excess_id"`
 }
