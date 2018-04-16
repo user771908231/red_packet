@@ -28,11 +28,13 @@ type Links struct {
 //每日推送记录
 type DayVisit struct {
 	ObjId 	bson.ObjectId		`bson:"_id"` //DayVisit.ObjId == Links.ObjId
+	RelationId bson.ObjectId //关联ID
 	TimeUinx time.Time
 	Visit	int
 }
 
 func (DV DayVisit) Insert() error {
+	DV.ObjId = bson.NewObjectId()
 	DV.TimeUinx = TimeObject()
 	err := db.C(tableName.DB_LINKS_VISIT).Insert(DV)
 	return err
@@ -45,7 +47,7 @@ func (DV DayVisit) Update() error {
 
 func GetDayVisit(ObjId bson.ObjectId) int {
 	V := DayVisit{}
-	err := db.C(tableName.DB_LINKS_VISIT).Find(bson.M{"_id":ObjId,"timeuinx":TimeObject()},&V)
+	err := db.C(tableName.DB_LINKS_VISIT).Find(bson.M{"relationid":ObjId,"timeuinx":TimeObject()},&V)
 	if err == nil {
 		return V.Visit
 	}else {
@@ -212,7 +214,7 @@ func LinksWeight(L []*Links) *Links {
 func RandLink(GruopId bson.ObjectId) *Links {
 	LL := GetGruopIdGroup(GruopId.Hex())
 	index := RemoveIndex(LL)
-	if index != nil {
+	if index != nil && len(index) != 0 {
 		val := LinksWeight(index)
 		return val
 	}
@@ -224,13 +226,13 @@ func RemoveIndex(L []*Links) []*Links {
 	list := []*Links{}
 	for i,item := range L {
 		V := DayVisit{}
-		err := db.C(tableName.DB_LINKS_VISIT).Find(bson.M{"_id":item.ObjId,"timeuinx":TimeObject()},&V)
+		err := db.C(tableName.DB_LINKS_VISIT).Find(bson.M{"relationid":item.ObjId,"timeuinx":TimeObject()},&V)
 		if err != nil {
 			V := new(DayVisit)
-			V.ObjId = item.ObjId
+			V.RelationId = item.ObjId
 			V.Visit = 0
 			V.Insert()
-			db.C(tableName.DB_LINKS_VISIT).Find(bson.M{"_id":item.ObjId,"timeuinx":TimeObject()},&V)
+			db.C(tableName.DB_LINKS_VISIT).Find(bson.M{"relationid":item.ObjId,"timeuinx":TimeObject()},&V)
 		}
 			//判断超过限额
 		if V.Visit < item.Quota {
@@ -249,12 +251,15 @@ func TimeObject() time.Time {
 }
 
 func (L *Links) Visssts() error {
-	err := db.C(tableName.DB_LINKS_VISIT).Update(bson.M{"_id":L.ObjId,"timeuinx":TimeObject()},bson.M{"$inc":bson.M{"visit":1}})
+	err := db.C(tableName.DB_LINKS_VISIT).Update(bson.M{"relationid":L.ObjId,"timeuinx":TimeObject()},bson.M{"$inc":bson.M{"visit":1}})
 	if err != nil {
 		V := new(DayVisit)
-		V.ObjId = L.ObjId
+		V.RelationId= L.ObjId
 		V.Visit = 1
 		err := V.Insert()
+		if err != nil {
+			fmt.Println(err)
+		}
 		return err
 	}
 	return err
@@ -275,7 +280,7 @@ func GetIDSelcet(id uint32) *Links {
 func IsExcess(L *Links) *Links{
 	fmt.Println(L.Id)
 	V := DayVisit{}
-	err := db.C(tableName.DB_LINKS_VISIT).Find(bson.M{"_id":L.ObjId,"timeuinx":TimeObject()},&V)
+	err := db.C(tableName.DB_LINKS_VISIT).Find(bson.M{"relationid":L.ObjId,"timeuinx":TimeObject()},&V)
 	if err == nil {
 		if V.Visit >= L.Quota{
 			if L.ExcessId != 0 {
