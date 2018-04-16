@@ -31,7 +31,15 @@ func GetGroup(string string) string {
 
 func RandMap() *keysModel.Keys {
 	lengt := 0
+	//读取初始化变量
 	lengt = len(keysModel.Keyslist)
+	//判断初始化变量的长度
+	if lengt == 0 {
+		//重新读取变量
+		keysModel.ShuJuUpload()
+		//获得变量的长度
+		lengt = len(keysModel.Keyslist)
+	}
 
 	r := rand.New(rand.NewSource(time.Now().UnixNano()))
 	i := r.Intn(lengt)
