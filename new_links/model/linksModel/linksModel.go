@@ -9,7 +9,6 @@ import (
 	"fmt"
 	"math"
 	"math/rand"
-	"new_links/conf"
 )
 
 type Links struct {
@@ -34,7 +33,7 @@ type DayVisit struct {
 }
 
 func (DV DayVisit) Insert() error {
-	DV.TimeUinx = conf.Server.CurrentTime
+	DV.TimeUinx = TimeObject()
 	err := db.C(tableName.DB_LINKS_VISIT).Insert(DV)
 	return err
 }
@@ -46,7 +45,7 @@ func (DV DayVisit) Update() error {
 
 func GetDayVisit(ObjId bson.ObjectId) int {
 	V := DayVisit{}
-	err := db.C(tableName.DB_LINKS_VISIT).Find(bson.M{"_id":ObjId,"timeuinx":conf.Server.CurrentTime},&V)
+	err := db.C(tableName.DB_LINKS_VISIT).Find(bson.M{"_id":ObjId,"timeuinx":TimeObject()},&V)
 	if err == nil {
 		return V.Visit
 	}else {
@@ -225,13 +224,13 @@ func RemoveIndex(L []*Links) []*Links {
 	list := []*Links{}
 	for i,item := range L {
 		V := DayVisit{}
-		err := db.C(tableName.DB_LINKS_VISIT).Find(bson.M{"_id":item.ObjId,"timeuinx":conf.Server.CurrentTime},&V)
+		err := db.C(tableName.DB_LINKS_VISIT).Find(bson.M{"_id":item.ObjId,"timeuinx":TimeObject()},&V)
 		if err != nil {
 			V := new(DayVisit)
 			V.ObjId = item.ObjId
 			V.Visit = 0
 			V.Insert()
-			db.C(tableName.DB_LINKS_VISIT).Find(bson.M{"_id":item.ObjId,"timeuinx":conf.Server.CurrentTime},&V)
+			db.C(tableName.DB_LINKS_VISIT).Find(bson.M{"_id":item.ObjId,"timeuinx":TimeObject()},&V)
 		}
 			//判断超过限额
 		if V.Visit < item.Quota {
@@ -241,9 +240,16 @@ func RemoveIndex(L []*Links) []*Links {
 	}
 	return list
 }
+//当前时间对象
+func TimeObject() time.Time {
+	t := time.Now()
+	y,m,d := t.Date()
+	CurrentTime := time.Date(y, m,d,0,0,0,0,t.Location())
+	return CurrentTime
+}
 
 func (L *Links) Visssts() error {
-	err := db.C(tableName.DB_LINKS_VISIT).Update(bson.M{"_id":L.ObjId,"timeuinx":conf.Server.CurrentTime},bson.M{"$inc":bson.M{"visit":1}})
+	err := db.C(tableName.DB_LINKS_VISIT).Update(bson.M{"_id":L.ObjId,"timeuinx":TimeObject()},bson.M{"$inc":bson.M{"visit":1}})
 	if err != nil {
 		V := new(DayVisit)
 		V.ObjId = L.ObjId
@@ -269,7 +275,7 @@ func GetIDSelcet(id uint32) *Links {
 func IsExcess(L *Links) *Links{
 	fmt.Println(L.Id)
 	V := DayVisit{}
-	err := db.C(tableName.DB_LINKS_VISIT).Find(bson.M{"_id":L.ObjId,"timeuinx":conf.Server.CurrentTime},&V)
+	err := db.C(tableName.DB_LINKS_VISIT).Find(bson.M{"_id":L.ObjId,"timeuinx":TimeObject()},&V)
 	if err == nil {
 		if V.Visit >= L.Quota{
 			if L.ExcessId != 0 {

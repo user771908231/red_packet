@@ -24,7 +24,6 @@ func IndexHandler(ctx *modules.Context) {
 			query = bson.M{}
 		}
 	}
-	fmt.Println(query)
 	count,list := linksModel.GetLinksAll(query,page,10)
 	data := []bson.M{}
 	for _,item := range list {

@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"github.com/name5566/leaf/log"
 	"io/ioutil"
-	"time"
 )
 
 var Server struct {
@@ -53,8 +52,6 @@ var Server struct {
 	//站点相关
 	SiteName string
 
-	//当前年月日
-	CurrentTime time.Time
 }
 
 
@@ -67,9 +64,5 @@ func init() {
 	if err != nil {
 		log.Fatal("%v", err)
 	}
-	t := time.Now()
-	y,m,d := t.Date()
-	Server.CurrentTime = time.Date(y, m,d,0,0,0,0,t.Location())
-	fmt.Println("当前年月日:",Server.CurrentTime)
 	fmt.Println("读取到的配置文件的信息:", Server)
 }
