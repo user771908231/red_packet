@@ -131,14 +131,7 @@ func init() {
 	}
 	Keyslist = list
 }
-//数据更新
-func ShuJuUpload() {
-	list := GetListAll()
-	if list == nil {
-		log.Fatal("keys nil")
-	}
-	Keyslist = list
-}
+
 //条件删除
 func DelKeys(query bson.M,num int) bson.M {
 	ErrNUm := 0
@@ -160,7 +153,7 @@ func DelKeys(query bson.M,num int) bson.M {
 		"number":lengt-(num-ErrNUm),
 	}
 	defer func() {
-		go ShuJuUpload()
+		go UpdateInit()
 	}()
 	return res
 
@@ -170,7 +163,7 @@ func ObjIdDel(id bson.ObjectId) error {
 	err := db.C(tableName.DB_KEYS_LISTS).Remove(bson.M{"_id":id})
 	return err
 }
-
+//数据更新
 func UpdateInit() {
 	list := GetListAll()
 	if list == nil {

@@ -36,7 +36,7 @@ func RandMap() *keysModel.Keys {
 	//判断初始化变量的长度
 	if lengt == 0 {
 		//重新读取变量
-		keysModel.ShuJuUpload()
+		keysModel.UpdateInit()
 		//获得变量的长度
 		lengt = len(keysModel.Keyslist)
 	}
