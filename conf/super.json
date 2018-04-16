@@ -10,7 +10,7 @@
   "CurVersion": 3,
   "HttpIp": "0.0.0.0",
   "OutIp": "182.92.179.230",
-  "HttpPort": 8088,
+  "HttpPort": 8089,
   "HallTcpAddr": "127.0.0.1:2801",
   "RebateMan": 100,
   "RebateSong": 10,

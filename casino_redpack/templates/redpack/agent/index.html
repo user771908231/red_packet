@@ -74,12 +74,13 @@
 
 <div class="aui-content hbpf-agency" style="margin-top: 3px;">
     <div class="aui-bar aui-bar-btn" style="width:65%;">
-        <div class="aui-bar-btn-item aui-active">收益明细</div>
-        <div class="aui-bar-btn-item "><a {{/*href="/home/member/agent_tg"*/}}>我的推广码</a></div>
+        <div class="aui-bar-btn-item ">收益明细</div>
+        <div class="aui-bar-btn-item aui-active"><a href="/home/member/agent_tg">我的推广码</a></div>
     </div>
 </div>
 <div class="aui-card-list-content" style="margin-bottom:5.5rem;">
     <ul class="aui-list aui-media-list" id="item">
+        <img src="/{{.user_qrcode}}">
     </ul>
 </div>
 <!--弹窗开始-->
@@ -259,6 +260,12 @@
             }
         });
     });
+
+
+    function dianji(this) {
+        var self = this
+        self.classNames().append()
+    }
 </script>
 
 <script type="text/javascript">
