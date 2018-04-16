@@ -234,7 +234,6 @@ func Selecthandler(ctx *modules.Context) {
 	}
 	A,_ :=  time.Parse("2006-01-02 15:04:05",start)
 	B,_ :=  time.Parse("2006-01-02 15:04:05",end)
-	fmt.Println(A,B)
 	query := bson.M{}
 	if (start != "") && (end != "") {
 		query = bson.M{
