@@ -163,8 +163,7 @@ func Edithandler(ctx *modules.Context) {
 			}
 			data = append(data,row)
 		}
-		keys := linksModel.GetKeysStatus()
-		ctx.Data["Keys"] = keys
+
 		ctx.Data["Links"] =bson.M{
 			"obj_id":L.ObjId.Hex(),
 			"group_id":L.GruopId.Hex(),

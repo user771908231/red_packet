@@ -14,6 +14,7 @@ import (
 	"log"
 )
 
+var Keyslist []*Keys
 type Keys struct {
 	ObjId 	bson.ObjectId	`bson:"_id"`
 	Keys	string
@@ -122,15 +123,9 @@ func GetListAll() []*Keys {
 	}
 	return row
 }
-var Keyslist []*Keys
 
-func init() {
-	list := GetListAll()
-	if list == nil {
-		log.Fatal("keys nil")
-	}
-	Keyslist = list
-}
+
+
 
 //条件删除
 func DelKeys(query bson.M,num int) bson.M {

@@ -15,9 +15,14 @@ import (
 	"new_links/model/weixinModel"
 	"html/template"
 	"casino_common/common/service/rpcService"
+	"fmt"
+	"new_links/model/keysModel"
+	"log"
+	"time"
 )
 
 func init() {
+	start := time.Now()
 	//初始化系统
 	err := sys.SysInit(
 		int32(ddproto.COMMON_ENUM_RELEASETAG_R_PRO),
@@ -26,7 +31,7 @@ func init() {
 		"test",
 		conf.Server.RedisPwd,
 		conf.Server.LogPath,
-		"weixin",
+		"link",
 		conf.Server.LogFileSize,
 		conf.Server.LogFileCount,
 		conf.Server.MongoIp,
@@ -41,10 +46,24 @@ func init() {
 			config.WITHDRAWALS_KEY_ID,
 		})
 
+	fmt.Println("开始初始化Keyslist变量")
+	log.Printf("开始初始化Keyslist变量")
+	list := keysModel.GetListAll()
+	lengt := len(list)
+	if list == nil {
+
+		log.Printf("初始化Keyslist变量为空！")
+	}
+	keysModel.Keyslist  = list
+	fmt.Printf("初始化Keyslist变量成功!Keyslist%d条 ",lengt)
+
+
 	//判断初始化是否成功
 	if err != nil {
 		os.Exit(-1) //推出系统
 	}
+	cost := time.Since(start)
+	log.Printf("初始化用时%s",lengt,cost)
 }
 
 func main() {
