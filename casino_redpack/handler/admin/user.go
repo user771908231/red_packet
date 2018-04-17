@@ -115,22 +115,21 @@ func UserLoginPostHandler(form LoginForm, ctx *modules.Context , VerificationCod
 
 //注册验证
 type SiginUpTable struct {
-	Name string `binding:"Required;MinSize(6);MaxSize(12)"`			//帐户名
-	PasswdOne string `binding:"Required;MinSize(6);MaxSize(24)"`	//密码
-	PasswdTwo string `binding:"Required;MinSize(6);MaxSize(24)"`	//重复密码
-	captchaId string `binding:"Required;Size(15)"`				//验证id
-	Captcha string `binding:"Required;Size(4)"`						//验证码
+	Name 		string 	`json:"name "binding:"Required;MinSize(6);MaxSize(12)"`			//帐户名
+	PasswdOne 	string 	`json:"passwd_one "binding:"Required;MinSize(6);MaxSize(24)"`	//密码
+	PasswdTwo 	string 	`json:"passwd_two "binding:"Required;MinSize(6);MaxSize(24)"`	//重复密码
+	captchaId 	string 	`json:"captcha_id "binding:"Required;Size(15)"`					//验证id
+	Captcha 	string 	`json:"captcha" binding:"Required;Size(4)"`						//验证码
+	ExtensionId int32 	`json:"extension_id"`											//推广码
 }
 
 
 func SignUpTableValuesHandler(sign SiginUpTable,ctx *modules.Context, VerificationCode *captcha.Captcha) {
-
-	fmt.Println(sign.Captcha)
 	if !VerificationCode.VerifyReq(ctx.Req) {
 		ctx.Ajax(500,"验证码错误！",nil)
 		return
 	}
-	err,msg := userModel.TableValues(sign.Name,sign.PasswdOne,sign.PasswdTwo)
+	err,msg := userModel.TableValues(sign.Name,sign.PasswdOne,sign.PasswdTwo,sign.ExtensionId)
 	if err == nil && msg == ""{
 		user := userModel.Login(sign.Name,sign.PasswdOne)
 		ctx.Session.Set("user",*user)

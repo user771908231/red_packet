@@ -33,6 +33,7 @@
 <img src="/static/home/image/head-bottom.png" style="clear: both; display: block; margin:auto; width: 100%;height: 1%;">
 <div style="width: 350px;height:315px; position:relative; margin: 10% auto 0 auto; border: solid 3px darkgrey; padding-top: 20px ;border-color:#f0f0f0" >
     <form id="form-reg" class="layui-form" action="/home/sign_up" method="post">
+        <input type="hidden" name="extension_id" id="extension_id" value="">
         <div class="layui-form-item">
             <label class="layui-form-label">手机号：</label>
             <div class="layui-input-inline">
@@ -75,4 +76,16 @@
 </div>
 </body>
 <script src="/static/admin/static/js/validation_rules.js"></script>
+<script type="text/javascript" >
+    //获取url中的参数
+    function getUrlParam(name) {
+        var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)"); //构造一个含有目标参数的正则表达式对象
+        var r = window.location.search.substr(1).match(reg);  //匹配目标参数
+        if (r != null) return unescape(r[2]); return null; //返回参数值
+    }
+    var ID= getUrlParam("extension_id")
+    $("#extension_id").val(ID)
+
+    console.log(ID)
+</script>
 </html>

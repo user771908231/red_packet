@@ -24,6 +24,7 @@ type User struct {
 	PassWd     string
 	SignUpTime time.Time
 	Coin       float64 //金币
+	ExtensionId	int32
 }
 
 func (User *User) CapitalUplete(action string ,munber float64) error{
@@ -113,16 +114,18 @@ func Login(user_name string, passwd string) *User {
 }
 
 //验证手机号 密码
-func   TableValues(user_name string , passwd_one string , passwd_two string) (error,string){
+func   TableValues(user_name string , passwd_one string , passwd_two string,extension_id int32) (error,string){
 	_,Msg := JudgeMobilePhoneWhetherSignuo(user_name)
 	if Msg != "" {
 		return  nil,"该手机号已注册"
 	}
 	_,errorMsg := VerificationRegexp(user_name)
 	if errorMsg == ""  &&  passwd_one == passwd_two {
+
 		dData := User{
 			NickName:user_name,
 			PassWd:passwd_one,
+			ExtensionId:extension_id,
 		}
 		err := dData.Insert()
 		if err != nil {
