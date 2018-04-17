@@ -6,7 +6,6 @@ import (
 	"gopkg.in/macaron.v1"
 	"casino_redpack/model/userModel"
 	"github.com/go-macaron/captcha"
-	"fmt"
 )
 
 //需要达到指定等级
