@@ -1,0 +1,67 @@
+{{template "manage_header" }}
+<form class="layui-form" action="/admin/group/add" method="post" id="form">
+
+    <div class="layui-form-item">
+        <div class="layui-inline">
+            <label class="layui-form-label">分组名称</label>
+            <div class="layui-input-inline">
+                <input type="text" name="name" lay-verify="required|url" autocomplete="off" class="layui-input">
+            </div>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <div class="layui-inline">
+            <label class="layui-form-label">备注</label>
+            <div class="layui-input-inline">
+                <input type="text" name="remarks" {{/*lay-verify="required|test"*/}} autocomplete="off" class="layui-input">
+            </div>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <div class="layui-input-block">
+            <button class="layui-btn button-btn " lay-submit="" lay-filter="demo1">立即提交</button>
+            <button type="reset" class="layui-btn layui-btn-primary">重置</button>
+        </div>
+    </div>
+</form>
+
+<script src="/layui/layui.js" charset="utf-8"></script>
+<script>
+    layui.use(['form', 'layedit'], function(){
+        var form = layui.form
+                ,layer = layui.layer
+                ,layedit = layui.layedit;
+        //自定义验证规则
+        form.verify({
+            title: function(value){
+                if(value.length < 5){
+                    return '标题至少得5个字符啊';
+                }
+            }
+            ,pass: [/(.+){6,12}$/, '密码必须6到12位']
+            ,content: function(value){
+                layedit.sync(editIndex);
+            }
+        });
+
+        监听提交
+        form.on('submit(demo1)', function(data){
+            console.log(data)
+            layer.alert(JSON.stringify(data), {
+                title: '最终的提交信息'
+            })
+        });
+    });
+    common.bindAjax("submit", ".layui-form", function (e) {
+        e.preventDefault();
+        return true;
+    }, function (req, res) {
+        data = eval("("+res+")")
+        if (data.code != 0) {
+            common.msg("消息",data.msg)
+        }
+        common.msg("消息",data.msg)
+    })
+
+</script>
+{{template "manage_footer" }}

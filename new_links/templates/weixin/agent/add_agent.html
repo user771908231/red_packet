@@ -1,0 +1,129 @@
+{{ template "weixin_header" }}
+<div class="alert alert-info alert-dismissable" role="alert">
+    <button class="close" type="button" onclick="$('.alert').eq(0).hide();">&times;</button>
+    <span></span>
+</div>
+<!--顶部 导航栏部分-->
+<nav class="nav navbar-default navbar-mystyle navbar-fixed-top">
+    <div class="navbar-header">
+        <a id="back-btn" href="javascript:history.go(-1);">
+            <span id="back-text">返回</span>
+        </a>
+        <span><a id="logo-text" href="/weixin/agent">新增代理</a></span>
+        <button class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+        </button>
+    </div>
+    <div class="collapse navbar-collapse" style="background-color: #394555;">
+        <ul class="nav navbar-nav pull-right">
+            <li class="dropdown li-border"><a href="#" class="dropdown-toggle mystyle-color" data-toggle="dropdown"><span id="userNick">{{.wx_user.Nickname}}</span><span class="caret"></span></a>
+                <ul class="dropdown-menu">
+                    <li><a href="#" id="logout">退出</a></li>
+                </ul>
+            </li>
+        </ul>
+    </div>
+</nav>
+<!--右侧主体部分-->
+<div class="my-index">
+    <div class="container-fluid">
+
+        <form id="form_list" action="" method="post">
+            <div class="layui-form" style="margin-top: 55px;">
+                <div class="layui-form-item">
+                    <input type="hidden" name="agent_id" value="{{if $.is_admin}}1{{else}}{{.agent_info.UserId}}{{end}}">
+
+                    <label class="layui-form-label" style="width: 110px">玩家id:</label>
+                    <div class="layui-input-inline">
+                        <input class="layui-input" name="userid" value="">
+                    </div>
+
+                {{/*<label class="layui-form-label" style="width: 110px"></label>*/}}
+                {{/*<div class="layui-input-inline">*/}}
+                {{/*<input class="layui-input" disabled name="start" placeholder="默认邀请码" value="">*/}}
+                {{/*</div>*/}}
+
+
+                    <label class="layui-form-label" style="width: 110px">真实姓名:</label>
+                    <div class="layui-input-inline">
+                        <input class="layui-input" name="real_name" value="">
+                    </div>
+
+                    <label class="layui-form-label" style="width: 110px">电话:</label>
+                    <div class="layui-input-inline">
+                        <input class="layui-input" name="phone" value="">
+                    </div>
+
+                    <label class="layui-form-label" style="width: 110px">密码:</label>
+                    <div class="layui-input-inline">
+                        <input class="layui-input" name="passwd" value="">
+                    </div>
+
+                    <label class="layui-form-label" style="width: 110px">确认密码:</label>
+                    <div class="layui-input-inline">
+                        <input class="layui-input" name="passwd_confirm" value="">
+                    </div>
+
+                </div>
+                <div class="layui-form-item">
+                    <div class="layui-input-inline">
+                        <input id="form_list_btn" style="width: 100%" class="layui-btn layui-btn-fluid" type="submit" value="保存">
+                    </div>
+                </div>
+
+
+            </div>
+        </form>
+
+    </div>
+</div>
+</div>
+<script src="/static/weixin/js/slide_menu.js"></script>
+<script src="/static/weixin/js/share.js"></script>
+<script type="text/javascript">
+    $("title").html("新增代理");
+
+    common.bindAjax("submit", "#form_list", function (e) {
+        e.preventDefault();
+        var userId = $("#form_list input[name=userid]").val();
+        var real_name = $("#form_list input[name=real_name]").val();
+        var phone = $("#form_list input[name=phone]").val();
+        var passwd = $("#form_list input[name=passwd]").val();
+        var passwd_confirm = $("#form_list input[name=passwd_confirm]").val();
+
+
+        if(isNaN(userId) || userId <= 0){
+            alert("请检查玩家id，必须为正整数数字！");
+            return false
+        }
+
+        if(real_name == ""){
+            alert("请填写真实姓名！");
+            return false
+        }
+
+        if(phone == ""){
+            alert("请填写联系电话！");
+            return false
+        }
+
+        if(passwd == ""){
+            alert("请填写密码！");
+            return false
+        }
+
+        if(passwd_confirm != passwd){
+            alert("请确保两次输入密码相同！");
+            return false
+        }
+
+        return true
+    }, function (data, res) {
+        layui.layer.open({title: "消息", content: res.msg});
+    })
+</script>
+
+
+{{ template "weixin_footer" }}

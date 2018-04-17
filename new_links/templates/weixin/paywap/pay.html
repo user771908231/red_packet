@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>支付页面跳转...</title>
+</head>
+<body onLoad="document.yeepay.submit();">
+<form name='yeepay' action='{{$.formpay_url}}' method='post'>
+    <input type='hidden' name='p1_usercode'             value='{{$.p1_usercode}}'>
+    <input type='hidden' name='p2_order'                value='{{$.p2_order}}'>
+    <input type='hidden' name='p3_money'                value='{{$.p3_money}}'>
+    <input type='hidden' name='p4_returnurl'            value='{{$.p4_returnurl}}'>
+    <input type='hidden' name='p5_notifyurl'            value='{{$.p5_notifyurl}}'>
+    <input type='hidden' name='p6_ordertime'            value='{{$.p6_ordertime}}'>
+    <input type='hidden' name='p7_sign'                 value='{{$.p7_sign}}'>
+    <input type='hidden' name='p9_paymethod'            value='{{$.p9_paymethod}}'>
+    <input type='hidden' name='p14_customname'          value='{{$.p14_customname}}'>
+    <input type='hidden' name='p17_customip'            value='{{$.p17_customip}}'>
+    <input type='hidden' name='p25_terminal'            value='{{$.p25_terminal}}'>
+    <input type='hidden' name='p26_iswappay'            value='{{$.p26_iswappay}}'>
+</form>
+</body>
+</html>

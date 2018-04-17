@@ -1,0 +1,145 @@
+{{template "manage_header" }}
+<form class="layui-form" action="/admin/links/upload" method="post">
+    <input type="hidden" name="obj_id" value="{{$.Links.obj_id}}">
+    <div class="layui-form-item">
+        <div class="layui-inline">
+            <label class="layui-form-label">分组</label>
+            <div class="layui-input-inline">
+                <select name="group" lay-filter="aihao">
+                        {{range $k,$v := $.Gourps}}
+                    <option value="{{$v.id}}" {{if eq $v.id $.Links.group_id}}selected="" {{end}}>{{$v.name}}</option>
+                                {{end}}
+                </select>
+            </div>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <div class="layui-inline">
+            <label class="layui-form-label">ID</label>
+            <div class="layui-input-inline">
+                <input type="number" name="id" lay-verify="required|number" autocomplete="off" class="layui-input" value="{{$.Links.id}}">
+            </div>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <div class="layui-inline">
+            <label class="layui-form-label">URL</label>
+            <div class="layui-input-inline">
+                <input type="text" name="url" lay-verify="required|url" autocomplete="off" class="layui-input" value="{{$.Links.url}}">
+            </div>
+        </div>
+    </div>
+
+    <div class="layui-form-item">
+        <div class="layui-inline">
+            <label class="layui-form-label">推送权重</label>
+            <div class="layui-input-inline">
+                <input type="number" name="push" lay-verify="required|number" autocomplete="off" class="layui-input" value="{{$.Links.weight}}">
+            </div>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <div class="layui-inline">
+            <label class="layui-form-label">推送限额</label>
+            <div class="layui-input-inline">
+                <input type="number" name="quota" lay-verify="required|number" autocomplete="off" class="layui-input" value="{{$.Links.quota}}">
+            </div>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <div class="layui-inline">
+            <label class="layui-form-label">超额ID</label>
+            <div class="layui-input-inline">
+                <input type="number" name="excess_id"  autocomplete="off" class="layui-input" value="{{$.Links.excess_id}}">
+            </div>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <div class="layui-inline">
+            <label class="layui-form-label">备注</label>
+            <div class="layui-input-inline">
+                <input type="text" name="remarks"  autocomplete="off" class="layui-input" value="{{$.Links.Remarks}}">
+            </div>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <div class="layui-input-block">
+            <button class="layui-btn" lay-submit="" lay-filter="demo1">立即提交</button>
+            <button type="reset" class="layui-btn layui-btn-primary">重置</button>
+        </div>
+    </div>
+</form>
+
+
+    {{/*<div class="layui-form-item">*/}}
+        {{/*<button class="layui-btn" lay-submit="" lay-filter="demo2">跳转式提交</button>*/}}
+    {{/*</div>*/}}
+{{/*</form>*/}}
+
+<script src="/layui/layui.js" charset="utf-8"></script>
+<!-- 注意：如果你直接复制所有代码到本地，上述js路径需要改成你本地的 -->
+<script>
+    layui.use(['form', 'layedit', 'laydate'], function(){
+        var form = layui.form
+                ,layer = layui.layer
+                ,layedit = layui.layedit
+                ,laydate = layui.laydate;
+
+        //日期
+        laydate.render({
+            elem: '#date'
+        });
+        laydate.render({
+            elem: '#date1'
+        });
+
+        //创建一个编辑器
+        // var editIndex = layedit.build('LAY_demo_editor');
+
+        //自定义验证规则
+        form.verify({
+            title: function(value){
+                if(value.length < 5){
+                    return '标题至少得5个字符啊';
+                }
+            }
+            ,pass: [/(.+){6,12}$/, '密码必须6到12位']
+            ,content: function(value){
+                layedit.sync(editIndex);
+            }
+        });
+
+        // //监听指定开关
+        // form.on('switch(switchTest)', function(data){
+        //     layer.msg('开关checked：'+ (this.checked ? 'true' : 'false'), {
+        //         offset: '6px'
+        //     });
+        //     layer.tips('温馨提示：请注意开关状态的文字可以随意定义，而不仅仅是ON|OFF', data.othis)
+        // });
+
+        //监听提交
+        form.on('submit(demo1)', function(data){
+            console.log(data)
+            // layer.alert(JSON.stringify(data.field), {
+            //     title: '最终的提交信息'
+            // })
+            // return false;
+        });
+
+
+    });
+
+    common.bindAjax("submit", ".layui-form", function (e) {
+        e.preventDefault();
+        return window.confirm("是否同意？")
+    }, function (req, res) {
+        var data = eval("("+res+")");
+        if (data.code != 0) {
+
+            window.location.href = "/admin/links";
+            return
+        }
+        common.msg("提示", data.msg)
+    })
+</script>
+{{template "manage_footer" }}

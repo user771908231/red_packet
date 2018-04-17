@@ -1,0 +1,10 @@
+package weixin
+
+import (
+	"testing"
+
+)
+
+func Test_CheckOrder(t *testing.T) {
+	t.Log(CheckOrder("201803301748431100045abde8c46ca16d4822991b49691",float64(50)))
+}
