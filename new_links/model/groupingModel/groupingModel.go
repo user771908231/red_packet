@@ -6,7 +6,7 @@ import (
 	"casino_common/utils/db"
 	"sendlinks/conf/tableName"
 	"math/rand"
-	"fmt"
+	"casino_common/common/log"
 )
 type Grouping struct {
 	ObjId bson.ObjectId		`bson:"_id"`
@@ -72,7 +72,7 @@ func GetGroupHost(string string) *Grouping {
 	row := new(Grouping)
 	err := db.C(tableName.DB_GROUPING_LISTS).Find(bson.M{"groupname":string,"status":1},row)
 	if err != nil {
-		fmt.Println(err)
+		log.T("获取分组信息错误：%s",err)
 		return nil
 	}
 	return row

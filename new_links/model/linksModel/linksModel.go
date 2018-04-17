@@ -9,6 +9,7 @@ import (
 	"fmt"
 	"math"
 	"math/rand"
+	"casino_common/common/log"
 )
 
 type Links struct {
@@ -163,6 +164,7 @@ func GetGruopIdGroup(GruopId string) []*Links {
 	L := []*Links{}
 	err := db.C(tableName.DB_LINKS_LISTS).FindAll(bson.M{"gruopid":bson.ObjectIdHex(GruopId)},&L)
 	if err != nil {
+		log.T("没有获取到链接信息：%s",err)
 		return nil
 	}
 	return L
@@ -218,7 +220,7 @@ func RandLink(GruopId bson.ObjectId) *Links {
 		val := LinksWeight(index)
 		return val
 	}
-
+	log.T("返回一个空链接")
 	return nil
 }
 
@@ -228,15 +230,23 @@ func RemoveIndex(L []*Links) []*Links {
 		V := DayVisit{}
 		err := db.C(tableName.DB_LINKS_VISIT).Find(bson.M{"relationid":item.ObjId,"timeuinx":TimeObject()},&V)
 		if err != nil {
+			log.T("没有获取到链接ID：%d 的推送记录表 : %s，开始创建推送记录表",item.Id,err)
 			V := new(DayVisit)
 			V.RelationId = item.ObjId
 			V.Visit = 0
 			V.Insert()
-			db.C(tableName.DB_LINKS_VISIT).Find(bson.M{"relationid":item.ObjId,"timeuinx":TimeObject()},&V)
+			errr := db.C(tableName.DB_LINKS_VISIT).Find(bson.M{"relationid":item.ObjId,"timeuinx":TimeObject()},&V)
+			if errr != nil {
+				log.T("创建链接ID：%d 的表失败，错误信息：%s",item.Id,errr)
+			}
+			log.T("创建链接ID：%d 的表成功",item.Id)
 		}
 			//判断超过限额
 		if V.Visit < item.Quota {
+			log.T("ID : %d 未超过限额 使用",item.Id)
 			list = append(list,L[i])
+		}else {
+			log.T("ID : %d 已经超过限额 停用",item.Id)
 		}
 
 	}
@@ -253,12 +263,14 @@ func TimeObject() time.Time {
 func (L *Links) Visssts() error {
 	err := db.C(tableName.DB_LINKS_VISIT).Update(bson.M{"relationid":L.ObjId,"timeuinx":TimeObject()},bson.M{"$inc":bson.M{"visit":1}})
 	if err != nil {
+		log.T("链接ID：%d推送记录加一失败 错误信息：%s",L.Id,err)
+		log.T("创建新的推送记录",L.Id,err)
 		V := new(DayVisit)
 		V.RelationId= L.ObjId
 		V.Visit = 1
 		err := V.Insert()
 		if err != nil {
-			fmt.Println(err)
+			log.T("链接ID：%d推送记录创建失败 错误信息：%s",L.Id,err)
 		}
 		return err
 	}

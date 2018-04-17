@@ -17,8 +17,8 @@ import (
 	"casino_common/common/service/rpcService"
 	"fmt"
 	"new_links/model/keysModel"
-	"log"
 	"time"
+	"casino_common/common/log"
 )
 
 func init() {
@@ -47,15 +47,15 @@ func init() {
 		})
 
 	fmt.Println("开始初始化Keyslist变量")
-	log.Printf("开始初始化Keyslist变量")
+	log.T("开始初始化Keyslist变量")
 	list := keysModel.GetListAll()
 	lengt := len(list)
 	if list == nil {
 
-		log.Printf("初始化Keyslist变量为空！")
+		log.T("初始化Keyslist变量为空！")
 	}
 	keysModel.Keyslist  = list
-	fmt.Printf("初始化Keyslist变量成功!Keyslist%d条 ",lengt)
+	log.T("初始化Keyslist变量成功!Keyslist%d条 ",lengt)
 
 
 	//判断初始化是否成功
@@ -63,7 +63,7 @@ func init() {
 		os.Exit(-1) //推出系统
 	}
 	cost := time.Since(start)
-	log.Printf("初始化用时%s",lengt,cost)
+	log.T("初始化%d条数据用时%s",lengt,cost)
 }
 
 func main() {

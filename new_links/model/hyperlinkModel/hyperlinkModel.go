@@ -7,20 +7,20 @@ import (
 	"new_links/model/keysModel"
 	"math/rand"
 	"github.com/chanxuehong/time"
-	"log"
+	"casino_common/common/log"
 )
 
 func GetGroup(string string) string {
 
 	//判断变量等于空
 	if(string == ""){
-		log.Printf("获取到的Url:为空")
+		log.T("获取到的Url:为空")
 		//随机给处一个分组名
 		string = groupingModel.RandGetGroup()
 	}
 	G := groupingModel.GetGroupHost(string)
 	if G != nil {
-		log.Printf("获取到的Group:%s",string)
+		log.T("获取到的Group:%s",string)
 		val := linksModel.RandLink(G.ObjId)
 		defer func() {
 			if val != nil {
@@ -28,11 +28,11 @@ func GetGroup(string string) string {
 			}
 		}()
 		if val == nil {
-			log.Printf("获取到的随机链接:为空")
+			log.T("获取到的随机链接:为空")
 			return ""
 		}
 		key := RandMap().Keys
-		log.Printf("获取到的随机链接ID:[%d] 关键词：%s",val.Id,key)
+		log.T("获取到的随机链接ID:[%d] 关键词：%s",val.Id,key)
 		return fmt.Sprintf(val.Url,val.Id,key)
 	}
 	return ""
@@ -44,7 +44,7 @@ func RandMap() *keysModel.Keys {
 	lengt = len(keysModel.Keyslist)
 	//判断初始化变量的长度
 	if lengt == 0 {
-		log.Printf("初始化变量的长度：为零")
+		log.T("初始化变量的长度：为零")
 	}
 	r := rand.New(rand.NewSource(time.Now().UnixNano()))
 	i := r.Intn(lengt)
