@@ -16,6 +16,7 @@ import (
 	"casino_redpack/handler/admin/manage"
 	"casino_redpack/handler/admin/gooods"
 	"casino_redpack/model/googsModel"
+	"casino_redpack/handler/autoLogin"
 )
 
 //注册路由
@@ -260,6 +261,8 @@ func Regist(m *macaron.Macaron) {
 			//注册提交地址
 			m.Post("/home/sign_up",binding.Bind(admin.SiginUpTable{}),admin.SignUpTableValuesHandler)
 
+			//平台登陆接口
+			m.Get("/auto_login",autoLogin.AcceptData)
 
 		//代理申请
 		m.Get("/weixin/agent/apply", weixin.NeedWxLogin, weixin.ApplyHandler)
