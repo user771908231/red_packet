@@ -15,8 +15,8 @@ func AgentHandler(ctx *modules.Context) {
 	//二维码所在路径
 	UserQrcode := fmt.Sprintf("/qrcode/%dqrcodr.png",ctx.IsLogin().Id)
 	//二维码中的URL信息
-	URl := fmt.Sprintf("%s/home/sign_up?extension_id=%d",ctx.Req.Host,ctx.IsLogin().Id)
-	fmt.Println(FilePath)
+	URl := fmt.Sprintf("http://%s/home/sign_up?extension_id=%d",ctx.Req.Host,ctx.IsLogin().Id)
+	//生成二维码
 	err := qrcode.WriteColorFile(URl, qrcode.Medium, 200,color.Transparent,color.Black,FilePath)
 
 	if err !=nil {
