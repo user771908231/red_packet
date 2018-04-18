@@ -96,6 +96,6 @@ func main() {
 	rpcService.HallPool.Init(conf.Server.HallRpcAddr, 1)
 
 	//开始监听http
-	m.Run(conf.Server.HttpIp, 8089)
+	m.Run(conf.Server.HttpIp, conf.Server.HttpPort)
 
 }
