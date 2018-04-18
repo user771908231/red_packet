@@ -14,8 +14,8 @@ import (
 
 //接受传来的数据
 func AcceptData(ctx *modules.Context) {
-	data := strings.Replace(ctx.Query("data"), " ", "+", -1)
-	log.T("接收到Data的值：%s",data)
+	data := strings.Replace(ctx.Query("code"), " ", "+", -1)
+	log.T("接收到code的值：%s",data)
 	key := []byte("123asdssssssssss")
 	//解密
 	str,err := autoLoginModel.DataDecoding(data,key)
