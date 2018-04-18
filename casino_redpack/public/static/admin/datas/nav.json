@@ -40,20 +40,20 @@
 			"spread": true,
 			"children": [
 				{
-					"title": "红包-全部",
+					"title": "提现-全部",
 					"icon": "fa-slider",
 					"href": "/admin/manage/Withdrawals?status=0&page=1"
 				},
 				{
-					"title": "红包-待审核",
+					"title": "提现-待审核",
 					"icon": "fa-slider",
 					"href": "/admin/manage/Withdrawals?status=1&page=1"
 				},{
-					"title": "红包-已被拒",
+					"title": "提现-已被拒",
 					"icon": "fa-slider",
 					"href": "/admin/manage/Withdrawals?status=2&page=1"
 				},{
-					"title": "红包-已发放",
+					"title": "提现-已发放",
 					"icon": "fa-slider",
 					"href": "/admin/manage/Withdrawals?status=3&page=1"
 				}
@@ -64,20 +64,20 @@
 			"spread": true,
 			"children": [
 				{
-					"title": "红包-全部",
+					"title": "充值-全部",
 					"icon": "fa-slider",
 					"href": "/admin/manage/postal?status=0&page=1"
 				},
 				{
-					"title": "红包-待审核",
+					"title": "充值-待审核",
 					"icon": "fa-slider",
 					"href": "/admin/manage/postal?status=1&page=1"
 				},{
-					"title": "红包-已被拒",
+					"title": "充值-已被拒",
 					"icon": "fa-slider",
 					"href": "/admin/manage/postal?status=2&page=1"
 				},{
-					"title": "红包-已发放",
+					"title": "充值-已发放",
 					"icon": "fa-slider",
 					"href": "/admin/manage/postal?status=3&page=1"
 				}
