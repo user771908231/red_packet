@@ -16,6 +16,7 @@ const USER_TABLE_NAME string = "t_redpack_user"
 
 type User struct {
 	Id         uint32
+	ThreePartyId uint32 //平台注册的ID
 	Level      int32
 	NickName   string
 	HeadUrl    string
@@ -81,6 +82,19 @@ func NextReturn(User *User)error  {
 		return err
 	}
 	return nil
+}
+
+//通过ThreePartyId获取用户信息
+func GetUserByThreePartyId(id uint32) *User {
+	var err error = nil
+	user_row := new(User)
+	err = db.C(USER_TABLE_NAME).Find(bson.M{
+		"threepartyid": id,
+	}, user_row)
+	if err != nil {
+		return nil
+	}
+	return user_row
 }
 
 //通过id获取用户信息
