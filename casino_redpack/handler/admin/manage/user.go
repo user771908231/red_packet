@@ -13,7 +13,7 @@ import (
 	"log"
 	"time"
 	"casino_redpack/model/userModel"
-	"fmt"
+
 )
 
 type User struct {
@@ -369,12 +369,17 @@ func RechargeHandler(ctx *modules.Context, form RechargeForm, errs binding.Error
 
 //删除单个用户
 func DelUserHandler(ctx *modules.Context) {
-	fmt.Println(ctx.ParamsInt("id"))
-	err := db.C(userModel.USER_TABLE_NAME).Remove(bson.M{"id": ctx.ParamsInt("id")})
-	if err != nil {
-		//ctx.Error("删除失败！"+err.Error(), "/admin/manage/user/all", 3)
-		ctx.Ajax(-1, "删除失败！", nil)
-		return
+	ID := ctx.ParamsInt("id")
+	user := userModel.GetUserById(uint32(ID))
+	if (user != nil) && (user.ThreePartyId != 0) {
+		err := db.C(userModel.USER_TABLE_NAME).Remove(bson.M{"id": ID})
+		if err != nil {
+			//ctx.Error("删除失败！"+err.Error(), "/admin/manage/user/all", 3)
+			ctx.Ajax(-1, "删除失败！", nil)
+			return
+		}
+		ctx.Ajax(1, "删除成功！", nil)
 	}
-	ctx.Ajax(1, "删除成功！", nil)
+	ctx.Ajax(-1, "删除失败，平台用户不能删除1", nil)
+
 }

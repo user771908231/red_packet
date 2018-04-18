@@ -32,13 +32,7 @@ func AcceptData(ctx *modules.Context) {
 				//根据ID查找本游戏是否有相同
 				if user_info != nil {
 					user1 := userModel.GetUserByThreePartyId(*user_info.Id)
-					//每次登陆更新获取到的三方用户信息
-					user1.Coin = float64(*user_info.Coin)
-					user1.NickName = *user_info.NickName
-					user1.HeadUrl = *user_info.HeadUrl
-					user1.UnionId = *user_info.UnionId
-					user1.OpenId = *user_info.OpenId
-					user1.PassWd = *user_info.Pwd
+
 					if user1 == nil {
 						user := userModel.User{
 							ThreePartyId:*user_info.Id,
@@ -61,6 +55,13 @@ func AcceptData(ctx *modules.Context) {
 						log.T("注册信息失败！错误信息：",err)
 						return
 					}
+					//每次登陆更新获取到的三方用户信息
+					user1.Coin = float64(*user_info.Coin)
+					user1.NickName = *user_info.NickName
+					user1.HeadUrl = *user_info.HeadUrl
+					user1.UnionId = *user_info.UnionId
+					user1.OpenId = *user_info.OpenId
+					user1.PassWd = *user_info.Pwd
 					//更新用户信息
 					err := user1.Uplate()
 					if err != nil {
