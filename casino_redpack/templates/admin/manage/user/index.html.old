@@ -31,7 +31,15 @@
             <a href="?sort=-nickname">昵称</a>
             {{end}}
         </th>
-
+        <th>
+            {{if eq .sort "sex"}}
+            <a href="?sort=-sex">性别<i class="layui-icon">&#xe619;</i></a>
+            {{else if eq .sort "-sex"}}
+            <a href="?sort=sex">性别<i class="layui-icon">&#xe61a;</i></a>
+            {{else}}
+            <a href="?sort=-sex">性别</a>
+            {{end}}
+        </th>
         <th>
             头像
         </th>
@@ -44,9 +52,45 @@
             <a href="?sort=-coin">金币</a>
             {{end}}
         </th>
-
+        <th>
+            {{if eq .sort "diamond"}}
+            <a href="?sort=-diamond">钻石<i class="layui-icon">&#xe619;</i></a>
+            {{else if eq .sort "-diamond"}}
+            <a href="?sort=diamond">钻石<i class="layui-icon">&#xe61a;</i></a>
+            {{else}}
+            <a href="?sort=-diamond">钻石</a>
+            {{end}}
+        </th>
+        <th>
+            {{if eq .sort "roomcard"}}
+            <a href="?sort=-roomcard">房卡<i class="layui-icon">&#xe619;</i></a>
+            {{else if eq .sort "-roomcard"}}
+            <a href="?sort=roomcard">房卡<i class="layui-icon">&#xe61a;</i></a>
+            {{else}}
+            <a href="?sort=-roomcard">房卡</a>
+            {{end}}
+        </th>
+        <th>
+            {{if eq .sort "bonus"}}
+            <a href="?sort=-bonus">红包<i class="layui-icon">&#xe619;</i></a>
+            {{else if eq .sort "-bonus"}}
+            <a href="?sort=bonus">红包<i class="layui-icon">&#xe61a;</i></a>
+            {{else}}
+            <a href="?sort=-bonus">红包</a>
+            {{end}}
+        </th>
+        <th>
+            {{if eq .sort "ticket"}}
+            <a href="?sort=-ticket">奖券<i class="layui-icon">&#xe619;</i></a>
+            {{else if eq .sort "-ticket"}}
+            <a href="?sort=ticket">奖券<i class="layui-icon">&#xe61a;</i></a>
+            {{else}}
+            <a href="?sort=-ticket">奖券</a>
+            {{end}}
+        </th>
         <th>OpenId</th>
         <th>UnionId</th>
+        <th>机器人</th>
         <th>操作</th>
     </tr>
     </thead>
@@ -62,16 +106,22 @@
 <script id="tpl_list" type="text/javascript">
     <{# layui.each(d.data.list, function(index,item){ }>
     <tr id="user-<{ item.id }>">
-        <td><{ item.Id }></td>
-        <td><{ item.NickName }></td>
-        <td><img width="40px" src="<{ item.HeadUrl }>" alt="无"/></td>
-        <td><{ item.Coin }></td>
-        <td><{ item.OpenId }></td>
+        <td><{ item.id }></td>
+        <td><{ item.nickName }></td>
+        <td><{ item.sex }></td>
+        <td><img width="40px" src="<{ item.headUrl }>" alt="无"/></td>
+        <td><{ item.coin }></td>
+        <td><{ item.Diamond }></td>
+        <td><{ item.RoomCard || 0 }></td>
+        <td><{ item.bonus || 0 }></td>
+        <td><{ item.ticket || 0 }></td>
+        <td><{ item.openId }></td>
         <td><{ item.UnionId }></td>
+        <td><{ item.robotType }></td>
         <td>
-            <a href="" data-index="<{ index }>" class="list_edit_btn layui-btn layui-btn-primary layui-btn-small" title="编辑"><i class="layui-icon">&#xe642;</i></a>
+            <!--<a href="" data-index="<{ index }>" class="list_edit_btn layui-btn layui-btn-primary layui-btn-small" title="编辑"><i class="layui-icon">&#xe642;</i></a>-->
             <a href="" data-index="<{ index }>" class="list_recharge_btn layui-btn layui-btn-primary layui-btn-small" title="充值"><i class="layui-icon">&#xe61f;</i></a>
-            <a href="del/<{ item.Id }>" data-user="-<{ item.Id }>" class="list_del_btn layui-btn layui-btn-primary layui-btn-small" title="删除"><i class="layui-icon">&#xe640;</i></a>
+            <!--<a href="del/<{ item.id }>" data-user="user-<{ item.id }>" class="list_del_btn layui-btn layui-btn-primary layui-btn-small" title="删除"><i class="layui-icon">&#xe640;</i></a>-->
         </td>
     </tr>
     <{# }); }>
@@ -80,59 +130,59 @@
 <!--模板：编辑用户-->
 <script id="tpl_edit" data-width="360px" data-title="编辑用户" type="text/javascript">
     <form id="form_edit" method="post" action="/admin/manage/user/update">、
-        <input type="hidden" name="id" value="<{ d.Id }>">
+        <input type="hidden" name="id" value="<{ d.id }>">
         <div class="layui-form-item">
             <label class="layui-form-label">用户名：</label>
             <div class="layui-input-inline">
-                <input type="text" name="nickName" value="<{ d.NickName }>" lay-verify="phone" autocomplete="off" class="layui-input">
+                <input type="text" name="nickName" value="<{ d.nickName }>" lay-verify="phone" autocomplete="off" class="layui-input">
             </div>
         </div>
         <div class="layui-form-item">
             <label class="layui-form-label">头像：</label>
             <div class="layui-input-inline">
-                <input type="text" name="headUrl" value="<{ d.HeadUrl }>" lay-verify="phone" autocomplete="off" class="layui-input">
+                <input type="text" name="headUrl" value="<{ d.headUrl }>" lay-verify="phone" autocomplete="off" class="layui-input">
             </div>
         </div>
         <div class="layui-form-item">
             <div class="layui-inline">
                 <label class="layui-form-label">金币：</label>
                 <div class="layui-input-inline">
-                    <input type="number" name="coin" value="<{ d.Coin || 0 }>" lay-verify="number" autocomplete="off" class="layui-input">
+                    <input type="number" name="coin" value="<{ d.coin || 0 }>" lay-verify="number" autocomplete="off" class="layui-input">
                 </div>
             </div>
         </div>
-        // <div class="layui-form-item">
-        //     <div class="layui-inline">
-        //         <label class="layui-form-label">钻石：</label>
-        //         <div class="layui-input-inline">
-        //             <input type="number" name="Diamond" value="<{ d.Diamond || 0 }>" lay-verify="number" autocomplete="off" class="layui-input">
-        //         </div>
-        //     </div>
-        // </div>
-        // <div class="layui-form-item">
-        //     <div class="layui-inline">
-        //         <label class="layui-form-label">房卡：</label>
-        //         <div class="layui-input-inline">
-        //             <input type="number" name="RoomCard" value="<{ d.RoomCard || 0 }>" lay-verify="number" autocomplete="off" class="layui-input">
-        //         </div>
-        //     </div>
-        // </div>
-        // <div class="layui-form-item">
-        //     <div class="layui-inline">
-        //         <label class="layui-form-label">红包：</label>
-        //         <div class="layui-input-inline">
-        //             <input type="text" name="bonus" value="<{ d.bonus || 0 }>" lay-verify="number" autocomplete="off" class="layui-input">
-        //         </div>
-        //     </div>
-        // </div>
-        // <div class="layui-form-item">
-        //     <div class="layui-inline">
-        //         <label class="layui-form-label">奖券：</label>
-        //         <div class="layui-input-inline">
-        //             <input type="number" name="ticket" value="<{ d.ticket || 0 }>" lay-verify="number" autocomplete="off" class="layui-input">
-        //         </div>
-        //     </div>
-        // </div>
+        <div class="layui-form-item">
+            <div class="layui-inline">
+                <label class="layui-form-label">钻石：</label>
+                <div class="layui-input-inline">
+                    <input type="number" name="Diamond" value="<{ d.Diamond || 0 }>" lay-verify="number" autocomplete="off" class="layui-input">
+                </div>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <div class="layui-inline">
+                <label class="layui-form-label">房卡：</label>
+                <div class="layui-input-inline">
+                    <input type="number" name="RoomCard" value="<{ d.RoomCard || 0 }>" lay-verify="number" autocomplete="off" class="layui-input">
+                </div>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <div class="layui-inline">
+                <label class="layui-form-label">红包：</label>
+                <div class="layui-input-inline">
+                    <input type="text" name="bonus" value="<{ d.bonus || 0 }>" lay-verify="number" autocomplete="off" class="layui-input">
+                </div>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <div class="layui-inline">
+                <label class="layui-form-label">奖券：</label>
+                <div class="layui-input-inline">
+                    <input type="number" name="ticket" value="<{ d.ticket || 0 }>" lay-verify="number" autocomplete="off" class="layui-input">
+                </div>
+            </div>
+        </div>
         <div class="layui-form-item">
             <div class="layui-inline">
                 <label class="layui-form-label">OpenId：</label>
@@ -149,22 +199,22 @@
                 </div>
             </div>
         </div>
-        // <div class="layui-form-item">
-        //     <div class="layui-inline">
-        //         <label class="layui-form-label">性别：</label>
-        //         <div class="layui-input-inline">
-        //             <input type="text" name="sex" value="<{ d.sex }>" autocomplete="off" class="layui-input">
-        //         </div>
-        //     </div>
-        // </div>
-        // <div class="layui-form-item">
-        //     <div class="layui-inline">
-        //         <label class="layui-form-label">机器人：</label>
-        //         <div class="layui-input-inline">
-        //             <input type="text" name="robotType" value="<{ d.robotType }>" autocomplete="off" class="layui-input">
-        //         </div>
-        //     </div>
-        // </div>
+        <div class="layui-form-item">
+            <div class="layui-inline">
+                <label class="layui-form-label">性别：</label>
+                <div class="layui-input-inline">
+                    <input type="text" name="sex" value="<{ d.sex }>" autocomplete="off" class="layui-input">
+                </div>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <div class="layui-inline">
+                <label class="layui-form-label">机器人：</label>
+                <div class="layui-input-inline">
+                    <input type="text" name="robotType" value="<{ d.robotType }>" autocomplete="off" class="layui-input">
+                </div>
+            </div>
+        </div>
         <div class="layui-form-item">
             <div class="layui-input-block">
                 <input type="submit" value="立即提交" class="layui-btn"/>
@@ -177,11 +227,11 @@
 <!--模板：用户充值-->
 <script id="tpl_recharge" data-width="360px" data-title="用户充值" type="text/javascript">
     <form id="form_recharge" method="post" action="/admin/manage/user/recharge">
-        <input type="hidden" name="Id" value="<{ d.Id }>">
+        <input type="hidden" name="Id" value="<{ d.id }>">
         <div class="layui-form-item">
             <label class="layui-form-label">用户：</label>
             <div class="layui-input-inline">
-                <div class="layui-form-label"><{ d.NickName }></div>
+                <div class="layui-form-label"><{ d.nickName }></div>
             </div>
         </div>
         <div class="layui-form-item">
@@ -192,38 +242,38 @@
                 </div>
             </div>
         </div>
-        // <div class="layui-form-item">
-        //     <div class="layui-inline">
-        //         <label class="layui-form-label">钻石：</label>
-        //         <div class="layui-input-inline">
-        //             <input type="number" name="Diamond" value="0" lay-verify="number" autocomplete="off" class="layui-input">
-        //         </div>
-        //     </div>
-        // </div>
-        // <div class="layui-form-item">
-        //     <div class="layui-inline">
-        //         <label class="layui-form-label">房卡：</label>
-        //         <div class="layui-input-inline">
-        //             <input type="number" name="RoomCard" value="0" lay-verify="number" autocomplete="off" class="layui-input">
-        //         </div>
-        //     </div>
-        // </div>
-        // <div class="layui-form-item">
-        //     <div class="layui-inline">
-        //         <label class="layui-form-label">红包：</label>
-        //         <div class="layui-input-inline">
-        //             <input type="text" name="bonus" value="0" autocomplete="off" class="layui-input">
-        //         </div>
-        //     </div>
-        // </div>
-        // <div class="layui-form-item">
-        //     <div class="layui-inline">
-        //         <label class="layui-form-label">奖券：</label>
-        //         <div class="layui-input-inline">
-        //             <input type="number" name="ticket" value="0" lay-verify="number" autocomplete="off" class="layui-input">
-        //         </div>
-        //     </div>
-        // </div>
+        <div class="layui-form-item">
+            <div class="layui-inline">
+                <label class="layui-form-label">钻石：</label>
+                <div class="layui-input-inline">
+                    <input type="number" name="Diamond" value="0" lay-verify="number" autocomplete="off" class="layui-input">
+                </div>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <div class="layui-inline">
+                <label class="layui-form-label">房卡：</label>
+                <div class="layui-input-inline">
+                    <input type="number" name="RoomCard" value="0" lay-verify="number" autocomplete="off" class="layui-input">
+                </div>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <div class="layui-inline">
+                <label class="layui-form-label">红包：</label>
+                <div class="layui-input-inline">
+                    <input type="text" name="bonus" value="0" autocomplete="off" class="layui-input">
+                </div>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <div class="layui-inline">
+                <label class="layui-form-label">奖券：</label>
+                <div class="layui-input-inline">
+                    <input type="number" name="ticket" value="0" lay-verify="number" autocomplete="off" class="layui-input">
+                </div>
+            </div>
+        </div>
         <div class="layui-form-item">
             <div class="layui-input-block">
                 <input type="submit" value="充值" class="layui-btn"/>
@@ -245,7 +295,6 @@
             if(res.code > 0){
                 //将数据保存在DOM节点中
                 user_list = res;
-                console.log(user_list)
                 //渲染列表
                 common.render(res, "#tpl_list", "#view_list");
                 //渲染分页

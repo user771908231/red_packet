@@ -11,6 +11,7 @@ import (
 	"fmt"
 	time "time"
 	"casino_common/common/userService"
+	"casino_common/common/log"
 )
 
 const USER_TABLE_NAME string = "t_redpack_user"
@@ -32,6 +33,7 @@ type User struct {
 func (User *User) CapitalUplete(action string ,munber float64,msg string) error{
 	if action == "-" {
 		if User.ThreePartyId != 0 {
+			log.T("平台用户金币减")
 			_,errr:= userService.DECRUserCOIN(User.ThreePartyId,int64(munber),msg)
 			if errr != nil {
 				return errr
@@ -45,6 +47,7 @@ func (User *User) CapitalUplete(action string ,munber float64,msg string) error{
 		return nil
 	}else if action == "+" {
 		if User.ThreePartyId != 0 {
+			log.T("平台用户金币加")
 			_,errr:= userService.INCRUserCOIN(User.ThreePartyId,int64(munber),msg)
 			if errr != nil {
 				return errr
@@ -229,6 +232,15 @@ func (user *User) Insert() error{
 func (user *User) Save() error {
 	err := db.C(USER_TABLE_NAME).Update(bson.M{"id": user.Id}, user)
 	return err
+}
+//获取全部用户
+func GetUsers(query bson.M) []*User {
+	users := []*User{}
+	err := db.C(USER_TABLE_NAME).FindAll(query,&users)
+	if err != nil {
+		return nil
+	}
+	return users
 }
 
 

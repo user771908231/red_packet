@@ -109,6 +109,15 @@ func Regist(m *macaron.Macaron) {
 			m.Get("/logout", admin.LoginOutHandler)
 			//管理
 			m.Group("/manage", func() {
+				//游戏用户
+
+				m.Group("/user", func() {
+					m.Get("/",manage.UserIndexHnadler)
+					m.Get("/list",manage.UserListHandler)
+					m.Post("/recharge",binding.Bind(manage.RechargeForm{}),manage.RechargeHandler)
+					m.Post("/update",binding.Bind(manage.UserUpdateForm{}),manage.UpdateUserHandler)
+					m.Get("/del/:id([0-9]+)",manage.DelUserHandler)
+				})
 				//红包兑换相关
 				m.Group("/exchange", func() {
 					//m.Get("/", manage.ExchangeListHandler)
