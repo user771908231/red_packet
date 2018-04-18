@@ -74,8 +74,8 @@
 
 <div class="aui-content hbpf-agency" style="margin-top: 3px;">
     <div class="aui-bar aui-bar-btn" style="width:65%;">
-        <div class="aui-bar-btn-item ">收益明细</div>
-        <div class="aui-bar-btn-item aui-active"><a href="/home/member/agent_tg">我的推广码</a></div>
+        <div class="aui-bar-btn-item aui-active">收益明细</div>
+        <div class="aui-bar-btn-item ">我的推广码</div>
     </div>
 </div>
 <div class="aui-card-list-content" style="margin-bottom:5.5rem;">
@@ -161,9 +161,9 @@
     </div>
 </footer>
 
-<script type="text/javascript" src="/static/home/script/jquery-3.2.1.min.js" ></script>
+<script type="text/javascript"  src="/static/admin/static/js/jquery-1.7.1.min.js"></script>
 
-<script type="text/javascript" src="/static/home/script/jquery-3.2.1.min.js" ></script>
+{{/*<script type="text/javascript" src="/static/home/script/jquery-3.2.1.min.js" ></script>*/}}
 <script type="text/javascript" src="/static/home/script/layer.js" ></script>
 <script type="text/javascript">
     shuju();
@@ -207,6 +207,7 @@
         $.get("/home/member/getEarningsList2?",function(data,status){
             if(status=='success'){
                 var dataObj=eval("("+data+")");//转换为json对象
+                console.log(dataObj)
                 var code=dataObj.code;
                 if(code=='2'){
                     layer.open({
@@ -238,10 +239,7 @@
             }
         });
     }
-</script>
 
-
-<script type="text/javascript">
     $(document).ready(function(){
         $.get("/home/login/getMemberInfo",function(data,status){
             if(status=='success'){
@@ -260,12 +258,13 @@
             }
         });
     });
+    $(".aui-bar-btn-item").on("click",function (e) {
+        console.log($(".aui-bar-btn-item").addClass("aui-active"))
+        var a = $(".aui-active")
+        var val = a.first().removeClass("aui-active")
+        console.log(val)
+    })
 
-
-    function dianji(this) {
-        var self = this
-        self.classNames().append()
-    }
 </script>
 
 <script type="text/javascript">
