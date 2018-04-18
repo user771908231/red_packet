@@ -10,6 +10,7 @@ import (
 	"regexp"
 	"fmt"
 	time "time"
+	"casino_common/common/userService"
 )
 
 const USER_TABLE_NAME string = "t_redpack_user"
@@ -28,14 +29,27 @@ type User struct {
 	ExtensionId	int32
 }
 
-func (User *User) CapitalUplete(action string ,munber float64) error{
+func (User *User) CapitalUplete(action string ,munber float64,msg string) error{
 	if action == "-" {
+		if User.ThreePartyId != 0 {
+			_,errr:= userService.DECRUserCOIN(User.ThreePartyId,int64(munber),msg)
+			if errr != nil {
+				return errr
+			}
+		}
+
 		err := User.findAndModify(bson.M{"coin": -munber})
 		if err != nil{
 			return err
 		}
 		return nil
 	}else if action == "+" {
+		if User.ThreePartyId != 0 {
+			_,errr:= userService.INCRUserCOIN(User.ThreePartyId,int64(munber),msg)
+			if errr != nil {
+				return errr
+			}
+		}
 		err := User.findAndModify(bson.M{"coin": munber})
 		if err != nil{
 			return err

@@ -43,7 +43,7 @@ func SendWurenRedPacketHandler(ctx *modules.Context) {
 	room := redModel.GetRoomByType(req_type)
 	room.SendRedpack(user_info, req_money, 5, 0)
 	//减去用户的金币
-	GetUserUplate(user_info,req_money,0)
+	GetUserUplate(user_info,req_money,0,"发红包")
 
 	res_code = 1
 	res_msg = fmt.Sprintf("发红包成功")
@@ -157,7 +157,7 @@ func SendZhadanRedPacketHandler(ctx *modules.Context) {
 		//减去用户的金币
 
 	}
-	GetUserUplate(user_info,req_money,0)
+	GetUserUplate(user_info,req_money,0,"红包炸弹发红包")
 	res_code = 1
 	res_msg = fmt.Sprintf("发红包成功！")
 }
@@ -397,12 +397,12 @@ func JudgeInMine(open_tail_num int,tailnumber int,money float64,number int,ThisU
 		money0 := FloatValue(money * Odds,2)
 		//因为要赔给发包玩家金币大于开包玩家得到的金币 不做金币加 减去开包玩家的差值金币
 		money2 := money0 - money1
-		err = this_user.CapitalUplete("-",money2)
+		err = this_user.CapitalUplete("-",money2,"输")
 		//赔给发红包的玩家
 		money3 := money1 + money2
 		//获取发包人的信息
 		SendUser := userModel.GetUserById(SendPacketUserId)
-		err := SendUser.CapitalUplete("+",money3)
+		err := SendUser.CapitalUplete("+",money3,"赢")
 		return err
 		//---end
 	}else{
@@ -413,7 +413,7 @@ func JudgeInMine(open_tail_num int,tailnumber int,money float64,number int,ThisU
 			return errors.New("没有找到此用户！")
 		}
 		money0 := money - FloatValue(money * 0.03,2)
-		err = this_user.CapitalUplete("+",money0)
+		err = this_user.CapitalUplete("+",money0,"扣费率")
 		//---end
 		if err != nil {
 			return err

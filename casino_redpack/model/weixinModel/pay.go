@@ -193,12 +193,12 @@ func GetOver()  {
 	withdrawals = nil
 }
 
-func Implement() error{
+func Implement(msg string) error{
 
 	if (withdrawals.AcceptanceID != uint32(0)) && (withdrawals.Status == 1) {
 		User := userModel.GetUserById(withdrawals.UserId)
 		if User != nil {
-			err := User.CapitalUplete("-",withdrawals.Number)
+			err := User.CapitalUplete("-",withdrawals.Number,msg)
 			if err != nil {
 				GetOver()
 				return err

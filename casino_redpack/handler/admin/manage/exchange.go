@@ -175,7 +175,7 @@ func WithdrawalsOperationHandle(ctx *modules.Context){
 			return
 		}
 		//结束
-		weixinModel.Implement()
+		weixinModel.Implement("申请下分")
 		list["msg"] ="修改成功！"
 		list["code"] = 1
 		list["massage"] = "success"

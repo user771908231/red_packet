@@ -15,6 +15,10 @@ func TestAcceptData(t *testing.T){
 	str := "SBZCxV42UKSn6e7DflvBlM7 mgtiwRjUyTC/etY1zuc="
 	str = strings.Replace(str, " ", "+", -1)
 	t.Log(str)
+
+	f := 1.02
+	int := int64(f)
+	t.Log(int)
 }
 
 

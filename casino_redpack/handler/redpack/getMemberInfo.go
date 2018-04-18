@@ -38,11 +38,11 @@ func GetMemberInfo(ctx *modules.Context) {
 }
 
 
-func GetUserUplate(user *userModel.User,money float64,Type int) error {
+func GetUserUplate(user *userModel.User,money float64,Type int,msg string) error {
 	XinUser := userModel.GetUserById(user.Id)
 	if Type == 0 {
 
-		err := XinUser.CapitalUplete("-",money)
+		err := XinUser.CapitalUplete("-",money,msg)
 		if err != nil {
 			return errors.New("减去用户金币失败！")
 		}
@@ -54,13 +54,13 @@ func GetUserUplate(user *userModel.User,money float64,Type int) error {
 		}
 		err1 := data.Isert()
 		if err1 != nil {
-			XinUser.CapitalUplete("+",money)
+			XinUser.CapitalUplete("+",money,msg)
 			log.E("用户【%s】减去金币时生成记录失败！",user.NickName)
 			return err1
 		}
 		return nil
 	}else {
-		err := XinUser.CapitalUplete("+",money)
+		err := XinUser.CapitalUplete("+",money,msg)
 		if err != nil {
 			return errors.New("减去用户金币失败！")
 		}
@@ -72,7 +72,7 @@ func GetUserUplate(user *userModel.User,money float64,Type int) error {
 		}
 		err1 := data.Isert()
 		if err1 != nil {
-			user.CapitalUplete("-",money)
+			user.CapitalUplete("-",money,msg)
 			log.E("%s",err1)
 			return err1
 		}

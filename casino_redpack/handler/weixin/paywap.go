@@ -428,7 +428,7 @@ func  GenerateOtder(OrderNumber string,total_fee float64) error{
 		log.E(msg)
 		return errors.New(msg)
 	}
-	User.CapitalUplete("+",float64(meal.Amount))
+	User.CapitalUplete("+",float64(meal.Amount),"充值")
 	//更新订单状态
 	service.UpdateDetailsStatus(OrderNumber, ddproto.PayEnumTradeStatus_PAY_S_SUCC)
 	//保存订单到数据库...
@@ -490,12 +490,12 @@ func CheckOrder(OrderNumber string,total_fee float64) error{
 		log.E(msg)
 		return errors.New(msg)
 	}
-	User.CapitalUplete("+",float64(G.Number))
+	User.CapitalUplete("+",float64(G.Number),"充值")
 	//更新订单状态
 	R.OrderStatus = int64(1)
 	err := R.Update()
 	if err != nil {
-		User.CapitalUplete("-",float64(G.Number))
+		User.CapitalUplete("-",float64(G.Number),"")
 		msg := fmt.Sprintf("更新订单tradeNo[%v]支付状态失败", OrderNumber)
 		log.E(msg)
 		return errors.New(msg)
