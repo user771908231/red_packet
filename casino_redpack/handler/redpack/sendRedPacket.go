@@ -401,10 +401,16 @@ func JudgeInMine(open_tail_num int,tailnumber int,red_money float64,money float6
 		//--中雷---
 		log.T("中雷用户ID:%d",ThisUserID)
 		this_user := userModel.GetUserById(ThisUserID)
+		if this_user == nil {
+			log.T("没有找到用户")
+		}
 		//open_record_multiple = 0.03 //百分之三的扣费率
 		//要给开包玩家的金币数
 		money1 := money - FloatValue(money * 0.03,2)
 		err = this_user.CapitalUplete("+",money1,"开红包")
+		if err != nil {
+			log.T("用户ID：%d 加金币失败",ThisUserID)
+		}
 		log.T("开包玩家的金币数：",money1)
 		//要给的发包玩家的金币数
 		log.T("红包大小：",red_money)
@@ -412,10 +418,19 @@ func JudgeInMine(open_tail_num int,tailnumber int,red_money float64,money float6
 		//因为要赔给发包玩家金币大于开包玩家得到的金币 不做金币加 减去开包玩家的差值金币
 		log.T("中雷赔的金币数：",money0)
 		err = this_user.CapitalUplete("-",money0,"输")
+		if err != nil {
+			log.T("用户ID：%d 减金币失败",ThisUserID)
+		}
 		//赔给发红包的玩家
 		//获取发包人的信息
 		SendUser := userModel.GetUserById(SendPacketUserId)
+		if SendUser == nil {
+			log.T("没有找到发包用户")
+		}
 		err := SendUser.CapitalUplete("+",money0,"赢")
+		if err != nil {
+			log.T("发包用户ID：%d 加金币失败",SendUser.Id)
+		}
 		return err
 		//---end
 	}else{
@@ -423,14 +438,15 @@ func JudgeInMine(open_tail_num int,tailnumber int,red_money float64,money float6
 		//open_record_multiple = 0.03 //百分之三的扣费率
 		this_user := userModel.GetUserById(ThisUserID)
 		if this_user == nil {
-			return errors.New("没有找到此用户！")
+			log.T("没有找到此用户！ID:%d",ThisUserID)
+			return errors.New("没有找到此用户！",)
 		}
 		money0 := money - FloatValue(money * 0.03,2)
 		err = this_user.CapitalUplete("+",money0,"开红包")
 		//---end
 		if err != nil {
 			return err
-			log.E("➕操作错误")
+			log.T("➕操作错误")
 		}
 		return nil
 	}
