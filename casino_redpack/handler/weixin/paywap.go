@@ -60,13 +60,13 @@ func (Order *RechargeOrder) Insert() error{
 
 //更新订单信息
 func (Order *RechargeOrder) Update() error{
-	err := db.C(tableName.TABLE_ORDER_LISTS).Update(bson.M{"id": Order.ObjId}, Order)
+	err := db.C(tableName.TABLE_ORDER_LISTS).Update(bson.M{"_id": Order.ObjId}, Order)
 	return err
 }
 //订单删除
 func (Order *RechargeOrder) Delete()  error{
 	Order.OrderDeleteStatus = int64(0)
-	err := db.C(tableName.TABLE_ORDER_LISTS).Update(bson.M{"id": Order.ObjId}, Order)
+	err := db.C(tableName.TABLE_ORDER_LISTS).Update(bson.M{"_id": Order.ObjId}, Order)
 	return err
 }
 
@@ -380,12 +380,13 @@ func GetOrderId(OrderNumber string) *RechargeOrder{
 	var err error = nil
 	Order_row := new(RechargeOrder)
 	err = db.C(tableName.TABLE_ORDER_LISTS).Find(bson.M{
-		"id": OrderNumber,
+		"ordernumber": OrderNumber,
 	}, Order_row)
 	if err != nil {
-		return Order_row
+		return nil
 	}
-	return nil
+	return Order_row
+
 }
 //生成一条订单支付记录
 func NewOrder(userid uint32,OrderNumber string,numerical float64) error{
@@ -470,7 +471,7 @@ func CheckOrder(OrderNumber string,total_fee float64) error{
 	}
 
 	if R.OrderMoney != total_fee {
-		msg := fmt.Sprintf("订单号[%v]对应的的金额与支付金额不一致[%s]", OrderNumber,total_fee )
+		msg := fmt.Sprintf("订单号[%v]对应的的金额与支付金额不一致[%d]",  R.OrderMoney,total_fee )
 		log.E(msg)
 		return errors.New(msg)
 	}

@@ -338,11 +338,8 @@ func OpenPacketDetails(Id int32,user_id uint32) []byte{
 
 		}
 		redItemList := []bson.M{}
-		lengt := len(Details.OpenRecord)
-		for i,item := range Details.OpenRecord {
-			if i == lengt {
-				continue
-			}
+
+		for _,item := range Details.OpenRecord {
 			List := bson.M{
 				"money":item.Money,
 				"code":int(item.Money * 100)%10,
