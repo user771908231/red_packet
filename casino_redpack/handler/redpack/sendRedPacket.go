@@ -128,15 +128,23 @@ func SendZhadanRedPacketHandler(ctx *modules.Context) {
 		res_msg = "清先登录！"
 		return
 	}
-	//检查用户金币数
-	if user_info.Coin < float64(14) {
-		return
-	}
+
 
 	req_type := ctx.QueryInt("type")
 	req_money := float64(ctx.QueryInt("money"))
 	req_tailNumber := ctx.QueryInt("tailNumber")
 	rep_number := ctx.QueryInt("nuber")
+	log.T("发红包类型：",req_type)
+	log.T("发红包大小：",req_money)
+	log.T("发红包雷号：",req_tailNumber)
+	log.T("发红包几份：",rep_number)
+	//检查用户金币数
+	if user_info.Coin < (req_money * 1.6) {
+		msg := fmt.Sprintf("金币不足，最低需要%d金币。",int(req_money * 1.4))
+		res_msg = msg
+		log.T(msg)
+		return
+	}
 	if rep_number < 7 {
 		rep_number = 7
 	}
@@ -197,21 +205,21 @@ func SaoleiJLOpenRedButtonAjaxHandler(ctx *modules.Context) {
 	//根基房间类型和红包ID获取红包信息
 	info := redModel.GetRoomByType(Types).GetRedpackById(int32(redId))
 	//判断用户的金币是否小于红包的金币大小
-	if ctx.CurrentUserInfo().Coin < info.Money {
-		var piece float64
-		//判断红包的份数 给出用户开红包需要的金币倍率
-		switch info.Piece {
-		case 7:
-			piece = 1.8
-		case 8:
-			piece = 1.6
-		case 9:
-			piece = 1.4
-		case 10:
-			piece = 1.2
-		}
+	var piece float64
+	//判断红包的份数 给出用户开红包需要的金币倍率
+	switch info.Piece {
+	case 7:
+		piece = 1.8
+	case 8:
+		piece = 1.6
+	case 9:
+		piece = 1.4
+	case 10:
+		piece = 1.2
+	}
+	val := FloatValue(info.Money * piece,0)
+	if ctx.CurrentUserInfo().Coin < val {
 		//扣除红包金额的倍数
-		val := FloatValue(float64(info.Piece) * piece,0)
 		res_msg = fmt.Sprintf("金币不足，最低需要%d金币。",int(val))
 		return
 	}
