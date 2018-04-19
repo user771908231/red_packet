@@ -11,6 +11,9 @@ import (
 	"casino_redpack/model/userModel"
 	"math"
 	"errors"
+	"strings"
+	"unicode/utf8"
+	"regexp"
 )
 
 //五人对战：发红包
@@ -303,6 +306,13 @@ func SaoleiRedOpenRecordAjaxHandler(ctx *modules.Context) {
 	}
 	//判断是否记录过
 	if bools {
+		//判读开包数字
+		str,value := IsNumberType(open_money)
+		//获取用户
+		if value != 0 {
+			user_info.CapitalUplete("+",value,str)
+		}
+
 		//判断用户是否中雷
 		JudgeInMine(open_tail_num,red_info.TailNumber,red_info.Money,open_money,red_info.Piece,user_info.Id,red_info.CreatorUser)
 
@@ -458,4 +468,88 @@ func JudgeInMine(open_tail_num int,tailnumber int,red_money float64,money float6
 func FloatValue(f float64,n int) float64 {
 	pow10_n := math.Pow10(n)
 	return math.Trunc((f+0.5/pow10_n)*pow10_n) / pow10_n
+}
+//判读开的红包数字类型 123-789 1234-6789  111-999 1111-9999 001 1314 2018 520
+func IsNumberType(f float64) (string,float64) {
+	log.T("得到的值%f",f)
+	s :=fmt.Sprintf("%.2f", f)
+	log.T("得到的值字符串",s)
+	ss := strings.Split(s,".")
+	log.T("得到的值字符串去除小数点byte",ss)
+	sss := strings.Join(ss,"")
+	log.T("得到的去除小数点字符串",sss)
+	slengt := utf8.RuneCountInString(sss)
+	log.T("得到的去除小数点字符串的长度",slengt)
+	switch slengt {
+	case 3:
+		//顺子
+		match1, _ := regexp.MatchString("^(?:(123)||(234)||(345)||(456)||(567)||(678)||(789)){3}$", sss)
+		//豹子
+		//match2, _ := regexp.MatchString("^(?:([1-9])\1{/\2})$", sss)
+		//520
+		match7, _ := regexp.MatchString("^(?:(520){3})$", sss)
+		//001
+		match9, _ := regexp.MatchString("^(?:(001)){3}$", sss)
+		if match1 {
+			log.T("3顺子",6.88)
+			return "顺子",6.88
+		}else if sss == "111" || sss == "222" || sss =="333" || sss == "444" || sss == "555" || sss == "666" || sss == "777" || sss == "888" || sss == "999"{
+			log.T("3豹子",10)
+			return "豹子",10
+		}else if match7 {
+			log.T("520",18.88)
+			return "5.20",18.88
+		}else if match9 {
+			log.T("001",18.88)
+			return "0.01",18.88
+		}
+		log.T("什么都不是",sss)
+		return "",0
+		break;
+	case 4:
+		match3, _ := regexp.MatchString("^(?:(1234)||(2345)||(3456)||(4567)||(5678)||(6789)){4}$", sss)
+
+		//match4, _ := regexp.MatchString("^(?:([0-9])\1){2}$", sss)
+
+		match8, _ := regexp.MatchString("^(?:(1314)){4}$", sss)
+
+		match0, _ := regexp.MatchString("^(?:(2018)){4}$", sss)
+
+		if match3 {
+			log.T("4顺子",38.88)
+			return "顺子",38.88
+		}else if sss == "1111" || sss == "2222" || sss =="3333" || sss == "4444" || sss == "5555" || sss == "6666" || sss == "7777" || sss == "8888" || sss == "9999" {
+			log.T("4豹子",58.88)
+			return "豹子",58.88
+		}else if match8 {
+			log.T("1314",18.88)
+			return "1314",18.88
+		}else if match0 {
+			log.T("2018",18.88)
+			return "2018",18.88
+		}
+		log.T("什么都不是",sss)
+		return "",0
+		break;
+	case 5:
+		match5, _ := regexp.MatchString("^(?:(12345)||(23456)||(34567)||(45678)||(56789)){5}$", sss)
+
+		//match6, _ := regexp.MatchString("^(?:([0-9])\1){4}$", sss)
+
+		if match5 {
+			log.T("5顺子",388)
+			return "顺子",388
+		}else if sss == "11111" || sss == "22222" || sss =="33333" || sss == "44444" || sss == "55555" || sss == "66666" || sss == "77777" || sss == "88888" || sss == "99999"{
+			log.T("5豹子",588)
+			return "豹子",588
+		}
+		log.T("什么都不是",sss)
+		return "",0
+		break;
+	default:
+		log.T("什么都不是",sss)
+		return "",0
+		break;
+	}
+	return "",0
 }
