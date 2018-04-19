@@ -210,7 +210,8 @@ func SaoleiJLOpenRedButtonAjaxHandler(ctx *modules.Context) {
 		case 10:
 			piece = 1.2
 		}
-		val := FloatValue(info.Money*piece,0)
+		//扣除红包金额的倍数
+		val := FloatValue(float64(info.Piece) * piece,0)
 		res_msg = fmt.Sprintf("金币不足，最低需要%d金币。",int(val))
 		return
 	}
@@ -295,7 +296,7 @@ func SaoleiRedOpenRecordAjaxHandler(ctx *modules.Context) {
 	//判断是否记录过
 	if bools {
 		//判断用户是否中雷
-		JudgeInMine(open_tail_num,red_info.TailNumber,open_money,red_info.Piece,user_info.Id,red_info.CreatorUser)
+		JudgeInMine(open_tail_num,red_info.TailNumber,red_info.Money,open_money,red_info.Piece,user_info.Id,red_info.CreatorUser)
 
 
 	}
@@ -362,13 +363,14 @@ func GetRedPacketInfoHandler(ctx *modules.Context) {
 /*
 open_tail_num 开包的尾数
 tailnumber 发包人设置的尾数
+red_money	红包大小
 money		开了多少钱
 number		几人包
 Odds      	赔率
 ThisUserID	当前开包人ID
 SendPacketUserId 	发包人ID
  */
-func JudgeInMine(open_tail_num int,tailnumber int,money float64,number int,ThisUserID uint32,SendPacketUserId uint32) error{
+func JudgeInMine(open_tail_num int,tailnumber int,red_money float64,money float64,number int,ThisUserID uint32,SendPacketUserId uint32) error{
 	var err error
 	//判断几人包设置赔率
 	//7人包赔率1.6倍，8人包赔率1.4倍，9人包1.2 10人包赔率1倍
@@ -389,20 +391,23 @@ func JudgeInMine(open_tail_num int,tailnumber int,money float64,number int,ThisU
 	//判断用户是否中雷
 	if  open_tail_num == tailnumber {
 		//--中雷---
+		log.T("中雷用户ID:%d",ThisUserID)
 		this_user := userModel.GetUserById(ThisUserID)
 		//open_record_multiple = 0.03 //百分之三的扣费率
 		//要给开包玩家的金币数
 		money1 := money - FloatValue(money * 0.03,2)
+		err = this_user.CapitalUplete("+",money1,"开红包")
+		log.T("开包玩家的金币数：",money1)
 		//要给的发包玩家的金币数
-		money0 := FloatValue(money * Odds,2)
+		log.T("红包大小：",red_money)
+		money0 := FloatValue(red_money * Odds,2)
 		//因为要赔给发包玩家金币大于开包玩家得到的金币 不做金币加 减去开包玩家的差值金币
-		money2 := money0 - money1
-		err = this_user.CapitalUplete("-",money2,"输")
+		log.T("中雷赔的金币数：",money0)
+		err = this_user.CapitalUplete("-",money0,"输")
 		//赔给发红包的玩家
-		money3 := money1 + money2
 		//获取发包人的信息
 		SendUser := userModel.GetUserById(SendPacketUserId)
-		err := SendUser.CapitalUplete("+",money3,"赢")
+		err := SendUser.CapitalUplete("+",money0,"赢")
 		return err
 		//---end
 	}else{
@@ -413,7 +418,7 @@ func JudgeInMine(open_tail_num int,tailnumber int,money float64,number int,ThisU
 			return errors.New("没有找到此用户！")
 		}
 		money0 := money - FloatValue(money * 0.03,2)
-		err = this_user.CapitalUplete("+",money0,"扣费率")
+		err = this_user.CapitalUplete("+",money0,"开红包")
 		//---end
 		if err != nil {
 			return err
