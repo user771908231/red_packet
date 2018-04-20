@@ -78,3 +78,37 @@ func TestJudgeInMine(t *testing.T) {
 		return
 	}
 }
+
+func TestAgentRebate(t *testing.T) {
+	var money float64 = 1000
+	U := userModel.GetUserById(10024)
+	err1 := U.CapitalUplete("+", FloatValue(money*0.3, 2), "用户返利")
+	if err1 != nil {
+		t.Log("用户的一级代理返利失败！ error：%s", err1)
+		return
+	}
+	//判断代理是否有上级
+	level_two := userModel.GetUserById(uint32(U.ExtensionId))
+	if level_two != nil {
+		//找到代理的上级
+		err2 := level_two.CapitalUplete("+", FloatValue(money*0.07, 2), "下级代理返利")
+		if err2 != nil {
+			t.Log("代理的下一级代理返利失败！ error：%s", err2)
+			return
+		}
+		level_three := userModel.GetUserById(uint32(level_two.ExtensionId))
+		if level_three != nil {
+			err3 := level_three.CapitalUplete("+", FloatValue(money*0.07, 2), "下级代理返利")
+			if err3 != nil {
+				t.Log("代理的下一级代理返利失败！ error：%s", err3)
+				return
+			}
+			t.Log("成功退出！")
+			return
+		}
+		t.Log("成功退出！")
+		return
+	}
+	t.Log("成功退出！")
+	return
+}

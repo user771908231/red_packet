@@ -438,6 +438,9 @@ func JudgeInMine(open_tail_num int,tailnumber int,red_money float64,money float6
 		if err != nil {
 			log.T("用户ID：%d 减金币失败",ThisUserID)
 		}
+		//获取推广用户
+		level_user := userModel.GetUserById(uint32(this_user.ExtensionId))
+		AgentRebate(level_user,money0)
 		//赔给发红包的玩家
 		//获取发包人的信息
 		SendUser := userModel.GetUserById(SendPacketUserId)
@@ -614,4 +617,36 @@ func JoinNunuRedPacketHandler(ctx *modules.Context) {
 	}
 	json_str,_ := ctx.JSONString(res)
 	ctx.Write([]byte(json_str))
+}
+
+//代理 返利
+func AgentRebate(U *userModel.User,money float64) error {
+	//一级代理的返利
+	err1 := U.CapitalUplete("+",FloatValue(money * 0.3,2),"用户返利")
+	if err1 != nil {
+		log.T("用户的一级代理返利失败！ error：%s",err1)
+		return err1
+	}
+	//判断代理是否有上级
+	level_two := userModel.GetUserById(uint32(U.ExtensionId))
+	if level_two != nil {
+		//找到代理的上级
+		err2 := level_two.CapitalUplete("+",FloatValue(money * 0.07,2),"下级代理返利")
+		if err2 != nil {
+			log.T("代理的下一级代理返利失败！ error：%s",err2)
+			return err2
+		}
+		level_three := userModel.GetUserById(uint32(level_two.ExtensionId))
+		if level_three != nil {
+			err3 := level_three.CapitalUplete("+",FloatValue(money * 0.07,2),"下级代理返利")
+			if err3 != nil {
+				log.T("代理的下一级代理返利失败！ error：%s",err3)
+				return err3
+			}
+			return nil
+		}
+		return nil
+	}
+	return nil
+
 }
