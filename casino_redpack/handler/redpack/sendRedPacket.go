@@ -149,8 +149,8 @@ func SendZhadanRedPacketHandler(ctx *modules.Context) {
 	log.T("发红包雷号：",req_tailNumber)
 	log.T("发红包几份：",rep_number)
 	//检查用户金币数
-	if user_info.Coin < (req_money * 1.6) {
-		msg := fmt.Sprintf("金币不足，最低需要%d金币。",int(req_money * 1.4))
+	if ctx.CurrentUserInfo().Coin < (req_money * 1.4) {
+		msg := fmt.Sprintf("金币不足，你最少需要有%d金币。",int(req_money * 1.4))
 		res_msg = msg
 		log.T(msg)
 		return
@@ -228,11 +228,14 @@ func SaoleiJLOpenRedButtonAjaxHandler(ctx *modules.Context) {
 		piece = 1.2
 	}
 	val := FloatValue(info.Money * piece,0)
-	if ctx.CurrentUserInfo().Coin < val {
-		//扣除红包金额的倍数
-		res_msg = fmt.Sprintf("金币不足，最低需要%d金币。",int(val))
-		return
+	if ctx.CurrentUserInfo().Id != info.CreatorUser {
+		if ctx.CurrentUserInfo().Coin < val {
+			//扣除红包金额的倍数
+			res_msg = fmt.Sprintf("金币不足，最低需要%d金币。",int(val))
+			return
+		}
 	}
+
 
 	res_code = 1
 	res_msg = "开红包成功！"
@@ -431,6 +434,10 @@ func JudgeInMine(open_tail_num int,tailnumber int,red_money float64,money float6
 		log.T("开包玩家的金币数：",money1)
 		//要给的发包玩家的金币数
 		log.T("红包大小：",red_money)
+		// 红包是自己的就不赔
+		if ThisUserID == SendPacketUserId {
+			return nil
+		}
 		money0 := FloatValue(red_money * Odds,2)
 		//因为要赔给发包玩家金币大于开包玩家得到的金币 不做金币加 减去开包玩家的差值金币
 		log.T("中雷赔的金币数：",money0)
