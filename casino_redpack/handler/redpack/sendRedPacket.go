@@ -39,14 +39,20 @@ func SendWurenRedPacketHandler(ctx *modules.Context) {
 	req_type := redModel.RoomType(ctx.QueryInt("type"))
 	req_money := float64(ctx.QueryInt("money"))
 
-	if user_info.Coin < req_money {
+	if user_info.Coin < req_money * 1.7 {
+		res_code = 0
+		res_msg = fmt.Sprintf("发红包成功失败！最少需要有%.0f",req_money * 1.7)
 		return
 	}
 	//发红包五人
 	room := redModel.GetRoomByType(req_type)
-	room.SendRedpack(user_info, req_money, 5, 0)
+	_,err:= room.SendRedpack(user_info, req_money, 5, 0)
+	if err != nil {
+		log.T("发红包错误",err)
+	}
 	//减去用户的金币
-	GetUserUplate(user_info,req_money,0,"发红包")
+	user_info.CapitalUplete("-",req_money,"发红包")
+	//GetUserUplate(user_info,req_money,0,"发红包")
 
 	res_code = 1
 	res_msg = fmt.Sprintf("发红包成功")
@@ -57,6 +63,7 @@ func SendWurenRedPacketHandler(ctx *modules.Context) {
 //五人对战：加入红包对战
 func JoinWurenRedPacketHandler(ctx *modules.Context) {
 	redId := ctx.QueryInt("redId")
+	fmt.Println(redId)
 	user := ctx.IsLogin()
 	lists := redModel.GetRoomByType(redModel.RoomTypeWurenDZ).GetRedpackById(int32(redId))
 	res := bson.M{
@@ -552,4 +559,59 @@ func IsNumberType(f float64) (string,float64) {
 		break;
 	}
 	return "",0
+}
+
+//五人对战：加入红包对战
+func JoinNunuRedPacketHandler(ctx *modules.Context) {
+	redId := ctx.QueryInt("redId")
+	fmt.Println(redId)
+	user := ctx.IsLogin()
+	lists := redModel.GetRoomByType(redModel.RoomTypeNiuniu).GetRedpackById(int32(redId))
+	res := bson.M{
+		"code": 0,
+		"message": "faid",
+		"request":bson.M{},
+	}
+	if lists != nil {
+		//for _,item := range lists.OpenRecord{
+		//	if item.UserId == user.Id {
+		//		continue
+		//	}else{
+		//		lists.OpenRecord = append(lists.OpenRecord,&redModel.OpenRecordItem{
+		//			UserId :user.Id, //领红包的人id
+		//			NickName:user.HeadUrl,
+		//		})
+		//	}
+		//}
+		var redItemList []bson.M
+		lists.OpenRecord = append(lists.OpenRecord,&redModel.OpenRecordItem{
+			UserId :user.Id, //领红包的人id
+			NickName:user.HeadUrl,
+		})
+		redItemList = append(redItemList,bson.M{
+			"headimgurl": user.HeadUrl,
+		},)
+
+		res["code"] = 1
+		res["message"] = "success"
+		res["request"] = bson.M{
+			"msg": "加入成功！",
+			"redInfo": bson.M{
+				"id":lists.Id,
+				"nickname": lists.CreatorName,
+				"headimgurl": lists.CreatorHead,
+				"money": lists.Money,
+				"all_membey": lists.Piece,
+				"has_member": len(lists.OpenRecord),
+			},
+			"redItemList": redItemList,
+			//[]bson.M{
+			//bson.M{
+			//	"headimgurl": user.HeadUrl,
+			//},
+			//},
+		}
+	}
+	json_str,_ := ctx.JSONString(res)
+	ctx.Write([]byte(json_str))
 }

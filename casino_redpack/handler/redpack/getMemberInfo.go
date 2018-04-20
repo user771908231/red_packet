@@ -51,6 +51,7 @@ func GetUserUplate(user *userModel.User,money float64,Type int,msg string) error
 			SendOrOpenPacket:Type,
 			UserCoin:user.Coin,
 			AddOrSubtract:money,
+			Msg:msg,
 		}
 		err1 := data.Isert()
 		if err1 != nil {
@@ -69,6 +70,7 @@ func GetUserUplate(user *userModel.User,money float64,Type int,msg string) error
 			SendOrOpenPacket:Type,
 			UserCoin:user.Coin,
 			AddOrSubtract:money,
+			Msg:msg,
 		}
 		err1 := data.Isert()
 		if err1 != nil {

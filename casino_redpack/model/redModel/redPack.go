@@ -63,6 +63,7 @@ type CoinAddSbtract struct {
 	SendOrOpenPacket int //0 发红包 1 开红包
 	UserCoin float64 //用户总金币
 	AddOrSubtract	float64 //加减的金币
+	Msg 	string
 	Time time.Time
 }
 

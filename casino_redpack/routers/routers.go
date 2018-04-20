@@ -196,6 +196,8 @@ func Regist(m *macaron.Macaron) {
 
 				//发红包页面
 				m.Get("/add", redpack.NiuniuAddHandler)
+				//加入红包列表
+				m.Get("/join_red_packet", redpack.JoinNunuRedPacketHandler)
 
 			})
 

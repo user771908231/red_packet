@@ -6,6 +6,7 @@ import (
 	"casino_common/utils/db"
 	"casino_redpack/model/userModel"
 	"sync"
+	"casino_common/common/log"
 )
 
 type RoomType int
@@ -238,18 +239,19 @@ func (room *Room) SendRedpack(creator *userModel.User, money float64, piece int,
 	if length := len(room.RedpackList); length > 100 {
 		room.RedpackList = room.RedpackList[length-100:]
 	}
-
+	log.T("发红包后 内存中的红包个数%d",len(room.RedpackList))
 	return new_redpack, nil
 }
 
 //查找红包
 func (room *Room) GetRedpackById(red_id int32) *Redpack {
 	//先从内存找
+	log.T("内存中红包个数：%d",len(room.RedpackList))
 	for _,r := range room.RedpackList {
 		if r.Id == red_id {
 			return r
 		}
 	}
-
+	log.T("没有找到此红包 ID：%d",red_id)
 	return nil
 }
