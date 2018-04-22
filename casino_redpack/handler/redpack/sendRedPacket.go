@@ -218,14 +218,18 @@ func SaoleiJLOpenRedButtonAjaxHandler(ctx *modules.Context) {
 	var piece float64
 	//判断红包的份数 给出用户开红包需要的金币倍率
 	switch info.Piece {
+	case 5:
+		piece = 2
+	case 6:
+		piece = 1.7
 	case 7:
-		piece = 1.8
+		piece = 1.5
 	case 8:
-		piece = 1.6
+		piece = 1.3
 	case 9:
-		piece = 1.4
-	case 10:
 		piece = 1.2
+	case 10:
+		piece = 1.1
 	}
 	val := FloatValue(info.Money * piece,0)
 	if ctx.CurrentUserInfo().Id != info.CreatorUser {
@@ -404,14 +408,18 @@ func JudgeInMine(open_tail_num int,tailnumber int,red_money float64,money float6
 	//7人包赔率1.6倍，8人包赔率1.4倍，9人包1.2 10人包赔率1倍
 	var Odds float64
 	switch number {
+	case 5:
+		Odds = 2
+	case 6:
+		Odds = 1.7
 	case 7:
-		Odds = 1.6
+		Odds = 1.5
 	case 8:
-		Odds = 1.4
+		Odds = 1.3
 	case 9:
 		Odds = 1.2
 	case 10:
-		Odds = 1
+		Odds = 1.1
 	default:
 		Odds = 1
 	}
