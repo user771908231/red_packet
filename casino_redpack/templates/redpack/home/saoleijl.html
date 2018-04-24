@@ -311,11 +311,15 @@
                     hbpic='hb.png';
                     hbys='';
                     xszt='1';
-                }else{
+                }else if(item.jiaru=='1'){
                     hbzt='红包已领取';
                     hbpic='hbk.png';
                     hbys=' blur';
                     xszt='0';
+                }else {
+                    hbzt='红包已领完';
+                    hbpic='hbk.png';
+                    hbys=' blur';
                 }
                 if(true){
                     if(item.is_self=='0'){

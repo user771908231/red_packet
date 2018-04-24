@@ -20,6 +20,7 @@ func GetClientRedpackListJson(list []*Redpack, userId uint32) []byte {
 		if i < lenth-10 {
 			continue
 		}
+		renshu := len(item.OpenRecord)
 		new_item := bson.M{
 			"id": item.Id,
 			"type": item.Type,
@@ -44,6 +45,9 @@ func GetClientRedpackListJson(list []*Redpack, userId uint32) []byte {
 			if userId == u.UserId {
 				new_item["jiaru"] = 1
 			}
+		}
+		if renshu == item.Piece {
+			new_item["jiaru"] = 2
 		}
 
 		res_list = append(res_list, new_item)
