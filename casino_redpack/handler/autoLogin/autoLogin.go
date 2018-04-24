@@ -35,39 +35,39 @@ func AcceptData(ctx *modules.Context) {
 
 					if user1 == nil {
 						user := userModel.User{
-							ThreePartyId:*user_info.Id,
-							NickName:*user_info.NickName,
-							HeadUrl:*user_info.HeadUrl,
-							OpenId:*user_info.OpenId,
-							UnionId:*user_info.UnionId,
-							PassWd:*user_info.Pwd,
-							Coin:float64(*user_info.Coin),
+							ThreePartyId:user_info.GetId(),
+							NickName:user_info.GetNickName(),
+							HeadUrl:user_info.GetHeadUrl(),
+							OpenId:user_info.GetOpenId(),
+							UnionId:user_info.GetUnionId(),
+							PassWd:user_info.GetPwd(),
+							Coin:float64(user_info.GetCoin()),
 						}
 						err := user.Insert()
 						if err == nil {
 							log.T("注册信息成功！")
-							user2 := userModel.GetUserByThreePartyId(*user_info.Id)
+							user2 := userModel.GetUserByThreePartyId(user_info.GetId())
 							ctx.Session.Set("user", *user2)
 							ctx.Redirect("/home",302)
-							log.T("用户[%d]信息获取成功！写入Session，跳转home",user_info.Id)
+							log.T("用户[%d]信息获取成功！写入Session，跳转home",user_info.GetId())
 							return
 						}
 						log.T("注册信息失败！错误信息：",err)
 						return
 					}
 					//每次登陆更新获取到的三方用户信息
-					user1.Coin = float64(*user_info.Coin)
-					user1.NickName = *user_info.NickName
-					user1.HeadUrl = *user_info.HeadUrl
-					user1.UnionId = *user_info.UnionId
-					user1.OpenId = *user_info.OpenId
-					user1.PassWd = *user_info.Pwd
+					user1.Coin = float64(user_info.GetCoin())
+					user1.NickName = user_info.GetNickName()
+					user1.HeadUrl = user_info.GetHeadUrl()
+					user1.UnionId = user_info.GetUnionId()
+					user1.OpenId = user_info.GetOpenId()
+					user1.PassWd = user_info.GetPwd()
 					//更新用户信息
 					err := user1.Uplate()
 					if err != nil {
 						log.T("更新信息失败")
 					}
-					log.T("用户的金币",*user_info.Coin)
+					log.T("用户的金币",user_info.GetCoin())
 					//获取更新h
 					ctx.Session.Set("user", *user1)
 					ctx.Redirect("/home",302)

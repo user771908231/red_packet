@@ -26,7 +26,8 @@ func TestAesEncrypt(t *testing.T) {
 	now := time.Now()
 	one := fmt.Sprintf("%d-12345",now.Unix())
 	plat_text := []byte(one)
-	key := []byte("123asdssssssssss")
+	key := []byte("c88e831fdad4b760")
+
 
 	t.Log("plat_text:[%v]", plat_text)
 
