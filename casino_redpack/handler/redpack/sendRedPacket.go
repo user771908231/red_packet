@@ -155,8 +155,8 @@ func SendZhadanRedPacketHandler(ctx *modules.Context) {
 		log.T(msg)
 		return
 	}
-	if rep_number < 7 {
-		rep_number = 7
+	if rep_number < 5 {
+		rep_number = 5
 	}
 	switch req_type {
 	case 5:
