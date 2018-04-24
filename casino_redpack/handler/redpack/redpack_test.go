@@ -3,6 +3,11 @@ package redpack
 import (
 	"testing"
 	"casino_redpack/model/userModel"
+	"fmt"
+	"strings"
+	"unicode/utf8"
+
+	"strconv"
 )
 
 func TestJudgeInMine(t *testing.T) {
@@ -111,4 +116,39 @@ func TestAgentRebate(t *testing.T) {
 	}
 	t.Log("成功退出！")
 	return
+}
+
+func TestJoinWurenRedPacketHandler(t *testing.T) {
+	var val float64 = 19.83
+	t.Log("得到的值%f",val)
+	s :=fmt.Sprintf("%.2f", val)
+	t.Log("得到的值字符串",s)
+	ss := strings.Split(s,".")
+	t.Log("得到的值字符串去除小数点byte",ss)
+	shu := weishu(val)
+	t.Log("尾数：%d",shu)
+	sss := strings.Join(ss,"")
+	t.Log("得到的去除小数点字符串",sss)
+	by := []byte(sss)
+
+	for i,_ := range by {
+		t.Log(string(by[i]))
+	}
+
+	slengt := utf8.RuneCountInString(sss)
+	t.Log("得到的去除小数点字符串的长度",slengt)
+}
+
+func GetWeishu(str float64) int {
+	var val int
+	s :=fmt.Sprintf("%.2f", str)
+	by := []byte(s)
+	lengt := len(by)
+	for i,_ := range by {
+		if i == lengt-1{
+			val,_ = strconv.Atoi(string(by[i]))
+		}
+
+	}
+	return val
 }

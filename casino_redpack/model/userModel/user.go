@@ -30,9 +30,16 @@ type User struct {
 	ExtensionId	int32
 }
 
+func (m *User) GetThreePartyId() uint32 {
+	if m != nil && m.ThreePartyId != 0 {
+		return m.ThreePartyId
+	}
+	return 0
+}
+
 func (User *User) CapitalUplete(action string ,munber float64,msg string) error{
 	if action == "-" {
-		if User.ThreePartyId != 0 {
+		if User.GetThreePartyId() != 0 {
 			log.T("平台用户金币减")
 			_,errr:= userService.DECRUserCOIN(User.ThreePartyId,int64(munber),msg)
 			if errr != nil {
@@ -46,7 +53,7 @@ func (User *User) CapitalUplete(action string ,munber float64,msg string) error{
 		}
 		return nil
 	}else if action == "+" {
-		if User.ThreePartyId != 0 {
+		if User.GetThreePartyId() != 0 {
 			log.T("平台用户金币加")
 			_,errr:= userService.INCRUserCOIN(User.ThreePartyId,int64(munber),msg)
 			if errr != nil {

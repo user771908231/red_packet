@@ -14,6 +14,7 @@ import (
 	"strings"
 	"unicode/utf8"
 	"regexp"
+	"strconv"
 )
 
 //五人对战：发红包
@@ -296,7 +297,8 @@ func SaoleiRedOpenRecordAjaxHandler(ctx *modules.Context) {
 
 	//开红包
 	bools,open_money := red_info.Open(user_info)
-	open_tail_num := int(open_money * 100)%10
+	//open_tail_num := int(open_money * 100)%10 //获得的值有误差
+	open_tail_num := GetWeishu(open_money)
 	//开红包的玩家信息
 	res["request"].(bson.M)["user"] = bson.M{
 		"id": user_info.Id,
@@ -318,6 +320,7 @@ func SaoleiRedOpenRecordAjaxHandler(ctx *modules.Context) {
 		"nickname": user_info.NickName,
 		"headimgurl": user_info.HeadUrl,
 	}
+	log.T("开包的尾数：%d",open_tail_num)
 	//判断是否记录过
 	if bools {
 		//判读开包数字
@@ -328,7 +331,7 @@ func SaoleiRedOpenRecordAjaxHandler(ctx *modules.Context) {
 		}
 
 		//判断用户是否中雷
-		JudgeInMine(open_tail_num,red_info.TailNumber,red_info.Money,open_money,red_info.Piece,user_info.Id,red_info.CreatorUser)
+		go JudgeInMine(open_tail_num,red_info.TailNumber,red_info.Money,open_money,red_info.Piece,user_info.Id,red_info.CreatorUser)
 
 
 	}
@@ -455,7 +458,10 @@ func JudgeInMine(open_tail_num int,tailnumber int,red_money float64,money float6
 		}
 		//获取推广用户
 		level_user := userModel.GetUserById(uint32(this_user.ExtensionId))
-		AgentRebate(level_user,money0)
+		if level_user != nil {
+			go AgentRebate(level_user,money0)
+		}
+
 		//赔给发红包的玩家
 		//获取发包人的信息
 		SendUser := userModel.GetUserById(SendPacketUserId)
@@ -664,4 +670,18 @@ func AgentRebate(U *userModel.User,money float64) error {
 	}
 	return nil
 
+}
+
+func GetWeishu(str float64) int {
+	var val int
+	s :=fmt.Sprintf("%.2f", str)
+	by := []byte(s)
+	lengt := len(by)
+	for i,_ := range by {
+		if i == lengt-1{
+			val,_ = strconv.Atoi(string(by[i]))
+		}
+
+	}
+	return val
 }
