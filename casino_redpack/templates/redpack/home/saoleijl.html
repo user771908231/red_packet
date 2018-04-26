@@ -39,11 +39,11 @@
 
 </head>
 <body>
-<div class="gonggao" style="z-index: 999999">
-    <marquee behavior="scroll" contenteditable="true" onstart="this.firstChild.innerHTML+=this.firstChild.innerHTML;" scrollamount="3" width="100%" onmouseover="this.stop();" onmouseout="this.start();">
-        本游戏仅供测试、仅供娱乐，严禁赌博，如出现赌博行为，将封停账号并向公安机关举报 ！
-    </marquee>
-</div>
+{{/*<div class="gonggao" style="z-index: 999999">*/}}
+    {{/*<marquee behavior="scroll" contenteditable="true" onstart="this.firstChild.innerHTML+=this.firstChild.innerHTML;" scrollamount="3" width="100%" onmouseover="this.stop();" onmouseout="this.start();">*/}}
+        {{/*本游戏仅供测试、仅供娱乐，严禁赌博，如出现赌博行为，将封停账号并向公安机关举报 ！*/}}
+    {{/*</marquee>*/}}
+{{/*</div>*/}}
 <img src="/static/home/image/big-bg.png" style="width: 100%;height: 100%;position: fixed;z-index: -5;">
 
 
@@ -139,7 +139,7 @@
     function openDialog() {
         layer.open({
             className: 'dialog_hb', //这样你就可以在css里面控制该弹层的风格了
-            content: '1、玩家可加入或者创建金额在10-2000金的红包，随时开。<br>2、庄家可设置0-9的尾数，如3尾，玩家如果抢到0.03,1.23只要尾数是3尾，就判输，赔率1.4倍。<br>3、玩家进入10金币的房间，每位玩家进入需要14金币。'
+            content: '扫雷无免死，金币比例1：1<br>包数为：5-10包<br>倍数为：5包2倍    6包1.7倍   7包1.5倍  8包1.3倍<br>  9包1.2倍  10包1.1倍<br>雷数为：0-9任意数字<br>发包者设置雷数，抢包者抢到的金额最后一位数字与雷的数字相同，即为中雷！不相同，即为不中雷！发包后自动扣除相对应的金币，有人中雷回自动返还相应赔率的金币<br>不中雷会自动增加所抢金币，抢包中雷回自动扣除相对应赔率的金币<br>奖励制度<br>顺子（1.23～7.89）奖励6.88金币<br>豹子（1.11～9.99）奖励10金币<br>顺子（12.34～67.89）奖励38.88金币<br>豹子（11.11～99.99）奖励58.88金币<br>顺子（123.45～567.89）奖励388金币<br>豹子（111.11～999.99）奖励588金币<br>5.20奖励18.88金币<br>13.14奖励18.88金币<br>0.01奖励18.88金币<br>20.18奖励18.88金币'
             ,btn: '我知道了'
         });
     }
