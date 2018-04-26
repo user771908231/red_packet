@@ -343,7 +343,7 @@ func SaoleiRedOpenRecordAjaxHandler(ctx *modules.Context) {
 			//"id": 9396,
 			//"red_id": 68171,
 			//"member_id": 667478,
-			"money": fmt.Sprintf("%.2f", open_money),
+			"money": fmt.Sprintf("%.2f",item.Money),
 			"open_time": item.Time.Unix(),
 			//"open_status": 1,
 			//"winning": 1,
