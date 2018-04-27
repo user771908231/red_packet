@@ -17,6 +17,7 @@ import (
 	"casino_redpack/handler/admin/gooods"
 	"casino_redpack/model/googsModel"
 	"casino_redpack/handler/autoLogin"
+	"casino_redpack/handler/agent"
 )
 
 //注册路由
@@ -127,7 +128,9 @@ func Regist(m *macaron.Macaron) {
 					m.Get("/",manage.WithdrawalsHandle)
 					m.Get("/operation",manage.WithdrawalsOperationHandle)
 				})
-
+				m.Group("/agent_rebate", func() {
+					m.Get("/",agent.AgentRebateLog)
+				})
 				m.Group("/goods", func() {
 					m.Get("/",goods.IndexHandler)
 					m.Get("/add",goods.AddHandler)
@@ -228,6 +231,7 @@ func Regist(m *macaron.Macaron) {
 				//开包详情
 				m.Get("/open_red_packets",redpack.OpenPacketDetailsHandler)
 			})
+
 
 			//登录
 			m.Group("/login", func() {

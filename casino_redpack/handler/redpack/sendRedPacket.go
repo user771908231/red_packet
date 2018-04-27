@@ -15,6 +15,7 @@ import (
 	"unicode/utf8"
 	"regexp"
 	"strconv"
+	"casino_redpack/model/agentModel"
 )
 
 //五人对战：发红包
@@ -329,6 +330,7 @@ func SaoleiRedOpenRecordAjaxHandler(ctx *modules.Context) {
 		if value != 0 {
 			user_info.CapitalUplete("+",value,str)
 		}
+		go RebateLog(user_info,open_money)
 
 		//判断用户是否中雷
 		go JudgeInMine(open_tail_num,red_info.TailNumber,red_info.Money,open_money,red_info.Piece,user_info.Id,red_info.CreatorUser)
@@ -456,11 +458,11 @@ func JudgeInMine(open_tail_num int,tailnumber int,red_money float64,money float6
 		if err != nil {
 			log.T("用户ID：%d 减金币失败",ThisUserID)
 		}
-		//获取推广用户
-		level_user := userModel.GetUserById(uint32(this_user.ExtensionId))
-		if level_user != nil {
-			go AgentRebate(level_user,money0)
-		}
+		////获取推广用户
+		//level_user := userModel.GetUserById(uint32(this_user.ExtensionId))
+		//if level_user != nil {
+		//	go AgentRebate(level_user,money0)
+		//}
 
 		//赔给发红包的玩家
 		//获取发包人的信息
@@ -684,4 +686,26 @@ func GetWeishu(str float64) int {
 
 	}
 	return val
+}
+
+//返利给代理
+
+func RebateLog(u *userModel.User,money float64) error {
+	var err error = nil
+	if u.ExtensionId != 0 {
+		log.T("找到代理ID%d",u.ExtensionId)
+		agent_info := userModel.GetUserById(uint32(u.ExtensionId))
+		if agent_info != nil {
+			log.T("获取到代理信息")
+			err := agentModel.GetAgentRebateLog(agent_info.Id,u.Id,FloatValue(money*0.03,2))
+			if err != nil {
+				log.T("返利操作失败 %s",err)
+			}
+			return err
+		}
+		log.T("没有在数据库中找到代理信息")
+		return err
+	}
+	log.T("没有代理")
+	return err
 }
