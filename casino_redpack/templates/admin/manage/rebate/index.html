@@ -21,18 +21,18 @@
     <thead>
     <tr>
         <th>ID</th>
-        <th>用户id</th>
-        <th>兑换类型</th>
-        <th>兑换金额/数量</th>
+        <th>代理Id</th>
+        <th>用户ID</th>
+        <th>返利金币</th>
     </tr>
     </thead>
     <tbody>
     {{range $k,$v := .agent_rebate_list.list}}
         <tr>
-            <td>{{$v.Id.Hex}}</td>
-            <td>{{$v.AgentId}}</td>
-            <td>{{$v.RebateId}}</td>
-            <td>{{$v.RebateMoeny}}</td>
+            <td>{{$v.id}}</td>
+            <td>{{$v.agent_id}}</td>
+            <td>{{$v.rebate_id}}</td>
+            <td>{{$v.rebate_money}}</td>
         </tr>
     {{end}}
     </tbody>

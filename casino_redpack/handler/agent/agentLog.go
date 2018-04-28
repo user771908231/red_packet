@@ -10,8 +10,18 @@ import (
 func AgentRebateLog(ctx *modules.Context) {
 	page := ctx.QueryInt("page")
 	count,list := agentModel.GetAgentRebateLogPage(bson.M{},page,10)
+	list_data := []bson.M{}
+	for _,item := range list {
+		row := bson.M{
+			"id":item.Id.Hex(),
+			"agent_id":item.AgentId,
+			"rebate_money":agentModel.FloatValue(item.RebateMoeny,2),
+			"rebate_id":item.RebateId,
+		}
+		list_data = append(list_data,row)
+	}
 	data := bson.M{
-		"list": list,
+		"list": list_data,
 		"page": bson.M{
 			"count":      count,
 			"list_count": len(list),
