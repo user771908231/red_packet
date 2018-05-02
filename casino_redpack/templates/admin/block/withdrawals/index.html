@@ -1,6 +1,8 @@
 {{template "manage_header" }}
+
 <form id="form_list" action="" method="get">
-    <input type="hidden" name="page" value="{{.page.page}}">
+    <input type="hidden" name="page" value="{{.withdrawals.page}}">
+    <input type="hidden" name="status" value="{{.status}}">
 </form>
 <table class="layui-table">
     <thead>
@@ -30,10 +32,12 @@
         {{if eq $v.Status 2 0}}
             <a href='/admin/manage/Withdrawals/operation?id={{$v.Id}}&types=ok' class="layui-btn layui-btn-sm agree-btn" type="button">同意</a>
          {{end}}
-        {{if eq $v.Status 1 0}}
+        {{if eq $v.Status  0}}
             <a class="layui-btn layui-btn-sm layui-btn-normal agree-btn" href='/admin/manage/Withdrawals/operation?id={{$v.Id}}&types=no' type="button">拒绝</a>
         {{end}}
+            {{if eq $v.Status 1 2}}
             <a class="layui-btn layui-btn-sm layui-btn-danger agree-btn" href='/admin/manage/Withdrawals/operation?id={{$v.Id}}&types=del' type="button">删除</a>
+                                                                                                                                           {{end}}
         </td>
     </tr>
     {{end}}
@@ -50,6 +54,33 @@
     }, function (req, res) {
         console.log("tagree ", res)
     })
+
+    layui.use('laypage', function() {
+
+
+        $("#form_list_btn").on("click", function (e) {
+            e.preventDefault();
+            var page = $("#form_list").find("[name=page]");
+            page.val(1);
+            $("#form_list").submit();
+        });
+
+
+        layui.laypage({
+            cont: 'view_page',
+            pages: {{.withdrawals.page_count}}, //总页数
+            curr: {{.withdrawals.page}},
+            skip: true, //连续显示分页数
+            jump: function (obj) {
+                var page = $("#form_list").find("[name=page]");
+                if (page.val() != obj.curr) {
+                    page.val(obj.curr);
+                    $("#form_list").submit();
+                }
+            }
+        });
+    });
+
 </script>
 
 {{template "manage_footer" }}
