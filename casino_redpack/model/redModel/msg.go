@@ -14,13 +14,16 @@ func GetClientRedpackListJson(list []*Redpack, userId uint32) []byte {
 	}
 
 	res_list := []bson.M{}
-	lenth := len(list)
-	for i,item := range list {
+	//lenth := len(list)
+	for _,item := range list {
 		//只取最后十条
-		if i < lenth-10 {
+		//if i < lenth-10 {
+		//	continue
+		//}
+		renshu := len(item.OpenRecord)
+		if renshu == item.Piece {
 			continue
 		}
-		renshu := len(item.OpenRecord)
 		new_item := bson.M{
 			"id": item.Id,
 			"type": item.Type,

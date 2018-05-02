@@ -134,11 +134,11 @@ func (redInfo *Redpack) Open(user *userModel.User) (bool,float64) {
 			return false,item.Money
 		}
 	}
-
+	Am := int(redInfo.Lost*100)
 	//开始拆红包
-	open_money := getOpenRedMoney(int(redInfo.Lost*100), redInfo.Piece - len(redInfo.OpenRecord))
+	open_money := getOpenRedMoney(Am, redInfo.Piece - len(redInfo.OpenRecord))
 	//更新红包余额
-	redInfo.Lost = float64(int(redInfo.Lost*100) - open_money)/100
+	redInfo.Lost = float64(Am - open_money)/100
 	//更新开包记录
 	redInfo.OpenRecord = append(redInfo.OpenRecord, &OpenRecordItem{
 		UserId: user.Id,

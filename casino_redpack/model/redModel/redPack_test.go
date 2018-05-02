@@ -6,9 +6,9 @@ import (
 )
 
 func TestGetOpenRedMoney(t *testing.T) {
-	var ren int = 10
-	var num int = 10
-	var money int = 10000
+	var ren int = 5
+	var num int = 5
+	var money int = 1000
 	var zong float64
 	for i := 0;i < ren;i++{
 		val := getOpenRedMoney(money,num)
