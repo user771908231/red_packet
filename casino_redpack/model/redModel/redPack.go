@@ -136,15 +136,15 @@ func (redInfo *Redpack) Open(user *userModel.User) (bool,float64) {
 	}
 
 	//开始拆红包
-	open_money := getOpenRedMoney(redInfo.Lost, redInfo.Piece - len(redInfo.OpenRecord))
+	open_money := getOpenRedMoney(int(redInfo.Lost*100), redInfo.Piece - len(redInfo.OpenRecord))
 	//更新红包余额
-	redInfo.Lost -= open_money
+	redInfo.Lost = float64(int(redInfo.Lost*100) - open_money)/100
 	//更新开包记录
 	redInfo.OpenRecord = append(redInfo.OpenRecord, &OpenRecordItem{
 		UserId: user.Id,
 		NickName: user.NickName,
 		Head: user.HeadUrl,
-		Money: open_money,
+		Money: float64(open_money)/100,
 		Time: time.Now(),
 	})
 	data := &OpenPacketlist{
@@ -154,7 +154,7 @@ func (redInfo *Redpack) Open(user *userModel.User) (bool,float64) {
 		UserId:user.Id,
 		NickName:user.NickName,
 		Head :user.HeadUrl,
-		Money :open_money,
+		Money :float64(open_money)/100,
 		Time:time.Now(),
 		Tail:redInfo.TailNumber,
 	}
@@ -162,13 +162,13 @@ func (redInfo *Redpack) Open(user *userModel.User) (bool,float64) {
 	db.C(TABLE_NAME_OPEN_PACKET_LISTS).Insert(data)
 	redInfo.Upsert()
 
-	return true,open_money
+	return true,float64(open_money)/100
 }
 
 //拆红包算法(剩余的钱、剩余的人)
-func getOpenRedMoney(lost_money float64, lost_person int) float64 {
+func GetOpenRedMoney(lost_money float64, lost_person int) float64 {
 	//参数合法性验证
-	if lost_money < 0.1 || lost_person <= 0 {
+	if lost_money < 0.01 || lost_person <= 0 {
 		return 0
 	}
 
@@ -186,6 +186,30 @@ func getOpenRedMoney(lost_money float64, lost_person int) float64 {
 	}
 
 	return float64(res_score)/100
+}
+//拆红包算法(剩余的钱、剩余的人)
+func getOpenRedMoney(lost_money int, lost_person int,) int {
+	//参数合法性验证
+	if lost_money < 1 || lost_person <= 0 {
+		return 0
+	}
+
+	//只有一个人，则把钱全给他
+	if lost_person == 1 {
+		return lost_money
+	}
+
+	//取0.01 - 平均金额 * 2 的值
+	lost_score := lost_money
+	avg_score := lost_score / lost_person
+	res_score := rand.New(rand.NewSource(time.Now().UnixNano())).Intn(avg_score*2)
+	if res_score == 0 {
+		res_score = 1
+	}
+
+	res_money := res_score
+
+	return res_money
 }
 
 //根据ID获取用户记录列
