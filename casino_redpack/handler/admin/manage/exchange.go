@@ -13,6 +13,7 @@ import (
 	"casino_redpack/model/weixinModel"
 	"encoding/json"
 	"fmt"
+	"casino_redpack/model/userModel"
 )
 
 //红包与实物兑换
@@ -164,8 +165,8 @@ func WithdrawalsOperationHandle(ctx *modules.Context){
 			ctx.Write([]byte(data))
 			return
 		}
-		//减去用户金币方法 准备
-		weixinModel.GetReady(val)
+		////减去用户金币方法 准备
+		//weixinModel.GetReady(val)
 		//修改申请状态
 		err := val.UpdateStatus(1,ctx.IsLogin().Id)
 		if err != nil {
@@ -175,7 +176,7 @@ func WithdrawalsOperationHandle(ctx *modules.Context){
 			return
 		}
 		//结束
-		weixinModel.Implement("申请下分")
+		//weixinModel.Implement("申请下分")
 		list["msg"] ="修改成功！"
 		list["code"] = 1
 		list["massage"] = "success"
@@ -189,7 +190,8 @@ func WithdrawalsOperationHandle(ctx *modules.Context){
 			data,_ := json.Marshal(list)
 			ctx.Write([]byte(data))
 		}
-
+		user := userModel.GetUserById(val.UserId)
+		user.CapitalUplete("+",val.Number," 提现拒绝")
 		err := val.UpdateStatus(2,ctx.IsLogin().Id)
 		if err != nil {
 			list["msg"] ="修改失败！"
