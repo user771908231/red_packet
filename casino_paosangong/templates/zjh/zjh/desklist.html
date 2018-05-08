@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>扎金花--牌桌列表</title>
+    {{template "header"}}
+</head>
+<body>
+<ol class="breadcrumb">
+    <li><a href="/roomlist">房间</a></li>
+    <li class="active">牌桌</li>
+</ol>
+<div class="panel panel-default">
+    <!-- Default panel contents -->
+    <div class="panel-heading">扎金花--牌桌列表</div>
+
+    <!-- Table -->
+    <table class="table">
+        <thead>
+            <th>牌桌id</th>
+            <th>游戏编号</th>
+            <th>房间id</th>
+            <th>当前人数</th>
+            <th>正在游戏</th>
+            <th>正在血拼</th>
+            <th>上个说话的人</th>
+            <th>下个说话的人</th>
+            <th>上局赢家</th>
+            <th>当前底注</th>
+            <th>全部跟注</th>
+            <th>当前圈数</th>
+            <th>牌桌详情</th>
+        </thead>
+        <tbody>
+        {{range $k,$desk := .desks}}
+        <tr>
+            <td>{{$desk.GetDeskId}}</td>
+            <td>{{$desk.GetGameNumber}}</td>
+            <td>{{$desk.GetRoomId}}</td>
+            <td>{{$desk.GetUserCount}}</td>
+            <td>{{if $desk.GetIsGamming}}是{{else}}否{{end}}</td>
+            <td>{{if $desk.IsXuepinOver}}否{{else}}是{{end}}</td>
+            <td>{{$desk.GetLastUser}}</td>
+            <td>{{$desk.GetNextUserId}}</td>
+            <td>{{$desk.GetLastWiner}}</td>
+            <td>{{$desk.GetCuurBaseValue}}</td>
+            <td>{{$desk.CoinCount}}</td>
+            <td>{{$desk.GetCircleNo}}</td>
+            <td><a href="/desk/{{$desk.GetRoomId}}/{{$desk.GetDeskId}}">详情</a></td>
+        </tr>
+        {{end}}
+        </tbody>
+    </table>
+</div>
+{{if eq (len .desks) 0}}
+<p align="center">该房间没有牌桌！</p>
+{{end}}
+</body>
+</html>
