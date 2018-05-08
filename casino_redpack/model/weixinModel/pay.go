@@ -147,7 +147,7 @@ func WithdrawalsHandler(ctx *modules.Context)  {
 	}
 
 	val := ctx.QueryFloat64("totalFee")
-	user_coin := ctx.IsLogin()
+	user_coin := userModel.GetUserById(ctx.IsLogin().Id)
 	if user_coin.Coin < val {
 		data,_ := json.Marshal(res)
 		ctx.Write([]byte(data))
