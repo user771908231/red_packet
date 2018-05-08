@@ -183,7 +183,7 @@
                     toast.hide();
                     var dataObj=eval("("+data+")");//转换为json对象
                     var codes=dataObj.code;
-                    if(codes=='0'){
+                    if(codes==0){
                         layer.open({
                             content: dataObj.msg
                             ,btn: '我知道了'
