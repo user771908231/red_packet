@@ -147,19 +147,28 @@ func WithdrawalsHandler(ctx *modules.Context)  {
 	}
 
 	val := ctx.QueryFloat64("totalFee")
+	user_coin := ctx.IsLogin()
+	if user_coin.Coin < val {
+		data,_ := json.Marshal(res)
+		ctx.Write([]byte(data))
+		return
+	}
 	Data := Withdrawals{
 		UserId:ctx.IsLogin().Id,
 		Number:val,
 	}
+	user_coin.CapitalUplete("-",val,"提现")
 	err := Data.Insert()
 	if err == nil {
 		res["code"] = 1
 		res["message"] = "success"
 		data,_ := json.Marshal(res)
 		ctx.Write([]byte(data))
+		return
 	}else{
 		data,_ := json.Marshal(res)
 		ctx.Write([]byte(data))
+		return
 	}
 
 }

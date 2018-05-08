@@ -2,6 +2,10 @@ package redpack
 
 import (
 	"casino_redpack/modules"
+	"casino_redpack/model/redModel"
+	"gopkg.in/mgo.v2/bson"
+	"encoding/json"
+
 )
 
 //扫雷接龙
@@ -152,11 +156,40 @@ func SaoleiPackListHandler(ctx *modules.Context) {
 
 //接龙列表
 func SaoleiPackLqListHandler(ctx *modules.Context) {
-	list := `{
-	"code": 1,
-	"message": "success",
-	"request": "0"
-}`
+	id := ctx.QueryInt("id")
+	list := bson.M{
+		"code":0,
+		"message": "faid",
+		"request":[]bson.M{},
+		}
 
-	ctx.Write([]byte(list))
+	red_info := redModel.GetRoomByType(redModel.RoomTypeSaoLei).GetRedpackById(int32(id))
+
+	data := []bson.M{}
+	for _,item := range red_info.OpenRecord{
+		row:= bson.M{
+			"name":item.NickName,
+			"is":IsNUMber(item,red_info.TailNumber),
+		}
+		data = append(data,row)
+	}
+	if red_info.OpenRecord != nil {
+		list["code"] = 1
+		list["message"] = "success"
+		list["request"] = data
+	}
+
+	list_data,_ := json.Marshal(list)
+
+
+	ctx.Write([]byte(list_data))
 }
+
+func IsNUMber(L *redModel.OpenRecordItem,K int) string {
+	W := GetWeishu(L.Money)
+	if W == K {
+		return "中雷"
+	}
+	return "没中雷"
+}
+
