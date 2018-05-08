@@ -238,7 +238,8 @@
                                         '<p>'+hbzt+'</p>' +
                                         '</div><div class="content-rbb">' +
                                         '<p>天赐良包</p>' +
-                                        '</div><div class="arrow"></div></div></div></li>');
+                                        '</div><div class="arrow"></div></div></div></li>'
+                                );
                             }else{
                                 $("#item").append('<li class="content">' +
                                         '<img src="'+item.headimgurl+'" alt="" class="tx f-lit r-tx"/>' +
@@ -250,7 +251,15 @@
                                         '</div><div class="content-rbb">' +
                                         '<p>天赐良包</p>' +
                                         '</div><div class="r-arrow"></div></div></div></li>');
+
                             }
+                            $("#item").append('<li class="content">' +
+                                    '<div class="content-rb blur ">'+
+                                    '<p>天赐良包</p>' +
+                                    '</li>'
+                            );
+
+
                         }
                     });
                 }
@@ -258,18 +267,20 @@
             }
         });
     }
-    function lq_msg() {
-        var urls='/home/jlindex/getRedPacketlqList?type=5';
+    function lq_msg(id) {
+        var urls='/home/jlindex/getRedPacketlqList?type=5&id='+id;
+        console.log("ddd")
         $.get(urls,function(data,status){
             if(status=='success'){
                 var dataObj_msg=eval("("+data+")");//转换为json对象
-                var request=dataObj_msg.request;
-                if(request!=='0'){
+                console.log(dataObj_msg)
+                var request=dataObj_msg.request.length;
+                if(request!==0){
                     $.each(dataObj_msg.request,function(i,item){
                         $("#item").append('<li class="lqhbts-b">' +
-                                '<div class="lqhbts"><img src="/static/home/image/hb.png" alt=""><p>'+
-                                '<span>'+item.nickname+'</span>'+
-                                '领取了你的红包</p></div></li>');
+                                '<div class="lqhbts"><p>'+
+                                '<span>'+item.name+'</span>'+
+                                '领取了你的红包</p><span>'+item.is+'</span></div></li>');
                     });
                 }
             }
@@ -338,6 +349,7 @@
                                 '</div><div class="content-rbb">' +
                                 '<p>天赐良包</p>' +
                                 '</div><div class="arrow"></div></div></div></li>');
+
                     }else{
                         $("#item").append('<li class="content">' +
                                 '<img src="'+item.headimgurl+'" alt="" class="tx f-lit r-tx"/>' +
@@ -349,13 +361,15 @@
                                 '</div><div class="content-rbb">' +
                                 '<p>天赐良包</p>' +
                                 '</div><div class="r-arrow"></div></div></div></li>');
+                        lq_msg(item.id)
                     }
+
                 }
+                // lq_msg(item.id)
             });
 
             //滚动到最底部
             if(need_score){
-                console.log(need_score);
                 $(document).scrollTop($(document).height());
             }
         }
