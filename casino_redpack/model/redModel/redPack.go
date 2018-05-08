@@ -43,6 +43,7 @@ type OpenRecordItem struct {
 	Head string  //领红包的人的头像
 	Money float64  //领了多少钱
 	Time time.Time  //时间
+	Is bool
 }
 //记录
 type OpenPacketlist struct {
