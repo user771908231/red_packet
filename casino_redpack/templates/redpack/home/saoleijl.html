@@ -277,10 +277,10 @@
                 var request=dataObj_msg.request.length;
                 if(request!==0){
                     $.each(dataObj_msg.request,function(i,item){
-                        $("#item").append('<li class="lqhbts-b">' +
+                        $("#content-rb-"+id).append('<li class="lqhbts-b">' +
                                 '<div class="lqhbts"><p>'+
                                 '<span>'+item.name+'</span>'+
-                                '领取了你的红包</p><span>'+item.is+'</span></div></li>');
+                                '   抢了红包  </p><span>'+item.is+'</span></div></li>');
                     });
                 }
             }
@@ -348,8 +348,10 @@
                                 '<p>'+hbzt+'</p>' +
                                 '</div><div class="content-rbb">' +
                                 '<p>天赐良包</p>' +
-                                '</div><div class="arrow"></div></div></div></li>');
-
+                                '</div><div class="arrow"></div></div></div>' +
+                                '<lu id="content-rb-'+item.id+'"></lu>'+
+                                '</li>' );
+                        // $("#item").append(lq_msg(item.id))
                     }else{
                         $("#item").append('<li class="content">' +
                                 '<img src="'+item.headimgurl+'" alt="" class="tx f-lit r-tx"/>' +
@@ -360,12 +362,15 @@
                                 '<p>'+hbzt+'</p>' +
                                 '</div><div class="content-rbb">' +
                                 '<p>天赐良包</p>' +
-                                '</div><div class="r-arrow"></div></div></div></li>');
-                        lq_msg(item.id)
-                    }
+                                '</div><div class="r-arrow"></div></div></div>' +
+                                '<lu id="content-rb-'+item.id+'"></lu>'+
+                                '</li>');
+                        // $("#item").append(lq_msg(item.id))
 
+                    }
+                    lq_msg(item.id)
                 }
-                // lq_msg(item.id)
+
             });
 
             //滚动到最底部

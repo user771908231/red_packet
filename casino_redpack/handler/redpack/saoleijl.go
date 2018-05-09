@@ -188,7 +188,7 @@ func SaoleiPackLqListHandler(ctx *modules.Context) {
 func IsNUMber(L *redModel.OpenRecordItem,K int) string {
 	W := GetWeishu(L.Money)
 	if W == K {
-		return "中雷"
+		return "中雷了"
 	}
 	return "没中雷"
 }
