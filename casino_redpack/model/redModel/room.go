@@ -206,10 +206,13 @@ func (room *Room) SendRedpack(creator *userModel.User, money float64, piece int,
 	if err != nil {
 		return nil, err
 	}
+	if creator.AccountNumber == "" {
+		creator.AccountNumber = creator.NickName
+	}
 	new_redpack := &Redpack{
 		ObjId: bson.NewObjectId(),
 		CreatorUser: creator.Id,
-		CreatorName: creator.NickName,
+		CreatorName: creator.AccountNumber,
 		CreatorHead: creator.HeadUrl,
 		Id: new_redpack_id,
 		Money: money,

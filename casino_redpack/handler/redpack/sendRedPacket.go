@@ -300,6 +300,9 @@ func SaoleiRedOpenRecordAjaxHandler(ctx *modules.Context) {
 	bools,open_money := red_info.Open(user_info)
 	//open_tail_num := int(open_money * 100)%10 //获得的值有误差
 	open_tail_num := GetWeishu(open_money)
+	if user_info.AccountNumber == "" {
+		user_info.AccountNumber = user_info.NickName
+	}
 	//开红包的玩家信息
 	res["request"].(bson.M)["user"] = bson.M{
 		"id": user_info.Id,
@@ -318,7 +321,7 @@ func SaoleiRedOpenRecordAjaxHandler(ctx *modules.Context) {
 		"banker_name": "",
 		"is_robot": 0,
 		"tzok": 0,
-		"nickname": user_info.NickName,
+		"nickname": user_info.AccountNumber,
 		"headimgurl": user_info.HeadUrl,
 	}
 	log.T("开包的尾数：%d",open_tail_num)
