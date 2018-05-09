@@ -67,7 +67,7 @@ func FloatValue(f float64,n int) float64 {
 }
 func GetAgentRebateLog(AgentId uint32,RebateId	uint32,moeny float64) error {
 	A := GetAgentRebateLogById(AgentId,RebateId)
-	B := GetAgentRebateLogById(AgentId,RebateId)
+	//B := GetAgentRebateLogById(AgentId,RebateId)
 	log.T("money:%f",moeny)
 	if A != nil {
 		log.T("找到了",A)
