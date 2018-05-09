@@ -27,3 +27,7 @@ func AgentHandler(ctx *modules.Context) {
 	ctx.HTML(200, "redpack/agent/index")
 }
 
+func shouxi()  {
+	
+}
+

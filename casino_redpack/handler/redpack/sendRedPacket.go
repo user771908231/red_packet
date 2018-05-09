@@ -361,7 +361,7 @@ func SaoleiRedOpenRecordAjaxHandler(ctx *modules.Context) {
 			//"banker_name": "",
 			//"is_robot": 1,
 			//"tzok": 0,
-			"nickname": item.NickName,
+			"nickname": isNickName(item.UserId),
 			"headimgurl": item.Head,
 		}
 		recore_list = append(recore_list, new_item)
@@ -371,6 +371,14 @@ func SaoleiRedOpenRecordAjaxHandler(ctx *modules.Context) {
 
 
 	res_code = 1
+}
+
+func isNickName(id uint32) string {
+	user := userModel.GetUserById(id)
+	if user.AccountNumber == "" {
+		return user.NickName
+	}
+	return user.AccountNumber
 }
 
 func GetRedPacketInfoHandler(ctx *modules.Context) {

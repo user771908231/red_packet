@@ -79,13 +79,18 @@
 
 <div class="aui-content hbpf-agency" style="margin-top: 3px;">
     <div class="aui-bar aui-bar-btn" style="width:65%;">
-        <div class="aui-bar-btn-item aui-active">收益明细</div>
-        <div class="aui-bar-btn-item ">我的推广码</div>
+        <div class="aui-bar-btn-item aui-active" onclick="mingxi()">收益明细</div>
+        <div class="aui-bar-btn-item " onclick="code()">我的推广码</div>
     </div>
 </div>
-<div class="aui-card-list-content" style="margin-bottom:5.5rem;">
+<div class="aui-card-list-content"  id="code" style="margin-bottom:5.5rem;display: none;">
     <ul class="aui-list aui-media-list" id="item">
         <img src="{{.user_qrcode}}">
+    </ul>
+</div>
+<div class="aui-card-list-content"  id="mingxi" style="margin-bottom:5.5rem;">
+    <ul class="aui-list aui-media-list" id="item">
+
     </ul>
 </div>
 <!--弹窗开始-->
@@ -263,13 +268,35 @@
             }
         });
     });
-    $(".aui-bar-btn-item").on("click",function (e) {
-        console.log($(".aui-bar-btn-item").addClass("aui-active"))
-        var a = $(".aui-active")
-        var val = a.first().removeClass("aui-active")
-        console.log(val)
-    })
+    // $("#code").on("click",function (e) {
+    //     var self = this
+    //     console.log(self)
+    //     // console.log($(".aui-bar-btn-item").addClass("aui-active"))
+    //     // var a = $(".aui-active")
+    //     // var val = a.first().removeClass("aui-active")
+    //     // console.log(val)
+    // })
+    function  mingxi() {
+        var code = $("#code")
+        console.log(code.removeClass("aui-active"))
+        code.hide()
+        // $("#code").removeClass("aui-active")
+        var mingxi = $("#mingxi")
+        mingxi.show()
+        mingxi.addClass("aui-active")
+        // $("#mingxi").addClass("aui-active")
+    }
 
+    function code() {
+        var code = $("#code")
+        code.show()
+        code.addClass("aui-active")
+        // $("#code").addClass("aui-active")
+        var mingxi = $("#mingxi")
+        mingxi.hide()
+        mingxi.removeClass("aui-active")
+        // $("#mingxi").removeClass("aui-active")
+    }
 </script>
 
 <script type="text/javascript">

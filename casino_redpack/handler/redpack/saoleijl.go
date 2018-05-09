@@ -6,6 +6,7 @@ import (
 	"gopkg.in/mgo.v2/bson"
 	"encoding/json"
 
+	"casino_redpack/model/userModel"
 )
 
 //扫雷接龙
@@ -168,7 +169,7 @@ func SaoleiPackLqListHandler(ctx *modules.Context) {
 	data := []bson.M{}
 	for _,item := range red_info.OpenRecord{
 		row:= bson.M{
-			"name":item.NickName,
+			"name":isNickNameOpenRecord(item),
 			"is":IsNUMber(item,red_info.TailNumber),
 		}
 		data = append(data,row)
@@ -193,3 +194,11 @@ func IsNUMber(L *redModel.OpenRecordItem,K int) string {
 	return "没中雷"
 }
 
+func isNickNameOpenRecord(X *redModel.OpenRecordItem) string {
+	user := userModel.GetUserById(X.UserId)
+	if user.AccountNumber == "" {
+		return user.NickName
+	}
+	return user.AccountNumber
+
+}
