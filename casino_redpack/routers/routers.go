@@ -169,7 +169,7 @@ func Regist(m *macaron.Macaron) {
 				m.Get("/bank_list", redpack.BankListHandler)
 				//添加银行卡
 				m.Get("/yhkadd", redpack.BankAddHandler)
-
+				m.Get("/add_bank",redpack.BancklogHandler)
 				//代理中心
 				m.Get("/agent", redpack.AgentHandler)
 
@@ -257,7 +257,7 @@ func Regist(m *macaron.Macaron) {
 			m.Group("/pay", func() {
 				//充值金币
 				//m.Get("/wxPay",pay.GoldRechargeHandler)
-
+				m.Get("/add_bank",)
 				m.Get("/add_bank_log", weixinModel.WithdrawalsHandler)
 				m.Get("/weixin")
 

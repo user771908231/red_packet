@@ -114,6 +114,7 @@ func UserLoginPostHandler(form LoginForm, ctx *modules.Context , VerificationCod
 
 //注册验证
 type SiginUpTable struct {
+	AccountNumber string `json:"account_number" binding:"Required;MaxSize(12)"`
 	Name 		string 	`json:"name "binding:"Required;MinSize(6);MaxSize(12)"`			//帐户名
 	PasswdOne 	string 	`json:"passwd_one "binding:"Required;MinSize(6);MaxSize(24)"`	//密码
 	PasswdTwo 	string 	`json:"passwd_two "binding:"Required;MinSize(6);MaxSize(24)"`	//重复密码
@@ -128,7 +129,7 @@ func SignUpTableValuesHandler(sign SiginUpTable,ctx *modules.Context, Verificati
 		ctx.Ajax(500,"验证码错误！",nil)
 		return
 	}
-	err,msg := userModel.TableValues(sign.Name,sign.PasswdOne,sign.PasswdTwo,sign.ExtensionId)
+	err,msg := userModel.TableValues(sign.AccountNumber,sign.Name,sign.PasswdOne,sign.PasswdTwo,sign.ExtensionId)
 	if err == nil && msg == ""{
 		user := userModel.Login(sign.Name,sign.PasswdOne)
 		ctx.Session.Set("user",*user)

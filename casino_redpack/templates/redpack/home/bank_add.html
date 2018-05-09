@@ -77,19 +77,19 @@
     <div class="warp">
         <div class="yhk_mo">
             <div>收款人</div>
-            <input id="acct_name" type="text" placeholder="" style="color: #fff !important;"/>
+            <input id="acct_name" type="text" value="{{$.data.acct_no}}" placeholder="" style="color: #fff !important;"/>
         </div>
         <div class="yhk_mo">
             <div>银行名</div>
-            <input id="acct_bank_name" type="text" placeholder="" style="color: #fff !important;"/>
+            <input id="acct_bank_name" type="text" value="{{$.data.acct_name}}" placeholder="" style="color: #fff !important;"/>
         </div>
         <div class="yhk_mo">
             <div>开户行</div>
-            <input id="rec_bank_name" type="text" placeholder="" style="color: #fff !important;"/>
+            <input id="rec_bank_name" type="text" value="{{$.data.acct_bank_name}}" placeholder="" style="color: #fff !important;"/>
         </div>
         <div class="yhk_mo">
             <div>卡号</div>
-            <input id="acct_no" type="number" placeholder="" style="color: #fff !important;" >
+            <input id="acct_no" type="number" value="{{$.data.rec_bank_name}}" placeholder="" style="color: #fff !important;" >
         </div>
         <div class="con">
             <div class="tijiao con_t"  >
@@ -159,11 +159,10 @@
 
         $.get("/home/member/add_bank?"+'&acct_no='+acct_no+'&acct_name='+acct_name+'&acct_bank_name='+acct_bank_name+'&rec_bank_name='+rec_bank_name,function(data,status){
             if(status=='success'){
-                var dataObj=eval("("+data+")");//转换为json对象
-                var code=dataObj.request.code;
+                var code=data.request.code;
                 if(code=='0'){
                     layer.open({
-                        content: dataObj.request.msg
+                        content: data.request.msg
                         ,btn: '我知道了'
                     });
                 }else{

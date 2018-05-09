@@ -31,8 +31,10 @@ func GetMemberInfo(ctx *modules.Context) {
 		"numberOnline": 1238
 	}
 }`
-
-	res = fmt.Sprintf(res, User.Id,User.NickName, User.NickName, User.HeadUrl, User.Coin)
+	if User.AccountNumber == "" {
+		User.AccountNumber = User.NickName
+	}
+	res = fmt.Sprintf(res, User.Id,User.AccountNumber,User.NickName,  User.HeadUrl, User.Coin)
 	ctx.Write([]byte(res))
 	return
 }

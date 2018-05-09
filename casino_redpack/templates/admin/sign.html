@@ -35,6 +35,12 @@
     <form id="form-reg" class="layui-form" action="/home/sign_up" method="post">
         <input type="hidden" name="extension_id" id="extension_id" value="">
         <div class="layui-form-item">
+            <label class="layui-form-label">昵称：</label>
+            <div class="layui-input-inline">
+                <input type="text" name="account_number" id="account_number" value="" lay-verify="phone" autocomplete="off" class="layui-input" style="border:solid 3px darkgrey;background-color:transparent;border-color:#f0f0f0;">
+            </div>
+        </div>
+        <div class="layui-form-item">
             <label class="layui-form-label">手机号：</label>
             <div class="layui-input-inline">
                 <input type="number" name="name" id="name" value="" lay-verify="phone" autocomplete="off" class="layui-input" style="border:solid 3px darkgrey;background-color:transparent;border-color:#f0f0f0;">

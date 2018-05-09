@@ -125,7 +125,8 @@
 <script type="text/javascript">
     $.get("/home/member/bank_list",function(data,status){
         if(status=='success'){
-            var dataObj=eval("("+data+")");//转换为json对象
+            var dataObj=data;//转换为json对象
+            console.log(dataObj)
             var code=dataObj.code;
             if(code=='0'){
                 layer.open({
@@ -149,11 +150,11 @@
                             break;
                     }
                     $("#item").append('<div class="yh"><div class="yh_t">'+
-                            '<p>'+item.acct_name+'</p>'+
-                            '<span>'+item.acct_bank_name+'</span>'+
-                            '<span class="fr">'+item.acct_no+'</span>'+
+                            '<p>'+item.AcctName+'</p>'+
+                            '<span>'+item.AcctBankName+'</span>'+
+                            '<span class="fr">'+item.AcctNo+'</span>'+
                             '</div><div class="yh_b">'+
-                            '<span>'+item.rec_bank_name+'</span>'+
+                            '<span>'+item.RecBankName+'</span>'+
                             '<span class="fr">'+shzt+'</span>'+
                             '</div></div>');
                 });

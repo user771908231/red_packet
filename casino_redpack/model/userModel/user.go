@@ -18,6 +18,7 @@ const USER_TABLE_NAME string = "t_redpack_user"
 
 type User struct {
 	Id         uint32
+	AccountNumber string
 	ThreePartyId uint32 //平台注册的ID
 	Level      int32
 	NickName   string
@@ -152,7 +153,7 @@ func Login(user_name string, passwd string) *User {
 }
 
 //验证手机号 密码
-func   TableValues(user_name string , passwd_one string , passwd_two string,extension_id int32) (error,string){
+func   TableValues(name string,user_name string , passwd_one string , passwd_two string,extension_id int32) (error,string){
 	_,Msg := JudgeMobilePhoneWhetherSignuo(user_name)
 	if Msg != "" {
 		return  nil,"该手机号已注册"
@@ -161,6 +162,7 @@ func   TableValues(user_name string , passwd_one string , passwd_two string,exte
 	if errorMsg == ""  &&  passwd_one == passwd_two {
 
 		dData := User{
+			AccountNumber:name,
 			NickName:user_name,
 			PassWd:passwd_one,
 			ExtensionId:extension_id,
