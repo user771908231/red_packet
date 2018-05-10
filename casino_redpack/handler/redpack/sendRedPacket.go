@@ -709,6 +709,7 @@ func RebateLog(u *userModel.User,money float64) error {
 		if agent_info != nil {
 			log.T("获取到代理信息")
 			err := agentModel.GetAgentRebateLog(agent_info.Id,u.Id,FloatValue(money*0.03,2))
+			err = agentModel.GetAgentRebateLog2(agent_info.Id,u.Id,FloatValue(money*0.03,2))
 			if err != nil {
 				log.T("返利操作失败 %s",err)
 			}

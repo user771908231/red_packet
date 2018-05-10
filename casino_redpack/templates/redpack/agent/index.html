@@ -89,8 +89,26 @@
     </ul>
 </div>
 <div class="aui-card-list-content"  id="mingxi" style="margin-bottom:5.5rem;">
-    <ul class="aui-list aui-media-list" id="item">
+    <ul class="aui-list aui-media-list" >
+        <ul class="aui-list-view">
+            <li class="aui-list-view-cell" >
+                <div class="aui-text-center aui-col-4 " style="background-color: #af0b09;color: #fff;">——</div>
+                <div class="aui-text-center aui-col-4 " style="background-color: #af0b09;color: #fff;">玩家</div>
+                <div class="aui-text-center aui-col-4 " style="background-color: #af0b09;color: #fff;">金币</div>
+                <div class="aui-text-center aui-col-4 " style="background-color: #af0b09;color: #fff;">——</div>
+            </li>
+        </ul>
+        <ul class="aui-list-view" >
 
+{{range $k,$v := $.user}}
+            <li class="aui-list-view-cell" >
+                <div class="aui-text-center aui-col-4 " style="background-color: #af0b09;color: #fff;">·</div>
+                <div class="aui-text-center aui-col-4 " style="background-color: #af0b09;color: #fff;">{{$v.name}}</div>
+                <div class="aui-text-center aui-col-4 " style="background-color: #af0b09;color: #fff;">{{$v.money}}</div>
+                <div class="aui-text-center aui-col-4 " style="background-color: #af0b09;color: #fff;">·</div>
+            </li>
+        {{end}}
+        </ul>
     </ul>
 </div>
 <!--弹窗开始-->

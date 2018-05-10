@@ -7,7 +7,9 @@ import (
 	"strings"
 	"unicode/utf8"
 
-	"strconv"
+
+	"casino_redpack/model/agentModel"
+	"gopkg.in/mgo.v2/bson"
 )
 
 func TestJudgeInMine(t *testing.T) {
@@ -125,8 +127,7 @@ func TestJoinWurenRedPacketHandler(t *testing.T) {
 	t.Log("得到的值字符串",s)
 	ss := strings.Split(s,".")
 	t.Log("得到的值字符串去除小数点byte",ss)
-	shu := weishu(val)
-	t.Log("尾数：%d",shu)
+
 	sss := strings.Join(ss,"")
 	t.Log("得到的去除小数点字符串",sss)
 	by := []byte(sss)
@@ -139,16 +140,17 @@ func TestJoinWurenRedPacketHandler(t *testing.T) {
 	t.Log("得到的去除小数点字符串的长度",slengt)
 }
 
-func GetWeishu(str float64) int {
-	var val int
-	s :=fmt.Sprintf("%.2f", str)
-	by := []byte(s)
-	lengt := len(by)
-	for i,_ := range by {
-		if i == lengt-1{
-			val,_ = strconv.Atoi(string(by[i]))
-		}
 
+func TestShouxi(t *testing.T) {
+	log := agentModel.GetAgentRebateLogByIdList(10004,agentModel.TimeObject())
+	list := []bson.M{}
+	for _,item := range log {
+		row := bson.M{
+			"name":IsName(item.RebateId),
+			"money":item.RebateMoeny,
+		}
+		list = append(list,row)
 	}
-	return val
+	t.Log(list)
+
 }
