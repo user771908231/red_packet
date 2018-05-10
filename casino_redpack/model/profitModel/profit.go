@@ -6,6 +6,9 @@ import (
 	"casino_common/utils/db"
 	"casino_redpack/model/agentModel"
 	"casino_common/common/consts/tableName"
+	"casino_redpack/model/userModel"
+	"fmt"
+	"casino_common/common/log"
 )
 //总的收益
 type Profit struct {
@@ -35,6 +38,105 @@ func (P *ProfitDetailed) Insert() error {
 	err := db.C(tableName.TABLE_REDPACK_PROFIT_ONE_DAY_LOG).Upsert(bson.M{"_id":P.Id},P)
 	return err
 }
+
+func (P *Profit) Inc(val float64) error {
+	err := db.C(tableName.TABLE_REDPACK_PROFIT_LOG).Update(bson.M{"_id":P.Id},bson.M{"$inc":bson.M{"profitmoney":val}})
+	return err
+}
+
+func (P *ProfitDetailed) Inc(val float64) error {
+	err := db.C(tableName.TABLE_REDPACK_PROFIT_ONE_DAY_LOG).Update(bson.M{"_id":P.Id,"time":agentModel.TimeObject()},bson.M{"$inc":bson.M{"profitmoney":val}})
+	return err
+}
+
+func GetUserIdSelectProfit(id uint32) *Profit {
+	P := new(Profit)
+	err := db.C(tableName.TABLE_REDPACK_PROFIT_LOG).Find(bson.M{"userid":id},P)
+	if err != nil {
+		return nil
+	}
+	return P
+}
+
+func GetSelectProfit() []*Profit {
+	P := []*Profit{}
+	err := db.C(tableName.TABLE_REDPACK_PROFIT_LOG).Find(bson.M{},&P)
+	if err != nil {
+		return nil
+	}
+	return P
+}
+
+func GetUserIdSelectProfitDetailed(id uint32) *ProfitDetailed {
+	P := new(ProfitDetailed)
+	err := db.C(tableName.TABLE_REDPACK_PROFIT_ONE_DAY_LOG).Find(bson.M{"userid":id,"time":agentModel.TimeObject()},P)
+	if err != nil {
+		return nil
+	}
+	return P
+}
+
+func GetUserIdSelectProfitDetailedAll(id uint32) []*ProfitDetailed {
+	P := []*ProfitDetailed{}
+	err := db.C(tableName.TABLE_REDPACK_PROFIT_ONE_DAY_LOG).Find(bson.M{"userid":id},&P)
+	if err != nil {
+		return nil
+	}
+	return P
+}
+
+func IncProfitLog(U *userModel.User,M float64) error{
+	var err error = nil
+	P := GetUserIdSelectProfit(U.Id)
+	if P != nil {
+		err = P.Inc(M)
+		return err
+	}
+	P = new(Profit)
+	P.UserId = U.Id
+	P.Name	= IsAccountNumber(U)
+	P.ProfitMoney = M
+	err = P.Insert()
+	return err
+}
+
+func IsAccountNumber(U *userModel.User) string {
+	if U.AccountNumber != "" {
+		return U.AccountNumber
+	}
+	return U.NickName
+}
+
+func IncProfitDetailedLog(U *userModel.User,M float64) error{
+	var err error = nil
+	P := GetUserIdSelectProfitDetailed(U.Id)
+	if P != nil {
+		err = P.Inc(M)
+		return err
+	}
+	P = new(ProfitDetailed)
+	P.UserId = U.Id
+	P.Name	= IsAccountNumber(U)
+	P.ProfitMoney = M
+	err = P.Insert()
+	return err
+}
+
+func ProfitLog(U *userModel.User,val float64) error {
+	var err error = nil
+	errP1 := IncProfitLog(U,val)
+	errP2 := IncProfitDetailedLog(U,val)
+	if errP1 != nil {
+		log.T("收益总记录更新失败！ 错误原因：%s，用户：%s,值：%。2f",errP1,U,val)
+		return errP1
+	}
+	if errP2 != nil {
+		log.T("收益每日记录更新失败！ 错误原因：%s，用户：%s,值：%。2f",errP2,U,val)
+		return errP1
+	}
+	return err
+}
+
 
 
 
