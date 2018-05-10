@@ -43,14 +43,6 @@
 					"title": "全部收益",
 					"icon": "fa-slider",
 					"href": "/admin/manage/profit?status=1&page=1"
-				},{
-					"title": "红包-已被拒",
-					"icon": "fa-slider",
-					"href": "/admin/manage/exchange?status=2&page=1"
-				},{
-					"title": "红包-已发放",
-					"icon": "fa-slider",
-					"href": "/admin/manage/exchange?status=3&page=1"
 				}
 			]
 		},
@@ -63,19 +55,6 @@
 					"title": "全部",
 					"icon": "fa-slider",
 					"href": "/admin/manage/agent_rebate?status=0&page=1"
-				},
-				{
-					"title": "提现-待审核",
-					"icon": "fa-slider",
-					"href": "/admin/manage/Withdrawals?status=1&page=1"
-				},{
-					"title": "提现-已被拒",
-					"icon": "fa-slider",
-					"href": "/admin/manage/Withdrawals?status=2&page=1"
-				},{
-					"title": "提现-已发放",
-					"icon": "fa-slider",
-					"href": "/admin/manage/Withdrawals?status=3&page=1"
 				}
 			]
 		},
