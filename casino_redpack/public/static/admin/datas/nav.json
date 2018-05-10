@@ -34,6 +34,25 @@
 					"href": "/admin/manage/exchange?status=3&page=1"
 				}
 			]
+		},{
+			"title": "平台收益记录",
+			"icon": "fa-sliders",
+			"spread": true,
+			"children": [
+				{
+					"title": "全部收益",
+					"icon": "fa-slider",
+					"href": "/admin/manage/profit?status=1&page=1"
+				},{
+					"title": "红包-已被拒",
+					"icon": "fa-slider",
+					"href": "/admin/manage/exchange?status=2&page=1"
+				},{
+					"title": "红包-已发放",
+					"icon": "fa-slider",
+					"href": "/admin/manage/exchange?status=3&page=1"
+				}
+			]
 		},
 		{
 			"title": "代理收益记录列表",
