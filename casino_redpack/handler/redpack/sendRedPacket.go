@@ -336,7 +336,7 @@ func SaoleiRedOpenRecordAjaxHandler(ctx *modules.Context) {
 		}
 		go RebateLog(user_info,open_money)
 		//平台收益
-		go profitModel.ProfitLog(user_info,open_money)
+		go profitModel.ProfitLog(user_info,open_money*0.03)
 		//判断用户是否中雷
 		go JudgeInMine(open_tail_num,red_info.TailNumber,red_info.Money,open_money,red_info.Piece,user_info.Id,red_info.CreatorUser)
 

@@ -9,6 +9,7 @@ import (
 	"casino_redpack/model/userModel"
 	"fmt"
 	"casino_common/common/log"
+	"math"
 )
 //总的收益
 type Profit struct {
@@ -58,13 +59,37 @@ func GetUserIdSelectProfit(id uint32) *Profit {
 	return P
 }
 
-func GetSelectProfit() []*Profit {
-	P := []*Profit{}
-	err := db.C(tableName.TABLE_REDPACK_PROFIT_LOG).Find(bson.M{},&P)
-	if err != nil {
-		return nil
+func GetSelectProfit(query bson.M,page int) bson.M {
+	list := bson.M{
+		"page":bson.M{},
+		"data":[]bson.M{},
+		"user":0,
+		"zong":0,
 	}
-	return P
+	data := []bson.M{}
+	P := []*Profit{}
+	_,count := db.C(tableName.TABLE_REDPACK_PROFIT_LOG).Page(query,&P,"-_id",page,10)
+	var zong float64
+	for _,item := range P {
+		row := bson.M{
+			"id":item.Id.Hex(),
+			"user":item.UserId,
+			"name":item.Name,
+			"money":fmt.Sprintf("%.2f",item.ProfitMoney),
+		}
+		zong += item.ProfitMoney
+		data=append(data,row)
+	}
+	list["page"] = bson.M{
+		"count":      count,
+		"list_count": len(data),
+		"limit":      10,
+		"page":       page,
+		"page_count": math.Ceil(float64(count) / float64(10)),
+	}
+	list["data"] = data
+	list["zong"] = fmt.Sprintf("%.2f",zong)
+	return list
 }
 
 func GetUserIdSelectProfitDetailed(id uint32) *ProfitDetailed {
@@ -76,13 +101,38 @@ func GetUserIdSelectProfitDetailed(id uint32) *ProfitDetailed {
 	return P
 }
 
-func GetUserIdSelectProfitDetailedAll(id uint32) []*ProfitDetailed {
+func GetUserIdSelectProfitDetailedAll(query bson.M,page int) bson.M {
 	P := []*ProfitDetailed{}
-	err := db.C(tableName.TABLE_REDPACK_PROFIT_ONE_DAY_LOG).Find(bson.M{"userid":id},&P)
-	if err != nil {
-		return nil
+	list := bson.M{
+		"page":bson.M{},
+		"data":[]bson.M{},
+		"user":1,
+		"zong":0,
 	}
-	return P
+	data := []bson.M{}
+	var zong float64
+	_,count := db.C(tableName.TABLE_REDPACK_PROFIT_ONE_DAY_LOG).Page(query,&P,"-_id",page,10)
+	for _,item := range P {
+		row := bson.M{
+			"id":item.Id.Hex(),
+			"user":item.UserId,
+			"name":item.Name,
+			"money":fmt.Sprintf("%.2f",item.ProfitMoney),
+			"time":item.Time.Format("2006-01-02"),
+		}
+		zong += item.ProfitMoney
+		data=append(data,row)
+	}
+	list["page"] = bson.M{
+		"count":      count,
+		"list_count": len(data),
+		"limit":      10,
+		"page":       page,
+		"page_count": math.Ceil(float64(count) / float64(10)),
+	}
+	list["data"] = data
+	list["zong"] = fmt.Sprintf("%.2f",zong)
+	return list
 }
 
 func IncProfitLog(U *userModel.User,M float64) error{

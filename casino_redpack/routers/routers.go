@@ -140,6 +140,10 @@ func Regist(m *macaron.Macaron) {
 				})
 
 				m.Get("/postal",manage.PostalHandle)
+				m.Group("/profit", func() {
+					m.Get("/",manage.ProfitHandler)
+					m.Get("/detailed",manage.ProfitDetailedHandler)
+				})
 			})
 		}, admin.NeedLogin(2))
 		m.Post("/admin/login", admin.NeedCaptcha, binding.Bind(admin.LoginForm{}), admin.LoginPostHandler)
