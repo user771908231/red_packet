@@ -92,6 +92,7 @@ func UnifiedOrder2(clt *core.Client, req *UnifiedOrderRequest) (resp *UnifiedOrd
 	if req.OpenId != "" {
 		m1["openid"] = req.OpenId
 	}
+	fmt.Println(m1)
 	m1["sign"] = core.Sign(m1, clt.ApiKey(), md5.New)
 
 	m2, err := UnifiedOrder(clt, m1)
