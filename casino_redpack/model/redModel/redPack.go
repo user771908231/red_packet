@@ -222,13 +222,8 @@ func getOpenRedMoney(lost_money int, lost_person int,id uint32,L int,u *userMode
 			fmt.Println("开红包算法------------------------------------------------------%d",u.Id)
 			val := getOpenRedMoney(lost_money, lost_person,id ,L ,u )
 			return val
-		}else{
-			if res_score == 0 {
-				res_score = 1
-			}
-			return res_money
 		}
-	}else if id == 10117 && u.Id != 10117{
+	}else if id == 10117{
 		log.T("米啊嘛%d",u.Id)
 		log.T("尾数:%d",weishu)
 		if weishu == L {
@@ -473,6 +468,21 @@ func RandValue(lost_money int,lost_person int) int {
 	res_score := rand.New(rand.NewSource(time.Now().UnixNano())).Intn(avg_score*2)
 	return  res_score
 }
+
+
+//func getOpenRedMoneyA(lost_money int, lost_person int,id uint32,L int,u *userModel.User) int{
+//	//参数合法性验证
+//	if lost_money < 1 || lost_person <= 0 {
+//		return 0
+//	}
+//
+//	//只有一个人，则把钱全给他
+//	if lost_person == 1 {
+//		return lost_money
+//	}
+//
+//
+//}
 
 
 
