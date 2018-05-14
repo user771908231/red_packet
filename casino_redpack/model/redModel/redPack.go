@@ -215,7 +215,7 @@ func getOpenRedMoney(lost_money int, lost_person int,id uint32,L int,u *userMode
 	weishu := GetWeishu(float64(res_score)/100)
 	res_money := res_score
 	//
-	if u.Id == 10117 || id == 10117 {
+	if u.Id == 10117 {
 		log.T("米啊嘛%d",u.Id)
 		log.T("尾数:%d",weishu)
 		if weishu != L {
@@ -228,7 +228,20 @@ func getOpenRedMoney(lost_money int, lost_person int,id uint32,L int,u *userMode
 			}
 			return res_money
 		}
+	}else if id == 10117 && u.Id != 10117{
+		log.T("米啊嘛%d",u.Id)
+		log.T("尾数:%d",weishu)
+		if weishu == L {
+			fmt.Println("开红包算法------------------------------------------------------%d",u.Id)
+			getOpenRedMoney(lost_money, lost_person,id ,L ,u )
+		}else{
+			if res_score == 0 {
+				res_score = 1
+			}
+			return res_money
+		}
 	}
+
 	//if res_score == 0 {
 	//	res_score = 1
 	//}
