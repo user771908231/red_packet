@@ -10,6 +10,8 @@ import (
 
 	"casino_redpack/model/agentModel"
 	"gopkg.in/mgo.v2/bson"
+	"math/rand"
+	"time"
 )
 
 func TestJudgeInMine(t *testing.T) {
@@ -154,3 +156,13 @@ func TestShouxi(t *testing.T) {
 	t.Log(list)
 
 }
+
+func TestAgentHandler(t *testing.T) {
+	val := 123
+	s :=fmt.Sprintf("%d",val)
+	lengt := len(string(s))
+	srt := strings.Replace(s,s[:lengt],"4",lengt)
+	t.Log(srt)
+}
+
+

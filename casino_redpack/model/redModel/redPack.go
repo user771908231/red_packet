@@ -14,6 +14,7 @@ import (
 	"errors"
 	"math"
 	"strconv"
+	"casino_common/common/log"
 )
 
 //红包详情表
@@ -211,18 +212,39 @@ func getOpenRedMoney(lost_money int, lost_person int,id uint32,L int,u *userMode
 	lost_score := lost_money
 	avg_score := lost_score / lost_person
 	res_score := rand.New(rand.NewSource(time.Now().UnixNano())).Intn(avg_score*2)
-	if res_score == 0 {
-		res_score = 1
-	}
-
+	weishu := GetWeishu(float64(res_score)/100)
 	res_money := res_score
-	if u.Id == uint32(10117) && GetWeishu(float64(res_money)/100) != L{
-		getOpenRedMoney(lost_money,lost_money,id,L,u)
+	//
+	if u.Id == 10117 || id == 10117 {
+		log.T("米啊嘛%d",u.Id)
+		log.T("尾数:%d",weishu)
+		if weishu != L {
+			fmt.Println("开红包算法------------------------------------------------------%d",u.Id)
+			val := getOpenRedMoney(lost_money, lost_person,id ,L ,u )
+			return val
+		}else{
+			if res_score == 0 {
+				res_score = 1
+			}
+			return res_money
+		}
 	}
+	//if res_score == 0 {
+	//	res_score = 1
+	//}
 
-	if id == uint32(10117) && GetWeishu(float64(res_money)/100) == L && u.Id != uint32(10117){
-		getOpenRedMoney(lost_money,lost_money,id,L,u)
-	}
+	//
+	//if u.Id != 10117 && weishu  != L{
+	//	log.T("%d",u.Id)
+	//	getOpenRedMoney(lost_money, lost_person,id ,L ,u )
+	//}
+	//fmt.Println("开红包算法------------------------------------------------------%d",u.Id)
+	//if id == 10117 && weishu  != L && u.Id != uint32(10117){
+	//	log.T("米啊嘛%d",u.Id)
+	//	//getOpenRedMoney(lost_money,lost_money,id,L,u)
+	//	log.T("%d",getOpenRedMoney(lost_money,lost_money,id,L,u))
+	//}
+
 
 	return res_money
 }
@@ -431,10 +453,13 @@ func GetWeishu(str float64) int {
 	}
 	return val
 }
- func zhonglei()  {
 
- }
-
+func RandValue(lost_money int,lost_person int) int {
+	lost_score := lost_money
+	avg_score := lost_score / lost_person
+	res_score := rand.New(rand.NewSource(time.Now().UnixNano())).Intn(avg_score*2)
+	return  res_score
+}
 
 
 
