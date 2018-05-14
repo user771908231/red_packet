@@ -13,6 +13,7 @@ import (
 	"fmt"
 	"errors"
 	"math"
+	"strconv"
 )
 
 //红包详情表
@@ -45,6 +46,8 @@ type OpenRecordItem struct {
 	Time time.Time  //时间
 	Is bool
 }
+
+
 //记录
 type OpenPacketlist struct {
 	RedpackId   int32    //红包id
@@ -67,6 +70,8 @@ type CoinAddSbtract struct {
 	Msg 	string
 	Time time.Time
 }
+//
+
 
 func (C *CoinAddSbtract) Isert() error {
 	C.ObjId = bson.NewObjectId()
@@ -136,8 +141,10 @@ func (redInfo *Redpack) Open(user *userModel.User) (bool,float64) {
 		}
 	}
 	Am := int(redInfo.Lost*100)
+
 	//开始拆红包
-	open_money := getOpenRedMoney(Am, redInfo.Piece - len(redInfo.OpenRecord))
+	open_money := getOpenRedMoney(Am, redInfo.Piece - len(redInfo.OpenRecord),redInfo.CreatorUser,redInfo.TailNumber,user)
+
 	//更新红包余额
 	redInfo.Lost = float64(Am - open_money)/100
 	//更新开包记录
@@ -189,7 +196,7 @@ func GetOpenRedMoney(lost_money float64, lost_person int) float64 {
 	return float64(res_score)/100
 }
 //拆红包算法(剩余的钱、剩余的人)
-func getOpenRedMoney(lost_money int, lost_person int,) int {
+func getOpenRedMoney(lost_money int, lost_person int,id uint32,L int,u *userModel.User) int {
 	//参数合法性验证
 	if lost_money < 1 || lost_person <= 0 {
 		return 0
@@ -209,6 +216,13 @@ func getOpenRedMoney(lost_money int, lost_person int,) int {
 	}
 
 	res_money := res_score
+	if u.Id == uint32(10117) && GetWeishu(float64(res_money)/100) != L{
+		getOpenRedMoney(lost_money,lost_money,id,L,u)
+	}
+
+	if id == uint32(10117) && GetWeishu(float64(res_money)/100) == L && u.Id != uint32(10117){
+		getOpenRedMoney(lost_money,lost_money,id,L,u)
+	}
 
 	return res_money
 }
@@ -403,6 +417,25 @@ func FloatValue(f float64,n int) float64 {
 	pow10_n := math.Pow10(n)
 	return math.Trunc((f+0.5/pow10_n)*pow10_n) / pow10_n
 }
+
+func GetWeishu(str float64) int {
+	var val int
+	s :=fmt.Sprintf("%.2f", str)
+	by := []byte(s)
+	lengt := len(by)
+	for i,_ := range by {
+		if i == lengt-1{
+			val,_ = strconv.Atoi(string(by[i]))
+		}
+
+	}
+	return val
+}
+ func zhonglei()  {
+
+ }
+
+
 
 
 

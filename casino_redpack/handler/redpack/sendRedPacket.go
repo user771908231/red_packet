@@ -151,8 +151,14 @@ func SendZhadanRedPacketHandler(ctx *modules.Context) {
 	log.T("发红包大小：",req_money)
 	log.T("发红包雷号：",req_tailNumber)
 	log.T("发红包几份：",rep_number)
+	if  int64(ctx.CurrentUserInfo().Coin) == 0 {
+		msg :="您还没有金币，请尽快充值！。"
+		res_msg = msg
+		log.T(msg)
+		return
+	}
 	//检查用户金币数
-	if ctx.CurrentUserInfo().Coin < (req_money * 1.4) {
+	if ctx.CurrentUserInfo().Coin < (req_money * 1.4){
 		msg := fmt.Sprintf("金币不足，你最少需要有%d金币。",int(req_money * 1.4))
 		res_msg = msg
 		log.T(msg)
@@ -204,7 +210,7 @@ func SaoleiJLOpenRedButtonAjaxHandler(ctx *modules.Context) {
 	//房间类型
 	Type := ctx.QueryInt("Type")
 	var Types redModel.RoomType
-	//判断放假类型
+	//判断房间类型
 	switch Type {
 	case 1:
 		Types = redModel.RoomTypeWurenDZ
@@ -294,6 +300,7 @@ func SaoleiRedOpenRecordAjaxHandler(ctx *modules.Context) {
 		"headimgurl": red_info.CreatorHead,
 		"tail_number": red_info.TailNumber,
 	}
+
 
 	user_info := ctx.IsLogin()
 
@@ -723,3 +730,6 @@ func RebateLog(u *userModel.User,money float64) error {
 	log.T("没有代理")
 	return err
 }
+
+
+//中雷操作
