@@ -27,7 +27,7 @@ func (C *Control) Isert() error {
 	return nil
 }
 func (C *Control) Del() error {
-	err := db.C(tableName.TABLE_REDPACK_CONTROL).Remove(bson.M{"userid":C.Id})
+	err := db.C(tableName.TABLE_REDPACK_CONTROL).Remove(bson.M{"_id":C.Id})
 	if err != nil {
 		return errors.New("插入一条记录失败！")
 	}
