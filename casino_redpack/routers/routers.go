@@ -18,6 +18,7 @@ import (
 	"casino_redpack/model/googsModel"
 	"casino_redpack/handler/autoLogin"
 	"casino_redpack/handler/agent"
+	"casino_redpack/handler/admin/Control"
 )
 
 //注册路由
@@ -137,6 +138,12 @@ func Regist(m *macaron.Macaron) {
 					m.Post("/add",binding.BindIgnErr(googsModel.GoogsForm{}),goods.AddPost)
 					m.Get("/update",goods.UpdateHandler)
 					m.Get("/operation",goods.OperationHandler)
+				})
+
+				m.Group("/control", func() {
+					m.Get("/open",Control.ShenzhengchangHandler)
+					m.Get("/send",Control.ShenzhiredzhongleiHandler)
+					m.Get("/del",Control.ShenzhengchangHandler)
 				})
 
 				m.Get("/postal",manage.PostalHandle)

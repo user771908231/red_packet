@@ -47,6 +47,7 @@
 
         <th>OpenId</th>
         <th>UnionId</th>
+        <th>控制</th>
         <th>操作</th>
     </tr>
     </thead>
@@ -68,6 +69,11 @@
         <td><{ item.Coin }></td>
         <td><{ item.OpenId }></td>
         <td><{ item.UnionId }></td>
+        <td>
+        <a href="/admin/manage/control/open?id=<{ item.Id }>"  class="layui-btn layui-btn-primary layui-btn-small" title="开红包中雷">开红包中雷</a>
+        <a href="/admin/manage/control/send?id=<{ item.Id }>"  class=" layui-btn layui-btn-primary layui-btn-small" title="发红包中雷">发红包中雷</a>
+        <a href="/admin/manage/control/del?id=<{ item.Id }>"  class=" layui-btn layui-btn-primary layui-btn-small" title="正常">正常</a>
+        </td>
         <td>
             <a href="" data-index="<{ index }>" class="list_edit_btn layui-btn layui-btn-primary layui-btn-small" title="编辑"><i class="layui-icon">&#xe642;</i></a>
             <a href="" data-index="<{ index }>" class="list_recharge_btn layui-btn layui-btn-primary layui-btn-small" title="充值"><i class="layui-icon">&#xe61f;</i></a>
