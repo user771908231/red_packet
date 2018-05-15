@@ -198,6 +198,9 @@ func GetOpenRedMoney(lost_money float64, lost_person int) float64 {
 }
 //拆红包算法(剩余的钱、剩余的人)
 func getOpenRedMoney(lost_money int, lost_person int,id uint32,L int,u *userModel.User) int {
+	log.T("开始拆红包算法")
+	log.T("用户是%d", u.Id)
+
 	//参数合法性验证
 	if lost_money < 1 || lost_person <= 0 {
 		return 0
@@ -213,48 +216,50 @@ func getOpenRedMoney(lost_money int, lost_person int,id uint32,L int,u *userMode
 	avg_score := lost_score / lost_person
 	res_score := rand.New(rand.NewSource(time.Now().UnixNano())).Intn(avg_score*2)
 	weishu := GetWeishu(float64(res_score)/100)
-	res_money := res_score
+	//res_money := res_score
 	//
-	if u.Id == 10117 {
-		log.T("米啊嘛%d",u.Id)
-		log.T("尾数:%d",weishu)
-		if weishu != L {
-			fmt.Println("开红包算法------------------------------------------------------%d",u.Id)
-			val := getOpenRedMoney(lost_money, lost_person,id ,L ,u )
-			return val
-		}
-	}else if id == 10117{
-		log.T("米啊嘛%d",u.Id)
+	if id == 10117 {
+		log.T("红包是：",u.Id)
 		log.T("尾数:%d",weishu)
 		if weishu == L {
-			fmt.Println("开红包算法------------------------------------------------------%d",u.Id)
-			getOpenRedMoney(lost_money, lost_person,id ,L ,u )
-		}else{
+			log.T("开红包算法------------------------------------------------------%d",u.Id)
+			res_score := getOpenRedMoney(lost_money, lost_person,id ,L ,u )
 			if res_score == 0 {
 				res_score = 1
 			}
-			return res_money
+			return res_score
 		}
+
+		if res_score == 0 {
+			res_score = 1
+		}
+		return res_score
+
 	}
+	if u.Id == 10117 {
+		log.T("用户是%d", u.Id)
+		log.T("尾数:%d", weishu)
+		if weishu != L {
+			log.T("开红包算法------------------------------------------------------%d", u.Id)
+			res_score := getOpenRedMoney(lost_money, lost_person, id, L, u)
+			if res_score == 0 {
+				res_score = 1
+			}
+			return res_score
+		}
+		if res_score == 0 {
+			res_score = 1
+		}
+		return res_score
+	}
+	if res_score == 0 {
+		res_score = 1
+	}
+	defer func() {
+		log.T("拆红包算法结束")
+	}()
+	return res_score
 
-	//if res_score == 0 {
-	//	res_score = 1
-	//}
-
-	//
-	//if u.Id != 10117 && weishu  != L{
-	//	log.T("%d",u.Id)
-	//	getOpenRedMoney(lost_money, lost_person,id ,L ,u )
-	//}
-	//fmt.Println("开红包算法------------------------------------------------------%d",u.Id)
-	//if id == 10117 && weishu  != L && u.Id != uint32(10117){
-	//	log.T("米啊嘛%d",u.Id)
-	//	//getOpenRedMoney(lost_money,lost_money,id,L,u)
-	//	log.T("%d",getOpenRedMoney(lost_money,lost_money,id,L,u))
-	//}
-
-
-	return res_money
 }
 
 //根据ID获取用户记录列
