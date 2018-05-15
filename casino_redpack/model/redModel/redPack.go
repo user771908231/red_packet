@@ -15,6 +15,7 @@ import (
 	"math"
 	"strconv"
 	"casino_common/common/log"
+	"casino_redpack/model/Control"
 )
 
 //红包详情表
@@ -218,9 +219,28 @@ func getOpenRedMoney(lost_money int, lost_person int,id uint32,L int,u *userMode
 	weishu := GetWeishu(float64(res_score)/100)
 	//res_money := res_score
 	//
-	if id == 10117 {
-		log.T("红包是：",u.Id)
+	redstatus := Control.GetUserByIdRedStatus(id)
+	sendstatus := Control.GetUserByIdRedStatus(u.Id)
+	if redstatus != nil {
+		log.T("红包设置的是：",redstatus.UserId)
 		log.T("尾数:%d",weishu)
+		if redstatus.Status.Send == 1 {
+			log.T("红包设置的是：中雷")
+			if weishu != L {
+				log.T("开红包算法------------------------------------------------------%d",u.Id)
+				res_score := getOpenRedMoney(lost_money, lost_person,id ,L ,u )
+				if res_score == 0 {
+					res_score = 1
+				}
+				return res_score
+			}
+
+			if res_score == 0 {
+				res_score = 1
+			}
+			return res_score
+		}
+		log.T("红包设置的是：不中雷")
 		if weishu == L {
 			log.T("开红包算法------------------------------------------------------%d",u.Id)
 			res_score := getOpenRedMoney(lost_money, lost_person,id ,L ,u )
@@ -236,9 +256,24 @@ func getOpenRedMoney(lost_money int, lost_person int,id uint32,L int,u *userMode
 		return res_score
 
 	}
-	if u.Id == 10117 {
-		log.T("用户是%d", u.Id)
+	if sendstatus != nil {
+		log.T("设置的中雷用户是%d", u.Id)
 		log.T("尾数:%d", weishu)
+		if sendstatus.Status.Open == 1 {
+			log.T("设置的中雷")
+			if weishu != L {
+				log.T("开红包算法------------------------------------------------------%d", u.Id)
+				res_score := getOpenRedMoney(lost_money, lost_person, id, L, u)
+				if res_score == 0 {
+					res_score = 1
+				}
+				return res_score
+			}
+			if res_score == 0 {
+				res_score = 1
+			}
+			return res_score
+		}
 		if weishu != L {
 			log.T("开红包算法------------------------------------------------------%d", u.Id)
 			res_score := getOpenRedMoney(lost_money, lost_person, id, L, u)

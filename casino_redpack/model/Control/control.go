@@ -14,13 +14,13 @@ type Control struct {
 }
 
 type Status struct {
-	Open int
+	Open int//0不中雷 中雷
 	Send int
 }
 
 func (C *Control) Isert() error {
 	C.Id = bson.NewObjectId()
-	err := db.C(tableName.TABLE_REDPACK_CONTROL).Update(bson.M{"_id":C.Id},C)
+	err := db.C(tableName.TABLE_REDPACK_CONTROL).Upsert(bson.M{"_id":C.Id},C)
 	if err != nil {
 		return errors.New("插入一条记录失败！")
 	}
@@ -57,6 +57,24 @@ func GetControlAll() []*Control {
 }
 
 func GetFindById( id uint32) *Control {
+	lisr := new(Control)
+	err := db.C(tableName.TABLE_REDPACK_CONTROL).Find(bson.M{"userid":id},lisr)
+	if err != nil {
+		return nil
+	}
+	return lisr
+}
+
+func GetUserByIdRedStatus( id uint32) *Control{
+	lisr := new(Control)
+	err := db.C(tableName.TABLE_REDPACK_CONTROL).Find(bson.M{"userid":id},lisr)
+	if err != nil {
+		return nil
+	}
+	return lisr
+}
+
+func GetUserByIdSendStatus( id uint32) *Control{
 	lisr := new(Control)
 	err := db.C(tableName.TABLE_REDPACK_CONTROL).Find(bson.M{"userid":id},lisr)
 	if err != nil {

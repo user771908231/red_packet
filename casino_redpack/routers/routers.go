@@ -141,7 +141,7 @@ func Regist(m *macaron.Macaron) {
 				})
 
 				m.Group("/control", func() {
-					m.Get("/open",Control.ShenzhengchangHandler)
+					m.Get("/open",Control.ShenzhizhongleiHandler)
 					m.Get("/send",Control.ShenzhiredzhongleiHandler)
 					m.Get("/del",Control.ShenzhengchangHandler)
 				})

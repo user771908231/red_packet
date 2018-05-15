@@ -70,9 +70,9 @@
         <td><{ item.OpenId }></td>
         <td><{ item.UnionId }></td>
         <td>
-        <a href="/admin/manage/control/open?id=<{ item.Id }>"  class="layui-btn layui-btn-primary layui-btn-small" title="开红包中雷">开红包中雷</a>
-        <a href="/admin/manage/control/send?id=<{ item.Id }>"  class=" layui-btn layui-btn-primary layui-btn-small" title="发红包中雷">发红包中雷</a>
-        <a href="/admin/manage/control/del?id=<{ item.Id }>"  class=" layui-btn layui-btn-primary layui-btn-small" title="正常">正常</a>
+        <a href="/admin/manage/control/open?id=<{ item.Id }>"  class=" control_contoer layui-btn layui-btn-primary layui-btn-small" title="开红包中雷">开红包中雷</a>
+        <a href="/admin/manage/control/send?id=<{ item.Id }>"  class="  control_contoer layui-btn layui-btn-primary layui-btn-small" title="发红包中雷">发红包不中雷</a>
+        <a href="/admin/manage/control/del?id=<{ item.Id }>"  class=" control_contoer layui-btn layui-btn-primary layui-btn-small" title="正常">正常</a>
         </td>
         <td>
             <a href="" data-index="<{ index }>" class="list_edit_btn layui-btn layui-btn-primary layui-btn-small" title="编辑"><i class="layui-icon">&#xe642;</i></a>
@@ -315,6 +315,22 @@
 
         //用户充值表单
         common.bindAjax("submit", "#form_recharge", function (e) {
+            e.preventDefault();
+            return true
+        },function (data, res) {
+            if(res.code > 0){
+                common.msg("成功", res.msg);
+                //渲染列表
+                $("#form_list").submit()
+            }else {
+                common.msg("失败", res.msg);
+            }
+        });
+
+        $("#form_list").submit();
+
+        //用户充值表单
+        common.bindAjax("click", ".control_contoer", function (e) {
             e.preventDefault();
             return true
         },function (data, res) {
