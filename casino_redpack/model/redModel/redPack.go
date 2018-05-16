@@ -226,7 +226,7 @@ func getOpenRedMoney(lost_money int, lost_person int,id uint32,L int,u *userMode
 		log.T("尾数:%d",weishu)
 		if redstatus.Status.Send == 1 {
 			log.T("红包设置的是：中雷")
-			if weishu != L {
+			if weishu == L {
 				log.T("开红包算法------------------------------------------------------%d",u.Id)
 				res_score := getOpenRedMoney(lost_money, lost_person,id ,L ,u )
 				if res_score == 0 {
@@ -241,7 +241,7 @@ func getOpenRedMoney(lost_money int, lost_person int,id uint32,L int,u *userMode
 			return res_score
 		}
 		log.T("红包设置的是：不中雷")
-		if weishu == L {
+		if weishu != L {
 			log.T("开红包算法------------------------------------------------------%d",u.Id)
 			res_score := getOpenRedMoney(lost_money, lost_person,id ,L ,u )
 			if res_score == 0 {
