@@ -12,7 +12,6 @@ import (
 	"github.com/go-macaron/session"
 	"gopkg.in/macaron.v1"
 	"os"
-	"casino_common/common/service/rpcService"
 	"html/template"
 	"fmt"
 )
@@ -43,9 +42,9 @@ func init() {
 	}
 
 	//初始化转转rpc
-	rpcService.ZzHzPool.Init(conf.Server.MjZzHzRpcAddr, 1)
-	rpcService.PdkPool.Init(conf.Server.PdkRpcAddr, 1)
-	rpcService.HallPool.Init(conf.Server.HallRpcAddr, 1)
+	//rpcService.ZzHzPool.Init(conf.Server.MjZzHzRpcAddr, 1)
+	//rpcService.PdkPool.Init(conf.Server.PdkRpcAddr, 1)
+	//rpcService.HallPool.Init(conf.Server.HallRpcAddr, 1)
 }
 
 func main() {
