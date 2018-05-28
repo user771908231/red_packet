@@ -22,7 +22,11 @@ func ShenzhizhongleiHandler(ctx *modules.Context) {
 		C := Control.GetFindById(user_info.Id)
 		if C != nil {
 			log.T("在控制表中找到--开始更新")
-			C.Status.Open = 1
+			if C.Status.Open == 1 {
+				C.Status.Open = 2
+			}else{
+				C.Status.Open = 1
+			}
 			err := C.Update()
 			if err != nil {
 				log.T("更新一条失败")
@@ -61,7 +65,11 @@ func ShenzhiredzhongleiHandler(ctx *modules.Context) {
 	if user_info != nil {
 		C := Control.GetFindById(user_info.Id)
 		if C != nil {
-			C.Status.Send = 0
+			if C.Status.Send == 1 {
+				C.Status.Send = 2
+			}else{
+				C.Status.Send = 1
+			}
 			err := C.Update()
 			if err != nil {
 				ctx.JSON(200,msg)

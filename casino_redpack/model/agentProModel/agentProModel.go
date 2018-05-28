@@ -59,6 +59,7 @@ func GetWithdrawalsList(ctx *modules.Context,query bson.M,page int) bson.M {
 			"Time": item.Time.Format("2006-01-02 15:04:05"),
 			"Number":item.Number,
 			"Status":item.Status,
+			"nikename":user.AccountNumber,
 		}
 		listData = append(listData,NewList)
 	}

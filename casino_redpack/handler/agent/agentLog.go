@@ -5,6 +5,7 @@ import (
 	"casino_redpack/model/agentModel"
 	"gopkg.in/mgo.v2/bson"
 	"math"
+	"casino_redpack/model/userModel"
 )
 
 func AgentRebateLog(ctx *modules.Context) {
@@ -17,6 +18,8 @@ func AgentRebateLog(ctx *modules.Context) {
 			"agent_id":item.AgentId,
 			"rebate_money":agentModel.FloatValue(item.RebateMoeny,2),
 			"rebate_id":item.RebateId,
+			"nickname":userModel.GetUsernicknameById(item.AgentId),
+			"rebate_nickname":userModel.GetUsernicknameById(item.RebateId),
 		}
 		list_data = append(list_data,row)
 	}

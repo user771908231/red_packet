@@ -22,7 +22,9 @@
     <tr>
         <th>ID</th>
         <th>代理Id</th>
+        <th>代理昵称</th>
         <th>用户ID</th>
+        <th>用户昵称</th>
         <th>返利金币</th>
     </tr>
     </thead>
@@ -31,7 +33,9 @@
         <tr>
             <td>{{$v.id}}</td>
             <td>{{$v.agent_id}}</td>
+            <td>{{$v.nickname}}</td>
             <td>{{$v.rebate_id}}</td>
+            <td>{{$v.rebate_nickname}}</td>
             <td>{{$v.rebate_money}}</td>
         </tr>
     {{end}}

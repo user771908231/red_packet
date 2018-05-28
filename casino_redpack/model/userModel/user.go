@@ -134,6 +134,21 @@ func GetUserById(id uint32) *User {
 	}
 	return user_row
 }
+//通过id获取用户昵称
+func GetUsernicknameById(id uint32) string {
+	var err error = nil
+	user_row := new(User)
+	err = db.C(USER_TABLE_NAME).Find(bson.M{
+		"id": id,
+	}, user_row)
+	if err != nil {
+		return ""
+	}
+	if user_row.AccountNumber != "" {
+		return user_row.AccountNumber
+	}
+	return user_row.NickName
+}
 
 //验证密码密码
 func Login(user_name string, passwd string) *User {

@@ -239,16 +239,23 @@ func getOpenRedMoney(lost_money int, lost_person int,id uint32,L int,u *userMode
 				res_score = 1
 			}
 			return res_score
-		}
-		log.T("红包设置的是：不中雷")
-		if weishu != L {
-			log.T("开红包算法------------------------------------------------------%d",u.Id)
-			res_score := getOpenRedMoney(lost_money, lost_person,id ,L ,u )
+		}else if redstatus.Status.Send == 2 {
+			log.T("红包设置的是：不中雷")
+			if weishu != L {
+				log.T("开红包算法------------------------------------------------------%d",u.Id)
+				res_score := getOpenRedMoney(lost_money, lost_person,id ,L ,u )
+				if res_score == 0 {
+					res_score = 1
+				}
+				return res_score
+			}
+
 			if res_score == 0 {
 				res_score = 1
 			}
 			return res_score
 		}
+		log.T("红包设置的是：随机")
 
 		if res_score == 0 {
 			res_score = 1
@@ -273,15 +280,21 @@ func getOpenRedMoney(lost_money int, lost_person int,id uint32,L int,u *userMode
 				res_score = 1
 			}
 			return res_score
-		}
-		if weishu != L {
-			log.T("开红包算法------------------------------------------------------%d", u.Id)
-			res_score := getOpenRedMoney(lost_money, lost_person, id, L, u)
+		}else if sendstatus.Status.Open == 2 {
+			if weishu != L {
+				log.T("开红包算法------------------------------------------------------%d", u.Id)
+				res_score := getOpenRedMoney(lost_money, lost_person, id, L, u)
+				if res_score == 0 {
+					res_score = 1
+				}
+				return res_score
+			}
 			if res_score == 0 {
 				res_score = 1
 			}
 			return res_score
 		}
+
 		if res_score == 0 {
 			res_score = 1
 		}

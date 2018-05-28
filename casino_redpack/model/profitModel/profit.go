@@ -74,7 +74,7 @@ func GetSelectProfit(query bson.M,page int) bson.M {
 		row := bson.M{
 			"id":item.Id.Hex(),
 			"user":item.UserId,
-			"name":item.Name,
+			"name":userModel.GetUsernicknameById(item.UserId),
 			"money":fmt.Sprintf("%.2f",item.ProfitMoney),
 		}
 		zong += item.ProfitMoney
