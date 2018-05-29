@@ -6,11 +6,11 @@ import (
 	"casino_common/utils/db"
 	"casino_common/common/consts/tableName"
 	"casino_redpack/model/weixinModel"
-	"casino_redpack/modules"
 	"math"
 	"casino_redpack/model/userModel"
 	"fmt"
 	"casino_redpack/handler/weixin"
+	"casino_redpack/handler/redpack"
 )
 
 //代理申请记录
@@ -29,7 +29,7 @@ func (t *AgentProRecordRow) Insert() error {
 	return db.C(tableName.DBT_APPLY_AGENTPRO_RECORD).Insert(t)
 }
 
-func GetWithdrawalsList(ctx *modules.Context,query bson.M,page int) bson.M {
+func GetWithdrawalsList(query bson.M,page int) bson.M {
 
 	Data := []*weixinModel.Withdrawals{}
 	_,count := db.C(tableName.TABLE_WITHDRAWALS_LISTS).Page(query,&Data, "endtime", page, 20)
@@ -54,12 +54,13 @@ func GetWithdrawalsList(ctx *modules.Context,query bson.M,page int) bson.M {
 			fmt.Println("null",err)
 		}
 		NewList := bson.M{
-			"Id":item.ObjId.Hex(),
-			"username":user.NickName,
+			"id":item.ObjId.Hex(),
+			"username":userModel.GetUsernicknameById(item.UserId),
 			"Time": item.Time.Format("2006-01-02 15:04:05"),
 			"Number":item.Number,
 			"Status":item.Status,
 			"nikename":user.AccountNumber,
+			"banck":userBanck(item.UserId),
 		}
 		listData = append(listData,NewList)
 	}
@@ -69,6 +70,21 @@ func GetWithdrawalsList(ctx *modules.Context,query bson.M,page int) bson.M {
 
 }
 
+func userBanck(uid uint32) []bson.M {
+	data := redpack.GetUserBanck(uid)
+	list := []bson.M{}
+	for _,item := range data {
+		row := bson.M{
+			"acct_no": item.AcctNo,
+			"acct_name": item.AcctName,
+			"acct_bank_name": item.AcctBankName,
+			"rec_bank_name": item.RecBankName,
+		}
+		list = append(list,row)
+	}
+	return list
+}
+
 func GetOrderLists(query bson.M,page int)  bson.M {
 	list := bson.M{
 		"code": 0,
@@ -76,13 +92,26 @@ func GetOrderLists(query bson.M,page int)  bson.M {
 		"request": bson.M{},
 	}
 	Data := []*weixin.RechargeOrder{}
-	_,count := db.C(tableName.TABLE_NAME_OPEN_PACKET_LISTS).Page(query,&Data, "-endtime", page, 20)
-
+	_,count := db.C(tableName.TABLE_ORDER_LISTS).Page(query,&Data, "-ordertime", page, 20)
+	data := []bson.M{}
+	for _,item := range Data {
+		row := bson.M{
+			"id":item.ObjId.Hex(),
+			"time":item.OrderTime.Format("2006-01-02 15:04:05"),
+			"userid":item.UserId,
+			"nickname":userModel.GetUsernicknameById(item.UserId),
+			"type":item.OrderType,
+			"number":item.GoodsNunber,
+			"status":item.OrderStatus,
+			"googs":"金币",
+		}
+		data = append(data,row)
+	}
 	if count != 0{
 		list["code"] = 1
 		list["message"] = "success"
 		list["count"] = count
-		list["request"] = bson.M{}
+		list["request"] = data
 	}
 	return list
 }

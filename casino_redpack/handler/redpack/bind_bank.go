@@ -17,7 +17,7 @@ func BindBankHandler(ctx *modules.Context) {
 //银行卡列表
 func BankListHandler(ctx *modules.Context) {
 
-	data := getUserBanck(ctx.IsLogin().Id)
+	data := GetUserBanck(ctx.IsLogin().Id)
 
 	ctx.JSON(200,bson.M{"code": 1,
 		"message": "success",
@@ -46,7 +46,7 @@ func (U *UserBanck) Inerst() error {
 	return err
 }
 
-func getUserBanck(id uint32) []*UserBanck {
+func GetUserBanck(id uint32) []*UserBanck {
 	data := []*UserBanck{}
 	err := db.C(tableName.TABLE_REDPACK_BANCK_LOG).FindAll(bson.M{"userid":id},&data)
 	if err != nil {

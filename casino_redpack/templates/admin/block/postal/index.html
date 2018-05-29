@@ -7,10 +7,12 @@
     <thead>
     <tr>
         <th>ID</th>
-        <th>用户</th>
+        <th>用户ID</th>
+        <th>用户昵称</th>
         <th>数量</th>
         <th>时间</th>
         <th>状态</th>
+        <th>类型</th>
         <th>物品</th>
         <th>操作</th>
     </tr>
@@ -18,15 +20,17 @@
     <tbody id="Data">
     {{range $k,$v := $.Postal.request}}
     <tr>
-        <td>{{$v.Id}}</td>
-        <td>{{$v.UserId}}</td>
-        <td>{{$v.OrderNumber}}</td>
-        <td>{{$v.OrderMoney}}</td>
-        <td>{{$v.OrderTime}}</td>
-        <td>{{$v.OrderGoods}}</td>
+        <td>{{$v.id}}</td>
+        <td>{{$v.userid}}</td>
+        <td>{{$v.nickname}}</td>
+        <td>{{$v.number}}</td>
+        <td>{{$v.time}}</td>
+        <td>{{if eq  $v.status 1}} 已支付{{else}}未支付{{end}}</td>
+        <td>{{if eq  $v.type 1}} 在线充值{{else}}管理员充值{{end}}</td>
+        <td>{{$v.googs}}</td>
         <td>
-            <a href='/admin/manage/Withdrawals/operation?id=&types=ok' class="layui-btn layui-btn-sm agree-btn" type="button">同意</a>
-            <a class="layui-btn layui-btn-sm layui-btn-normal agree-btn" href='/admin/manage/Withdrawals/operation?id=&types=no' type="button">拒绝</a>
+            {{/*<a href='/admin/manage/Withdrawals/operation?id=&types=ok' class="layui-btn layui-btn-sm agree-btn" type="button">同意</a>*/}}
+            {{/*<a class="layui-btn layui-btn-sm layui-btn-normal agree-btn" href='/admin/manage/Withdrawals/operation?id=&types=no' type="button">拒绝</a>*/}}
             <a class="layui-btn layui-btn-sm layui-btn-danger agree-btn" href='/admin/manage/Withdrawals/operation?id=&types=del' type="button">删除</a>
         </td>
     </tr>

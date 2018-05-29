@@ -42,7 +42,7 @@ type RechargeOrder struct {
 	OrderMoney		float64		//订单价格
 	OrderTime		time.Time	//订单生成时间
 	OrderStatus		int64		//订单状态	0 未支付 1 支付
-	OrderType		int64		//订单类型	1 充值
+	OrderType		int64		//订单类型	1 在线充值	2 管理员充值
 	OrderGoods		string		//订单物品
 	GoodsNunber		int64		//物品数量
 	OrderDeleteStatus	int64	//是否删除 0 删除 1 未删除

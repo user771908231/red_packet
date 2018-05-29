@@ -12,6 +12,7 @@
         <th>昵称</th>
         <th>数量</th>
         <th>时间</th>
+        <th>银行卡</th>
         <th>状态</th>
         <th>操作</th>
     </tr>
@@ -24,6 +25,27 @@
         <td>{{$v.nikename}}</td>
         <td>{{$v.Number}}</td>
         <td>{{$v.Time}}</td>
+        <td>
+            <table>
+                <thead>
+                <tr>
+                    <th>收款人</th>
+                    <th>银行名</th>
+                    <th>开户行</th>
+                    <th>卡号</th>
+                </tr>
+                </thead>
+        {{range $i,$u := $v.banck}}
+                <tr>
+                    <td>{{$u.acct_no}}</td>
+                    <td>{{$u.acct_name}}</td>
+                    <td>{{$u.acct_bank_name}}</td>
+                    <td>{{$u.rec_bank_name}}</td>
+                </tr>
+        {{end}}
+            </table>
+
+        </td>
         <td>
         {{if eq $v.Status 0}}未受理{{end}}
         {{if eq $v.Status 1}}已受理{{end}}

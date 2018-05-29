@@ -93,7 +93,7 @@ func PostalHandle(ctx *modules.Context)  {
 	page := ctx.QueryInt("page")
 	fmt.Println("status:",status,"page:",page)
 	switch status {
-	case 1:
+	case 0:
 		query := bson.M{}
 		data := agentProModel.GetOrderLists(query,page)
 		ctx.Data["Postal"] = data
@@ -113,7 +113,7 @@ func WithdrawalsHandle(ctx *modules.Context)  {
 			"acceptanceid" : 0,
 			"status":0,
 		}
-		data := agentProModel.GetWithdrawalsList(ctx,query,pages)
+		data := agentProModel.GetWithdrawalsList(query,pages)
 		ctx.Data["withdrawals"] = data
 
 
@@ -122,7 +122,7 @@ func WithdrawalsHandle(ctx *modules.Context)  {
 			"acceptanceid" : bson.M{"$gt":0},
 			"status":2,
 		}
-		data := agentProModel.GetWithdrawalsList(ctx,query,pages)
+		data := agentProModel.GetWithdrawalsList(query,pages)
 		ctx.Data["withdrawals"] = data
 
 	case 3:
@@ -130,7 +130,7 @@ func WithdrawalsHandle(ctx *modules.Context)  {
 			"acceptanceid" :bson.M{"$gt":0},
 			"status":1,
 		}
-		data := agentProModel.GetWithdrawalsList(ctx,query,pages)
+		data := agentProModel.GetWithdrawalsList(query,pages)
 		ctx.Data["withdrawals"] = data
 
 	default:
@@ -141,7 +141,7 @@ func WithdrawalsHandle(ctx *modules.Context)  {
 				"$lte" : 2,
 			},
 		}
-		data := agentProModel.GetWithdrawalsList(ctx,query,pages)
+		data := agentProModel.GetWithdrawalsList(query,pages)
 		ctx.Data["withdrawals"] = data
 
 	}

@@ -14,6 +14,9 @@ import (
 	"time"
 	"casino_redpack/model/userModel"
 
+	//"casino_common/common/service/tradeLogService"
+	//"casino_common/proto/ddproto"
+	"casino_redpack/handler/weixin"
 )
 
 type User struct {
@@ -363,6 +366,15 @@ func RechargeHandler(ctx *modules.Context, form RechargeForm, errs binding.Error
 	//}
 	//err = pushService.PushUserData(form.Id)
 	//log.Println("push userData:", err)
+	//tradeLogService.Add(form.Id,ddproto.HallEnumTradeType_TRADE_COIN,float64(form.Coin),float64(form.Coin),"管理员充值")
+	oredr := new(weixin.RechargeOrder)
+	oredr.UserId = form.Id
+	oredr.OrderType = 2
+	oredr.OrderGoods = "金币"
+	oredr.GoodsNunber= form.Coin
+	oredr.Insert()
+	oredr.OrderStatus = 1
+	oredr.Update()
 	ctx.Ajax(1, "充值成功！", form)
 	//userService.SyncMgoUserMoney(form.Id) //同步user的数据到mgo
 }
