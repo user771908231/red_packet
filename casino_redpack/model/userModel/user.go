@@ -166,7 +166,22 @@ func Login(user_name string, passwd string) *User {
 	}
 	return user_row
 }
-
+//验证ID密码
+func IDLogin(user_name uint32, passwd string) *User {
+	var err error = nil
+	user_row := new(User)
+	h := md5.New()
+	h.Write([]byte(passwd))
+	passwd = hex.EncodeToString(h.Sum(nil))
+	err = db.C(USER_TABLE_NAME).Find(bson.M{
+		"id": user_name,
+		"passwd":   passwd,
+	}, user_row)
+	if err != nil {
+		return nil
+	}
+	return user_row
+}
 //验证手机号 密码
 func   TableValues(name string,user_name string , passwd_one string , passwd_two string,extension_id int32) (error,string){
 	_,Msg := JudgeMobilePhoneWhetherSignuo(user_name)
